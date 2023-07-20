@@ -50,13 +50,17 @@ class BaseInfo extends PureComponent {
       startValue: "",
       activeselectedRows: [],
       activeselectedRowKeys: "",
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      archInfo: []
     };
   }
 
   // shouldComponentUpdate(){
   //     return true
   // }
+  componentDidMount() {
+    this.handleArchCpuInfo()
+  }
   handleSubmit = e => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -64,6 +68,34 @@ class BaseInfo extends PureComponent {
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
+  handleArchCpuInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            archInfo: res.list
+          },()=>{
+            const { memoryList, archInfo } = this.state
+            const info = memoryList
+            if(memoryList && memoryList.length > 0 && archInfo && archInfo.length >0){
+              info.map(item => {
+                item.arch = archInfo[0]
+              })
+            }
+            this.setState({
+              memoryList: info
+            })
+          })
+        }
+      }
+    });
+  }
 
   handleEdit = editData => {
     let buildValue = "";
@@ -91,6 +123,7 @@ class BaseInfo extends PureComponent {
       arr.map(item => {
         if (item.id == editData.id) {
           item.cname = fieldsValue.cname;
+          item.arch = fieldsValue.arch;
           item.envs.map(item => {
             item.name == "BUILD_MAVEN_CUSTOM_OPTS"
               ? (item.value = fieldsValue.BUILD_MAVEN_CUSTOM_OPTS)
@@ -163,7 +196,8 @@ class BaseInfo extends PureComponent {
         rowKey: "envs",
         width: "45%",
 
-        render: (val, index) => {
+        render: (val, row, index) => {
+          const { archInfo } = this.state
           let CUSTOM_OPTS = "";
           let CUSTOM_GOALS = "";
           let startValue = "";
@@ -181,18 +215,24 @@ class BaseInfo extends PureComponent {
 
           return (
             <div key={index}>
-              <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.OPTS'})}:</p>
+              <div style={{ display: "flex", marginBottom:6 }}>
+                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.OPTS' })}:</p>
                 <div style={{ width: "70%" }}>{CUSTOM_OPTS}</div>
               </div>
-              <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.GOALS'})}:</p>
+              <div style={{ display: "flex", marginBottom:6 }}>
+                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.GOALS' })}:</p>
                 <div style={{ width: "70%" }}>{CUSTOM_GOALS}</div>
               </div>
-              <div style={{ display: "flex" }}>
-                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.startValue'})}:</p>
+              <div style={{ display: "flex", marginBottom:6 }}>
+                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.startValue' })}:</p>
                 <div style={{ width: "70%" }}>{startValue}</div>
               </div>
+              {(row.arch || (archInfo && archInfo.length >= 1)) &&
+                <div style={{ display: "flex", marginBottom:6 }}>
+                  <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.arch'})}:</p>
+                  <div style={{ width: "70%" }}>{row.arch || archInfo[0]}</div>
+                </div>
+              }
             </div>
           );
         }
@@ -273,7 +313,7 @@ class BaseInfo extends PureComponent {
         }
       }
     };
-    const { memoryList, isEdit, editData, buildValue, startValue, language } = this.state;
+    const { memoryList, isEdit, editData, buildValue, startValue, language, archInfo } = this.state;
     const isLanguage = language ? formItemLayout : en_formItemLayout
     return (
       <div>
@@ -317,6 +357,18 @@ class BaseInfo extends PureComponent {
                 ]
               })(<TextArea placeholder="" />)}
             </Form.Item>
+            {archInfo && archInfo.length > 0 &&
+              <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.arch'})}>
+                {getFieldDecorator("arch", {
+                  initialValue: editData.arch || (archInfo && archInfo.length > 0 && archInfo[0]),
+                })(
+                  <Radio.Group>
+                    {archInfo.map(item =>{
+                      return <Radio value={item}>{item}</Radio>
+                    })}
+                  </Radio.Group>)}
+              </Form.Item>
+            }
           </Modal>
         )}
         <Table
