@@ -75,7 +75,6 @@ const appOverview = {
   'appOverview.list.btn.addComponent.jwar': 'Jar、War',
   'appOverview.list.btn.addComponent.yaml': 'Yaml',
   'appOverview.list.btn.addComponent.project': 'Project',
-
   //helm 应用
   'appOverview.helm.title': 'Service instance',
   'appOverview.helm.componentDetail': 'Component details',
@@ -499,6 +498,7 @@ const JavaMaven = {
   'JavaMaven.start_input':'Enter the startup command',
   'JavaMaven.title':'JavaMaven Multi-module Settings',
   'JavaMaven.Tooltip':'Deselect this option to start without the build.',
+  'JavaMaven.arch':'cpu architecture',
 }
 const helmAppInstall = {
   //安装检测主页

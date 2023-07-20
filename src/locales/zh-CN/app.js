@@ -505,6 +505,7 @@ const JavaMaven = {
   'JavaMaven.start_input':'请输入启动命令',
   'JavaMaven.title':'JavaMaven多模块设置',
   'JavaMaven.Tooltip':'取消本选项,不构建启动。',
+  'JavaMaven.arch':'cpu架构',
 }
 const helmAppInstall = {
   //安装检测主页

@@ -118,6 +118,10 @@ export default class Index extends PureComponent {
               );
             } else {
               this.addAppStore(info.repo_url, info.repo_name, this.props.currUser.enterprise_id)
+              this.setState({
+                errorShow: false,
+                BtnLoading: false,
+              })
             }
           } else {
             notification.error({
