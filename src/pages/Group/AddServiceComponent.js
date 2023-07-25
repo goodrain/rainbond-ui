@@ -551,6 +551,7 @@ export default class AddServiceComponent extends PureComponent {
             <Market
               {...MarketParameter}
               isHelm={true}
+              cancelAddService={this.cancelAddService}
               isAddMarket={true}
               scopeMax={scopeProMax || 'localApplication'}
               handleServiceComponent={() => {

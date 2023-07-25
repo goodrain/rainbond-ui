@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({id:'teamAdd.create.market.market'})}</p>
                             <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>): (<span>(0)</span>)}</p>
-
+                            <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({id:'teamAdd.create.market.command'})}</p>
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

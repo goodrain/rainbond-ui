@@ -37,6 +37,7 @@ import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import CommandMarket from './command-market';
 import sourceUtil from '../../utils/source-unit';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PluginStyles from '../Plugin/Index.less';
@@ -105,6 +106,10 @@ export default class Main extends PureComponent {
         {
           key: 'localApplication',
           tab: formatMessage({id:'popover.applicationMarket.local'})
+        },
+        {
+          key: 'command',
+          tab: formatMessage({id:'teamAdd.create.market.command'})
         }
       ],
       rainStoreTab: [],
@@ -161,6 +166,7 @@ export default class Main extends PureComponent {
     });
   }
   onCancelCreate = () => {
+    console.log("onCancelCreate")
     this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {
@@ -454,7 +460,7 @@ export default class Main extends PureComponent {
           this.getApps('reset');
         } else if (key.indexOf('Helm-') > -1) {
           this.getHelmAppStore(key.slice(5));
-        } else {
+        } else if(key != 'command') {
           this.getCloudRecommendApps('reset');
         }
       }
@@ -1045,6 +1051,7 @@ export default class Main extends PureComponent {
       helmStoreTab,
       helmInfoSwitch,
       marketInfoSwitch,
+      archInfo
     } = this.state;
     const keyword = this.props.match && this.props.match.params && this.props.match.params.keyword || '';
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
@@ -1190,6 +1197,7 @@ export default class Main extends PureComponent {
           textAlign: 'center'
         }}
       >
+        {scopeMax != 'command' &&
         <span id="searchWrap" style={{ display: 'inline-block' }}>
           <Input.Search
             // eslint-disable-next-line react/no-string-refs
@@ -1210,7 +1218,7 @@ export default class Main extends PureComponent {
               width: 500
             }}
           />
-        </span>
+        </span>}
       </div>
     );
 
@@ -1348,7 +1356,7 @@ export default class Main extends PureComponent {
             {this.renderFormComponent()}
           </Modal>
         )}
-
+        
         {marketTab && marketTab.length > 0 && isAddMarket ?(
           <div>
             <PageHeaderComponent
@@ -1393,6 +1401,18 @@ export default class Main extends PureComponent {
                 >
                   
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
+                </div>
+              ) : scopeMax === 'command' ? (
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
+                  <CommandMarket {...this.props} archInfo={archInfo}/>
                 </div>
               ) : (
                 <div>
@@ -1472,6 +1492,18 @@ export default class Main extends PureComponent {
                   }}
                 >
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
+                </div>
+              ): scopeMax === 'command' ? (
+                <div
+                  style={{
+                    marginBottom:
+                      !moreState &&
+                      handleType &&
+                      handleType === 'Service' &&
+                      '40px'
+                  }}
+                >
+                  <CommandMarket {...this.props} archInfo={archInfo}/>
                 </div>
               ) :  helmInfoSwitch && marketInfoSwitch ? (
                 <div>

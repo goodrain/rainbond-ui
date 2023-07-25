@@ -114,13 +114,16 @@ class Index extends React.Component {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, thirdInfo, onSubmit } = this.props;
+    const { form, thirdInfo, onSubmit, archInfo } = this.props;
     const { tagsLoading } = this.state;
     if (tagsLoading) {
       return null;
     }
     form.validateFields((err, values) => {
       if (!err) {
+        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+          values.arch = archInfo[0]
+        }
         const info = Object.assign({}, values);
         info.project_id = thirdInfo.project_id;
         info.project_url = values.subdirectories
@@ -366,26 +369,18 @@ class Index extends React.Component {
                 rules: [{ required: true, message: '请选择' }]
               })(<Switch />)}
             </Form.Item>
+           {archLegnth == 2 &&
             <Form.Item {...formItemLayoutOrder} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Radio.Group>
-                {archLegnth == 2 ? (
-                  <>
-                    <Radio value='amd64'>amd64</Radio>
-                    <Radio value='arm64'>arm64</Radio>
-                  </>
-                ) : (
-                  <>
-                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
-                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
-                  </>
-                )}
+                <Radio value='amd64'>amd64</Radio>
+                <Radio value='arm64'>arm64</Radio>
               </Radio.Group>
             )}
-          </Form.Item>
+           </Form.Item>}
 
             {showSubmitBtn ? (
               <div style={{ textAlign: 'center' }}>

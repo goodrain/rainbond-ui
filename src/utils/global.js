@@ -1692,6 +1692,25 @@ const global = {
           >
           </path>
         </svg>
+      ),
+      command_drawer_store:(
+        <svg 
+          t="1690264803495" 
+          class="icon" 
+          viewBox="0 0 1024 1024" 
+          version="1.1" 
+          xmlns="http://www.w3.org/2000/svg" 
+          p-id="3072" 
+          width="40" 
+          height="40"
+        >
+          <path 
+            d="M64 112v800h896V112H64z m846 750H114V162h796v700zM234.6 688.8L411.3 512 234.6 335.2l35.4-35.4L482.1 512 269.9 724.1l-35.3-35.3z m554.8-10.2h-300v-50h300v50z" 
+            fill="#2e6be6" 
+            p-id="3073"
+          >
+          </path>
+        </svg>
       )
     };
     return svgType[type] || type;

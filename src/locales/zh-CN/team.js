@@ -111,6 +111,7 @@ const teamAdd = {
   //market
   'teamAdd.create.market.desc':'从本地组件库或应用商店一键安装应用。',
   'teamAdd.create.market.market':'外部应用市场（100+）',
+  'teamAdd.create.market.command':'命令行安装',
   //third
   'teamAdd.create.third.title':'添加第三方组件',
   'teamAdd.create.third.desc':'第三方组件，即运行于平台集群外的组件，在平台中创建组件即可以将其与平台网关无缝对接。同时也可以被平台内服务访问，满足用户通过平台对各类组件进行统一的监控和管理的需要。',

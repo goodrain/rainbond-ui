@@ -112,6 +112,7 @@ const teamAdd = {
   //market
   'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',
   'teamAdd.create.market.market':'External application market (100+)',
+  'teamAdd.create.market.command':'Command line installation',
   //third
   'teamAdd.create.third.title':'Adding Third Party Component',
   'teamAdd.create.third.desc':'Third-party components are components that run outside the platform cluster. Creating a component on a platform can connect it seamlessly to the platform gateway and be accessed by services on the platform. To meet the users through the platform can be unified monitoring and management of various components.',

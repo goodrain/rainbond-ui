@@ -93,12 +93,16 @@ export default class ChangeBuildSource extends PureComponent {
     });
   }
   handleSubmit = () => {
-    const { form } = this.props;
+    const { form, buildSource } = this.props;
     const { tabValue } = this.state
+    const archLegnth = buildSource.arch.length
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.version_type == 'tag') {
         fieldsValue.code_version = 'tag:'.concat(fieldsValue.code_version);
+      }
+      if(archLegnth && archLegnth == 2 && archLegnth != 0){
+        fieldsValue.arch = buildSource.arch[0]
       }
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
@@ -299,16 +303,17 @@ export default class ChangeBuildSource extends PureComponent {
                     />
                   )}
                 </Form.Item>
+                {archLegnth == 2 && 
                 <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
                   {getFieldDecorator('arch', {
                     initialValue: archLegnth == 2 ? archInfo : (archLegnth == 1 && buildSource.arch[0]),
                   })(
                     <Radio.Group onChange={this.onChangeCpu}>
-                      <Radio value='amd64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'amd64') ? false : true}>amd64</Radio>
-                      <Radio value='arm64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'arm64') ? false : true}>arm64</Radio>
+                      <Radio value='amd64'>amd64</Radio>
+                      <Radio value='arm64'>arm64</Radio>
                     </Radio.Group>
                   )}
-                </Form.Item>
+                </Form.Item>}
               </Form>
             )}
 
@@ -366,16 +371,17 @@ export default class ChangeBuildSource extends PureComponent {
                     />
                   )}
                 </Form.Item>
+                {archLegnth == 2 && 
                 <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
                   {getFieldDecorator('arch', {
                     initialValue: archLegnth == 2 ? archInfo : (archLegnth == 1 && buildSource.arch[0]),
                   })(
-                    <Radio.Group>
-                      <Radio value='amd64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'amd64') ? false : true}>amd64</Radio>
-                      <Radio value='arm64' disabled={archLegnth == 2 ? false : (archLegnth == 1 && buildSource.arch[0] == 'arm64') ? false : true}>arm64</Radio>
+                    <Radio.Group onChange={this.onChangeCpu}>
+                      <Radio value='amd64'>amd64</Radio>
+                      <Radio value='arm64'>arm64</Radio>
                     </Radio.Group>
                   )}
-                </Form.Item>
+                </Form.Item>}
               </Form>
             )}
           </TabPane>

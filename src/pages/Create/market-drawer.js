@@ -101,6 +101,10 @@ import {
           {
             key: 'localApplication',
             tab: formatMessage({id:'popover.applicationMarket.local'})
+          },
+          {
+            key: 'command',
+            tab: formatMessage({id:'teamAdd.create.market.command'})
           }
         ],
         rainStoreTab: [],
@@ -422,7 +426,7 @@ import {
             this.getApps('reset');
           } else if (key.indexOf('Helm-') > -1) {
             this.getHelmAppStore(key.slice(5));
-          } else {
+          } else if(key != 'command'){
             this.getCloudRecommendApps('reset');
           }
         }
@@ -953,8 +957,9 @@ import {
         addAppLoading,
         localAppTab,
         rainStoreTab,
-        helmStoreTab
+        helmStoreTab,
       } = this.state;
+      
       const dockerSvg = globalUtil.fetchSvg('dockerSvg');
       const setHideOnSinglePage = !!moreState;
       const paginationProps = {
@@ -996,7 +1001,6 @@ import {
           isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');
         }
       }
-  
       const mores = handleType &&
         moreState &&
         ((scopeMax === 'localApplication' && list && list.length > 0) ||
@@ -1099,6 +1103,7 @@ import {
             textAlign: 'center'
           }}
         >
+          {scopeMax != 'command' &
           <span id="searchWrap" style={{ display: 'inline-block' }}>
             <Input.Search
               // eslint-disable-next-line react/no-string-refs
@@ -1119,7 +1124,7 @@ import {
                 width: 500
               }}
             />
-          </span>
+          </span>}
         </div>
       );
   
@@ -1205,7 +1210,6 @@ import {
             />
           )}
         
-  
           {marketTab && marketTab.length > 0 && (
             <div>
               <PageHeaderLayout
@@ -1237,6 +1241,7 @@ import {
                   />
                 )}
                 {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
+                  
                   <div>{helmLoading ? SpinBox : helmCardList}</div>
                 ) : scopeMax === 'localApplication' ? (
                   <div
