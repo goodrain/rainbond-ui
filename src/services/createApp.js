@@ -525,3 +525,17 @@ export async function installHelmAppCmd(body = {}, handleError) {
     }
   );
 }
+// ram命令行安装
+export async function installRamAppCmd(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/cmd_create`,
+    {
+      method: 'post',
+      data: {
+        group_id: body.group_id,
+        cmd: body.command
+      },
+      handleError
+    }
+  );
+}

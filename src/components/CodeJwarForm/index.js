@@ -64,12 +64,15 @@ export default class Index extends PureComponent {
   //表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch } = this.props;
+    const { form, dispatch, archInfo } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
+      if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        value.arch = archInfo[0]
+      }
       if (existFileList.length > 0) {
         dispatch({
           type: "createApp/createJarWarFormSubmit",
@@ -416,26 +419,18 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
+           {archLegnth == 2 &&
             <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Radio.Group>
-                {archLegnth == 2 ? (
-                  <>
-                    <Radio value='amd64'>amd64</Radio>
-                    <Radio value='arm64'>arm64</Radio>
-                  </>
-                ) : (
-                  <>
-                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
-                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
-                  </>
-                )}
+                <Radio value='amd64'>amd64</Radio>
+                <Radio value='arm64'>arm64</Radio>
               </Radio.Group>
             )}
-          </Form.Item>
+          </Form.Item>}
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },

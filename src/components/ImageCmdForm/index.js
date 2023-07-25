@@ -60,9 +60,12 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit } = this.props;
+    const { form, onSubmit, archInfo } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+          fieldsValue.arch = archInfo[0]
+        }
         onSubmit(fieldsValue);
       }
     });
@@ -207,26 +210,18 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
+          {archLegnth == 2 && 
           <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Radio.Group>
-                {archLegnth == 2 ? (
-                  <>
-                    <Radio value='amd64'>amd64</Radio>
-                    <Radio value='arm64'>arm64</Radio>
-                  </>
-                ) : (
-                  <>
-                    {arch == 'amd64' && <Radio value='amd64'>amd64</Radio>}
-                    {arch == 'arm64' && <Radio value='arm64'>arm64</Radio>}
-                  </>
-                )}
+                <Radio value='amd64'>amd64</Radio>
+                <Radio value='arm64'>arm64</Radio>
               </Radio.Group>
             )}
-          </Form.Item>
+          </Form.Item>}
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{

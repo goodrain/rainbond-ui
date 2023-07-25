@@ -10,7 +10,7 @@ import ShowRegionKey from '../../components/ShowRegionKey';
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
-
+const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
     span: 5
@@ -120,23 +120,12 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, archInfo } = this.props;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
       }
-      if (fieldsValue.version_type === 'tag') {
-        // eslint-disable-next-line no-param-reassign
-        fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
-      }
-      if (fieldsValue.subdirectories && fieldsValue.server_type !== 'svg') {
-        // eslint-disable-next-line no-param-reassign
-        fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
-      }
       if (onSubmit) {
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
-          fieldsValue.arch = archInfo[0]
-        }
         onSubmit(fieldsValue);
       }
     });
@@ -224,46 +213,7 @@ export default class Index extends PureComponent {
       arch = archInfo && archInfo[0]
     }
     const is_language = language ? formItemLayout : en_formItemLayout;
-    const gitUrl = getFieldValue('git_url');
-
-    let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
-    // eslint-disable-next-line no-unused-vars
-    let urlCheck = /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    if (serverType === 'svn') {
-      isHttp = true;
-      urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    }
-    if (serverType === 'oss') {
-      isHttp = true;
-    }
-    const isSSH = !isHttp;
-    const showCreateGroups =
-      showCreateGroup === void 0 ? true : showCreateGroup;
-    const prefixSelector = getFieldDecorator('server_type', {
-      initialValue: data.server_type || serverType
-    })(
-      <Select
-        onChange={this.onChangeServerType}
-        style={{ width: 100 }}
-        getPopupContainer={triggerNode => triggerNode.parentNode}
-      >
-        <Option value="git">Git</Option>
-        <Option value="svn">Svn</Option>
-        <Option value="oss">OSS</Option>
-      </Select>
-    );
-    const versionSelector = getFieldDecorator('version_type', {
-      initialValue: this.state.version_type || 'branch'
-    })(
-      <Select
-        style={{ width: 100 }}
-        getPopupContainer={triggerNode => triggerNode.parentNode}
-      >
-        <Option value="branch">{formatMessage({ id: 'teamAdd.create.code.branch' })}</Option>
-        <Option value="tag">Tag</Option>
-      </Select>
-    );
-    // const serverType = getFieldValue("server_type");
+    const showCreateGroups = showCreateGroup === void 0 ? true : showCreateGroup;
     const isService = handleType && handleType === 'Service';
     return (
       <Fragment>
@@ -298,106 +248,14 @@ export default class Index extends PureComponent {
                 <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamOverview.createApp' })}</Button>
               ) : null}
           </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
-            {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
-            })(<Input placeholder={formatMessage({ id: 'placeholder.service_cname' })} />)}
-          </Form.Item>
-          {/* 集群内组件名称 */}
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
-            {getFieldDecorator('k8s_component_name', {
-              rules: [
-                {
-                  required: true,
-                  validator: this.handleValiateNameSpace
-                }
-              ]
-            })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
-          </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.address' })}>
-            {getFieldDecorator('git_url', {
-              initialValue: data.git_url || '',
-              force: true,
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.git_url' }) },
-                { validator: this.checkURL, message: formatMessage({ id: 'placeholder.notGit_url' }) }
-              ]
+          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.docker_cmd'})}>
+            {getFieldDecorator('command', {
+              initialValue: data.docker_cmd || '',
+              rules: [{ required: true, message: '请填写命令' }]
             })(
-              <Input
-                addonBefore={prefixSelector}
-                placeholder={formatMessage({ id: 'placeholder.git_url' })}
-              />
+              <TextArea style={{minHeight:'200px'}} placeholder='请填写命令' />
             )}
           </Form.Item>
-          {gitUrl && isSSH && this.fetchCheckboxGroup('showKey', serverType)}
-          {gitUrl &&
-            isHttp &&
-            this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
-
-          {showUsernameAndPass && isHttp && (
-            <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.user" })}>
-              {getFieldDecorator('username_1', {
-                initialValue: data.username || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
-              })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} />)}
-            </Form.Item>
-          )}
-          {showUsernameAndPass && isHttp && (
-            <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.password" })}>
-              {getFieldDecorator('password_1', {
-                initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
-              })(
-                <Input
-                  autoComplete="new-password"
-                  type="password"
-                  placeholder={formatMessage({ id: 'placeholder.password_1' })}
-                />
-              )}
-            </Form.Item>
-          )}
-
-          {subdirectories && serverType === 'git' && (
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.path' })}>
-              {getFieldDecorator('subdirectories', {
-                initialValue: '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.subdirectories' }) }]
-              })(<Input placeholder={formatMessage({ id: 'placeholder.subdirectories' })} />)}
-            </Form.Item>
-          )}
-          {serverType !== 'oss' && (
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.versions' })}>
-              {getFieldDecorator('code_version', {
-                initialValue: data.code_version || this.getDefaultBranchName(),
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-              })(
-                <Input
-                  addonBefore={versionSelector}
-                  placeholder={formatMessage({ id: 'placeholder.code_version' })}
-                />
-              )}
-            </Form.Item>
-          )}
-
-          {archLegnth == 2 && 
-          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
 
           {showSubmitBtn ? (
             <Form.Item

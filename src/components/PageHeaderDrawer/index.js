@@ -227,10 +227,11 @@ export default class PageHeader extends PureComponent {
                   globalUtil.fetchSvg(
                     key === 'localApplication'
                       ? 'location_drawer_store'
-                      : key.indexOf('Helm-') > -1 ?
-                      'helm_drawer_store'
-                      :
-                      'openSource_drawer_store'
+                      : key.indexOf('Helm-') > -1 
+                      ? 'helm_drawer_store' 
+                      : key === 'command' 
+                      ? 'command_drawer_store'
+                      : 'openSource_drawer_store'
                   )}
                   {/* {!(key === 'localApplication') && key.indexOf('Helm-') > -1 && <img src={helm} alt="" />} */}
                 <p className={styles.ServiceSmallTitle}>{tab}</p>

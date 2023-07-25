@@ -21,6 +21,7 @@ import {
   getHelmVersion,
   installHelmAppCmd,
   setNodeLanguage,
+  installRamAppCmd,
 } from '../services/createApp';
 
 export default {
@@ -188,6 +189,12 @@ export default {
     },
     *setNodeLanguage({ payload, callback, handleError }, { call }) {
       const data = yield call(setNodeLanguage, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *installRamAppCmd({ payload, callback, handleError }, { call }) {
+      const data = yield call(installRamAppCmd, payload, handleError);
       if (data && callback) {
         callback(data);
       }
