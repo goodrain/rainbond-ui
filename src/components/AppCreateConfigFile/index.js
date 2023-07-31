@@ -99,8 +99,9 @@ class BaseInfo extends PureComponent {
       memory: false,
       cpu: false,
       isComponentType: methods !== 'stateless_multiple' ? true : false,
-      isMemory: false,
-      isCpu: false,
+      isMemory: (props.appDetail.service.min_memory == 0 ) ? false : true,
+      isCpu:(props.appDetail.service.min_cpu == 0 ) ? false : true,
+      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M'
     };
   }
   componentDidMount() {
@@ -269,7 +270,7 @@ class BaseInfo extends PureComponent {
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
-      min_memory: minMemory,
+      min_memory,
       min_cpu: minCpu
     } = appDetail.service;
     const method = appDetail && appDetail.service && appDetail.service.extend_method 
@@ -381,7 +382,7 @@ class BaseInfo extends PureComponent {
         }
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
           {getFieldDecorator('change_memory', {
-            initialValue: false,
+            initialValue: isMemory,
             rules: [
               {
                 required: true,
@@ -400,7 +401,7 @@ class BaseInfo extends PureComponent {
         </Form.Item>
         {isMemory && <Form.Item style={{ paddingLeft: '149px' }}  {...formItemLayout}>
           {getFieldDecorator('min_memory', {
-            initialValue: `${minMemory % 1024 == 0 ? minMemory / 1024 : minMemory}` || 0,
+            initialValue: `${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` || 0,
             rules: [
               {
                 required: true,
@@ -412,7 +413,7 @@ class BaseInfo extends PureComponent {
               style={{ width: '200px', marginTop: '3px', marginLeft: '12px' }}
               type="number"
               addonAfter={
-                <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.selectAfterChange}>
+                <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.selectAfterChange}>
                   <Option value="M">M</Option>
                   <Option value="G">G</Option>
                 </Select>
@@ -423,7 +424,7 @@ class BaseInfo extends PureComponent {
         </Form.Item>}
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
           {getFieldDecorator('change_cpu', {
-            initialValue: false,
+            initialValue: isCpu,
             rules: [
               {
                 required: true,
