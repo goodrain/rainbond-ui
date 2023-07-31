@@ -942,7 +942,7 @@ export default class Index extends PureComponent {
                   })(
                   <Input 
                   addonAfter={
-                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(extendInfo.current_memory)} onChange={this.selectAfterChange}>
+                  <Select value={setUnit ? setUnit : (extendInfo.current_memory % 1024 == 0) ? "G" : "M"} onChange={this.selectAfterChange}>
                     <Option value="M">M</Option>
                     <Option value="G">G</Option>
                   </Select>
