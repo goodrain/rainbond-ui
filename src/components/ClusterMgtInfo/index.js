@@ -514,7 +514,8 @@ class Index extends Component {
       region_type,
       region_id,
       provider_cluster_id,
-      arch
+      arch,
+      region_name
     } = rowClusterInfo
     const eid = globalUtil.getCurrEnterpriseId()
     const pagination = {
@@ -626,11 +627,13 @@ class Index extends Component {
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.import' />
                   </Button>
+                 {region_name != 'dind-region' &&
                   <Button
                     onClick={this.delEven}
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.delete' />
                   </Button>
+                  }
                   {!buttonSwitch &&
                     <Tooltip title={formatMessage({ id: 'enterpriseColony.mgt.cluster.click' })}>
                       <Icon type="ellipsis" onClick={this.buttonShow} style={{ fontSize: 30 }} />

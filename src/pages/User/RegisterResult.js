@@ -4,6 +4,7 @@ import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button } from 'antd';
 import Result from '../../components/Result';
+import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './RegisterResult.less';
 @connect(({ user, global }) => ({
@@ -29,6 +30,7 @@ export default class Register extends Component {
         payload: {},
         callback: res => {
           if(res && res.bean && res.bean.default_region){
+            globalUtil.putClusterSizeLog(res.bean.enterprise_id);
             this.setState({
               regionName: res.bean.default_region.region_name
             })

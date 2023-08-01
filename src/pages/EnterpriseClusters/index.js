@@ -795,14 +795,6 @@ export default class EnterpriseClusters extends PureComponent {
           const mlist = [
             <a
               onClick={() => {
-                this.delUser(item);
-              }}
-            >
-              <FormattedMessage id='enterpriseColony.table.handle.delete' />
-              {/* 删除 */}
-            </a>,
-            <a
-              onClick={() => {
                 this.handleEdit(item);
               }}
             >
@@ -819,6 +811,18 @@ export default class EnterpriseClusters extends PureComponent {
               {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
             </Link>
           ];
+          if (item.region_name != 'dind-region') {
+            mlist.push(
+              <a
+              onClick={() => {
+                this.delUser(item);
+              }}
+            >
+              <FormattedMessage id='enterpriseColony.table.handle.delete' />
+              {/* 删除 */}
+            </a>
+            );
+          }
           if (item.provider === 'rke') {
             mlist.push(
               <Link
