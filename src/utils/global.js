@@ -155,6 +155,30 @@ const global = {
       console.log(e);
     }
   },
+  putClusterSizeLog(eid) {
+    if (!eid) {
+      return null;
+    }
+    const defaultOptions = {
+      credentials: 'same-origin',
+      url: 'https://log.rainbond.com/log',
+      method: 'post'
+    };
+    try {
+      defaultOptions.data = JSON.stringify({
+        cluster_sizes: 1,
+        cluster_types: ['dind'],
+        eid: eid,
+        day: moment(new Date())
+          .locale('zh-cn')
+          .format('YYYYMMDD')
+      });
+      defaultOptions.data = JSON.parse(defaultOptions.data);
+      axios(defaultOptions);
+    } catch (e) {
+      console.log(e);
+    }
+  },
   getCurrEnterpriseId() {
     const reg = /enterprise\/([^\/]+)/;
     const hash = window.location.hash || window.location.pathname || '';
