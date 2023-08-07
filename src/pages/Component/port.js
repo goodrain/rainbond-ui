@@ -25,6 +25,7 @@ import SubPort from '../../components/SubPort';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import cookie from '@/utils/cookie';
+import styles from './port.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
@@ -286,7 +287,8 @@ export default class Index extends PureComponent {
       subPort: '',
       page: 1,
       page_size: 10,
-      isAddLicense: false
+      isAddLicense: false,
+      troubleshootVisible: false
     };
   }
 
@@ -672,9 +674,17 @@ export default class Index extends PureComponent {
     } = this.props;
     return isPort;
   }
+  // 端口异常排查弹窗
+  handleTroubleshoot = () => {
+    this.setState({ troubleshootVisible: true });
+  };
+  // 关闭端口异常排查弹窗
+  handleCancelTroubleshoot = () => {
+    this.setState({ troubleshootVisible: false });
+  };
   render() {
     const { ports, certificates, appDetail } = this.props;
-    const { isAddLicense } = this.state;
+    const { isAddLicense, troubleshootVisible } = this.state;
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
     if (!this.canView()) return <NoPermTip />;
@@ -684,10 +694,15 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Row>
-          <Col span={13}>
+          <Col span={15}>
             <Alert
               showIcon
-              message={<FormattedMessage id='componentOverview.body.Port.message'/>}
+              message={<>
+              <FormattedMessage id='componentOverview.body.Port.message'/>
+              <a onClick={this.handleTroubleshoot} style={{ fontWeight: 'bold' }}>
+              <FormattedMessage id='componentOverview.body.Port.troubleshoot'/>
+              </a>
+              </>}
               type="info"
               style={{
                 marginBottom: 24
@@ -696,7 +711,7 @@ export default class Index extends PureComponent {
           </Col>
           {!isHelm && (
             <Col
-              span={11}
+              span={9}
               style={{
                 textAlign: 'right'
               }}
@@ -806,6 +821,37 @@ export default class Index extends PureComponent {
             onOk={this.handleSubPort}
           />
         )}
+        {troubleshootVisible && 
+        <Modal
+          title={formatMessage({ id: 'componentOverview.body.Port.troubleshoot.title' })}
+          visible
+          onCancel={this.handleCancelTroubleshoot}
+          footer={[
+            <Button
+              size="small"
+              onClick={this.handleCancelTroubleshoot}
+            >
+              {/* 关闭 */}
+              {formatMessage({id:'button.close'})}
+            </Button>
+          ]}
+        >
+           <ul className={styles.ulStyle} >
+              <li>
+              {formatMessage({id:'componentOverview.body.Port.troubleshoot.li1'})}
+              </li>
+              <li>
+              {formatMessage({id:'componentOverview.body.Port.troubleshoot.li2'})}
+              </li>
+              <li>
+              {formatMessage({id:'componentOverview.body.Port.troubleshoot.li3'})}
+              </li>
+              <li>
+              {formatMessage({id:'componentOverview.body.Port.troubleshoot.li4'})}
+              </li>
+            </ul>
+        </Modal>
+        }
       </Fragment>
     );
   }
