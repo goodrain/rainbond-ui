@@ -16,7 +16,9 @@ import {
   Row,
   Spin,
   Badge,
-  Tooltip
+  Tooltip,
+  Modal,
+  Button
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -101,14 +103,15 @@ export default class Enterprise extends PureComponent {
       clusters: [],
       appAlertList: [],
       appAlertLoding: true,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      troubleshootVisible: false,
     };
   }
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch } = this.props;
     if (!adminer) {
-        dispatch(routerRedux.push(`/`));
+      dispatch(routerRedux.push(`/`));
     }
   }
   componentDidMount() {
@@ -533,7 +536,7 @@ export default class Enterprise extends PureComponent {
           this.handleCloseLoading()
         }
       },
-      handleError:(log)=>{
+      handleError: (log) => {
         this.setState({
           appAlertList: [],
           appAlertLoding: false
@@ -700,6 +703,14 @@ export default class Enterprise extends PureComponent {
         );
     }
   }
+  // 端口异常排查弹窗
+  handleTroubleshoot = () => {
+    this.setState({ troubleshootVisible: true });
+  };
+  // 关闭端口异常排查弹窗
+  handleCancelTroubleshoot = () => {
+    this.setState({ troubleshootVisible: false });
+  };
   renderContent = () => {
     const { rainbondInfo, navigation_status } = this.props;
     const {
@@ -725,7 +736,8 @@ export default class Enterprise extends PureComponent {
       language,
       clusters,
       appAlertList,
-      appAlertLoding
+      appAlertLoding,
+      troubleshootVisible
     } = this.state;
     const colors = { color: '#3D54C4', cursor: 'pointer' };
     const timestamp = Date.parse(new Date());
@@ -735,7 +747,7 @@ export default class Enterprise extends PureComponent {
         : '';
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const cloudSvg = (
-      <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="300" height="144">
+      <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="160" height="144">
         <path className={styleSvg.icon_path} stroke="#3d54c4" stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill="#3d54c4" p-id="35828"></path>
         <path className={styleSvg.icon_path} stroke="#3d54c4" stroke-width="3" d="M643.072 598.016c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h141.312c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-141.312zM928.256 598.016h-62.464c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.312-11.264-24.576-24.576-24.576zM510.464 740.352H448c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill="#3d54c4" p-id="35829"></path>
       </svg>
@@ -945,7 +957,7 @@ export default class Enterprise extends PureComponent {
           </Card>
         </div>
         {/* 集群信息 */}
-        <div>
+        <div style={{ marginBottom: '24px' }}>
           <div className={enterpriseStyles.title}>
             <div>
               <span>{clustersInfoSvg}</span>
@@ -1000,33 +1012,33 @@ export default class Enterprise extends PureComponent {
                       </div>
                       <div className={enterpriseStyles.setting}>
                         <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${region_id}`} >
-                        {SVG.getSvg("settingSvg",18)}
+                          {SVG.getSvg("settingSvg", 18)}
                         </Link>
                       </div>
                     </div>
-                    <div className={enterpriseStyles.clusterInfo_content}>
-                      <div className={enterpriseStyles.content_left}>
-                        <div className={enterpriseStyles.clusterIcon}>
-                          {this.clusterIcon(provider, region_type[0])}
+                    {health_status !== 'failure' ? (
+                      <div className={enterpriseStyles.clusterInfo_content}>
+                        <div className={enterpriseStyles.content_left}>
+                          <div className={enterpriseStyles.clusterIcon}>
+                            {this.clusterIcon(provider, region_type[0])}
+                          </div>
+                          <div className={enterpriseStyles.clusterVersion}>
+                            <p>
+                              <span className={language ? enterpriseStyles.versionName : enterpriseStyles.versionName_en}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}:</span>
+                              <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
+                            </p>
+                            <p>
+                              <span className={language ? enterpriseStyles.k8sName : enterpriseStyles.k8sName_en}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>
+                              <span className={language ? enterpriseStyles.k8sVersion : enterpriseStyles.k8sVersion_en}>{k8s_version == {} ? "-" : k8s_version || "-"} </span>
+                            </p>
+                            <p>
+                              <span className={language ? enterpriseStyles.versionName : enterpriseStyles.createTime_en}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}:</span>
+                              <span className={language ? enterpriseStyles.version : enterpriseStyles.createTimeVersion_en}>
+                                {globalUtil.fetchdayTime(create_time)}
+                              </span>
+                            </p>
+                          </div>
                         </div>
-                        <div className={enterpriseStyles.clusterVersion}>
-                          <p>
-                            <span className={language ? enterpriseStyles.versionName : enterpriseStyles.versionName_en}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}:</span>
-                            <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
-                          </p>
-                          <p>
-                            <span className={language ? enterpriseStyles.k8sName : enterpriseStyles.k8sName_en}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>
-                            <span className={language ? enterpriseStyles.k8sVersion : enterpriseStyles.k8sVersion_en}>{k8s_version == {} ? "-" : k8s_version || "-"} </span>
-                          </p>
-                          <p>
-                            <span className={language ? enterpriseStyles.versionName : enterpriseStyles.createTime_en}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}:</span>
-                            <span className={language ? enterpriseStyles.version : enterpriseStyles.createTimeVersion_en}>
-                              {globalUtil.fetchdayTime(create_time)}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      {health_status !== 'failure' ? (
                         <div className={enterpriseStyles.content_right}>
                           <div className={enterpriseStyles.content_data}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core</p>
@@ -1050,8 +1062,9 @@ export default class Enterprise extends PureComponent {
                             </div>
                           </div>
                         </div>
-                      ) : (
-                        <div className={enterpriseStyles.content_right}>
+                      </div>) : (
+                      <div className={enterpriseStyles.clusterInfo_content}>
+                        <div className={enterpriseStyles.error_troubleshoot_left}>
                           <Empty
                             image={errorSvg}
                             description={
@@ -1060,8 +1073,41 @@ export default class Enterprise extends PureComponent {
                               </span>
                             } />
                         </div>
-                      )}
-                    </div>
+                        <div className={enterpriseStyles.error_troubleshoot_right}>
+                          <ul className={enterpriseStyles.ulStyle}>
+                            <div>{formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title1' })}</div>
+                            <li>
+                                {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li1' })}
+                            </li>
+                            <li style={{ marginTop: '10px' }}>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li2' })}
+                            </li>
+                            <li>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li3' })}
+                            </li>
+                            <li>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li4' })}
+                            </li>
+                          </ul>
+                          <ul className={enterpriseStyles.ulStyle}>
+                            <div>{formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title2' })}</div>
+                            <li>
+                              1、
+                              <Link to={`/enterprise/${eid}/logs`} >
+                                {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li5' })}
+                              </Link>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li6' })}
+                            </li>
+                            <li>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li7' })}
+                            </li>
+                            <li>
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li8' })}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })) : (
@@ -1154,6 +1200,26 @@ export default class Enterprise extends PureComponent {
             )}
           </Card>
         </div>
+
+
+        {troubleshootVisible &&
+          <Modal
+            title={formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title' })}
+            visible
+            onCancel={this.handleCancelTroubleshoot}
+            footer={[
+              <Button
+                size="small"
+                onClick={this.handleCancelTroubleshoot}
+              >
+                {/* 关闭 */}
+                {formatMessage({ id: 'button.close' })}
+              </Button>
+            ]}
+          >
+
+          </Modal>
+        }
       </div>
     );
   };

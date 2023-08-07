@@ -226,6 +226,8 @@ export default class ClusterLink extends PureComponent {
         sm: { span: 5 }
       }
     };
+    const strDomain = window.location.href;
+    const domain = strDomain.match(/(\S*)\/#\//)[1];
     return (
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
@@ -266,7 +268,12 @@ export default class ClusterLink extends PureComponent {
               <Alert
                 style={{ fontSize: '16px', fontWeight: 'bolder' }}
                 type="info"
-                message={formatMessage({id:'enterpriseColony.cloud.msg'})}
+                message={<>
+                {formatMessage({id:'enterpriseColony.cloud.msg1'})}
+                {formatMessage({id:'enterpriseColony.cloud.msg2'})}
+                  {domain}
+                {formatMessage({id:'enterpriseColony.cloud.msg3'})}
+                </>}
               />
             </Col>
           </Row>

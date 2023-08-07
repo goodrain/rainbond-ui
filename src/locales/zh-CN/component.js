@@ -553,10 +553,16 @@ const componentOverview = {
     'componentOverview.body.AddRelationMnt.dep_app_name':'目标所属组件',
     'componentOverview.body.AddRelationMnt.dep_app_group':'目标组件所属应用',
 // tabs栏>Port
-    'componentOverview.body.Port.message':'端口配置信息发生变化后需要重启组件才能生效',
+    'componentOverview.body.Port.message':'端口配置信息发生变化后需要重启组件才能生效；请确保端口列表与你的程序监听端口保持一致。无法访问',
+    'componentOverview.body.Port.troubleshoot':'按以下思路排查。',
     'componentOverview.body.Port.add':'添加端口',
     'componentOverview.body.Port.msg':'如需要提供访问服务，请',
     'componentOverview.body.Port.addMsg':'添加端口',
+    'componentOverview.body.Port.troubleshoot.title':'端口异常排查',
+    'componentOverview.body.Port.troubleshoot.li1':'1、请确保程序运行正常，通过 Web终端连接后，可以查看到容器内监听的端口。',
+    'componentOverview.body.Port.troubleshoot.li2':'2、请确保容器内监听端口与端口列表中的端口保持一致。',
+    'componentOverview.body.Port.troubleshoot.li3':'3、Http 策略请确保域名解析的 IP，在你当前的网络环境可以访问。',
+    'componentOverview.body.Port.troubleshoot.li4':'4、TCP 策略请确保监听的端口，你已经将其映射了出去，且无防火墙策略。',
     // tabs栏>Port>ports
     'componentOverview.body.Ports.determine':'确定',
     'componentOverview.body.Ports.cancel':'取消',

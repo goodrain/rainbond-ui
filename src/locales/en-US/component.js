@@ -543,10 +543,16 @@ const componentOverview = {
     'componentOverview.body.AddRelationMnt.dep_app_name':'Component',
     'componentOverview.body.AddRelationMnt.dep_app_group':'Application',
 // tabs栏>Port
-    'componentOverview.body.Port.message':'After the port configuration information changes, the component needs to be restarted to take effect',
+    'componentOverview.body.Port.message':'If the port configuration information is changed, restart the component for the change to take effect. Make sure the port list matches the ports your program is listening to. Unable to access',
+    'componentOverview.body.Port.troubleshoot':'You can check according to the following ideas.',
     'componentOverview.body.Port.add':'Add port',
     'componentOverview.body.Port.msg':'If you need to provide access services, please',
     'componentOverview.body.Port.addMsg':'Add port',
+    'componentOverview.body.Port.troubleshoot.title':'Troubleshooting port faults',
+    'componentOverview.body.Port.troubleshoot.li1':'1、Ensure that the program runs properly. After connecting to the Web terminal, you can view the monitored port in the container.',
+    'componentOverview.body.Port.troubleshoot.li2':'2、请确保容器内监听端口与端口列表中的端口保持一致。',
+    'componentOverview.body.Port.troubleshoot.li3':'3、Http policy make sure that the domain name resolves the IP that is accessible in your current network environment.',
+    'componentOverview.body.Port.troubleshoot.li4':'4、TCP Policy Make sure that you have mapped the listening port and that there is no firewall policy.',
     // tabs栏>Port>ports
     'componentOverview.body.Ports.determine':'Confirm',
     'componentOverview.body.Ports.cancel':'Cancel',

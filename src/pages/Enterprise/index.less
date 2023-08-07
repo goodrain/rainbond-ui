@@ -56,7 +56,7 @@
             }
         }
         .enterpriseInfo_right{
-            width: 300px;
+            width: 160px;
             height: 114px;
             margin-top: -20px;
         }
@@ -308,6 +308,32 @@
             
            
         }
+        .error_troubleshoot_left{
+            width: 20%;
+            height: 166px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid #e3e3e3;
+            :global{
+                .ant-empty-description{
+                    margin-top: 16px;
+                }
+            }
+        }
+        .error_troubleshoot_right{
+            width: 80%;
+            display: flex;
+            ul{
+                width: 48%;
+                padding: 0% 2%;
+                div{
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin-bottom: 6px;
+                }
+            }
+        }
     }
 }
 .clusterInfo_Empty{
@@ -356,4 +382,13 @@
 }
 .appAlert::-webkit-scrollbar{
     display: none;
+}
+.ulStyle{
+    list-style: none;
+    ul{
+        margin-bottom: 1em;
+        li {
+            margin-bottom: 5px;
+        }
+    }
 }
