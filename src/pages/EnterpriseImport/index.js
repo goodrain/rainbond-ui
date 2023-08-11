@@ -20,6 +20,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
 import styles from './index.less';
 
@@ -46,7 +47,10 @@ export default class EnterpriseShared extends PureComponent {
       scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
       tenant_name: '',
       percents: false,
-      region_name: ''
+      region_name: '',
+      archOptions: '',
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+
     };
   }
   componentDidMount() {
@@ -57,6 +61,11 @@ export default class EnterpriseShared extends PureComponent {
   componentWillUnmount() {
     this.loop = false;
     this.statusloop = false;
+  }
+  onChange = (selectedOptions) =>{
+    this.setState({
+      archOptions: selectedOptions.target.value
+    })
   }
   cancelImport = () => {
     const {
@@ -214,7 +223,8 @@ export default class EnterpriseShared extends PureComponent {
       type: 'market/queryImportApp',
       payload: {
         enterprise_id: eid,
-        event_id: this.state.event_id
+        event_id: this.state.event_id,
+        arch: this.state.archOptions
       },
       callback: data => {
         if (data && data.status_code === 200) {
@@ -352,7 +362,9 @@ export default class EnterpriseShared extends PureComponent {
       record,
       region_name,
       enterpriseAdmin,
-      import_file_status
+      import_file_status,
+      archOptions,
+      language
     } = this.state;
 
     const existFiles =
@@ -458,6 +470,14 @@ export default class EnterpriseShared extends PureComponent {
                     })}
                   </Row>
                 </Checkbox.Group>
+              </Card>
+              <div className={styles.tit}>{formatMessage({id:'applicationMarket.Offline.arch'})}</div>
+              <Card className={styles.mb10}>
+                    <Radio.Group onChange={this.onChange} value={archOptions}>
+                      <Radio value={""}>{formatMessage({id:'applicationMarket.Offline.archpkg'})}</Radio>
+                      <Radio value={"arm64"}>arm64</Radio>
+                      <Radio value={"amd64"}>amd64</Radio>
+                    </Radio.Group>
               </Card>
 
               <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import_Range'/></div>

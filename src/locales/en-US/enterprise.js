@@ -265,6 +265,10 @@ const applicationMarket = {
     'applicationMarket.Offline.Abort_import': 'Cancel',
     'applicationMarket.Offline.confirm_import': 'Confirm',
     'applicationMarket.Offline.select': 'Select a team',
+    'applicationMarket.Offline.arch': 'Selective architecture',
+    'applicationMarket.Offline.archpkg': 'Packet matching',
+
+
     // 应用市场管理
     'applicationMarket.appsetting.logo': 'Upload',
     'applicationMarket.appsetting.name': 'Name',
