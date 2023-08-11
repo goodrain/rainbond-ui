@@ -42,7 +42,7 @@ class Index extends PureComponent {
         <JavaJDK form={this.props.form} envs={this.props.envs} />
         <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.Start"/>}>
           {getFieldDecorator("BUILD_PROCFILE", {
-            initialValue: (envs && envs.BUILD_PROCFILE) || ""
+            initialValue: (envs && envs.BUILD_PROCFILE) || "web: java $JAVA_OPTS -jar ./*.jar"
           })(
             <Input placeholder="web: java $JAVA_OPTS -jar ./*.jar" />
           )}
