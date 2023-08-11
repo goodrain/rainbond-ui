@@ -38,7 +38,7 @@ export default class Index extends PureComponent {
   // 团队命名空间的检验
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
+      return callback(new Error(formatMessage({id: 'placeholder.appEngName'})));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
@@ -108,12 +108,12 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+            <Form.Item {...is_language} label={formatMessage({id: 'popover.newApp.appEngName'})}>
               {getFieldDecorator('k8s_app', {
                 rules: [
                   { required: true, validator: this.handleValiateNameSpace }
                 ]
-              })(<Input placeholder={formatMessage({id: 'placeholder.k8s_component_name'})} />)}
+              })(<Input placeholder={formatMessage({id: 'popover.newApp.appEngName.placeholder'})} />)}
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}

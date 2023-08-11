@@ -341,7 +341,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Start' />}
                 >
                   {getFieldDecorator('cmd', {
-                    initialValue: (buildSource.service_source == "docker_image") && buildSource.cmd ? buildSource.cmd : '',
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "docker_run") && buildSource.cmd ? buildSource.cmd : '',
                   })(<Input placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_Start' })} />)}
                 </FormItem>
 
@@ -351,7 +351,7 @@ export default class ChangeBuildSource extends PureComponent {
                 >
                   {getFieldDecorator('user_name', {
                     initialValue:
-                      (buildSource.service_source == "docker_image") &&
+                      (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') &&
                         (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' }), }]
                   })(<Input autoComplete="off" placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' })} />)}
@@ -361,7 +361,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password' />}
                 >
                   {getFieldDecorator('password', {
-                    initialValue: (buildSource.service_source == "docker_image") && buildSource.password ? buildSource.password : '',
+                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') && buildSource.password ? buildSource.password : '',
                     rules: [{ required: false, essage: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_password' }) }]
                   })(
                     <Input

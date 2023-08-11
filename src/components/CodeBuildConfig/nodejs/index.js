@@ -62,15 +62,28 @@ class Index extends PureComponent {
     const advanced_setup = JSON.parse(window.sessionStorage.getItem('advanced_setup')) || false;
     return (
       <div>
-        <Form.Item
-          {...formItemLayout}
-          label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
-          help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
-        >
-          {getFieldDecorator('BUILD_NO_CACHE', {
-            initialValue: !!(envs && envs.BUILD_NO_CACHE)
-          })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
-        </Form.Item>
+        {(languageType == 'NodeJSStatic' || languageType == 'nodejsstatic') ? (
+          <Form.Item
+            {...formItemLayout}
+            label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+            help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
+          >
+            {getFieldDecorator('BUILD_NODE_MODULES_CACHE', {
+              initialValue: !!(envs && envs.BUILD_NODE_MODULES_CACHE)
+            })(<Switch defaultChecked={!!(envs && envs.BUILD_NODE_MODULES_CACHE)} />)}
+            </Form.Item>
+          ):(
+            <Form.Item
+              {...formItemLayout}
+              label={<FormattedMessage id="componentOverview.body.GoConfig.Disable"/>}
+              help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
+            >
+              {getFieldDecorator('BUILD_NO_CACHE', {
+                initialValue: !!(envs && envs.BUILD_NO_CACHE)
+              })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
+            </Form.Item>
+          )}
+        
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.NodeJSConfig.node"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
             initialValue: (envs && envs.BUILD_RUNTIMES) || '20.0.0'
