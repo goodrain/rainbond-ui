@@ -35,7 +35,7 @@ class Index extends React.Component {
   }
   componentDidUpdate(prevProps, prevState) {
     // 判断日志是否有更新
-    if (prevState.logs.length !== this.state.logs.length) {
+    if (prevState.logs.length !== this.state.logs.length && this.refs.box) {
       // 将滚动条滚动到底部
       this.refs.box.scrollTop = this.refs.box.scrollHeight;
     }

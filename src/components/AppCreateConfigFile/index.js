@@ -218,6 +218,11 @@ class BaseInfo extends PureComponent {
   }
   // 组件类型
   RadioChangeComponentType = (e) => {
+    if(!e.target.value){
+      this.setState({
+        is_flag: false
+      })
+    }
     this.setState({
       isComponentType: e.target.value
     })

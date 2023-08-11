@@ -153,7 +153,8 @@ export async function createJarWarFormSubmit(body = {}) {
         event_id: body.event_id,
         group_id: body.group_id,
         service_cname: body.service_cname,
-        k8s_component_name: body.k8s_component_name
+        k8s_component_name: body.k8s_component_name,
+        arch: body.arch,
       }
     }
   );

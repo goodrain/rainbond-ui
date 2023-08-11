@@ -328,7 +328,7 @@ export default class GlobalRouter extends PureComponent {
           display: showMenu ? 'block' : 'none',
           transition: ".5s ease",
           boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-          zIndex:999
+          zIndex:9
         }}
       >
         {collectionVisible && (
