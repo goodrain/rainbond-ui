@@ -101,7 +101,7 @@ export default class ChangeBuildSource extends PureComponent {
       if (fieldsValue.version_type == 'tag') {
         fieldsValue.code_version = 'tag:'.concat(fieldsValue.code_version);
       }
-      if(archLegnth && archLegnth == 2 && archLegnth != 0){
+      if(archLegnth && archLegnth != 2 && archLegnth != 0){
         fieldsValue.arch = buildSource.arch[0]
       }
       this.props.dispatch({

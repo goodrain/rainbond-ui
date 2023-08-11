@@ -266,6 +266,9 @@ const applicationMarket = {
     'applicationMarket.Offline.Abort_import': '放弃导入',
     'applicationMarket.Offline.confirm_import': '确认导入',
     'applicationMarket.Offline.select': '请选择一个团队',
+    'applicationMarket.Offline.arch': '选择架构',
+    'applicationMarket.Offline.archpkg': '随包匹配',
+
     // 应用市场管理
     'applicationMarket.appsetting.logo':'上传图标',
     'applicationMarket.appsetting.name':'名称',

@@ -415,6 +415,9 @@ export function queryImportApp(body = { team_name, event_id }, handleError) {
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'get',
+      params: {
+        arch: body.arch 
+      },
       handleError
     }
   );

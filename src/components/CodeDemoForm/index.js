@@ -206,6 +206,8 @@ export default class Index extends PureComponent {
 
   handleChangeDemo = value => {
     const name = this.extractRepoName(value)
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({ service_cname: name, k8s_component_name: name, git_url: value });
     this.setState({
       demoHref: value,
       defaultName: name
