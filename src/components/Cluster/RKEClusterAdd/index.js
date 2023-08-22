@@ -25,12 +25,14 @@ import {
   Tabs,
   Tag,
   Tooltip,
-  Typography
+  Typography,
+  Badge,
+  Spin
 } from 'antd';
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from './index.less';
@@ -83,11 +85,11 @@ class EditableCell extends React.Component {
   };
   validateIP = (_, value, callback) => {
     if (value.startsWith('127')) {
-      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck1'})}}`);
+      callback(`${formatMessage({ id: 'enterpriseColony.addCluster.ipcheck1' })}}`);
     } else if (value.startsWith('169.254')) {
-      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck2'})}}`);
+      callback(`${formatMessage({ id: 'enterpriseColony.addCluster.ipcheck2' })}}`);
     } else if (value.startsWith('224.0.0')) {
-      callback(`${formatMessage({id:'enterpriseColony.addCluster.ipcheck3'})}}`);
+      callback(`${formatMessage({ id: 'enterpriseColony.addCluster.ipcheck3' })}}`);
     } else {
       callback();
     }
@@ -100,21 +102,21 @@ class EditableCell extends React.Component {
     const rules = [
       {
         required: true,
-        message: formatMessage({id:'enterpriseColony.addCluster.host.Required'},{title:title})
+        message: formatMessage({ id: 'enterpriseColony.addCluster.host.Required' }, { title: title })
       },
       { validator: this.validateIP }
     ];
     const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
     if (ips) {
       rules.push({
-        message: formatMessage({id:'enterpriseColony.addCluster.host.correct_IP'}),
+        message: formatMessage({ id: 'enterpriseColony.addCluster.host.correct_IP' }),
         pattern: new RegExp(ipRegs, 'g')
       });
     }
     const sshPort = dataIndex === 'sshPort';
     if (sshPort) {
       rules.push({
-        message: formatMessage({id:'enterpriseColony.addCluster.host.Correct_port'}),
+        message: formatMessage({ id: 'enterpriseColony.addCluster.host.Correct_port' }),
         min: 1,
         max: 65536,
         pattern: new RegExp(portRegs, 'g')
@@ -138,9 +140,9 @@ class EditableCell extends React.Component {
               allowClear
               mode="multiple"
             >
-              <Select.Option value="controlplane"><FormattedMessage id='enterpriseColony.addCluster.host.Administration'/></Select.Option>
+              <Select.Option value="controlplane"><FormattedMessage id='enterpriseColony.addCluster.host.Administration' /></Select.Option>
               <Select.Option value="etcd">ETCD</Select.Option>
-              <Select.Option value="worker"><FormattedMessage id='enterpriseColony.addCluster.host.calculation'/></Select.Option>
+              <Select.Option value="worker"><FormattedMessage id='enterpriseColony.addCluster.host.calculation' /></Select.Option>
             </Select>
           ) : sshPort ? (
             <InputNumber
@@ -153,7 +155,7 @@ class EditableCell extends React.Component {
             />
           ) : (
             <Input
-              placeholder={formatMessage({id:'enterpriseColony.addCluster.host.placese_input'},{title:title})} 
+              placeholder={formatMessage({ id: 'enterpriseColony.addCluster.host.placese_input' }, { title: title })}
               ref={node => {
                 this.input = node;
                 if (
@@ -167,15 +169,17 @@ class EditableCell extends React.Component {
               }}
               onPressEnter={this.save}
               onBlur={this.save}
-              style={{textOverflow: 'ellipsis',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',width:'100%'}}
+              style={{
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap', width: '100%'
+              }}
             />
           )
         )}
       </Form.Item>
     ) : (
-      <Tooltip title={<FormattedMessage id='enterpriseColony.addCluster.host.click_edit'/>}>
+      <Tooltip title={<FormattedMessage id='enterpriseColony.addCluster.host.click_edit' />}>
         <div
           className="editable-cell-value-wrap"
           style={{ cursor: 'pointer' }}
@@ -220,7 +224,9 @@ export default class RKEClusterConfig extends PureComponent {
       countConfig: true,
       countNum: 15,
       countContent: null,
-      clusters: null
+      clusters: null,
+      isCheckSsh: false,
+      isCheckStatus: false,
     };
     this.clusters = [];
   }
@@ -240,7 +246,7 @@ export default class RKEClusterConfig extends PureComponent {
   loadClusters = () => {
     const {
       dispatch,
-      eid 
+      eid
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
@@ -338,20 +344,20 @@ export default class RKEClusterConfig extends PureComponent {
                 item.key = Math.random();
                 if (isNext) {
                   if (!ipRegs.test(item.ip || '')) {
-                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_ip'})}`;
+                    helpError = `${formatMessage({ id: 'enterpriseColony.addCluster.host.input_ip' })}`;
                     helpType = 'ip';
                   } else if (!ipRegs.test(item.internalIP || '')) {
-                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_ip'})}`;
+                    helpError = `${formatMessage({ id: 'enterpriseColony.addCluster.host.input_ip' })}`;
                     helpType = 'internalIP';
                   } else if (!portRegs.test(item.sshPort || '')) {
-                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.input_port'})}`;
+                    helpError = `${formatMessage({ id: 'enterpriseColony.addCluster.host.input_port' })}`;
                     helpType = 'sshPort';
                   } else if (item.sshPort > 65536) {
                     helpType = 'sshPort';
-                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.port_max'})}`;
+                    helpError = `${formatMessage({ id: 'enterpriseColony.addCluster.host.port_max' })}`;
                   } else if (!item.roles) {
                     helpType = 'roles';
-                    helpError = `${formatMessage({id:'enterpriseColony.addCluster.host.mast'})}`;
+                    helpError = `${formatMessage({ id: 'enterpriseColony.addCluster.host.mast' })}`;
                   }
                 }
               });
@@ -389,7 +395,7 @@ export default class RKEClusterConfig extends PureComponent {
             this.setState({
               isCheck: false,
               helpType: 'RKE',
-              helpError: formatMessage({id:'enterpriseColony.addCluster.host.rke'})
+              helpError: formatMessage({ id: 'enterpriseColony.addCluster.host.rke' })
             });
             return null;
           }
@@ -532,7 +538,7 @@ export default class RKEClusterConfig extends PureComponent {
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: formatMessage({id:'notification.warn.yaml_file'})
+          message: formatMessage({ id: 'notification.warn.yaml_file' })
         });
       }
       return false;
@@ -542,13 +548,13 @@ export default class RKEClusterConfig extends PureComponent {
   nodeRole = role => {
     switch (role) {
       case 'controlplane':
-        return `${formatMessage({id:'enterpriseColony.addCluster.host.Administration'})}`;
+        return `${formatMessage({ id: 'enterpriseColony.addCluster.host.Administration' })}`;
       case 'worker':
-        return `${formatMessage({id:'enterpriseColony.addCluster.host.calculation'})}`;
+        return `${formatMessage({ id: 'enterpriseColony.addCluster.host.calculation' })}`;
       case 'etcd':
         return 'ETCD';
       default:
-        return `${formatMessage({id:'enterpriseColony.addCluster.host.unkonw'})}`;
+        return `${formatMessage({ id: 'enterpriseColony.addCluster.host.unkonw' })}`;
     }
   };
   handleStartCheck = isNext => {
@@ -577,7 +583,7 @@ export default class RKEClusterConfig extends PureComponent {
         this.setState({
           isCheck: false,
           helpType: 'RKE',
-          helpError: formatMessage({id:'enterpriseColony.addCluster.host.input_rke'})
+          helpError: formatMessage({ id: 'enterpriseColony.addCluster.host.input_rke' })
         });
       }
       if (!err && next) {
@@ -648,6 +654,82 @@ export default class RKEClusterConfig extends PureComponent {
       }
     }, 1000);
   };
+  // 检查ssh
+  handleCheckSsh = () => {
+    const { dataSource, isCheckSsh, activeKey } = this.state;
+    const { dispatch } = this.props;
+    this.handleCheck(false)
+    this.setState({
+      isCheckStatus: true
+    })
+    let arr = []
+    for (let i = 0, l = dataSource.length; i < l; i++) {
+      let data = {
+        ip: dataSource[i].ip,
+        sshPort: dataSource[i].sshPort
+      }
+      arr.push(this.getCode(data))
+    }
+    Promise.all(arr).then(values => {
+      values.map((item, index) => {
+        dataSource[index].code = item.code;
+        dataSource[index].msg = item.msg;
+        setTimeout(() => {
+          this.setState({ dataSource, isCheckSsh: !isCheckSsh }, () => {
+            if (dataSource.length === values.length) {
+              const filterArr = dataSource.filter(v => v.code != 200)
+              if (filterArr.length > 0) {
+                this.setState({
+                  isCheckStatus: false,
+                })
+              } else {
+                this.setState(
+                  {
+                    loading: true
+                  },
+                  () => {
+                    this.handleTabs(activeKey === '1' ? '2' : '1', true);
+                  }
+                );
+              }
+            }
+          })
+        }, 100)
+      })
+    }, reason => {
+      console.log(reason)
+    }
+    );
+  }
+
+  getCode(data) {
+    const { dispatch } = this.props;
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'cloud/fetchCheckSsh',
+        payload: {
+          host: data.ip,
+          port: data.sshPort
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            // 将数据返回插入到dataSource中
+            resolve(res.response_data)
+          }
+        },
+        handleError: err => {
+          reject(err)
+        }
+      })
+    })
+  }
+
+  handleChangeCheckSsh = () => {
+    this.setState({
+      isCheckSsh: true
+    })
+  }
+
   render() {
     const {
       onCancel,
@@ -669,7 +751,9 @@ export default class RKEClusterConfig extends PureComponent {
       forbiddenConfig,
       countContent,
       countConfig,
-      clusters
+      clusters,
+      isCheckSsh,
+      isCheckStatus
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -688,25 +772,42 @@ export default class RKEClusterConfig extends PureComponent {
     };
     const columns = [
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.host.ip'}),
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.status' }),
+        dataIndex: 'code',
+        width: 60,
+        align: 'center',
+        render: (text, record) => {
+          const { code, msg } = record
+          return code ? (
+            <div>
+              <Badge color={code == 200 ? "#36B37E" : "#FF5630"} />
+            </div>
+          ) : (
+            <Badge status="default" />
+          )
+        }
+      },
+      {
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.ip' }),
         dataIndex: 'ip',
         width: 150,
         editable: true
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.host.Intranet_ip'}),
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.Intranet_ip' }),
         dataIndex: 'internalIP',
         width: 170,
         editable: true
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.host.ssh'}),
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.ssh' }),
         dataIndex: 'sshPort',
-        width: 140,
-        editable: true
+        width: 80,
+        editable: true,
+        align: 'center',
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.host.Node_type'}),
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.Node_type' }),
         dataIndex: 'roles',
         width: 160,
         editable: true,
@@ -716,17 +817,40 @@ export default class RKEClusterConfig extends PureComponent {
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.host.operation'}),
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' }) ,
+        dataIndex: 'msg',
+        width: 160,
+        render: (text, record) => {
+          const { code, msg } = record
+          return isCheckStatus ? (
+            <div>
+              {formatMessage({ id: 'enterpriseColony.addCluster.host.checking' })} <Spin spinning={isCheckStatus} />
+            </div>
+          ) : (
+            <div>
+              {!code ?
+                formatMessage({ id: 'enterpriseColony.addCluster.host.await_check' })
+                : (
+                  <div>
+                    {code == 200 ? <div style={{ color: '#36B37E' }}>success</div> : <div style={{ color: '#FF5630' }}>{msg}</div>}
+                  </div>
+                )}
+            </div>
+          )
+        }
+      },
+      {
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.operation' }),
         dataIndex: 'name',
         width: 80,
         align: 'center',
         render: (_, record) => {
           return dataSource && dataSource.length > 1 ? (
             <Popconfirm
-              title={<FormattedMessage id='enterpriseColony.addCluster.host.delete'/>}
+              title={<FormattedMessage id='enterpriseColony.addCluster.host.delete' />}
               onConfirm={() => this.handleDelete(record.key)}
             >
-              <a><FormattedMessage id='button.delete'/></a>
+              <a><FormattedMessage id='button.delete' /></a>
             </Popconfirm>
           ) : (
             '-'
@@ -765,34 +889,35 @@ export default class RKEClusterConfig extends PureComponent {
     return (
       <Modal
         visible
-        title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster'/> : <FormattedMessage id='enterpriseColony.addCluster.host.Host'/>}
+        title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster' /> : <FormattedMessage id='enterpriseColony.addCluster.host.Host' />}
         className={styles.TelescopicModal}
-        width={900}
+        width={1200}
         destroyOnClose
         footer={
           <Fragment>
             <Button
               type="primary"
+              disabled={isCheckStatus}
               onClick={() => {
-                this.handleStartCheck();
+                this.handleCheckSsh()
               }}
               loading={loading}
             >
-              {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata'/> : <FormattedMessage id='enterpriseColony.addCluster.host.start_install'/>}
+              {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata' /> : (isCheckStatus ? formatMessage({ id: 'enterpriseColony.addCluster.host.checking' }) : <FormattedMessage id='enterpriseColony.addCluster.host.start_install' />)}
             </Button>
-            {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0  && (
+            {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0 && (
               <Fragment>
                 {handleNewbieGuiding({
-                  tit: formatMessage({id:'enterpriseColony.addCluster.host.start_install_six'}),
+                  tit: formatMessage({ id: 'enterpriseColony.addCluster.host.start_install_six' }),
                   send: true,
                   configName: 'kclustersAttention',
-                  desc: formatMessage({id:'enterpriseColony.addCluster.host.Start_installation_now'}),
+                  desc: formatMessage({ id: 'enterpriseColony.addCluster.host.Start_installation_now' }),
                   nextStep: 7,
-                  btnText: formatMessage({id:'button.install'}),
+                  btnText: formatMessage({ id: 'button.install' }),
                   conPosition: { right: '110px', bottom: 0 },
                   svgPosition: { right: '50px', marginTop: '-11px' },
                   handleClick: () => {
-                    this.handleStartCheck();
+                    this.handleCheckSsh();
                   }
                 })}
               </Fragment>
@@ -803,90 +928,11 @@ export default class RKEClusterConfig extends PureComponent {
         onCancel={onCancel}
         maskClosable={false}
       >
-        {isCheck && (
-          <Modal
-            title = { formatMessage({id:'enterpriseColony.addCluster.host.Initialize_and_start'}) + `${clusterID ? formatMessage({id:'enterpriseColony.addCluster.host.to_configure'}) : formatMessage({id:'enterpriseColony.addCluster.host.install'})}` + formatMessage({id:'enterpriseColony.addCluster.host.Cluster'})}
-            confirmLoading={loading}
-            className={styles.TelescopicModal}
-            width={900}
-            visible
-            footer={[
-              <Button
-                key="back"
-                onClick={() => {
-                  this.handleCheck(false);
-                }}
-              >
-                <FormattedMessage id='button.cancel'/>
-              </Button>,
-              <Button
-                key="link"
-                type="primary"
-                onClick={() => {
-                  this.setState(
-                    {
-                      loading: true
-                    },
-                    () => {
-                      this.handleTabs(activeKey === '1' ? '2' : '1', true);
-                    }
-                  );
-                }}
-                disabled={forbiddenConfig}
-              >
-                {(!countConfig &&
-                  <FormattedMessage id='enterpriseColony.addCluster.host.on_all_nodes' values={{countContent:countContent}}/>) ||
-                  <FormattedMessage id='enterpriseColony.addCluster.host.executed_the_above'/>}
-              </Button>
-            ]}
-          >
-            <Row style={{ padding: '0 16px' }}>
-              <span style={{ fontWeight: 600, color: 'red' }}>
-                <FormattedMessage id='enterpriseColony.addCluster.host.start_at'/>{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration'/> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation'/>}
-               <FormattedMessage id='enterpriseColony.addCluster.host.soud'/>
-              </span>
-
-              <Col span={24} style={{ marginTop: '16px' }}>
-                <span className={styles.cmd}>
-                  <Icon
-                    className={styles.copy}
-                    type="copy"
-                    onClick={() => {
-                      copy(initNodeCmd);
-                      notification.success({ message: formatMessage({id:'notification.success.copy'}) });
-                    }}
-                  />
-                  {guideStep &&
-                    guideStep === 7 &&
-                    handleNewbieGuiding({
-                      tit: formatMessage({id:'enterpriseColony.addCluster.host.Initialization'}),
-                      send: true,
-                      configName: 'nodeInitialization',
-                      handleClick: () => {
-                        copy(initNodeCmd);
-                        this.handleCountDown();
-                      },
-                      handleClosed: () => {
-                        this.handleCountDown();
-                      },
-                      desc: formatMessage({id:'enterpriseColony.addCluster.host.complete'}),
-                      prevStep: false,
-                      btnText: formatMessage({id:'enterpriseColony.addCluster.host.copy'}),
-                      nextStep: 8,
-                      conPosition: { left: '0', bottom: '-156px' },
-                      svgPosition: { right: '-20px', marginTop: '-11px' }
-                    })}
-                  {initNodeCmd}
-                </span>
-              </Col>
-            </Row>
-          </Modal>
-        )}
 
         {clusterID && (
           <Alert
             type="warning"
-            message={<FormattedMessage id='enterpriseColony.addCluster.host.suitable'/>}
+            message={<FormattedMessage id='enterpriseColony.addCluster.host.suitable' />}
           />
         )}
         <Form>
@@ -898,24 +944,24 @@ export default class RKEClusterConfig extends PureComponent {
               >
                 <ul>
                   <li>
-                    <span><FormattedMessage id='enterpriseColony.addCluster.host.provided_hosts'/></span>
+                    <span><FormattedMessage id='enterpriseColony.addCluster.host.provided_hosts' /></span>
                   </li>
                   <li>
                     <span>
-                      <FormattedMessage id='enterpriseColony.addCluster.host.provided_host'/>{!clusterID && <FormattedMessage id='enterpriseColony.addCluster.host.and_ip'/>}
-                      <b><FormattedMessage id='enterpriseColony.addCluster.host.and_ssh'/></b><FormattedMessage id='enterpriseColony.addCluster.host.and'/><b><FormattedMessage id='enterpriseColony.addCluster.host.port'/></b>
-                      <FormattedMessage id='enterpriseColony.addCluster.host.visit'/>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.provided_host' />{!clusterID && <FormattedMessage id='enterpriseColony.addCluster.host.and_ip' />}
+                      <b><FormattedMessage id='enterpriseColony.addCluster.host.and_ssh' /></b><FormattedMessage id='enterpriseColony.addCluster.host.and' /><b><FormattedMessage id='enterpriseColony.addCluster.host.port' /></b>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.visit' />
                     </span>
                   </li>
                   <li>
                     <span>
-                      <FormattedMessage id='enterpriseColony.addCluster.host.script'/><b><FormattedMessage id='enterpriseColony.addCluster.host.System_check'/></b>、<b><FormattedMessage id='enterpriseColony.addCluster.host.secret_free'/></b>、
-                      <b><FormattedMessage id='enterpriseColony.addCluster.host.docker'/></b><FormattedMessage id='enterpriseColony.addCluster.host.movements'/>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.script' /><b><FormattedMessage id='enterpriseColony.addCluster.host.System_check' /></b>、<b><FormattedMessage id='enterpriseColony.addCluster.host.secret_free' /></b>、
+                      <b><FormattedMessage id='enterpriseColony.addCluster.host.docker' /></b><FormattedMessage id='enterpriseColony.addCluster.host.movements' />
                     </span>
                   </li>
                   <li>
                     <span>
-                      <FormattedMessage id='enterpriseColony.addCluster.host.already_installed'/>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.already_installed' />
                       <b> 1.19.x</b>
                     </span>
                   </li>
@@ -925,12 +971,12 @@ export default class RKEClusterConfig extends PureComponent {
               {guideStep && guideStep === 3 && handleNewbieGuiding && clusters && clusters.length === 0 && (
                 <Fragment>
                   {handleNewbieGuiding({
-                    tit: formatMessage({id:'enterpriseColony.addCluster.host.matters_attention'}),
+                    tit: formatMessage({ id: 'enterpriseColony.addCluster.host.matters_attention' }),
                     send: false,
                     configName: 'kclustersAttention',
                     showSvg: false,
                     showArrow: true,
-                    desc: formatMessage({id:'enterpriseColony.addCluster.host.explain'}),
+                    desc: formatMessage({ id: 'enterpriseColony.addCluster.host.explain' }),
                     nextStep: 4,
                     conPosition: { right: '15px', bottom: '-134px' }
                   })}
@@ -947,7 +993,7 @@ export default class RKEClusterConfig extends PureComponent {
                 }}
               >
                 <Form.Item
-                  label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster'/>}
+                  label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster' />}
                   style={
                     (guideStep &&
                       guideStep === 4 &&
@@ -958,27 +1004,29 @@ export default class RKEClusterConfig extends PureComponent {
                   {getFieldDecorator('name', {
                     initialValue: '',
                     rules: [
-                      { required: true, message: formatMessage({id:'enterpriseColony.addCluster.host.required'}) },
+                      { required: true, message: formatMessage({ id: 'enterpriseColony.addCluster.host.required' }) },
                       {
                         pattern: /^[a-z0-9A-Z-]+$/,
-                        message: formatMessage({id:'enterpriseColony.addCluster.host.supported'})
+                        message: formatMessage({ id: 'enterpriseColony.addCluster.host.supported' })
                       },
-                      { max: 24, message: formatMessage({id:'enterpriseColony.addCluster.host.max'}) }
+                      { max: 24, message: formatMessage({ id: 'enterpriseColony.addCluster.host.max' }) }
                     ]
-                  })(<Input placeholder={formatMessage({id:'enterpriseColony.addCluster.host.only'})}  
-                            style={{textOverflow: 'ellipsis',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap'}}/>)}
+                  })(<Input placeholder={formatMessage({ id: 'enterpriseColony.addCluster.host.only' })}
+                    style={{
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
+                    }} />)}
                 </Form.Item>
-                {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0  && (
+                {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0 && (
                   <Fragment>
                     {handleNewbieGuiding({
-                      tit: formatMessage({id:'enterpriseColony.addCluster.host.input_name'}),
+                      tit: formatMessage({ id: 'enterpriseColony.addCluster.host.input_name' }),
                       showSvg: false,
                       showArrow: true,
                       send: false,
                       configName: 'kclustersAttention',
-                      desc:  formatMessage({id:'enterpriseColony.addCluster.host.configuration_information'}),
+                      desc: formatMessage({ id: 'enterpriseColony.addCluster.host.configuration_information' }),
                       nextStep: 5,
                       conPosition: { marginTop: '-22px' }
                     })}
@@ -994,12 +1042,12 @@ export default class RKEClusterConfig extends PureComponent {
               this.handleTabs(key);
             }}
           >
-            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Visual_configuration'/>} key="1">
+            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Visual_configuration' />} key="1">
               <div>
                 <Row>
                   <Col span={24} style={{ padding: '0 16px' }}>
                     <Form.Item
-                      label={<FormattedMessage id='enterpriseColony.addCluster.host.list'/>}
+                      label={<FormattedMessage id='enterpriseColony.addCluster.host.list' />}
                       style={
                         (guideStep &&
                           guideStep === 5 &&
@@ -1019,6 +1067,7 @@ export default class RKEClusterConfig extends PureComponent {
                           columns={columnEdits}
                           components={components}
                           bordered
+                          key={isCheckSsh}
                           rowClassName={() => 'editable-row'}
                           pagination={false}
                         />
@@ -1028,23 +1077,23 @@ export default class RKEClusterConfig extends PureComponent {
                       onClick={this.handleAdd}
                       style={{ marginBottom: 16 }}
                     >
-                      <FormattedMessage id='enterpriseColony.addCluster.host.add_node'/>
+                      <FormattedMessage id='enterpriseColony.addCluster.host.add_node' />
                     </Button>
                   </Col>
                 </Row>
               </div>
             </TabPane>
-            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration'/>} key="2" />
+            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration' />} key="2" />
           </Tabs>
           {guideStep && guideStep === 5 && handleNewbieGuiding && clusters && clusters.length === 0 && (
             <Fragment>
               {handleNewbieGuiding({
-                tit: formatMessage({id:'enterpriseColony.addCluster.host.Fill_in_node'}),
+                tit: formatMessage({ id: 'enterpriseColony.addCluster.host.Fill_in_node' }),
                 showSvg: false,
                 showArrow: true,
                 send: false,
                 configName: 'kclustersAttention',
-                desc: formatMessage({id:'enterpriseColony.addCluster.host.configuration_information'}),
+                desc: formatMessage({ id: 'enterpriseColony.addCluster.host.configuration_information' }),
                 nextStep: 6,
                 conPosition: { bottom: '-14px', left: '39px' }
               })}
@@ -1055,9 +1104,9 @@ export default class RKEClusterConfig extends PureComponent {
               <CodeMirrorForm
                 help={helpError}
                 data={yamlVal || ''}
-                label={<FormattedMessage id='enterpriseColony.addCluster.host.RKE_cluste_configuration'/>}
+                label={<FormattedMessage id='enterpriseColony.addCluster.host.RKE_cluste_configuration' />}
                 bg="151718"
-                width="100%"
+                width="1000px"
                 marginTop={120}
                 setFieldsValue={setFieldsValue}
                 formItemLayout={formItemLayout}
@@ -1066,11 +1115,53 @@ export default class RKEClusterConfig extends PureComponent {
                 beforeUpload={this.beforeUpload}
                 mode="yaml"
                 name="yamls"
-                message={<FormattedMessage id='enterpriseColony.addCluster.host.input_rke'/>}
+                message={<FormattedMessage id='enterpriseColony.addCluster.host.input_rke' />}
               />
             )}
           </div>
         </Form>
+
+
+        <Row style={{ padding: '0 16px' }}>
+          <span style={{ fontWeight: 600, color: 'red' }}>
+            <FormattedMessage id='enterpriseColony.addCluster.host.start_at' />{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration' /> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation' />}
+            <FormattedMessage id='enterpriseColony.addCluster.host.soud' />
+          </span>
+
+          <Col span={24} style={{ marginTop: '16px' }}>
+            <span className={styles.cmd}>
+              <Icon
+                className={styles.copy}
+                type="copy"
+                onClick={() => {
+                  copy(initNodeCmd);
+                  notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
+                }}
+              />
+              {guideStep &&
+                guideStep === 7 &&
+                handleNewbieGuiding({
+                  tit: formatMessage({ id: 'enterpriseColony.addCluster.host.Initialization' }),
+                  send: true,
+                  configName: 'nodeInitialization',
+                  handleClick: () => {
+                    copy(initNodeCmd);
+                    this.handleCountDown();
+                  },
+                  handleClosed: () => {
+                    this.handleCountDown();
+                  },
+                  desc: formatMessage({ id: 'enterpriseColony.addCluster.host.complete' }),
+                  prevStep: false,
+                  btnText: formatMessage({ id: 'enterpriseColony.addCluster.host.copy' }),
+                  nextStep: 8,
+                  conPosition: { left: '0', bottom: '-156px' },
+                  svgPosition: { right: '-20px', marginTop: '-11px' }
+                })}
+              {initNodeCmd}
+            </span>
+          </Col>
+        </Row>
       </Modal>
     );
   }
