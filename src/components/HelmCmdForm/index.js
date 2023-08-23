@@ -8,7 +8,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
-import styles from './Index.less';
+import styles from './index.less';
 
 const { Option } = Select;
 const { TextArea } = Input;
