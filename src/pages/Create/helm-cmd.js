@@ -92,11 +92,11 @@ export default class Index extends PureComponent {
       BtnLoading: true
     })
     dispatch({
-      type: "createApp/installHelmAppCmd",
+      type: "market/HelmwaRehouseAddCom",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id: value.group_id,
-        command: value.docker_cmd
+        command: value.helm_cmd
       },
       callback: res => {
         if (res) {

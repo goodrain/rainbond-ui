@@ -40,7 +40,10 @@ import {
   upHelmAppStore,
   HelmwaRehouseAdd,
   HelmwaRehouseDelete,
-  HelmwaRehouseEdit
+  HelmwaRehouseEdit,
+  HelmwaRehouseList,
+  HelmwaRehouseAddStore,
+  HelmwaRehouseAddCom
 } from '../services/market';
 
 export default {
@@ -300,6 +303,26 @@ export default {
         callback(data);
       }
     },
+    *HelmwaRehouseList({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseList, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *HelmwaRehouseAddStore({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseAddStore, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *HelmwaRehouseAddCom({ payload, callback, handleError }, { call }) {
+      const data = yield call(HelmwaRehouseAddCom, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+
+    
   },
 
   reducers: {}

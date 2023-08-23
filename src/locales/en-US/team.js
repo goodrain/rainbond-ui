@@ -31,6 +31,7 @@ const teamOverview = {
   'teamOverview.loadOverview':'Reload',
   'teamOverview.runAppNums': 'Running：{ number }',
   'teamOverview.notRunAppNums': 'Not running：{ number }',
+  
 }
 
 //团队下的应用
@@ -94,7 +95,16 @@ const teamAdd = {
   'teamAdd.create.image.config':'DockerCompose configuration',
   'teamAdd.create.image.notice':'Tips',
   'teamAdd.create.image.configHint':'Note that parsing component related properties in the DockerCompose configuration is used to facilitate component creation, the dynamic variables in the DockerCompose configuration do not support parsing assignment, and a mirror of a private repository is used?',
-
+  'teamAdd.create.helm.Add':'Add store',
+  'teamAdd.create.helm.store':'Click to view the connected store',
+  'teamAdd.create.helm.error':'The addition failed. Please check whether the command line statement is correct.',
+  'teamAdd.create.helm.addstore':'Add helm Store',
+  'teamAdd.create.helm.com_null':'The command line cannot be empty',
+  'teamAdd.create.helm.input_com':'Please enter the command line',
+  'teamAdd.create.helm.store_name':'Store name',
+  'teamAdd.create.helm.store_url':'Shop address',
+  'teamAdd.create.helm.list':'List of stores',
+  'teamAdd.create.helm.comadd':'Command',
   //upload
   'teamAdd.create.upload.title':'Kubernetes YAML Helm',
   'teamAdd.create.upload.desc':'Supports creating components from Kubernetes YAML and importing existing Kubernetes resources',
