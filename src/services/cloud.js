@@ -316,3 +316,18 @@ export async function uninstallRegion(body, handleError) {
     }
   );
 }
+
+// 检测ssh
+export async function fetchCheckSsh(body, handleError) {
+  return request(
+    `/console/proxy/enterprise-server/api/v1/check_ssh`,
+    {
+      method: 'post',
+      data: {
+        host: body.host,
+        port: body.port,
+      },
+      handleError
+    }
+  );
+}

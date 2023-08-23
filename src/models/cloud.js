@@ -15,7 +15,8 @@ import {
   reInstall,
   setEnterpriseAccesskey,
   updateInitTaskStatus,
-  updateKubernetesCluster
+  updateKubernetesCluster,
+  fetchCheckSsh
 } from '../services/cloud';
 
 export default {
@@ -146,7 +147,13 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *fetchCheckSsh({ payload, callback, handleError }, { call }) {
+      const response = yield call( fetchCheckSsh, payload, handleError );
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
 
   reducers: {}
