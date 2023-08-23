@@ -93,6 +93,17 @@ const teamAdd = {
   'teamAdd.create.image.config':'DockerCompose配置',
   'teamAdd.create.image.notice':'注意',
   'teamAdd.create.image.configHint':'注意将解析 DockerCompose 配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值, 其中使用了私有仓库的镜像?',
+  'teamAdd.create.helm.Add':'添加商店',
+  'teamAdd.create.helm.store':'点击查看已对接商店',
+  'teamAdd.create.helm.error':'添加失败，请检查命令行语句是否正确。',
+  'teamAdd.create.helm.addstore':'添加helm商店',
+  'teamAdd.create.helm.com_null':'命令行不能为空',
+  'teamAdd.create.helm.input_com':'请输入命令行',
+  'teamAdd.create.helm.store_name':'商店名称',
+  'teamAdd.create.helm.store_url':'商店地址',
+  'teamAdd.create.helm.list':'商店列表',
+  'teamAdd.create.helm.comadd':'命令行',
+
 
   //upload
   'teamAdd.create.upload.title':'Kubernetes YAML Helm',

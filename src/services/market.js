@@ -593,3 +593,45 @@ export function HelmwaRehouseEdit(body = {}, handleError) {
     }
   );
 }
+
+// 获取helm仓库列表
+export function HelmwaRehouseList(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_list`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+
+// 添加helm仓库
+export function HelmwaRehouseAddStore(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_cmd_add`,
+    {
+      method: 'post',
+      data: {
+        app_id: body.app_id,
+        command: body.command,
+      },
+      handleError
+    }
+  );
+}
+
+// 添加helm_cmd 命令
+export function HelmwaRehouseAddCom(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_command`,
+    {
+      method: 'post',
+      data: {
+        app_id: body.app_id,
+        command: body.command,
+      },
+      handleError
+    }
+  );
+}
