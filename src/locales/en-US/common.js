@@ -660,7 +660,7 @@
         'placeholder.selectComponent':'Please select component',
         'placeholder.max24':'The value contains a maximum of 24 characters',
         'placeholder.docker_cmdMsg':'Please enter the image name',
-        'placeholder.docker_cmd':'enter the image name, eg: nginx: 1.11',
+        'placeholder.docker_cmd':'enter the image name, eg: nginx:1.11',
         'placeholder.dockerRunMsg':'Enter the DockerRun command',
         'placeholder.dockerRun':'eg: helm install --repo https://example.com/charts/ mynginx nginx',
         'placeholder.yaml_content':'Enter the DockerCompose configuration content',
