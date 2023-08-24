@@ -11,7 +11,7 @@ const login = {
     'login.registerComponent.min':'密码长度至少为8位',
     'login.registerComponent.max':'最大长度16位',
     'login.registerComponent.pass':'两次输入的密码不匹配!',
-    'login.registerComponent.input_en_name':'请输入企业名称',
+    'login.registerComponent.input_en_name':'请输入平台名称',
     'login.registerComponent.en_name':'平台名称',
     'login.registerComponent.input_name':'请输入姓名',
     'login.registerComponent.Max':'最大长度24位',
