@@ -668,7 +668,7 @@
         'placeholder.selectComponent':'请选择组件',
         'placeholder.max24':'最大长度24位',
         'placeholder.docker_cmdMsg':'请输入镜像名称',
-        'placeholder.docker_cmd':'请输入镜像名称, 如 nginx : 1.11',
+        'placeholder.docker_cmd':'请输入镜像名称, 如 nginx:1.11',
         'placeholder.dockerRunMsg':'请输入DockerRun命令',
         'placeholder.helmCmdMsg':'请输入 Helm 命令',
         'placeholder.dockerRun':'例如： docker run -d -p 8080:8080 -e PWD=1qa2ws --name=tomcat_demo tomcat',

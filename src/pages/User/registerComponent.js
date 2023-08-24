@@ -140,7 +140,7 @@ export default class RegisterComponent extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist && 
-          <Divider>企业信息</Divider>
+          <Divider >平台信息</Divider>
         }
         {firstRegist && (
           <FormItem {...formItemLayout}>
@@ -189,103 +189,27 @@ export default class RegisterComponent extends Component {
             />
           )}
         </FormItem>
-        {firstRegist && 
-          <Divider>用户详情</Divider>
-        }
         <FormItem {...formItemLayout}>
-          {getFieldDecorator('real_name', {
-            initialValue: userInfo ? userInfo.oauth_user_name : '',
+          {getFieldDecorator('email', {
+            initialValue: userInfo ? userInfo.oauth_user_email : '',
             rules: [
-              { required: true, message: formatMessage({ id: 'login.registerComponent.input_name' }) },
               {
-                max: 24,
-                message: formatMessage({ id: 'login.registerComponent.Max' })
+                required: true,
+                message: formatMessage({ id: 'login.registerComponent.input_add' })
               },
               {
-                pattern: /^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/,
-                message: formatMessage({ id: 'login.registerComponent.only' })
+                type: 'email',
+                message: formatMessage({ id: 'login.registerComponent.add_error' })
               }
             ]
-          })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.name' })} />)}
-        </FormItem>
-        <Row>
-          <Col span="12" style={{ padding: '0 8px 0 0' }}>
-            <FormItem {...formItemLayout}>
-              {getFieldDecorator('email', {
-                initialValue: userInfo ? userInfo.oauth_user_email : '',
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'login.registerComponent.input_add' })
-                  },
-                  {
-                    type: 'email',
-                    message: formatMessage({ id: 'login.registerComponent.add_error' })
-                  }
-                ]
-              })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
-            </FormItem>
-          </Col>
-          <Col span="12" style={{ padding: '0 0 0 8px' }}>
-            <FormItem {...formItemLayout}>
-              {getFieldDecorator('phone', {
-                initialValue: '',
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'login.registerComponent.iphone' })
-                  },
-                  {
-                    pattern: /^[0-9]{11}$/,
-                    message: formatMessage({ id: 'login.registerComponent.input_iphone' })
-                  }
-                ]
-              })(
-                <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.Iphone' })} />
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <FormItem {...formItemLayout}>
-          <Row gutter={8}>
-            <Col span={16}>
-              {getFieldDecorator('captcha_code', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'login.registerComponent.Verification_Code' })
-                  },
-                  {
-                    min: 4,
-                    message: formatMessage({ id: 'login.registerComponent.four' })
-                  },
-                  {
-                    max: 4,
-                    message: formatMessage({ id: 'login.registerComponent.success' })
-                  }
-                ]
-              })(
-                <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.Verification' })} />
-              )}
-            </Col>
-            <Col span={8}>
-              <img
-                onClick={this.changeTime}
-                src={`${apiconfig.baseUrl}/console/captcha?_=${time}`}
-                style={{
-                  width: '100%',
-                  height: 40
-                }}
-              />
-            </Col>
-          </Row>
-        </FormItem>
+          })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
+         </FormItem>
         <FormItem>
           <Button
             size="large"
             loading={type === 'register' ? submitting : thirdsubmitting}
             className={styles.submit}
-            style={{ width: type === 'register' ? '50%' : '100%' }}
+            style={{ width: type === 'register' ? '100%' : '100%', marginTop: 24 }}
             type="primary"
             htmlType="submit"
           >

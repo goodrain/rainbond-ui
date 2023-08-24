@@ -87,6 +87,20 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
+  handleValiateCmd = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error(formatMessage({id: 'placeholder.docker_cmd'})));
+    }
+    if (value) {
+      const Reg = /^[^\s]*$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error('镜像名称不能包含空格')
+        );
+      }
+      callback();
+    }
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
     const {
@@ -182,7 +196,7 @@ export default class Index extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id: 'placeholder.docker_cmdMsg'})
+                  validator: this.handleValiateCmd
                 }
               ]
             })(<Input placeholder={formatMessage({id: 'placeholder.docker_cmd'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}

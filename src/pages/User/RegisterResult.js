@@ -83,6 +83,7 @@ export default class Register extends Component {
     });
   };
   onRouterLink = (eid, firstRegist, regionName)=>{
+    console.log(eid,firstRegist,regionName)
     const { dispatch } = this.props;
     if(firstRegist){
       if(regionName){

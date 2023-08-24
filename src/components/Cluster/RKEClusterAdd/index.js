@@ -665,6 +665,7 @@ export default class RKEClusterConfig extends PureComponent {
     let arr = []
     for (let i = 0, l = dataSource.length; i < l; i++) {
       let data = {
+        id: i,
         ip: dataSource[i].ip,
         sshPort: dataSource[i].sshPort
       }
@@ -703,6 +704,7 @@ export default class RKEClusterConfig extends PureComponent {
   }
 
   getCode(data) {
+    const { dataSource, isCheckSsh } = this.state
     const { dispatch } = this.props;
     return new Promise((resolve, reject) => {
       dispatch({
@@ -714,6 +716,14 @@ export default class RKEClusterConfig extends PureComponent {
         callback: res => {
           if (res && res.status_code === 200) {
             // 将数据返回插入到dataSource中
+            dataSource[data.id].code = res.response_data.code;
+            dataSource[data.id].msg = res.response_data.msg;
+            setTimeout(() => {
+            this.setState({
+              dataSource,
+              isCheckSsh: !isCheckSsh
+            })
+            },10)
             resolve(res.response_data)
           }
         },
@@ -822,19 +832,23 @@ export default class RKEClusterConfig extends PureComponent {
         width: 160,
         render: (text, record) => {
           const { code, msg } = record
-          return isCheckStatus ? (
+          return code ? (
             <div>
-              {formatMessage({ id: 'enterpriseColony.addCluster.host.checking' })} <Spin spinning={isCheckStatus} />
+              <div>
+                {code == 200 ? <div style={{ color: '#36B37E' }}>success</div> : <div style={{ color: '#FF5630' }}>{msg}</div>}
+              </div>
             </div>
           ) : (
             <div>
-              {!code ?
-                formatMessage({ id: 'enterpriseColony.addCluster.host.await_check' })
-                : (
-                  <div>
-                    {code == 200 ? <div style={{ color: '#36B37E' }}>success</div> : <div style={{ color: '#FF5630' }}>{msg}</div>}
-                  </div>
-                )}
+              {isCheckStatus ? 
+              <div>
+                {formatMessage({ id: 'enterpriseColony.addCluster.host.checking' })} <Spin spinning={isCheckStatus} />
+              </div> :
+              (
+                <div>
+                 {formatMessage({ id: 'enterpriseColony.addCluster.host.await_check' })}
+                </div>
+              )}
             </div>
           )
         }
@@ -897,6 +911,10 @@ export default class RKEClusterConfig extends PureComponent {
           <Fragment>
             <Button
               type="primary"
+              style={(guideStep && guideStep === 6 && {
+                position: 'relative',
+                zIndex: 1000,
+              }) || {}}
               disabled={isCheckStatus}
               onClick={() => {
                 this.handleCheckSsh()
@@ -978,7 +996,7 @@ export default class RKEClusterConfig extends PureComponent {
                     showArrow: true,
                     desc: formatMessage({ id: 'enterpriseColony.addCluster.host.explain' }),
                     nextStep: 4,
-                    conPosition: { right: '15px', bottom: '-134px' }
+                    conPosition: { left: '0px', bottom: '-100px' }
                   })}
                 </Fragment>
               )}
@@ -1090,12 +1108,13 @@ export default class RKEClusterConfig extends PureComponent {
               {handleNewbieGuiding({
                 tit: formatMessage({ id: 'enterpriseColony.addCluster.host.Fill_in_node' }),
                 showSvg: false,
-                showArrow: true,
-                send: false,
+                showArrow: false,
+                send: true,
+                btnText: '我知道了',
                 configName: 'kclustersAttention',
                 desc: formatMessage({ id: 'enterpriseColony.addCluster.host.configuration_information' }),
                 nextStep: 6,
-                conPosition: { bottom: '-14px', left: '39px' }
+                conPosition: { top: '240px', left: '200px' },
               })}
             </Fragment>
           )}
@@ -1120,7 +1139,6 @@ export default class RKEClusterConfig extends PureComponent {
             )}
           </div>
         </Form>
-
 
         <Row style={{ padding: '0 16px' }}>
           <span style={{ fontWeight: 600, color: 'red' }}>

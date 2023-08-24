@@ -13,7 +13,7 @@ const login = {
     'login.registerComponent.max':'Maximum length: 16 bits',
     'login.registerComponent.pass':'The passwords entered twice do not match!',
     'login.registerComponent.input_en_name':'Please enter the enterprise name',
-    'login.registerComponent.en_name':'Enterprise name',
+    'login.registerComponent.en_name':'Platform name',
     'login.registerComponent.input_name':'Please enter your name',
     'login.registerComponent.Max':'Maximum length: 24 bits',
     'login.registerComponent.only':'Only letters, numbers, Chinese_ And - combination',
