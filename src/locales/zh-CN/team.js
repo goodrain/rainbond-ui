@@ -98,7 +98,7 @@ const teamAdd = {
   'teamAdd.create.helm.error':'添加失败，请检查命令行语句是否正确。',
   'teamAdd.create.helm.addstore':'添加helm商店',
   'teamAdd.create.helm.com_null':'命令行不能为空',
-  'teamAdd.create.helm.input_com':'请输入命令行',
+  'teamAdd.create.helm.input_com':'eg: helm repo add appstore https://charts.grapps.cn',
   'teamAdd.create.helm.store_name':'商店名称',
   'teamAdd.create.helm.store_url':'商店地址',
   'teamAdd.create.helm.list':'商店列表',
