@@ -778,32 +778,32 @@ export default class Index extends PureComponent {
             )}
           </div>
           <div style={{ height: '34px', paddingTop: '12px' }}>
-            {currApp.app_arch && 
-              currApp.app_arch.length > 0 && 
+            {currApp.app_arch &&
+              currApp.app_arch.length > 0 &&
               currApp.app_arch.map((item) => {
                 return <Tag>{item}</Tag>
-            })}
+              })}
           </div>
           <div className={styles.content_Box}>
             {appStatusConfig && <AppState AppStatus={resources.status} />}
             {resources.status &&
-              resources.status !== 'STARTING' && 
-              resources.status !== 'RUNNING' && 
+              resources.status !== 'STARTING' &&
+              resources.status !== 'RUNNING' &&
               serviceIds &&
-              serviceIds.length > 0 && 
+              serviceIds.length > 0 &&
               isStart && (
-              <span>
-                <a
-                  onClick={() => {
-                    this.handleTopology('start');
-                  }}
-                  disabled={BtnDisabled}
-                >
-                  {formatMessage({ id: 'appOverview.btn.start' })}
-                </a>
-                <Divider type="vertical" />
-              </span>
-            )}
+                <span>
+                  <a
+                    onClick={() => {
+                      this.handleTopology('start');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    {formatMessage({ id: 'appOverview.btn.start' })}
+                  </a>
+                  <Divider type="vertical" />
+                </span>
+              )}
             {resources.status &&
               (resources.status === 'ABNORMAL' ||
                 resources.status === 'PARTIAL_ABNORMAL') &&
@@ -822,7 +822,7 @@ export default class Index extends PureComponent {
                   <Divider type="vertical" />
                 </span>
               )}
-            {resources.status && resources.status !== 'CLOSED' && resources.status !== 'STOPPING' &&  isStop && (
+            {resources.status && resources.status !== 'CLOSED' && resources.status !== 'STOPPING' && isStop && (
               <span>
                 <a
                   onClick={() => {
@@ -1018,24 +1018,24 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.content_Box}>
               {appStatusConfig && <AppState AppStatus={resources.status} />}
-              {resources.status && 
-              resources.status !== 'STARTING' && 
-              resources.status !== 'RUNNING' && 
-              serviceIds &&
-              serviceIds.length > 0 && 
-              isStart && (
-                <span>
-                  <a
-                    onClick={() => {
-                      this.handleTopology('start');
-                    }}
-                    disabled={BtnDisabled}
-                  >
-                    {formatMessage({ id: 'appOverview.btn.start' })}
-                  </a>
-                  <Divider type="vertical" />
-                </span>
-              )}
+              {resources.status &&
+                resources.status !== 'STARTING' &&
+                resources.status !== 'RUNNING' &&
+                serviceIds &&
+                serviceIds.length > 0 &&
+                isStart && (
+                  <span>
+                    <a
+                      onClick={() => {
+                        this.handleTopology('start');
+                      }}
+                      disabled={BtnDisabled}
+                    >
+                      {formatMessage({ id: 'appOverview.btn.start' })}
+                    </a>
+                    <Divider type="vertical" />
+                  </span>
+                )}
               {resources.status &&
                 (resources.status === 'ABNORMAL' ||
                   resources.status === 'PARTIAL_ABNORMAL') &&
@@ -1063,7 +1063,7 @@ export default class Index extends PureComponent {
                   >
                     {formatMessage({ id: 'appOverview.btn.stop' })}
                   </a>
-                    <Divider type="vertical" />
+                  <Divider type="vertical" />
                 </span>
               )}
               {isDelete && (
@@ -1200,7 +1200,7 @@ export default class Index extends PureComponent {
               borderTopLeftRadius: 5,
             }}
           >
-            <Col span={5} style={{ paddingleft: '12px' }}>
+            <Col span={5} style={{ paddingleft: '12px', display: 'flex', alignItems: "center", height: "100%", justifyContent: 'space-evenly', textAlign: 'center' }} >
               <a
                 onClick={() => {
                   this.changeType('shape');
@@ -1211,10 +1211,17 @@ export default class Index extends PureComponent {
                   });
                 }}
                 style={{
-                  marginLeft: '30px',
-                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                  height: "100%",
+                  width: "30%",
+                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
+                  fontWeight: 'bold',
+                  lineHeight: '60px',
+                  borderBottom: type !== 'list' ? '2px solid #1890ff' : 'none',
                 }}
               >
+                <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
+                  {globalUtil.fetchSvg('topology', type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)', 20)}
+                </span>
                 {formatMessage({ id: 'appOverview.topology' })}
               </a>
               {isComponentDescribe && (
@@ -1223,10 +1230,17 @@ export default class Index extends PureComponent {
                     this.changeType('list');
                   }}
                   style={{
-                    marginLeft: '30px',
-                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)'
+                    height: "100%",
+                    width: "30%",
+                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
+                    fontWeight: 'bold',
+                    lineHeight: '60px',
+                    borderBottom: type === 'list' ? '2px solid #1890ff' : 'none',
                   }}
                 >
+                  <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
+                    {globalUtil.fetchSvg('list', type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)', 20)}
+                  </span>
                   {formatMessage({ id: 'appOverview.list' })}
                 </a>
               )}
@@ -1236,126 +1250,6 @@ export default class Index extends PureComponent {
               span={11}
               style={{ paddingleft: '12px' }}
             >
-              {type !== 'list' && isComponentCreate && (
-                <Radio.Group>
-                  {common ? (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                        color: '#F6F7FA', borderColor: '#4C73B0'
-                      }}
-                      onClick={() => {
-                        this.changeType('shape');
-                        this.setState({
-                          aggregation: false,
-                          common: true,
-                          compile: false
-                        });
-                      }}
-                      disabled
-                    >
-                      {formatMessage({ id: 'appOverview.btn.ordinary' })}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                        color: '#595959', borderColor: '#D9D9D9',
-                      }}
-
-                      onClick={() => {
-                        this.changeType('shape');
-                        this.setState({
-                          aggregation: false,
-                          common: true,
-                          compile: false
-                        });
-                      }}
-                    >
-                      {formatMessage({ id: 'appOverview.btn.ordinary' })}
-                    </Radio.Button>
-                  )}
-                  {aggregation ? (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                        color: '#F6F7FA', borderColor: '#4C73B0'
-                      }}
-                      onClick={() => {
-                        this.changeType('aggregation');
-                        this.setState({
-                          aggregation: true,
-                          common: false,
-                          compile: false
-                        });
-                      }}
-                      disabled
-                    >
-                      {formatMessage({ id: 'appOverview.btn.aggregation' })}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                        color: '#595959', borderColor: '#D9D9D9'
-                      }}
-                      onClick={() => {
-                        this.changeType('aggregation');
-                        this.setState({
-                          aggregation: true,
-                          common: false,
-                          compile: false
-                        });
-                      }}
-                    >
-                      {formatMessage({ id: 'appOverview.btn.aggregation' })}
-                    </Radio.Button>
-                  )}
-                  {compile ? (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
-                        color: '#F6F7FA', borderColor: '#4C73B0'
-                      }}
-
-                      onClick={() => {
-                        this.changeType('shapes');
-                        this.setState({
-                          aggregation: false,
-                          common: false,
-                          compile: true
-                        });
-                      }}
-                      disabled
-                    >
-                      {formatMessage({ id: 'appOverview.btn.arrange' })}
-                    </Radio.Button>
-                  ) : (
-                    <Radio.Button
-                      style={{
-                        textAlign: 'center', height: '32px',
-                        lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
-                        color: '#595959', borderColor: '#D9D9D9'
-                      }}
-                      onClick={() => {
-                        this.changeType('shapes');
-                        this.setState({
-                          aggregation: false,
-                          common: false,
-                          compile: true
-                        });
-                      }}
-                    >
-                      {formatMessage({ id: 'appOverview.btn.arrange' })}
-                    </Radio.Button>
-                  )}
-                </Radio.Group>
-              )}
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
               {/* {isComponentCreate && isComponentConstruct && (
@@ -1393,6 +1287,136 @@ export default class Index extends PureComponent {
               )}
             </Col>
           </Row>
+          {(type == 'shape' || type =='aggregation' || type =='shapes') && 
+                    <Row style={{display:'flex',alignItems:'center',padding:"20px",justifyContent:'center',background: '#fff'}}>
+                    {type !== 'list' && isComponentCreate && (
+                      <Radio.Group>
+                        {common ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              boxShadow: 'none'
+                            }}
+                            onClick={() => {
+                              this.changeType('shape');
+                              this.setState({
+                                aggregation: false,
+                                common: true,
+                                compile: false
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9',
+                              boxShadow: 'none'
+                            }}
+        
+                            onClick={() => {
+                              this.changeType('shape');
+                              this.setState({
+                                aggregation: false,
+                                common: true,
+                                compile: false
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.ordinary' })}
+                          </Radio.Button>
+                        )}
+                        {aggregation ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              boxShadow: 'none'
+                            }}
+                            onClick={() => {
+                              this.changeType('aggregation');
+                              this.setState({
+                                aggregation: true,
+                                common: false,
+                                compile: false
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9',
+                              boxShadow: 'none'
+                            }}
+                            onClick={() => {
+                              this.changeType('aggregation');
+                              this.setState({
+                                aggregation: true,
+                                common: false,
+                                compile: false
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.aggregation' })}
+                          </Radio.Button>
+                        )}
+                        {compile ? (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              boxShadow: 'none'
+                            }}
+        
+                            onClick={() => {
+                              this.changeType('shapes');
+                              this.setState({
+                                aggregation: false,
+                                common: false,
+                                compile: true
+                              });
+                            }}
+                            disabled
+                          >
+                            {formatMessage({ id: 'appOverview.btn.arrange' })}
+                          </Radio.Button>
+                        ) : (
+                          <Radio.Button
+                            style={{
+                              textAlign: 'center', height: '32px',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              color: '#595959', borderColor: '#D9D9D9',
+                              boxShadow: 'none'
+                            }}
+                            onClick={() => {
+                              this.changeType('shapes');
+                              this.setState({
+                                aggregation: false,
+                                common: false,
+                                compile: true
+                              });
+                            }}
+                          >
+                            {formatMessage({ id: 'appOverview.btn.arrange' })}
+                          </Radio.Button>
+                        )}
+                      </Radio.Group>
+                    )}
+                  </Row>
+          }
           {rapidCopy && (
             <RapidCopy
               copyFlag={true}
