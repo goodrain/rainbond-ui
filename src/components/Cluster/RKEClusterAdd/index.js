@@ -659,8 +659,12 @@ export default class RKEClusterConfig extends PureComponent {
     const { dataSource, isCheckSsh, activeKey } = this.state;
     const { dispatch } = this.props;
     this.handleCheck(false)
+    dataSource.forEach(item => {
+      delete item.code;
+    });
     this.setState({
-      isCheckStatus: true
+      isCheckStatus: true,
+      dataSource
     })
     let arr = []
     for (let i = 0, l = dataSource.length; i < l; i++) {
@@ -695,7 +699,7 @@ export default class RKEClusterConfig extends PureComponent {
               }
             }
           })
-        }, 100)
+        }, 10)
       })
     }, reason => {
       console.log(reason)
@@ -719,11 +723,11 @@ export default class RKEClusterConfig extends PureComponent {
             dataSource[data.id].code = res.response_data.code;
             dataSource[data.id].msg = res.response_data.msg;
             setTimeout(() => {
-            this.setState({
-              dataSource,
-              isCheckSsh: !isCheckSsh
-            })
-            },10)
+              this.setState({
+                dataSource,
+                isCheckSsh: data.id,
+              })
+            }, 10)
             resolve(res.response_data)
           }
         },
@@ -782,22 +786,6 @@ export default class RKEClusterConfig extends PureComponent {
     };
     const columns = [
       {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.host.status' }),
-        dataIndex: 'code',
-        width: 60,
-        align: 'center',
-        render: (text, record) => {
-          const { code, msg } = record
-          return code ? (
-            <div>
-              <Badge color={code == 200 ? "#36B37E" : "#FF5630"} />
-            </div>
-          ) : (
-            <Badge status="default" />
-          )
-        }
-      },
-      {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.ip' }),
         dataIndex: 'ip',
         width: 150,
@@ -827,7 +815,7 @@ export default class RKEClusterConfig extends PureComponent {
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' }) ,
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' }),
         dataIndex: 'msg',
         width: 160,
         render: (text, record) => {
@@ -840,15 +828,15 @@ export default class RKEClusterConfig extends PureComponent {
             </div>
           ) : (
             <div>
-              {isCheckStatus ? 
-              <div>
-                {formatMessage({ id: 'enterpriseColony.addCluster.host.checking' })} <Spin spinning={isCheckStatus} />
-              </div> :
-              (
+              {isCheckStatus ?
                 <div>
-                 {formatMessage({ id: 'enterpriseColony.addCluster.host.await_check' })}
-                </div>
-              )}
+                  {formatMessage({ id: 'enterpriseColony.addCluster.host.checking' })} <Spin spinning={isCheckStatus} />
+                </div> :
+                (
+                  <div>
+                    {formatMessage({ id: 'enterpriseColony.addCluster.host.await_check' })}
+                  </div>
+                )}
             </div>
           )
         }
