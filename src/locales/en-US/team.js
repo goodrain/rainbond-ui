@@ -100,7 +100,7 @@ const teamAdd = {
   'teamAdd.create.helm.error':'The addition failed. Please check whether the command line statement is correct.',
   'teamAdd.create.helm.addstore':'Add helm Store',
   'teamAdd.create.helm.com_null':'The command line cannot be empty',
-  'teamAdd.create.helm.input_com':'Please enter the command line',
+  'teamAdd.create.helm.input_com':'eg: helm repo add appstore https://charts.grapps.cn',
   'teamAdd.create.helm.store_name':'Store name',
   'teamAdd.create.helm.store_url':'Shop address',
   'teamAdd.create.helm.list':'List of stores',

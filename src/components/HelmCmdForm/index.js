@@ -55,6 +55,9 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.getAppStoreList()
+    this.setState({
+      addStoreVisible: this.props.showaddStoreVisible
+    })
   }
   getAppStoreList = () => {
     const { dispatch } = this.props;

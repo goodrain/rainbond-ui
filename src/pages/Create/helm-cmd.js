@@ -47,7 +47,8 @@ export default class Index extends PureComponent {
       showKey: false,
       addGroup: false,
       errorShow: false,
-      BtnLoading: false
+      BtnLoading: false,
+      showaddStoreVisible: false,
     };
   }
   onAddGroup = () => {
@@ -130,6 +131,7 @@ export default class Index extends PureComponent {
             this.setState({
               errorShow: false,
               BtnLoading: false,
+              showaddStoreVisible: true
             })
           }
         }
@@ -141,6 +143,7 @@ export default class Index extends PureComponent {
         this.setState({
           BtnLoading: false,
           errorShow: false,
+          showaddStoreVisible: true
         })
       }
     });
@@ -200,9 +203,9 @@ export default class Index extends PureComponent {
         ? ""
         : this.props.match.params.image || ""
     );
-    const { errorInfo, errorShow, BtnLoading } = this.state
+    const { errorInfo, errorShow, BtnLoading, showaddStoreVisible } = this.state
     return (
-      <Card>
+      <Card key={`${showaddStoreVisible}`}>
         <TopUpHints />
         <div
           className={styles.formWrap}
@@ -220,6 +223,7 @@ export default class Index extends PureComponent {
             BtnLoading={BtnLoading}
             errorShow={errorShow}
             description={errorInfo}
+            showaddStoreVisible={showaddStoreVisible}
           />
         </div>
       </Card>
