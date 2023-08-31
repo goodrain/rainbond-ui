@@ -460,7 +460,7 @@ const otherAppAssembly = {
   'otherApp.UploadJarWar.en_name':'组件英文名称',
   'otherApp.UploadJarWar.input_en_name':'请输入组件的英文名称',
   'otherApp.UploadJarWar.up':'上传文件',
-  'otherApp.UploadJarWar.jar':'支持Jar、War格式上传文件',
+  'otherApp.UploadJarWar.jar':'支持Jar、War、Zip、Tar格式上传文件',
   'otherApp.UploadJarWar.new':'新建组件',
 
   'otherApp.AppMoveGroup.title':'修改组件所属应用',

@@ -764,7 +764,9 @@ const componentOverview = {
     'componentOverview.body.CodeBuildConfig.callback_msg':'Custom JDK download address cannot be empty',
     'componentOverview.body.CodeBuildConfig.card_title':'Source code build parameter settings',
     'componentOverview.body.CodeBuildConfig.label':'ARG parameter',
-    'componentOverview.body.CodeBuildConfig.Confirm':'Confirm modification',
+    'componentOverview.body.CodeBuildConfig.type':'Construction mode',
+    'componentOverview.body.CodeBuildConfig.default':'Default build',
+    'componentOverview.body.CodeBuildConfig.dockerfile':'Dockerfie build',
     // tabs栏>Resource>ChangeBuildSource
     'componentOverview.body.ChangeBuildSource.Illegal':'Illegal Repo address',
     'componentOverview.body.ChangeBuildSource.git_branch':'Branch',

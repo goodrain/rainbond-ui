@@ -38,6 +38,7 @@ export default class index extends Component {
                                   });
                             }
                             this.handleCancel()
+                            this.props.onOk && this.props.onOk(false)
                         }
                     },
                     handleError: err => {

@@ -775,6 +775,9 @@ const componentOverview = {
     'componentOverview.body.CodeBuildConfig.card_title':'源码构建参数设置',
     'componentOverview.body.CodeBuildConfig.label':'ARG参数',
     'componentOverview.body.CodeBuildConfig.Confirm':'确认修改',
+    'componentOverview.body.CodeBuildConfig.type':'构建方式',
+    'componentOverview.body.CodeBuildConfig.default':'默认构建',
+    'componentOverview.body.CodeBuildConfig.dockerfile':'Dockerfie构建',
     // tabs栏>Resource>ChangeBuildSource
     'componentOverview.body.ChangeBuildSource.Illegal':'非法仓库地址',
     'componentOverview.body.ChangeBuildSource.git_branch':'分支',

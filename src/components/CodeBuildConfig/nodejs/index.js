@@ -135,7 +135,22 @@ class Index extends PureComponent {
               'https://registry.npmmirror.com'
           })(<Input placeholder="https://registry.npmmirror.com" />)}
         </Form.Item>
-
+        { ((languageType === 'nodejs' && soundCodeLanguage === 'NodeJSStatic') || (languageType === 'NodeJSStatic')) && 
+        <Form.Item
+          label={<FormattedMessage id="componentOverview.body.NodeJSConfig.yarn"/>}
+          {...formItemLayout}
+          label={formatMessage({id:'componentOverview.body.CodeBuildConfig.type'})}
+        >
+          {getFieldDecorator('BUILD_MODE', {
+            initialValue:
+              (envs && envs.BUILD_MODE) ||
+              'DEFAULT'
+          })(<Radio.Group name="radiogroup">
+                <Radio value='DEFAULT'>{formatMessage({id:'componentOverview.body.CodeBuildConfig.default'})}</Radio>
+                <Radio value='DOCKERFILE'>{formatMessage({id:'componentOverview.body.CodeBuildConfig.dockerfile'})}</Radio>
+              </Radio.Group>)}
+        </Form.Item>
+      }
         {(((languageType === 'nodejsstatic' && advanced_setup != 'advanced') || (languageType === 'NodeJSStatic' && advanced_setup != 'advanced')) || (soundCodeLanguage == 'NodeJSStatic' && advanced_setup == 'advanced')) && (
           <Form.Item
             {...formItemLayout}
