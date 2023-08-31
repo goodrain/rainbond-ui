@@ -455,7 +455,7 @@ const otherAppAssembly = {
  'otherApp.UploadJarWar.en_name':'English name',
  'otherApp.UploadJarWar.input_en_name':'Please enter the English name of the component',
  'otherApp.UploadJarWar.up':'Upload file',
- 'otherApp.UploadJarWar.jar':'Support uploading files in jar and war formats',
+ 'otherApp.UploadJarWar.jar':'Support uploading files in jar、tgz、zip and war formats',
  'otherApp.UploadJarWar.new':'New component',
 
  'otherApp.AppMoveGroup.title':'Modify the application to which the component belongs',
