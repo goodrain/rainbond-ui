@@ -54,10 +54,8 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
+    this.props.onRef(this)
     this.getAppStoreList()
-    this.setState({
-      addStoreVisible: this.props.showaddStoreVisible
-    })
   }
   getAppStoreList = () => {
     const { dispatch } = this.props;
@@ -116,13 +114,24 @@ export default class Index extends PureComponent {
   showStoreMoudle = () => {
     this.setState({
       addStoreVisible: !this.state.addStoreVisible,
-      clicked: !this.state.clicked
+      clicked: false
     })
   }
-  handleClickChange = () => {
+  onlyShowStoreMoudle =()=>{
     this.setState({
-      clicked: !this.state.clicked
-    });
+      addStoreVisible: !this.state.addStoreVisible,
+    })
+  }
+  handleClickChange = (val) => {
+    if(val == false){
+      this.setState({
+        clicked: false
+      })
+    }else{
+      this.setState({
+        clicked: !this.state.clicked
+      })
+    }
   }
   render() {
     const {
@@ -207,7 +216,7 @@ export default class Index extends PureComponent {
               placement="bottomRight"
               trigger="click"
               visible={this.state.clicked}
-              onVisibleChange={this.handleClickChange}
+              onVisibleChange={()=>this.handleClickChange(true)}
             >
               <p className={styles.storeList}>{formatMessage({id:'teamAdd.create.helm.store'})}</p>
             </Popover>
@@ -260,7 +269,7 @@ export default class Index extends PureComponent {
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
         {addStoreVisible &&
-          <AddHelmStore handleCancel={this.showStoreMoudle}  visible={addStoreVisible} RefreshList={this.getAppStoreList}/>
+          <AddHelmStore handleCancel={this.showStoreMoudle}  visible={addStoreVisible} RefreshList={this.getAppStoreList} onOk={this.handleClickChange}/>
         }
       </Fragment>
     );

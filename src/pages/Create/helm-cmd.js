@@ -50,6 +50,7 @@ export default class Index extends PureComponent {
       BtnLoading: false,
       showaddStoreVisible: false,
     };
+    this.sub = React.createRef();
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -86,6 +87,9 @@ export default class Index extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
+  onRef = (ref) => {
+      this.child = ref
+  }
   handleSubmit = (value, isService) => {
     const teamName = globalUtil.getCurrTeamName();
     const { dispatch } = this.props;
@@ -131,19 +135,18 @@ export default class Index extends PureComponent {
             this.setState({
               errorShow: false,
               BtnLoading: false,
-              showaddStoreVisible: true
             })
           }
         }
       },
       handleError: err => {
+        this.child.onlyShowStoreMoudle()
         notification.error({
           message: err.data.msg_show
         });
         this.setState({
           BtnLoading: false,
           errorShow: false,
-          showaddStoreVisible: true
         })
       }
     });
@@ -217,6 +220,7 @@ export default class Index extends PureComponent {
           }}
         >
           <HelmCmdForm
+onRef={this.onRef}
             data={{ docker_cmd: helm || "" }}
             onSubmit={this.handleSubmit}
             {...this.props}
