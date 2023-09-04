@@ -104,13 +104,14 @@ class EditableCell extends React.Component {
         required: true,
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.Required' }, { title: title })
       },
-      { validator: this.validateIP }
     ];
     const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
     if (ips) {
       rules.push({
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.correct_IP' }),
         pattern: new RegExp(ipRegs, 'g')
+      },{
+        validator: this.validateIP 
       });
     }
     const sshPort = dataIndex === 'sshPort';
@@ -815,7 +816,13 @@ export default class RKEClusterConfig extends PureComponent {
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' }),
+        title: 
+        <div>
+          {formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' })}&nbsp;
+          <Tooltip placement='bottom' title={formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity.desc' })}>
+            <Icon type="question-circle" />
+          </Tooltip>
+        </div>,
         dataIndex: 'msg',
         width: 160,
         render: (text, record) => {

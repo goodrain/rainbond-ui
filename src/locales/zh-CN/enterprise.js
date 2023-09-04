@@ -551,6 +551,7 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.input_rke':'填写RKE集群配置',
     'enterpriseColony.addCluster.host.status':'状态',
     'enterpriseColony.addCluster.host.connectivity':'SSH 连通性',
+    'enterpriseColony.addCluster.host.connectivity.desc':'该项主要检测从控制台容器 `ssh docker@<外网IP>` 是否能免密登陆成功。',
     'enterpriseColony.addCluster.host.checking':'检测中...',
     'enterpriseColony.addCluster.host.await_check':'等待检测',
     'enterpriseColony.addCluster.host.ip':'IP 地址',

@@ -550,6 +550,7 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.input_rke': 'Fill in RKE cluster configuration',
     'enterpriseColony.addCluster.host.status':'Status',
     'enterpriseColony.addCluster.host.connectivity':'SSH connectivity',
+    'enterpriseColony.addCluster.host.connectivity.desc':'This item mainly detects whether the ssh docker@< extranet IP> from the console container can be successfully logged in without encryption.',
     'enterpriseColony.addCluster.host.checking':'Checking...',
     'enterpriseColony.addCluster.host.await_check':'Wait for detection',
     'enterpriseColony.addCluster.host.ip': 'Externel IP',
