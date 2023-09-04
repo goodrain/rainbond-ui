@@ -114,7 +114,7 @@ const teamAdd = {
   'teamAdd.create.upload.uploadFiles.k8s':'导入 Kubernetes',
   'teamAdd.create.upload.uploadFiles.k8s.text':'导入 Kubernetes',
   'teamAdd.create.upload.uploadFiles.helm':'Helm',
-  'teamAdd.create.upload.uploadJWar':'支持Jar、War格式上传文件',
+  'teamAdd.create.upload.uploadJWar':'支持Jar、War、Zip、Tar格式上传文件',
   'teamAdd.create.upload.uploadYaml':'只支持yaml格式上传多文件',
   'teamAdd.create.upload.TeamWizard.helm':'Helm',
   'teamAdd.create.upload.TeamWizard.yaml':'Yaml',

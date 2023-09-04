@@ -114,7 +114,7 @@ const teamAdd = {
   'teamAdd.create.upload.uploadFiles.k8s':'Import Kubernetes Resources',
   'teamAdd.create.upload.uploadFiles.k8s.text':'Import Kubernetes',
   'teamAdd.create.upload.uploadFiles.helm':'Helm Command',
-  'teamAdd.create.upload.uploadJWar':'You can upload files in Jar and War formats',
+  'teamAdd.create.upload.uploadJWar':'You can upload files in Jar, War, Zip, and Tar formats',
   'teamAdd.create.upload.uploadYaml':'Only YAML files can be uploaded',
   'teamAdd.create.upload.TeamWizard.helm':'Helm',
   'teamAdd.create.upload.TeamWizard.yaml':'Yaml',
