@@ -73,7 +73,7 @@ class ClusterProgressQuery extends PureComponent {
         className={modelstyles.TelescopicModal}
         footer={[
           <Button type="primary" onClick={onCancel}>
-            <FormattedMessage id='button.cancel'/>
+            <FormattedMessage id='button.next'/>
           </Button>
         ]}
       >
