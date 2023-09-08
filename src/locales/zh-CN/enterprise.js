@@ -138,7 +138,7 @@ const applicationMarket = {
     'applicationMarket.AuthCompany.title_one':'您在该云应用商店无安装权限，请登录获取授权',
     'applicationMarket.localMarket.export_app':'导出应用模版',
     'applicationMarket.localMarket.in_export':'(导出中)',
-    'applicationMarket.localMarket.installclusters':'您还有没安装集群，因此不能进行此操作。',
+    'applicationMarket.localMarket.installclusters':'您还没有安装集群，因此不能进行此操作。',
     'applicationMarket.localMarket.isInstallclusters':'是否现在安装集群？',
     // 三个点
     'applicationMarket.localMarket.delete.template': '删除应用模板',
