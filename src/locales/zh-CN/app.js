@@ -72,7 +72,7 @@ const appOverview = {
   'appOverview.list.btn.addComponent.dockerRun': '指定DockerRun命令',
   'appOverview.list.btn.addComponent.market.title': '从应用市场开始',
   'appOverview.list.btn.addComponent.update.title': '从上传文件包开始',
-  'appOverview.list.btn.addComponent.jwar': 'Jar、War',
+  'appOverview.list.btn.addComponent.jwar': '软件包',
   'appOverview.list.btn.addComponent.yaml': 'Yaml',
   'appOverview.list.btn.addComponent.project': '项目',
 

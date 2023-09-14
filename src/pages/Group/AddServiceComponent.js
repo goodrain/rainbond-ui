@@ -246,7 +246,7 @@ export default class AddServiceComponent extends PureComponent {
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
-    const JarWar_svg = globalUtil.fetchSvg('JarWar_svg');
+    const JarWar_svg = globalUtil.fetchSvg('soft');
     const yaml_svg = globalUtil.fetchSvg('yaml_svg');
     const helm_svg = globalUtil.fetchSvg('helm_svg');
     const codeDemo_svg = globalUtil.fetchSvg('codeDemo');
