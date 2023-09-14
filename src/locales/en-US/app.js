@@ -72,7 +72,7 @@ const appOverview = {
   'appOverview.list.btn.addComponent.dockerRun': 'DockerRun',
   'appOverview.list.btn.addComponent.market.title': 'Start with the app market',
   'appOverview.list.btn.addComponent.update.title': 'Start by uploading the package',
-  'appOverview.list.btn.addComponent.jwar': 'Jar、War',
+  'appOverview.list.btn.addComponent.jwar': 'Software',
   'appOverview.list.btn.addComponent.yaml': 'Yaml',
   'appOverview.list.btn.addComponent.project': 'Project',
   //helm 应用
