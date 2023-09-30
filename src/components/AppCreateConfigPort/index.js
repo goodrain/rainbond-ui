@@ -22,6 +22,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
+import NodeSelect from '../nodeSelect'
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import AddStorage from '../../components/AddStorage';
@@ -319,7 +320,8 @@ class Mnt extends PureComponent {
       toDeleteMnt: null,
       toDeleteVolume: null,
       volumes: [],
-      volumeOpts: []
+      volumeOpts: [],
+      node: ''
     };
   }
 
@@ -526,8 +528,8 @@ class Mnt extends PureComponent {
           }}
         >
           <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              {formatMessage({id:'componentCheck.advanced.setup.storage_setting.btn.add'})}
+            <Icon type="plus" />
+            {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
         <Table pagination={false} dataSource={volumes} columns={columns} />
@@ -681,7 +683,7 @@ class ConfigFiles extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
         }
@@ -763,8 +765,8 @@ class ConfigFiles extends PureComponent {
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc' />}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
@@ -798,6 +800,7 @@ export default class Index extends PureComponent {
       isPortFlag: false,
       isVolumesFlag: false,
       isMntFlag: false,
+      isEdgeFlag: false,
       isInnerEnvsFlag: false,
       activeKeyPort: true,
       activeKeyVolume: true,
@@ -806,13 +809,15 @@ export default class Index extends PureComponent {
       iconPort: false,
       iconVolume: false,
       iconEnv: false,
-      iconMnt: false
+      iconMnt: false,
+      iconEdge: false
     };
   }
   componentDidMount() {
     this.handleFetchPorts()
     this.handleFetchVolumes()
     this.handleLoadMntList()
+    this.handleFetchEdge()
     this.handleFetchInnerEnvs()
   }
   getAppAlias() {
@@ -838,14 +843,14 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias
       },
-      callback: data => {     
+      callback: data => {
         this.setState({
           portsData: (data && data.list) || [],
           isPortFlag: true,
         });
-        if(!isFlag){
+        if (!isFlag) {
           this.setState({
-            iconPort: data && data.list.length > 0 ? true :false
+            iconPort: data && data.list.length > 0 ? true : false
           })
         }
       }
@@ -866,9 +871,9 @@ export default class Index extends PureComponent {
             volumesData: data.list || [],
             isVolumesFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconVolume: data && data.list.length > 0 ? true :false
+              iconVolume: data && data.list.length > 0 ? true : false
             })
           }
         }
@@ -889,15 +894,38 @@ export default class Index extends PureComponent {
             mntDataList: data.list || [],
             isMntFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconMnt: data && data.list.length > 0 ? true :false
+              iconMnt: data && data.list.length > 0 ? true : false
             })
           }
         }
       }
     });
   };
+  handleFetchEdge = (isFlag) => {
+    this.props.dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: false
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            isEdgeFlag: true,
+          });
+          if (!isFlag) {
+            this.setState({
+              iconEdge: data && data.list.length > 0 ? true : false
+            })
+          }
+        }
+      }
+    });
+  };
+
   handleFetchInnerEnvs = (isFlag) => {
     const { dispatch, appAlias, type } = this.props;
 
@@ -917,9 +945,9 @@ export default class Index extends PureComponent {
             innerEnvsList: res.list,
             isInnerEnvsFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconEnv: res && res.list.length > 0 ? true :false
+              iconEnv: res && res.list.length > 0 ? true : false
             })
           }
         }
@@ -928,28 +956,34 @@ export default class Index extends PureComponent {
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraVolume = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraEnv = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraMnt = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
-  
+
+  genExtraEdge = (key) => {
+    return (
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+    )
+  }
+
   callbackPort = (e) => {
     this.setState({
       activeKeyPort: e.length,
@@ -998,6 +1032,31 @@ export default class Index extends PureComponent {
       this.handleLoadMntList(true)
     }
   }
+  callbackEdge = (e) => {
+    this.setState({
+      activeKeyEdge: e.length,
+      iconEdge: true
+    })
+    if (!e.length) {
+      this.setState({
+        iconEdge: false,
+      })
+      this.handleFetchEdge(true)
+    }
+  }
+
+  handleSelectionNode = (result) => {
+    const { dispatch } = this.props;
+
+    // 暂时使用 sessionStorage 存储数据
+    window.localStorage.setItem(this.props.appDetail.service.service_alias,result);
+    console.log(window.localStorage.getItem(this.props.appDetail.service.service_alias))
+    // this.setState({
+    //   node: result
+    // })
+    // this.props.handlesetnode(result)
+  }
+
   render() {
     const { appDetail } = this.props;
     const {
@@ -1011,15 +1070,19 @@ export default class Index extends PureComponent {
       isPortFlag,
       isVolumesFlag,
       isMntFlag,
+      isEdgeFlag,
       isInnerEnvsFlag,
       activeKeyPort,
       activeKeyVolume,
       activeKeyEnv,
       activeKeyMnt,
+      activeKeyEdge,
       iconPort,
       iconVolume,
       iconEnv,
-      iconMnt
+      iconMnt,
+      iconEdge,
+      node
     } = this.state;
     return (
       <div>
@@ -1040,15 +1103,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{color: portsData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
+                      <span className={styles.panelTitle} style={{ color: portsData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}
-                        </Tooltip> 
+                        <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}>
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}
+                        </Tooltip>
                       </span>
                       {!activeKeyPort && portsData.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.port.info'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.port.info' })}&nbsp;&nbsp;
                           {portsData.map((item => {
                             return <span>
                               <Tag color="blue">{item.container_port}</Tag>
@@ -1068,15 +1131,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: volumesData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}>
-                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}
+                        <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}>
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyVolume && volumesData.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.name' })}&nbsp;&nbsp;
                           {volumesData.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>
@@ -1097,15 +1160,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: innerEnvsList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}>
-                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}
+                        <Tooltip title={formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}>
+                          {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyEnv && innerEnvsList.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.name' })}&nbsp;&nbsp;
                           {innerEnvsList.map((item => {
                             return <span>
                               <Tag color="blue">{item.attr_name}</Tag>
@@ -1134,15 +1197,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: mntDataList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
+                      <span className={styles.panelTitle} style={{ color: mntDataList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}>
-                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}
+                        <Tooltip title={formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}>
+                          {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyMnt && mntDataList.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.name' })}&nbsp;&nbsp;
                           {mntDataList.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>
@@ -1158,6 +1221,33 @@ export default class Index extends PureComponent {
                 </Panel>
               </Collapse>
             }
+
+            {isEdgeFlag &&
+              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEdge} defaultActiveKey={mntDataList.length > 0 ? 'edge' : ''} expandIconPosition='right'>
+                <Panel
+                  header={
+                    <span>
+                      <span className={styles.panelTitle} style={{ color: node ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'componentCheck.advanced.setup.edge_config.title' })}</span>
+                      <span className={styles.panelSpan}>
+                        <Tooltip title={formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}>
+                          {formatMessage({ id: 'componentCheck.advanced.setup.edge_config.desc' })}
+                        </Tooltip>
+                      </span>
+                      {
+                        node ? <span>所选节点: <Tag color="blue">{node}</Tag></span> : null
+                      }
+                    </span>}
+                  key="edge"
+                  extra={this.genExtraEdge(iconEdge)}
+                  showArrow={false}
+                >
+
+                  <NodeSelect ondone={this.handleSelectionNode} />
+
+                </Panel>
+              </Collapse>
+            }
+
           </div>
         </div>
       </div>

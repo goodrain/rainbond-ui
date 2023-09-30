@@ -289,12 +289,16 @@ export function getCreateComposeCheckResult(body = {}) {
    构建应用
 */
 export function buildApp(body = {}) {
+  // 暂时从localStorage获取edge_node
+  node=window.localStorage.getItem(body.app_alias)
+  const edge_node = node ? node : '';
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
       method: 'post',
       data: {
         is_deploy: body.is_deploy,
+        edge_node: edge_node,
         nodejs_type: body.nodejs_type,
         nodejs_dependency: body.nodejs_dependency,
       }
