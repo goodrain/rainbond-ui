@@ -22,7 +22,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
-import NodeSelect from '../nodeSelect'
+import NodeSelect from '../../components/NodeSelect'
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import AddStorage from '../../components/AddStorage';
@@ -1047,16 +1047,10 @@ export default class Index extends PureComponent {
 
   handleSelectionNode = (result) => {
     const { dispatch } = this.props;
-
-    // 暂时使用 sessionStorage 存储数据
-    window.localStorage.setItem(this.props.appDetail.service.service_alias,result);
-    console.log(window.localStorage.getItem(this.props.appDetail.service.service_alias))
-    // this.setState({
-    //   node: result
-    // })
-    // this.props.handlesetnode(result)
+    this.setState({
+      node: result
+    })  
   }
-
   render() {
     const { appDetail } = this.props;
     const {
@@ -1223,7 +1217,7 @@ export default class Index extends PureComponent {
             }
 
             {isEdgeFlag &&
-              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEdge} defaultActiveKey={mntDataList.length > 0 ? 'edge' : ''} expandIconPosition='right'>
+              <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEdge} defaultActiveKey={node ? 'edge' : ''} expandIconPosition='right'>
                 <Panel
                   header={
                     <span>
@@ -1234,7 +1228,7 @@ export default class Index extends PureComponent {
                         </Tooltip>
                       </span>
                       {
-                        node ? <span>所选节点: <Tag color="blue">{node}</Tag></span> : null
+                        node ? <span>{formatMessage({ id: 'componentCheck.advanced.setup.edge_config.selected_node' })}:<Tag color="blue">{node}</Tag></span> : null
                       }
                     </span>}
                   key="edge"

@@ -9,6 +9,7 @@ import { connect } from 'dva';
 const mapStateToProps = (state) => {
     return {
         enterpriseId: state.user.currentUser.enterprise_id,
+        createApp: state.createApp,
     };
 };
 
@@ -20,7 +21,7 @@ function formatdada(list) {
     return cachelist.map(({ name }) => ({ key: name, label: name }))
 }
 
-function NodeSelect({ ondone, form, enterpriseId }) {
+function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
 
     const { getFieldDecorator } = form
 
@@ -34,6 +35,12 @@ function NodeSelect({ ondone, form, enterpriseId }) {
                 return console.err(err);
             }
             console.log('values', values)
+            dispatch({
+                type: 'createApp/changeEdgeNode',
+                payload: {
+                    edge_node: values?.node || '',
+                },
+            })
             setopen(false)
             ondone && ondone(values?.node || "")
         })
@@ -67,11 +74,12 @@ function NodeSelect({ ondone, form, enterpriseId }) {
 
             <Button onClick={handleclick} >
                 <Icon type="plus" />
-                选择节点</Button>
+                    {formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}
+                </Button>
         </div>
         <Drawer visible={open}
             width={500}
-            title='选择节点'
+            title={formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}
             closable={false}
             maskClosable={false}
             style={{
@@ -82,10 +90,10 @@ function NodeSelect({ ondone, form, enterpriseId }) {
 
         >
             <Form>
-                <Form.Item label='选择节点' name="node" rule={[{ require: true }]}>
+                <Form.Item label={formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })} name="node" rule={[{ require: true }]}>
                     {
                         getFieldDecorator("node", {
-                            rules: [{ required: true, message: '所选节点不能为空!' }],
+                            rules: [{ required: true, message: 'The selected node cannot be empty!' }],
                         })(<Select loading={loading}>
                             {
                                 nodelist.map(({ key, label }) => <Select.Option value={key}>{label}</Select.Option>)
