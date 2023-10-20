@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations','securityContext'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'hostNetwork','resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations','securityContext'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -411,6 +411,19 @@ class Index extends PureComponent {
             }
             break;
 
+            case 'hostNetwork':
+              if (value.hostNetwork != null) {
+                const label = {
+                  name: selectVal,
+                  save_type: "string",
+                  attribute_value: `${value.hostNetwork}` || 'false'
+                }
+                this.handelAddOrEdit(label)
+              } else {
+                this.notificationFun()
+              }
+              break;
+
           case 'resources':
             if (value.resources != null && value.resources.length > 0 && value.resources != TooltipValue) {
               const label = {
@@ -687,7 +700,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  (selectVal == "privileged" || selectVal == 'shareProcessNamespace' || selectVal == 'hostIPC') &&
+                  (selectVal == "privileged" || selectVal == 'shareProcessNamespace' || selectVal == 'hostIPC' || selectVal == 'hostNetwork') &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{ type: selectVal }} /></p>
@@ -760,7 +773,7 @@ class Index extends PureComponent {
                         </div>
                       }
                       {item.name &&
-                        (item.name == "privileged" || item.name == 'shareProcessNamespace' || item.name == 'hostIPC') &&
+                        (item.name == "privileged" || item.name == 'shareProcessNamespace' || item.name == 'hostIPC' || item.name == 'hostNetwork') &&
                         item.attribute_value.length > 0 &&
                         <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
                       }

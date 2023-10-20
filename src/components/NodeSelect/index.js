@@ -1,4 +1,4 @@
-import { Button, Drawer, Select, Form, Icon } from 'antd';
+import { Button, Drawer, Select, Form, Icon, Modal } from 'antd';
 import React, { memo, useState, useEffect } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getEdgeNodeList } from '@/services/app'
@@ -74,8 +74,8 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
 
             <Button onClick={handleclick} >
                 <Icon type="plus" />
-                    {formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}
-                </Button>
+                {formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}
+            </Button>
         </div>
         <Drawer visible={open}
             width={500}
@@ -89,6 +89,13 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
             }}
 
         >
+        {/* <Modal
+            title={formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}
+            open={open}
+            onOk={handleOk}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+        > */}
             <Form>
                 <Form.Item label={formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })} name="node" rule={[{ require: true }]}>
                     {
@@ -131,7 +138,8 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
                     </Button>
                 </div>
             </Form>
-        </Drawer>
+            </Drawer>
+        {/* </Modal> */}
     </>
 }
 
