@@ -22,20 +22,7 @@ function formatdada(list) {
 }
 
 
-// const testnode = (new Array(4).fill(null)).map((_, index) => {
-//     return {
-//         value: `node${index}`,
-//         label: `node${index}`
-//     }
-// })
-
 function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
-
-    // const { getFieldDecorator } = form
-
-    // const [open, setopen] = useState(false)
-
-    // const handleclick = () => setopen(true)
 
     const sytles = { paddingLeft: 20 }
 
