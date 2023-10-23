@@ -1,4 +1,4 @@
-import { Button, Drawer, Select, Form, Icon, Modal, Checkbox, Row, Col, message, Spin, Divider } from 'antd';
+import { Button, Drawer, Select, Form, Icon, Modal, Checkbox, Row, Col, message, Spin, Divider, Radio } from 'antd';
 import React, { memo, useState, useEffect } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getEdgeNodeList } from '@/services/app'
@@ -29,14 +29,8 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
     const [loading, setloadng] = useState(false)
     const [nodelist, setnodelist] = useState([])
 
-    const [config, setconfig] = useState({
-        indeterminate: false,
-        checked: false,
-        nodes: []
-    })
 
-    const { nodes, ...props } = config
-
+    const [value, setvalue ]= useState(null)
 
     useEffect(() => {
 
@@ -54,26 +48,16 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
 
     }, [])
 
-    const handleChange = (checkedVal) => {
-        setconfig({
-            indeterminate: checkedVal.length < nodelist.length && checkedVal.length > 0,
-            checked: checkedVal.length === nodelist.length,
-            nodes: checkedVal
-        })
-    }
-    const handleAll = (e) => {
-        const checked = e.target.checked
-        setconfig({
-            indeterminate: false,
-            checked,
-            nodes: checked ? nodelist.map(i => i.value) : []
-        })
 
+
+    const handlechange =(e)=>{
+        setvalue(e.target.value)
     }
+
 
     const handleDone = () => {
 
-        const result = nodes[0]
+        const result = value
 
         if (!result) {
             message.warn(formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' }))
@@ -95,15 +79,11 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
 
         <Spin spinning={loading}>
             <Row style={sytles}>
-                <Col span={24}>
-                    <Checkbox {...props} onChange={handleAll}>{formatMessage({ id: 'componentOverview.body.tab.BatchDeleteChart.all' })}</Checkbox>
-
-                </Col>
-
-                <Col span={24}>
-                    <Divider />
-                    <Checkbox.Group value={nodes} options={nodelist} onChange={handleChange} />
-                </Col>
+                <Radio.Group value={value} onChange={handlechange}>
+                    {
+                        nodelist.map(node => <Radio key={node.value} value={node.value}>{node.label}</Radio>)
+                    }
+                </Radio.Group>
             </Row>
             <div
                 style={{
