@@ -1,4 +1,4 @@
-import { Button, Drawer, Select, Form, Icon, Modal, Checkbox, Row, Col, message, Spin, Divider, Radio } from 'antd';
+import { Button, Drawer, Select, Form, Icon, Modal, Checkbox, Row, Col, message, Spin, Divider, Radio, Empty } from 'antd';
 import React, { memo, useState, useEffect } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getEdgeNodeList } from '@/services/app'
@@ -13,47 +13,41 @@ const mapStateToProps = (state) => {
     };
 };
 
-
 // 过滤出可选择的边缘节点
-function formatdada(list) {
+function formatData(list) {
 
     const cachelist = list.filter(({ status, role }) => status === 'Ready' && role.includes('edge'))
     return cachelist.map(({ name }) => ({ value: name, label: name }))
 }
 
+function NodeSelect({ ondone, enterpriseId, dispatch }) {
 
-function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
+    const styles = { paddingLeft: 20 }
 
-    const sytles = { paddingLeft: 20 }
-
-    const [loading, setloadng] = useState(false)
-    const [nodelist, setnodelist] = useState([])
-
-
-    const [value, setvalue ]= useState(null)
+    const [loading, setLoadng] = useState(false)
+    const [nodelist, setNodeList] = useState([])
+    const [value, setValue] = useState(null)
+    const [isNode, setIsNode] = useState(false)
 
     useEffect(() => {
-
-        setloadng(true)
+        setLoadng(true)
         getEdgeNodeList({
-            // enterprise_id, regions_name
             enterprise_id: enterpriseId,
             region_name: globalUtil.getCurrRegionName()
         }).then((res) => {
             const { list } = res
-            setnodelist(formatdada(list))
+            setNodeList(formatData(list))
+            if (formatData(list).length > 0) {
+                setIsNode(true);
+            }
         }).finally(() => {
-            setloadng(false)
+            setLoadng(false)
         })
-
     }, [])
 
-
-
-    const handlechange =(e)=>{
-        setvalue(e.target.value)
+    const handlechange = (e) => {
+        setValue(e.target.value)
     }
-
 
     const handleDone = () => {
 
@@ -63,7 +57,6 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
             message.warn(formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' }))
             return
         }
-
         dispatch({
             type: 'createApp/changeEdgeNode',
             payload: {
@@ -73,28 +66,25 @@ function NodeSelect({ ondone, form, enterpriseId, createApp, dispatch }) {
         ondone && ondone(result)
     }
 
-
     return <>
-        <h3>{formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' })}</h3>
-
-        <Spin spinning={loading}>
-            <Row style={sytles}>
-                <Radio.Group value={value} onChange={handlechange}>
-                    {
-                        nodelist.map(node => <Radio key={node.value} value={node.value}>{node.label}</Radio>)
-                    }
-                </Radio.Group>
-            </Row>
-            <div
-                style={{
+        {isNode ?
+            <Spin spinning={loading}>
+                <Row style={styles}>
+                    <Radio.Group value={value} onChange={handlechange}>
+                        {
+                            nodelist.map(node => <Radio key={node.value} value={node.value}>{node.label}</Radio>)
+                        }
+                    </Radio.Group>
+                </Row>
+                <div style={{
                     textAlign: "center",
-                    marginBottom: 12
-                }}
-            >
-                <Button type="primary" onClick={handleDone}>{formatMessage({ id: 'componentOverview.body.tab.env.table.column.preservation' })}</Button>
-            </div>
-        </Spin>
-
+                    marginBottom: 4
+                }}>
+                    <Button type="primary" onClick={handleDone}>{formatMessage({ id: 'componentOverview.body.tab.env.table.column.preservation' })}</Button>
+                </div>
+            </Spin> :
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        }
     </>
 }
 
