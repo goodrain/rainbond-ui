@@ -49,13 +49,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      // target: 'http://127.0.0.1:8000',
-      target: 'http://114.115.183.10:7070',
+      target: 'http://127.0.0.1:8000',
       changeOrigin: true
     },
     '/data': {
-      // target: 'http://127.0.0.1:8000',
-      target: 'http://114.115.183.10:7070',
+      target: 'http://127.0.0.1:8000',
       changeOrigin: true
     }
   }
