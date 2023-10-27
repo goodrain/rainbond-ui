@@ -309,7 +309,7 @@ export default class Index extends PureComponent {
           marginBottom: 8
         }}
       >
-        
+
         <thead>
           <tr>
             <th
@@ -441,17 +441,20 @@ export default class Index extends PureComponent {
                   } */}
                   <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.external_service' /></span>
 
-                  {port.is_hostNetwork ? (
-                    <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' />}>
-                      <Switch
-                        disabled={port.is_hostNetwork}
-                        checked={appPortUtil.isOpenOuter(port)}
-                        onChange={value => {
-                          this.handleOuterChange(value);
-                        }}
-                        size="small"
-                      />
-                    </Tooltip>) :
+                  {port.is_hostNetwork ?
+                    <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' placement="topLeft" />}>
+                      {/* <div style='width:10%'> */}
+                      <div style={{ width: '5%' }}>
+                        <Switch
+                          disabled={port.is_hostNetwork}
+                          checked={appPortUtil.isOpenOuter(port)}
+                          onChange={value => {
+                            this.handleOuterChange(value);
+                          }}
+                          size="small"
+                        />
+                      </div>
+                    </Tooltip> :
                     <Switch
                       checked={appPortUtil.isOpenOuter(port)}
                       onChange={value => {
@@ -514,7 +517,7 @@ export default class Index extends PureComponent {
               <td>
                 {port.is_hostNetwork ?
                   <a
-                    href={'http://'+port.hostnetwork_list[0] + ":" + port.container_port}
+                    href={'http://' + port.hostnetwork_list[0] + ":" + port.container_port}
                     target="_blank"
                   >
                     {port.hostnetwork_list[0] + ":" + port.container_port}

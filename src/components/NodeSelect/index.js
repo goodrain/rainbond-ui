@@ -15,7 +15,6 @@ const mapStateToProps = (state) => {
 
 // 过滤出可选择的边缘节点
 function formatData(list) {
-
     const cachelist = list.filter(({ status, role }) => status === 'Ready' && role.includes('edge'))
     return cachelist.map(({ name }) => ({ value: name, label: name }))
 }
@@ -26,8 +25,27 @@ function NodeSelect({ ondone, enterpriseId, dispatch }) {
 
     const [loading, setLoadng] = useState(false)
     const [nodelist, setNodeList] = useState([])
-    const [value, setValue] = useState(null)
     const [isNode, setIsNode] = useState(false)
+    const [value, setValue] = useState(null)
+    
+    const handlechange = (e) => {
+        setValue(e.target.value)
+    }
+
+    const handleDone = () => {
+
+        const result = value
+        dispatch({
+            type: 'createApp/changeEdgeNode',
+            payload: {
+                edge_node: result,
+            },
+        })
+        ondone && ondone(result)
+    }
+    useEffect(() => {
+        handleDone(); 
+    }, [value]);
 
     useEffect(() => {
         setLoadng(true)
@@ -45,27 +63,6 @@ function NodeSelect({ ondone, enterpriseId, dispatch }) {
         })
     }, [])
 
-    const handlechange = (e) => {
-        setValue(e.target.value)
-    }
-
-    const handleDone = () => {
-
-        const result = value
-
-        if (!result) {
-            message.warn(formatMessage({ id: 'componentCheck.advanced.setup.edge_config.select_node' }))
-            return
-        }
-        dispatch({
-            type: 'createApp/changeEdgeNode',
-            payload: {
-                edge_node: result,
-            },
-        })
-        ondone && ondone(result)
-    }
-
     return <>
         {isNode ?
             <Spin spinning={loading}>
@@ -76,12 +73,6 @@ function NodeSelect({ ondone, enterpriseId, dispatch }) {
                         }
                     </Radio.Group>
                 </Row>
-                <div style={{
-                    textAlign: "center",
-                    marginBottom: 4
-                }}>
-                    <Button type="primary" onClick={handleDone}>{formatMessage({ id: 'componentOverview.body.tab.env.table.column.preservation' })}</Button>
-                </div>
             </Spin> :
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         }
