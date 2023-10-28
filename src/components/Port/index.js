@@ -11,7 +11,8 @@ import {
   notification,
   Select,
   Switch,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -20,7 +21,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -78,12 +79,12 @@ class ChangeProtocol extends PureComponent {
         <div>
           <FormItem>
             <Button onClick={this.handleSubmit} type="primary" size="small">
-              <FormattedMessage id='componentOverview.body.Ports.determine'/>
+              <FormattedMessage id='componentOverview.body.Ports.determine' />
             </Button>
           </FormItem>
           <FormItem>
             <Button onClick={this.handleCancel} type="" size="small">
-              <FormattedMessage id='componentOverview.body.Ports.cancel'/>
+              <FormattedMessage id='componentOverview.body.Ports.cancel' />
             </Button>
           </FormItem>
         </div>
@@ -230,19 +231,19 @@ export default class Index extends PureComponent {
         className={styles.tdPadding}
         columns={[
           {
-            title: formatMessage({id:'componentOverview.body.Ports.attr_name'}),
+            title: formatMessage({ id: 'componentOverview.body.Ports.attr_name' }),
             dataIndex: 'attr_name',
             key: 'attr_name',
             align: 'center'
           },
           {
-            title: formatMessage({id:'componentOverview.body.Ports.attr_value'}),
+            title: formatMessage({ id: 'componentOverview.body.Ports.attr_value' }),
             dataIndex: 'attr_value',
             key: 'attr_value',
             align: 'center'
           },
           {
-            title: formatMessage({id:'componentOverview.body.Ports.name'}),
+            title: formatMessage({ id: 'componentOverview.body.Ports.name' }),
             dataIndex: 'name',
             key: 'name',
             align: 'center'
@@ -308,6 +309,7 @@ export default class Index extends PureComponent {
           marginBottom: 8
         }}
       >
+
         <thead>
           <tr>
             <th
@@ -315,8 +317,8 @@ export default class Index extends PureComponent {
                 width: 60
               }}
             >
-              
-              <FormattedMessage id='componentOverview.body.Ports.port_number'/>
+
+              <FormattedMessage id='componentOverview.body.Ports.port_number' />
 
             </th>
             <th
@@ -324,8 +326,8 @@ export default class Index extends PureComponent {
                 width: 100
               }}
             >
-              
-              <FormattedMessage id='componentOverview.body.Ports.port_protocol'/>
+
+              <FormattedMessage id='componentOverview.body.Ports.port_protocol' />
 
             </th>
             <th
@@ -333,8 +335,8 @@ export default class Index extends PureComponent {
                 width: '50%'
               }}
             >
-              
-              <FormattedMessage id='componentOverview.body.Ports.service_information'/>
+
+              <FormattedMessage id='componentOverview.body.Ports.service_information' />
 
             </th>
             {showDomain && (
@@ -343,8 +345,8 @@ export default class Index extends PureComponent {
                   width: '30%'
                 }}
               >
-                
-              <FormattedMessage id='componentOverview.body.Ports.access_policy'/>
+
+                <FormattedMessage id='componentOverview.body.Ports.access_policy' />
 
               </th>
             )}
@@ -353,8 +355,8 @@ export default class Index extends PureComponent {
                 width: 100
               }}
             >
-              
-              <FormattedMessage id='componentOverview.body.Ports.operation'/>
+
+              <FormattedMessage id='componentOverview.body.Ports.operation' />
 
             </th>
           </tr>
@@ -372,8 +374,17 @@ export default class Index extends PureComponent {
               ) : (
                 <div>
                   {port.protocol}
-                  <a onClick={this.showEditProtocol}>
-                    <Icon type="edit" />
+
+                  <a onClick={() => {
+                    if (!port.is_hostNetwork) {
+                      this.showEditProtocol();
+                    }
+                  }}>
+                    {port.is_hostNetwork ? (
+                      <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' />}>
+                        <Icon type="edit" />
+                      </Tooltip>) :
+                      <Icon type="edit" />}
                   </a>
                 </div>
               )}
@@ -387,7 +398,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <p>
-                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.internal_service'/></span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.internal_service' /></span>
                   <Switch
                     checked={appPortUtil.isOpenInner(port)}
                     onChange={this.handleInnerChange}
@@ -395,11 +406,11 @@ export default class Index extends PureComponent {
                   />
                 </p>
                 <p>
-                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.access_address'/></span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.access_address' /></span>
                   {innerUrl || '-'}
                 </p>
                 <p className={styles.lr}>
-                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.use_alias'/></span>
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.use_alias' /></span>
                   <a
                     href="javascript:;"
                     onClick={() => {
@@ -428,14 +439,30 @@ export default class Index extends PureComponent {
                       :
                       ''
                   } */}
-                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.external_service'/></span>
-                  <Switch
-                    checked={appPortUtil.isOpenOuter(port)}
-                    onChange={value => {
-                      this.handleOuterChange(value);
-                    }}
-                    size="small"
-                  />
+                  <span className={styles.label}><FormattedMessage id='componentOverview.body.Ports.external_service' /></span>
+
+                  {port.is_hostNetwork ?
+                    <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' placement="topLeft" />}>
+                      {/* <div style='width:10%'> */}
+                      <div style={{ width: '5%' }}>
+                        <Switch
+                          disabled={port.is_hostNetwork}
+                          checked={appPortUtil.isOpenOuter(port)}
+                          onChange={value => {
+                            this.handleOuterChange(value);
+                          }}
+                          size="small"
+                        />
+                      </div>
+                    </Tooltip> :
+                    <Switch
+                      checked={appPortUtil.isOpenOuter(port)}
+                      onChange={value => {
+                        this.handleOuterChange(value);
+                      }}
+                      size="small"
+                    />
+                  }
                 </p>
                 {/* <p className={styles.lr}>
                   <span className={styles.label}>访问地址</span>
@@ -451,21 +478,17 @@ export default class Index extends PureComponent {
                           {domain.domain_type == 'goodrain-sld' ? (
                             <p>
                               <a
-                                href={`${
-                                  domain.protocol === 'http' ? 'http' : 'https'
-                                }://${domain.domain_name}${
-                                  domain.domain_path ? domain.domain_path : '/'
-                                }`}
+                                href={`${domain.protocol === 'http' ? 'http' : 'https'
+                                  }://${domain.domain_name}${domain.domain_path ? domain.domain_path : '/'
+                                  }`}
                                 target="_blank"
                               >
-                                {`${
-                                  domain.protocol === 'http' ? 'http' : 'https'
-                                }://${domain.domain_name}${
-                                  domain.domain_path ? domain.domain_path : '/'
-                                }`}
+                                {`${domain.protocol === 'http' ? 'http' : 'https'
+                                  }://${domain.domain_name}${domain.domain_path ? domain.domain_path : '/'
+                                  }`}
                               </a>
                               <a
-                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
+                                title={<FormattedMessage id='componentOverview.body.Ports.unbound' />}
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
@@ -492,6 +515,15 @@ export default class Index extends PureComponent {
             </td>
             {showDomain && (
               <td>
+                {port.is_hostNetwork ?
+                  <a
+                    href={'http://' + port.hostnetwork_list[0] + ":" + port.container_port}
+                    target="_blank"
+                  >
+                    {port.hostnetwork_list[0] + ":" + port.container_port}
+                  </a> :
+                  null
+                }
                 {appPortUtil.canBindDomain(port) ? (
                   <div>
                     {domains.map(domain => {
@@ -500,21 +532,17 @@ export default class Index extends PureComponent {
                           {domain.domain_type == 'www' ? (
                             <p>
                               <a
-                                href={`${
-                                  domain.protocol === 'http' ? 'http' : 'https'
-                                }://${domain.domain_name}${
-                                  domain.domain_path ? domain.domain_path : '/'
-                                }`}
+                                href={`${domain.protocol === 'http' ? 'http' : 'https'
+                                  }://${domain.domain_name}${domain.domain_path ? domain.domain_path : '/'
+                                  }`}
                                 target="_blank"
                               >
-                                {`${
-                                  domain.protocol === 'http' ? 'http' : 'https'
-                                }://${domain.domain_name}${
-                                  domain.domain_path ? domain.domain_path : '/'
-                                }`}
+                                {`${domain.protocol === 'http' ? 'http' : 'https'
+                                  }://${domain.domain_name}${domain.domain_path ? domain.domain_path : '/'
+                                  }`}
                               </a>
                               <a
-                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
+                                title={<FormattedMessage id='componentOverview.body.Ports.unbound' />}
                                 onClick={() => {
                                   this.props.onDeleteDomain({
                                     port: port.container_port,
@@ -555,7 +583,7 @@ export default class Index extends PureComponent {
                         <div>
                           <p>
                             {domain.protocol == 'http' ||
-                            domain.protocol == 'https' ? (
+                              domain.protocol == 'https' ? (
                               <a
                                 href={`http://${str.replace(/\s+/g, '')}`}
                                 target="blank"
@@ -596,37 +624,53 @@ export default class Index extends PureComponent {
                     style={{ marginTop: '5px' }}
                     onClick={this.onAddDomain}
                   >
-                    <FormattedMessage id='componentOverview.body.Ports.add'/>
+                    <FormattedMessage id='componentOverview.body.Ports.add' />
                   </Button>
                 )}
                 {port && port.protocol != 'http' && (
                   <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`}
+                    to={port.is_hostNetwork ? `#` : `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`}
                     style={{
                       wordBreak: 'break-all',
                       wordWrap: 'break-word',
                       color: '#1890ff'
                     }}
                   >
-                    <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage'/></Button>
+                    {port.is_hostNetwork ? (
+                      <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' />}>
+                        <Button disabled={port.is_hostNetwork} size="small"><FormattedMessage id='componentOverview.body.Ports.manage' /></Button>
+                      </Tooltip>) :
+                      <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage' /></Button>
+                    }
                   </Link>
                 )}
               </td>
-            )} 
+            )}
             <td>
-              <p>
-                {!isHelm && (
-                  <Button onClick={this.handleDelete} size="small">
-                    <FormattedMessage id='componentOverview.body.Ports.delete'/>
-                  </Button>
-                )}
-              </p>
+              {port.is_hostNetwork ? (
+                <Tooltip title={<FormattedMessage id='componentOverview.body.Ports.hostNetwork_msg' />}>
+                  <p>
+                    {!isHelm &&
+                      <Button disabled={port.is_hostNetwork} onClick={this.handleDelete} size="small">
+                        <FormattedMessage id='componentOverview.body.Ports.delete' />
+                      </Button>
+                    }
+                  </p>
+                </Tooltip>) :
+                <p>
+                  {!isHelm &&
+                    <Button disabled={port.is_hostNetwork} onClick={this.handleDelete} size="small">
+                      <FormattedMessage id='componentOverview.body.Ports.delete' />
+                    </Button>
+                  }
+                </p>
+              }
             </td>
           </tr>
         </tbody>
         {this.state.visibleModal && (
           <Modal
-            title={<FormattedMessage id='componentOverview.body.Ports.msg'/>}
+            title={<FormattedMessage id='componentOverview.body.Ports.msg' />}
             width="800px"
             visible={this.state.visibleModal}
             footer={null}
@@ -635,44 +679,44 @@ export default class Index extends PureComponent {
             <ul className={styles.ul}>
               {port && port.protocol != 'mysql' ? (
                 <li style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:port.protocol}}/>
+                  <FormattedMessage id='componentOverview.body.Ports.current' values={{ protocol: port.protocol }} />
                 </li>
               ) : (
                 <li style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id='componentOverview.body.Ports.current_protocol' values={{protocol:agreement.protocol}}/>
+                  <FormattedMessage id='componentOverview.body.Ports.current_protocol' values={{ protocol: agreement.protocol }} />
                 </li>
               )}
               <li>
-                <FormattedMessage id='componentOverview.body.Ports.recommend'/>
+                <FormattedMessage id='componentOverview.body.Ports.recommend' />
                 &nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: '10px' }}>
                   {agreement.end_point.indexOf('0.0.0.0') > -1 &&
-                  currentRegion &&
-                  currentRegion.length > 0
+                    currentRegion &&
+                    currentRegion.length > 0
                     ? agreement.end_point.replace(
-                        /0.0.0.0/g,
-                        currentRegion[0].tcpdomain
-                      )
+                      /0.0.0.0/g,
+                      currentRegion[0].tcpdomain
+                    )
                     : agreement.end_point.replace(/\s+/g, '')}
                 </a>
                 <CopyToClipboard
                   text={
                     agreement.end_point.indexOf('0.0.0.0') > -1 &&
-                    currentRegion &&
-                    currentRegion.length > 0
+                      currentRegion &&
+                      currentRegion.length > 0
                       ? agreement.end_point.replace(
-                          /0.0.0.0/g,
-                          currentRegion[0].tcpdomain
-                        )
+                        /0.0.0.0/g,
+                        currentRegion[0].tcpdomain
+                      )
                       : agreement.end_point.replace(/\s+/g, '')
                   }
                   onCopy={() => {
-                    notification.success({ message:  formatMessage({id:'notification.success.copy'})});
+                    notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
                   }}
                 >
                   <Button size="small" type="primary">
                     <Icon type="copy" />
-                    <FormattedMessage id='componentOverview.body.Ports.copy'/>
+                    <FormattedMessage id='componentOverview.body.Ports.copy' />
                   </Button>
                 </CopyToClipboard>
               </li>

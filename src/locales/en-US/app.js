@@ -397,6 +397,11 @@ const componentCheck = {
   'componentCheck.advanced.setup.shared_storage.label.dep_app_name':'Target Owning Component',
   'componentCheck.advanced.setup.shared_storage.label.dep_app_group':'App target component belongs',
   'componentCheck.advanced.setup.shared_storage.label.action':'Operation',
+  // edge
+  'componentCheck.advanced.setup.edge_config.title':'Edge Configuration',
+  'componentCheck.advanced.setup.edge_config.desc':'Deploy the component on selected edge nodes',
+  'componentCheck.advanced.setup.edge_config.selected_node':'selected node',
+  'componentCheck.advanced.setup.edge_config.select_node':'select node',
   'componentCheck.advanced.setup.mount_share_path.title':'Mount shared directory',
   'componentCheck.advanced.setup.mount_share_path.label.localpath':'Local mount path',
   'componentCheck.advanced.setup.mount_share_path.label.dep_vol_name':'Target Storage Name',

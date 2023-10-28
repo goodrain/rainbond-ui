@@ -3305,5 +3305,13 @@ export async function deleteKubernetes(body = {}) {
   );
 }
 
-
+// 查询可选边缘节点 
+export async function getEdgeNodeList(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/nodes`,
+    {
+      method: 'get'
+    }
+  );
+}
 

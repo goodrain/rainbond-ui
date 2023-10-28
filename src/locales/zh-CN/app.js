@@ -404,6 +404,11 @@ const componentCheck = {
   'componentCheck.advanced.setup.shared_storage.label.dep_app_name':'目标所属组件',
   'componentCheck.advanced.setup.shared_storage.label.dep_app_group':'目标组件所属应用',
   'componentCheck.advanced.setup.shared_storage.label.action':'操作',
+    // 边缘配置
+  'componentCheck.advanced.setup.edge_config.title':'边缘配置',
+  'componentCheck.advanced.setup.edge_config.desc':'将组件部署在所选边缘节点',
+  'componentCheck.advanced.setup.edge_config.selected_node':'所选节点',
+  'componentCheck.advanced.setup.edge_config.select_node':'选择节点',
   'componentCheck.advanced.setup.mount_share_path.title':'挂载共享目录',
   'componentCheck.advanced.setup.mount_share_path.label.localpath':'本地挂载路径',
   'componentCheck.advanced.setup.mount_share_path.label.dep_vol_name':'目标存储名称',

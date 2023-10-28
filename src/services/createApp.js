@@ -295,6 +295,7 @@ export function buildApp(body = {}) {
       method: 'post',
       data: {
         is_deploy: body.is_deploy,
+        edge_node: body.edge_node,
         nodejs_type: body.nodejs_type,
         nodejs_dependency: body.nodejs_dependency,
       }

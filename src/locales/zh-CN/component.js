@@ -587,6 +587,7 @@ const componentOverview = {
     'componentOverview.body.Ports.recommend':'推荐访问地址',
     'componentOverview.body.Ports.copy':'复制',
     'componentOverview.body.Ports.msg':'访问信息',
+    'componentOverview.body.Ports.hostNetwork_msg':'该组件使用 hostNetwork,不支持修改网络策略',
 
 
     // tabs栏>Port>AddPort

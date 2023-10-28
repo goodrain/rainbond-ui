@@ -32,7 +32,8 @@ export default {
     min_memory: '',
     service_runtimes: '',
     service_server: '',
-    service_dependency: ''
+    service_dependency: '',
+    edge_node: '',
   },
   effects: {
     *getAppsByComposeId({ payload, callback }, { call }) {
@@ -163,11 +164,20 @@ export default {
         });
       }
     },
-    *buildApps({ payload, callback }, { call }) {
-      const data = yield call(buildApp, payload);
+    *changeEdgeNode({ payload }, {_, put}) {
+      console.log('effect', payload)
+      yield put({
+        type: 'setEdgeNode',
+        payload,
+      })
+    },
+    *buildApps({ payload, callback }, { call, _, select }) {
+      console.log(payload)
+      const edge_node = yield select((state) => state.createApp.edge_node)
+      const data = yield call(buildApp, { ...payload, edge_node });
       if (data && callback) {
         callback(data);
-      }
+      } 
     },
     *helmAppInstall({ payload, callback, handleError }, { call }) {
       const data = yield call(helmAppInstall, payload, handleError);
@@ -214,8 +224,13 @@ export default {
         min_memory: '',
         service_runtimes: '',
         service_server: '',
-        service_dependency: ''
+        service_dependency: '',
+        edge_node: '',
       };
-    }
+    },
+    setEdgeNode(state, { payload }) {
+      console.log('changed')
+      return { ...state, ...payload }
+    },
   }
 };
