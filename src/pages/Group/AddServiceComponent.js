@@ -19,6 +19,7 @@ import CodeDemo from '../Create/code-demo';
 import HelmCmd from '../Create/helm-cmd';
 import ImageName from '../Create/image-name';
 import DockerDemo from '../Create/ImageName-Demo'
+import VirtualMachine from '../Create/virtual-machine'
 import Jwar from '../Create/upload-jarwar'
 import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
@@ -452,6 +453,18 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
+                  <Col
+                    span={8}
+                    className={styles.ServiceDiv}
+                    onClick={() => {
+                      this.handleServiceComponent(false, 'VirtualMachine');
+                    }}
+                  >
+                    {docker_svg}
+                    <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
+                      虚拟机镜像
+                    </p>
+                  </Col>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
@@ -546,6 +559,9 @@ export default class AddServiceComponent extends PureComponent {
           )}
           {ServiceComponentTwoPage === 'ImageNameDemo' && (
             <DockerDemo archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} />
+          )}
+          {ServiceComponentTwoPage === 'VirtualMachine' && (
+            <VirtualMachine archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

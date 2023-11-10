@@ -14,13 +14,15 @@ import {
   Select,
   AutoComplete,
   Collapse,
-  Tag
+  Tag,
+  message
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
+import AddOrEditVMVolume from '../../components/AddOrEditVMVolume'
 import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
@@ -462,8 +464,10 @@ class Mnt extends PureComponent {
     return getVolumeTypeShowName(volumeOpts, volume_type);
   };
   render() {
-    const { mntList } = this.state;
-    const { volumes } = this.state;
+    const { appDetail } = this.props
+    const { volumes, mntList } = this.state;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
+
     const columns = [
       {
         title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_name' }),
@@ -526,8 +530,8 @@ class Mnt extends PureComponent {
           }}
         >
           <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              {formatMessage({id:'componentCheck.advanced.setup.storage_setting.btn.add'})}
+            <Icon type="plus" />
+            {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
         <Table pagination={false} dataSource={volumes} columns={columns} />
@@ -538,6 +542,7 @@ class Mnt extends PureComponent {
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             data={this.state.showAddVar}
+            method={method}
           />
         )}
         {this.state.showAddRelation && (
@@ -681,7 +686,7 @@ class ConfigFiles extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
         }
@@ -763,13 +768,275 @@ class ConfigFiles extends PureComponent {
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc' />}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
         )}
       </div>
+    );
+  }
+}
+
+// 虚拟机存储管理
+// eslint-disable-next-line react/no-multi-comp
+@connect(null, null, null, { withRef: true })
+class VmMnt extends PureComponent {
+  constructor(arg) {
+    super(arg);
+    this.state = {
+      showAddVar: null,
+      showAddRelation: false,
+      selfPathList: [],
+      mntList: [],
+      toDeleteMnt: null,
+      toDeleteVolume: null,
+      volumes: [],
+      volumeOpts: []
+    };
+  }
+
+  componentDidMount() {
+    this.fetchVolumeOpts();
+    this.loadMntList();
+    this.fetchVolumes();
+  }
+  fetchVolumes = () => {
+    this.props.dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: false
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumes: data.list || []
+          });
+        }
+      }
+    });
+  };
+  fetchVolumeOpts = () => {
+    this.props.dispatch({
+      type: 'appControl/fetchVolumeOpts',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumeOpts: data.list || []
+          });
+        }
+      }
+    });
+  };
+  loadMntList = () => {
+    getMnt({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appDetail.service.service_alias,
+      page: 1,
+      page_size: 1000
+    }).then(data => {
+      if (data) {
+        this.setState({
+          mntList: data.list || []
+        });
+      }
+    });
+  };
+  handleAddVar = () => {
+    this.setState({
+      showAddVar: {
+        new: true
+      }
+    });
+  };
+  handleCancelAddVar = () => {
+    this.setState({ showAddVar: null });
+  };
+  handleSubmitAddVar = vals => {
+    this.props.dispatch({
+      type: 'appControl/addVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        ...vals
+      },
+      callback: () => {
+        this.fetchVolumes();
+        this.handleCancelAddVar();
+      }
+    });
+  };
+  showAddRelation = () => {
+    this.setState({ showAddRelation: true });
+  };
+  handleCancelAddRelation = () => {
+    this.setState({ showAddRelation: false });
+  };
+  handleSubmitAddMnt = mnts => {
+    addMnt({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appDetail.service.service_alias,
+      body: mnts
+    }).then(data => {
+      if (data) {
+        this.handleCancelAddRelation();
+        this.loadMntList();
+      }
+    });
+  };
+  onDeleteMnt = mnt => {
+    this.setState({ toDeleteMnt: mnt });
+  };
+  onDeleteVolume = data => {
+    if(data.first){
+      notification.warning({ message: '主机系统盘不能删除' });
+    }else{
+      this.setState({ toDeleteVolume: data });
+    }
+  };
+  onCancelDeleteVolume = () => {
+    this.setState({ toDeleteVolume: null });
+  };
+  handleDeleteVolume = () => {
+    this.props.dispatch({
+      type: 'appControl/deleteVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        volume_id: this.state.toDeleteVolume.ID
+      },
+      callback: () => {
+        this.onCancelDeleteVolume();
+        this.fetchVolumes();
+      }
+    });
+  };
+  handleDeleteMnt = () => {
+    this.props.dispatch({
+      type: 'appControl/deleteMnt',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        dep_vol_id: this.state.toDeleteMnt.dep_vol_id
+      },
+      callback: () => {
+        this.cancelDeleteMnt();
+        this.loadMntList();
+      }
+    });
+  };
+  cancelDeleteMnt = () => {
+    this.setState({ toDeleteMnt: null });
+  };
+  getVolumeTypeShowName = volume_type => {
+    const { volumeOpts } = this.state;
+    return getVolumeTypeShowName(volumeOpts, volume_type);
+  };
+  handleMountFormat = (key) => {
+    const obj = { 
+      '/lun': 'LUN',
+      '/disk': '磁盘',
+      '/cdrom': '光盘',
+      '/filesystems': '文件系统',
+    }
+    return obj[key] || '-'
+  }
+  render() {
+    const { mntList } = this.state;
+    const { volumes } = this.state;
+  
+    const columns = [
+      {
+        title: '存储名称',
+        dataIndex: 'volume_name'
+      },
+      {
+        title: '挂载格式',
+        dataIndex: 'volume_path',
+        render: (text, record) => {
+          return <span>{this.handleMountFormat(text)}</span>;
+        }
+      },
+      {
+        title: '存储容量',
+        dataIndex: 'volume_capacity',
+        render: (text, record) => {
+          if (text == 0) {
+            return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
+          }
+          return <span>{text}GB</span>;
+        }
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        render: (text, record) => {
+          if (text == 'not_bound') {
+            return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
+          }
+          return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
+        }
+      },
+      {
+        title: '操作',
+        dataIndex: 'action',
+        render: (val, data) => {
+          return (
+            <a
+              onClick={() => {
+                this.onDeleteVolume(data);
+              }}
+              href="javascript:;"
+            >
+              {formatMessage({ id: 'button.delete' })}
+            </a>
+          );
+        }
+      }
+    ];
+    return (
+      <Fragment>
+        <div
+          style={{
+            textAlign: 'right',
+            marginBottom: 12
+          }}
+        >
+          <Button onClick={this.handleAddVar}>
+            <Icon type="plus" />
+            {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
+          </Button>
+        </div>
+        <Table 
+          pagination={false} 
+          dataSource={volumes} 
+          columns={columns} 
+        />
+
+        {this.state.showAddVar && (
+          <AddOrEditVMVolume
+            volumeOpts={this.state.volumeOpts}
+            onCancel={this.handleCancelAddVar}
+            onSubmit={this.handleSubmitAddVar}
+            data={this.state.showAddVar}
+          />
+        )}
+        {this.state.toDeleteVolume && (
+          <ConfirmModal
+            title={formatMessage({ id: 'confirmModal.path.delete.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.path.desc' })}
+            onCancel={this.onCancelDeleteVolume}
+            onOk={this.handleDeleteVolume}
+          />
+        )}
+      </Fragment>
     );
   }
 }
@@ -838,14 +1105,14 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias
       },
-      callback: data => {     
+      callback: data => {
         this.setState({
           portsData: (data && data.list) || [],
           isPortFlag: true,
         });
-        if(!isFlag){
+        if (!isFlag) {
           this.setState({
-            iconPort: data && data.list.length > 0 ? true :false
+            iconPort: data && data.list.length > 0 ? true : false
           })
         }
       }
@@ -866,9 +1133,9 @@ export default class Index extends PureComponent {
             volumesData: data.list || [],
             isVolumesFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconVolume: data && data.list.length > 0 ? true :false
+              iconVolume: data && data.list.length > 0 ? true : false
             })
           }
         }
@@ -889,9 +1156,9 @@ export default class Index extends PureComponent {
             mntDataList: data.list || [],
             isMntFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconMnt: data && data.list.length > 0 ? true :false
+              iconMnt: data && data.list.length > 0 ? true : false
             })
           }
         }
@@ -917,9 +1184,9 @@ export default class Index extends PureComponent {
             innerEnvsList: res.list,
             isInnerEnvsFlag: true,
           });
-          if(!isFlag){
+          if (!isFlag) {
             this.setState({
-              iconEnv: res && res.list.length > 0 ? true :false
+              iconEnv: res && res.list.length > 0 ? true : false
             })
           }
         }
@@ -928,28 +1195,28 @@ export default class Index extends PureComponent {
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraVolume = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraEnv = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraMnt = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({id:'button.fold'}) : formatMessage({id:'button.config'}) }</span>
+      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
-  
+
   callbackPort = (e) => {
     this.setState({
       activeKeyPort: e.length,
@@ -1021,6 +1288,7 @@ export default class Index extends PureComponent {
       iconEnv,
       iconMnt
     } = this.state;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
     return (
       <div>
         <div
@@ -1040,15 +1308,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{color: portsData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
+                      <span className={styles.panelTitle} style={{ color: portsData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.port.desc'})}
-                        </Tooltip> 
+                        <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}>
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}
+                        </Tooltip>
                       </span>
                       {!activeKeyPort && portsData.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.port.info'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.port.info' })}&nbsp;&nbsp;
                           {portsData.map((item => {
                             return <span>
                               <Tag color="blue">{item.container_port}</Tag>
@@ -1063,20 +1331,20 @@ export default class Index extends PureComponent {
                   <Ports appDetail={appDetail} />
                 </Panel>
               </Collapse>}
-            {isVolumesFlag &&
+            {isVolumesFlag && method != 'vm' &&
               <Collapse style={{ marginTop: '40px' }} onChange={this.callbackVolume} defaultActiveKey={volumesData.length > 0 ? 'volume' : ''} expandIconPosition='right'>
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: volumesData.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}>
-                        {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.desc'})}
+                        <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}>
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyVolume && volumesData.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'enterpriseColony.import.recognition.tabs.configFiles.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.name' })}&nbsp;&nbsp;
                           {volumesData.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>
@@ -1092,20 +1360,20 @@ export default class Index extends PureComponent {
                 </Panel>
               </Collapse>
             }
-            {isInnerEnvsFlag &&
+            {isInnerEnvsFlag && method != 'vm' &&
               <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEnv} defaultActiveKey={innerEnvsList.length > 0 ? 'env' : ''} expandIconPosition='right'>
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: innerEnvsList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}>
-                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.desc'})}
+                        <Tooltip title={formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}>
+                          {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyEnv && innerEnvsList.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'appPublish.shop.pages.title.environment_variable.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.name' })}&nbsp;&nbsp;
                           {innerEnvsList.map((item => {
                             return <span>
                               <Tag color="blue">{item.attr_name}</Tag>
@@ -1134,15 +1402,15 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{color: mntDataList.length > 0 ? '#000' :'#bdbaba'}}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
+                      <span className={styles.panelTitle} style={{ color: mntDataList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
                       <span className={styles.panelSpan}>
-                        <Tooltip title={formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}>
-                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.desc'})}
+                        <Tooltip title={formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}>
+                          {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}
                         </Tooltip>
                       </span>
                       {!activeKeyMnt && mntDataList.length > 0 &&
                         <span className={styles.spanList}>
-                          {formatMessage({id:'componentCheck.advanced.setup.storage_config.name'})}&nbsp;&nbsp;
+                          {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.name' })}&nbsp;&nbsp;
                           {mntDataList.map((item => {
                             return <span>
                               <Tag color="blue">{item.volume_name}</Tag>
@@ -1154,10 +1422,16 @@ export default class Index extends PureComponent {
                   extra={this.genExtraMnt(iconMnt)}
                   showArrow={false}
                 >
-                  {isStorage && <Mnt appDetail={appDetail} />}
+
+                  {isStorage &&
+                    <>
+                      {method == 'vm' ? <VmMnt appDetail={appDetail} /> : <Mnt appDetail={appDetail} />}
+                    </>
+                  }
                 </Panel>
               </Collapse>
             }
+
           </div>
         </div>
       </div>

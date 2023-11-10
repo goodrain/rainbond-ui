@@ -44,7 +44,7 @@ export default class CreateCheck extends React.Component {
     this.state = {
       // failure、checking、success
       appPermissions: this.handlePermissions('queryAppInfo'),
-      status: '',
+      status: 'checking',
       checkUuid: '',
       errorInfo: [],
       serviceInfo: [],

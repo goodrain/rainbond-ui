@@ -97,8 +97,13 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             authority: ['admin', 'user']
           },
           {
-            name: formatMessage({ id: 'menu.team.create.image' }),
+            name: '从容器构建',
             path: `image`,
+            authority: ['admin', 'user']
+          },
+          {
+            name: '从虚拟机构建',
+            path: `vm`,
             authority: ['admin', 'user']
           },
           // 基于软件包/yaml创建

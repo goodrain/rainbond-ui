@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
@@ -263,7 +263,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
-        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -282,7 +282,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelTransfer();
         this.fetchInnerEnvs();
-        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
       }
     });
   };
@@ -325,9 +325,9 @@ export default class Index extends React.Component {
           if (res.status_code === 200) {
             this.fetchStartProbe();
             if (isUsed) {
-              notification.success({ message:  formatMessage({id:'notification.success.assembly_start'})});
+              notification.success({ message: formatMessage({ id: 'notification.success.assembly_start' }) });
             } else {
-              notification.success({ message:  formatMessage({id:'notification.success.assembly_disable'})});
+              notification.success({ message: formatMessage({ id: 'notification.success.assembly_disable' }) });
             }
           }
         }
@@ -367,7 +367,7 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: formatMessage({id:'notification.success.assembly_edit'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.assembly_edit' }) });
           }
         }
       });
@@ -383,8 +383,8 @@ export default class Index extends React.Component {
           if (res && res.status_code && res.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
-            notification.success({ message: formatMessage({id:'notification.success.add'}) });
-            notification.info({ message: formatMessage({id:'notification.hint.need_updata'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
+            notification.info({ message: formatMessage({ id: 'notification.hint.need_updata' }) });
           }
         }
       });
@@ -446,7 +446,7 @@ export default class Index extends React.Component {
         label_id: tag.label_id
       },
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
         this.fetchTags();
       }
     });
@@ -481,7 +481,7 @@ export default class Index extends React.Component {
       },
       callback: () => {
         this.cancelAddTag();
-        notification.success({ message:  formatMessage({id:'notification.success.assembly_add'})});
+        notification.success({ message: formatMessage({ id: 'notification.success.assembly_add' }) });
         this.fetchTags();
         this.setState({ tabData: [] });
       }
@@ -533,7 +533,7 @@ export default class Index extends React.Component {
   };
   setupAttribute = () => {
     if (appStatusUtil.canVisit(this.props.status)) {
-      notification.warning({ message:  formatMessage({id:'notification.warn.assembly_close'})});
+      notification.warning({ message: formatMessage({ id: 'notification.warn.assembly_close' }) });
       return;
     }
     this.setState({
@@ -554,7 +554,7 @@ export default class Index extends React.Component {
           },
           callback: data => {
             if (data) {
-              notification.success({ message: data.msg_show ||  formatMessage({id:'notification.success.modified'})});
+              notification.success({ message: data.msg_show || formatMessage({ id: 'notification.success.modified' }) });
               this.setState(
                 {
                   visibleAppSetting: false,
@@ -599,11 +599,11 @@ export default class Index extends React.Component {
   handleState = data => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
-        return `${formatMessage({id:'componentOverview.body.setting.Enabled'})}`;
+        return `${formatMessage({ id: 'componentOverview.body.setting.Enabled' })}`;
       }
-      return `${formatMessage({id:'componentOverview.body.setting.disabled'})}`;
+      return `${formatMessage({ id: 'componentOverview.body.setting.disabled' })}`;
     }
-    return `${formatMessage({id:'componentOverview.body.setting.Not_set'})}`;
+    return `${formatMessage({ id: 'componentOverview.body.setting.Not_set' })}`;
   };
 
   onPageChange = page => {
@@ -638,7 +638,8 @@ export default class Index extends React.Component {
       teamControl,
       form,
       componentPermissions: { isDeploytype, isCharacteristic, isHealth },
-      appDetail
+      appDetail,
+      method
     } = this.props;
     const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
     const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
@@ -700,37 +701,38 @@ export default class Index extends React.Component {
           style={{
             marginBottom: 24
           }}
-          title={<FormattedMessage id='componentOverview.body.setting.information'/>}
+          title={<FormattedMessage id='componentOverview.body.setting.information' />}
         >
-          <Form>
-            <FormItem
-              style={{
-                marginBottom: 0
-              }}
-              {...is_language}
-              label={<FormattedMessage id='componentOverview.body.setting.time'/>}
-            >
-              {baseInfo.create_time || ''}
-            </FormItem>
-            <FormItem
-              style={{
-                marginBottom: 0
-              }}
-              {...is_language}
-              label={<FormattedMessage id='componentOverview.body.setting.type'/>}
-            >
-              {extend_methods && globalUtil.getComponentType(extend_methods)}
-              {isDeploytype && (
-                <Button
-                  onClick={this.setupAttribute}
-                  size="small"
-                  style={{ marginLeft: '10px' }}
-                >
-                  <FormattedMessage id='componentOverview.body.setting.change'/>
-                </Button>
-              )}
-            </FormItem>
-            {/* <FormItem
+          {method != 'vm' ? (
+            <Form>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...is_language}
+                label={<FormattedMessage id='componentOverview.body.setting.time' />}
+              >
+                {baseInfo.create_time || ''}
+              </FormItem>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...is_language}
+                label={<FormattedMessage id='componentOverview.body.setting.type' />}
+              >
+                {extend_methods && globalUtil.getComponentType(extend_methods)}
+                {isDeploytype && (
+                  <Button
+                    onClick={this.setupAttribute}
+                    size="small"
+                    style={{ marginLeft: '10px' }}
+                  >
+                    <FormattedMessage id='componentOverview.body.setting.change' />
+                  </Button>
+                )}
+              </FormItem>
+              {/* <FormItem
               style={{
                 marginBottom: 0
               }}
@@ -755,19 +757,41 @@ export default class Index extends React.Component {
                 </Button>
               )}
             </FormItem> */}
-            <FormItem
-              style={{
-                marginBottom: 0
-              }}
-              {...is_language}
-              label={<FormattedMessage id='componentOverview.body.setting.upgrade'/>}
-            >
-              <Switch
-                defaultChecked={baseInfo.build_upgrade}
-                onChange={this.handleChange}
-              />
-            </FormItem>
-          </Form>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...is_language}
+                label={<FormattedMessage id='componentOverview.body.setting.upgrade' />}
+              >
+                <Switch
+                  defaultChecked={baseInfo.build_upgrade}
+                  onChange={this.handleChange}
+                />
+              </FormItem>
+            </Form>
+          ) : (
+            <Form>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...is_language}
+                label={<FormattedMessage id='componentOverview.body.setting.time' />}
+              >
+                {baseInfo.create_time || ''}
+              </FormItem>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...is_language}
+                label={<FormattedMessage id='componentOverview.body.setting.type' />}
+              >
+                虚拟机
+              </FormItem>
+            </Form>
+          )}
         </Card>
         {isHealth && (
           <Card
@@ -776,7 +800,7 @@ export default class Index extends React.Component {
             }}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormattedMessage id='componentOverview.body.setting.health'/>
+                <FormattedMessage id='componentOverview.body.setting.health' />
                 {startProbe && (
                   <div>
                     <a
@@ -789,7 +813,7 @@ export default class Index extends React.Component {
                         fontWeight: 400
                       }}
                     >
-                      {JSON.stringify(startProbe) != '{}' ? <FormattedMessage id='componentOverview.body.setting.edit'/> : <FormattedMessage id='componentOverview.body.setting.set'/>}
+                      {JSON.stringify(startProbe) != '{}' ? <FormattedMessage id='componentOverview.body.setting.edit' /> : <FormattedMessage id='componentOverview.body.setting.set' />}
                     </a>
 
                     {JSON.stringify(startProbe) != '{}' &&
@@ -800,7 +824,7 @@ export default class Index extends React.Component {
                         }}
                         style={{ fontSize: '14px', fontWeight: 400 }}
                       >
-                        <FormattedMessage id='componentOverview.body.setting.Disable'/>
+                        <FormattedMessage id='componentOverview.body.setting.Disable' />
                       </a>
                     ) : (
                       JSON.stringify(startProbe) != '{}' && (
@@ -810,7 +834,7 @@ export default class Index extends React.Component {
                           }}
                           style={{ fontSize: '14px', fontWeight: 400 }}
                         >
-                          <FormattedMessage id='componentOverview.body.setting.Enable'/>
+                          <FormattedMessage id='componentOverview.body.setting.Enable' />
                         </a>
                       )
                     )}
@@ -822,32 +846,32 @@ export default class Index extends React.Component {
             {startProbe && (
               <div style={{ display: 'flex' }}>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  <FormattedMessage id='componentOverview.body.setting.state'/>{this.handleState(startProbe)}
+                  <FormattedMessage id='componentOverview.body.setting.state' />{this.handleState(startProbe)}
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  <FormattedMessage id='componentOverview.body.setting.method'/>{startProbe.scheme ? startProbe.scheme :  <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
+                  <FormattedMessage id='componentOverview.body.setting.method' />{startProbe.scheme ? startProbe.scheme : <FormattedMessage id='componentOverview.body.setting.Not_set' />}
                 </div>
                 <div style={{ width: '33%', textAlign: 'center' }}>
-                  <FormattedMessage id='componentOverview.body.setting.unhealth'/>
+                  <FormattedMessage id='componentOverview.body.setting.unhealth' />
                   {startProbe.mode === 'readiness'
-                    ? <FormattedMessage id='componentOverview.body.setting.OfflineOffline'/>
+                    ? <FormattedMessage id='componentOverview.body.setting.OfflineOffline' />
                     : startProbe.mode === 'liveness'
-                      ? <FormattedMessage id='componentOverview.body.setting.restart'/>
-                      : <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
+                      ? <FormattedMessage id='componentOverview.body.setting.restart' />
+                      : <FormattedMessage id='componentOverview.body.setting.Not_set' />}
                 </div>
               </div>
             )}
           </Card>
         )}
-        {((appDetail && appDetail.service && appDetail.service.extend_method) === 'job' || 
-        (appDetail && appDetail.service && appDetail.service.extend_method) === 'cronjob') &&(
-          <Strategy 
-            extend_method={appDetail.service.extend_method} 
-            service_alias={appDetail && appDetail.service && appDetail.service.service_alias} 
-          />
-        )}
-        <Kubernetes  
-          service_alias={appDetail && appDetail.service && appDetail.service.service_alias} 
+        {((appDetail && appDetail.service && appDetail.service.extend_method) === 'job' ||
+          (appDetail && appDetail.service && appDetail.service.extend_method) === 'cronjob') && (
+            <Strategy
+              extend_method={appDetail.service.extend_method}
+              service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
+            />
+          )}
+        <Kubernetes
+          service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
         />
         {this.state.addTag && (
           <AddTag
@@ -880,9 +904,9 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleDeleteVar}
             onCancel={this.cancelDeleteVar}
-            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
-            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.env.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc' />}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc' />}
           />
         )}
 
@@ -890,15 +914,15 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title={<FormattedMessage id='confirmModal.deldete.transfer.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.transfer.determine'/>}
+            title={<FormattedMessage id='confirmModal.deldete.transfer.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.transfer.determine' />}
             subDesc=""
           />
         )}
 
         {viewStartHealth && (
           <ViewHealthCheck
-            title={<FormattedMessage id='componentOverview.body.setting.health_examination'/>}
+            title={<FormattedMessage id='componentOverview.body.setting.health_examination' />}
             data={viewStartHealth}
             onCancel={() => {
               this.setState({ viewStartHealth: null });
@@ -909,7 +933,7 @@ export default class Index extends React.Component {
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
-            title={<FormattedMessage id='componentOverview.body.setting.health'/>}
+            title={<FormattedMessage id='componentOverview.body.setting.health' />}
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
             loading={loading}
@@ -925,7 +949,7 @@ export default class Index extends React.Component {
         )}
         {this.state.viewRunHealth && (
           <ViewRunHealthCheck
-            title={<FormattedMessage id='componentOverview.body.setting.see'/>}
+            title={<FormattedMessage id='componentOverview.body.setting.see' />}
             data={this.state.viewRunHealth}
             onCancel={() => {
               this.setState({ viewRunHealth: null });
@@ -936,7 +960,7 @@ export default class Index extends React.Component {
           <EditRunHealthCheck
             ports={ports}
             onOk={this.handleEditRunHealth}
-            title={<FormattedMessage id='componentOverview.body.setting.inspect'/>}
+            title={<FormattedMessage id='componentOverview.body.setting.inspect' />}
             data={this.state.editRunHealth}
             onCancel={this.onCancelEditRunProbe}
           />
@@ -959,7 +983,7 @@ export default class Index extends React.Component {
         )}
         {this.state.visibleAppSetting && (
           <Modal
-            title={<FormattedMessage id='componentOverview.body.setting.deployment'/>}
+            title={<FormattedMessage id='componentOverview.body.setting.deployment' />}
             visible={this.state.visibleAppSetting}
             // onOk={this.handleOk_AppSetting}
             width={600}
@@ -968,22 +992,22 @@ export default class Index extends React.Component {
               isShow ? (
                 [
                   <Popconfirm
-                    title={<FormattedMessage id='componentOverview.body.setting.Modify'/>}
+                    title={<FormattedMessage id='componentOverview.body.setting.Modify' />}
                     onConfirm={this.handleOk_AppSetting}
                     onCancel={this.handleCancel_AppSetting}
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button type="primary"><FormattedMessage id='componentOverview.body.setting.determine'/></Button>
+                    <Button type="primary"><FormattedMessage id='componentOverview.body.setting.determine' /></Button>
                   </Popconfirm>,
-                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel'/></Button>
+                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel' /></Button>
                 ]
               ) : (
                 <div>
                   <Button type="primary" onClick={this.handleCancel_AppSetting}>
-                    <FormattedMessage id='componentOverview.body.setting.determine'/>
+                    <FormattedMessage id='componentOverview.body.setting.determine' />
                   </Button>
-                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel'/></Button>
+                  <Button onClick={this.handleCancel_AppSetting}><FormattedMessage id='componentOverview.body.setting.cancel' /></Button>
                 </div>
               )
             }
@@ -994,7 +1018,7 @@ export default class Index extends React.Component {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'componentOverview.body.setting.select'}),
+                    message: formatMessage({ id: 'componentOverview.body.setting.select' }),
                   }
                 ]
               })(

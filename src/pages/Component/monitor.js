@@ -10,7 +10,7 @@ import MonitorHistory from './component/monitor/pahistoryshow';
 import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
 import TraceShow from './component/monitor/trace';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const ButtonGroup = Button.Group;
 
@@ -86,45 +86,45 @@ export default class Index extends PureComponent {
     if (showPerformance) {
       return (
         <Fragment>
-        <div 
-        style={{
-            padding: '10px',
-            border: '1px solid #e8e8e8',
-            borderRadius: '5px',
-        }}>
           <div
             style={{
-              textAlign: 'left',
-              marginBottom: 25,
-            }}
-          >
-            <ButtonGroup>
-              <Button
-                onClick={() => {
-                  this.changeType('now');
-                }}
-                type={type === 'now' ? 'primary' : ''}
-              >
-                {/* 实时 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.now'/>
-              </Button>
-              <Button
-                onClick={() => {
-                  this.changeType('history');
-                }}
-                type={type === 'history' ? 'primary' : ''}
-              >
-                {/* 历史 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.history'/>
-              </Button>
-            </ButtonGroup>
+              padding: '10px',
+              border: '1px solid #e8e8e8',
+              borderRadius: '5px',
+            }}>
+            <div
+              style={{
+                textAlign: 'left',
+                marginBottom: 25,
+              }}
+            >
+              <ButtonGroup>
+                <Button
+                  onClick={() => {
+                    this.changeType('now');
+                  }}
+                  type={type === 'now' ? 'primary' : ''}
+                >
+                  {/* 实时 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.now' />
+                </Button>
+                <Button
+                  onClick={() => {
+                    this.changeType('history');
+                  }}
+                  type={type === 'history' ? 'primary' : ''}
+                >
+                  {/* 历史 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.history' />
+                </Button>
+              </ButtonGroup>
+            </div>
+            {type === 'now' ? (
+              <MonitorNow {...this.props} />
+            ) : (
+              <MonitorHistory {...this.props} />
+            )}
           </div>
-          {type === 'now' ? (
-            <MonitorNow {...this.props} />
-          ) : (
-            <MonitorHistory {...this.props} />
-          )}
-        </div>
         </Fragment>
       );
     }
@@ -138,19 +138,18 @@ export default class Index extends PureComponent {
           }}
         >
           {/* 尚未开通性能分析插件 */}
-          <FormattedMessage id='componentOverview.body.tab.monitor.analysis'/>
+          <FormattedMessage id='componentOverview.body.tab.monitor.analysis' />
           <p
             style={{
               paddingTop: 8,
             }}
           >
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                appDetail && appDetail.service && appDetail.service.service_alias
-              }/plugin`}
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appDetail && appDetail.service && appDetail.service.service_alias
+                }/plugin`}
             >
               {/* 去开通 */}
-              <FormattedMessage id='componentOverview.body.tab.monitor.open'/>
+              <FormattedMessage id='componentOverview.body.tab.monitor.open' />
             </Link>
           </p>
         </div>
@@ -164,10 +163,11 @@ export default class Index extends PureComponent {
     const {
       appDetail,
       componentPermissions: { isServiceMonitor },
+      method
     } = this.props;
-    const defaultShow = ['pm'];
+    const defaultShow = [(method != 'vm' ? 'pm' : 'resource')];
     const enablePM =
-      appDetail && 
+      appDetail &&
       appDetail.service &&
       appDetail.service.language &&
       appDetail.service.language.toLowerCase().indexOf('java') > -1;
@@ -178,24 +178,27 @@ export default class Index extends PureComponent {
             <Menu
               onSelect={this.changeMenu}
               defaultSelectedKeys={defaultShow}
-              style={{ height: '590px' ,border:'1px solid #e8e8e8',borderRadius:5}}
+              style={{ height: '590px', border: '1px solid #e8e8e8', borderRadius: 5 }}
             >
-              <Menu.Item key="pm">
-                {/* 性能分析 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis'/>
-              </Menu.Item>
+              {method != 'vm' &&
+                <Menu.Item key="pm">
+                  {/* 性能分析 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
+                </Menu.Item>}
               <Menu.Item key="resource">
                 {/* 资源监控 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring'/>
+                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
               </Menu.Item>
-              {enablePM && <Menu.Item key="trace">
-                              {/* 链路追踪 */}
-                              <FormattedMessage id='componentOverview.body.tab.monitor.tracking'/>
-                           </Menu.Item>}
-              {isServiceMonitor && <Menu.Item key="custom">
-                                      {/* 业务监控 */}
-                                      <FormattedMessage id='componentOverview.body.tab.monitor.business'/>
-                                    </Menu.Item>}
+              {enablePM && method != 'vm' &&
+                <Menu.Item key="trace">
+                  {/* 链路追踪 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.tracking' />
+                </Menu.Item>}
+              {isServiceMonitor && method != 'vm' &&
+                <Menu.Item key="custom">
+                  {/* 业务监控 */}
+                  <FormattedMessage id='componentOverview.body.tab.monitor.business' />
+                </Menu.Item>}
             </Menu>
           </div>
         </Col>

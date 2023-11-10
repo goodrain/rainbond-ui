@@ -1172,6 +1172,7 @@ class Main extends PureComponent {
       routerSwitch
     } = this.state;
     const { getFieldDecorator } = form;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
     const codeObj = {
       start:  formatMessage({id:'componentOverview.header.right.start'}),
@@ -1323,7 +1324,7 @@ class Main extends PureComponent {
       });
     }
 
-    if (isEnv) {
+    if (isEnv && method != 'vm') {
       tabs.push({
         key: 'environmentConfiguration',
         // tab: '环境配置',
@@ -1355,7 +1356,7 @@ class Main extends PureComponent {
       });
     }
 
-    if (isPlugin) {
+    if (isPlugin && method != 'vm') {
       tabs.push({
         key: 'plugin',
         // tab: '插件',
@@ -1363,7 +1364,7 @@ class Main extends PureComponent {
       });
     }
 
-    if (isSource) {
+    if (isSource && method != 'vm') {
       tabs.push({
         key: 'resource',
         // tab: '构建源',
@@ -1620,6 +1621,7 @@ class Main extends PureComponent {
 
         {Com ? (
           <Com
+            method={method}
             groupDetail={groupDetail}
             appPermissions={appPermissions}
             componentPermissions={componentPermissions}

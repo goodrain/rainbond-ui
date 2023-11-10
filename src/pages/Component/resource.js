@@ -756,7 +756,7 @@ export default class Index extends PureComponent {
   render() {
     if (!this.canView()) return <NoPermTip />;
 
-    const { form, match, appDetail } = this.props;
+    const { form, match, appDetail, method } = this.props;
     const {
       runtimeInfo,
       thirdInfo,
@@ -830,7 +830,7 @@ export default class Index extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            extra={[
+            extra={method != 'vm' &&[
               appUtil.isOauthByBuildSource(buildSource) ? (
                 <a onClick={this.changeEditOauth} href="javascript:;">
                   <FormattedMessage id='componentOverview.body.Resource.edit'/>
@@ -867,6 +867,18 @@ export default class Index extends PureComponent {
                 </Link>
               </FormItem>
             </div>
+            {method == 'vm' &&
+             <div>
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...formItemLayout}
+                label={'虚拟机镜像'}
+              >
+               暂无
+              </FormItem>
+            </div>}
 
             {appUtil.isImageAppByBuildSource(buildSource) ? (
               <div>
@@ -1067,7 +1079,7 @@ export default class Index extends PureComponent {
           </Card>
         )}
 
-        {buildSource && (
+        {buildSource && method != 'vm' && (
           <AutoDeploy
             app={this.props.appDetail}
             service_source={appUtil.getCreateTypeCNByBuildSource(buildSource)}

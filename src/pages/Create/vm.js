@@ -3,10 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ImageName from './image-name';
-import ImageCmd from './image-cmd';
-import ImageCompose from './image-compose';
-import ImageNameDemo from './ImageName-Demo'
+import VirtualMachine from './virtual-machine'
 import roleUtil from '../../utils/role';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
@@ -63,28 +60,13 @@ export default class Main extends PureComponent {
   };
   render() {
     const map = {
-      custom: ImageName,
-      dockerrun: ImageCmd,
-      Dockercompose: ImageCompose,
-      ImageNameDemo: ImageNameDemo,
+      VirtualMachine: VirtualMachine
     };
 
     const tabList = [
       {
-        key: 'custom',
-        tab: formatMessage({id: 'teamAdd.create.image.tabImage'}),
-      },
-      {
-        key: 'dockerrun',
-        tab: formatMessage({id: 'teamAdd.create.image.DockerRun'}),
-      },
-      {
-        key: 'Dockercompose',
-        tab: 'Docker Compose',
-      },
-      {
-        key: 'ImageNameDemo',
-        tab: formatMessage({ id: 'teamAdd.create.code.demo' }),
+        key: 'VirtualMachine',
+        tab: '虚拟机镜像',
       },
     ];
     const {
@@ -96,7 +78,7 @@ export default class Main extends PureComponent {
     const { archInfo } = this.state
     let { type } = match.params;
     if (!type) {
-      type = 'custom';
+      type = 'VirtualMachine';
     }
     const Com = map[type];
     let breadcrumbList = [];
@@ -109,9 +91,9 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title='从容器创建组件'
+        title='从虚拟机创建组件'
         onTabChange={this.handleTabChange}
-        content='支持从单一镜像、Docker命令、DockerCompose配置创建应用。'
+        content='通过虚拟机镜像创建应用。'
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}

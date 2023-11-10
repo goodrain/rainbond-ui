@@ -2479,7 +2479,8 @@ export async function editAppCreateInfo(
     extend_method,
     user_name,
     password,
-    schedule:"*/1 * * * *"
+    schedule:"*/1 * * * *",
+    disk_cap
   }
 ) {
   return request(

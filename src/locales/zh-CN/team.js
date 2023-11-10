@@ -82,9 +82,9 @@ const teamAdd = {
   'teamAdd.create.code.selectDemo':'选择示例',
 
   // image
-  'teamAdd.create.image.title':'从Docker镜像创建组件',
-  'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置创建应用。',
-  'teamAdd.create.image.tabImage':'镜像',
+  'teamAdd.create.image.title':'从镜像创建组件',
+  'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置以及虚拟机创建应用。',
+  'teamAdd.create.image.tabImage':'容器镜像',
   'teamAdd.create.image.DockerRun':'Docker Run',
   'teamAdd.create.image.docker_cmd':'命令',
   'teamAdd.create.image.hint1':'这是一个私有仓库?',

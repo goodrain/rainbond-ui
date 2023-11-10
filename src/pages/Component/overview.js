@@ -740,7 +740,8 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { status, componentPermissions, socket, appDetail } = this.props;
+    const { status, componentPermissions, socket, appDetail, method } = this.props;
+    console.log(method,'method')
     const {
       resourcesLoading,
       logList,
@@ -776,7 +777,9 @@ export default class Index extends PureComponent {
           handleMore={this.handleMore}
           more={more}
           socket={socket && socket}
+          method={method}
         />
+        
         {more && (
           <BuildHistory
             componentPermissions={componentPermissions}
