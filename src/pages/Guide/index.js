@@ -1052,7 +1052,7 @@ export default class Index extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder="请选择要所属应用"
+                        placeholder="请选择所属应用"
                         style={{
                           display: 'inline-block',
                           width: 270,

@@ -264,32 +264,6 @@ export default class EditGroupName extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'popover.newApp.appEngName.placeholder'})} disabled={!isDisabled} />)}
           </FormItem>
-          {/* 应用Logo */}
-          <FormItem
-            {...is_language}
-            label={formatMessage({id:'popover.newApp.logo'})}
-            extra={formatMessage({id:'popover.newApp.upload_pictures.extra'})}
-          >
-            <Upload
-              action={apiconfig.imageUploadUrl}
-              listType="picture-card"
-              accept="image/jpg,image/jpeg,image/png"
-              fileList={fileList}
-              onPreview={this.handlePreview}
-              onChange={this.handleChange}
-              onRemove={this.handleRemove}
-            >
-              {fileList.length > 0 ? null : uploadButton}
-            </Upload>
-            <Modal
-              visible={previewVisible}
-              title={previewTitle}
-              footer={null}
-              onCancel={this.handleCancel}
-            >
-              <img alt="example" style={{ width: '100%' }} src={previewImage} />
-            </Modal>
-          </FormItem>
 
           <FormItem {...is_language
           } label={formatMessage({id:'popover.newApp.appRemark'})}>

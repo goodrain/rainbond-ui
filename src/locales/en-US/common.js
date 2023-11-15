@@ -751,6 +751,7 @@
         'placeholder.appShare.selectAppTemplate':'Select the published application template',
         'placeholder.appShare.version':'Please fill in the version number',
         'placeholder.appShare.max64':'Maximum length: 64 bits',
+        'placeholder.appShare.max255':'Maximum length: 255 bits',
         'placeholder.appShare.version_alias':'Set version alias, such as advanced version',
         'placeholder.appShare.describe':'Please enter the Version Description',
         'placeholder.appShare.retain':'Please keep at least one component',

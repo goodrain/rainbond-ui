@@ -198,9 +198,6 @@ class CreateTeam extends PureComponent {
                 }
               ]
             })(<Input placeholder={formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' })} />)}
-            {/* <div className={styles.conformDesc}>
-              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
-            </div> */}
           </FormItem>
           {/* 团队的命名空间 */}
           <FormItem {...formItemLayout} label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.englishName' />}
