@@ -457,38 +457,30 @@ class VirtualMachineBaseInfo extends PureComponent {
     this.state = {
       memoryList: [
         {
-          text: '256M',
-          value: 256
+          text: formatMessage({id:'Vm.createVm.2g'}),
+          value: 2048
         },
         {
-          text: '512M',
-          value: 512
-        },
-        {
-          text: '1G',
-          value: 1024
-        },
-        {
-          text: '2G',
-          value: 1024 * 2
-        },
-        {
-          text: '4G',
+          text: formatMessage({id:'Vm.createVm.4g'}),
           value: 1024 * 4
         },
         {
-          text: '8G',
+          text: formatMessage({id:'Vm.createVm.8g'}),
           value: 1024 * 8
         },
         {
-          text: '自定义',
-          value: 'custom'
+          text: formatMessage({id:'Vm.createVm.16g'}),
+          value: 1024 * 16
+        },
+        {
+          text: formatMessage({id:'Vm.createVm.Custom'}),
+          value: "custom"
         }
       ],
       is_flag: false,
       setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
       setUnitDisk: (props.appDetail.service.disk_cap % 1024 == 0) ? 'G' : 'M',
-      memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory
+      memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory && this.handleMinMemory(props.appDetail.service.min_memory),
     }
   }
 
@@ -504,13 +496,35 @@ class VirtualMachineBaseInfo extends PureComponent {
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
-        if(fieldsValue.min_memory == 'custom' && fieldsValue.memory_value){
+        if (fieldsValue.min_memory == 'custom' && fieldsValue.memory_value) {
           if (setUnit) {
             const memoryNum = setUnit == "G" ? fieldsValue.memory_value * 1024 : fieldsValue.memory_value
             fieldsValue.min_memory = memoryNum
           } else {
             const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.memory_value * 1024) : Number(fieldsValue.memory_value)
             fieldsValue.min_memory = memoryNum
+          }
+          fieldsValue.min_cpu = Number(fieldsValue.min_cpu)
+        } else {
+          switch (fieldsValue.min_memory) {
+            case 2048:
+              fieldsValue.min_memory = 2048
+              fieldsValue.min_cpu = 2000
+              break;
+            case 1024 * 4:
+              fieldsValue.min_memory = 1024 * 4
+              fieldsValue.min_cpu = 2000
+              break;
+            case 1024 * 8:
+              fieldsValue.min_memory = 1024 * 8
+              fieldsValue.min_cpu = 4000
+              break;
+            case 1024 * 16:
+              fieldsValue.min_memory = 1024 * 16
+              fieldsValue.min_cpu = 4000
+              break;
+            default:
+              break;
           }
         }
         fieldsValue.disk_cap = fieldsValue.disk_cap * 1
@@ -529,6 +543,23 @@ class VirtualMachineBaseInfo extends PureComponent {
     this.setState({
       memoryValue: value.target.value
     })
+  }
+  handleMinMemory = (val) => {
+    if (val != 2048 && val != 1024 * 4 && val != 1024 * 8 && val != 1024 * 16) {
+      return "custom"
+    } else {
+      const { appDetail } = this.props;
+      if (val == 2048 && appDetail.service.min_cpu == 2000) {
+        return 2048
+      } else if (val == 1024 * 4 && appDetail.service.min_cpu == 2000) {
+        return 1024 * 4
+      } else if (val == 1024 * 8 && appDetail.service.min_cpu == 4000) {
+        return 1024 * 8
+      } else if (val == 1024 * 16 && appDetail.service.min_cpu == 4000) {
+        return 1024 * 16
+      }
+    }
+    return false
   }
 
   render() {
@@ -569,19 +600,18 @@ class VirtualMachineBaseInfo extends PureComponent {
       >
         <Form.Item
           {...formItemLayout}
-          label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}
-          extra={'指定分配给此虚拟机的内存量。内存大小必须为 4 MB的倍数。'}
+          label={formatMessage({id:'Vm.createVm.specification'})}
+          extra={memoryValue == "custom" && formatMessage({id:'Vm.createVm.distribution'})}
         >
           {getFieldDecorator('min_memory', {
-            initialValue: min_memory || 0,
+            initialValue: memoryValue || 0,
             rules: [
               {
                 required: true,
-                message: formatMessage({ id: 'placeholder.setting.min_memory' })
               }
             ]
           })(
-            <RadioGroup style={{ position:'relative' }} onChange={this.handleMemoryChange}>
+            <RadioGroup style={{ position: 'relative' }} onChange={this.handleMemoryChange}>
               {list.map((item, index) => {
                 return (
                   <RadioButton key={index} value={item.value}>
@@ -589,50 +619,55 @@ class VirtualMachineBaseInfo extends PureComponent {
                   </RadioButton>
                 );
               })}
-              {memoryValue == 'custom' &&
-                <Form.Item
-                  style={{position:'absolute', top: '0px', right: '-200px', width: '200px', margin: '0px'}}                 
-                >
-                  {getFieldDecorator('memory_value', {
-                    initialValue: (`${disk_cap % 1024 == 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
-                    rules: [
-                      {
-                        required: true,
-                        message: formatMessage({ id: 'placeholder.setting.min_memory' })
-                      }
-                    ]
-                  })(
-                    <Input
-                      style={{ width: '160px', margin: '4px 0px 0px 4px' }}
-                      addonAfter={
-                        <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.handleAfterChange}>
-                          <Option value="M">M</Option>
-                          <Option value="G">G</Option>
-                        </Select>
-                      }
-                    />)}
-                </Form.Item>
-              }
+
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label='CPU'>
-          {getFieldDecorator('min_cpu', {
-            initialValue: min_cpu || 0,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.setting.min_memory' })
-              }
-            ]
-          })(
-            <Input
-              style={{ width: '200px' }}
-              addonAfter="m"
-            />
-          )}
-        </Form.Item>
-        <Form.Item {...formItemLayout} label='磁盘'>
+        {memoryValue == "custom" &&
+          <Form.Item {...formItemLayout} label='CPU'>
+            {getFieldDecorator('min_cpu', {
+              initialValue: min_cpu || 0,
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                }
+              ]
+            })(
+              <Input
+                style={{ width: '200px' }}
+                type='number'
+                addonAfter="m"
+              />
+            )}
+          </Form.Item>
+        }
+        {memoryValue == "custom" &&
+          <Form.Item
+            {...formItemLayout}
+            label={formatMessage({id:'Vm.createVm.memory'})}
+          >
+            {getFieldDecorator('memory_value', {
+              initialValue: (`${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'placeholder.setting.min_memory' })
+                }
+              ]
+            })(
+              <Input
+                style={{ width: '160px', margin: '4px 0px 0px 4px' }}
+                addonAfter={
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.handleAfterChange}>
+                    <Option value="M">M</Option>
+                    <Option value="G">G</Option>
+                  </Select>
+                }
+              />)}
+          </Form.Item>
+        }
+        <Form.Item {...formItemLayout} label={formatMessage({id:'Vm.createVm.disk'})}>
           {getFieldDecorator('disk_cap', {
             initialValue: (`${disk_cap % 1024 == 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
             rules: [

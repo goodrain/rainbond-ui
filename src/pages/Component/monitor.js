@@ -34,6 +34,10 @@ export default class Index extends PureComponent {
   }
   componentWillMount() {
     this.fetchBaseInfo();
+    const { method } = this.props;
+    if(method == 'vm'){
+      this.setState({ showMenu: 'resource' });
+    }
   }
   componentDidMount() {
     if (!this.canView()) return;

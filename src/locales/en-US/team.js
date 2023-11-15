@@ -85,7 +85,7 @@ const teamAdd = {
   'teamAdd.create.code.selectDemo':'Selection example',
   // image
   'teamAdd.create.image.title':'Create components from the Docker image',
-  'teamAdd.create.image.desc':'Support for creating applications from a single image, Docker commands, and DockerCompose configuration',
+  'teamAdd.create.image.desc':'Applications can be created from containers and virtual machines',
   'teamAdd.create.image.tabImage':'DockerImage',
   'teamAdd.create.image.DockerRun':'Docker Run',
   'teamAdd.create.image.docker_cmd':'Command',
@@ -554,5 +554,42 @@ const teamOther = {
   'teamOther.HelmCmdForm.success':'Successful installation',
 }
 
+const Vm = {
+  'Vm.createVm.titleVm': "Built from virtual institutions",
+  'Vm.createVm.docker': 'Build from container',
+  'Vm.createVm.creatCom': 'Create components from a virtual machine',
+  'Vm.createVm.creatApp': 'Create an application using a VM image',
+  'Vm.createVm.specification': 'Specification',
+  'Vm.createVm.distribution': 'Specifies the amount of memory allocated to this virtual machine. The memory size must be a multiple of 4 MB.',
+  'Vm.createVm.memory': 'Internal memory',
+  'Vm.createVm.disk': 'Disk',
+  'Vm.createVm.from': 'Mirror source',
+  'Vm.createVm.add': 'Address',
+  'Vm.createVm.upload': 'Upload',
+  'Vm.createVm.have': 'Existing mirror image',
+  'Vm.createVm.install': 'Download online',
+  'Vm.createVm.InputInstall': 'Please enter the online download address',
+  'Vm.createVm.imgUpload': 'Image upload',
+  'Vm.createVm.package': 'You can upload.img.qcow2. iso and compressed.tar,.gz, and.xz packages in the preceding formats',
+  'Vm.createVm.imgName': 'Image name',
+  'Vm.createVm.saveName': 'Name of the saved image',
+  'Vm.createVm.inputName': 'Please enter the image name',
+  'Vm.createVm.img': 'Mirror image',
+  'Vm.createVm.selectImg': 'Please select mirror',
+  'Vm.createVm.unInstall': 'The VM plug-in is not installed',
+  'Vm.createVm.handleSuccess': 'The operation succeeded. The VM status is being updated',
+  'Vm.createVm.VmImg': 'Virtual machine image',
+  'Vm.createVm.2g':'2-core 2G',
+  'Vm.createVm.4g':'2-core 4G',
+  'Vm.createVm.8g':'4-core 8G',
+  'Vm.createVm.16g':'4-core 16G',
+  'Vm.createVm.Custom':'Custom',
+  'Vm.createVm.Storagename':'Storage Name',
+  'Vm.createVm.Storagetype':'Mount Format',
+  'Vm.createVm.capacity':'Storage Capacity',
+  'Vm.createVm.handle':'Controls',
+  'Vm.createVm.status':'Status',
+}
 
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther);   
+
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm);   

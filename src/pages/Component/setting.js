@@ -872,6 +872,7 @@ export default class Index extends React.Component {
           )}
         <Kubernetes
           service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
+          extend_method={appDetail.service.extend_method}
         />
         {this.state.addTag && (
           <AddTag

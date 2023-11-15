@@ -283,18 +283,18 @@ export default class Index extends PureComponent {
     if (!this.canView()) return <NoPermTip />;
     const columns = [
       {
-        title: '存储名称',
+        title: formatMessage({id:'Vm.createVm.Storagename'}),
         dataIndex: 'volume_name'
       },
       {
-        title: '挂载格式',
+        title: formatMessage({id:'Vm.createVm.Storagetype'}),
         dataIndex: 'volume_path',
         render: (text, record) => {
           return <span>{this.handleMountFormat(text)}</span>;
         }
       },
       {
-        title: '存储容量',
+        title: formatMessage({id:'Vm.createVm.capacity'}),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
           if (text == 0) {
@@ -304,7 +304,7 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: '状态',
+        title: formatMessage({id:'Vm.createVm.status'}),
         dataIndex: 'status',
         render: (text, record) => {
           if (text == 'not_bound') {
@@ -314,7 +314,7 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: '操作',
+        title: formatMessage({id:'Vm.createVm.handle'}),
         dataIndex: 'action',
         render: (val, data) => {
           return (

@@ -494,16 +494,16 @@ class Mnt extends PureComponent {
           return <span>{text}GB</span>;
         }
       },
-      {
-        title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.status' }),
-        dataIndex: 'status',
-        render: (text, record) => {
-          if (text == 'not_bound') {
-            return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
-          }
-          return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
-        }
-      },
+      // {
+      //   title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.status' }),
+      //   dataIndex: 'status',
+      //   render: (text, record) => {
+      //     if (text == 'not_bound') {
+      //       return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
+      //     }
+      //     return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
+      //   }
+      // },
       {
         title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.action' }),
         dataIndex: 'action',
@@ -954,18 +954,18 @@ class VmMnt extends PureComponent {
   
     const columns = [
       {
-        title: '存储名称',
+        title: formatMessage({id:'Vm.createVm.Storagename'}),
         dataIndex: 'volume_name'
       },
       {
-        title: '挂载格式',
+        title: formatMessage({id:'Vm.createVm.Storagetype'}),
         dataIndex: 'volume_path',
         render: (text, record) => {
           return <span>{this.handleMountFormat(text)}</span>;
         }
       },
       {
-        title: '存储容量',
+        title: formatMessage({id:'Vm.createVm.capacity'}),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
           if (text == 0) {
@@ -974,18 +974,18 @@ class VmMnt extends PureComponent {
           return <span>{text}GB</span>;
         }
       },
+      // {
+      //   title: '状态',
+      //   dataIndex: 'status',
+      //   render: (text, record) => {
+      //     if (text == 'not_bound') {
+      //       return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
+      //     }
+      //     return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
+      //   }
+      // },
       {
-        title: '状态',
-        dataIndex: 'status',
-        render: (text, record) => {
-          if (text == 'not_bound') {
-            return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
-          }
-          return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
-        }
-      },
-      {
-        title: '操作',
+        title: formatMessage({id:'Vm.createVm.handle'}),
         dataIndex: 'action',
         render: (val, data) => {
           return (

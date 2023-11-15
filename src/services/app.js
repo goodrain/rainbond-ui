@@ -3305,6 +3305,16 @@ export async function deleteKubernetes(body = {}) {
     }
   );
 }
+// http://192.168.2.201:10000/console/teams/xzfn045k/apps/grdc46e7/pause
+// vm虚拟机挂起恢复
+export async function vmPause(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/${body.type}`,
+    {
+      method: 'post',
+    }
+  );
+}
 
 
 

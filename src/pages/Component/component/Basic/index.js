@@ -159,13 +159,13 @@ class Index extends PureComponent {
                   <span
                     style={{
                       color:
-                        beanData && beanData.image_repo
+                        beanData && beanData.vm_image
                           ? '#39aa56'
                           : 'rgba(0, 0, 0, 0.45)'
                     }}
                   >
-                    {beanData && beanData.image_repo
-                      ? beanData.image_repo
+                    {beanData && beanData.vm_image
+                      ? beanData.vm_image
                       : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                   </span>
                 </h2>

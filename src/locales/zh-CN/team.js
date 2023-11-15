@@ -83,7 +83,7 @@ const teamAdd = {
 
   // image
   'teamAdd.create.image.title':'从镜像创建组件',
-  'teamAdd.create.image.desc':'支持从单一镜像、Docker命令、DockerCompose配置以及虚拟机创建应用。',
+  'teamAdd.create.image.desc':'支持从容器以及虚拟机创建应用。',
   'teamAdd.create.image.tabImage':'容器镜像',
   'teamAdd.create.image.DockerRun':'Docker Run',
   'teamAdd.create.image.docker_cmd':'命令',
@@ -556,8 +556,42 @@ const teamOther = {
   'teamOther.HelmCmdForm.msg':'错误信息',
   'teamOther.HelmCmdForm.error':'安装失败！请检查命令行语句是否有误！',
   'teamOther.HelmCmdForm.success':'安装成功',
-
-
+}
+const Vm = {
+  'Vm.createVm.titleVm': "从虚拟机构建",
+  'Vm.createVm.docker': '从容器构建',
+  'Vm.createVm.creatCom': '从虚拟机创建组件',
+  'Vm.createVm.creatApp': '通过虚拟机镜像创建应用。',
+  'Vm.createVm.specification': '规格',
+  'Vm.createVm.distribution': '指定分配给此虚拟机的内存量。内存大小必须为 4 MB的倍数。',
+  'Vm.createVm.memory': '内存',
+  'Vm.createVm.disk': '磁盘',
+  'Vm.createVm.from': '镜像来源',
+  'Vm.createVm.add': '地址',
+  'Vm.createVm.upload': '上传',
+  'Vm.createVm.have': '已有镜像',
+  'Vm.createVm.install': '在线下载',
+  'Vm.createVm.InputInstall': '请输入在线下载地址',
+  'Vm.createVm.imgUpload': '镜像上传',
+  'Vm.createVm.package': '支持格式为 .img .qcow2 .iso 以及上述格式压缩的 .tar，.gz，.xz 包上传',
+  'Vm.createVm.imgName': '镜像名称',
+  'Vm.createVm.saveName': '保存的镜像名称',
+  'Vm.createVm.inputName': '请输入镜像名称',
+  'Vm.createVm.img': '镜像',
+  'Vm.createVm.selectImg': '请选择镜像',
+  'Vm.createVm.unInstall': '暂未安装虚拟机插件',
+  'Vm.createVm.handleSuccess': '操作成功，正在更新虚拟机状态',
+  'Vm.createVm.VmImg': '虚拟机镜像',
+  'Vm.createVm.2g':'2核2G',
+  'Vm.createVm.4g':'2核4G',
+  'Vm.createVm.8g':'4核8G',
+  'Vm.createVm.16g':'4核16G',
+  'Vm.createVm.Custom':'自定义',
+  'Vm.createVm.Storagename':'存储名称',
+  'Vm.createVm.Storagetype':'挂载格式',
+  'Vm.createVm.capacity':'存储容量',
+  'Vm.createVm.handle':'操作',
+  'Vm.createVm.status':'状态',
 }
 
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther);
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm);

@@ -1,11 +1,12 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,7 +29,8 @@ const formItemLayouts = {
 };
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, user }) => ({
+    currUser: user.currentUser,
     groups: global.groups,
     createAppByDockerrunLoading:
       loading.effects['createApp/createAppByDockerrun']
@@ -48,7 +50,11 @@ export default class Index extends PureComponent {
       radioKey: 'address',
       fileList: [],
       percents: false,
+      vmShow: false
     };
+  }
+  componentDidMount() {
+    this.fetchPipePipeline();
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -69,9 +75,7 @@ export default class Index extends PureComponent {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
-      console.log(fieldsValue,'fieldsValue')
-
-        // onSubmit(fieldsValue);
+        onSubmit(fieldsValue);
       }
     });
   };
@@ -124,6 +128,29 @@ export default class Index extends PureComponent {
   onRemove = () => {
     this.setState({ fileList: [] });
   };
+  // 获取插件列表
+  fetchPipePipeline = (eid) => {
+    const { dispatch, currUser } = this.props;
+    dispatch({
+      type: 'teamControl/fetchPluginUrl',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.list) {
+          res.list.map(item => {
+            if (item.name == "rainbond-vm") {
+              this.setState({
+                vmShow: false,
+              })
+            }
+          }
+          )
+        }
+      }
+    })
+  }
   render() {
     const {
       groups,
@@ -141,7 +168,7 @@ export default class Index extends PureComponent {
     const myheaders = {};
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
-    const { language, radioKey, fileList } = this.state;
+    const { language, radioKey, fileList, vmShow } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
     let archLegnth = archInfo.length
@@ -203,73 +230,78 @@ export default class Index extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
           </Form.Item>
-          <Form.Item {...is_language} label='镜像来源'>
+          <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.from'})}>
             {getFieldDecorator('imagefrom', {
               initialValue: 'address',
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Radio.Group onChange={this.handleChangeImageSource}>
-                <Radio value='address'>地址</Radio>
-                <Radio value='upload'>上传</Radio>
-                <Radio value='ok'>已有镜像</Radio>
+                <Radio value='address'>{formatMessage({id:'Vm.createVm.add'})}</Radio>
+                <Radio value='upload'>{formatMessage({id:'Vm.createVm.upload'})}</Radio>
+                {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({id:'Vm.createVm.have'})}</Radio>}
+                {/* <Radio value='ok'>已有镜像</Radio> */}
               </Radio.Group>
             )}
           </Form.Item>
           {radioKey != 'ok' ? (
             <>
-            {radioKey == 'address' && 
-              <Form.Item {...is_language} label='下载地址'>
-                {getFieldDecorator('vm_url', {
-                  rules: [
-                    { required: true }
-                  ]
-                })(<Input placeholder={'请输入下载地址'} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-              </Form.Item>
-            }
-            {radioKey == 'upload' &&
-              <Form.Item
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
-            >
-              {getFieldDecorator('packageTarFile', {
-                rules: [
-
-                ]
-              })(
-                <Upload
-                  fileList={fileList}
-                  name="packageTarFile"
-                  onChange={this.onChangeUpload}
-                  onRemove={this.onRemove}
-                  action={''}
-                  headers={myheaders}
-                  multiple={true}
+              {radioKey == 'address' &&
+                <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.install'})}>
+                  {getFieldDecorator('vm_url', {
+                    rules: [
+                      { required: true }
+                    ]
+                  })(<Input placeholder={formatMessage({id:'Vm.createVm.InputInstall'})} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                </Form.Item>
+              }
+              {radioKey == 'upload' &&
+                <Form.Item
+                  {...is_language}
+                  label={formatMessage({id:'Vm.createVm.imgUpload'})}
+                  extra={formatMessage({id:'Vm.createVm.package'})}
                 >
-                  <Button>
-                    <Icon type="upload" />
-                    {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
-                  </Button>
-                </Upload>
-              )}
-            </Form.Item>
-            }
-              <Form.Item {...is_language} label='镜像名称'>
+                  {getFieldDecorator('packageTarFile', {
+                    rules: [
+
+                    ]
+                  })(
+                    <>
+                      <Upload
+                        fileList={fileList}
+                        name="packageTarFile"
+                        onChange={this.onChangeUpload}
+                        onRemove={this.onRemove}
+                        action={''}
+                        headers={myheaders}
+                        multiple={true}
+                      >
+
+                        <Button>
+                          <Icon type="upload" />
+                          {formatMessage({id:'Vm.createVm.imgUpload'})}
+                        </Button>
+                      </Upload>
+                    </>
+                  )}
+                </Form.Item>
+              }
+              <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.imgName'})} extra={formatMessage({id:'Vm.createVm.saveName'})}>
                 {getFieldDecorator('image_name', {
                   rules: [
                     { required: true }
                   ]
-                })(<Input placeholder={'请输入镜像名称'} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                })(<Input placeholder={formatMessage({id:'Vm.createVm.inputName'})} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
               </Form.Item>
             </>
           ) : (
-            <Form.Item {...is_language} label='镜像'>
+            <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.img'})}>
               {getFieldDecorator('image_name', {
                 rules: [
                   { required: true, }
                 ]
               })(<Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={'请选择镜像'}
+                placeholder={formatMessage({id:'Vm.createVm.selectImg'})}
               >
                 {(virtualMachineImage || []).map(image => {
                   return (
@@ -279,20 +311,21 @@ export default class Index extends PureComponent {
               </Select>)}
             </Form.Item>
           )}
-          {archLegnth == 2 && 
-          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+          {archLegnth == 2 &&
+            <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+              {getFieldDecorator('arch', {
+                initialValue: arch,
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              })(
+                <Radio.Group>
+                  <Radio value='amd64'>amd64</Radio>
+                  <Radio value='arm64'>arm64</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>}
 
           {showSubmitBtn ? (
+
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -305,23 +338,26 @@ export default class Index extends PureComponent {
             >
               {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByDockerrunLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                  </Button>,
-                  false
-                )
+                        <Button
+                          onClick={this.handleSubmit}
+                          type="primary"
+                          loading={createAppByDockerrunLoading}
+                        >
+                          {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                        </Button>                      
+                      ,false
+                    )
                 : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByDockerrunLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
+                  <Tooltip placement="top" title={vmShow ? null : formatMessage({id:'Vm.createVm.unInstall'})} key={vmShow}>
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByDockerrunLoading}
+                      disabled={!vmShow}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

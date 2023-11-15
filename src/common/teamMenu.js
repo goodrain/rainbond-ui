@@ -97,12 +97,12 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             authority: ['admin', 'user']
           },
           {
-            name: '从容器构建',
+            name: formatMessage({id:'Vm.createVm.docker'}),
             path: `image`,
             authority: ['admin', 'user']
           },
           {
-            name: '从虚拟机构建',
+            name: formatMessage({id:'Vm.createVm.titleVm'}),
             path: `vm`,
             authority: ['admin', 'user']
           },

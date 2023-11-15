@@ -66,7 +66,7 @@ export default class Main extends PureComponent {
     const tabList = [
       {
         key: 'VirtualMachine',
-        tab: '虚拟机镜像',
+        tab: formatMessage({id:'Vm.createVm.VmImg'}),
       },
     ];
     const {
@@ -91,9 +91,9 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title='从虚拟机创建组件'
+        title={formatMessage({id: 'Vm.createVm.creatCom'})}
         onTabChange={this.handleTabChange}
-        content='通过虚拟机镜像创建应用。'
+        content={formatMessage({id: 'Vm.createVm.creatApp'})}
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}

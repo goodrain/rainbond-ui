@@ -851,7 +851,7 @@ class Main extends PureComponent {
       putUpdateRolling: formatMessage({id:'notification.success.operationUpdata'})
     };
     const { team_name, app_alias } = this.fetchParameter();
-
+    
     dispatch({
       type: `appControl/${state}`,
       payload: {
@@ -897,6 +897,29 @@ class Main extends PureComponent {
       }
     });
   };
+  handleVm = () =>{
+    const { appDetail, dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    const { status } = this.state;
+    dispatch({
+      type: 'appControl/vmPause',
+      payload: {
+        team_name,
+        app_alias: serviceAlias,
+        type: status.status == 'paused' ? 'unpause' : 'pause'
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message: formatMessage({id:'Vm.createVm.handleSuccess'}) });
+        }
+      },
+      handleError: err => {
+          notification.warning({
+            message: formatMessage({id:'notification.warn.error'}),
+          });
+      }
+    });
+  }
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;
@@ -1217,7 +1240,9 @@ class Main extends PureComponent {
             <FormattedMessage id='componentOverview.header.right.start'/>
           </Button>
         )}
-
+        {
+          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复":'挂起'}</Button>
+        }
         {isVisitWebTerminal && !isShowThirdParty && (
           <Button>
             <Link
@@ -1229,36 +1254,27 @@ class Main extends PureComponent {
             </Link>
           </Button>
         )}
-
-        {isShowThirdParty ? (
-          ''
-        ) : this.state.BuildState && isConstruct ? (
-          <Tooltip title={<FormattedMessage id='componentOverview.isShowThirdParty.New_version'/>}>
-            <Button
-              onClick={this.handleOpenBuild}
-              loading={buildInformationLoading}
-            >
-              <Badge
-                className={styles.badge}
-                status="success"
-                text=""
-                count={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
-                title={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
-              />
-              {/* 构建 */}
-              <FormattedMessage id='componentOverview.header.right.build'/>
-            </Button>
-          </Tooltip>
-        ) : status && status.status === 'undeploy' && isConstruct ? (
-          <Button
-            onClick={this.handleOpenBuild}
-            loading={buildInformationLoading}
-          >
-            {/* 构建 */}
-            <FormattedMessage id='componentOverview.header.right.build'/>
-          </Button>
-        ) : (
-          isConstruct && (
+        {method != 'vm' ? (
+          isShowThirdParty ? (
+            ''
+          ) : this.state.BuildState && isConstruct ? (
+            <Tooltip title={<FormattedMessage id='componentOverview.isShowThirdParty.New_version'/>}>
+              <Button
+                onClick={this.handleOpenBuild}
+                loading={buildInformationLoading}
+              >
+                <Badge
+                  className={styles.badge}
+                  status="success"
+                  text=""
+                  count={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
+                  title={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
+                />
+                {/* 构建 */}
+                <FormattedMessage id='componentOverview.header.right.build'/>
+              </Button>
+            </Tooltip>
+          ) : status && status.status === 'undeploy' && isConstruct ? (
             <Button
               onClick={this.handleOpenBuild}
               loading={buildInformationLoading}
@@ -1266,10 +1282,22 @@ class Main extends PureComponent {
               {/* 构建 */}
               <FormattedMessage id='componentOverview.header.right.build'/>
             </Button>
+          ) : (
+            isConstruct && (
+              <Button
+                onClick={this.handleOpenBuild}
+                loading={buildInformationLoading}
+              >
+                {/* 构建 */}
+                <FormattedMessage id='componentOverview.header.right.build'/>
+              </Button>
+            )
           )
+        ):(
+          ""
         )}
-
-        {status.status === 'undeploy' ||
+        {method != 'vm' ? ( 
+        status.status === 'undeploy' ||
         status.status === 'closed' ||
         status.status === 'stopping' ||
         status.status === 'succeeded'
@@ -1282,8 +1310,10 @@ class Main extends PureComponent {
               >
                 {upDataText}
               </Button>
-            )}
-
+            )
+        ):(
+          ""
+        )}
         {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&

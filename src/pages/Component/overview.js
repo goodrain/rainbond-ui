@@ -741,7 +741,6 @@ export default class Index extends PureComponent {
 
   render() {
     const { status, componentPermissions, socket, appDetail, method } = this.props;
-    console.log(method,'method')
     const {
       resourcesLoading,
       logList,

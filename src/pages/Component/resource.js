@@ -874,7 +874,7 @@ export default class Index extends PureComponent {
                   marginBottom: 0
                 }}
                 {...formItemLayout}
-                label={'虚拟机镜像'}
+                label={formatMessage({id:'Vm.createVm.VmImg'})}
               >
                暂无
               </FormItem>
