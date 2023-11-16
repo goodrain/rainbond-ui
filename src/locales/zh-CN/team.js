@@ -592,6 +592,7 @@ const Vm = {
   'Vm.createVm.capacity':'存储容量',
   'Vm.createVm.handle':'操作',
   'Vm.createVm.status':'状态',
+  'Vm.createVm.packageInstall': '支持格式为 .img .qcow2 .iso 以及上述格式压缩的 .tar，.gz，.xz 文件下载',
 }
 
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm);

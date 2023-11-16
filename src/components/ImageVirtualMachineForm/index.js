@@ -142,7 +142,7 @@ export default class Index extends PureComponent {
           res.list.map(item => {
             if (item.name == "rainbond-vm") {
               this.setState({
-                vmShow: false,
+                vmShow: true,
               })
             }
           }
@@ -246,7 +246,7 @@ export default class Index extends PureComponent {
           {radioKey != 'ok' ? (
             <>
               {radioKey == 'address' &&
-                <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.install'})}>
+                <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.install'})} extra={formatMessage({id:'Vm.createVm.packageInstall'})}>
                   {getFieldDecorator('vm_url', {
                     rules: [
                       { required: true }
@@ -285,12 +285,12 @@ export default class Index extends PureComponent {
                   )}
                 </Form.Item>
               }
-              <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.imgName'})} extra={formatMessage({id:'Vm.createVm.saveName'})}>
+              <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.imgName'})} >
                 {getFieldDecorator('image_name', {
                   rules: [
                     { required: true }
                   ]
-                })(<Input placeholder={formatMessage({id:'Vm.createVm.inputName'})} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                })(<Input placeholder={formatMessage({id:'Vm.createVm.saveName'})} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
               </Form.Item>
             </>
           ) : (

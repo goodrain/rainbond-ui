@@ -589,6 +589,7 @@ const Vm = {
   'Vm.createVm.capacity':'Storage Capacity',
   'Vm.createVm.handle':'Controls',
   'Vm.createVm.status':'Status',
+  'Vm.createVm.packageInstall': 'You can download.img.qcow2.iso and compressed.tar,.gz, and.xz files in the preceding formats',
 }
 
 

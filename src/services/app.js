@@ -352,6 +352,9 @@ export async function getDetail(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
     {
       method: 'get',
+      params:{
+        vm_url: body.vm_url
+      },
       handleError
     }
   );

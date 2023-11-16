@@ -91,7 +91,8 @@ class TeamLayout extends PureComponent {
       teamView: true,
       showMenu: true,
       GroupShow: true,
-      marginShow: true
+      marginShow: true,
+      vm_url:"",
     };
   }
 
@@ -170,6 +171,17 @@ class TeamLayout extends PureComponent {
             region_name: globalUtil.getCurrRegionName()
         },
         callback: res=>{
+          if(res&&res.list){
+            res.list.map(item=>{
+              if(item.name == "rainbond-vm"){
+                this.setState({
+                  vm_url:item.urls[0]
+                },()=>{
+                  this.queryComponentDeatil()
+                })
+              }
+            })
+          }
           this.setState({
             showPipeline:res.list
           })
@@ -363,7 +375,8 @@ class TeamLayout extends PureComponent {
         type: 'appControl/fetchDetail',
         payload: {
           team_name: teamName,
-          app_alias: componentID
+          app_alias: componentID,
+          vm_url:this.state.vm_url
         },
         callback: appDetail => {
           this.setState({ currentComponent: appDetail.service, GroupShow: false });
