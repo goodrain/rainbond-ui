@@ -529,8 +529,9 @@ class Mnt extends PureComponent {
     return getVolumeTypeShowName(volumeOpts, volume_type);
   };
   render() {
-    const { mntList } = this.state;
-    const { volumes } = this.state;
+    const { appDetail } = this.props
+    const { volumes, mntList } = this.state;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
     const columns = [
       {
         title: formatMessage({id:'componentCheck.advanced.setup.storage_setting.label.volume_name'}),
@@ -746,6 +747,7 @@ class Mnt extends PureComponent {
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             data={this.state.showAddVar}
+            method={method}
           />
         )}
         {this.state.showAddRelation && (

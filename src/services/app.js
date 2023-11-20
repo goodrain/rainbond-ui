@@ -352,6 +352,9 @@ export async function getDetail(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
     {
       method: 'get',
+      params:{
+        vm_url: body.vm_url
+      },
       handleError
     }
   );
@@ -2479,7 +2482,8 @@ export async function editAppCreateInfo(
     extend_method,
     user_name,
     password,
-    schedule:"*/1 * * * *"
+    schedule:"*/1 * * * *",
+    disk_cap
   }
 ) {
   return request(
@@ -3301,6 +3305,16 @@ export async function deleteKubernetes(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/components/${body.service_alias}/k8s-attributes/${body.value_name}`,
     {
       method: 'delete'
+    }
+  );
+}
+// http://192.168.2.201:10000/console/teams/xzfn045k/apps/grdc46e7/pause
+// vm虚拟机挂起恢复
+export async function vmPause(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/${body.type}`,
+    {
+      method: 'post',
     }
   );
 }

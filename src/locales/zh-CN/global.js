@@ -187,6 +187,7 @@ const global = {
     'global.fetchStateOptTypeText.Unschedulable':'不可调度',
     'global.fetchStateOptTypeText.start':'等待启动',
     'global.fetchStateOptTypeText.error':'运行异常',
-    
+    'global.fetchStateOptTypeText.up':'挂起',
+    'global.fetchStateOptTypeText.recover':'恢复',
 }
 export default Object.assign({}, global);

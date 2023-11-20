@@ -21,7 +21,7 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 @connect(
   ({ user, appControl }) => ({
@@ -193,15 +193,15 @@ export default class Index extends PureComponent {
       notification.warning({
         message: (
           <div>
-            {formatMessage({id:'notification.warn.state'})}
+            {formatMessage({ id: 'notification.warn.state' })}
             <br />
-            {formatMessage({id:'notification.warn.restart'})}
+            {formatMessage({ id: 'notification.warn.restart' })}
 
           </div>
         )
       });
     } else {
-      notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+      notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
     }
   };
   showAddRelation = () => {
@@ -220,7 +220,7 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
-        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
-        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -253,7 +253,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -264,22 +264,89 @@ export default class Index extends PureComponent {
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isStorage }
+      componentPermissions: { isStorage },
     } = this.props;
     return isStorage;
   }
+  handleMountFormat = (key) => {
+    const obj = {
+      '/lun': 'LUN',
+      '/disk': '磁盘',
+      '/cdrom': '光盘',
+      '/filesystems': '文件系统',
+    }
+    return obj[key] || '-'
+  }
   render() {
     const { mntList, relyComponent, relyComponentList } = this.state;
-    const { volumes } = this.props;
+    const { volumes, method } = this.props;
     if (!this.canView()) return <NoPermTip />;
-
+    const columns = [
+      {
+        title: formatMessage({id:'Vm.createVm.Storagename'}),
+        dataIndex: 'volume_name'
+      },
+      {
+        title: formatMessage({id:'Vm.createVm.Storagetype'}),
+        dataIndex: 'volume_path',
+        render: (text, record) => {
+          return <span>{this.handleMountFormat(text)}</span>;
+        }
+      },
+      {
+        title: formatMessage({id:'Vm.createVm.capacity'}),
+        dataIndex: 'volume_capacity',
+        render: (text, record) => {
+          if (text == 0) {
+            return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
+          }
+          return <span>{text}GB</span>;
+        }
+      },
+      {
+        title: formatMessage({id:'Vm.createVm.status'}),
+        dataIndex: 'status',
+        render: (text, record) => {
+          if (text == 'not_bound') {
+            return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
+          }
+          return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
+        }
+      },
+      {
+        title: formatMessage({id:'Vm.createVm.handle'}),
+        dataIndex: 'action',
+        render: (val, data) => {
+          return (
+            <div>
+              <a
+                onClick={() => {
+                  this.onDeleteVolume(data);
+                }}
+                href="javascript:;"
+              >
+                {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
+              </a>
+              <a
+                onClick={() => {
+                  this.onEditVolume(data);
+                }}
+                href="javascript:;"
+              >
+                {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+              </a>
+            </div>
+          );
+        }
+      }
+    ];
     return (
       <Fragment>
         <Row>
           <Col span={12}>
             <Alert
               showIcon
-              message={formatMessage({id:'componentOverview.body.mnt.Alert.message'})}
+              message={formatMessage({ id: 'componentOverview.body.mnt.Alert.message' })}
               type="info"
               style={{
                 marginBottom: 24
@@ -287,231 +354,250 @@ export default class Index extends PureComponent {
             />
           </Col>
         </Row>
-        <Card
-          style={{
-            marginBottom: 24
-          }}
-          title={<span>  {formatMessage({id:'componentOverview.body.mnt.save_setting'})}</span>}
-          extra={
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />
-              {/* 添加存储 */}
-              {formatMessage({id:'componentOverview.body.mnt.add_storage'})}
-            </Button>
-          }
-        >
-          <ScrollerX sm={650}>
-            <Table
-              pagination={false}
-              columns={[
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.volume_name'}),
-                  dataIndex: 'volume_name',
-                  render: (text, item) => {
-                    return (
-                      <span
-                        style={{
-                          cursor: 'pointer',
-                          color: item.dep_services && '#1890ff'
-                        }}
-                        onClick={() => {
-                          if (item.dep_services) {
-                            this.handleOpenRelyComponent(item.dep_services);
-                          }
-                        }}
+        {method != 'vm' ?
+          <Card
+            style={{
+              marginBottom: 24
+            }}
+            title={<span>  {formatMessage({ id: 'componentOverview.body.mnt.save_setting' })}</span>}
+            extra={
+              <Button onClick={this.handleAddVar}>
+                <Icon type="plus" />
+                {/* 添加存储 */}
+                {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
+              </Button>
+            }
+          >
+            <ScrollerX sm={650}>
+              <Table
+                pagination={false}
+                columns={[
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.volume_name' }),
+                    dataIndex: 'volume_name',
+                    render: (text, item) => {
+                      return (
+                        <span
+                          style={{
+                            cursor: 'pointer',
+                            color: item.dep_services && '#1890ff'
+                          }}
+                          onClick={() => {
+                            if (item.dep_services) {
+                              this.handleOpenRelyComponent(item.dep_services);
+                            }
+                          }}
+                        >
+                          {text}
+                        </span>
+                      );
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.volume_path' }),
+                    dataIndex: 'volume_path'
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.volume_type' }),
+                    dataIndex: 'volume_type',
+                    render: text => {
+                      return <span>{this.getVolumeTypeShowName(text)}</span>;
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.volume_capacity' }),
+                    dataIndex: 'volume_capacity',
+                    render: text => {
+                      if (text == 0) {
+                        return <span>{formatMessage({ id: 'componentOverview.body.mnt.unlimited' })}</span>;
+                      }
+                      return <span>{text}GB</span>;
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.status' }),
+                    dataIndex: 'status',
+                    render: text => {
+                      if (text == 'not_bound') {
+                        return <span style={{ color: 'red' }}>{formatMessage({ id: 'componentOverview.body.mnt.unmounted' })}</span>;
+                      }
+                      return <span style={{ color: 'green' }}>{formatMessage({ id: 'componentOverview.body.mnt.mounted' })}</span>;
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.action' }),
+                    dataIndex: 'action',
+                    render: (v, data) => (
+                      <div>
+                        <a
+                          onClick={() => {
+                            this.onDeleteVolume(data);
+                          }}
+                          href="javascript:;"
+                        >
+                          {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
+                        </a>
+                        <a
+                          onClick={() => {
+                            this.onEditVolume(data);
+                          }}
+                          href="javascript:;"
+                        >
+                          {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+                        </a>
+                      </div>
+                    )
+                  }
+                ]}
+                dataSource={volumes}
+              />
+            </ScrollerX>
+          </Card> :
+          <Card
+            style={{
+              marginBottom: 24
+            }}
+            title={<span>  {formatMessage({ id: 'componentOverview.body.mnt.save_setting' })}</span>}
+            extra={
+              <Button onClick={this.handleAddVar}>
+                <Icon type="plus" />
+                {/* 添加存储 */}
+                {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
+              </Button>
+            }
+          >
+            <ScrollerX sm={650}>
+              <Table pagination={false} dataSource={volumes} columns={columns} />
+            </ScrollerX>
+          </Card>
+        }
+        {method != 'vm' &&
+          <Card
+            title={<span> {formatMessage({ id: 'componentOverview.body.mnt.share' })} </span>}
+            extra={
+              <Button onClick={this.showAddRelation}>
+                <Icon type="plus" />
+                {formatMessage({ id: 'componentOverview.body.mnt.mount' })}
+              </Button>
+            }
+          >
+            <ScrollerX sm={850}>
+              <Table
+                pagination={false}
+                columns={[
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.local_vol_path' }),
+                    dataIndex: 'local_vol_path',
+                    key: '1',
+                    width: '20%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span
+                          style={{
+                            wordBreak: 'break-all',
+                            wordWrap: 'break-word'
+                          }}
+                        >
+                          {data}
+                        </span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_name' }),
+                    dataIndex: 'dep_vol_name',
+                    key: '2',
+                    width: '15%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span
+                          style={{
+                            wordBreak: 'break-all',
+                            wordWrap: 'break-word'
+                          }}
+                        >
+                          {data}
+                        </span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_path' }),
+                    dataIndex: 'dep_vol_path',
+                    key: '3',
+                    width: '15%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span
+                          style={{
+                            wordBreak: 'break-all',
+                            wordWrap: 'break-word'
+                          }}
+                        >
+                          {data}
+                        </span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_type' }),
+                    dataIndex: 'dep_vol_type',
+                    key: '4',
+                    width: '10%',
+                    render: text => {
+                      return <span>{this.getVolumeTypeShowName(text)}</span>;
+                    }
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.dep_app_name' }),
+                    dataIndex: 'dep_app_name',
+                    key: '5',
+                    width: '10%',
+                    render: (v, data) => (
+                      <Link
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
+                          }/overview`}
                       >
-                        {text}
-                      </span>
-                    );
-                  }
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.volume_path'}),
-                  dataIndex: 'volume_path'
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.volume_type'}),
-                  dataIndex: 'volume_type',
-                  render: text => {
-                    return <span>{this.getVolumeTypeShowName(text)}</span>;
-                  }
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.volume_capacity'}),
-                  dataIndex: 'volume_capacity',
-                  render: text => {
-                    if (text == 0) {
-                      return <span>{formatMessage({id:'componentOverview.body.mnt.unlimited'})}</span>;
-                    }
-                    return <span>{text}GB</span>;
-                  }
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.status'}),
-                  dataIndex: 'status',
-                  render: text => {
-                    if (text == 'not_bound') {
-                      return <span style={{ color: 'red' }}>{formatMessage({id:'componentOverview.body.mnt.unmounted'})}</span>;
-                    }
-                    return <span style={{ color: 'green' }}>{formatMessage({id:'componentOverview.body.mnt.mounted'})}</span>;
-                  }
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.action'}),
-                  dataIndex: 'action',
-                  render: (v, data) => (
-                    <div>
+                        {v}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.dep_app_group' }),
+                    dataIndex: 'dep_app_group',
+                    key: '6',
+                    width: '15%',
+                    render: (v, data) => (
+                      <Link
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                          }`}
+                      >
+                        {v}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.mnt.action' }),
+                    dataIndex: 'action',
+                    key: '7',
+                    width: '15%',
+                    render: (v, data) => (
                       <a
                         onClick={() => {
-                          this.onDeleteVolume(data);
+                          this.onDeleteMnt(data);
                         }}
                         href="javascript:;"
                       >
-                        {formatMessage({id:'componentOverview.body.mnt.deldete'})}
+                        {formatMessage({ id: 'componentOverview.body.mnt.unmount' })}
                       </a>
-                      <a
-                        onClick={() => {
-                          this.onEditVolume(data);
-                        }}
-                        href="javascript:;"
-                      >
-                        {formatMessage({id:'componentOverview.body.mnt.edit'})}
-                      </a>
-                    </div>
-                  )
-                }
-              ]}
-              dataSource={volumes}
-            />
-          </ScrollerX>
-        </Card>
-        <Card
-          title={<span> {formatMessage({id:'componentOverview.body.mnt.share'})} </span>}
-          extra={
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              {formatMessage({id:'componentOverview.body.mnt.mount'})}
-            </Button>
-          }
-        >
-          <ScrollerX sm={850}>
-            <Table
-              pagination={false}
-              columns={[
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.local_vol_path'}),
-                  dataIndex: 'local_vol_path',
-                  key: '1',
-                  width: '20%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {data}
-                      </span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_name'}),
-                  dataIndex: 'dep_vol_name',
-                  key: '2',
-                  width: '15%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {data}
-                      </span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_path'}),
-                  dataIndex: 'dep_vol_path',
-                  key: '3',
-                  width: '15%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {data}
-                      </span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.dep_vol_type'}),
-                  dataIndex: 'dep_vol_type',
-                  key: '4',
-                  width: '10%',
-                  render: text => {
-                    return <span>{this.getVolumeTypeShowName(text)}</span>;
+                    )
                   }
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.dep_app_name'}),
-                  dataIndex: 'dep_app_name',
-                  key: '5',
-                  width: '10%',
-                  render: (v, data) => (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.dep_app_alias
-                      }/overview`}
-                    >
-                      {v}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.dep_app_group'}),
-                  dataIndex: 'dep_app_group',
-                  key: '6',
-                  width: '15%',
-                  render: (v, data) => (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                        data.dep_group_id
-                      }`}
-                    >
-                      {v}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.mnt.action'}),
-                  dataIndex: 'action',
-                  key: '7',
-                  width: '15%',
-                  render: (v, data) => (
-                    <a
-                      onClick={() => {
-                        this.onDeleteMnt(data);
-                      }}
-                      href="javascript:;"
-                    >
-                      {formatMessage({id:'componentOverview.body.mnt.unmount'})}
-                    </a>
-                  )
-                }
-              ]}
-              dataSource={mntList}
-            />
-          </ScrollerX>
-        </Card>
+                ]}
+                dataSource={mntList}
+              />
+            </ScrollerX>
+          </Card>
+        }
 
         {this.state.showAddVar && (
           <AddVolumes
@@ -520,6 +606,7 @@ export default class Index extends PureComponent {
             data={this.state.showAddVar}
             volumeOpts={this.state.volumeOpts}
             editor={this.state.editor}
+            method={method}
           />
         )}
         {this.state.showAddRelation && (
@@ -532,23 +619,23 @@ export default class Index extends PureComponent {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.Unmount.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.Unmount.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.Unmount.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.Unmount.desc' />}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.storage.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.storage.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.storage.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.storage.desc' />}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
         )}
         {relyComponent && (
           <RelyComponentModal
-            title={<FormattedMessage id='componentOverview.body.RelyComponentModal.title'/>}
+            title={<FormattedMessage id='componentOverview.body.RelyComponentModal.title' />}
             relyComponentList={relyComponentList}
             onCancel={this.handleCloseRelyComponent}
             onOk={this.handleCloseRelyComponent}

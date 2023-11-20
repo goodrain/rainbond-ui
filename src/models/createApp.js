@@ -22,6 +22,8 @@ import {
   installHelmAppCmd,
   setNodeLanguage,
   installRamAppCmd,
+  getAppByVirtualMachineImage,
+  createAppByVirtualMachine,
 } from '../services/createApp';
 
 export default {
@@ -195,6 +197,18 @@ export default {
     },
     *installRamAppCmd({ payload, callback, handleError }, { call }) {
       const data = yield call(installRamAppCmd, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *createAppByVirtualMachine({ payload, callback, handleError }, { call }) {
+      const data = yield call(createAppByVirtualMachine, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *getAppByVirtualMachineImage({ payload, callback, handleError }, { call }) {
+      const data = yield call(getAppByVirtualMachineImage, payload, handleError);
       if (data && callback) {
         callback(data);
       }

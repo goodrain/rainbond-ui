@@ -18,7 +18,6 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
 import ScrollerX from '../../components/ScrollerX';
@@ -51,6 +50,7 @@ const RadioGroup = Radio.Group;
 const { Option, OptGroup } = Select;
 @connect(null, null, null, { withRef: true })
 @Form.create()
+// 基础信息设置
 class BaseInfo extends PureComponent {
   constructor(props) {
     super(props);
@@ -99,8 +99,8 @@ class BaseInfo extends PureComponent {
       memory: false,
       cpu: false,
       isComponentType: methods !== 'stateless_multiple' ? true : false,
-      isMemory: (props.appDetail.service.min_memory == 0 ) ? false : true,
-      isCpu:(props.appDetail.service.min_cpu == 0 ) ? false : true,
+      isMemory: (props.appDetail.service.min_memory == 0) ? false : true,
+      isCpu: (props.appDetail.service.min_cpu == 0) ? false : true,
       setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M'
     };
   }
@@ -124,13 +124,13 @@ class BaseInfo extends PureComponent {
             const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
             fieldsValue.min_memory = memoryNum
           }
-        }else{
+        } else {
           fieldsValue.min_memory = 0
         }
-        if(!fieldsValue.change_cpu){
+        if (!fieldsValue.change_cpu) {
           fieldsValue.min_cpu = 0
         }
-        if(!fieldsValue.extend){
+        if (!fieldsValue.extend) {
           fieldsValue.extend_method = 'stateless_multiple'
         }
         onSubmit(fieldsValue);
@@ -168,6 +168,7 @@ class BaseInfo extends PureComponent {
       })
     }
   }
+
   RadioGroupChange = (e) => {
     const { appDetail, handleBuildSwitch } = this.props;
     const {
@@ -218,7 +219,7 @@ class BaseInfo extends PureComponent {
   }
   // 组件类型
   RadioChangeComponentType = (e) => {
-    if(!e.target.value){
+    if (!e.target.value) {
       this.setState({
         is_flag: false
       })
@@ -239,36 +240,7 @@ class BaseInfo extends PureComponent {
       isMemory: e.target.value
     })
   }
-  onChecks = (e) => {
-    const { appDetail, form, handleBuildSwitch } = this.props;
-    const { method, memory, cpu } = this.state;
-    const {
-      extend_method: extendMethod,
-    } = appDetail.service;
-    if(e.target.value != extendMethod){
-      this.setState({
-        method: true
-      },()=>{
-        this.handleSwitch()
-      })
-      
-    }else{
-      this.setState({
-        method: false
-      },()=>{
-        this.handleSwitch()
-      })
-    }
-    if(e.target.value === 'cronjob'){
-      this.setState({
-        is_flag:true
-      })
-    }else{
-      this.setState({
-        is_flag:false
-      })
-    }
-  }
+
   render() {
     const { appDetail, form } = this.props;
     const { is_flag, setUnit, isComponentType, isMemory, isCpu } = this.state
@@ -278,7 +250,7 @@ class BaseInfo extends PureComponent {
       min_memory,
       min_cpu: minCpu
     } = appDetail.service;
-    const method = appDetail && appDetail.service && appDetail.service.extend_method 
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
     const extendMethods = method == 'state_singleton' ? 'state_multiple' : method == 'stateless_singleton' ? 'stateless_multiple' : method == 'job' ? 'job' : method == 'cronjob' ? 'cronjob' : method;
     const list = this.state.memoryList;
     const arrOption = ['0 * * * *', '0 0 * * *', '0 0 * * 0', '0 0 1 * *', '0 0 1 1 *']
@@ -307,7 +279,7 @@ class BaseInfo extends PureComponent {
     };
     return (
       <Card
-        title={formatMessage({id:'componentCheck.advanced.setup.basic_info'})}
+        title={formatMessage({ id: 'componentCheck.advanced.setup.basic_info' })}
         style={{
           marginBottom: 16
         }}
@@ -324,10 +296,10 @@ class BaseInfo extends PureComponent {
           })(
             <RadioGroup onChange={this.RadioChangeComponentType}>
               <RadioButton key='default' value={false}>
-                {formatMessage({id:'componentCheck.advanced.setup.deploy_attr.Stateless_type'})}
+                {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Stateless_type' })}
               </RadioButton>
               <RadioButton key='rest' value={true}>
-                {formatMessage({id:'componentCheck.advanced.setup.deploy_attr.Other_types'})}
+                {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Other_types' })}
               </RadioButton>
             </RadioGroup>
           )}
@@ -399,7 +371,7 @@ class BaseInfo extends PureComponent {
                 {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
               </RadioButton>
               <RadioButton key='limitMemory' value={true}>
-                {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.customize'})}
+                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
               </RadioButton>
             </RadioGroup>
           )}
@@ -442,7 +414,7 @@ class BaseInfo extends PureComponent {
                 {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
               </RadioButton>
               <RadioButton key='limitCpu' value={true}>
-              {formatMessage({id:'componentCheck.advanced.setup.basic_info.label.customize'})}
+                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
               </RadioButton>
             </RadioGroup>
           )}
@@ -475,6 +447,249 @@ class BaseInfo extends PureComponent {
     );
   }
 }
+
+// 虚拟机基础信息配置
+@connect(null, null, null, { withRef: true })
+@Form.create()
+class VirtualMachineBaseInfo extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.state = {
+      memoryList: [
+        {
+          text: formatMessage({id:'Vm.createVm.2g'}),
+          value: 2048
+        },
+        {
+          text: formatMessage({id:'Vm.createVm.4g'}),
+          value: 1024 * 4
+        },
+        {
+          text: formatMessage({id:'Vm.createVm.8g'}),
+          value: 1024 * 8
+        },
+        {
+          text: formatMessage({id:'Vm.createVm.16g'}),
+          value: 1024 * 16
+        },
+        {
+          text: formatMessage({id:'Vm.createVm.Custom'}),
+          value: "custom"
+        }
+      ],
+      is_flag: false,
+      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
+      setUnitDisk: (props.appDetail.service.disk_cap % 1024 == 0) ? 'G' : 'M',
+      memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory && this.handleMinMemory(props.appDetail.service.min_memory),
+    }
+  }
+
+  componentDidMount() {
+    const { onRefCpu } = this.props
+    if (onRefCpu) {
+      this.props.onRefCpu(this)
+    }
+  }
+
+  handleSubmitCpu = () => {
+    const { setUnit, setUnitDisk } = this.state
+    const { form, onSubmit } = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (!err && onSubmit && fieldsValue) {
+        if (fieldsValue.min_memory == 'custom' && fieldsValue.memory_value) {
+          if (setUnit) {
+            const memoryNum = setUnit == "G" ? fieldsValue.memory_value * 1024 : fieldsValue.memory_value
+            fieldsValue.min_memory = memoryNum
+          } else {
+            const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.memory_value * 1024) : Number(fieldsValue.memory_value)
+            fieldsValue.min_memory = memoryNum
+          }
+          fieldsValue.min_cpu = Number(fieldsValue.min_cpu)
+        } else {
+          switch (fieldsValue.min_memory) {
+            case 2048:
+              fieldsValue.min_memory = 2048
+              fieldsValue.min_cpu = 2000
+              break;
+            case 1024 * 4:
+              fieldsValue.min_memory = 1024 * 4
+              fieldsValue.min_cpu = 2000
+              break;
+            case 1024 * 8:
+              fieldsValue.min_memory = 1024 * 8
+              fieldsValue.min_cpu = 4000
+              break;
+            case 1024 * 16:
+              fieldsValue.min_memory = 1024 * 16
+              fieldsValue.min_cpu = 4000
+              break;
+            default:
+              break;
+          }
+        }
+        fieldsValue.disk_cap = fieldsValue.disk_cap * 1
+        onSubmit(fieldsValue);
+      }
+    });
+  };
+
+  handleAfterChange = (val) => {
+    this.setState({
+      setUnit: val
+    })
+  }
+
+  handleMemoryChange = (value) => {
+    this.setState({
+      memoryValue: value.target.value
+    })
+  }
+  handleMinMemory = (val) => {
+    if (val != 2048 && val != 1024 * 4 && val != 1024 * 8 && val != 1024 * 16) {
+      return "custom"
+    } else {
+      const { appDetail } = this.props;
+      if (val == 2048 && appDetail.service.min_cpu == 2000) {
+        return 2048
+      } else if (val == 1024 * 4 && appDetail.service.min_cpu == 2000) {
+        return 1024 * 4
+      } else if (val == 1024 * 8 && appDetail.service.min_cpu == 4000) {
+        return 1024 * 8
+      } else if (val == 1024 * 16 && appDetail.service.min_cpu == 4000) {
+        return 1024 * 16
+      }
+    }
+    return false
+  }
+
+  render() {
+    const { appDetail, form } = this.props;
+    const { getFieldDecorator } = form;
+    const {
+      extend_method: extendMethod,
+      min_memory,
+      min_cpu,
+      disk_cap
+    } = appDetail.service;
+    const { setUnit, memoryValue, setUnitDisk } = this.state
+    const formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 3
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 21
+        }
+      }
+    };
+    const list = this.state.memoryList;
+    return (
+      <Card
+        title={formatMessage({ id: 'componentCheck.advanced.setup.basic_info' })}
+        style={{
+          marginBottom: 16
+        }}
+      >
+        <Form.Item
+          {...formItemLayout}
+          label={formatMessage({id:'Vm.createVm.specification'})}
+          extra={memoryValue == "custom" && formatMessage({id:'Vm.createVm.distribution'})}
+        >
+          {getFieldDecorator('min_memory', {
+            initialValue: memoryValue || 0,
+            rules: [
+              {
+                required: true,
+              }
+            ]
+          })(
+            <RadioGroup style={{ position: 'relative' }} onChange={this.handleMemoryChange}>
+              {list.map((item, index) => {
+                return (
+                  <RadioButton key={index} value={item.value}>
+                    {item.text}
+                  </RadioButton>
+                );
+              })}
+
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {memoryValue == "custom" &&
+          <Form.Item {...formItemLayout} label='CPU'>
+            {getFieldDecorator('min_cpu', {
+              initialValue: min_cpu || 0,
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                }
+              ]
+            })(
+              <Input
+                style={{ width: '200px' }}
+                type='number'
+                addonAfter="m"
+              />
+            )}
+          </Form.Item>
+        }
+        {memoryValue == "custom" &&
+          <Form.Item
+            {...formItemLayout}
+            label={formatMessage({id:'Vm.createVm.memory'})}
+          >
+            {getFieldDecorator('memory_value', {
+              initialValue: (`${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'placeholder.setting.min_memory' })
+                }
+              ]
+            })(
+              <Input
+                style={{ width: '160px', margin: '4px 0px 0px 4px' }}
+                addonAfter={
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.handleAfterChange}>
+                    <Option value="M">M</Option>
+                    <Option value="G">G</Option>
+                  </Select>
+                }
+              />)}
+          </Form.Item>
+        }
+        <Form.Item {...formItemLayout} label={formatMessage({id:'Vm.createVm.disk'})}>
+          {getFieldDecorator('disk_cap', {
+            initialValue: (`${disk_cap % 1024 == 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'placeholder.setting.min_memory' })
+              }
+            ]
+          })(
+            <Input
+              style={{ width: '200px' }}
+              type="number"
+              min={1}
+              addonAfter="GB"
+            />
+          )}
+        </Form.Item>
+      </Card>
+    )
+  }
+}
+
 // eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class RenderDeploy extends PureComponent {
@@ -536,13 +751,21 @@ class RenderDeploy extends PureComponent {
       handleEditRuntime
     } = this.props;
     const { runtimeInfo, volumes } = this.state;
+    const method = appDetail && appDetail.service && appDetail.service.extend_method
     if (!runtimeInfo) return null;
     const language = appUtil.getLanguage(appDetail);
     return (
       <div>
         {!isDeploytype && !isSource && <NoPermTip />}
         {isDeploytype && (
-          <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
+          <>
+
+            {method == 'vm' ? (
+              <VirtualMachineBaseInfo onRefCpu={this.onRefCpu} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} appDetail={appDetail} />
+            ) : (
+              <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
+            )}
+          </>
         )}
         {language && runtimeInfo && isSource && (
           <CodeBuildConfig
