@@ -652,7 +652,7 @@
 
     }
     const placeholder = {
-        'placeholder.appName':'请选择要所属应用',
+        'placeholder.appName':'请选择所属应用',
         'placeholder.service_cname':'请为创建的组件起个名字吧',
         'placeholder.k8s_component_name':'请输入组件的英文名称',
         'placeholder.appEngName':'请输入应用的英文名称',
@@ -761,6 +761,7 @@
         'placeholder.appShare.selectAppTemplate':'选择发布的应用模版',
         'placeholder.appShare.version':'请填写版本号',
         'placeholder.appShare.max64':'最大长度64位',
+        'placeholder.appShare.max255':'最大长度255位',
         'placeholder.appShare.version_alias':'设置版本别名，比如高级版',
         'placeholder.appShare.describe':'请输入版本说明',
         'placeholder.appShare.retain':'请至少保留一个组件',

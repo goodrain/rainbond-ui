@@ -185,8 +185,8 @@ class CreateOAuthForm extends PureComponent {
               rules: [
                 { required: true, message: formatMessage({id:'placeholder.oauth.client_id'}) },
                 {
-                  max: 64,
-                  message: formatMessage({id:'placeholder.appShare.max64'})
+                  max: 255,
+                  message: formatMessage({id:'placeholder.appShare.max255'})
                 }
               ]
             })(<Input disabled={edit} placeholder={formatMessage({id:'placeholder.oauth.client_id'})} />)}
@@ -207,8 +207,8 @@ class CreateOAuthForm extends PureComponent {
               rules: [
                 { required: true, message: formatMessage({id:'placeholder.oauth.client_secret'}) },
                 {
-                  max: 64,
-                  message: formatMessage({id:'placeholder.appShare.max64'})
+                  max: 255,
+                  message: formatMessage({id:'placeholder.appShare.max255'})
                 }
               ]
             })(<Input disabled={edit} placeholder={formatMessage({id:'placeholder.oauth.client_secret'})} />)}

@@ -446,7 +446,7 @@ const otherAppAssembly = {
   'otherApp.UploadYaml.only':'只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
   'otherApp.UploadYaml.max':'不能大于32个字符',
   'otherApp.UploadYaml.name':'应用名称',
-  'otherApp.UploadYaml.app':'请选择要所属应用',
+  'otherApp.UploadYaml.app':'请选择所属应用',
   'otherApp.UploadYaml.up':'上传文件',
   'otherApp.UploadYaml.yaml':'支持yaml、yml格式上传文件',
   'otherApp.UploadYaml.placese_up':'请上传文件',
