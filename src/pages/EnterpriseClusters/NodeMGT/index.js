@@ -94,36 +94,37 @@ class Index extends Component {
         if (res && res.status_code == 200) {
           this.setState({
             nodeDetail: res.bean,
+            showInfo: true
           }, () => {
             // 获取Container信息
-            dispatch({
-              type: 'region/fetClusterNodeContainer',
-              payload: {
-                enterprise_id: eid,
-                region_name: val.region_name,
-                node_name: name,
-                container_runtime: res.bean.container_runtime
-              },
-              callback: val => {
-                const info = val.bean;
-                const obj ={};
-                obj.cap_docker_partition = info.total;
-                obj.req_docker_partition = info.used;
-                this.setState({
-                  nodeDetail:{...this.state.nodeDetail,...obj},
-                  showInfo: true
-                })
-              },
-              handleError: (res) => {
-                const obj ={};
-                obj.cap_docker_partition = 0;
-                obj.req_docker_partition = 0;
-                this.setState({
-                  nodeDetail:{...this.state.nodeDetail,...obj},
-                  showInfo: true
-                })
-              }
-            });
+            // dispatch({
+            //   type: 'region/fetClusterNodeContainer',
+            //   payload: {
+            //     enterprise_id: eid,
+            //     region_name: val.region_name,
+            //     node_name: name,
+            //     container_runtime: res.bean.container_runtime
+            //   },
+            //   callback: val => {
+            //     const info = val.bean;
+            //     const obj ={};
+            //     obj.cap_docker_partition = info.total;
+            //     obj.req_docker_partition = info.used;
+            //     this.setState({
+            //       nodeDetail:{...this.state.nodeDetail,...obj},
+            //       showInfo: true
+            //     })
+            //   },
+            //   handleError: (res) => {
+            //     const obj ={};
+            //     obj.cap_docker_partition = 0;
+            //     obj.req_docker_partition = 0;
+            //     this.setState({
+            //       nodeDetail:{...this.state.nodeDetail,...obj},
+            //       showInfo: true
+            //     })
+            //   }
+            // });
           })
         }
       },

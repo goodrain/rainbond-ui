@@ -203,6 +203,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           {this.state.addGroup && (
             <AddGroup
+              group_name={showCreate.app_name || ''}
               onCancel={this.cancelAddGroup}
               onOk={this.handleAddGroup}
             />

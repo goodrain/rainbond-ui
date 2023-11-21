@@ -68,6 +68,14 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item
           {...formItemLayout}
+          label="GOPRIVATE"
+        >
+          {getFieldDecorator('BUILD_GOPRIVATEY', {
+            initialValue: (envs && envs.BUILD_GOPRIVATE) || '',
+          })(<Input />)}
+        </Form.Item>
+        <Form.Item
+          {...formItemLayout}
           label={<FormattedMessage id="componentOverview.body.GoConfig.blocks"/>}
           help={<FormattedMessage id="componentOverview.body.GoConfig.all"/>}
         >

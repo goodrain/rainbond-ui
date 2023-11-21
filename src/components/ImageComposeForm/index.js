@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
 @connect(
@@ -110,6 +111,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({id: 'popover.newApp.appEngName'})}>
               {getFieldDecorator('k8s_app', {
+              initialValue: form.getFieldValue('group_name') && pinyin(form.getFieldValue('group_name'), {toneType: 'none'}).replace(/\s/g, ''),
                 rules: [
                   { required: true, validator: this.handleValiateNameSpace }
                 ]

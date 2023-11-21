@@ -351,6 +351,7 @@ class CreateHelmAppModels extends PureComponent {
         )}
         {addGroup && (
           <AddGroup
+            group_name={appInfo.app_name || ""}
             teamName={teaName}
             regionName={regionName}
             onCancel={this.cancelAddGroup}

@@ -13,6 +13,7 @@ import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
+import { pinyin } from 'pinyin-pro';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -269,6 +270,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const {
+      form,
       form: { getFieldDecorator },
       groups,
       archInfo
@@ -342,6 +344,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
+                initialValue: form.getFieldValue('service_cname') && pinyin(form.getFieldValue('service_cname'), {toneType: 'none'}).replace(/\s/g, ''),
                 rules: [
                   {
                     required: true,

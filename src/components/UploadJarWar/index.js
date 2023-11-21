@@ -6,6 +6,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global'
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import styles from './index.less'
 const { Option } = Select;
@@ -244,6 +245,7 @@ export default class Index extends PureComponent {
     }
   };
   render() {
+    const { form } = this.props;
     const { getFieldDecorator } = this.props.form;
     const {
       groups,
@@ -323,6 +325,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'otherApp.UploadJarWar.en_name' })}>
             {getFieldDecorator('k8s_component_name', {
+              initialValue: form.getFieldValue('service_cname') && pinyin(form.getFieldValue('service_cname'), {toneType: 'none'}).replace(/\s/g, ''),
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]

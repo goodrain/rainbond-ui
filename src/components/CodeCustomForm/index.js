@@ -7,6 +7,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -313,6 +314,7 @@ export default class Index extends PureComponent {
           {/* 集群内组件名称 */}
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
+              initialValue: form.getFieldValue('service_cname') && pinyin(form.getFieldValue('service_cname'), {toneType: 'none'}).replace(/\s/g, ''),
               rules: [
                 {
                   required: true,

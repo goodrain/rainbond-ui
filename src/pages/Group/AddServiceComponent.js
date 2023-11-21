@@ -75,20 +75,28 @@ export default class AddServiceComponent extends PureComponent {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (res && res.list) {
+        if (res && res.list && res.list.length > 0) {
           res.list.map(item => {
             if (item.name == "rainbond-vm") {
               this.setState({
                 vmShow: true,
                 vmLoading: false
               })
+            }else{
+              this.setState({
+                vmLoading: false
+              })
             }
           }
           )
+        }else{
+          this.setState({
+            vmShow: false,
+            vmLoading: false
+          })
         }
       },
       handleError: (res) => {
-
         this.setState({
           vmShow: false,
           vmLoading: false
