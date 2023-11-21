@@ -5,6 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getAllRegion } from '../../services/api';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
+import { pinyin } from 'pinyin-pro';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -208,6 +209,7 @@ class CreateTeam extends PureComponent {
             }
           >
             {getFieldDecorator('namespace', {
+              initialValue: form.getFieldValue('team_name') && pinyin(form.getFieldValue('team_name'), {toneType: 'none'}).replace(/\s/g, ''),
               rules: [
                 {
                   required: true,

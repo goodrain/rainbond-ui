@@ -10,6 +10,7 @@ import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
@@ -255,7 +256,7 @@ export default class EditGroupName extends PureComponent {
             extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
             {getFieldDecorator('k8s_app', {
-              initialValue: k8sApp || '',
+              initialValue: k8sApp || (form.getFieldValue('group_name') && pinyin(form.getFieldValue('group_name'), {toneType: 'none'}).replace(/\s/g, '')) || '',
               rules: [
                 {
                   required: true,
