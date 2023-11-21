@@ -138,7 +138,8 @@ import {
   updatePluginMemory,
   updateRolling,
   updateServiceName,
-  upgrade
+  upgrade,
+  vmPause
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1154,7 +1155,14 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *vmPause({ payload, callback }, { call }) {
+      const response = yield call(vmPause, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+
   },
   reducers: {
     clearMembers(state) {

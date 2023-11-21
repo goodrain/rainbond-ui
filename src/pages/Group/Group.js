@@ -1288,14 +1288,14 @@ export default class Index extends PureComponent {
             </Col>
           </Row>
           {(type == 'shape' || type =='aggregation' || type =='shapes') && 
-                    <Row style={{display:'flex',alignItems:'center',padding:"20px",justifyContent:'center',background: '#fff'}}>
+                    <Row style={{display:'flex',alignItems:'center',padding:"0px",justifyContent:'center', position: 'absolute', left: '36px', top: '90px', zIndex: '10'}}>
                     {type !== 'list' && isComponentCreate && (
                       <Radio.Group>
                         {common ? (
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
                               color: '#F6F7FA', borderColor: '#4C73B0',
                               boxShadow: 'none'
                             }}
@@ -1315,7 +1315,7 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#fff',
                               color: '#595959', borderColor: '#D9D9D9',
                               boxShadow: 'none'
                             }}
@@ -1336,7 +1336,7 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
                               color: '#F6F7FA', borderColor: '#4C73B0',
                               boxShadow: 'none'
                             }}
@@ -1356,7 +1356,7 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#fff',
                               color: '#595959', borderColor: '#D9D9D9',
                               boxShadow: 'none'
                             }}
@@ -1376,7 +1376,7 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
                               color: '#F6F7FA', borderColor: '#4C73B0',
                               boxShadow: 'none'
                             }}
@@ -1397,7 +1397,7 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 5px', background: '#fff',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#fff',
                               color: '#595959', borderColor: '#D9D9D9',
                               boxShadow: 'none'
                             }}

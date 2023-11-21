@@ -187,6 +187,7 @@ const global = {
     'global.fetchStateOptTypeText.Unschedulable':'Unschedulable',
     'global.fetchStateOptTypeText.start':'Waiting to start',
     'global.fetchStateOptTypeText.error':'Abnormal operation',
-    
+    'global.fetchStateOptTypeText.up':'Hang up',
+    'global.fetchStateOptTypeText.recover':'Recover',
 }
 export default Object.assign({}, global);

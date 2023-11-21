@@ -502,6 +502,14 @@ export default [
 
           {
             path:
+              '/team/:teamName/region/:regionName/create/vm/:type?/:image?',
+            component: './Create/vm',
+            name: 'imagesss',
+            authority: ['admin', 'user']
+          },
+
+          {
+            path:
               '/team/:teamName/region/:regionName/create/create-setting/:appAlias',
             component: './Create/create-setting',
             name: 'setting',

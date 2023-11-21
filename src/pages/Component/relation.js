@@ -15,7 +15,7 @@ import {
   removeRelationedApp
 } from '../../services/app';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 // 查看连接信息
 class ViewRelationInfo extends PureComponent {
@@ -23,11 +23,11 @@ class ViewRelationInfo extends PureComponent {
     const { appAlias, onCancel } = this.props;
     return (
       <Modal
-        title={<FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.title'/>}
+        title={<FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.title' />}
         width={1000}
         visible
         onCancel={onCancel}
-        footer={[<Button onClick={onCancel}><FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.close'/></Button>]}
+        footer={[<Button onClick={onCancel}><FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.close' /></Button>]}
       >
         <EnvironmentVariable
           title=""
@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
       dep_service_ids: ids
     }).then(data => {
       if (data) {
-        notification.info({ message: formatMessage({id:'notification.hint.toUpdata'}) });
+        notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }
@@ -149,103 +149,104 @@ export default class Index extends PureComponent {
 
   render() {
     const { showText, relationList } = this.state;
-    const { appAlias } = this.props;
+    const { appAlias, method } = this.props;
     if (!this.canView()) return <NoPermTip />;
 
     return (
       <Fragment>
         <EnvironmentVariable
           // title="组件连接信息"
-          title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title'/>}
+          title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
           type="Outer"
           autoQuery
           appAlias={appAlias}
         />
-        <Card
-          title={[
-            <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information'/></span>,
-            <span style={{ color: 'red' }}>
-              {showText && formatMessage({id:'componentOverview.body.Relation.EnvironmentVariable.conflict'})}
-            </span>
-          ]}
-          extra={
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add'/>
-            </Button>
-          }
-          style={{
-            borderRadius:5,
-          }}
-        >
-          <ScrollerX sm={650}>
-            <Table
-              pagination={this.state.total > this.state.pageSize ? {
-                current: this.state.page,
-                pageSize: this.state.pageSize,
-                total: this.state.total,
-                onChange: this.onPageChange
-              }: false}
-              columns={[
-                {
-                  // title: '组件名',
-                  title: formatMessage({id:'componentOverview.body.Relation.table.service_cname'}),
-                  dataIndex: 'service_cname',
-                  render: (val, data) => (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.service_alias
-                      }/overview`}
-                    >
-                      {val}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.Relation.table.group_name'}),
-                  // title: '所属应用',
-                  dataIndex: 'group_name',
-                  render: (val, data) => (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                        data.group_id
-                      }`}
-                    >
-                      {val}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({id:'componentOverview.body.Relation.table.operation'}),
-                  // title: '操作',
-                  dataIndex: 'var',
-                  render: (val, data) => (
-                    <Fragment>
-                      <a
-                        onClick={() => this.onViewRelationInfo(data)}
-                        href="javascript:;"
-                        style={{ margintRight: 10 }}
+        {method != 'vm' &&
+          <Card
+            title={[
+              <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information' /></span>,
+              <span style={{ color: 'red' }}>
+                {showText && formatMessage({ id: 'componentOverview.body.Relation.EnvironmentVariable.conflict' })}
+              </span>
+            ]}
+            extra={
+              <Button onClick={this.showAddRelation}>
+                <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add' />
+              </Button>
+            }
+            style={{
+              borderRadius: 5,
+              marginTop: '20px'
+            }}
+          >
+            <ScrollerX sm={650}>
+              <Table
+                pagination={this.state.total > this.state.pageSize ? {
+                  current: this.state.page,
+                  pageSize: this.state.pageSize,
+                  total: this.state.total,
+                  onChange: this.onPageChange
+                } : false}
+                columns={[
+                  {
+                    // title: '组件名',
+                    title: formatMessage({ id: 'componentOverview.body.Relation.table.service_cname' }),
+                    dataIndex: 'service_cname',
+                    render: (val, data) => (
+                      <Link
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.service_alias
+                          }/overview`}
                       >
-                        {/* 连接信息 */}
-                        <FormattedMessage id='componentOverview.body.Relation.table.connection'/>
-                      </a>
-                      <a
-                        onClick={() => {
-                          this.handleRemoveRelationed(data);
-                        }}
-                        href="javascript:;"
-                        style={{ margintRight: 10 }}
+                        {val}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.Relation.table.group_name' }),
+                    // title: '所属应用',
+                    dataIndex: 'group_name',
+                    render: (val, data) => (
+                      <Link
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.group_id
+                          }`}
                       >
-                        {/* 取消依赖 */}
-                        <FormattedMessage id='componentOverview.body.Relation.table.cancel'/>
-                      </a>
-                    </Fragment>
-                  )
-                }
-              ]}
-              dataSource={relationList}
-            />
-          </ScrollerX>
-        </Card>
+                        {val}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.Relation.table.operation' }),
+                    // title: '操作',
+                    dataIndex: 'var',
+                    render: (val, data) => (
+                      <Fragment>
+                        <a
+                          onClick={() => this.onViewRelationInfo(data)}
+                          href="javascript:;"
+                          style={{ margintRight: 10 }}
+                        >
+                          {/* 连接信息 */}
+                          <FormattedMessage id='componentOverview.body.Relation.table.connection' />
+                        </a>
+                        <a
+                          onClick={() => {
+                            this.handleRemoveRelationed(data);
+                          }}
+                          href="javascript:;"
+                          style={{ margintRight: 10 }}
+                        >
+                          {/* 取消依赖 */}
+                          <FormattedMessage id='componentOverview.body.Relation.table.cancel' />
+                        </a>
+                      </Fragment>
+                    )
+                  }
+                ]}
+                dataSource={relationList}
+              />
+            </ScrollerX>
+          </Card>
+        }
 
         {this.state.showAddRelation && (
           <AddRelation
