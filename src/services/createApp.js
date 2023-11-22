@@ -236,7 +236,8 @@ export async function createAppByVirtualMachine(body = {}) {
         k8s_component_name: body.k8s_component_name,
         image_name: body.image_name,
         arch: body.arch,
-        vm_url: body.vm_url
+        vm_url: body.vm_url,
+        event_id: body.event_id,
       }
     }
   );

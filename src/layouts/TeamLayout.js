@@ -177,7 +177,9 @@ class TeamLayout extends PureComponent {
                 this.setState({
                   vm_url:item.urls[0]
                 },()=>{
+                  setTimeout(()=>{
                   this.queryComponentDeatil()
+                  },500)
                 })
               }
             })

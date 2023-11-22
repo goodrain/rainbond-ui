@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip, notification } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import styles from './index.less';
+
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -50,11 +52,99 @@ export default class Index extends PureComponent {
       radioKey: 'address',
       fileList: [],
       percents: false,
-      vmShow: false
+      vmShow: false,
+      existFileList: [],
     };
   }
   componentDidMount() {
     this.fetchPipePipeline();
+    this.handleJarWarUpload();
+  }
+  handleJarWarUpload = () => {
+    const { dispatch } = this.props
+    const teamName = globalUtil.getCurrTeamName()
+    const regionName = globalUtil.getCurrRegionName()
+    //获取上传事件
+    dispatch({
+      type: "createApp/createJarWarServices",
+      payload: {
+        region: regionName,
+        team_name: teamName,
+        component_id: '',
+      },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            record: res.bean,
+            event_id: res.bean.event_id,
+            region_name: res.bean && res.bean.region,
+            team_name: res.bean && res.bean.team_name
+          }, () => {
+            if (res.bean.region !== '') {
+              this.loop = true;
+              this.handleJarWarUploadStatus();
+            }
+          })
+        }
+      },
+    });
+  }
+    //查询上传状态
+    handleJarWarUploadStatus = () => {
+      const {
+        dispatch
+      } = this.props;
+      const { event_id } = this.state
+      dispatch({
+        type: 'createApp/createJarWarUploadStatus',
+        payload: {
+          region: globalUtil.getCurrRegionName(),
+          team_name: globalUtil.getCurrTeamName(),
+          event_id: event_id
+        },
+        callback: data => {
+          if (data) {
+            if (data.bean.package_name.length > 0) {
+              this.setState({
+                existFileList: data.bean.package_name
+              });
+              // notification.success({
+              //   message: formatMessage({id:'notification.success.upload_file'})
+              // })
+              // this.loop = false
+            }
+          }
+          if (this.loop) {
+            setTimeout(() => {
+              this.handleJarWarUploadStatus();
+            }, 3000);
+          }
+        },
+        handleError: () => { }
+      });
+    };
+      //删除上传文件
+  handleJarWarUploadDelete = () => {
+    const { event_id } = this.state
+    const { dispatch } = this.props
+    dispatch({
+      type: "createApp/deleteJarWarUploadStatus",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        event_id
+      },
+      callback: (data) => {
+        if (data.bean.res == 'ok') {
+          this.setState({
+            existFileList: []
+          });
+          notification.success({
+            message: formatMessage({ id: 'notification.success.delete_file' })
+          })
+          this.handleJarWarUpload()
+        }
+      },
+    });
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -69,13 +159,14 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
+    const { event_id } = this.state
     const { form, onSubmit, archInfo } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
-        onSubmit(fieldsValue);
+        onSubmit(fieldsValue, event_id);
       }
     });
   };
@@ -168,7 +259,7 @@ export default class Index extends PureComponent {
     const myheaders = {};
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
-    const { language, radioKey, fileList, vmShow } = this.state;
+    const { language, radioKey, fileList, vmShow, existFileList } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
     let archLegnth = archInfo.length
@@ -255,6 +346,7 @@ export default class Index extends PureComponent {
                 </Form.Item>
               }
               {radioKey == 'upload' &&
+              <>
                 <Form.Item
                   {...is_language}
                   label={formatMessage({id:'Vm.createVm.imgUpload'})}
@@ -271,7 +363,7 @@ export default class Index extends PureComponent {
                         name="packageTarFile"
                         onChange={this.onChangeUpload}
                         onRemove={this.onRemove}
-                        action={''}
+                        action={this.state.record.upload_url}
                         headers={myheaders}
                         multiple={true}
                       >
@@ -284,6 +376,49 @@ export default class Index extends PureComponent {
                     </>
                   )}
                 </Form.Item>
+                <Form.Item
+              labelCol={language ? { span: 5 } : { span: 9 }}
+              wrapperCol={language ? { span: 19 } : { span: 15 }}
+              label={formatMessage({ id: 'teamAdd.create.fileList' })}
+            >
+              <div
+                style={{
+                  display: 'flex'
+                }}
+              >
+                <div>
+                  {existFileList.length > 0 ?
+                    (existFileList.map((item) => {
+                      return (
+                        <div className={styles.file}>
+                          <Icon style={{ marginRight: '6px' }} type="inbox" />
+                          <span className={styles.fileName}>
+                            {item}
+                          </span>
+                        </div>
+                      )
+                    })) : (
+                      <div className={styles.empty}>
+                        {formatMessage({ id: 'teamAdd.create.null_data' })}
+                      </div>
+                    )}
+                </div>
+                {existFileList.length > 0 &&
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                  </div>
+                }
+              </div>
+            </Form.Item>
+                </>
               }
               <Form.Item {...is_language} label={formatMessage({id:'Vm.createVm.imgName'})} >
                 {getFieldDecorator('image_name', {

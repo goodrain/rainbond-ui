@@ -104,12 +104,13 @@ export default class Index extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
-  handleSubmit = value => {
+  handleSubmit = (value, event_id) => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "createApp/createAppByVirtualMachine",
       payload: {
         team_name: teamName,
+        event_id,
         ...value
       },
       callback: data => {
