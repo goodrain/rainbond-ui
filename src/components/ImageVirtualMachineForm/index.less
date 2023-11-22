@@ -1,0 +1,42 @@
+.yaml_container {
+    :global {
+        .ant-upload {
+          width: 200px;
+        }
+        .ant-form-item-children{
+          display: flex;
+        }
+        .ant-upload-list-item-info{
+          margin-right: 12px;
+        }
+    }
+    .update{
+      width: 300px;
+      display: flex;
+      max-height: 200px;
+      overflow: hidden;
+      padding: 16px 24px;
+      border: 1px solid #e3e3e3;
+      position: relative;
+      .delete{
+        position: absolute;
+        top: -5%;
+        right: 2%;
+      }
+      .fileName{
+        width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 24px;
+      }
+    }
+}
+.file{
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 24px;
+  border: 1px solid #d9d9d9;
+}
