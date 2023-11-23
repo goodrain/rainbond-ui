@@ -61,7 +61,10 @@ class Index extends PureComponent {
           'tolerations',
           'dnsPolicy',
           'annotations',
-          'affinity']
+          'affinity',
+          'livenessProbe',
+          'readinessProbe'
+        ]
       })
     }
   }

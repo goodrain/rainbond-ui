@@ -242,7 +242,6 @@ export default class AddVolumes extends PureComponent {
                   <Option value="/lun">LUN</Option>
                   <Option value="/disk">磁盘</Option>
                   <Option value="/cdrom">光盘</Option>
-                  <Option value="/filesystems">文件系统</Option>
                 </Select>
               )}
             </FormItem>

@@ -1454,3 +1454,26 @@ export async function fetchInitCluster(body, handleError) {
     }
   );
 }
+// 获取报警开关信息
+export async function fetchAlarmSwitch(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/monitor_alarm`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 修改报警开关信息
+export async function updateAlarmSwitch(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/monitor_alarm`,
+    {
+      method: 'put',
+      data: {
+        is_alarm: body.is_alarm
+      },
+      handleError
+    }
+  );
+}

@@ -1078,6 +1078,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': '文档地址',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': '网页图标',
+    'enterpriseSetting.basicsSetting.alarm.title': '报警开关',
+    'enterpriseSetting.basicsSetting.alarm.content': '控制监控报警是否开启',
     // tabs>TabPane>enterpriseAdmin
     'enterpriseSetting.enterpriseAdmin.col.designation': '名称',
     'enterpriseSetting.enterpriseAdmin.col.name': '姓名',
