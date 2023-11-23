@@ -8,6 +8,7 @@ const RadioGroup = Radio.Group;
 @connect(
   ({ loading, teamControl }) => ({
   soundCodeLanguage: teamControl.codeLanguage,
+  packageType: teamControl.packageNpmOrYarn
 }), null, null, { withRef: true })
 class Index extends PureComponent {
   constructor(props) {
@@ -55,7 +56,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs, languageType, soundCodeLanguage } = this.props;
+    const { envs, languageType, soundCodeLanguage, packageType } = this.props;
     const { webType, nodeType, nodeBuildType } = this.state;
     const { getFieldDecorator } = this.props.form;
     // 从高级设置进入
@@ -158,7 +159,7 @@ class Index extends PureComponent {
             help={<FormattedMessage id="componentOverview.body.NodeJSConfig.fill"/>}
           >
             {getFieldDecorator('BUILD_NODE_BUILD_CMD', {
-              initialValue: envs && envs.BUILD_NODE_BUILD_CMD
+              initialValue: (envs && envs.BUILD_NODE_BUILD_CMD) || (packageType == 'npm' ? 'npm run build' : 'yarn run build')
             })(<Input />)}
           </Form.Item>
         )}

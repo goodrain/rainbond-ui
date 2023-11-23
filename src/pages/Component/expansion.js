@@ -855,6 +855,7 @@ export default class Index extends PureComponent {
           ) : (
             <div>
               <InstanceList
+                method={method}
                 handlePodClick={this.handlePodClick}
                 list={this.state.instances}
                 serviceID={this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_id}
@@ -1014,7 +1015,8 @@ export default class Index extends PureComponent {
                 {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.dispatch' })}`)}
               </Col>
             </Row>
-            <Row gutter={16}>
+            {method != 'vm' && 
+              <Row gutter={16}>
               <Col lg={8} md={8} sm={24}>
                 <Form.Item
                   label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
@@ -1052,7 +1054,8 @@ export default class Index extends PureComponent {
                 {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
 
               </Col>
-            </Row>
+              </Row>
+            }
           </Form>
         </Card>
 
@@ -1300,92 +1303,93 @@ export default class Index extends PureComponent {
             editRules={editRules}
           />
         )}
-
+      {method != 'vm' && 
         <Card
-          className={styles.clearCard}
-          style={{ marginTop: 16 }}
-          title={<FormattedMessage id='componentOverview.body.Expansion.horizontal' />}
-        >
-          <Table
-            className={styles.horizontalExpansionRecordTable}
-            dataSource={sclaingRecord}
-            pagination={total > page_size ? {
-              current: page_num,
-              pageSize: page_size,
-              total,
-              onChange: this.onPageChange
-            } : false}
-            columns={[
-              {
-                title: formatMessage({ id: 'componentOverview.body.Expansion.time' }),
-                dataIndex: 'last_time',
-                key: 'last_time',
-                align: 'center',
-                width: '18%',
-                render: val => (
-                  <div
-                    style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
-                  >
-                    {moment(val)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')}
-                  </div>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.Expansion.telescopicDetails' }),
-                dataIndex: 'description',
-                key: 'description',
-                align: 'center',
-                width: '43%',
-                render: description => (
-                  <div
-                    style={{
-                      textAlign: 'left',
-                      wordWrap: 'break-word',
-                      wordBreak: 'break-word'
-                    }}
-                  >
-                    {description}
-                  </div>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.Expansion.type' }),
-                dataIndex: 'record_type',
-                key: 'record_type',
-                align: 'center',
-                width: '13%',
-                render: record_type => (
-                  <div>
-                    {record_type === 'hpa'
-                      ? <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic' />
-                      : record_type === 'manual'
-                        ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic' />
-                        : <FormattedMessage id='componentOverview.body.Expansion.vertical' />}
-                  </div>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.Expansion.operator' }),
-                dataIndex: 'operator',
-                key: 'operator',
-                align: 'center',
-                width: '13%',
-                render: operator => {
-                  return <span> {operator || '-'} </span>;
-                }
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.Expansion.reason' }),
-                dataIndex: 'reason',
-                align: 'center',
-                key: 'reason',
-                width: '13%'
+        className={styles.clearCard}
+        style={{ marginTop: 16 }}
+        title={<FormattedMessage id='componentOverview.body.Expansion.horizontal' />}
+      >
+        <Table
+          className={styles.horizontalExpansionRecordTable}
+          dataSource={sclaingRecord}
+          pagination={total > page_size ? {
+            current: page_num,
+            pageSize: page_size,
+            total,
+            onChange: this.onPageChange
+          } : false}
+          columns={[
+            {
+              title: formatMessage({ id: 'componentOverview.body.Expansion.time' }),
+              dataIndex: 'last_time',
+              key: 'last_time',
+              align: 'center',
+              width: '18%',
+              render: val => (
+                <div
+                  style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                >
+                  {moment(val)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              )
+            },
+            {
+              title: formatMessage({ id: 'componentOverview.body.Expansion.telescopicDetails' }),
+              dataIndex: 'description',
+              key: 'description',
+              align: 'center',
+              width: '43%',
+              render: description => (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    wordWrap: 'break-word',
+                    wordBreak: 'break-word'
+                  }}
+                >
+                  {description}
+                </div>
+              )
+            },
+            {
+              title: formatMessage({ id: 'componentOverview.body.Expansion.type' }),
+              dataIndex: 'record_type',
+              key: 'record_type',
+              align: 'center',
+              width: '13%',
+              render: record_type => (
+                <div>
+                  {record_type === 'hpa'
+                    ? <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic' />
+                    : record_type === 'manual'
+                      ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic' />
+                      : <FormattedMessage id='componentOverview.body.Expansion.vertical' />}
+                </div>
+              )
+            },
+            {
+              title: formatMessage({ id: 'componentOverview.body.Expansion.operator' }),
+              dataIndex: 'operator',
+              key: 'operator',
+              align: 'center',
+              width: '13%',
+              render: operator => {
+                return <span> {operator || '-'} </span>;
               }
-            ]}
-          />
-        </Card>
+            },
+            {
+              title: formatMessage({ id: 'componentOverview.body.Expansion.reason' }),
+              dataIndex: 'reason',
+              align: 'center',
+              key: 'reason',
+              width: '13%'
+            }
+          ]}
+        />
+      </Card>
+      }
       </div>
     );
   }

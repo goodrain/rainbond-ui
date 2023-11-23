@@ -109,7 +109,9 @@ import {
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
-  fetchInitCluster
+  fetchInitCluster,
+  fetchAlarmSwitch,
+  updateAlarmSwitch,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -147,6 +149,7 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
+    isAlarm: true,
   },
 
   effects: {
@@ -588,6 +591,30 @@ export default {
         yield put({
           type: 'saveIsRegist',
           payload: response.bean && response.bean.is_regist
+        });
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *fetchAlarmSwitch({ payload, callback }, { put, call }) {
+      const response = yield call(fetchAlarmSwitch, payload);
+      if (response) {
+        yield put({
+          type: 'saveIsAlarm',
+          payload: response.bean && response.bean.is_alarm
+        });
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *updateAlarmSwitch({ payload, callback }, { put, call }) {
+      const response = yield call(updateAlarmSwitch, payload);
+      if (response) {
+        yield put({
+          type: 'saveIsAlarm',
+          payload: payload.is_alarm
         });
         if (callback) {
           callback(response);
@@ -1075,6 +1102,12 @@ export default {
       return {
         ...state,
         isRegist: payload
+      };
+    },
+    saveIsAlarm(state, { payload }) {
+      return {
+        ...state,
+        isAlarm: payload
       };
     },
     saveIsisNouse(state, { payload }) {
