@@ -179,7 +179,7 @@ class TeamLayout extends PureComponent {
                 },()=>{
                   setTimeout(()=>{
                   this.queryComponentDeatil()
-                  },500)
+                  },1000)
                 })
               }
             })
