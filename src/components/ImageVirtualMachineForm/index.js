@@ -159,14 +159,14 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const { event_id } = this.state
+    const { event_id, radioKey } = this.state
     const { form, onSubmit, archInfo } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
-        onSubmit(fieldsValue, event_id);
+        onSubmit(fieldsValue, radioKey == 'upload' ? event_id : '');
       }
     });
   };
