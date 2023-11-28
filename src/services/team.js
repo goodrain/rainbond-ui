@@ -790,3 +790,14 @@ export async function fetchServiceID (params, handleError) {
     }
   );
 }
+// 获取团队下所有应用的英文名称
+// /console/teams/b7jnpowd/app_names 全部应用英文名接口 get 只有接口上的地址传参，无需另外传参
+export async function fetchAppNames (params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/app_names`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}

@@ -112,6 +112,7 @@ import {
   fetchInitCluster,
   fetchAlarmSwitch,
   updateAlarmSwitch,
+  fetchTeamNames
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -952,6 +953,12 @@ export default {
     },
     *fetchInitCluster({ payload, callback, handleError }, { put, call }) {
       const response = yield call(fetchInitCluster, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchTeamNames({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchTeamNames, payload, handleError);
       if (callback) {
         callback(response);
       }

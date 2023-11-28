@@ -40,3 +40,34 @@
   padding: 0 24px;
   border: 1px solid #d9d9d9;
 }
+.public{
+  display: flex;
+  margin-bottom: 24px;
+  &>div{
+    cursor: pointer;
+    margin:  0 4px;
+    width: 100px;
+    height: 30px;
+    .publicItemName{
+      font-weight: 500;
+      line-height: 30px;
+      font-size: 12px;
+      text-align: center;
+      color: #000;
+      border: 1px solid #e3e3e3;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 4px;
+      img{
+        width: 30px;
+        height: 30px;
+      }
+    }
+  }
+  .active{
+    .publicItemName{
+      color: #1890ff;
+      border: 1px solid #1890ff;
+    }
+  }
+}

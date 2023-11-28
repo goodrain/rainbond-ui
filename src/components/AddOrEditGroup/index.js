@@ -15,7 +15,9 @@ import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
-@connect()
+@connect(({ teamControl }) => ({
+  appNames: teamControl.allAppNames
+}))
 @Form.create()
 export default class EditGroupName extends PureComponent {
   constructor(props) {
@@ -30,6 +32,24 @@ export default class EditGroupName extends PureComponent {
       paramsSrc: '',
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
+  }
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
   }
 
   handleSubmit = e => {
@@ -256,7 +276,7 @@ export default class EditGroupName extends PureComponent {
             extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
             {getFieldDecorator('k8s_app', {
-              initialValue: k8sApp || (form.getFieldValue('group_name') && pinyin(form.getFieldValue('group_name'), {toneType: 'none'}).replace(/\s/g, '')) || '',
+              initialValue: this.generateEnglishName(k8sApp || form.getFieldValue('group_name')),
               rules: [
                 {
                   required: true,
