@@ -359,6 +359,7 @@ export default class Index extends PureComponent {
                   marginRight: 10
                 }}
                 disabled={!!isService}
+                onChange={this.fetchComponentNames}
               >
                 {(groups || []).map(group => {
                   return (
