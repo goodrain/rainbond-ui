@@ -99,7 +99,8 @@ class TeamLayout extends PureComponent {
   componentWillMount() {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
-    this.fetchUserInfo()
+    this.fetchUserInfo();
+    this.getAppNames();
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
@@ -157,6 +158,16 @@ class TeamLayout extends PureComponent {
       );
     }
   }
+  // 获取当前团队下的所有应用名称
+  getAppNames = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/fetchAppNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      }
+    });
+  }
   GroupShow = () => {
     this.setState({
       GroupShow: true
@@ -176,10 +187,6 @@ class TeamLayout extends PureComponent {
               if(item.name == "rainbond-vm"){
                 this.setState({
                   vm_url:item.urls[0]
-                },()=>{
-                  setTimeout(()=>{
-                  this.queryComponentDeatil()
-                  },1000)
                 })
               }
             })
@@ -578,6 +585,9 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       this.queryComponentDeatil();
+      setTimeout(() => {
+        this.queryComponentDeatil();
+      }, 1000);
       return <GlobalHeader/>;
     } else {
       this.setState({ currentComponent: null });

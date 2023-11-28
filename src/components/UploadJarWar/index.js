@@ -52,11 +52,16 @@ export default class Index extends PureComponent {
       team_name: '',
       percents: false,
       existFileList: [],
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      comNames: []
     };
   }
   componentWillMount() {
     this.loop = false;
+    const { handleType, groupId } = this.props;
+    if(handleType && handleType === 'Service'){
+      this.fetchComponentNames(Number(groupId));
+    }
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')
@@ -244,6 +249,42 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({ id: 'otherApp.UploadYaml.max' })));
     }
   };
+    // 获取当前选取的app的所有组件的英文名称
+    fetchComponentNames = (group_id) => {
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'appControl/getComponentNames',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          group_id
+        },
+        callback: res => {
+          if (res && res.bean ) {
+            this.setState({
+              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+            })
+        }
+      }
+      });
+    };
+    // 生成英文名
+    generateEnglishName = (name) => {
+      if(name != undefined){
+        const { comNames } = this.state;
+        const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+        const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+        if (comNames && comNames.length > 0) {
+          const isExist = comNames.some(item => item === cleanedPinyinName);
+          if (isExist) {
+            const random = Math.floor(Math.random() * 10000);          
+            return `${cleanedPinyinName}${random}`;
+          }
+          return cleanedPinyinName;
+        }
+        return cleanedPinyinName;
+      }
+      return ''
+    }
   render() {
     const { form } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -291,6 +332,7 @@ export default class Index extends PureComponent {
                   marginRight: 15
                 }}
                 disabled={!!isService}
+                onChange={this.fetchComponentNames}
               >
                 {(groups || []).map(group => (
                   <Option value={group.group_id}>{group.group_name}</Option>
@@ -325,7 +367,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'otherApp.UploadJarWar.en_name' })}>
             {getFieldDecorator('k8s_component_name', {
-              initialValue: form.getFieldValue('service_cname') && pinyin(form.getFieldValue('service_cname'), {toneType: 'none'}).replace(/\s/g, ''),
+              initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]

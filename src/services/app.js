@@ -3308,7 +3308,6 @@ export async function deleteKubernetes(body = {}) {
     }
   );
 }
-// http://192.168.2.201:10000/console/teams/xzfn045k/apps/grdc46e7/pause
 // vm虚拟机挂起恢复
 export async function vmPause(body = {}) {
   return request(
@@ -3319,5 +3318,14 @@ export async function vmPause(body = {}) {
   );
 }
 
-
+// 获取应用下下所有组件的英文名称
+//  /console/teams/b7jnpowd/groups/2/component_names 全部组件英文名接口 get 只有接口上的地址传参，无需另外传参
+export async function getComponentNames(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/component_names`,
+    {
+      method: 'get',
+    }
+  );
+}
 

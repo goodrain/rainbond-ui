@@ -1477,3 +1477,14 @@ export async function updateAlarmSwitch(body, handleError) {
     }
   );
 }
+// 获取企业下下所有团队的英文名称
+// 1. /console/enterprise/e18af629c408acc7b54de97424f4447b/team_names
+export async function fetchTeamNames(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.eid}/team_names`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
