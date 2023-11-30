@@ -89,8 +89,6 @@ export default class Index extends PureComponent {
                 routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
             );
         }
-
-
     }
 
     render() {
@@ -142,7 +140,6 @@ export default class Index extends PureComponent {
                             </div>
                         </div>
                         <div className={styles.bottomContent}>
-
                             <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({id:'componentOverview.body.tab.log.container'})}</p>
                             <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({id:'Vm.createVm.vm'})}</p>
                         </div>
