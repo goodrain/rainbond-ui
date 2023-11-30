@@ -1454,3 +1454,37 @@ export async function fetchInitCluster(body, handleError) {
     }
   );
 }
+// 获取报警开关信息
+export async function fetchAlarmSwitch(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/monitor_alarm`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 修改报警开关信息
+export async function updateAlarmSwitch(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/monitor_alarm`,
+    {
+      method: 'put',
+      data: {
+        is_alarm: body.is_alarm
+      },
+      handleError
+    }
+  );
+}
+// 获取企业下下所有团队的英文名称
+// 1. /console/enterprise/e18af629c408acc7b54de97424f4447b/team_names
+export async function fetchTeamNames(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.eid}/team_names`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}

@@ -352,6 +352,9 @@ export async function getDetail(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
     {
       method: 'get',
+      params:{
+        vm_url: body.vm_url
+      },
       handleError
     }
   );
@@ -2479,7 +2482,8 @@ export async function editAppCreateInfo(
     extend_method,
     user_name,
     password,
-    schedule:"*/1 * * * *"
+    schedule:"*/1 * * * *",
+    disk_cap
   }
 ) {
   return request(
@@ -3304,6 +3308,24 @@ export async function deleteKubernetes(body = {}) {
     }
   );
 }
+// vm虚拟机挂起恢复
+export async function vmPause(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/${body.type}`,
+    {
+      method: 'post',
+    }
+  );
+}
 
-
+// 获取应用下下所有组件的英文名称
+//  /console/teams/b7jnpowd/groups/2/component_names 全部组件英文名接口 get 只有接口上的地址传参，无需另外传参
+export async function getComponentNames(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/component_names`,
+    {
+      method: 'get',
+    }
+  );
+}
 

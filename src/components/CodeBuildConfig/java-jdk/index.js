@@ -81,6 +81,7 @@ class Index extends PureComponent {
               initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
             })(
               <RadioGroup>          
+                <Radio value="17">17</Radio>
                 <Radio value="16">16</Radio>
                 <Radio value="15">15</Radio>
                 <Radio value="14">14</Radio>

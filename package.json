@@ -49,6 +49,7 @@
     "numeral": "^2.0.6",
     "omit.js": "^1.0.2",
     "path-to-regexp": "^3.0.0",
+    "pinyin-pro": "3.15.1",
     "prismjs": "^1.20.0",
     "prop-types": "^15.7.2",
     "qs": "^6.7.0",

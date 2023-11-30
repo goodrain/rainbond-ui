@@ -138,7 +138,9 @@ import {
   updatePluginMemory,
   updateRolling,
   updateServiceName,
-  upgrade
+  upgrade,
+  vmPause,
+  getComponentNames
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1154,7 +1156,20 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *vmPause({ payload, callback }, { call }) {
+      const response = yield call(vmPause, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getComponentNames({ payload, callback }, { call }) {
+      const response = yield call(getComponentNames, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+
   },
   reducers: {
     clearMembers(state) {

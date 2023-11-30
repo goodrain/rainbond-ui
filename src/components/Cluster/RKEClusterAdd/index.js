@@ -168,8 +168,9 @@ class EditableCell extends React.Component {
                   node.focus();
                 }
               }}
+              key={dataIndex}
               onPressEnter={this.save}
-              onBlur={this.save}
+              onBlur={()=>this.save}
               style={{
                 textOverflow: 'ellipsis',
                 overflow: 'hidden',

@@ -13,6 +13,7 @@ import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
+import { pinyin } from 'pinyin-pro';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -45,7 +46,8 @@ export default class Index extends PureComponent {
       percents: false,
       existFileList: [],
       groupName: '',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      comNames: []
     };
   }
   componentWillMount() {
@@ -101,6 +103,7 @@ export default class Index extends PureComponent {
     });
   };
   handleChange = (values) => {
+    this.fetchComponentNames(values)
     const { dispatch, groups } = this.props;
     for (let index = 0; index < groups.length; index++) {
       if (groups[index].group_id === values) {
@@ -267,8 +270,45 @@ export default class Index extends PureComponent {
   onRemove = () => {
     this.setState({ fileList: [] });
   };
+    // 获取当前选取的app的所有组件的英文名称
+    fetchComponentNames = (group_id) => {
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'appControl/getComponentNames',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          group_id
+        },
+        callback: res => {
+          if (res && res.bean ) {
+            this.setState({
+              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+            })
+        }
+      }
+      });
+    }; 
+      // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
   render() {
     const {
+      form,
       form: { getFieldDecorator },
       groups,
       archInfo
@@ -342,6 +382,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
+                initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
                 rules: [
                   {
                     required: true,

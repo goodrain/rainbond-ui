@@ -5,6 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getAllRegion } from '../../services/api';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
+import { pinyin } from 'pinyin-pro';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -21,14 +22,52 @@ class CreateTeam extends PureComponent {
       regionLoading: true,
       imageBase64:'',
       imageUrl: '',
+      teamNames: []
     };
   }
   componentDidMount() {
     const { enterprise_id: ID } = this.props;
     if (ID) {
       this.getUnRelationedApp(ID);
+      this.getTeamName();
     }
   }
+  // 获取集群下所有的团队英文名称
+  getTeamName = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchTeamNames',
+      payload: {
+        eid: this.props.enterprise_id
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            teamNames: res.bean && res.bean.tenant_names && res.bean.tenant_names.length > 0 ? res.bean.tenant_names : []
+          });
+        }
+      }
+    });
+  };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { teamNames } = this.state;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      if (teamNames && teamNames.length > 0) {
+        const isExist = teamNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
+
   getUnRelationedApp = ID => {
     getAllRegion({ enterprise_id: ID, status: '1' })
       .then(data => {
@@ -198,9 +237,6 @@ class CreateTeam extends PureComponent {
                 }
               ]
             })(<Input placeholder={formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' })} />)}
-            {/* <div className={styles.conformDesc}>
-              <FormattedMessage id='popover.enterpriseOverview.setUpTeam.conformDesc.name'/>
-            </div> */}
           </FormItem>
           {/* 团队的命名空间 */}
           <FormItem {...formItemLayout} label={<FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.englishName' />}
@@ -211,6 +247,7 @@ class CreateTeam extends PureComponent {
             }
           >
             {getFieldDecorator('namespace', {
+              initialValue: this.generateEnglishName(form.getFieldValue('team_name')),
               rules: [
                 {
                   required: true,

@@ -28,7 +28,8 @@ import OauthTable from './oauthTable';
   imageHubLongin: loading.effects['global/editImageHub'],
   monitoringLongin: loading.effects['global/editImageHub'],
   objectStorageLongin: loading.effects['global/editCloudBackup'],
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
+  isAlarm: global.isAlarm,
 }))
 class Infrastructure extends PureComponent {
   constructor(props) {
@@ -67,6 +68,7 @@ class Infrastructure extends PureComponent {
     dispatch({
       type: 'global/getIsRegist'
     });
+    this.fetchAlarmSwitch();
   }
 
   onRegistChange = checked => {
@@ -401,7 +403,20 @@ class Infrastructure extends PureComponent {
     clues();
     return false;
   };
-
+  isAlarmChange = checked => {
+    this.props.dispatch({
+      type: 'global/updateAlarmSwitch',
+      payload: {
+        is_alarm: checked
+      }
+    });
+  }
+  fetchAlarmSwitch = () => {
+    this.props.dispatch({
+      type: 'global/fetchAlarmSwitch',
+    }
+    );
+  }
   render() {
     const {
       enterprise,
@@ -712,6 +727,33 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+    // 警告功能关闭开启
+    const WarningFeature =(
+      <Card
+        hoverable
+        bordered={false}
+        style={{ borderTop: '1px solid  #ccc' , borderRadius:0}}
+      >
+        <Row type="flex" align="middle">
+          <Col span={3}>
+            <FormattedMessage id='enterpriseSetting.basicsSetting.alarm.title'/>
+          </Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              <FormattedMessage id='enterpriseSetting.basicsSetting.alarm.content'/>
+            </span>
+          </Col>
+
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <Switch
+              onChange={this.isAlarmChange}
+              className={styles.automaTictelescopingSwitch}
+              checked={this.props.isAlarm}
+            />
+          </Col>
+        </Row>
+      </Card>
+    );
 
     return (
       <Fragment>
@@ -862,6 +904,7 @@ class Infrastructure extends PureComponent {
             {Oauth}
             {MirrorWarehouseInformation}
             {Monitoring}
+            {WarningFeature}
           </div>
         )}
       </Fragment>

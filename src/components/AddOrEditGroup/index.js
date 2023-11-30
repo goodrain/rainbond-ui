@@ -10,11 +10,14 @@ import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
-@connect()
+@connect(({ teamControl }) => ({
+  appNames: teamControl.allAppNames
+}))
 @Form.create()
 export default class EditGroupName extends PureComponent {
   constructor(props) {
@@ -29,6 +32,24 @@ export default class EditGroupName extends PureComponent {
       paramsSrc: '',
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
+  }
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
   }
 
   handleSubmit = e => {
@@ -255,7 +276,7 @@ export default class EditGroupName extends PureComponent {
             extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
             {getFieldDecorator('k8s_app', {
-              initialValue: k8sApp || '',
+              initialValue: this.generateEnglishName(k8sApp || form.getFieldValue('group_name')),
               rules: [
                 {
                   required: true,
@@ -263,32 +284,6 @@ export default class EditGroupName extends PureComponent {
                 }
               ]
             })(<Input placeholder={formatMessage({id:'popover.newApp.appEngName.placeholder'})} disabled={!isDisabled} />)}
-          </FormItem>
-          {/* 应用Logo */}
-          <FormItem
-            {...is_language}
-            label={formatMessage({id:'popover.newApp.logo'})}
-            extra={formatMessage({id:'popover.newApp.upload_pictures.extra'})}
-          >
-            <Upload
-              action={apiconfig.imageUploadUrl}
-              listType="picture-card"
-              accept="image/jpg,image/jpeg,image/png"
-              fileList={fileList}
-              onPreview={this.handlePreview}
-              onChange={this.handleChange}
-              onRemove={this.handleRemove}
-            >
-              {fileList.length > 0 ? null : uploadButton}
-            </Upload>
-            <Modal
-              visible={previewVisible}
-              title={previewTitle}
-              footer={null}
-              onCancel={this.handleCancel}
-            >
-              <img alt="example" style={{ width: '100%' }} src={previewImage} />
-            </Modal>
           </FormItem>
 
           <FormItem {...is_language

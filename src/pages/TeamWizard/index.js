@@ -80,23 +80,10 @@ export default class Index extends PureComponent {
         const { dispatch } = this.props
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-        if (type == 'code') {
-            dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/code/${link}` })
-            );
-        } else if (type == 'market') {
-            dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/market/${link}` })
-            );
-        } else if (type == 'image') {
-            dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/image/${link}` })
-            );
-        } else if (type == 'yaml') {
-            dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/yaml/${link}` })
-            );
-        }
+
+        dispatch(
+            routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
+        );
     }
 
     render() {
@@ -147,11 +134,8 @@ export default class Index extends PureComponent {
                             </div>
                         </div>
                         <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'teamAdd.create.image.tabImage' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('image', 'dockerrun')}>Docker Run</p>
-                            <p onClick={() => this.onClickLinkCreate('image', 'Dockercompose')}>Docker Compose</p>
-                            <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>
-
+                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>容器</p>
+                            <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>虚拟机</p>
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

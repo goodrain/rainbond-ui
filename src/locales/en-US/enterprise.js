@@ -1075,6 +1075,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': 'Document address',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': 'Web page icon',
+    'enterpriseSetting.basicsSetting.alarm.title': 'Alarm switch',
+    'enterpriseSetting.basicsSetting.alarm.content': 'Control whether the monitoring alarm is turned on',
     // tabs>TabPane>enterpriseAdmin
     'enterpriseSetting.enterpriseAdmin.col.designation': 'Name',
     'enterpriseSetting.enterpriseAdmin.col.name': 'Full name',

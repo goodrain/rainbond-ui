@@ -32,7 +32,8 @@ import {
   confirmTheImport,
   fetchToken,
   fetchPluginUrl,
-  fetchServiceID
+  fetchServiceID,
+  fetchAppNames
 } from '../services/team';
 
 export default {
@@ -54,6 +55,7 @@ export default {
     codeLanguage: JSON.parse(window.sessionStorage.getItem('codeLanguage')) || '',
     // 包管理器
     packageNpmOrYarn: JSON.parse(window.sessionStorage.getItem('packageNpmOrYarn')) || 'npm',
+    allAppNames: [],
   },
   effects: {
     *fetchTeamUserPermissions(
@@ -295,6 +297,18 @@ export default {
         callback(response);
       }
     },
+    *fetchAppNames({ payload, callback, handleError }, { call,put }) {
+      const response = yield call(fetchAppNames, payload, handleError);
+        if (response) {
+          yield put({
+            type: 'saveAppnames',
+            payload: response
+          });
+          if (callback) {
+            callback(response);
+          }
+        }
+    },
   },
   
   reducers: {
@@ -333,6 +347,12 @@ export default {
       return {
         ...state,
         features: action.payload
+      };
+    },
+    saveAppnames(state, { payload }) {
+      return {
+        ...state,
+        allAppNames:  payload.bean && payload.bean.app_names && payload.bean.app_names.length > 0 ? payload.bean.app_names : []
       };
     },
     // 源码构建选择语言

@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-shadow */
 /* eslint-disable react/no-unused-state */
-import { Alert, Button, Col, Drawer, Icon, Row } from 'antd';
+import { Alert, Button, Col, Drawer, Icon, Row, Spin, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -19,13 +19,14 @@ import CodeDemo from '../Create/code-demo';
 import HelmCmd from '../Create/helm-cmd';
 import ImageName from '../Create/image-name';
 import DockerDemo from '../Create/ImageName-Demo'
+import VirtualMachine from '../Create/virtual-machine'
 import Jwar from '../Create/upload-jarwar'
 import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
 import MarketDrawer from '../Create/market-drawer'
 import styles from './Index.less';
 
-@connect(({ user, application, global , enterprise}) => ({
+@connect(({ user, application, global, enterprise }) => ({
   currUser: user.currentUser,
   apps: application.apps,
   groupDetail: application.groupDetail || {},
@@ -51,16 +52,58 @@ export default class AddServiceComponent extends PureComponent {
       moreState: true,
       BackType: null,
       errState: true,
-      isDrawer:true,
+      isDrawer: true,
       scopeProMax: '',
-      event_id:'',
+      event_id: '',
       serversList: null,
+      vmLoading: true
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
     this.fetchEnterpriseInfo(enterprise_id)
+    this.fetchPipePipeline()
+  }
+  // 获取插件列表
+  fetchPipePipeline = () => {
+    const { dispatch, currUser } = this.props;
+    dispatch({
+      type: 'teamControl/fetchPluginUrl',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.list && res.list.length > 0) {
+          res.list.map(item => {
+            if (item.name == "rainbond-vm") {
+              this.setState({
+                vmShow: true,
+                vmLoading: false
+              })
+            }else{
+              this.setState({
+                vmLoading: false
+              })
+            }
+          }
+          )
+        }else{
+          this.setState({
+            vmShow: false,
+            vmLoading: false
+          })
+        }
+      },
+      handleError: (res) => {
+        this.setState({
+          vmShow: false,
+          vmLoading: false
+        })
+
+      }
+    })
   }
 
   getGitServerName = item => {
@@ -73,7 +116,7 @@ export default class AddServiceComponent extends PureComponent {
     const setName = typeMap[type] || '';
     const tabName = setName
       ? `${setName} ${name && `(${name})`}`
-      : `${name} ${formatMessage({id:'appOverview.list.btn.addComponent.project'})}`;
+      : `${name} ${formatMessage({ id: 'appOverview.list.btn.addComponent.project' })}`;
     return tabName;
   };
 
@@ -99,7 +142,7 @@ export default class AddServiceComponent extends PureComponent {
 
 
   toAddService = () => {
-    this.setState({ toAddService: true, isDrawer:true });
+    this.setState({ toAddService: true, isDrawer: true });
   };
   toAddThirdParty = () => {
     this.setState({ flagThirdParty: !this.state.flagThirdParty });
@@ -212,9 +255,9 @@ export default class AddServiceComponent extends PureComponent {
       }
     );
   };
-  getValue = (val)=>{
+  getValue = (val) => {
     this.setState({
-      isDrawer:val
+      isDrawer: val
     })
   }
   handleScopeMax = (scopeProMax = false) => {
@@ -243,6 +286,8 @@ export default class AddServiceComponent extends PureComponent {
       isDrawer,
       event_id,
       serversList,
+      vmShow,
+      vmLoading
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
@@ -285,31 +330,31 @@ export default class AddServiceComponent extends PureComponent {
         <Button
           type="primary"
           onClick={this.toAddService}
-          style={{ 
-            marginLeft: '12px', 
-            color:'#595959',
+          style={{
+            marginLeft: '12px',
+            color: '#595959',
             borderColor: '#D9D9D9',
-            background:'#fff'
+            background: '#fff'
           }}
         >
           <Icon type="plus" />
-          {formatMessage({id:'appOverview.btn.addComponent'})}
+          {formatMessage({ id: 'appOverview.btn.addComponent' })}
         </Button>
         <Drawer
-          title={formatMessage({id:'appOverview.btn.addComponent'})}
+          title={formatMessage({ id: 'appOverview.btn.addComponent' })}
           placement="right"
           onClose={this.cancelAddService}
           visible={toAddService}
           maskClosable={false}
           width={550}
-          style={{display:isDrawer ? 'block' : 'none'}}
+          style={{ display: isDrawer ? 'block' : 'none' }}
         >
           {ServiceComponentOnePage && (
             <div style={{ marginTop: '-12px' }}>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                    {formatMessage({id:'menu.team.create.code'})}
+                    {formatMessage({ id: 'menu.team.create.code' })}
                   </p>
                 </Row>
                 <Row type="flex">
@@ -321,8 +366,8 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {codeSvg}
-                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.custom'})}
+                    <p className={styles.ServiceSmallTitle} style={{ margin: '5px' }}>
+                      {formatMessage({ id: 'appOverview.list.btn.addComponent.custom' })}
                     </p>
                   </Col>
                   <Col
@@ -333,8 +378,8 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {JarWar_svg}
-                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.jwar'})}
+                    <p className={styles.ServiceSmallTitle} style={{ margin: '5px' }}>
+                      {formatMessage({ id: 'appOverview.list.btn.addComponent.jwar' })}
                     </p>
                   </Col>
                   <Col
@@ -345,8 +390,8 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     {codeDemo_svg}
-                    <p className={styles.ServiceSmallTitle} style={{margin:'5px'}}>
-                    {formatMessage({id:'teamAdd.create.code.demo'})}
+                    <p className={styles.ServiceSmallTitle} style={{ margin: '5px' }}>
+                      {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
                   {servers &&
@@ -388,7 +433,7 @@ export default class AddServiceComponent extends PureComponent {
                     className={styles.ServiceTitle}
                     style={{ marginBottom: '20px' }}
                   >
-                   {formatMessage({id:'menu.team.create.market'})}
+                    {formatMessage({ id: 'menu.team.create.market' })}
                   </p>
                 </Row>
                 <Row>
@@ -412,7 +457,7 @@ export default class AddServiceComponent extends PureComponent {
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                  {formatMessage({id:'menu.team.create.image'})}
+                    {formatMessage({ id: 'menu.team.create.image' })}
                   </p>
                 </Row>
                 <Row style={{ marginTop: '-8px' }}>
@@ -425,7 +470,7 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {docker_svg}
                     <p className={styles.ServiceSmallTitle}>
-                    {formatMessage({id:'appOverview.list.btn.addComponent.image'})}
+                      {formatMessage({ id: 'appOverview.list.btn.addComponent.image' })}
                     </p>
                   </Col>
                   <Col
@@ -452,12 +497,47 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
+                  {vmLoading ? (
+                    <Col
+                      span={8}
+                      className={styles.ServiceDiv}>
+                      <Spin />
+                    </Col>
+                  ) : (
+                    vmShow ?
+                      <Col
+                        span={8}
+                        className={styles.ServiceDiv}
+                        onClick={() => {
+                          this.handleServiceComponent(false, 'VirtualMachine');
+                        }}
+                      >
+                        {docker_svg}
+                        <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
+                          {formatMessage({id:'Vm.createVm.VmImg'})}
+                        </p>
+
+                      </Col>
+                      :
+                      <Tooltip title={formatMessage({id:'Vm.createVm.unInstall'})}>
+                        <Col
+                          span={8}
+                          className={styles.ServiceDiv}
+                        >
+                          {docker_svg}
+                          <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
+                          {formatMessage({id:'Vm.createVm.VmImg'})}
+                          </p>
+                        </Col>
+                      </Tooltip>
+                  )}
+
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                  {formatMessage({id:'menu.team.create.upload'})}
+                    {formatMessage({ id: 'menu.team.create.upload' })}
                   </p>
                 </Row>
                 <Row>
@@ -470,7 +550,7 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {yaml_svg}
                     <p className={styles.ServiceSmallTitle}>
-                      {formatMessage({id:'appOverview.list.btn.addComponent.yaml'})}
+                      {formatMessage({ id: 'appOverview.list.btn.addComponent.yaml' })}
                     </p>
                   </Col>
                   <Col
@@ -482,12 +562,12 @@ export default class AddServiceComponent extends PureComponent {
                   >
                     {helm_svg}
                     <p className={styles.ServiceSmallTitle}>
-                      {formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})}
+                      {formatMessage({ id: 'teamAdd.create.upload.uploadFiles.helm' })}
                     </p>
                   </Col>
                 </Row>
               </div>
-              <div className={styles.ServiceBox} style={{marginBottom:'60px'}}>
+              <div className={styles.ServiceBox} style={{ marginBottom: '60px' }}>
                 <ThirdParty content={this.getValue.bind(this)} groupId={groupId} />
               </div>
             </div>
@@ -547,6 +627,9 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentTwoPage === 'ImageNameDemo' && (
             <DockerDemo archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} />
           )}
+          {ServiceComponentTwoPage === 'VirtualMachine' && (
+            <VirtualMachine archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} />
+          )}
           {ServiceComponentTwoPage === 'market' && (
             <Market
               {...MarketParameter}
@@ -576,12 +659,12 @@ export default class AddServiceComponent extends PureComponent {
           >
             {!ServiceComponentOnePage && ServiceComponentThreePage !== 'check' && (
               <Button style={mr8} onClick={this.handleBackEvents}>
-                {formatMessage({id:'popover.back'})}
+                {formatMessage({ id: 'popover.back' })}
               </Button>
             )}
             {ButtonGroup && <span style={mr8}>{ButtonGroup}</span>}
             <Button style={mr8} onClick={this.cancelAddService}>
-              {formatMessage({id:'popover.cancel'})}
+              {formatMessage({ id: 'popover.cancel' })}
             </Button>
           </div>
         </Drawer>

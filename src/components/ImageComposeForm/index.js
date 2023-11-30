@@ -3,12 +3,14 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, teamControl }) => ({
     groups: global.groups,
-    createAppByCompose: loading.effects['createApp/createAppByCompose']
+    createAppByCompose: loading.effects['createApp/createAppByCompose'],
+    appNames: teamControl.allAppNames
   }),
   null,
   null,
@@ -53,6 +55,24 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({id: 'placeholder.max32'})));
     }
   };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
   render() {
     const formItemLayout = {
       labelCol: {
@@ -110,6 +130,7 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({id: 'popover.newApp.appEngName'})}>
               {getFieldDecorator('k8s_app', {
+              initialValue: this.generateEnglishName(form.getFieldValue('group_name')),
                 rules: [
                   { required: true, validator: this.handleValiateNameSpace }
                 ]

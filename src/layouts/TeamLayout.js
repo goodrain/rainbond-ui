@@ -91,14 +91,16 @@ class TeamLayout extends PureComponent {
       teamView: true,
       showMenu: true,
       GroupShow: true,
-      marginShow: true
+      marginShow: true,
+      vm_url:"",
     };
   }
 
   componentWillMount() {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
-    this.fetchUserInfo()
+    this.fetchUserInfo();
+    this.getAppNames();
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
@@ -156,6 +158,16 @@ class TeamLayout extends PureComponent {
       );
     }
   }
+  // 获取当前团队下的所有应用名称
+  getAppNames = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/fetchAppNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      }
+    });
+  }
   GroupShow = () => {
     this.setState({
       GroupShow: true
@@ -170,6 +182,15 @@ class TeamLayout extends PureComponent {
             region_name: globalUtil.getCurrRegionName()
         },
         callback: res=>{
+          if(res&&res.list){
+            res.list.map(item=>{
+              if(item.name == "rainbond-vm"){
+                this.setState({
+                  vm_url:item.urls[0]
+                })
+              }
+            })
+          }
           this.setState({
             showPipeline:res.list
           })
@@ -363,7 +384,8 @@ class TeamLayout extends PureComponent {
         type: 'appControl/fetchDetail',
         payload: {
           team_name: teamName,
-          app_alias: componentID
+          app_alias: componentID,
+          vm_url:this.state.vm_url
         },
         callback: appDetail => {
           this.setState({ currentComponent: appDetail.service, GroupShow: false });
@@ -563,6 +585,9 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       this.queryComponentDeatil();
+      setTimeout(() => {
+        this.queryComponentDeatil();
+      }, 1000);
       return <GlobalHeader/>;
     } else {
       this.setState({ currentComponent: null });

@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate','envFromSource', 'annotations','securityContext'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -42,8 +42,9 @@ class Index extends PureComponent {
         resources: '#sample\n#  limits:\n#    hugepages-2Mi:\n#    memory: \n#  requests:\n#    memory: ',
         lifecycle: '#sample\n#postStart:\n#  exec:\n#    command:\n #preStop:\n#  exec:\n#    command: ',
         volumeClaimTemplate: '#sample\n#- metadata: \n# name: database-data \n# spec:\n# accessModes:  \n# - ReadWriteOnce: \n# resources: \n# requests: \n# storage: ',
-        envFromSource: '#sample\n#- configMapRef:\n#    name: \n#- secretRef:\n#    name: '
-
+        envFromSource: '#sample\n#- configMapRef:\n#    name: \n#- secretRef:\n#    name: ',
+        livenessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
+        readinessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
       },
       TooltipValue: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
@@ -53,6 +54,19 @@ class Index extends PureComponent {
 
   componentDidMount() {
     this.handleGetKubernetes()
+    if (this.props.extend_method == 'vm') {
+      this.setState({
+        selectArr: ['nodeSelector',
+          'labels',
+          'tolerations',
+          'dnsPolicy',
+          'annotations',
+          'affinity',
+          'livenessProbe',
+          'readinessProbe'
+        ]
+      })
+    }
   }
   handleGetKubernetes = () => {
     const teamName = globalUtil.getCurrTeamName()
@@ -267,7 +281,30 @@ class Index extends PureComponent {
               this.notificationFun()
             }
             break;
-
+          case "livenessProbe":
+            if (value.livenessProbe != null && value.livenessProbe.length > 0 && value.livenessProbe != TooltipValue) {
+              const label = {
+                name: selectVal,
+                save_type: "yaml",
+                attribute_value: value.livenessProbe || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
+          case "readinessProbe":
+            if (value.readinessProbe != null && value.readinessProbe.length > 0 && value.readinessProbe != TooltipValue) {
+              const label = {
+                name: selectVal,
+                save_type: "yaml",
+                attribute_value: value.readinessProbe || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
           case "volumes":
             if (value.volumes != null && value.volumes.length > 0 && value.volumes != TooltipValue) {
               const label = {
@@ -280,19 +317,19 @@ class Index extends PureComponent {
               this.notificationFun()
             }
             break;
-            
-            case "securityContext":
-              if (value.securityContext != null && value.securityContext.length > 0 && value.securityContext != TooltipValue) {
-                const label = {
-                  name: selectVal,
-                  save_type: "yaml",
-                  attribute_value: value.securityContext || []
-                }
-                this.handelAddOrEdit(label)
-              } else {
-                this.notificationFun()
+
+          case "securityContext":
+            if (value.securityContext != null && value.securityContext.length > 0 && value.securityContext != TooltipValue) {
+              const label = {
+                name: selectVal,
+                save_type: "yaml",
+                attribute_value: value.securityContext || []
               }
-              break;
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
 
           case 'affinity':
             if (value.affinity != null && value.affinity.length > 0) {
@@ -611,13 +648,13 @@ class Index extends PureComponent {
                 {selectVal &&
                   ((selectVal == "nodeSelector") || (selectVal == "labels") || (selectVal == "annotations")) &&
                   <Form.Item {...formItemLayouts}>
-                    <div style={language ? {width:'100%'} : { marginLeft: 38,width:'100%' }}>
+                    <div style={language ? { width: '100%' } : { marginLeft: 38, width: '100%' }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.key' /></p>
                       <div className={styles.nodeSelector_sytle}>
                         {getFieldDecorator(`${selectVal}`, {
                           initialValue: jsonValue || [],
                           rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.Kubernetes.msg' }, { selectVal: selectVal }), }]
-                        })(<DApvcinput setspan={12}/>)}
+                        })(<DApvcinput setspan={12} />)}
                       </div>
                     </div>
                   </Form.Item>
@@ -652,7 +689,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle'|| selectVal == 'envFromSource'|| selectVal == 'securityContext') &&
+                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle' || selectVal == 'envFromSource' || selectVal == 'securityContext' || selectVal== "livenessProbe" || selectVal == 'readinessProbe') &&
                   <>
                     <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
                     <CodeMirrorForm
@@ -694,9 +731,9 @@ class Index extends PureComponent {
                       {getFieldDecorator(`${selectVal}`, {
                         initialValue: strValue || false,
                         rules: [{ required: false }]
-                      })(<Switch 
+                      })(<Switch
                         defaultChecked={strValue || false}
-                        style={{ margin: "20px 0  0 50px" }} 
+                        style={{ margin: "20px 0  0 50px" }}
                       />)}
                     </div>
                   </Form.Item>
@@ -725,7 +762,7 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource' || item.name == 'securityContext') ? (
+                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name=='livenessProbe' || item.name == 'readinessProbe') ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
@@ -744,7 +781,7 @@ class Index extends PureComponent {
                       })
                     }
                       {item.name &&
-                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name =='envFromSource'|| item.name == 'securityContext') &&
+                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name == 'livenessProbe' || item.name == 'readinessProbe') &&
                         item.attribute_value.length > 0 &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />

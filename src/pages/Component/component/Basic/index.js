@@ -44,7 +44,8 @@ class Index extends PureComponent {
       disk,
       dataList,
       buildSource,
-      isThird
+      isThird,
+      method
     } = this.props;
     const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
@@ -144,7 +145,33 @@ class Index extends PureComponent {
                   </ul>
                 </div>
               </div>
-              <div className={styles.buildRightBox}>
+              {method == 'vm' ? (
+                <div className={styles.buildRightBox}>
+                  <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
+                  <span className={` ${styles.en_alcen}  `}>
+                    {globalUtil.fetchSvg('basicInfo')}
+
+                    <span style={{ color: 'rgba(0,0,0,0.65)' }}>
+                      {/* 版本号 */}
+                      虚拟机镜像
+                    </span>
+                  </span>
+                  <span
+                    style={{
+                      color:
+                        beanData && beanData.vm_image
+                          ? '#39aa56'
+                          : 'rgba(0, 0, 0, 0.45)'
+                    }}
+                  >
+                    {beanData && beanData.vm_image
+                      ? beanData.vm_image
+                      : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                  </span>
+                </h2>
+                </div>
+              ):(
+                <div className={styles.buildRightBox}>
                 <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
                   <span className={` ${styles.en_alcen}  `}>
                     {globalUtil.fetchSvg('version')}
@@ -309,6 +336,8 @@ class Index extends PureComponent {
                   </p>
                 </div>
               </div>
+              )}
+              
             </div>
           </div>
         </Col>

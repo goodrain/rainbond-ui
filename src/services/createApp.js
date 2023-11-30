@@ -223,6 +223,39 @@ export async function createAppByDockerrun(body = {}) {
 }
 
 /*
+   虚拟机镜像创建应用
+*/
+export async function createAppByVirtualMachine(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
+    {
+      method: 'post',
+      data: {
+        group_id: body.group_id,
+        service_cname: body.service_cname,
+        k8s_component_name: body.k8s_component_name,
+        image_name: body.image_name,
+        arch: body.arch,
+        vm_url: body.vm_url,
+        event_id: body.event_id,
+      }
+    }
+  );
+}
+
+/*
+   虚拟机获取已有镜像
+*/
+export async function getAppByVirtualMachineImage(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/virtual_machine_image`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/*
    获取应用检测的事件Id
 */
 export function getCreateCheckId(body = {}, handleError) {

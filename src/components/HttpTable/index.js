@@ -160,9 +160,12 @@ export default class HttpTable extends PureComponent {
   handleClose = () => {
     this.setState({ drawerVisible: false, editInfo: '' });
   };
-  handleOk = (values, group_name, routingConfiguration, obj) => {
+  handleOk = (values, group_name, obj) => {
     const { dispatch, groups } = this.props;
     const { editInfo, gateWayInfo } = this.state;
+    if (obj && obj.whether_open) {
+      values.whether_open = true;
+    }
     // 新增网关策略
     if (!editInfo) {
       dispatch({
@@ -170,7 +173,7 @@ export default class HttpTable extends PureComponent {
         payload: {
           values,
           group_name,
-          team_name: globalUtil.getCurrTeamName()
+          team_name: globalUtil.getCurrTeamName(),
         },
         callback: data => {
           if (data && data.bean.is_outer_service === false) {
@@ -213,9 +216,6 @@ export default class HttpTable extends PureComponent {
               values.the_weight = data.bean.the_weight || '';
               values.certificate_id = data.bean.certificate_id || '';
             }
-            if (obj && obj.whether_open) {
-              values.whether_open = true;
-            }
 
             dispatch({
               type: 'gateWay/editHttpStrategy',
@@ -249,6 +249,7 @@ export default class HttpTable extends PureComponent {
     });
   };
   resolveOk = () => {
+    console.log('进来了')
     this.setState(
       {
         whetherOpenForm: false

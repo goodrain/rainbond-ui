@@ -28,13 +28,23 @@ class InstanceList extends PureComponent {
             
   };
   getContainerMem = containers => {
+    const { method } = this.props
     let memRate = 0;
-    containers &&
+    if(method === 'vm'){
+      containers &&
+      containers.map(c => {
+        if (c.container_name === "compute") {
+          memRate = c.usage_rate;
+        }
+      });
+    }else{
+      containers &&
       containers.map(c => {
         if (c.container_name === this.props.k8s_component_name) {
           memRate = c.usage_rate;
         }
       });
+    }
     return memRate;
   };
   getMemorySum = containers => {

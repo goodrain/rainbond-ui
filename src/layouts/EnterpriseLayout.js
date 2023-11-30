@@ -427,6 +427,7 @@ class EnterpriseLayout extends PureComponent {
       )
     }
     const layout = () => {
+      const { isAlarm } = this.props
       const { showMenu } = this.state
       const urlParams = new URL(window.location.href)
       const includesAdd = urlParams.href.includes('/addCluster')
@@ -507,7 +508,8 @@ class EnterpriseLayout extends PureComponent {
                     }}
                   >
                     {/* 报警信息 */}
-                    {alertInfo.length > 0 && alertInfo.map((item) => {
+                    {isAlarm ? (
+                    alertInfo.length > 0 && alertInfo.map((item) => {
                       return (
                         <div className={styles.alerts}>
                           <Alert
@@ -518,7 +520,10 @@ class EnterpriseLayout extends PureComponent {
                           />
                         </div>
                       )
-                    })}
+                    })
+                    ):
+                    null
+                    }
                     <div
                       style={{
                         margin: '24px 24px 0'
@@ -592,6 +597,7 @@ export default connect(({ user, global, index, loading, region }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
-  terminalStatus: region.terminal_status
+  terminalStatus: region.terminal_status,
+  isAlarm: global.isAlarm,
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);
