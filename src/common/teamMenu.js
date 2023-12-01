@@ -77,7 +77,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     const roles = results('teamRole', 'describe');
 
     if (appCreateView && componentCreateView && componentConstructView) {
-      addMenuArr({
+      var item = {
         name: formatMessage({ id: 'menu.team.create' }),
         icon: 'plus',
         path: `team/${teamName}/region/${regionName}/create`,
@@ -101,11 +101,6 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             path: `image`,
             authority: ['admin', 'user']
           },
-          {
-            name: formatMessage({id:'Vm.createVm.titleVm'}),
-            path: `vm`,
-            authority: ['admin', 'user']
-          },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
@@ -118,7 +113,15 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             authority: ['admin', 'user']
           }
         ]
-      });
+      }
+      if (setTeamMenu(showPipeline,'rainbond-vm')) {
+        item.children.push({
+          name: formatMessage({id:'Vm.createVm.titleVm'}),
+          path: `vm`,
+          authority: ['admin', 'user']
+        },);
+      }
+      addMenuArr(item);
     }
     if (setTeamMenu(showPipeline,'pipeline')) {
       addMenuArr({
