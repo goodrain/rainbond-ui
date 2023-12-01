@@ -27,11 +27,13 @@ export default class Index extends PureComponent {
             rainStoreTab: '',
             language: cookie.get('language') === 'zh-CN' ? true : false,
             scope: 'enterprise',
+            vmShow: false,
         };
     }
     componentDidMount(){
         this.getMarketsTab()
         this.getCloudRecommendApps()
+        this.fetchPipePipeline()
     }
     getCloudRecommendApps = v => {
         const {scope} = this.state;
@@ -53,6 +55,29 @@ export default class Index extends PureComponent {
           }
         });
       };
+    // 获取插件列表
+  fetchPipePipeline = (eid) => {
+    const { dispatch, currentEnterprise } = this.props;
+    dispatch({
+      type: 'teamControl/fetchPluginUrl',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.list) {
+          res.list.map(item => {
+            if (item.name == "rainbond-vm") {
+              this.setState({
+                vmShow: true,
+              })
+            }
+          }
+          )
+        }
+      }
+    })
+  }
     getMarketsTab = () => {
         const { dispatch, currentEnterprise } = this.props;
         dispatch({
@@ -91,7 +116,7 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
-        const { rainStoreTab, language, localist } = this.state
+        const { rainStoreTab, language, localist, vmShow } = this.state
         return (
             <Fragment>
                 <div className={styles.overviewBox}>
@@ -134,8 +159,11 @@ export default class Index extends PureComponent {
                             </div>
                         </div>
                         <div className={styles.bottomContent}>
+
                             <p onClick={() => this.onClickLinkCreate('image', 'custom')}>容器</p>
-                            <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>虚拟机</p>
+                            {vmShow && 
+                                <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>虚拟机</p>
+                            }
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

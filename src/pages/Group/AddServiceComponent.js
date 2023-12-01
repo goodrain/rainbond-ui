@@ -80,11 +80,6 @@ export default class AddServiceComponent extends PureComponent {
             if (item.name == "rainbond-vm") {
               this.setState({
                 vmShow: true,
-                vmLoading: false
-              })
-            }else{
-              this.setState({
-                vmLoading: false
               })
             }
           }
@@ -92,16 +87,13 @@ export default class AddServiceComponent extends PureComponent {
         }else{
           this.setState({
             vmShow: false,
-            vmLoading: false
           })
         }
       },
       handleError: (res) => {
         this.setState({
           vmShow: false,
-          vmLoading: false
         })
-
       }
     })
   }
@@ -286,8 +278,7 @@ export default class AddServiceComponent extends PureComponent {
       isDrawer,
       event_id,
       serversList,
-      vmShow,
-      vmLoading
+      vmShow
     } = this.state;
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
@@ -497,13 +488,7 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
-                  {vmLoading ? (
-                    <Col
-                      span={8}
-                      className={styles.ServiceDiv}>
-                      <Spin />
-                    </Col>
-                  ) : (
+                  {
                     vmShow ?
                       <Col
                         span={8}
@@ -519,19 +504,8 @@ export default class AddServiceComponent extends PureComponent {
 
                       </Col>
                       :
-                      <Tooltip title={formatMessage({id:'Vm.createVm.unInstall'})}>
-                        <Col
-                          span={8}
-                          className={styles.ServiceDiv}
-                        >
-                          {docker_svg}
-                          <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
-                          {formatMessage({id:'Vm.createVm.VmImg'})}
-                          </p>
-                        </Col>
-                      </Tooltip>
-                  )}
-
+                      null
+                  }
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
