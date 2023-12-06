@@ -102,13 +102,20 @@ export default class Index extends PureComponent {
         });
       };
     onClickLinkCreate = (type, link) => {
-        const { dispatch } = this.props
+        const { dispatch, currentEnterprise } = this.props
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-
-        dispatch(
-            routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
-        );
+        if(type == 'import'){
+            dispatch(
+                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/shared/${link}` })
+            );
+        }else{
+            dispatch(
+                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
+            );
+        }
+        
+        
     }
 
     render() {
@@ -140,6 +147,7 @@ export default class Index extends PureComponent {
                             <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({id:'teamAdd.create.market.market'})}</p>
                             <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>): (<span>(0)</span>)}</p>
                             <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({id:'teamAdd.create.market.command'})}</p>
+                            <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import'/></p>
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

@@ -27,8 +27,7 @@ export default class AppExporter extends PureComponent {
         (app.versions_info &&
           app.versions_info.length > 0 && [
             app.versions_info[app.versions_info.length - 1].version
-          ]) ||
-        '',
+          ]) || app.version,
       teamName: '',
       page: 1,
       page_size: 1,
@@ -307,81 +306,28 @@ export default class AppExporter extends PureComponent {
       }
     });
   }
+  
   handleExporter = format => {
-    const { app, eid, dispatch } = this.props;
+    const { app, eid, dispatch, team_name, regionName } = this.props;
     const { exportVersion, teamName, region_name } = this.state;
     if (format == 'helm-chart') {
       dispatch({
         type: 'createApp/installApp',
         payload: {
-          team_name: teamName,
+          team_name: team_name ? team_name : teamName,
           app_id: app.app_id,
           app_version: exportVersion[0],
           dry_run: true,
           install_from_cloud: false,
           marketName: 'localApplication',
-          region_name
+          region_name: regionName ? regionName : region_name
         },
         callback: data => {
           if (data && data.bean) {
             dispatch({
               type: 'market/appExport',
               payload: {
-                app_id: app.app_id,
-                enterprise_id: eid,
-                app_versions: exportVersion,
-                format,
-                image_handle: 'image_save'
-              },
-              callback: data => {
-                if (data && data.bean) {
-                  notification.success({ message: formatMessage({ id: 'notification.success.operate_successfully' }) });
-                  this.queryExport();
-                }
-              }
-            });
-          }
-        }
-      });
-    } else {
-      dispatch({
-        type: 'market/appExport',
-        payload: {
-          app_id: app.app_id,
-          enterprise_id: eid,
-          app_versions: exportVersion,
-          format
-        },
-        callback: data => {
-          if (data && data.bean) {
-            notification.success({ message: formatMessage({ id: 'notification.success.operate_successfully' }) });
-            this.queryExport();
-          }
-        }
-      });
-    }
-  };
-  handleExporter = format => {
-    const { app, eid, dispatch } = this.props;
-    const { exportVersion, teamName, region_name } = this.state;
-    if (format == 'helm-chart') {
-      dispatch({
-        type: 'createApp/installApp',
-        payload: {
-          team_name: teamName,
-          app_id: app.app_id,
-          app_version: exportVersion[0],
-          dry_run: true,
-          install_from_cloud: false,
-          marketName: 'localApplication',
-          region_name
-        },
-        callback: data => {
-          if (data && data.bean) {
-            dispatch({
-              type: 'market/appExport',
-              payload: {
-                app_id: app.app_id,
+                app_id: app.app_id ,
                 enterprise_id: eid,
                 app_versions: exportVersion,
                 format,
@@ -419,6 +365,7 @@ export default class AppExporter extends PureComponent {
     const { app, eid, dispatch, setIsExporting } = this.props;
 
     let group_version = this.state.exportVersion;
+
     group_version = group_version.join();
     dispatch({
       type: 'market/queryExport',
@@ -518,7 +465,7 @@ export default class AppExporter extends PureComponent {
   };
 
   render() {
-    const { onOk, onCancel, loading } = this.props;
+    const { onOk, onCancel, loading, team_name } = this.props;
     const { exportVersion, exportVersionList, no_export } = this.state;
     return (
       <Modal
@@ -539,7 +486,7 @@ export default class AppExporter extends PureComponent {
           message={no_export ? formatMessage({ id: 'applicationMarket.offline_installer.error_alert' }) : formatMessage({ id: 'applicationMarket.offline_installer.alert' })}
           type={no_export ? "error" : "success"}
         />
-        {!no_export &&
+        {!no_export && !team_name &&
           <div style={{ marginBottom: '30px' }}>
             {formatMessage({ id: 'applicationMarket.offline_installer.form.label.exoprt_versions' })}
             <Select

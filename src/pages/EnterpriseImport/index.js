@@ -26,14 +26,23 @@ import styles from './index.less';
 
 const { confirm } = Modal;
 
-@connect(({ user, global }) => ({
+@connect(({ user, global, enterprise }) => ({
   user: user.currentUser,
+  currentEnterprise: enterprise.currentEnterprise,
   rainbondInfo: global.rainbondInfo
 }))
+
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const {
+      user,
+      match: {
+        params: {
+          teamName,
+        }
+      },
+    } = this.props;
     const enterpriseAdmin = userUtil.isCompanyAdmin(user);
     this.state = {
       enterpriseAdmin,
@@ -45,7 +54,7 @@ export default class EnterpriseShared extends PureComponent {
       import_file_status: [],
       userTeamList: [],
       scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
-      tenant_name: '',
+      tenant_name: teamName ? teamName : '',
       percents: false,
       region_name: '',
       archOptions: '',
@@ -62,7 +71,7 @@ export default class EnterpriseShared extends PureComponent {
     this.loop = false;
     this.statusloop = false;
   }
-  onChange = (selectedOptions) =>{
+  onChange = (selectedOptions) => {
     this.setState({
       archOptions: selectedOptions.target.value
     })
@@ -71,19 +80,28 @@ export default class EnterpriseShared extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: {
+          eid,
+          teamName,
+          regionName,
+        }
+      },
+      currentEnterprise
     } = this.props;
     dispatch({
       type: 'market/cancelImportApp',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid || currentEnterprise.enterprise_id,
         event_id: this.state.event_id
       },
       callback: data => {
         if (data) {
-          notification.success({ message: formatMessage({id:'notification.success.cancel_successfully'}) });
-          dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
+          notification.success({ message: formatMessage({ id: 'notification.success.cancel_successfully' }) });
+          if (teamName) {
+            dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/market`));
+          } else {
+            dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
+          }
         }
       }
     });
@@ -130,21 +148,25 @@ export default class EnterpriseShared extends PureComponent {
   handleSubmit = () => {
     const {
       match: {
-        params: { eid }
-      }
+        params: { 
+          eid,
+          teamName
+        }
+      },
+      currentEnterprise
     } = this.props;
     const { scopeValue, tenant_name, event_id, file_list } = this.state;
     if (file_list.length === 0) {
       notification.destroy();
       notification.warning({
-        message: formatMessage({id:'notification.warn.choose_one'})
+        message: formatMessage({ id: 'notification.warn.choose_one' })
       });
       return;
     }
     if (tenant_name === '' && scopeValue !== 'enterprise') {
       notification.destroy();
       notification.warning({
-        message: formatMessage({id:'popover.enterpriseOverview.joinTeam.placeholder'})
+        message: formatMessage({ id: 'popover.enterpriseOverview.joinTeam.placeholder' })
       });
       return;
     }
@@ -158,16 +180,16 @@ export default class EnterpriseShared extends PureComponent {
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
-        scope: scopeValue,
+        scope: teamName ? 'team' : scopeValue,
         tenant_name,
-        enterprise_id: eid,
+        enterprise_id: eid || currentEnterprise.enterprise_id,
         event_id,
         file_name: fileStr
       },
       callback: data => {
         if (data) {
           notification.success({
-            message: formatMessage({id:'notification.success.starting_imported'})
+            message: formatMessage({ id: 'notification.success.starting_imported' })
           });
           this.loop = false;
           this.openQueryImportStatus();
@@ -180,19 +202,20 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       match: {
         params: { eid }
-      }
+      },
+      currentEnterprise
     } = this.props;
 
     dispatch({
       type: 'market/queryImportRecord',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid || currentEnterprise.enterprise_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
           if (!res.bean || res.bean.region_name === '') {
             confirm({
-              content: formatMessage({id:'applicationMarket.Offline.not'})
+              content: formatMessage({ id: 'applicationMarket.Offline.not' })
             });
           }
           this.setState(
@@ -216,13 +239,18 @@ export default class EnterpriseShared extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: {
+          eid,
+          teamName,
+          regionName
+        }
+      },
+      currentEnterprise
     } = this.props;
     dispatch({
       type: 'market/queryImportApp',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid || currentEnterprise.enterprise_id,
         event_id: this.state.event_id,
         arch: this.state.archOptions
       },
@@ -236,22 +264,26 @@ export default class EnterpriseShared extends PureComponent {
           }
           if (data.bean && data.bean.status === 'partial_success') {
             notification.success({
-              message: formatMessage({id:'notification.error.failed_import_app'})
+              message: formatMessage({ id: 'notification.error.failed_import_app' })
             });
             return;
           }
           if (data.bean && data.bean.status === 'success') {
             notification.success({
-              message: formatMessage({id:'notification.success.imports_closure'})
+              message: formatMessage({ id: 'notification.success.imports_closure' })
             });
 
-            dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
+            if (teamName) {
+              dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/market`));
+            } else {
+              dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
+            }
 
             return;
           }
           if (data.bean && data.bean.status === 'failed') {
             notification.warning({
-              message: formatMessage({id:'notification.error.failed_import'})
+              message: formatMessage({ id: 'notification.error.failed_import' })
             });
             this.setState({
               import_file_status: []
@@ -265,7 +297,7 @@ export default class EnterpriseShared extends PureComponent {
           }
         }
       },
-      handleError: () => {}
+      handleError: () => { }
     });
   };
 
@@ -274,12 +306,13 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       match: {
         params: { eid }
-      }
+      },
+      currentEnterprise
     } = this.props;
     dispatch({
       type: 'market/queryImportDirApp',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid || currentEnterprise.enterprise_id,
         event_id: this.state.event_id
       },
       callback: data => {
@@ -292,7 +325,7 @@ export default class EnterpriseShared extends PureComponent {
           }, 6000);
         }
       },
-      handleError: () => {}
+      handleError: () => { }
     });
   };
 
@@ -307,12 +340,13 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       match: {
         params: { eid }
-      }
+      },
+      currentEnterprise
     } = this.props;
     dispatch({
       type: 'global/fetchMyTeams',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid || currentEnterprise.enterprise_id,
         page: 1,
         page_size: 999
       },
@@ -366,7 +400,12 @@ export default class EnterpriseShared extends PureComponent {
       archOptions,
       language
     } = this.state;
-
+    const {
+      match: {
+        params: {
+          teamName,
+        }
+      } } = this.props;
     const existFiles =
       existFileList && existFileList.length > 0 && existFileList;
 
@@ -379,18 +418,18 @@ export default class EnterpriseShared extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title={<FormattedMessage id='applicationMarket.Offline.import'/>}
-        content={<FormattedMessage id='applicationMarket.Offline.mode'/>}
+        title={<FormattedMessage id='applicationMarket.Offline.import' />}
+        content={<FormattedMessage id='applicationMarket.Offline.mode' />}
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
-          <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import'/></div>
+          <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import' /></div>
           <Card
             bodyStyle={{ padding: '25px 0 25px 29px' }}
             className={styles.mb10}
           >
             <Row className={styles.box}>
               <Col span={24} className={styles.desc}>
-                <FormattedMessage id='applicationMarket.Offline.use'/><span>“{region_name}”</span><FormattedMessage id='applicationMarket.Offline.import_task'/>
+                <FormattedMessage id='applicationMarket.Offline.use' /><span>“{region_name}”</span><FormattedMessage id='applicationMarket.Offline.import_task' />
               </Col>
             </Row>
           </Card>
@@ -398,7 +437,7 @@ export default class EnterpriseShared extends PureComponent {
           <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
-                <FormattedMessage id='applicationMarket.Offline.upload_app'/>
+                <FormattedMessage id='applicationMarket.Offline.upload_app' />
                 {percents && (
                   <Progress
                     percent={parseInt(percents)}
@@ -420,7 +459,7 @@ export default class EnterpriseShared extends PureComponent {
                   disabled={region_name === ''}
                 >
                   <Icon component={upSvg} />
-                  <div className={styles.upText}><FormattedMessage id='applicationMarket.Offline.upload'/></div>
+                  <div className={styles.upText}><FormattedMessage id='applicationMarket.Offline.upload' /></div>
                 </Upload>
               </Col>
             </Row>
@@ -428,7 +467,7 @@ export default class EnterpriseShared extends PureComponent {
 
           {existFiles && (
             <div>
-              <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.upload_list'/></div>
+              <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.upload_list' /></div>
               <Card className={styles.mb10}>
                 <Checkbox.Group
                   style={{ width: '100%' }}
@@ -471,51 +510,53 @@ export default class EnterpriseShared extends PureComponent {
                   </Row>
                 </Checkbox.Group>
               </Card>
-              <div className={styles.tit}>{formatMessage({id:'applicationMarket.Offline.arch'})}</div>
+              <div className={styles.tit}>{formatMessage({ id: 'applicationMarket.Offline.arch' })}</div>
               <Card className={styles.mb10}>
-                    <Radio.Group onChange={this.onChange} value={archOptions}>
-                      <Radio value={""}>{formatMessage({id:'applicationMarket.Offline.archpkg'})}</Radio>
-                      <Radio value={"arm64"}>arm64</Radio>
-                      <Radio value={"amd64"}>amd64</Radio>
-                    </Radio.Group>
-              </Card>
-
-              <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import_Range'/></div>
-
-              <Card className={styles.mb10}>
-                <Radio.Group
-                  onChange={this.onChangeRadio}
-                  value={this.state.scopeValue}
-                >
-                  <Radio
-                    style={radioStyle}
-                    value="enterprise"
-                    disabled={!enterpriseAdmin}
-                  >
-                    <FormattedMessage id='applicationMarket.Offline.upload_enterprise'/>
-                  </Radio>
-                  <Radio style={radioStyle} value="team">
-                    <FormattedMessage id='applicationMarket.Offline.upload_team'/>
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      size="small"
-                      defaultValue={<FormattedMessage id='applicationMarket.Offline.select'/>}
-                      style={{ width: 150, marginLeft: '15px' }}
-                      onChange={this.handleChangeTeam}
-                    >
-                      {userTeam &&
-                        userTeam.map(item => {
-                          const { team_id, team_alias, team_name } = item;
-                          return (
-                            <Option key={team_id} value={team_name}>
-                              {team_alias}
-                            </Option>
-                          );
-                        })}
-                    </Select>
-                  </Radio>
+                <Radio.Group onChange={this.onChange} value={archOptions}>
+                  <Radio value={""}>{formatMessage({ id: 'applicationMarket.Offline.archpkg' })}</Radio>
+                  <Radio value={"arm64"}>arm64</Radio>
+                  <Radio value={"amd64"}>amd64</Radio>
                 </Radio.Group>
               </Card>
+              {!teamName && <>
+                <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import_Range' /></div>
+
+                <Card className={styles.mb10}>
+                  <Radio.Group
+                    onChange={this.onChangeRadio}
+                    value={this.state.scopeValue}
+                  >
+                    <Radio
+                      style={radioStyle}
+                      value="enterprise"
+                      disabled={!enterpriseAdmin}
+                    >
+                      <FormattedMessage id='applicationMarket.Offline.upload_enterprise' />
+                    </Radio>
+                    <Radio style={radioStyle} value="team">
+                      <FormattedMessage id='applicationMarket.Offline.upload_team' />
+                      <Select
+                        getPopupContainer={triggerNode => triggerNode.parentNode}
+                        size="small"
+                        defaultValue={<FormattedMessage id='applicationMarket.Offline.select' />}
+                        style={{ width: 150, marginLeft: '15px' }}
+                        onChange={this.handleChangeTeam}
+                      >
+                        {userTeam &&
+                          userTeam.map(item => {
+                            const { team_id, team_alias, team_name } = item;
+                            return (
+                              <Option key={team_id} value={team_name}>
+                                {team_alias}
+                              </Option>
+                            );
+                          })}
+                      </Select>
+                    </Radio>
+                  </Radio.Group>
+                </Card>
+              </>}
+
               <Row style={{ marginTop: '25px' }}>
                 <Col span={24} className={styles.btn}>
                   <Button
@@ -523,7 +564,7 @@ export default class EnterpriseShared extends PureComponent {
                       this.cancelImport();
                     }}
                   >
-                    <FormattedMessage id='applicationMarket.Offline.Abort_import'/>
+                    <FormattedMessage id='applicationMarket.Offline.Abort_import' />
                   </Button>
                   {this.state.import_file_status.length === 0 && (
                     <Button
@@ -532,7 +573,7 @@ export default class EnterpriseShared extends PureComponent {
                         this.handleSubmit();
                       }}
                     >
-                      <FormattedMessage id='applicationMarket.Offline.confirm_import'/>
+                      <FormattedMessage id='applicationMarket.Offline.confirm_import' />
                     </Button>
                   )}
                 </Col>

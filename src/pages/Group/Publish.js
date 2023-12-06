@@ -16,6 +16,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import AppExporter from '../EnterpriseShared/AppExporter';
 import {
   createApp,
   createEnterprise,
@@ -46,7 +47,10 @@ export default class AppPublishList extends PureComponent {
       total: 0,
       storeLoading: false,
       selectStoreShow: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showExporterApp: false,
+      is_exporting: false,
+      appData: null
     };
   }
   componentWillMount() {
@@ -222,7 +226,17 @@ export default class AppPublishList extends PureComponent {
       </div>
     );
   };
-
+  setIsExporting = status => {
+    this.setState({ is_exporting: status });
+  };
+  hideAppExport = () => {
+    this.setState({ showExporterApp: false });
+  };
+  showAppExport = (data) => {
+    data.version = Array.of(data.version)
+    data.app_id = data.app_model_id
+    this.setState({ showExporterApp: true, appData:data });
+  };
   render() {
     let breadcrumbList = [];
     const {
@@ -235,13 +249,22 @@ export default class AppPublishList extends PureComponent {
       selectStoreShow,
       recoders,
       storeLoading,
-      language
+      language,
+      showExporterApp,
+      is_exporting,
+      appData
     } = this.state;
     const {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      dispatch
+      dispatch,
+      match: {
+        params:{
+          teamName,
+          regionName
+        }
+      }
     } = this.props;
     breadcrumbList = createApp(
       createTeam(
@@ -418,16 +441,25 @@ export default class AppPublishList extends PureComponent {
                             </a>
                           </div>
                         ) : (
-                          <Popconfirm
-                            title={formatMessage({ id: 'appPublish.table.btn.confirm_delete'})}
-                            onConfirm={() => {
-                              this.deleteRecord(data.record_id);
-                            }}
-                            okText={formatMessage({ id: 'appPublish.table.btn.confirm' })}
-                            cancelText={formatMessage({ id: 'appPublish.table.btn.cancel' })}
-                          >
-                            <a href="#">{formatMessage({ id: 'appPublish.table.btn.delete' })}</a>
-                          </Popconfirm>
+                          <div>
+                            {(data.scope == 'team' || data.scope == 'enterprise') && (
+                              <a onClick={()=>this.showAppExport(data)}>
+                                {formatMessage({id:'applicationMarket.localMarket.export_app'})}
+                                {is_exporting ? `${formatMessage({id:'applicationMarket.localMarket.in_export'})}` : ''}
+                                </a>
+                            )}
+                            <Popconfirm
+                              title={formatMessage({ id: 'appPublish.table.btn.confirm_delete'})}
+                              onConfirm={() => {
+                                this.deleteRecord(data.record_id);
+                              }}
+                              okText={formatMessage({ id: 'appPublish.table.btn.confirm' })}
+                              cancelText={formatMessage({ id: 'appPublish.table.btn.cancel' })}
+                            >
+                              <a href="#">{formatMessage({ id: 'appPublish.table.btn.delete' })}</a>
+                            </Popconfirm>
+                            
+                          </div>
                         )}
                       </div>
                     );
@@ -437,6 +469,17 @@ export default class AppPublishList extends PureComponent {
             />
           </ScrollerX>
         </Card>
+        {showExporterApp && (
+          <AppExporter
+            eid={currentEnterprise.enterprise_id}
+            setIsExporting={this.setIsExporting}
+            app={appData}
+            onOk={this.hideAppExport}
+            onCancel={this.hideAppExport}
+            team_name={teamName}
+            regionName={regionName}
+          />
+        )}
         <SelectStore
           loading={storeLoading}
           dispatch={dispatch}

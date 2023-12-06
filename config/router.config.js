@@ -271,6 +271,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/team/:teamName/region/:regionName/shared/import',
+            component: './EnterpriseImport',
+            name: 'teamSharedImport',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',
