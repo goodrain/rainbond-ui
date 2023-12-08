@@ -223,6 +223,48 @@ export async function createAppByDockerrun(body = {}) {
 }
 
 /*
+   获取本地已有镜像
+*/
+export async function getImageRepositories(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/image_repositories`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/*
+   获取本地已有镜像的tags
+*/
+export async function getImageTags(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/image_tags`,
+    {
+      method: 'get',
+      params: {
+        repository: body.repository
+      }
+    }
+  );
+}
+
+/*
+   检测通过之后选择镜像保存
+*/
+export async function saveTarImageName(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/tar_image`,
+    {
+      method: 'post',
+      data: {
+        image_name: body.image_name
+      }
+    }
+  );
+}
+
+/*
    虚拟机镜像创建应用
 */
 export async function createAppByVirtualMachine(body = {}) {

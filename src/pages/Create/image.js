@@ -75,10 +75,6 @@ export default class Main extends PureComponent {
         tab: formatMessage({id: 'teamAdd.create.image.tabImage'}),
       },
       {
-        key: 'dockerrun',
-        tab: formatMessage({id: 'teamAdd.create.image.DockerRun'}),
-      },
-      {
         key: 'Dockercompose',
         tab: 'Docker Compose',
       },

@@ -24,6 +24,9 @@ import {
   installRamAppCmd,
   getAppByVirtualMachineImage,
   createAppByVirtualMachine,
+  getImageRepositories,
+  getImageTags,
+  saveTarImageName
 } from '../services/createApp';
 
 export default {
@@ -210,6 +213,24 @@ export default {
     *getAppByVirtualMachineImage({ payload, callback, handleError }, { call }) {
       const data = yield call(getAppByVirtualMachineImage, payload, handleError);
       if (data && callback) {
+        callback(data);
+      }
+    },
+    *getImageRepositories({ payload, callback, handleError }, { call }) {
+      const data = yield call(getImageRepositories, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *getImageTags({ payload, callback, handleError }, { call }) {
+      const data = yield call(getImageTags, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *saveTarImageName({ payload, callback, handleError }, { call }) {
+      const data = yield call(saveTarImageName, payload, handleError);
+      if(data && callback) {
         callback(data);
       }
     },
