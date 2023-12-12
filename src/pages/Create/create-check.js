@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
-import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input } from 'antd';
+import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
@@ -26,7 +26,9 @@ import ModifyImageCmd from './modify-image-cmd';
 import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
 import cookie from '../../utils/cookie';
+import styles from './check.less';
 
+const { Option } = Select;
 @connect(
   ({ user, appControl, teamControl }) => ({
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
@@ -65,7 +67,8 @@ export default class CreateCheck extends React.Component {
       source_from: '',
       ports: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      Directory: "dist"
+      Directory: "dist",
+      imageAddress: null,
     };
     this.mount = false;
     this.loadingBuild = false
@@ -92,12 +95,12 @@ export default class CreateCheck extends React.Component {
   }
 
   getParameter = () => {
-    const { ServiceGetData,Directory } = this.state;
+    const { ServiceGetData, Directory } = this.state;
     return {
       appAlias: ServiceGetData || this.props.match.params.appAlias,
       teamName: globalUtil.getCurrTeamName(),
       regionName: globalUtil.getCurrRegionName(),
-      dist: Directory||'dist'
+      dist: Directory || 'dist'
     };
   };
 
@@ -250,13 +253,33 @@ export default class CreateCheck extends React.Component {
   };
   handleConfigFile = () => {
     const { appAlias, dist } = this.getParameter();
+    const { imageAddress } = this.state
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     const { codeLanguage } = this.state;
-    if(codeLanguage == 'NodeJSStatic'){
+    if (codeLanguage == 'NodeJSStatic') {
       window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
+    }
+    if(imageAddress){
+      this.handleSaveTarImageName()
     }
     this.handleJump(`create/create-configFile/${appAlias}`);
   };
+  handleSaveTarImageName = () => {
+    const { dispatch } = this.props
+    const { imageAddress } = this.state
+    const { appAlias, teamName } = this.getParameter();
+    dispatch({
+      type:'createApp/saveTarImageName',
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias,
+        image_name: imageAddress
+      },
+      callback: res => {
+        
+      }
+    })
+  }
   // 进入多模块构建
   handleMoreService = () => {
     const { handleServiceDataState } = this.props;
@@ -274,7 +297,7 @@ export default class CreateCheck extends React.Component {
     const { appAlias, teamName } = this.getParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, packageLange } = this.state;
-    this.setState({ buildAppLoading: true },()=>{
+    this.setState({ buildAppLoading: true }, () => {
       if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') {
         dispatch({
           type: 'createApp/setNodeLanguage',
@@ -319,8 +342,8 @@ export default class CreateCheck extends React.Component {
               })
             }
           }
-        }) 
-      }else{
+        })
+      } else {
         dispatch({
           type: 'createApp/buildApps',
           payload: {
@@ -349,15 +372,15 @@ export default class CreateCheck extends React.Component {
           }
         })
       }
-       
+
     });
-    
+
   };
 
   handlePreventClick = () => {
-    if(!this.loadingBuild){
+    if (!this.loadingBuild) {
       this.handleBuild()
-    }else{
+    } else {
       notification.warning({ message: '正在创建，请勿频繁操作！' });
     }
   }
@@ -641,9 +664,29 @@ export default class CreateCheck extends React.Component {
       />
     );
   };
+  onChangeImageName = (key,item) => {
 
+    // 找到最后一个斜杠的位置
+    const lastSlashIndex = key.lastIndexOf('/');
+    // 截取最后一个斜杠后面的内容
+    if(lastSlashIndex == -1){
+      const imageName = `${item[0].prefix}/${key}`
+      this.setState({
+        imageAddress: imageName
+      })
+    }else{
+      const result = key.substring(lastSlashIndex); 
+      const imageName = `${item[0].prefix}${result}`
+      this.setState({
+        imageAddress: imageName
+      })
+    }
+    
+  } 
   renderSuccessInfo = item => {
-    if (typeof item.value === 'string') {
+    const { imageAddress } = this.state
+    const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
+    if (typeof item.value === 'string' && item.type != 'tar_images' ) {
       return (
         <div>
           <span
@@ -659,35 +702,76 @@ export default class CreateCheck extends React.Component {
         </div>
       );
     }
-    return (
+    return(
       <div>
         <span
           style={{
             verticalAlign: 'top',
             display: 'inline-block',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            marginTop: item.type == 'tar_images' ? '6px' : '0px'
           }}
         >
           {item.key}：
         </span>
-        <div
-          style={{
-            display: 'inline-block'
-          }}
-        >
-          {(item.value || []).map((items, index) => (
-            <p
-              key={`items${index}`}
-              style={{
-                marginBottom: 0
-              }}
+        
+        {item.type == 'tar_images' ? (
+          <div
+            style={{
+              display: 'inline-block',
+            }}
+          >
+            <Select 
+              onChange={e => this.onChangeImageName(e,item.value)}
+              defaultValue={item.value[0].name} 
+              style={{ width: isSever ? '600px' : '260px' }}
             >
-              {items}
-            </p>
-          ))}
-        </div>
+              {!imageAddress && this.onChangeImageName(item.value[0].name, item.value)}
+              {(item.value || []).map(items => (
+                <Option value={items.name}>
+                  <Tooltip title={items.name}>
+                    {items.name}
+                  </Tooltip>
+                </Option>
+              ))}
+            </Select> 
+            <div className={styles.transform_svg}  style={{ width: isSever ? '600px' : '260px' }}>
+              {globalUtil.fetchSvg('transform')}
+              转换成为
+            </div>
+            <div className={styles.local_image_name}>
+              <div className={styles.localTitle}>
+                本地镜像：
+              </div>
+              <div className={styles.tar_image} style={{ width: isSever ? '600px' : '260px' }}>
+                <Tooltip title={imageAddress}>
+                  {imageAddress}
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-block'
+            }}
+          >
+            {(item.value || []).map((items, index) => (
+              <p
+                key={`items${index}`}
+                style={{
+                  marginBottom: 0
+                }}
+              >
+                {items}
+              </p>
+            ))}
+          </div>
+        )}
+
       </div>
     );
+    
   };
 
   renderSuccessOnChange = () => {
@@ -721,9 +805,9 @@ export default class CreateCheck extends React.Component {
     });
 
   };
-  distChange = e =>{
+  distChange = e => {
     this.setState({
-      Directory:e
+      Directory: e
     })
   }
   renderSuccess = (buildAppLoading) => {
@@ -777,32 +861,32 @@ export default class CreateCheck extends React.Component {
               </Radio.Group>
             </div>
             {codeLanguage == 'NodeJSStatic' && (
-              <div style={{ marginBottom: 16,display:"flex",flexDirection:'column' }}>
-                {ports && 
-                <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 16, display: "flex", flexDirection: 'column' }}>
+                {ports &&
+                  <div style={{ marginBottom: 16 }}>
+                    <span
+                      style={{
+                        verticalAlign: 'top',
+                        display: 'inline-block',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
+                    </span>
+                    {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
+                  </div>}
+                <div>
                   <span
                     style={{
                       verticalAlign: 'top',
                       display: 'inline-block',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      marginTop: '6px'
                     }}
                   >
-                    {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
+                    {formatMessage({ id: 'confirmModal.check.appShare.title.dist' })}
                   </span>
-                  {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
-                </div>}
-                <div>
-                <span
-                  style={{
-                    verticalAlign: 'top',
-                    display: 'inline-block',
-                    fontWeight: 'bold',
-                    marginTop: '6px'
-                  }}
-                >
-                  {formatMessage({id:'confirmModal.check.appShare.title.dist'})}
-                </span>
-                  <Input placeholder="Basic usage" defaultValue={Directory} onChange={e => this.distChange(e.target.value)} style={{width:200}}/>
+                  <Input placeholder="Basic usage" defaultValue={Directory} onChange={e => this.distChange(e.target.value)} style={{ width: 200 }} />
                 </div>
               </div>
             )}
@@ -846,13 +930,13 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-            <Button
-              type="primary"
-              style={{ marginRight: '8px' }}
-              onClick={this.handleConfigFile}
-            >
-              {formatMessage({id:'button.next_step'})}
-            </Button>
+          <Button
+            type="primary"
+            style={{ marginRight: '8px' }}
+            onClick={this.handleConfigFile}
+          >
+            {formatMessage({ id: 'button.next_step' })}
+          </Button>
         </div>
       ];
     } else if (appDetail.service_source === 'third_party') {
@@ -878,13 +962,13 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'button.abandon_create' })}
             </Button>
           )}
-            <Button
-              type="primary"
-              style={{ marginRight: '8px' }}
-              onClick={this.handleConfigFile}
-            >
-              {formatMessage({id:'button.next_step'})}
-            </Button>
+          <Button
+            type="primary"
+            style={{ marginRight: '8px' }}
+            onClick={this.handleConfigFile}
+          >
+            {formatMessage({ id: 'button.next_step' })}
+          </Button>
         </div>
       ];
     }
@@ -1171,7 +1255,8 @@ export default class CreateCheck extends React.Component {
       showKey,
       deleteLoading,
       showDelete,
-      buildAppLoading
+      buildAppLoading,
+      imageAddress
     } = this.state;
     const box = (
       <Card bordered={false}>

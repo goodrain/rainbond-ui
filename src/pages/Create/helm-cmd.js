@@ -96,60 +96,69 @@ export default class Index extends PureComponent {
     this.setState({
       BtnLoading: true
     })
-    dispatch({
-      type: "market/HelmwaRehouseAddCom",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_id: value.group_id,
-        command: value.helm_cmd
-      },
-      callback: res => {
-        if (res) {
-          const info = res.bean
-          if (res && res.status_code == 200) {
-            if (info.command == "install") {
-              const obj = {
-                app_store_name: info.repo_name,
-                app_template_name: info.chart_name,
-                version: info.version,
-                overrides: info.overrides,
+    if(value.imagefrom == 'cmd'){
+      dispatch({
+        type: "market/HelmwaRehouseAddCom",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_id: value.group_id,
+          command: value.helm_cmd
+        },
+        callback: res => {
+          if (res) {
+            const info = res.bean
+            if (res && res.status_code == 200) {
+              if (info.command == "install") {
+                const obj = {
+                  app_store_name: info.repo_name,
+                  app_template_name: info.chart_name,
+                  version: info.version,
+                  overrides: info.overrides,
+                }
+                window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
+                this.handleCreateAppStore(info)
+                dispatch(
+                  routerRedux.push(
+                    `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
+                  )
+                );
+              } else {
+                this.addAppStore(info.repo_url, info.repo_name, this.props.currUser.enterprise_id)
+                this.setState({
+                  errorShow: false,
+                  BtnLoading: false,
+                })
               }
-              window.sessionStorage.setItem('appinfo', JSON.stringify(obj))
-              this.handleCreateAppStore(info)
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=cmd`
-                )
-              );
             } else {
-              this.addAppStore(info.repo_url, info.repo_name, this.props.currUser.enterprise_id)
+              notification.error({
+                message: info.msg_show
+              });
               this.setState({
                 errorShow: false,
                 BtnLoading: false,
               })
             }
-          } else {
-            notification.error({
-              message: info.msg_show
-            });
-            this.setState({
-              errorShow: false,
-              BtnLoading: false,
-            })
           }
+        },
+        handleError: err => {
+          this.child.onlyShowStoreMoudle()
+          notification.error({
+            message: err.data.msg_show
+          });
+          this.setState({
+            BtnLoading: false,
+            errorShow: false,
+          })
         }
-      },
-      handleError: err => {
-        this.child.onlyShowStoreMoudle()
-        notification.error({
-          message: err.data.msg_show
-        });
-        this.setState({
-          BtnLoading: false,
-          errorShow: false,
-        })
-      }
-    });
+      });
+    }else{
+      dispatch(
+        routerRedux.push(
+          `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/helminstall?installPath=upload&event_id=${value.event_id}`
+        )
+      );
+    }
+   
   };
   addAppStore = (url, name, eid) => {
     const { dispatch } = this.props;
@@ -180,16 +189,6 @@ export default class Index extends PureComponent {
   };
   handleCreateAppStore = (info) => {
     const { dispatch } = this.props;
-    // dispatch({
-    //   type: 'market/addHelmAppStore',
-    //   payload: {
-    //     enterprise_id: info.eid,
-    //     name: info.repo_name,
-    //     url: info.repo_url,
-    //     username: info.username || '',
-    //     password: info.password || '',
-    //   },
-    // });
     dispatch({
       type: 'market/HelmwaRehouseAdd',
       payload: {
@@ -220,7 +219,7 @@ export default class Index extends PureComponent {
           }}
         >
           <HelmCmdForm
-onRef={this.onRef}
+            onRef={this.onRef}
             data={{ docker_cmd: helm || "" }}
             onSubmit={this.handleSubmit}
             {...this.props}

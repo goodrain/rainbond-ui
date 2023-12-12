@@ -1431,7 +1431,6 @@ export default class EnterpriseShared extends PureComponent {
   };
   // 筛选应用列表类型
   handleChangeType = (key) => {
-    console.log(key,'key')
   }
   render() {
     const {

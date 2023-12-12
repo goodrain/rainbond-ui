@@ -468,18 +468,6 @@ export default class AddServiceComponent extends PureComponent {
                     span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
-                      this.handleServiceComponent(false, 'imageCmd');
-                    }}
-                  >
-                    {docker_svg}
-                    <p className={styles.ServiceSmallTitle} style={{ whiteSpace: 'nowrap' }}>
-                      {formatMessage({ id: 'appOverview.list.btn.addComponent.dockerRun' })}
-                    </p>
-                  </Col>
-                  <Col
-                    span={8}
-                    className={styles.ServiceDiv}
-                    onClick={() => {
                       this.handleServiceComponent(false, 'ImageNameDemo');
                     }}
                   >

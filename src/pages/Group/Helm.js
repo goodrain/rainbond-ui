@@ -119,8 +119,9 @@ export default class Index extends PureComponent {
       upgrade_Info: [],
       helminfoLoding: true,
       infoType: false,
-      overrides: []
+      overrides: [],
     };
+    this.throttle = false;
     this.CodeMirrorRef = '';
   }
 
@@ -142,6 +143,12 @@ export default class Index extends PureComponent {
       }, () => {
         this.getHelmvs(true);
       })
+    }
+    // 从上传helm包安装
+    if (this.props.location.query && this.props.location.query.installPath == 'upload') {
+      if(this.props.location.query.event_id){
+        this.handleGetHelmUploadChartInfo(this.props.location.query.event_id)
+      }
     }
     // 升级重新安装
     if (this.props.location.query && this.props.location.query.type) {
@@ -195,9 +202,38 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
-    this.closeTimer();
+    // this.closeTimer();
     const { dispatch } = this.props;
-    dispatch({ type: 'application/clearGroupDetail' });
+    // dispatch({ type: 'application/clearGroupDetail' });
+  }
+  // 获取helm包安装应用信息
+  handleGetHelmUploadChartInfo = (event_id) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: "createApp/getHelmUploadChartInfo",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        event_id,
+      },
+      callback: res => {
+        if (res) {
+          const info = res.bean;
+          const arr = info.chart_information;
+          this.throttle = false;
+          this.checkHelmChartAppInfo(arr[0],event_id)
+          this.setState({
+            versions: arr,
+            helminfoLoding: false,
+          })
+          
+        }
+      },
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
+        });
+      }
+    });
   }
   // 升级安装重新安装
   getUpdatedModelId = (vals) => {
@@ -382,7 +418,7 @@ export default class Index extends PureComponent {
           const info = res.bean;
           const arr = info.chart_information;
           if (info.repo_exist) {
-            this.fethelmAppIinfo();
+            this.fetchHelmAppInfo();
             this.setState({
               versions: arr,
               helminfoLoding: false
@@ -407,8 +443,44 @@ export default class Index extends PureComponent {
       }
     });
   }
+  // 获取通过helm包上传的检测结果
+  checkHelmChartAppInfo = (appInfo, event_id) => {
+    const { dispatch } = this.props;
+    const { team_name, group_id, region_name } = this.fetchParameter();
+    cookie.set('team_name', team_name)
+    cookie.set('region_name', region_name)
+    dispatch({
+      type: 'createApp/checkHelmChartApp',
+      payload: {
+        name: appInfo.name,
+        version: appInfo.Version,
+        event_id,
+        team_name: team_name,
+      },
+      callback: res => {
+        if (res && res.bean) {
+          if (res.bean.checkAdopt == 'true') {
+            this.setState({
+              status: 1,
+            })
+          } else {
+            this.setState({
+              status: 2,
+              msg: res.bean.yaml
+            })
+          }
+        }
+      },
+      handleError: res => {
+        this.setState({
+          status: 2
+        })
+      }
+    })
+
+  }
   // 获取检测结果
-  fethelmAppIinfo = () => {
+  fetchHelmAppInfo = () => {
     const { currApp } = this.state
     const { dispatch } = this.props;
     cookie.set('team_name', currApp.team_name)
@@ -524,6 +596,47 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 通过helm包上传的方式获取yaml信息
+  fetchHelmChartAppYaml = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    const { team_name, group_id } = this.fetchParameter();
+    const event_id = this.props.location.query && this.props.location.query.event_id
+    dispatch({
+      type: 'createApp/getHelmChartYaml',
+      payload: {
+        event_id,
+        team_name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState(
+            {
+              versionInfo: res.bean,
+              versionInfoLoading: false,
+              formData:
+                (res &&
+                  res.questions &&
+                  res.questions.length > 0 &&
+                  res.questions) ||
+                []
+            },
+            () => {
+              if (res && res.bean.values) {
+                this.handleTemplateFile(Object.keys(res.bean.values).reverse()[0]);
+              }
+            }
+          );
+        }
+      },
+      handleError: res => {
+        this.setState({
+          status: 2
+        })
+      }
+    });
+  }
+  
+
   beforeUpload = (file, isMessage) => {
     const fileArr = file.name.split('.');
     const { length } = fileArr;
@@ -557,6 +670,7 @@ export default class Index extends PureComponent {
   handleSubmit = type => {
     const { form } = this.props;
     const { validateFields, setFields } = form;
+    const { versions } = this.state
     validateFields((err, val) => {
       if (!err) {
         this.setState({
@@ -609,10 +723,13 @@ export default class Index extends PureComponent {
             overrides[setKey] = `${setValue}`;
           }
         });
-
         const info = Object.assign({}, val, { yamls: values, overrides });
         if (type === 'Create') {
           this.handleInstallHelmApp(info);
+        } else if(type === 'upload'){
+          const helmInfo = Object.assign({}, { info: versions[0], overrides });
+          window.sessionStorage.setItem('helmInfo', JSON.stringify(helmInfo))
+          this.jumpToResource()
         } else {
           this.getUpdatedModelId(info);
         }
@@ -721,8 +838,17 @@ export default class Index extends PureComponent {
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}`
       )
     )
-
-
+  }
+  // 跳转到高级资源
+  jumpToResource = () => {
+    const { dispatch } = this.props;
+    const event_id = this.props.location.query && this.props.location.query.event_id
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/ChangeResourceTest?type=helm&group_id=${globalUtil.getAppID()}&event_id=${event_id}`
+      )
+    )
+    
   }
   handleEditHelmApp = values => {
     const { dispatch } = this.props;
@@ -731,20 +857,35 @@ export default class Index extends PureComponent {
   };
   handleOperationBtn = type => {
     const { submitLoading, errPrompt, noVersion, upDataVersion, buttonType } = this.state;
-    return (
-      <div style={{ textAlign: 'center' }} id="messagesEndRef">
-        <Button
-          onClick={() => {
-            this.handleSubmit(type);
-          }}
-          disabled={upDataVersion || errPrompt || noVersion}
-          loading={submitLoading}
-          type="primary"
-        >
-          {buttonType === 0 ? formatMessage({ id: "helmAppInstall.index.reinstall" }) : buttonType === 1 ? formatMessage({ id: "helmAppInstall.index.up" }) : formatMessage({ id: "helmAppInstall.index.install" })}
-        </Button>
-      </div>
-    );
+    const helmUpload = this.props.location.query && this.props.location.query.installPath == 'upload'
+    if (helmUpload){
+      return (
+        <div style={{ textAlign: 'center' }} id="messagesEndRef">
+          <Button
+            onClick={() => {
+              this.handleSubmit('upload');
+            }}
+          >
+            {formatMessage({ id: "helmAppInstall.index.next" })}
+          </Button>
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ textAlign: 'center' }} id="messagesEndRef">
+          <Button
+            onClick={() => {
+              this.handleSubmit(type);
+            }}
+            disabled={upDataVersion || errPrompt || noVersion}
+            loading={submitLoading}
+            type="primary"
+          >
+            {buttonType === 0 ? formatMessage({ id: "helmAppInstall.index.reinstall" }) : buttonType === 1 ? formatMessage({ id: "helmAppInstall.index.up" }) : formatMessage({ id: "helmAppInstall.index.install" })}
+          </Button>
+        </div>
+      );
+    }
   };
   fetchParameter = () => {
     const { currentEnterprise, appID } = this.props;
@@ -767,7 +908,12 @@ export default class Index extends PureComponent {
       this.fetchHelmAppStoresVersions(heightVs);
     } else {
       const { version } = this.state.currApp;
-      this.fetchHelmAppStoresVersions(version);
+      // 判断是否是通过helm包上传，走两种不同的接口
+      if (this.props.location.query.installPath == 'upload'){
+        this.fetchHelmChartAppYaml()
+      } else {
+        this.fetchHelmAppStoresVersions(version);
+      }
     }
   }
   fetchPrefixUrl = () => {
@@ -1174,6 +1320,7 @@ export default class Index extends PureComponent {
       showConfig,
       helminfoLoding
     } = this.state;
+    const installPath = this.props.location.query && this.props.location.query.installPath
     const obj = { ...versions[0] }
     const arr = obj.Keywords
     const pageHeaderContent = (
@@ -1201,7 +1348,11 @@ export default class Index extends PureComponent {
                   />
                 </div>
                 <div className={styles.name_div}>
-                  <p className={styles.name_span}>{currApp.app_template_name || '-'}</p>
+                  {installPath == 'upload' ? (
+                    <p className={styles.name_span}>{obj.name || '-'}</p>
+                  ) : (
+                    <p className={styles.name_span}>{currApp.app_template_name || '-'}</p>
+                  )}
                   <Tooltip
                     placement="top"
                     title={obj.Abstract || ' - '}
@@ -1215,34 +1366,14 @@ export default class Index extends PureComponent {
               <Col span={3}>
                 <div className={styles.lable_style}>
                   <span>{formatMessage({ id: 'appOverview.versions' })}</span>
-                  <span>{currApp.version || '-'}</span>
+                  {/* upload 代表helm包上传安装 */}
+                  {installPath == 'upload' ? (
+                    <span>{obj.Version || '-'}</span>
+                  ) : (
+                    <span>{currApp.version || '-'}</span>
+                  )}
                 </div>
               </Col>
-              {/* <Col span={3}>
-              <div className={styles.lable_style}>
-                <span>维护者</span>
-                <span>
-                  {currApp.principal ? (
-                    <Tooltip
-                      placement="top"
-                      title={
-                        <div>
-                          <div>{formatMessage({ id: 'appOverview.principal.username' })}{currApp.username}</div>
-                          <div>{formatMessage({ id: 'appOverview.principal.principal' })}{currApp.principal}</div>
-                          <div>{formatMessage({ id: 'appOverview.principal.email' })}{currApp.email}</div>
-                        </div>
-                      }
-                    >
-                      <span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
-                        {currApp.principal}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    '-'
-                  )}
-                </span>
-              </div>
-            </Col> */}
               <Col span={6}>
                 <div className={styles.lable_style}>
                   <span>{formatMessage({ id: "helmAppInstall.index.key" })}</span>

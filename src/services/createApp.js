@@ -223,6 +223,48 @@ export async function createAppByDockerrun(body = {}) {
 }
 
 /*
+   获取本地已有镜像
+*/
+export async function getImageRepositories(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/image_repositories`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/*
+   获取本地已有镜像的tags
+*/
+export async function getImageTags(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/image_tags`,
+    {
+      method: 'get',
+      params: {
+        repository: body.repository
+      }
+    }
+  );
+}
+
+/*
+   检测通过之后选择镜像保存
+*/
+export async function saveTarImageName(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/tar_image`,
+    {
+      method: 'post',
+      data: {
+        image_name: body.image_name
+      }
+    }
+  );
+}
+
+/*
    虚拟机镜像创建应用
 */
 export async function createAppByVirtualMachine(body = {}) {
@@ -490,6 +532,21 @@ export async function installHelmApp(body = {}) {
 }
 
 /*
+   通过上传.tgz包，点击安装获取helm应用信息
+*/
+export async function getHelmUploadChartInfo(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/get_upload_chart_information`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id
+      }
+    }
+  );
+}
+
+/*
    根据compose_id获取应用
 */
 export async function getAppsByComposeId(body = {}) {
@@ -512,7 +569,7 @@ export async function getComposeByComposeId(body = {}) {
     }
   );
 }
-// 安装helm应用
+// 检测helm应用进度
 export async function helmAppInstall(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_app`,
@@ -572,4 +629,48 @@ export async function installRamAppCmd(body = {}, handleError) {
       handleError
     }
   );
+}
+
+// 通过helm包上传的应用检测helm包
+export async function checkHelmChartApp(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/check_upload_chart`,
+    {
+      method: 'post',
+      data: {
+        event_id: body.event_id,
+        name: body.name,
+        version: body.version,
+      },
+      handleError
+    }
+  );
+}
+
+// 通过helm包上传获取yaml
+export async function getHelmChartYaml(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/get_upload_chart_value`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id
+      }
+    }
+  )
+}
+
+// 通过helm包上传部署组件
+export async function installHelmUploadApp(body = {}, handleError) {
+  console.log(body,'body')
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/import_upload_chart_resource`,
+    {
+      method: 'post',
+      data: {
+        resource: body.resource,
+        app_id: body.group_id
+      }
+    }
+  )
 }

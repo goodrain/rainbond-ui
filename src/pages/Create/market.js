@@ -166,7 +166,6 @@ export default class Main extends PureComponent {
     });
   }
   onCancelCreate = () => {
-    console.log("onCancelCreate")
     this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
   };
   getCloudRecommendApps = v => {

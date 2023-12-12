@@ -16,7 +16,27 @@ export default class Index extends PureComponent {
       showUsernameAndPass: false,
       showKey: false,
       addGroup: false,
+      localImageList: []
     };
+  }
+  componentDidMount(){
+    this.handleGetImageRepositories()
+  }
+  handleGetImageRepositories = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'createApp/getImageRepositories',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            localImageList: data.list
+          });
+        }
+      }
+    })
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -63,19 +83,25 @@ export default class Index extends PureComponent {
         ...value,
       },
       callback: (data) => {
-        const appAlias = data&&data.bean.service_alias;
-        this.props.handleType&&this.props.handleType==="Service"?this.props.handleServiceGetData(appAlias):
+        const appAlias = data && data.bean.service_alias;
+        this.props.handleType && this.props.handleType === "Service" ? this.props.handleServiceGetData(appAlias):
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
       },
     });
   };
   render() {
-          const image = decodeURIComponent(this.props.handleType&&this.props.handleType==="Service"?"":(this.props.match.params.image || ""));
+          const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.image || ""));
+          const { localImageList } = this.state
     return (
       <Card>
         <TopUpHints />
         <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"600px"}}>
-          <ImageNameForm data={{ docker_cmd: image || "" }} onSubmit={this.handleSubmit} {...this.props}/>
+          <ImageNameForm 
+            localList={localImageList} 
+            data={{ docker_cmd: image || "" }} 
+            onSubmit={this.handleSubmit} 
+            {...this.props}
+          />
         </div>
       </Card>
     );
