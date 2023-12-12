@@ -60,6 +60,10 @@ export default {
     '/api-gateway': {
       target: 'http://8.130.173.238:7070',
       changeOrigin: true
+    },
+    '/console/open': {
+      target: 'http://8.130.173.238:7070',
+      changeOrigin: true
     }
   }
 };

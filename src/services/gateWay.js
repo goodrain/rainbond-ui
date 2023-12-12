@@ -689,3 +689,19 @@ export async function deleteApiGatewayService(params, handleError) {
 /** 编辑Api-Gateway证书 */
 
 /** 删除Api-Gateway证书 */
+// 获取请求速率
+export async function getQpsRate(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/open/monitor/query`,
+    {
+      method: 'get',
+      params: {
+        query: params.query,
+        start: params.start,
+        end: params.end,
+        step: params.step,
+        region_name: params.regionName
+      }
+    }
+  )
+}

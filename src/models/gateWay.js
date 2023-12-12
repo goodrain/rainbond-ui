@@ -41,6 +41,7 @@ import {
     addApiGatewayService,
     editApiGatewayService,
     deleteApiGatewayService,
+    getQpsRate,
 } from '../services/gateWay';
 
 export default {
@@ -344,6 +345,12 @@ export default {
         },
         *deleteApiGatewayService({ callback, payload, handleError }, { call }) {
             const response = yield call(deleteApiGatewayService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getQpsRate({ callback, payload, handleError }, { call }) {
+            const response = yield call(getQpsRate, payload, handleError);
             if (callback) {
                 callback(response)
             }

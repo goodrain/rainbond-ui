@@ -9,6 +9,7 @@ import GatewayApi from '../../components/GatewayApi'
 // import TcpTable from '../../components/TcpTable';
 import GatewayCertificate from './GatewayCertificate';
 import GatewayRoute from './GatewayRoute';
+import GatewayMonitor from './GatewayMonitor';
 import GatewayService from './GatewayService';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import roleUtil from '../../utils/role';
@@ -26,7 +27,7 @@ class Control extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tabKey:'route',
+            tabKey:'monitor',
             open:
                 this.props.match &&
                     this.props.match.params &&
@@ -147,6 +148,10 @@ class Control extends Component {
                 return (
                     <GatewayService operationPermissions={operationPermissions} open={open} />
                 );
+            } else if (tabKey === 'monitor') {
+                return (
+                    <GatewayMonitor />
+                );
             }
 
         };
@@ -180,7 +185,10 @@ class Control extends Component {
                                 tab: formatMessage({ id: 'teamGateway.control.table.GatewayApi' }),
                             },
                         ] :
-                            [
+                            [  {
+                                    key: 'monitor',
+                                    tab: '网关监测',
+                                },
                                 {
                                     key: 'route',
                                     tab: '路由管理',
