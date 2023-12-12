@@ -33,7 +33,8 @@ import {
   fetchToken,
   fetchPluginUrl,
   fetchServiceID,
-  fetchAppNames
+  fetchAppNames,
+  getHelmAdvancedInfo
 } from '../services/team';
 
 export default {
@@ -308,6 +309,12 @@ export default {
             callback(response);
           }
         }
+    },
+    *getHelmAdvancedInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(getHelmAdvancedInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
     },
   },
   

@@ -26,7 +26,11 @@ import {
   createAppByVirtualMachine,
   getImageRepositories,
   getImageTags,
-  saveTarImageName
+  saveTarImageName,
+  getHelmUploadChartInfo,
+  checkHelmChartApp,
+  getHelmChartYaml,
+  installHelmUploadApp
 } from '../services/createApp';
 
 export default {
@@ -230,6 +234,30 @@ export default {
     },
     *saveTarImageName({ payload, callback, handleError }, { call }) {
       const data = yield call(saveTarImageName, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *getHelmUploadChartInfo({ payload, callback, handleError }, { call }) {
+      const data = yield call(getHelmUploadChartInfo, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *checkHelmChartApp({ payload, callback, handleError }, { call }) {
+      const data = yield call(checkHelmChartApp, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *getHelmChartYaml({ payload, callback, handleError }, { call }) {
+      const data = yield call(getHelmChartYaml, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *installHelmUploadApp({ payload, callback, handleError }, { call }) {
+      const data = yield call(installHelmUploadApp, payload, handleError);
       if(data && callback) {
         callback(data);
       }

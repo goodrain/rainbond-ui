@@ -685,6 +685,7 @@ export default class CreateCheck extends React.Component {
   } 
   renderSuccessInfo = item => {
     const { imageAddress } = this.state
+    const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
     if (typeof item.value === 'string' && item.type != 'tar_images' ) {
       return (
         <div>
@@ -702,9 +703,7 @@ export default class CreateCheck extends React.Component {
       );
     }
     return(
-      <div
-
-      >
+      <div>
         <span
           style={{
             verticalAlign: 'top',
@@ -715,6 +714,7 @@ export default class CreateCheck extends React.Component {
         >
           {item.key}：
         </span>
+        
         {item.type == 'tar_images' ? (
           <div
             style={{
@@ -724,20 +724,30 @@ export default class CreateCheck extends React.Component {
             <Select 
               onChange={e => this.onChangeImageName(e,item.value)}
               defaultValue={item.value[0].name} 
-              style={{ width: '600px' }}
+              style={{ width: isSever ? '600px' : '260px' }}
             >
               {!imageAddress && this.onChangeImageName(item.value[0].name, item.value)}
               {(item.value || []).map(items => (
-                <Option value={items.name}>{items.name}</Option>
+                <Option value={items.name}>
+                  <Tooltip title={items.name}>
+                    {items.name}
+                  </Tooltip>
+                </Option>
               ))}
             </Select> 
-            <div className={styles.transform_svg}>
+            <div className={styles.transform_svg}  style={{ width: isSever ? '600px' : '260px' }}>
               {globalUtil.fetchSvg('transform')}
-              转换
+              转换成为
             </div>
-            <div className={styles.tar_image}>
-            {imageAddress}
-
+            <div className={styles.local_image_name}>
+              <div className={styles.localTitle}>
+                本地镜像：
+              </div>
+              <div className={styles.tar_image} style={{ width: isSever ? '600px' : '260px' }}>
+                <Tooltip title={imageAddress}>
+                  {imageAddress}
+                </Tooltip>
+              </div>
             </div>
           </div>
         ) : (

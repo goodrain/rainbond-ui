@@ -191,6 +191,7 @@
         'button.more':'View',
         'button.fold':'Fold',
         'button.config':'Config',
+        'button.change':'Change',
     }
     const status = {
         'status.component.running':'Running',

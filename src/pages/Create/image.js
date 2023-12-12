@@ -64,7 +64,6 @@ export default class Main extends PureComponent {
   render() {
     const map = {
       custom: ImageName,
-      dockerrun: ImageCmd,
       Dockercompose: ImageCompose,
       ImageNameDemo: ImageNameDemo,
     };

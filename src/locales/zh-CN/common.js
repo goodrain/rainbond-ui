@@ -189,6 +189,7 @@
         'button.more':'查看更多',
         'button.fold':'折叠',
         'button.config':'去配置',
+        'button.change':'更改',
     }
     const status = {
         'status.component.running':'运行中',

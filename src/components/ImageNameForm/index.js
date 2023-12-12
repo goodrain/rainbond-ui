@@ -53,6 +53,7 @@ export default class Index extends PureComponent {
       localValue: null,
       localImageTags: [],
       event_id: '',
+      record: {}
     };
   }
   componentWillMount() {
@@ -90,10 +91,10 @@ export default class Index extends PureComponent {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
-        if(fieldsValue.docker_image && fieldsValue.image_tag){
+        if (fieldsValue.docker_image && fieldsValue.image_tag) {
           fieldsValue.docker_cmd = `${fieldsValue.docker_image}:${fieldsValue.image_tag}`
         }
-        if(fieldsValue.imagefrom == 'upload'){
+        if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
 
@@ -293,7 +294,7 @@ export default class Index extends PureComponent {
   handleChangeLocalValue = (value) => {
     this.setState({
       localValue: value
-    },() => {
+    }, () => {
       this.handleGetImageTags(value)
     })
   }
@@ -330,7 +331,7 @@ export default class Index extends PureComponent {
     } = this.props;
 
     const { language, fileList, radioKey, existFileList, localValue, localImageTags } = this.state;
-    
+
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -415,10 +416,18 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Radio.Group onChange={this.handleChangeImageSource}>
-                <Radio value='address'>地址</Radio>
-                <Radio value='cmd'>命令</Radio>
-                <Radio value='local'>本地</Radio>
-                <Radio value='upload'>上传</Radio>
+                <Radio value='address'>
+                  {formatMessage({ id: 'teamAdd.create.image.address'})}
+                </Radio>
+                <Radio value='cmd'>
+                  {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
+                </Radio>
+                <Radio value='local'>
+                  {formatMessage({ id: 'teamAdd.create.image.local'})}
+                </Radio>
+                <Radio value='upload'>
+                  {formatMessage({ id: 'teamAdd.create.image.upload'})}
+                </Radio>
               </Radio.Group>
             )}
           </Form.Item>
@@ -446,29 +455,37 @@ export default class Index extends PureComponent {
             </Form.Item>
           }
           {radioKey === 'local' &&
-            <Form.Item {...is_language} label='选择镜像'>
-              <Form.Item style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.change_image'})}>
+              <Form.Item style={{ display: 'inline-block', width: 'calc(70% - 8px)' }}>
                 {getFieldDecorator('docker_image', {
                   initialValue: '',
                   rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
                 })(
                   <Select onChange={this.handleChangeLocalValue}>
                     {(localList || []).map(item => (
-                      <Option value={item}>{item}</Option>
+                      <Option value={item}>
+                        <Tooltip title={item}>
+                          {item}
+                        </Tooltip>
+                      </Option>
                     ))}
                   </Select>
                 )}
               </Form.Item>
-              <div style={{ display: 'inline-block', width: '16px', textAlign: 'center'}}>:</div>
-              
-              <Form.Item style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}>
+              <div style={{ display: 'inline-block', width: '16px', textAlign: 'center' }}>:</div>
+
+              <Form.Item style={{ display: 'inline-block', width: 'calc(30% - 8px)' }}>
                 {getFieldDecorator('image_tag', {
                   initialValue: '',
                   rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
                 })(
                   <Select disabled={!localValue}>
                     {(localImageTags || []).map(item => (
-                      <Option value={item}>{item}</Option>
+                      <Option value={item}>
+                        <Tooltip title={item}>
+                          {item}
+                        </Tooltip>
+                      </Option>
                     ))}
                   </Select>
                 )}
@@ -480,7 +497,7 @@ export default class Index extends PureComponent {
               <Form.Item
                 {...is_language}
                 label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
-                extra={'支持上传.tar格式的镜像包'}
+                extra={formatMessage({ id: 'teamAdd.create.image.extra_image'})}
               >
                 {getFieldDecorator('packageTarFile', {
                   rules: [

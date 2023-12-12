@@ -801,3 +801,19 @@ export async function fetchAppNames (params, handleError) {
     }
   );
 }
+
+// 获取从helm上传包来创建应用，识别高级资源信息
+export async function getHelmAdvancedInfo(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/get_upload_chart_resource`,
+    {
+      method: 'get',
+      params: {
+        event_id: body.event_id,
+        name: body.name,
+        version: body.version,
+        overrides: body.overrides,
+      }
+    }
+  )
+}
