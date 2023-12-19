@@ -70,7 +70,7 @@ class Index extends PureComponent {
           {...formItemLayout}
           label="GOPRIVATE"
         >
-          {getFieldDecorator('BUILD_GOPRIVATEY', {
+          {getFieldDecorator('BUILD_GOPRIVATE', {
             initialValue: (envs && envs.BUILD_GOPRIVATE) || '',
           })(<Input />)}
         </Form.Item>

@@ -532,6 +532,7 @@ export default class Index extends React.Component {
                 }
               ]}
               dataSource={volumes}
+              rowKey={record => record.volume_name}
             />
           </ScrollerX>
         </Card>
