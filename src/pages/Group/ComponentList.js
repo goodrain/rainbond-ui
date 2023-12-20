@@ -648,6 +648,7 @@ export default class ComponentList extends Component {
             }
             dataSource={apps || []}
             footer={() => footer}
+            rowKey={record => record.service_cname}
           />
           {batchDeleteShow && (
             <BatchDelete
