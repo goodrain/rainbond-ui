@@ -1197,6 +1197,10 @@ export default class Main extends PureComponent {
                           triggerNode.parentNode
                         }
                         style={{ width: '60%' }}
+                        showSearch
+                        filterOption={(input, option) => 
+                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
                         onChange={this.changeCurrentModel}
                         placeholder={formatMessage({ id: 'placeholder.appShare.selectAppTemplate' })}
                       >
