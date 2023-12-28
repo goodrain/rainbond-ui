@@ -60,7 +60,7 @@ export default class Index extends PureComponent {
     if(name != undefined){
       const { appNames } = this.props;
       const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      const cleanedPinyinName = pinyinName.toLowerCase();
       if (appNames && appNames.length > 0) {
         const isExist = appNames.some(item => item === cleanedPinyinName);
         if (isExist) {

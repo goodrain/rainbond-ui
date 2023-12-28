@@ -293,7 +293,7 @@ export default class Index extends PureComponent {
     if(name != undefined){
       const { comNames } = this.state;
       const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      const cleanedPinyinName = pinyinName.toLowerCase();
       if (comNames && comNames.length > 0) {
         const isExist = comNames.some(item => item === cleanedPinyinName);
         if (isExist) {
