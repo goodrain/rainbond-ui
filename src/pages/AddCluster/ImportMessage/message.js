@@ -141,7 +141,15 @@ export default class ImportMessage extends PureComponent {
                 }}>
                 <Row type="flex" style={{ alignItems: 'center', padding: '24px 0px' }}>
                     <div style={{ width: '120px', textAlign: 'right' }}><h3 style={{ marginBottom: '0em' }}>NameSpace：</h3></div>
-                    <Select placeholder={nameSpaceArr[0]} style={{ width: 200 }} onChange={this.handleChange}>
+                    <Select 
+                        showSearch
+                        filterOption={(input, option) => 
+                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        } 
+                        placeholder={nameSpaceArr[0]} 
+                        style={{ width: 200 }} 
+                        onChange={this.handleChange}
+                    >
                         {nameSpaceArr.length > 0 && nameSpaceArr.map(item => {
                             return (
                                 <Option value={item}>{item}</Option>

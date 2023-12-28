@@ -358,6 +358,10 @@ export default class Index extends PureComponent {
               ]
             })(
               <Select
+                showSearch
+                filterOption={(input, option) => 
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
                 style={language ? {

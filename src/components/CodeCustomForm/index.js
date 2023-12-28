@@ -329,6 +329,10 @@ export default class Index extends PureComponent {
                   width: isService ? '' : 310,
                   marginRight: 15
                 }}
+                showSearch
+                filterOption={(input, option) => 
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
                 disabled={!!isService}
                 onChange={this.fetchComponentNames}
               >
