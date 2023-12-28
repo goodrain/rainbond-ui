@@ -114,7 +114,7 @@
         'popover.enterpriseOverview.setUpTeam.placeholder.name':'请输入团队名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.englishName':'团队的英文名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.colony':'选择集群',
-        'popover.enterpriseOverview.setUpTeam.placeholder.max':'最大长度10位',
+        'popover.enterpriseOverview.setUpTeam.placeholder.max':'最大长度24位',
         // conformDesc
         'popover.enterpriseOverview.setUpTeam.conformDesc.name':'请输入创建的团队名称，最大长度10位',
         'popover.enterpriseOverview.setUpTeam.conformDesc.englishName':'对应该团队在集群使用的命名空间',

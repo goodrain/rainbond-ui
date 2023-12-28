@@ -232,7 +232,7 @@ class CreateTeam extends PureComponent {
                   message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' })
                 },
                 {
-                  max: 10,
+                  max: 24,
                   message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' })
                 }
               ]
