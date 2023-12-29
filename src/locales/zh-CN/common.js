@@ -854,6 +854,7 @@
         'placeholder.certificate.private':'请输入私钥', 
         'placeholder.userName.search':'请输入用户名称进行搜索',
         'placeholder.limit_memory':'内存限制必填',
+        'placeholder.rewrites':'需填写完整Rewrites配置',
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',

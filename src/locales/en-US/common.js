@@ -844,6 +844,7 @@
         'placeholder.certificate.private':'Please enter your private key',
         'placeholder.userName.search':'Please enter a user name to search',
         'placeholder.limit_memory':'Memory limit value required',
+        'placeholder.rewrites':'Complete Rewrites configuration',
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',
