@@ -112,7 +112,11 @@ import {
   fetchInitCluster,
   fetchAlarmSwitch,
   updateAlarmSwitch,
-  fetchTeamNames
+  fetchTeamNames,
+  fetchLanguageVersion,
+  editLanguageDefault,
+  uploadLanguageFile,
+  deleteLanguageFile
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -959,6 +963,30 @@ export default {
     },
     *fetchTeamNames({ payload, callback, handleError }, { put, call }) {
       const response = yield call(fetchTeamNames, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchLanguageVersion({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchLanguageVersion, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editLanguageDefault({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(editLanguageDefault, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *uploadLanguageFile({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(uploadLanguageFile, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteLanguageFile({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(deleteLanguageFile, payload, handleError);
       if (callback) {
         callback(response);
       }

@@ -1,0 +1,396 @@
+import React, { Component } from 'react'
+import { connect } from 'dva';
+import {
+    Row,
+    Col,
+    Button,
+    Card,
+    Table,
+    Skeleton,
+    Modal,
+    Upload,
+    Form,
+    Input,
+    Icon,
+    Tabs,
+    Popconfirm,
+    notification
+} from 'antd';
+import globalUtil from '../../utils/global'
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import styles from './index.less'
+@connect(({ region }) => ({
+    cluster_info: region.cluster_info,
+}))
+@Form.create()
+
+export default class upload extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            languageArr: [
+                { key: 'openJDK', value: 'OpenJDK' },
+                { key: 'golang', value: 'Golang' },
+                { key: 'node', value: 'Node' },
+                { key: 'web', value: 'Web 服务器' },
+                { key: 'maven', value: 'Maven' },
+                { key: 'python', value: 'Python' },
+                { key: 'net', value: '.Net' },
+                { key: 'php', value: 'PHP' },
+                { key: 'nginx', value: 'Nginx' },
+            ],
+            activeKey: "openJDK",
+            tableLoading: false,
+            modalVisible: false,
+            clusterUrl: '',
+            tableList: [],
+            fileList: [],
+            fileInfo: {},
+        };
+    }
+    componentDidMount() {
+        this.loadPutCluster(this.props.cluster_info[0].region_id)
+    }
+    handleOk = (e) => {
+        e.preventDefault();
+        const { form, dispatch } = this.props;
+        const { fileInfo, clusterUrl } = this.state
+        form.validateFields((err, values) => {
+            if (!err) {
+                if (Object.keys(fileInfo).length)
+                    values.event_id = fileInfo.event_id
+                values.file_name = fileInfo.file_name
+                dispatch({
+                    type: 'global/uploadLanguageFile',
+                    payload: {
+                        baseUrl: clusterUrl,
+                        lang: values.lang,
+                        version: values.version,
+                        event_id: fileInfo.event_id,
+                        file_name: values.file_name
+                    },
+                    callback: res => {
+                        if (res && res.status_code === 200) {
+                            this.setState({
+                                modalVisible: false
+                            }, () => {
+                                this.fetchPakeVs()
+                            })
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+    handleCancel = () => {
+        this.setState({
+            modalVisible: false
+        })
+    }
+    tabsChange = (key) => {
+        this.setState({
+            activeKey: 'golang'
+        }, () => {
+            this.loadPutCluster(key)
+        })
+    }
+    loadPutCluster = regionID => {
+        const {
+            dispatch,
+        } = this.props;
+        dispatch({
+            type: 'region/fetchEnterpriseCluster',
+            payload: {
+                enterprise_id: globalUtil.getCurrEnterpriseId(),
+                region_id: regionID
+            },
+            callback: res => {
+                if (res && res.status_code === 200) {
+                    const wsAddress = res.bean.wsurl
+                    const httpAddress = wsAddress.replace(/^ws:/, 'http:');
+                    this.setState({
+                        clusterUrl: httpAddress
+                    }, () => {
+                        this.fetchPakeVs()
+                    })
+                }
+            }
+        });
+    };
+    //获取对应语言的包版本
+    fetchPakeVs = () => {
+        this.setState({
+            tableLoading: true
+        })
+        const { activeKey, clusterUrl } = this.state
+        const { dispatch } = this.props
+        dispatch({
+            type: 'global/fetchLanguageVersion',
+            payload: {
+                baseUrl: clusterUrl,
+                language: activeKey
+            },
+            callback: res => {
+                if (res)
+                    this.setState({
+                        tableList: res.response_data.list,
+                        tableLoading: false
+                    })
+            },
+            handleError: err => {
+                this.setState({
+                    tableList: [],
+                    tableLoading: false
+                })
+            }
+        });
+    }
+    setDefault = (vs) => {
+        const { activeKey, clusterUrl } = this.state
+        const { dispatch } = this.props
+        dispatch({
+            type: 'global/editLanguageDefault',
+            payload: {
+                baseUrl: clusterUrl,
+                lang: activeKey,
+                version: vs
+            },
+            callback: res => {
+                notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
+                this.fetchPakeVs()
+            },
+            handleError: err => {
+                this.setState({
+                    tableList: [],
+                    tableLoading: false
+                })
+            }
+        });
+    }
+    confirm = (row) => {
+        const { dispatch } = this.props;
+        const { clusterUrl } = this.state
+        dispatch({
+            type: 'global/deleteLanguageFile',
+            payload: {
+                baseUrl: clusterUrl,
+                lang: row.lang,
+                version: row.version,
+            },
+            callback: res => {
+                if (res && res.status_code === 200) {
+                    this.fetchPakeVs()
+                    notification.success({ message: '删除成功' });
+
+                }
+            }
+        });
+    }
+    onChangeUpload = info => {
+        let { fileList } = info;
+        fileList = fileList.filter(file => {
+            if (file.response) {
+                notification.success({ message: '上传成功' });
+                console.log(file.response, "file.response");
+                this.setState({
+                    fileInfo: file.response.bean
+                })
+                return file.response.msg === 'success';
+            }
+            return true;
+        });
+        if (info && info.event && info.event.percent) {
+            this.setState({
+                percents: info.event.percent
+            });
+        }
+
+        const { status } = info.file;
+        if (status === 'done') {
+            this.setState({
+                percents: false
+            });
+        }
+        this.setState({ fileList });
+    };
+
+    render() {
+        const { form } = this.props;
+        const { languageArr, activeKey, tableLoading, modalVisible, tableList, fileList, fileInfo } = this.state;
+        const { getFieldDecorator } = form
+        const columns = [
+            {
+                title: '版本',
+                dataIndex: 'version',
+                key: 'version',
+                align: 'center',
+                with: '30%'
+            },
+            {
+                title: '文件名',
+                dataIndex: 'file_name',
+                key: 'file_name',
+                align: 'center',
+                with: '30%',
+                render: i => (
+                    <span> {i || '-'}</span>
+                )
+            },
+            {
+                title: '操作',
+                dataIndex: 'handle',
+                key: 'handle',
+                align: 'center',
+                with: '40%',
+                render: (item, row) => (
+                    <>
+                        <Button type="link" disabled={row.first_choice} onClick={() => this.setDefault(row.version)}>设为默认</Button>
+                        <Popconfirm
+                            title="你确定删除该版本吗？"
+                            icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+                            onConfirm={() => this.confirm(row)}
+                            okText="确定"
+                            cancelText="取消"
+                        >
+                            {!row.system && <Button type="link">删除</Button>}
+                        </Popconfirm>
+
+                    </>
+                )
+            },
+        ];
+        const formItemLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 6 }
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 16 }
+            }
+        };
+        const { cluster_info } = this.props;
+        return (
+            <>
+                {cluster_info && cluster_info.length > 0 ? (
+                    <Tabs onChange={this.tabsChange} className={styles.UploadtabsStyle}>
+                        {cluster_info.map(item => {
+                            return <Tabs.TabPane tab={item.region_alias} key={item.region_id}>
+                            </Tabs.TabPane>
+                        })}
+                    </Tabs>
+                ) : (
+                    <div>请先选择集群</div>
+                )}
+                <Row type="flex">
+                    <Col span={3} >
+                        <div className={styles.leftBox}>
+                            {languageArr.map(item => {
+                                const { key, value } = item
+                                return <div
+                                    className={styles.languageBox}
+                                    style={{ background: activeKey == key ? '#e6f7ff' : 'transparent' }}
+                                    onClick={() => {
+                                        this.setState({
+                                            activeKey: key,
+                                        }, () => {
+                                            this.fetchPakeVs()
+                                        })
+                                    }}
+                                >
+                                    {value}
+                                </div>
+                            })}
+
+                        </div>
+                    </Col>
+                    <Col span={21}>
+                        <div className={styles.rightBox}>
+                            <Row>
+                                <Button
+                                    type='primary'
+                                    icon='plus'
+                                    onClick={() => {
+                                        this.setState({
+                                            modalVisible: true
+                                        })
+                                    }}
+                                >
+                                    添加版本
+                                </Button>
+                            </Row>
+
+                            <Skeleton
+                                active
+                                loading={tableLoading}
+                                paragraph={{ rows: 6 }}
+                            >
+                                <Table dataSource={tableList} columns={columns} rowKey={row => row.ID} />
+                            </Skeleton>
+                        </div>
+                    </Col>
+                </Row>
+                <Modal
+                    title="Basic Modal"
+                    visible={modalVisible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                >
+                    <Form onSubmit={this.handleOk}>
+                        <Form.Item label="语言类型" {...formItemLayout}>
+                            {getFieldDecorator(`lang`, {
+                                initialValue: activeKey,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: 'Input something!',
+                                    },
+                                ],
+                            })(<Input placeholder="placeholder" disabled={true} />)}
+                        </Form.Item>
+                        <Form.Item label={`版本号`} {...formItemLayout}>
+                            {getFieldDecorator(`version`, {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: 'Input something!',
+                                    },
+                                ],
+                            })(<Input placeholder="placeholder" />)}
+                        </Form.Item>
+                        <Form.Item label="上传文件" {...formItemLayout}>
+                            {getFieldDecorator('file', {
+                            })(<Upload
+                                fileList={fileList}
+                                name="file"
+                                onChange={this.onChangeUpload}
+                                action={`${this.state.clusterUrl}/lg_pack_operate/upload`}
+                                multiple={true}
+                            >
+                                <Button>
+                                    <Icon type="upload" />
+                                    {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+                                </Button>
+                            </Upload>
+                            )}
+                        </Form.Item>
+                        {Object.keys(fileInfo).length > 0 &&
+                            <Form.Item label="文件名" {...formItemLayout}>
+                                {getFieldDecorator(`file_name`, {
+                                    initialValue: fileInfo.file_name,
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: 'Input something!',
+                                        },
+                                    ],
+                                })(<Input placeholder="placeholder" disabled={true} />)}
+                            </Form.Item>
+                        }
+                    </Form>
+                </Modal>
+            </>
+        )
+    }
+}

@@ -1478,13 +1478,64 @@ export async function updateAlarmSwitch(body, handleError) {
   );
 }
 // 获取企业下下所有团队的英文名称
-// 1. /console/enterprise/e18af629c408acc7b54de97424f4447b/team_names
 export async function fetchTeamNames(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.eid}/team_names`,
     {
       method: 'get',
       handleError
+    }
+  );
+}
+
+// 获取集群下的语言版本信息
+export async function fetchLanguageVersion(body, handleError) {
+  return request(
+    `${body.baseUrl}/lg_pack_operate/${body.language}`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 设为默认
+export async function editLanguageDefault(body, handleError){
+  return request(
+    `${body.baseUrl}/lg_pack_operate`,
+    {
+      method: 'put',
+      data: {
+        lang: body.lang,
+        version: body.version,
+      }
+    }
+  );
+}
+// 上传语言包版本
+export async function uploadLanguageFile(body, handleError){
+  return request(
+    `${body.baseUrl}/lg_pack_operate`,
+    {
+      method: 'post',
+      data: {
+        lang: body.lang,
+        version: body.version,
+        event_id: body.event_id,
+        file_name: body.file_name
+      }
+    }
+  );
+}
+// 删除语言包版本
+export async function deleteLanguageFile(body, handleError){
+  return request(
+    `${body.baseUrl}/lg_pack_operate`,
+    {
+      method: 'delete',
+      data: {
+        lang: body.lang,
+        version: body.version,
+      }
     }
   );
 }

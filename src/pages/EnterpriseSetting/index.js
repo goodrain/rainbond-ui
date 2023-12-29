@@ -6,6 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
+import PackUpload from './upload';
 import Infrastructure from './infrastructure';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
@@ -32,7 +33,7 @@ export default class EnterpriseSetting extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      activeKey: 'infrastructure'
+      activeKey: 'upload'
     };
   }
   componentWillMount() {
@@ -96,6 +97,19 @@ export default class EnterpriseSetting extends PureComponent {
                 } 
             key="backup">
               <BackupManage {...this.props} />
+            </TabPane>
+          )}
+          {adminer && (
+            <TabPane 
+            tab={
+                 <div>
+                  {/* 数据备份 */}
+                  组件语言版本
+                  {/* <FormattedMessage id='enterpriseSetting.TabPane.dataBackups'/> */}
+                 </div>
+                } 
+            key="upload">
+              <PackUpload {...this.props}/>
             </TabPane>
           )}
         </Tabs>
