@@ -397,6 +397,28 @@ class DrawerForm extends PureComponent {
       return callback();
     }
   };
+  handleHeanderValidators = (_, val, callback) => {
+    let isPass = false
+    let reg = /^[a-zA-Z0-9_\-]+$/
+    let regValue = /^[a-zA-Z0-9_\-.*$()#]+(\s*[a-zA-Z0-9_\-.*$()#]+)*$/
+    if (val && val.length > 0) {
+      val.some(item => {
+        if (reg.test(item.item_key) && regValue.test(item.item_value)){
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
+        }
+      });
+      if (isPass) {
+        callback();
+      } else {
+        callback(new Error('自定义请求头参数配置错误'));
+      }
+    } else {
+      return callback();
+    }
+  }
   handleSetWebSocket = (data, newHeaders) => {
     const arr = [];
     const [first, second] = this.state.webSockets;
@@ -993,7 +1015,8 @@ class DrawerForm extends PureComponent {
 
                   <FormItem {...is_languages} label={formatMessage({id:'popover.config.lable.set_headers'})}>
                     {getFieldDecorator('set_headers', {
-                      initialValue: defaultSetHeaders
+                      initialValue: defaultSetHeaders,
+                      rules: [{ validator: this.handleHeanderValidators }]
                     })(<Parameterinput editInfo={defaultSetHeaders} />)}
                   </FormItem>
                 </Panel>

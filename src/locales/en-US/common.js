@@ -115,7 +115,7 @@
         'popover.enterpriseOverview.setUpTeam.placeholder.name':'Please enter the team name',
         'popover.enterpriseOverview.setUpTeam.placeholder.englishName':'The English name of the team',
         'popover.enterpriseOverview.setUpTeam.placeholder.colony':'Select the cluster',
-        'popover.enterpriseOverview.setUpTeam.placeholder.max':'Maximum length: 10 bits',
+        'popover.enterpriseOverview.setUpTeam.placeholder.max':'Maximum length: 24 bits',
         // conformDesc
         'popover.enterpriseOverview.setUpTeam.conformDesc.name':'Please enter the name of the team to be created. The maximum length is 10 characters',
         'popover.enterpriseOverview.setUpTeam.conformDesc.englishName':'The namespace used by the team in the cluster',
@@ -844,6 +844,7 @@
         'placeholder.certificate.private':'Please enter your private key',
         'placeholder.userName.search':'Please enter a user name to search',
         'placeholder.limit_memory':'Memory limit value required',
+        'placeholder.rewrites':'Complete Rewrites configuration',
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',

@@ -114,7 +114,7 @@
         'popover.enterpriseOverview.setUpTeam.placeholder.name':'请输入团队名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.englishName':'团队的英文名称',
         'popover.enterpriseOverview.setUpTeam.placeholder.colony':'选择集群',
-        'popover.enterpriseOverview.setUpTeam.placeholder.max':'最大长度10位',
+        'popover.enterpriseOverview.setUpTeam.placeholder.max':'最大长度24位',
         // conformDesc
         'popover.enterpriseOverview.setUpTeam.conformDesc.name':'请输入创建的团队名称，最大长度10位',
         'popover.enterpriseOverview.setUpTeam.conformDesc.englishName':'对应该团队在集群使用的命名空间',
@@ -854,6 +854,7 @@
         'placeholder.certificate.private':'请输入私钥', 
         'placeholder.userName.search':'请输入用户名称进行搜索',
         'placeholder.limit_memory':'内存限制必填',
+        'placeholder.rewrites':'需填写完整Rewrites配置',
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',

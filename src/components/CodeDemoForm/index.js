@@ -267,6 +267,10 @@ export default class Index extends PureComponent {
                 width: isService ? 234 : 340,
                 marginRight: 15
               }}
+              showSearch
+              filterOption={(input, option) => 
+                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
               onChange={this.handleChangeDemo}
             >
               <Option value={`${configureGlobal.documentAddress}demo-2048.git`}>
