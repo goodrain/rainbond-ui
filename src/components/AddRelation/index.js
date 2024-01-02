@@ -9,9 +9,12 @@ import {
   Modal,
   notification,
   Select,
-  Table
+  Table,
+  Row,
+  Col
 } from 'antd';
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import { getUnRelationedApp } from '../../services/app';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
@@ -21,6 +24,7 @@ const FormItem = Form.Item;
 const { Option } = Select;
 
 @Form.create()
+@connect()
 export default class AddRelation extends PureComponent {
   constructor(props) {
     super(props);
@@ -32,7 +36,8 @@ export default class AddRelation extends PureComponent {
       total: 0,
       search_key: '',
       condition: '',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      dependValue: 'un_dependency'
     };
   }
   componentDidMount() {
@@ -45,11 +50,13 @@ export default class AddRelation extends PureComponent {
       });
       return;
     }
+    if (this.state.dependValue  ==  "un_dependency") {
+      this.props.onSubmit && this.props.onSubmit(this.state.selectedRowKeys, 'un_dependency');
+    }else{
+    const ids = this.state.selectedRowKeys.join(',');
+      this.props.onSubmit && this.props.onSubmit(ids, 'dependency-reverse');
+    }
 
-    const ids = this.state.selectedRowKeys.map(
-      item => this.state.apps[item].service_id
-    );
-    this.props.onSubmit && this.props.onSubmit(ids);
   };
   getUnRelationedApp = () => {
     getUnRelationedApp({
@@ -58,7 +65,8 @@ export default class AddRelation extends PureComponent {
       page: this.state.page,
       page_size: this.state.page_size,
       search_key: this.state.search_key,
-      condition: this.state.condition
+      condition: this.state.condition,
+      type: this.state.dependValue
     }).then(data => {
       if (data) {
         this.setState({
@@ -88,6 +96,11 @@ export default class AddRelation extends PureComponent {
   handleConditionChange = value => {
     this.setState({ condition: value });
   };
+  handleDependChange = value => {
+    this.setState({ dependValue: value },()=>{
+    this.getUnRelationedApp();
+    });
+  }
   render() {
     const rowSelection = {
       onChange: selectedRowKeys => {
@@ -104,6 +117,21 @@ export default class AddRelation extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
+        <Row>
+        <Col span={10}>
+          {formatMessage({id:'componentOther.AddRelation.type'})}
+        <Select
+              style={{ width: 150 }}
+              size="small"
+              value={this.state.dependValue}
+              onChange={this.handleDependChange}
+            >
+              <Option value="un_dependency">{formatMessage({id:'componentOther.AddRelation.un_dependency'})}</Option>
+              <Option value="dependency-reverse">{formatMessage({id:'componentOther.AddRelation.dependency-reverse'})}</Option>
+
+            </Select>
+        </Col>
+        <Col span={14}>
         <Form
           style={{ textAlign: 'right', paddingBottom: 8 }}
           layout="inline"
@@ -138,8 +166,12 @@ export default class AddRelation extends PureComponent {
             </Button>
           </FormItem>
         </Form>
+        </Col>
+        </Row>
+
         <Table
           size="middle"
+          rowKey={item => item.service_id}
           pagination={{
             current: this.state.page,
             pageSize: this.state.page_size,
