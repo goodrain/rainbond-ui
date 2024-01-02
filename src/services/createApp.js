@@ -662,7 +662,6 @@ export async function getHelmChartYaml(body = {}, handleError) {
 
 // 通过helm包上传部署组件
 export async function installHelmUploadApp(body = {}, handleError) {
-  console.log(body,'body')
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/import_upload_chart_resource`,
     {

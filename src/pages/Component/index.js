@@ -825,7 +825,7 @@ class Main extends PureComponent {
             team_name
           }
         });
-        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+        notification.success({ message: formatMessage({id:'notification.warn.restart'}) });
       }
     });
   };

@@ -138,6 +138,10 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
               <Select
+                showSearch
+                filterOption={(input, option) => 
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
                 onChange={this.demoChange}
                 getPopupContainer={triggerNode => triggerNode.parentNode}
               >
