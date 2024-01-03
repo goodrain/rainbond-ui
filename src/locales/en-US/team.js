@@ -584,7 +584,7 @@ const Vm = {
   'Vm.createVm.inputName': 'Please enter the image name',
   'Vm.createVm.img': 'Mirror image',
   'Vm.createVm.selectImg': 'Please select mirror',
-  'Vm.createVm.unInstall': 'The VM plug-in is not installed',
+  'Vm.createVm.unInstall': 'The virtual machine plugin has not been installed yet. If you want to install this feature, please',
   'Vm.createVm.handleSuccess': 'The operation succeeded. The VM status is being updated',
   'Vm.createVm.VmImg': 'Virtual machine image',
   'Vm.createVm.2g':'2-core 2G',
@@ -598,6 +598,8 @@ const Vm = {
   'Vm.createVm.handle':'Controls',
   'Vm.createVm.status':'Status',
   'Vm.createVm.packageInstall': 'You can download.img.qcow2.iso and compressed.tar,.gz, and.xz files in the preceding formats',
+  'Vm.createVm.doc':'Viewing Documents',
+  'Vm.createVm.vm':'virtual machine',
 }
 
 

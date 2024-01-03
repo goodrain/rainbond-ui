@@ -587,7 +587,7 @@ const Vm = {
   'Vm.createVm.inputName': '请输入镜像名称',
   'Vm.createVm.img': '镜像',
   'Vm.createVm.selectImg': '请选择镜像',
-  'Vm.createVm.unInstall': '暂未安装虚拟机插件',
+  'Vm.createVm.unInstall': '暂未安装虚拟机插件，如果想安装该功能，请',
   'Vm.createVm.handleSuccess': '操作成功，正在更新虚拟机状态',
   'Vm.createVm.VmImg': '虚拟机镜像',
   'Vm.createVm.2g':'2核2G',
@@ -601,6 +601,8 @@ const Vm = {
   'Vm.createVm.handle':'操作',
   'Vm.createVm.status':'状态',
   'Vm.createVm.packageInstall': '支持格式为 .img .qcow2 .iso 以及上述格式压缩的 .tar，.gz，.xz 文件下载',
+  'Vm.createVm.doc':'查看文档',
+  'Vm.createVm.vm':'虚拟机',
 }
 
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm);
