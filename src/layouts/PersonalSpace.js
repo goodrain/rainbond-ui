@@ -10,7 +10,9 @@ import {
   Layout,
   Spin,
   Tooltip,
-  Avatar
+  Avatar,
+  Popover,
+  Button
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -305,6 +307,25 @@ export default class Space extends Component {
       }
     });
   }
+  regionPopover = (arrValue) => {
+    return(
+      <div className={styles.region_list}>
+        {arrValue.region_list.map((item, index) => {
+          return (
+            <div
+              className={styles.region_name}
+              onClick={() => {
+                this.onJumpTeam(arrValue.team_name, item.region_name)
+              }}
+            >
+              {item.region_alias}
+            </div>
+          )
+        })}
+      </div>
+    )
+    
+  }
   render() {
     const { userTeamList, dynamicList, enterpriseInfo, dynamicLoding, teamListLoding, loadingSwitch, isNotData} = this.state
     const {
@@ -368,7 +389,8 @@ export default class Space extends Component {
                     team_name
                   } = item
                   const colorIndex = userTeamList && userTeamList.length > 0 && userTeamList.length - index - 1
-                  return (
+                  const regionNum = region_list.length
+                  return regionNum == 1 ? (
                     <div className={styles.list}
                       style={{
                         boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 5px 0px',
@@ -434,7 +456,162 @@ export default class Space extends Component {
                           </div>
                         </div>
                       </div>
+                      <div className={styles.region_btn}>
+                        {region_list.map((region, index) => {
+                          return (
+                            <div className={styles.region_name}>
+                              {region.region_alias}
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
+                  ) : (regionNum < 3 && regionNum != 1) ? (
+                    <div className={styles.two_region}
+                      style={{
+                        boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 5px 0px',
+                      }}
+                    >
+                      <div className={styles.list_img}>
+                        {logo ?
+                          <img src={logo} alt="" />
+                          :
+                          <Avatar
+                            style=
+                            {{
+                              backgroundColor: colorIndex >= 5 ? colorList[colorIndex % 5] : colorList[colorIndex],
+                              verticalAlign: 'middle'
+                            }}
+                            size={60}
+                            shape="square">
+                            <span
+                              style=
+                              {{
+                                color: '#fff',
+                                fontSize: 35,
+                                textTransform: 'uppercase'
+                              }}
+                            >
+                              {team_alias.substr(0, 1)}
+                            </span>
+                          </Avatar>
+                        }
+                      </div>
+                      <div className={styles.list_detail}>
+                        <Tooltip title={team_alias}>
+                          <div className={styles.team_name}>
+                            {team_alias}
+                          </div>
+                        </Tooltip>
+                        <div className={styles.num}>
+                          <div>
+                            <span className={styles.team_logo}>
+                              <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.app' })}>
+                                {globalUtil.fetchSvg('teamApp')}
+                              </Tooltip>
+                            </span>
+                            <span>{app_count || 0}</span>
+                          </div>
+                          <div>
+                            <span className={styles.team_logo} style={{ marginTop: '2px' }}>
+                              <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.component' })}>
+                                {globalUtil.fetchSvg('teamComponent')}
+                              </Tooltip>
+                            </span>
+                            <span>{service_count || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.team_index}>
+                        #{userTeamList.length - index}
+                      </div>
+                      <div className={styles.region_btn}>
+                        {region_list.map((region, index) => {
+                          return (
+                            <Tooltip placement="right" title={region.region_alias}>
+                              <Button
+                                key={`${region.region_name}region`}
+                                className={styles.regionShow}
+                                onClick={() => {
+                                  this.onJumpTeam(team_name, region.region_name)
+                                }}
+                              >
+                                <div>
+                                  {region.region_alias}
+                                </div>
+                                <Icon type="right" />
+                              </Button>
+                            </Tooltip>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <Popover placement="right" content={this.regionPopover(item)}>
+                      <div className={styles.list}
+                        style={{
+                          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 5px 0px',
+                        }}
+                      >
+                        <div className={styles.list_img}>
+                          {logo ?
+                            <img src={logo} alt="" />
+                            :
+                            <Avatar
+                              style=
+                              {{
+                                backgroundColor: colorIndex >= 5 ? colorList[colorIndex % 5] : colorList[colorIndex],
+                                verticalAlign: 'middle'
+                              }}
+                              size={60}
+                              shape="square">
+                              <span
+                                style=
+                                {{
+                                  color: '#fff',
+                                  fontSize: 35,
+                                  textTransform: 'uppercase'
+                                }}
+                              >
+                                {team_alias.substr(0, 1)}
+                              </span>
+                            </Avatar>
+                          }
+                        </div>
+                        <div className={styles.list_detail}>
+                          <Tooltip title={team_alias}>
+                            <div
+                              className={styles.team_name_top}
+                            >
+                              <div className={styles.team_name}>
+                                {team_alias}
+                              </div>
+                              <div className={styles.team_index}>
+                                #{userTeamList.length - index}
+                              </div>
+                            </div>
+                          </Tooltip>
+                          <div className={styles.num}>
+                            <div>
+                              <span className={styles.team_logo}>
+                                <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.app' })}>
+                                  {globalUtil.fetchSvg('teamApp')}
+                                </Tooltip>
+                              </span>
+                              <span>{app_count || 0}</span>
+                            </div>
+                            <div>
+                              <span className={styles.team_logo} style={{ marginTop: '2px' }}>
+                                <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.component' })}>
+                                  {globalUtil.fetchSvg('teamComponent')}
+                                </Tooltip>
+                              </span>
+                              <span>{service_count || 0}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Popover>
                   )
                 })}
               </div>

@@ -33,50 +33,112 @@
                     }
                 }
             }
-            .list{
+            .two_region:hover{
+                .list_detail{
+                    transform: translateX(-60px);
+                    .team_name{
+                        color:  #3e4074;
+                    }
+                }
+                .team_index{
+                    opacity: 0;
+                }
+                .list_img{
+                    opacity: 0;
+                }
+                .region_btn{
+                    opacity: 1;
+                }
+            }
+            .list,.two_region{
                 cursor: pointer;
                 width: 100%;
                 height: 100px;
                 border-radius: 8px;
                 margin-bottom: 10px;
                 background: #f5f7fa;
+                position: relative;
                 display: flex;
                 align-items: center;
+                transition: all 0.3s ease;
                 border: 1px solid #e2e4e6;
+                .region_btn{
+                    position: absolute;
+                    top: 0;
+                    right: 2%;
+                    width: 40%;
+                    height: 100px;
+                    display: flex;
+                    padding: 6px 0px;
+                    flex-direction: column;
+                    justify-content: space-evenly;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                    :global{
+                        .ant-btn{
+                            padding: 0px 4px !important;
+                            height: 26px !important;
+                        }
+                    }     
+                    .regionShow {           
+                        display: flex;
+                        align-items: center;
+                        > div{
+                            width: 70%;
+                            font-size: 12px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            font-family: PingFangSC-Regular;
+                            letter-spacing: 0;
+                        }
+                        i {
+                            margin-left: 8px;
+                        }
+                        margin-right: 8px;
+                    }
+                }
+                .team_index{
+                    width: 40px;
+                    position: absolute;
+                    top: 18px;
+                    right: 0%;
+                    color:  #9297a3;
+                    text-align: center;
+                    font-size: 16px;
+                    font-weight: bolder;
+                    transition: opacity 0.3s ease;
+                }
                 .list_img{
                     width: 60px;
                     height: 60px;
                     margin-left: 12px;
+                    transition: opacity 0.3s ease; 
                     img{
                         width: 100%;
                         height: 100%;
                     }
                 }
                 .list_detail{
-                    width: calc(100%-60px);
+                    width: calc(100% - 80px);
                     height: 60px;
                     margin-left: 12px;
+                    transition: transform 0.3s ease;
+                    .team_name{
+                        width: 64%;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 700;
+                        color:  #9297a3;
+                    }
                     .team_name_top{
-                        width: 140px;
+                        width: 80%;
                         display: flex;
                         align-items: center;
-                        .team_name{
-                            width: 100px;
-                            overflow: hidden;
-                            white-space: nowrap;
-                            text-overflow: ellipsis;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 700;
-                            color:  #9297a3;
-                        }
-                        .team_index{
-                            width: 40px;
-                            color:  #9297a3;
-                            text-align: center;
-                            font-size: 16px;
-                            font-weight: bolder;
-                        }
+                        
                     }
                     .num{
                         display: flex;
@@ -282,6 +344,31 @@
             justify-content: center;
             align-items: center;
         }
+    }
+}
+.region_list{
+    width: 160px;
+    .region_name{
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        padding: 4px 16px;
+    }
+    .region_name:hover{
+        background: #E6ECF8;
+        border-radius: 10px;
+    }
+}
+:global{
+    .ant-popover-inner-content{
+        padding: 4px 2px !important; 
+    }
+    .ant-popover-placement-right > .ant-popover-content > .ant-popover-arrow {
+        display: none !important;
+    }
+    .ant-popover-placement-right, .ant-popover-placement-rightTop, .ant-popover-placement-rightBottom{
+        padding-left: 0px !important;
+        margin-left: -6px !important;
     }
 }
 
