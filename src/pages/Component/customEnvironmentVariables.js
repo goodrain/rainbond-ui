@@ -8,12 +8,13 @@ import {
   notification,
   Row,
   Table,
-  Tooltip
+  Tooltip,
+  Modal
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddStorage from '../../components/AddStorage';
 import RelationMnt from '../../components/AddStorage/relationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -61,7 +62,9 @@ export default class Index extends React.Component {
       toDeleteMnt: null,
       toDeleteVolume: null,
       editor: null,
-      isAttrNameList: []
+      isAttrNameList: [],
+      errorDelete: false,
+      toDeleteVolumeErr: null,
     };
   }
   componentDidMount() {
@@ -95,8 +98,25 @@ export default class Index extends React.Component {
   onDeleteMnt = mnt => {
     this.setState({ toDeleteMnt: mnt });
   };
-  onDeleteVolume = data => {
-    this.setState({ toDeleteVolume: data });
+  onDeleteVolume = (data) => {
+    this.props.dispatch({
+      type: 'appControl/deleteVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        volume_id: data.ID,
+        force: 0
+      },
+      callback: res => {
+        if (res && res.status_code === 202) {
+          if (res.list?.length > 0) {
+            this.setState({ errorDelete: true, toDeleteVolumeErr: data, errorList: res.list });
+          } else {
+            this.setState({ toDeleteVolume: data });
+          }
+        }
+      }
+    });
   };
   onPageChange = page => {
     this.setState(
@@ -188,7 +208,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.add'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
           this.fetchInnerEnvs();
           this.handleCancelAddVar();
         }
@@ -202,17 +222,18 @@ export default class Index extends React.Component {
   cancelTransfer = () => {
     this.setState({ transfer: null });
   };
-  handleDeleteVar = () => {
+  handleDeleteVar = (number) => {
     this.props.dispatch({
       type: 'appControl/deleteEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID
+        ID: this.state.deleteVar.ID,
+        force: number
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVar();
@@ -220,6 +241,26 @@ export default class Index extends React.Component {
       }
     });
   };
+  handleOk = () => {
+    this.props.dispatch({
+      type: 'appControl/deleteVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        volume_id: this.state.toDeleteVolumeErr.ID,
+        force: 1
+      },
+      callback: res => {
+        if(res && res.status_code === 200){
+          this.setState({ errorDelete: false });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+          this.onCancelDeleteVolume();
+          this.fetchVolumes();
+          this.props.onshowRestartTips(true);
+        }
+      }
+    });
+  }
 
   handleTransfer = () => {
     const { transfer } = this.state;
@@ -233,7 +274,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.transfer'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.transfer' }) });
           this.fetchInnerEnvs();
           this.cancelTransfer();
         }
@@ -254,7 +295,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.edit'})});
+          notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
           this.cancelEditVar();
           this.fetchInnerEnvs();
         }
@@ -324,7 +365,7 @@ export default class Index extends React.Component {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message:  formatMessage({id:'notification.success.edit'})});
+            notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
             this.props.onshowRestartTips(true);
           }
         }
@@ -341,7 +382,7 @@ export default class Index extends React.Component {
           if (res && res.status_code === 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: formatMessage({id:'notification.success.add'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
             this.props.onshowRestartTips(true);
           }
         }
@@ -363,7 +404,7 @@ export default class Index extends React.Component {
       if (data) {
         this.handleCancelAddRelation();
         this.loadMntList();
-        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -379,7 +420,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
@@ -398,7 +439,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
+        notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
     });
@@ -451,7 +492,7 @@ export default class Index extends React.Component {
           <Col span={15}>
             <Alert
               showIcon
-              message={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.message'/>}
+              message={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.message' />}
               type="info"
               style={{
                 marginBottom: 24
@@ -461,7 +502,7 @@ export default class Index extends React.Component {
         </Row>
         <Row>
           <EnvironmentVariable
-            title={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.title'/>}
+            title={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.title' />}
             type="Inner"
             appAlias={this.props.appAlias}
           />
@@ -469,7 +510,7 @@ export default class Index extends React.Component {
             <Alert
               showIcon
               // eslint-disable-next-line no-template-curly-in-string
-              message={<FormattedMessage id='componentOverview.body.tab.env.setting.message'/>}
+              message={<FormattedMessage id='componentOverview.body.tab.env.setting.message' />}
               type="info"
               style={{
                 marginBottom: 24
@@ -480,13 +521,13 @@ export default class Index extends React.Component {
         <Card
           style={{
             marginBottom: 24,
-            borderRadius:5,
+            borderRadius: 5,
           }}
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title'/> </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
           extra={
             <Button onClick={this.handleAddVars}>
               <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.setting.add'/>
+              <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
             </Button>
           }
         >
@@ -495,19 +536,19 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_name'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
                   dataIndex: 'volume_name'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.volume_path'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
                   dataIndex: 'volume_path'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.mode'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
                   dataIndex: 'mode'
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.setting.action'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
                   dataIndex: 'action',
                   render: (v, data) => (
                     <div>
@@ -517,7 +558,7 @@ export default class Index extends React.Component {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete'/>
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
                       </a>
                       <a
                         onClick={() => {
@@ -525,7 +566,7 @@ export default class Index extends React.Component {
                         }}
                         href="javascript:;"
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit'/>
+                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
                       </a>
                     </div>
                   )
@@ -537,15 +578,15 @@ export default class Index extends React.Component {
           </ScrollerX>
         </Card>
         <Card
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.file.share'/> </span>}
+          title={<span> <FormattedMessage id='componentOverview.body.tab.env.file.share' /> </span>}
           extra={
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.file.mount'/>
+              <FormattedMessage id='componentOverview.body.tab.env.file.mount' />
             </Button>
           }
           style={{
-            borderRadius:5,
+            borderRadius: 5,
           }}
         >
           <ScrollerX sm={850}>
@@ -553,7 +594,7 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.localMount'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),
                   dataIndex: 'local_vol_path',
                   key: '1',
                   width: '20%',
@@ -564,7 +605,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.name'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.name' }),
                   dataIndex: 'dep_vol_name',
                   key: '2',
                   width: '15%',
@@ -575,7 +616,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.path'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.path' }),
                   dataIndex: 'dep_vol_path',
                   key: '3',
                   width: '20%',
@@ -586,37 +627,35 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.Component'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.Component' }),
                   dataIndex: 'dep_app_name',
                   key: '4',
                   width: '15%',
                   render: (v, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.dep_app_alias
-                      }/overview`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
+                        }/overview`}
                     >
                       {v}
                     </Link>
                   )
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.Components'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.Components' }),
                   dataIndex: 'dep_app_group',
                   key: '5',
                   width: '15%',
                   render: (v, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                        data.dep_group_id
-                      }`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                        }`}
                     >
                       {v}
                     </Link>
                   )
                 },
                 {
-                  title: formatMessage({id:'componentOverview.body.tab.env.file.action'}),
+                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
                   dataIndex: 'action',
                   key: '6',
                   width: '15%',
@@ -627,7 +666,7 @@ export default class Index extends React.Component {
                       }}
                       href="javascript:;"
                     >
-                      <FormattedMessage id='componentOverview.body.tab.env.file.cancel'/>
+                      <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
                     </a>
                   )
                 }
@@ -656,16 +695,16 @@ export default class Index extends React.Component {
         )}
         {this.state.toDeleteMnt && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.unmount.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.unmount.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.unmount.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.unmount.desc' />}
             onCancel={this.cancelDeleteMnt}
             onOk={this.handleDeleteMnt}
           />
         )}
         {this.state.toDeleteVolume && (
           <ConfirmModal
-            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc' />}
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
           />
@@ -684,8 +723,8 @@ export default class Index extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title={<FormattedMessage id='confirmModal.deldete.transfer.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.transfer.desc'/>}
+            title={<FormattedMessage id='confirmModal.deldete.transfer.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.transfer.desc' />}
             subDesc=""
           />
         )}
@@ -702,13 +741,28 @@ export default class Index extends React.Component {
         {this.state.deleteVar && (
           <ConfirmModal
             onOk={this.handleDeleteVar}
-            onCancel={this.cancelDeleteVar} 
-            title={<FormattedMessage id='confirmModal.deldete.env.title'/>}
-            desc={<FormattedMessage id='confirmModal.deldete.env.desc'/>}
-            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc'/>}
+            onCancel={this.cancelDeleteVar}
+            title={<FormattedMessage id='confirmModal.deldete.env.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.env.desc' />}
+            subDesc={<FormattedMessage id='confirmModal.deldete.env.subDesc' />}
 
           />
         )}
+        <Modal
+          title={formatMessage({id:'componentOther.customEnvironmentVariables.title'})}
+          visible={this.state.errorDelete}
+          onOk={this.handleOk}
+          onCancel={
+            () => {
+              this.setState({ errorDelete: false });
+            }
+          }
+        >
+          <p>{formatMessage({id:'componentOther.customEnvironmentVariables.name'})}</p>
+          {this.state.errorList?.map((item, index) => {
+            return <p key={index}>{item.service_cname}</p>;
+          })}
+        </Modal>
       </Fragment>
     );
   }

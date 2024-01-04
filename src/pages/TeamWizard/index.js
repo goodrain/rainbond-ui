@@ -19,7 +19,7 @@ import styles from './index.less';
     currentEnterprise: enterprise.currentEnterprise,
     user: user.currentUser,
 }))
-  
+
 export default class Index extends PureComponent {
     constructor(props) {
         super(props);
@@ -27,95 +27,70 @@ export default class Index extends PureComponent {
             rainStoreTab: '',
             language: cookie.get('language') === 'zh-CN' ? true : false,
             scope: 'enterprise',
-            vmShow: false,
         };
     }
-    componentDidMount(){
+    componentDidMount() {
         this.getMarketsTab()
         this.getCloudRecommendApps()
-        this.fetchPipePipeline()
     }
     getCloudRecommendApps = v => {
-        const {scope} = this.state;
+        const { scope } = this.state;
         const { dispatch, currentEnterprise, user } = this.props;
         dispatch({
-          type: 'market/fetchAppModels',
-          payload: {
-            enterprise_id: currentEnterprise.enterprise_id,
-            user_id: user.user_id,
-            app_name: '',
-            scope: scope,
-            page_size: 9,
-            page: 1,
-          },
-          callback: data => {
-            this.setState({
-                localist: data.list
-            })
-          }
-        });
-      };
-    // 获取插件列表
-  fetchPipePipeline = (eid) => {
-    const { dispatch, currentEnterprise } = this.props;
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (res && res.list) {
-          res.list.map(item => {
-            if (item.name == "rainbond-vm") {
-              this.setState({
-                vmShow: true,
-              })
+            type: 'market/fetchAppModels',
+            payload: {
+                enterprise_id: currentEnterprise.enterprise_id,
+                user_id: user.user_id,
+                app_name: '',
+                scope: scope,
+                page_size: 9,
+                page: 1,
+            },
+            callback: data => {
+                this.setState({
+                    localist: data.list
+                })
             }
-          }
-          )
-        }
-      }
-    })
-  }
+        });
+    };
     getMarketsTab = () => {
         const { dispatch, currentEnterprise } = this.props;
         dispatch({
-          type: 'market/fetchMarketsTab',
-          payload: {
-            enterprise_id: currentEnterprise.enterprise_id
-          },
-          callback: res => {
-            const list = (res && res.list) || [];
-            let rainStores = '';
-            if (list && list.length > 0) {
-              list.map(item => {
-                if (item.domain == 'rainbond') {
-                  return rainStores = item.name
+            type: 'market/fetchMarketsTab',
+            payload: {
+                enterprise_id: currentEnterprise.enterprise_id
+            },
+            callback: res => {
+                const list = (res && res.list) || [];
+                let rainStores = '';
+                if (list && list.length > 0) {
+                    list.map(item => {
+                        if (item.domain == 'rainbond') {
+                            return rainStores = item.name
+                        }
+                    });
                 }
-              });
+                this.setState({
+                    rainStoreTab: rainStores
+                })
             }
-            this.setState({
-              rainStoreTab: rainStores
-            })
-          }
         });
-      };
+    };
     onClickLinkCreate = (type, link) => {
         const { dispatch, currentEnterprise } = this.props
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-        if(type == 'import'){
+        if (type == 'import') {
             dispatch(
                 routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/shared/${link}` })
             );
-        }else{
+        } else {
             dispatch(
                 routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
             );
         }
-        
-        
+
+
     }
 
     render() {
@@ -123,7 +98,7 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
-        const { rainStoreTab, language, localist, vmShow } = this.state
+        const { rainStoreTab, language, localist } = this.state
         return (
             <Fragment>
                 <div className={styles.overviewBox}>
@@ -144,10 +119,10 @@ export default class Index extends PureComponent {
                             </div>
                         </div>
                         <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({id:'teamAdd.create.market.market'})}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>): (<span>(0)</span>)}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({id:'teamAdd.create.market.command'})}</p>
-                            <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import'/></p>
+                            <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({ id: 'teamAdd.create.market.market' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>) : (<span>(0)</span>)}</p>
+                            <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({ id: 'teamAdd.create.market.command' })}</p>
+                            <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import' /></p>
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
@@ -168,10 +143,8 @@ export default class Index extends PureComponent {
                         </div>
                         <div className={styles.bottomContent}>
 
-                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>容器</p>
-                            {vmShow && 
-                                <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>虚拟机</p>
-                            }
+                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({id:'componentOverview.body.tab.log.container'})}</p>
+                            <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({id:'Vm.createVm.vm'})}</p>
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

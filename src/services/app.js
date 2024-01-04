@@ -515,7 +515,7 @@ export function getUnRelationedApp(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/un_dependency`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/${body.type}`,
     {
       method: 'get',
       params: {
@@ -611,7 +611,9 @@ export function getMnt(
     {
       method: 'get',
       params: {
-        query: body.query,
+        // query: body.query,
+        dep_app_group: body.dep_app_group || '',
+        dep_app_name: body.dep_app_name || '',
         page: body.page,
         page_size: body.page_size,
         type: body.type ? body.type : 'mnt',
@@ -623,7 +625,7 @@ export function getMnt(
         const yourNewParams = params.volume_types
           .map(_ => `volume_types=${_}`)
           .join('&');
-        const str = `query=${params.query}&page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`;
+        const str = `page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}&dep_app_name=${params.dep_app_name}&dep_app_group=${params.dep_app_group}`;
         return str;
       }
     }
@@ -1577,7 +1579,7 @@ export async function deleteVolume(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.volume_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.volume_id}?force=${body.force}`,
     { method: 'delete' }
   );
 }
@@ -3319,7 +3321,6 @@ export async function vmPause(body = {}) {
 }
 
 // 获取应用下下所有组件的英文名称
-//  /console/teams/b7jnpowd/groups/2/component_names 全部组件英文名接口 get 只有接口上的地址传参，无需另外传参
 export async function getComponentNames(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/component_names`,
@@ -3329,3 +3330,15 @@ export async function getComponentNames(body = {}) {
   );
 }
 
+// 确定反向依赖
+export async function getReverseDependency(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency-reverse`,
+    {
+      method: 'post',
+      data: {
+        be_dep_service_ids: body.dep_service_id
+      }
+    }
+  );
+}

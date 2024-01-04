@@ -101,6 +101,11 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             path: `image`,
             authority: ['admin', 'user']
           },
+          {
+            name: formatMessage({id:'Vm.createVm.titleVm'}),
+            path: `vm`,
+            authority: ['admin', 'user']
+          },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
@@ -114,13 +119,13 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
           }
         ]
       }
-      if (setTeamMenu(showPipeline,'rainbond-vm')) {
-        item.children.push({
-          name: formatMessage({id:'Vm.createVm.titleVm'}),
-          path: `vm`,
-          authority: ['admin', 'user']
-        },);
-      }
+      // if (setTeamMenu(showPipeline,'rainbond-vm')) {
+      //   item.children.push({
+      //     name: formatMessage({id:'Vm.createVm.titleVm'}),
+      //     path: `vm`,
+      //     authority: ['admin', 'user']
+      //   },);
+      // }
       addMenuArr(item);
     }
     if (setTeamMenu(showPipeline,'pipeline')) {

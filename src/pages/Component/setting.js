@@ -788,7 +788,7 @@ export default class Index extends React.Component {
                 {...is_language}
                 label={<FormattedMessage id='componentOverview.body.setting.type' />}
               >
-                虚拟机
+                {formatMessage({id:'Vm.createVm.vm'})}
               </FormItem>
             </Form>
           )}

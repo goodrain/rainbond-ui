@@ -140,7 +140,8 @@ import {
   updateServiceName,
   upgrade,
   vmPause,
-  getComponentNames
+  getComponentNames,
+  getReverseDependency
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1165,6 +1166,12 @@ export default {
     },
     *getComponentNames({ payload, callback }, { call }) {
       const response = yield call(getComponentNames, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getReverseDependency({ payload, callback }, { call }) {
+      const response = yield call(getReverseDependency, payload);
       if (response && callback) {
         callback(response);
       }
