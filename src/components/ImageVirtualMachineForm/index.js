@@ -294,20 +294,18 @@ export default class Index extends PureComponent {
         }
       }
       });
-    };
+  };
     // 生成英文名
-    generateEnglishName = (name) => {
-      if(name != undefined){
-        const { comNames } = this.state;
-        const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-        const cleanedPinyinName = pinyinName.toLowerCase();
-        if (comNames && comNames.length > 0) {
-          const isExist = comNames.some(item => item === cleanedPinyinName);
-          if (isExist) {
-            const random = Math.floor(Math.random() * 10000);          
-            return `${cleanedPinyinName}${random}`;
-          }
-          return cleanedPinyinName;
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
       }
