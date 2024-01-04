@@ -293,18 +293,18 @@ export default class Index extends PureComponent {
           })
         }
       }
-    });
+      });
   };
-  // 生成英文名
+    // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
         if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
+          const random = Math.floor(Math.random() * 10000);          
           return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
@@ -351,7 +351,7 @@ export default class Index extends PureComponent {
             })(
               <Select
                 showSearch
-                filterOption={(input, option) =>
+                filterOption={(input, option) => 
                   option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
