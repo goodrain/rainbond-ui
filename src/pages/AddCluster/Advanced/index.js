@@ -109,6 +109,7 @@ export default class ClusterLink extends PureComponent {
       const routeData = data || {};
       const dataObj = {
         enableHA: false,
+        runtime: '',
         gatewayIngressIPs: '',
         imageHub: {
           enable: false,
@@ -282,6 +283,8 @@ export default class ClusterLink extends PureComponent {
               break;
           }
           // 表单参数
+          dataObj.runtime =
+            values.runtime || routeData.runtime || '';
           dataObj.gatewayIngressIPs =
             values.gatewayIngressIPs || routeData.gatewayIngressIPs || '';
           dataObj.nodesForGateway.nodes =

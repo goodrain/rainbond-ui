@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Radio } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
@@ -20,6 +20,7 @@ const { Step } = Steps;
 const dataObj = {
   enableHA: false,
   gatewayIngressIPs: '',
+  runtime: 'docker',
   imageHub: {
     enable: false,
     domain: '',
@@ -141,6 +142,7 @@ export default class ClusterLink extends PureComponent {
       if (err) return;
       if (values) {
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
+        dataObj.runtime = values.runtime || '';
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -314,6 +316,30 @@ export default class ClusterLink extends PureComponent {
                       }
                     ]
                   })(<DAinput />)}
+                </FormItem>
+              </Row>
+              {/* 容器运行时 */}
+              <Row className={ this.state.language ? styles.antd_row : styles.en_antd_row}>
+                <div>
+                  <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                    容器运行时:
+                  </span>
+                </div>
+                <FormItem
+                  {...is_formItemLayout}
+                  className={styles.antd_form}
+                >
+                  {getFieldDecorator('runtime', {
+                    initialValue: 'docker',
+                    rules: [
+                      { required: true },
+                    ]
+                  })(
+                    <Radio.Group>
+                      <Radio value='docker'>Docker</Radio>
+                      <Radio value='containerd'>Containerd</Radio>
+                    </Radio.Group> 
+                  )}
                 </FormItem>
               </Row>
             </div>

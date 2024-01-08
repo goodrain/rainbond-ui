@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Radio } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
@@ -18,6 +18,7 @@ const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
   enableHA: true,
+  runtime: 'docker',
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
@@ -153,6 +154,7 @@ export default class ClusterLink extends PureComponent {
       if (err) return;
 
       if (values) {
+        dataObj.runtime = values.runtime || '';
         dataObj.gatewayIngressIPs = values.gatewayIngressIPs || '';
         dataObj.nodesForGateway.nodes = values.nodesForGateway || [];
         // 镜像仓库
@@ -387,6 +389,29 @@ export default class ClusterLink extends PureComponent {
                       }
                     ]
                   })(<DAinput />)}
+                </FormItem>
+              </Row>
+              <Row className={ language ? styles.antd_row : styles.en_antd_row}>
+                <div>
+                  <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                    容器运行时:
+                  </span>
+                </div>
+                <FormItem
+                  {...formItemLayout}
+                  className={styles.antd_form}
+                >
+                  {getFieldDecorator('runtime', {
+                    initialValue: 'docker',
+                    rules: [
+                      { required: true },
+                    ]
+                  })(
+                    <Radio.Group>
+                      <Radio value='docker'>Docker</Radio>
+                      <Radio value='containerd'>Containerd</Radio>
+                    </Radio.Group> 
+                  )}
                 </FormItem>
               </Row>
               <Row className={styles.antd_rows}>
