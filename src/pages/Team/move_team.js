@@ -110,7 +110,7 @@ export default class MoveTeam extends PureComponent {
                   required: true,
                   message: formatMessage({id:'teamOther.move_team.null'})
                 },
-                { max: 32, message:  formatMessage({id:'teamOther.move_team.max'})}
+                { max: 24, message:  formatMessage({id:'teamOther.move_team.max'})}
               ]
             })(<Input placeholder= {formatMessage({id:'teamOther.move_team.input_name'})}/>)}
           </FormItem>

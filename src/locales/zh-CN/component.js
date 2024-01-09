@@ -1096,6 +1096,16 @@ const componentOverview = {
 
 }
     
-  
+  const componentOther = {
+    'componentOther.customEnvironmentVariables.title':'是否强制删除？',
+    'componentOther.customEnvironmentVariables.name':'依赖组件名称：',
+    'componentOther.AddRelation.type':'依赖方式：',
+    'componentOther.AddRelation.un_dependency':'我依赖谁',
+    'componentOther.AddRelation.dependency-reverse':'谁依赖我',
+    'componentOther.relationMnt.app':'按应用搜索：',
+    'componentOther.relationMnt.select_app':'请选择应用',
+    'componentOther.relationMnt.com':'按组件搜索：',
+    'componentOther.relationMnt.select_com':'请选择组件',
+  }
 
-export default Object.assign({}, componentOverview);
+export default Object.assign({}, componentOverview, componentOther);

@@ -1085,4 +1085,16 @@ const componentOverview = {
     
   
 
-export default Object.assign({}, componentOverview);
+const componentOther = {
+    'componentOther.customEnvironmentVariables.title':'Do you want to force deletion?',
+    'componentOther.customEnvironmentVariables.name':'Dependent component name:',
+    'componentOther.AddRelation.type':'Dependency mode:',
+    'componentOther.AddRelation.un_dependency':'Who do I rely on',
+    'componentOther.AddRelation.dependency-reverse':'Who depends on me',
+    'componentOther.relationMnt.app':'Search by app:',
+    'componentOther.relationMnt.select_app':'Please select an application',
+    'componentOther.relationMnt.com':'Search by component:',
+    'componentOther.relationMnt.select_com':'Please select a component',
+  }
+
+export default Object.assign({}, componentOverview, componentOther);

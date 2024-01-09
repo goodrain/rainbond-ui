@@ -39,6 +39,7 @@ const formItemLayouts = {
   ({ global, loading, user }) => ({
     currUser: user.currentUser,
     groups: global.groups,
+    rainbondInfo: global.rainbondInfo,
     createAppByDockerrunLoading:
       loading.effects['createApp/createAppByDockerrun']
   }),
@@ -80,7 +81,7 @@ export default class Index extends PureComponent {
     this.fetchPipePipeline();
     this.handleJarWarUpload();
     const { handleType, groupId } = this.props;
-    if(handleType && handleType === 'Service'){
+    if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
   }
@@ -190,7 +191,7 @@ export default class Index extends PureComponent {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
-        if(radioKey == 'public'){
+        if (radioKey == 'public') {
           fieldsValue.vm_url = this.state.selectUrl
           fieldsValue.image_name = this.state.selectName
         }
@@ -276,42 +277,42 @@ export default class Index extends PureComponent {
       selectUrl: item.vm_url
     })
   }
-    // 获取当前选取的app的所有组件的英文名称
-    fetchComponentNames = (group_id) => {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'appControl/getComponentNames',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          group_id
-        },
-        callback: res => {
-          if (res && res.bean ) {
-            this.setState({
-              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-            })
+  // 获取当前选取的app的所有组件的英文名称
+  fetchComponentNames = (group_id) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/getComponentNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+          })
         }
       }
       });
-    };
+  };
     // 生成英文名
-    generateEnglishName = (name) => {
-      if(name != undefined){
-        const { comNames } = this.state;
-        const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-        const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
-        if (comNames && comNames.length > 0) {
-          const isExist = comNames.some(item => item === cleanedPinyinName);
-          if (isExist) {
-            const random = Math.floor(Math.random() * 10000);          
-            return `${cleanedPinyinName}${random}`;
-          }
-          return cleanedPinyinName;
+  generateEnglishName = (name) => {
+    if(name != undefined){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
       }
-      return ''
+      return cleanedPinyinName;
     }
+    return ''
+  }
   render() {
     const {
       groups,
@@ -323,12 +324,14 @@ export default class Index extends PureComponent {
       showSubmitBtn = true,
       showCreateGroup = true,
       archInfo,
-      virtualMachineImage
+      virtualMachineImage,
+      rainbondInfo
     } = this.props;
     const { getFieldDecorator } = form;
     const myheaders = {};
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
+    const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
     const { language, radioKey, fileList, vmShow, existFileList, PublicVm, selectName } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
@@ -347,6 +350,10 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
+                showSearch
+                filterOption={(input, option) => 
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
                 style={language ? {
@@ -413,23 +420,23 @@ export default class Index extends PureComponent {
                   {getFieldDecorator('url', {
                   })(
                     <div className={styles.public}>
-                    {PublicVm && PublicVm.map((item, index) => {
-                      return (
-                        <div className={item.image_name == selectName ? styles.active : ''} onClick={()=>this.PublicVmSelect(item)}>
-                          <div className={styles.publicItemName}>
-                            <div>
-                            {item.image_name}
+                      {PublicVm && PublicVm.map((item, index) => {
+                        return (
+                          <div className={item.image_name == selectName ? styles.active : ''} onClick={() => this.PublicVmSelect(item)}>
+                            <div className={styles.publicItemName}>
+                              <div>
+                                {item.image_name}
+                              </div>
+                              {item.image_name == 'centos7.9' && <img src={centOS} />}
+                              {item.image_name == 'anolisos7.9' && <img src={anolisOS} />}
+                              {item.image_name == 'deepin20.9' && <img src={deepinOS} />}
+                              {item.image_name == 'ubuntu23.10' && <img src={ubuntuOS} />}
                             </div>
-                            {item.image_name == 'centos7.9' && <img src={centOS} />}
-                            {item.image_name == 'anolisos7.9' && <img src={anolisOS} />}
-                            {item.image_name == 'deepin20.9' && <img src={deepinOS} />}
-                            {item.image_name == 'ubuntu23.10' && <img src={ubuntuOS} />}
-                           </div>
-                        </div>
-                      )
-                    })
-                    }
-                  </div>
+                          </div>
+                        )
+                      })
+                      }
+                    </div>
                   )}
                 </Form.Item>
 
@@ -582,7 +589,7 @@ export default class Index extends PureComponent {
                   , false
                 )
                 : !handleType && (
-                  <Tooltip placement="top" title={vmShow ? null : formatMessage({ id: 'Vm.createVm.unInstall' })} key={vmShow}>
+                  <Tooltip placement="top" title={vmShow ? null : <><span>{formatMessage({ id: 'Vm.createVm.unInstall' })}</span><a target='_blank' href={host + 'docs/vm-guide/vm_deploy/'}>{formatMessage({id:'Vm.createVm.doc'})}</a></>} key={vmShow}>
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"

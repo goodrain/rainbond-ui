@@ -123,7 +123,6 @@ class Index extends PureComponent {
                 overrides: helmInfo.overrides,
             },
             callback: (data) => {
-                console.log(data.bean, 'data')
                 this.setState({
                     switch: !this.state.switch,
                     resourcesVal: data.bean,
@@ -187,7 +186,6 @@ class Index extends PureComponent {
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
         if (type == 'helm') {
-            console.log(resourcesVal,'resourcesVal')
             dispatch({
                 type: "createApp/installHelmUploadApp",
                 payload: {
@@ -196,7 +194,6 @@ class Index extends PureComponent {
                     resource: resourcesVal
                 },
                 callback: (data) => {
-                    console.log(data, 'data')
                     this.setState({
                         deploymentLoading: false,
                     })
@@ -232,7 +229,6 @@ class Index extends PureComponent {
     render() {
         const { resourcesVal, tabKey, deploymentLoading, type, localImageList } = this.state
         const moduleArrs = resourcesVal.convert_resource
-        console.log(resourcesVal, 'arr')
         const k8sArr = resourcesVal.kubernetes_resources
         const bool = (moduleArrs || k8sArr) ? false : true
         return (

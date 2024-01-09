@@ -293,7 +293,7 @@ export default class Index extends PureComponent {
     if(name != undefined){
       const { comNames } = this.state;
       const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      const cleanedPinyinName = pinyinName.toLowerCase();
       if (comNames && comNames.length > 0) {
         const isExist = comNames.some(item => item === cleanedPinyinName);
         if (isExist) {
@@ -355,6 +355,10 @@ export default class Index extends PureComponent {
               })(
                 <Select
                   onChange={this.handleChange}
+                  showSearch
+                  filterOption={(input, option) => 
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
                   style={{

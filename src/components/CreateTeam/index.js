@@ -54,7 +54,7 @@ class CreateTeam extends PureComponent {
     if(name != undefined){
       const { teamNames } = this.state;
       const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.replace(/^[^a-z]+|[^a-z0-9-]+$/g, '').toLowerCase();
+      const cleanedPinyinName = pinyinName.toLowerCase();
       if (teamNames && teamNames.length > 0) {
         const isExist = teamNames.some(item => item === cleanedPinyinName);
         if (isExist) {
@@ -232,7 +232,7 @@ class CreateTeam extends PureComponent {
                   message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' })
                 },
                 {
-                  max: 10,
+                  max: 24,
                   message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' })
                 }
               ]
