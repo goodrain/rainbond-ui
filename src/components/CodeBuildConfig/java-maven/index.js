@@ -97,7 +97,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs, form } = this.props;
+    const { envs, form, buildSourceArr } = this.props;
     const { getFieldDecorator } = form;
     const {
       mavenVisible,
@@ -127,7 +127,7 @@ class Index extends PureComponent {
 
     return (
       <div>
-        <JavaJDK form={form} envs={envs} />
+        <JavaJDK form={form} envs={envs} buildSourceArr={buildSourceArr}/>
         {mavenVisible && (
           <MavenConfiguration
             activeMaven={activeMaven}
@@ -137,16 +137,17 @@ class Index extends PureComponent {
         )}
         <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Maven'/>}>
           {getFieldDecorator('BUILD_RUNTIMES_MAVEN', {
-            initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || '3.9.1'
+            initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || globalUtil.getDefaultVsersion(buildSourceArr.maven || [])
           })(
             <RadioGroup>
-              <Radio value="3.9.1">3.9.1<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="3.8.8">3.8.8</Radio>
-              <Radio value="3.6.3">3.6.3</Radio>
-              <Radio value="3.5.4">3.5.4</Radio>
-              <Radio value="3.3.9">3.3.9</Radio>
-              <Radio value="3.2.5">3.2.5</Radio>
-              <Radio value="3.1.1">3.1.1</Radio>
+              {buildSourceArr && buildSourceArr.maven?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                    {item.first_choice && <FormattedMessage id='componentOverview.body.GoConfig.default'/>}
+                  </Radio>
+                );
+              })}
             </RadioGroup>
           )}
         </Form.Item>
@@ -156,15 +157,23 @@ class Index extends PureComponent {
           help={<FormattedMessage id='componentOverview.body.JavaMavenConfig.War'/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'tomcat85'
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || globalUtil.getDefaultVsersion(buildSourceArr.web || [])
           })(
             <RadioGroup>
-              <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
+              {buildSourceArr && buildSourceArr.web?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                    {item.first_choice && <FormattedMessage id='componentOverview.body.GoConfig.default'/>}
+                  </Radio>
+                );
+              })}
+              {/* <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
               <Radio value="tomcat7">tomcat7</Radio>
               <Radio value="tomcat8">tomcat8</Radio>
               <Radio value="tomcat9">tomcat9</Radio>
               <Radio value="jetty7">jetty7</Radio>
-              <Radio value="jetty9">jetty9</Radio>
+              <Radio value="jetty9">jetty9</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

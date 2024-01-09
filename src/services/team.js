@@ -817,3 +817,16 @@ export async function getHelmAdvancedInfo(body) {
     }
   )
 }
+// 构建源获取组件语言版本
+export async function getComponentLangVersion(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/lang_version`,
+    {
+      method: 'get',
+      params: {
+        lang: body.lang,
+      },
+      handleError
+    }
+  )
+}

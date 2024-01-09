@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -13,6 +13,7 @@ import NodeJSConfig from './nodejs';
 import PHPConfig from './php';
 import PythonConfig from './python';
 import StaticConfig from './static';
+import globalUtil from '../../utils/global';
 
 const { confirm } = Modal;
 
@@ -40,16 +41,18 @@ class CodeBuildConfig extends PureComponent {
         props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES
           ? 'OpenJDK'
           : props.runtimeInfo && props.runtimeInfo.BUILD_ENABLE_ORACLEJDK
-          ? 'Jdk'
-          : props.form.getFieldValue('RUNTIMES')
-          ? props.form.getFieldValue('RUNTIMES')
-          : 'OpenJDK',
+            ? 'Jdk'
+            : props.form.getFieldValue('RUNTIMES')
+              ? props.form.getFieldValue('RUNTIMES')
+              : 'OpenJDK',
       languageType: this.props.language,
       BUILD_ONLINE: false,
       NODE_MODULES_CACHE: false,
       NODE_VERBOSE: false,
       arr: [],
-      setObj: props.runtimeInfo ? props.runtimeInfo : ''
+      setObj: props.runtimeInfo ? props.runtimeInfo : '',
+      buildSourceArr: {},
+      buildSourceLoading: true
     };
   }
 
@@ -57,10 +60,51 @@ class CodeBuildConfig extends PureComponent {
     const { isBtn = true, onRef } = this.props
     this.handleRuntimeInfo(this.props);
     this.setArr(this.props);
-    if(!isBtn && onRef){
+    if (!isBtn && onRef) {
       this.props.onRef(this)
     }
+    const arr = globalUtil.getBuildSource(this.state.languageType)
+    if (arr && arr.length > 0) {
+      const promises = arr.map(item => {
+        return this.getBuildSource(item);
+      });
+      Promise.all(promises)
+        .then(() => {
+          this.setState({ buildSourceLoading: false })
+        })
+        .catch(error => {
+          this.setState({ buildSourceLoading: false })
+        });
+    }
   }
+  // 获取构建源版本
+  getBuildSource = (item) => {
+    return new Promise((resolve, reject) => {
+      const { dispatch, appDetail } = this.props;
+      const { buildSourceArr } = this.state;
+      dispatch({
+        type: 'teamControl/getComponentLangVersion',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appDetail.service.service_alias,
+          lang: item
+        },
+        callback: data => {
+          if (data && data.status_code == 200) {
+            buildSourceArr[item] = data.list
+            this.setState({ buildSourceArr })
+            resolve();
+          }
+        },
+        handleError: res => {
+          buildSourceArr[item] = []
+          this.setState({ buildSourceArr })
+          this.setState({ buildSourceArr })
+          reject(new Error("Failed to get component language version"));
+        }
+      });
+    })
+  };
 
   componentWillReceiveProps(nextProps) {
     if (
@@ -120,7 +164,7 @@ class CodeBuildConfig extends PureComponent {
         delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
       }
       if (JDK_TYPE && JDK_TYPE === 'Jdk') {
-        fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
+        fieldsValue.BUILD_CUSTOMIZE_RUNTIMES = true;
       }
       if (languageType && languageType === 'dockerfile' && onSubmit) {
         onSubmit(setObj);
@@ -150,12 +194,12 @@ class CodeBuildConfig extends PureComponent {
     validateFields(err => {
       if (err) return;
       confirm({
-        title: formatMessage({id:'componentOverview.body.CodeBuildConfig.title'}),
+        title: formatMessage({ id: 'componentOverview.body.CodeBuildConfig.title' }),
         content: '',
         onOk() {
           _th.handleSubmit();
         },
-        onCancel() {}
+        onCancel() { }
       });
     });
   };
@@ -164,7 +208,7 @@ class CodeBuildConfig extends PureComponent {
     const runtime = this.props.form.getFieldValue('RUNTIMES');
     if (runtime === 'Jdk') {
       if (!value) {
-        callback(<FormattedMessage id='componentOverview.body.CodeBuildConfig.callback_msg'/>);
+        callback(<FormattedMessage id='componentOverview.body.CodeBuildConfig.callback_msg' />);
       }
     }
     callback();
@@ -192,40 +236,41 @@ class CodeBuildConfig extends PureComponent {
     };
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
-    const { languageType, arr } = this.state;
+    const { languageType, arr, buildSourceLoading, buildSourceArr } = this.state;
+    if (buildSourceLoading) { return null }
     return (
-      <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
+      <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title' />}>
         {(languageType === 'java-maven' || languageType === 'Java-maven') && (
-          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} />
+          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'java-jar' || languageType === 'Java-jar') && (
           <div>
-            <JavaJarConfig envs={runtimeInfo} form={this.props.form} />
+            <JavaJarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} />
           </div>
         )}
         {(languageType === 'java-war' || languageType === 'Java-war') && (
           <div>
-            <JavaWarConfig envs={runtimeInfo} form={this.props.form} />
+            <JavaWarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
         {(languageType === 'Golang' ||
           languageType === 'go' ||
           languageType === 'Go' ||
           languageType === 'golang') && (
-          <GoConfig envs={runtimeInfo} form={this.props.form} />
-        )}
+            <GoConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
+          )}
         {(languageType === 'Gradle' ||
           languageType === 'gradle' ||
           languageType === 'java-gradle' ||
           languageType === 'Java-gradle' ||
           languageType === 'JAVAGradle') && (
-          <JavaJDKConfig envs={runtimeInfo} form={this.props.form} />
-        )}
+            <JavaJDKConfig envs={runtimeInfo} form={this.props.form}  buildSourceArr={buildSourceArr}/>
+          )}
         {(languageType === 'python' || languageType === 'Python') && (
-          <PythonConfig envs={runtimeInfo} form={this.props.form} />
+          <PythonConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'php' || languageType === 'PHP') && (
-          <PHPConfig envs={runtimeInfo} form={this.props.form} />
+          <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
           <StaticConfig envs={runtimeInfo} form={this.props.form} />
@@ -236,24 +281,25 @@ class CodeBuildConfig extends PureComponent {
           languageType === 'Node' ||
           languageType === 'node' ||
           languageType === 'Node.js') && (
-          <NodeJSConfig
-            languageType={languageType}
-            envs={runtimeInfo}
-            form={this.props.form}
-          />
-        )}
+            <NodeJSConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              form={this.props.form}
+              buildSourceArr={buildSourceArr}
+            />
+          )}
         {(languageType === '.NetCore' ||
           languageType === 'netCore' ||
           languageType === 'netcore') && (
-          <NetCoreConfig
-            languageType={languageType}
-            envs={runtimeInfo}
-            form={this.props.form}
-          />
-        )}
+            <NetCoreConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              form={this.props.form}
+            />
+          )}
         {languageType === 'dockerfile' && (
           <div>
-            <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.CodeBuildConfig.label'/>}>
+            <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.CodeBuildConfig.label' />}>
               {getFieldDecorator('set_dockerfile', { initialValue: [] })(
                 <Dockerinput
                   onChange={value => {
@@ -270,12 +316,11 @@ class CodeBuildConfig extends PureComponent {
             <Col span="5" />
             <Col span="19">
               <Button onClick={this.showConfirm} type="primary">
-                <FormattedMessage id='componentOverview.body.CodeBuildConfig.Confirm'/>
+                <FormattedMessage id='componentOverview.body.CodeBuildConfig.Confirm' />
               </Button>
             </Col>
           </Row>
         }
-        
       </Card>
     );
   }

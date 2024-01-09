@@ -1491,21 +1491,24 @@ export async function fetchTeamNames(body, handleError) {
 // 获取集群下的语言版本信息
 export async function fetchLanguageVersion(body, handleError) {
   return request(
-    `${body.baseUrl}/lg_pack_operate/${body.language}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
     {
       method: 'get',
+      params: {
+        language: body.language
+      },
       handleError
     }
   );
 }
 // 设为默认
 export async function editLanguageDefault(body, handleError){
-  return request(
-    `${body.baseUrl}/lg_pack_operate`,
+  return request( 
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
     {
       method: 'put',
       data: {
-        lang: body.lang,
+        language: body.lang,
         version: body.version,
       }
     }
@@ -1514,11 +1517,11 @@ export async function editLanguageDefault(body, handleError){
 // 上传语言包版本
 export async function uploadLanguageFile(body, handleError){
   return request(
-    `${body.baseUrl}/lg_pack_operate`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
     {
       method: 'post',
       data: {
-        lang: body.lang,
+        language: body.lang,
         version: body.version,
         event_id: body.event_id,
         file_name: body.file_name
@@ -1529,11 +1532,11 @@ export async function uploadLanguageFile(body, handleError){
 // 删除语言包版本
 export async function deleteLanguageFile(body, handleError){
   return request(
-    `${body.baseUrl}/lg_pack_operate`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
     {
       method: 'delete',
       data: {
-        lang: body.lang,
+        language: body.lang,
         version: body.version,
       }
     }

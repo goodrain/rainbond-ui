@@ -49,36 +49,51 @@ export default class upload extends Component {
         };
     }
     componentDidMount() {
-        this.loadPutCluster(this.props.cluster_info[0].region_id)
+        if (this.props.cluster_info.length > 0) {
+            this.setState({
+                regionID: this.props.cluster_info[0].region_id
+            }, () => {
+                this.fetchPakeVs()
+                this.loadPutCluster()
+            })
+        }
     }
     handleOk = (e) => {
         e.preventDefault();
         const { form, dispatch } = this.props;
-        const { fileInfo, clusterUrl } = this.state
+        const { fileInfo, regionID } = this.state
         form.validateFields((err, values) => {
             if (!err) {
-                if (Object.keys(fileInfo).length)
-                    values.event_id = fileInfo.event_id
-                values.file_name = fileInfo.file_name
+                if (Object.keys(fileInfo).length || values.lang === 'nginx' || values.lang === 'net') 
+                values.event_id = fileInfo.event_id || ''
                 dispatch({
                     type: 'global/uploadLanguageFile',
                     payload: {
-                        baseUrl: clusterUrl,
+                        enterprise_id: globalUtil.getCurrEnterpriseId(),
+                        region_id: regionID,
                         lang: values.lang,
                         version: values.version,
-                        event_id: fileInfo.event_id,
-                        file_name: values.file_name
+                        event_id: values.event_id || '',
+                        file_name: values.file_name || ''
                     },
                     callback: res => {
-                        if (res && res.status_code === 200) {
+                        if (res) {
+                            notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
                             this.setState({
                                 modalVisible: false
                             }, () => {
                                 this.fetchPakeVs()
                             })
                         }
+                    },
+                    handleError: err => {
+                        this.setState({
+                            tableList: [],
+                            tableLoading: false
+                        })
                     }
                 });
+            
 
             }
         });
@@ -90,15 +105,17 @@ export default class upload extends Component {
     }
     tabsChange = (key) => {
         this.setState({
-            activeKey: 'golang'
+            activeKey: 'golang',
+            regionID: key
         }, () => {
-            this.loadPutCluster(key)
+            this.fetchPakeVs()
         })
     }
-    loadPutCluster = regionID => {
+    loadPutCluster = () => {
         const {
             dispatch,
         } = this.props;
+        const { regionID } = this.state;
         dispatch({
             type: 'region/fetchEnterpriseCluster',
             payload: {
@@ -111,30 +128,29 @@ export default class upload extends Component {
                     const httpAddress = wsAddress.replace(/^ws:/, 'http:');
                     this.setState({
                         clusterUrl: httpAddress
-                    }, () => {
-                        this.fetchPakeVs()
                     })
                 }
             }
         });
     };
     //获取对应语言的包版本
-    fetchPakeVs = () => {
+    fetchPakeVs = (region_id) => {
         this.setState({
             tableLoading: true
         })
-        const { activeKey, clusterUrl } = this.state
+        const { activeKey, clusterUrl, regionID } = this.state
         const { dispatch } = this.props
         dispatch({
             type: 'global/fetchLanguageVersion',
             payload: {
-                baseUrl: clusterUrl,
+                enterprise_id: globalUtil.getCurrEnterpriseId(),
+                region_id: region_id || regionID,
                 language: activeKey
             },
             callback: res => {
                 if (res)
                     this.setState({
-                        tableList: res.response_data.list,
+                        tableList: res.list,
                         tableLoading: false
                     })
             },
@@ -147,17 +163,19 @@ export default class upload extends Component {
         });
     }
     setDefault = (vs) => {
-        const { activeKey, clusterUrl } = this.state
+        const { activeKey, regionID } = this.state
         const { dispatch } = this.props
         dispatch({
             type: 'global/editLanguageDefault',
             payload: {
-                baseUrl: clusterUrl,
+                enterprise_id: globalUtil.getCurrEnterpriseId(),
+                region_id: regionID,
                 lang: activeKey,
                 version: vs
             },
             callback: res => {
-                notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
+                if (res && res.status_code === 200)
+                    notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
                 this.fetchPakeVs()
             },
             handleError: err => {
@@ -170,11 +188,12 @@ export default class upload extends Component {
     }
     confirm = (row) => {
         const { dispatch } = this.props;
-        const { clusterUrl } = this.state
+        const { regionID } = this.state
         dispatch({
             type: 'global/deleteLanguageFile',
             payload: {
-                baseUrl: clusterUrl,
+                enterprise_id: globalUtil.getCurrEnterpriseId(),
+                region_id: regionID,
                 lang: row.lang,
                 version: row.version,
             },
@@ -182,8 +201,14 @@ export default class upload extends Component {
                 if (res && res.status_code === 200) {
                     this.fetchPakeVs()
                     notification.success({ message: '删除成功' });
-
                 }
+            },
+            handleError: err => {
+                notification.error({ message: '操作失败' });
+                this.setState({
+                    tableList: [],
+                    tableLoading: false
+                })
             }
         });
     }
@@ -253,7 +278,7 @@ export default class upload extends Component {
                             okText="确定"
                             cancelText="取消"
                         >
-                            {!row.system && <Button type="link">删除</Button>}
+                            {!row.system && !row.first_choice && <Button type="link">删除</Button>}
                         </Popconfirm>
 
                     </>
@@ -359,34 +384,53 @@ export default class upload extends Component {
                                 ],
                             })(<Input placeholder="placeholder" />)}
                         </Form.Item>
-                        <Form.Item label="上传文件" {...formItemLayout}>
-                            {getFieldDecorator('file', {
-                            })(<Upload
-                                fileList={fileList}
-                                name="file"
-                                onChange={this.onChangeUpload}
-                                action={`${this.state.clusterUrl}/lg_pack_operate/upload`}
-                                multiple={true}
-                            >
-                                <Button>
-                                    <Icon type="upload" />
-                                    {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
-                                </Button>
-                            </Upload>
-                            )}
-                        </Form.Item>
-                        {Object.keys(fileInfo).length > 0 &&
-                            <Form.Item label="文件名" {...formItemLayout}>
+
+
+                        {(activeKey === 'nginx' || activeKey === 'net') ?
+                            <Form.Item label="镜像地址" {...formItemLayout}>
                                 {getFieldDecorator(`file_name`, {
-                                    initialValue: fileInfo.file_name,
+                                    initialValue: '',
                                     rules: [
                                         {
                                             required: true,
                                             message: 'Input something!',
                                         },
                                     ],
-                                })(<Input placeholder="placeholder" disabled={true} />)}
+                                })(<Input placeholder="placeholder" />)}
                             </Form.Item>
+                            :
+                            <>
+                                <Form.Item label="上传文件" {...formItemLayout}>
+                                    {getFieldDecorator('file', {
+                                    })(<Upload
+                                        fileList={fileList}
+                                        name="file"
+                                        onChange={this.onChangeUpload}
+                                        action={`${this.state.clusterUrl}/lg_pack_operate/upload`}
+                                        multiple={true}
+                                    >
+                                        <Button>
+                                            <Icon type="upload" />
+                                            {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+                                        </Button>
+                                    </Upload>
+                                    )}
+                                </Form.Item>
+                                {Object.keys(fileInfo).length > 0 &&
+                                    <Form.Item label="文件名" {...formItemLayout}>
+                                        {getFieldDecorator(`file_name`, {
+                                            initialValue: fileInfo.file_name,
+                                            rules: [
+                                                {
+                                                    required: true,
+                                                    message: 'Input something!',
+                                                },
+                                            ],
+                                        })(<Input placeholder="placeholder" disabled={true} />)}
+                                    </Form.Item>
+                                }
+                            </>
+
                         }
                     </Form>
                 </Modal>

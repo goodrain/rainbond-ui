@@ -34,7 +34,8 @@ import {
   fetchPluginUrl,
   fetchServiceID,
   fetchAppNames,
-  getHelmAdvancedInfo
+  getHelmAdvancedInfo,
+  getComponentLangVersion
 } from '../services/team';
 
 export default {
@@ -312,6 +313,12 @@ export default {
     },
     *getHelmAdvancedInfo({ payload, callback, handleError }, { call }) {
       const response = yield call(getHelmAdvancedInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getComponentLangVersion({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentLangVersion, payload, handleError);
       if (response && callback) {
         callback(response);
       }
