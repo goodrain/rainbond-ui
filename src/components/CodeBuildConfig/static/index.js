@@ -3,6 +3,8 @@ import { Form, Radio, Switch, Input } from "antd";
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";
+import { closeTeamRegion } from "@/services/team";
+import GlobalUtils from '@/utils/global';
 const RadioGroup = Radio.Group;
 
 @connect(null, null, null,
@@ -32,7 +34,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs } = this.props;
+    const { envs, buildSourceArr } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
@@ -51,13 +53,21 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.StaticConfig.web"/>}>
           {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || "nginx"
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.web_runtime || [])
           })(
             <RadioGroup >
-              <Radio value="nginx" selected="selected">
+              {buildSourceArr && buildSourceArr.web_runtime?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                    {item.first_choice && <FormattedMessage id='componentOverview.body.GoConfig.default' />}
+                  </Radio>
+                );
+              })}
+              {/* <Radio value="nginx" selected="selected">
                 nginx<FormattedMessage id='componentOverview.body.GoConfig.default'/>
               </Radio>
-              <Radio value="apache">apache</Radio>
+              <Radio value="apache">apache</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

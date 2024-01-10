@@ -32,12 +32,13 @@ export default class upload extends Component {
                 { key: 'openJDK', value: 'OpenJDK' },
                 { key: 'golang', value: 'Golang' },
                 { key: 'node', value: 'Node' },
-                { key: 'web', value: 'Web 服务器' },
+                { key: 'web_compiler', value: 'Web构建' },
                 { key: 'maven', value: 'Maven' },
                 { key: 'python', value: 'Python' },
-                { key: 'net', value: '.Net' },
+                { key: 'net_compiler', value: '.Net构建' },
+                { key: 'net_runtime', value: '.Net运行' },
                 { key: 'php', value: 'PHP' },
-                { key: 'nginx', value: 'Nginx' },
+                { key: 'web_runtime', value: 'Web运行' },
             ],
             activeKey: "openJDK",
             tableLoading: false,
@@ -64,7 +65,7 @@ export default class upload extends Component {
         const { fileInfo, regionID } = this.state
         form.validateFields((err, values) => {
             if (!err) {
-                if (Object.keys(fileInfo).length || values.lang === 'nginx' || values.lang === 'net') 
+                if (Object.keys(fileInfo).length || values.lang === 'net_runtime' || values.lang === 'net_compiler') 
                 values.event_id = fileInfo.event_id || ''
                 dispatch({
                     type: 'global/uploadLanguageFile',
@@ -217,7 +218,6 @@ export default class upload extends Component {
         fileList = fileList.filter(file => {
             if (file.response) {
                 notification.success({ message: '上传成功' });
-                console.log(file.response, "file.response");
                 this.setState({
                     fileInfo: file.response.bean
                 })
@@ -386,7 +386,7 @@ export default class upload extends Component {
                         </Form.Item>
 
 
-                        {(activeKey === 'nginx' || activeKey === 'net') ?
+                        {(activeKey === 'net_runtime' || activeKey === 'net_compiler') ?
                             <Form.Item label="镜像地址" {...formItemLayout}>
                                 {getFieldDecorator(`file_name`, {
                                     initialValue: '',

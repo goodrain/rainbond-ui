@@ -273,7 +273,7 @@ class CodeBuildConfig extends PureComponent {
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} />
+          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'nodejsstatic' ||
           languageType === 'NodeJSStatic' ||
@@ -295,6 +295,7 @@ class CodeBuildConfig extends PureComponent {
               languageType={languageType}
               envs={runtimeInfo}
               form={this.props.form}
+              buildSourceArr={buildSourceArr}
             />
           )}
         {languageType === 'dockerfile' && (

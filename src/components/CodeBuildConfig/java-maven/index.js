@@ -124,7 +124,6 @@ class Index extends PureComponent {
         Default_BUILD_MAVEN_SETTING_NAME = MavenList[0].name;
       }
     }
-
     return (
       <div>
         <JavaJDK form={form} envs={envs} buildSourceArr={buildSourceArr}/>
@@ -160,7 +159,7 @@ class Index extends PureComponent {
             initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || globalUtil.getDefaultVsersion(buildSourceArr.web || [])
           })(
             <RadioGroup>
-              {buildSourceArr && buildSourceArr.web?.map((item, index) => {
+              {buildSourceArr && buildSourceArr.web_compiler?.map((item, index) => {
                 return (
                   <Radio key={index} value={item.version}>
                     {item.version}

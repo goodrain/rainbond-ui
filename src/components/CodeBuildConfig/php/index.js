@@ -45,11 +45,20 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.PHPConfig.web" />}>
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'apache'
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.web_runtime || [])
           })(
             <RadioGroup>
-              <Radio value="apache">apache<FormattedMessage id='componentOverview.body.GoConfig.default' /></Radio>
-              <Radio value="nginx">nginx</Radio>
+              {buildSourceArr && buildSourceArr.web_runtime?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                    {item.first_choice && <FormattedMessage id='componentOverview.body.GoConfig.default' />}
+                  </Radio>
+                );
+
+              })}
+              {/* <Radio value="apache">apache<FormattedMessage id='componentOverview.body.GoConfig.default' /></Radio>
+              <Radio value="nginx">nginx</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

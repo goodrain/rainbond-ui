@@ -2388,13 +2388,13 @@ const global = {
       case 'java-gradle':
         return ['openJDK'];
       case 'java-war':
-        return ['openJDK', 'web'];
+        return ['openJDK', 'web_compiler'];
       case 'java-maven':
-        return ['openJDK', 'maven', 'web'];
+        return ['openJDK', 'maven', 'web_compiler'];
       case 'python':
         return ['python'];
       case 'php':
-        return ['web', 'php'];
+        return ['web_runtime', 'php'];
       case 'golang':
       case 'go':
         return ['golang'];
@@ -2404,10 +2404,10 @@ const global = {
       case 'node':
         return ['node'];
       case 'static':
-        return ['web'];
+        return ['web_runtime'];
       case 'netcore':
       case '.netcore':
-        return ['net'];
+        return ['net_compiler', 'net_runtime'];
       default:
         return '';
     }
