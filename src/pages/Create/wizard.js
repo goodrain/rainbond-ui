@@ -13,7 +13,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CustomFooter from "../../layouts/CustomFooter"
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
-import styles from './index.less';
+import styles from './wizard.less';
 
 @connect(({ enterprise, user }) => ({
     currentEnterprise: enterprise.currentEnterprise,

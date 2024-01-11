@@ -14,6 +14,7 @@ const enterpriseMenu = {
 const teamMenu = {
   'menu.team.dashboard': 'Overview',
   'menu.team.create': 'Add',
+  'menu.team.create.wizard': 'Wizard page',
   'menu.team.create.code': 'Build from source code',
   'menu.team.create.image': 'Build from images',
   'menu.team.create.upload': 'Yaml Helm Kubernetes',

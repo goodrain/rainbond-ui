@@ -27,7 +27,7 @@ import Result from '../../components/Result';
 import CustomFooter from "../../layouts/CustomFooter"
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
-import TeamWizard from '../TeamWizard'
+import TeamWizard from '../Create/wizard'
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
 import styles from './Index.less';
@@ -451,7 +451,7 @@ export default class Index extends PureComponent {
                   type="primary"
                   onClick={() => {
                     // this.setState({ createAppVisible: true });
-                    this.props.dispatch(routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/wizard` }))
+                    this.props.dispatch(routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/wizard` }))
                   }}
                 >
                   {formatMessage({ id: 'teamOverview.createApp' })}

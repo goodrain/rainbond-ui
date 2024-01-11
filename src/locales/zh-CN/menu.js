@@ -14,6 +14,7 @@ const enterpriseMenu = {
 const teamMenu = {
   'menu.team.dashboard': '总览',
   'menu.team.create': '新建',
+  'menu.team.create.wizard': '向导页',
   'menu.team.create.code': '从源码构建',
   'menu.team.create.image': '从镜像构建',
   'menu.team.create.upload': 'Yaml Helm Kubernetes',

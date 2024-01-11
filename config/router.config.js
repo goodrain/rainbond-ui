@@ -265,12 +265,6 @@ export default [
             authority: ['admin', 'user']
           },
           {
-            path: '/team/:teamName/region/:regionName/wizard',
-            component: './TeamWizard/index',
-            name: 'teamOverview',
-            authority: ['admin', 'user']
-          },
-          {
             path: '/team/:teamName/region/:regionName/shared/import',
             component: './EnterpriseImport',
             name: 'teamSharedImport',
@@ -390,7 +384,6 @@ export default [
             name: 'AppShareLoading',
             authority: ['admin', 'user']
           },
-
           {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/three',
@@ -413,6 +406,13 @@ export default [
             authority: ['admin', 'user']
           },
 
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/wizard',
+            component: './Create/wizard',
+            name: 'wizard',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/create/code/:type?/:code?',
