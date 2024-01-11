@@ -120,7 +120,7 @@ export default class rollsBackRecordDetails extends PureComponent {
       <Modal
         visible
         title="回滚详情"
-        width={1000}
+        width={1024}
         confirmLoading={loading}
         className={styles.TelescopicModal}
         onCancel={onCancel}

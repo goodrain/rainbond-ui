@@ -82,7 +82,7 @@ export default class InstallStep extends PureComponent {
       <Spin />
     ) : isOffLine ? (
       <Modal
-        width={600}
+        width={800}
         centered
         keyboard={false}
         maskClosable={false}

@@ -76,7 +76,7 @@ class CreateOAuthForm extends PureComponent {
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
-        width={600}
+        width={480}
         className={styless.TelescopicModal}
         footer={[
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>

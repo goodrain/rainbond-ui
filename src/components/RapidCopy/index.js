@@ -368,11 +368,12 @@ export default class Index extends PureComponent {
     };
 
     return (
+      
       <Modal
         className={styless.TelescopicModal}
         onOk={this.handleSubmit}
         title={title}
-        width={1200}
+        width={1024}
         visible
         onCancel={onCancel}
         footer={[
@@ -566,7 +567,7 @@ export default class Index extends PureComponent {
                             this.save(item, isCodeApp, e.target.value);
                           }}
                           style={{
-                            width: '268px'
+                            width: '230px'
                           }}
                         />
                       )}

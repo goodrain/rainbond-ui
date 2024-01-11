@@ -30,10 +30,11 @@ export default class ModifyUrl extends PureComponent {
     const { service_cname, isServiceCname=false } = this.props
     const data = this.props.data || {};
     const showUsernameAndPass = !!this.props.showUsernameAndPass;
+    
     return (
       <Modal
         title={formatMessage({ id: 'componentCheck.modify_image_name.title' })}
-        width={600}
+        width={800}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}

@@ -82,7 +82,7 @@ export default class MoveGroup extends PureComponent {
       <Modal
         title={formatMessage({id:'appOverview.list.BatchDelete.title'})}
         visible
-        width={600}
+        width={800}
         onCancel={onCancel}
         footer={<Button onClick={onCancel}>{formatMessage({id:'applicationMarket.NewbieGuiding.complete'})}</Button>}
       >

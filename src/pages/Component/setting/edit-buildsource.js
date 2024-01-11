@@ -219,7 +219,7 @@ export default class ChangeBuildSource extends PureComponent {
     const archLegnth = buildSource.arch.length
     return (
       <Modal
-        width={700}
+        width={800}
         title={title}
         confirmLoading={appBuidSourceLoading}
         onOk={this.handleSubmit}

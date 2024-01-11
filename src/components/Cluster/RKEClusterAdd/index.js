@@ -27,7 +27,8 @@ import {
   Tooltip,
   Typography,
   Badge,
-  Spin
+  Spin,
+  Drawer
 } from 'antd';
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
@@ -110,8 +111,8 @@ class EditableCell extends React.Component {
       rules.push({
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.correct_IP' }),
         pattern: new RegExp(ipRegs, 'g')
-      },{
-        validator: this.validateIP 
+      }, {
+        validator: this.validateIP
       });
     }
     const sshPort = dataIndex === 'sshPort';
@@ -816,13 +817,13 @@ export default class RKEClusterConfig extends PureComponent {
           text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: 
-        <div>
-          {formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' })}&nbsp;
-          <Tooltip placement='bottom' title={formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity.desc' })}>
-            <Icon type="question-circle" />
-          </Tooltip>
-        </div>,
+        title:
+          <div>
+            {formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' })}&nbsp;
+            <Tooltip placement='bottom' title={formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity.desc' })}>
+              <Icon type="question-circle" />
+            </Tooltip>
+          </div>,
         dataIndex: 'msg',
         width: 160,
         render: (text, record) => {
@@ -896,52 +897,16 @@ export default class RKEClusterConfig extends PureComponent {
     };
 
     return (
-      <Modal
-        visible
-        title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster' /> : <FormattedMessage id='enterpriseColony.addCluster.host.Host' />}
+      <Drawer
         className={styles.TelescopicModal}
-        width={1200}
+        title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster' /> : <FormattedMessage id='enterpriseColony.addCluster.host.Host' />}
+        placement="right"
+        closable={false}
+        onClose={onCancel}
+        visible
+        width={1024}
         destroyOnClose
-        footer={
-          <Fragment>
-            <Button
-              type="primary"
-              style={(guideStep && guideStep === 6 && {
-                position: 'relative',
-                zIndex: 1000,
-              }) || {}}
-              disabled={isCheckStatus}
-              onClick={() => {
-                this.handleCheckSsh()
-              }}
-              loading={loading}
-            >
-              {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata' /> : (isCheckStatus ? formatMessage({ id: 'enterpriseColony.addCluster.host.checking' }) : <FormattedMessage id='enterpriseColony.addCluster.host.start_install' />)}
-            </Button>
-            {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0 && (
-              <Fragment>
-                {handleNewbieGuiding({
-                  tit: formatMessage({ id: 'enterpriseColony.addCluster.host.start_install_six' }),
-                  send: true,
-                  configName: 'kclustersAttention',
-                  desc: formatMessage({ id: 'enterpriseColony.addCluster.host.Start_installation_now' }),
-                  nextStep: 7,
-                  btnText: formatMessage({ id: 'button.install' }),
-                  conPosition: { right: '110px', bottom: 0 },
-                  svgPosition: { right: '50px', marginTop: '-11px' },
-                  handleClick: () => {
-                    this.handleCheckSsh();
-                  }
-                })}
-              </Fragment>
-            )}
-          </Fragment>
-        }
-        confirmLoading={loading}
-        onCancel={onCancel}
-        maskClosable={false}
       >
-
         {clusterID && (
           <Alert
             type="warning"
@@ -1135,7 +1100,7 @@ export default class RKEClusterConfig extends PureComponent {
           </div>
         </Form>
 
-        <Row style={{ padding: '0 16px' }}>
+        <Row style={{ padding: '0 16px', marginBottom: 60 }}>
           <span style={{ fontWeight: 600, color: 'red' }}>
             <FormattedMessage id='enterpriseColony.addCluster.host.start_at' />{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration' /> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation' />}
             <FormattedMessage id='enterpriseColony.addCluster.host.soud' />
@@ -1175,7 +1140,332 @@ export default class RKEClusterConfig extends PureComponent {
             </span>
           </Col>
         </Row>
-      </Modal>
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            borderTop: '1px solid #e9e9e9',
+            padding: '10px 16px',
+            background: '#fff',
+            textAlign: 'right',
+          }}
+        >
+          <Fragment>
+            <Button
+              type="primary"
+              style={(guideStep && guideStep === 6 && {
+                position: 'relative',
+                zIndex: 1000,
+              }) || {}}
+              disabled={isCheckStatus}
+              onClick={() => {
+                this.handleCheckSsh()
+              }}
+              loading={loading}
+            >
+              {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata' /> : (isCheckStatus ? formatMessage({ id: 'enterpriseColony.addCluster.host.checking' }) : <FormattedMessage id='enterpriseColony.addCluster.host.start_install' />)}
+            </Button>
+            {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0 && (
+              <Fragment>
+                {handleNewbieGuiding({
+                  tit: formatMessage({ id: 'enterpriseColony.addCluster.host.start_install_six' }),
+                  send: true,
+                  configName: 'kclustersAttention',
+                  desc: formatMessage({ id: 'enterpriseColony.addCluster.host.Start_installation_now' }),
+                  nextStep: 7,
+                  btnText: formatMessage({ id: 'button.install' }),
+                  conPosition: { right: '110px', bottom: 0 },
+                  svgPosition: { right: '50px', marginTop: '-11px' },
+                  handleClick: () => {
+                    this.handleCheckSsh();
+                  }
+                })}
+              </Fragment>
+            )}
+          </Fragment>
+        </div>
+      </Drawer>
+      // <Modal
+      //   visible
+      //   title={clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.Configure_cluster' /> : <FormattedMessage id='enterpriseColony.addCluster.host.Host' />}
+      //   className={styles.TelescopicModal}
+      //   width={1200}
+      //   destroyOnClose
+      //   footer={
+      // <Fragment>
+      //   <Button
+      //     type="primary"
+      //     style={(guideStep && guideStep === 6 && {
+      //       position: 'relative',
+      //       zIndex: 1000,
+      //     }) || {}}
+      //     disabled={isCheckStatus}
+      //     onClick={() => {
+      //       this.handleCheckSsh()
+      //     }}
+      //     loading={loading}
+      //   >
+      //     {clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.updata' /> : (isCheckStatus ? formatMessage({ id: 'enterpriseColony.addCluster.host.checking' }) : <FormattedMessage id='enterpriseColony.addCluster.host.start_install' />)}
+      //   </Button>
+      //   {guideStep && guideStep === 6 && handleNewbieGuiding && clusters && clusters.length === 0 && (
+      //     <Fragment>
+      //       {handleNewbieGuiding({
+      //         tit: formatMessage({ id: 'enterpriseColony.addCluster.host.start_install_six' }),
+      //         send: true,
+      //         configName: 'kclustersAttention',
+      //         desc: formatMessage({ id: 'enterpriseColony.addCluster.host.Start_installation_now' }),
+      //         nextStep: 7,
+      //         btnText: formatMessage({ id: 'button.install' }),
+      //         conPosition: { right: '110px', bottom: 0 },
+      //         svgPosition: { right: '50px', marginTop: '-11px' },
+      //         handleClick: () => {
+      //           this.handleCheckSsh();
+      //         }
+      //       })}
+      //     </Fragment>
+      //   )}
+      // </Fragment>
+      //   }
+      //   confirmLoading={loading}
+      //   onCancel={onCancel}
+      //   maskClosable={false}
+      // >
+
+      //   {clusterID && (
+      //     <Alert
+      //       type="warning"
+      //       message={<FormattedMessage id='enterpriseColony.addCluster.host.suitable' />}
+      //     />
+      //   )}
+      //   <Form>
+      //     <Row>
+      //       <Col span={24} style={{ padding: '16px' }}>
+      //         <Paragraph
+      //           className={styles.describe}
+      //           style={(guideStep && guideStep === 3 && highlighted) || {}}
+      //         >
+      //           <ul>
+      //             <li>
+      //               <span><FormattedMessage id='enterpriseColony.addCluster.host.provided_hosts' /></span>
+      //             </li>
+      //             <li>
+      //               <span>
+      //                 <FormattedMessage id='enterpriseColony.addCluster.host.provided_host' />{!clusterID && <FormattedMessage id='enterpriseColony.addCluster.host.and_ip' />}
+      //                 <b><FormattedMessage id='enterpriseColony.addCluster.host.and_ssh' /></b><FormattedMessage id='enterpriseColony.addCluster.host.and' /><b><FormattedMessage id='enterpriseColony.addCluster.host.port' /></b>
+      //                 <FormattedMessage id='enterpriseColony.addCluster.host.visit' />
+      //               </span>
+      //             </li>
+      //             <li>
+      //               <span>
+      //                 <FormattedMessage id='enterpriseColony.addCluster.host.script' /><b><FormattedMessage id='enterpriseColony.addCluster.host.System_check' /></b>、<b><FormattedMessage id='enterpriseColony.addCluster.host.secret_free' /></b>、
+      //                 <b><FormattedMessage id='enterpriseColony.addCluster.host.docker' /></b><FormattedMessage id='enterpriseColony.addCluster.host.movements' />
+      //               </span>
+      //             </li>
+      //             <li>
+      //               <span>
+      //                 <FormattedMessage id='enterpriseColony.addCluster.host.already_installed' />
+      //                 <b> 1.19.x</b>
+      //               </span>
+      //             </li>
+      //           </ul>
+      //         </Paragraph>
+      //         {guideStep && guideStep === 3 && handleNewbieGuiding && clusters && clusters.length === 0 && (
+      //           <Fragment>
+      //             {handleNewbieGuiding({
+      //               tit: formatMessage({ id: 'enterpriseColony.addCluster.host.matters_attention' }),
+      //               send: false,
+      //               configName: 'kclustersAttention',
+      //               showSvg: false,
+      //               showArrow: true,
+      //               desc: formatMessage({ id: 'enterpriseColony.addCluster.host.explain' }),
+      //               nextStep: 4,
+      //               conPosition: { left: '0px', bottom: '-100px' }
+      //             })}
+      //           </Fragment>
+      //         )}
+      //       </Col>
+      //     </Row>
+      //     {!clusterID && (
+      //       <Row>
+      //         <Col
+      //           span={12}
+      //           style={{
+      //             padding: guideStep && guideStep === 4 ? '' : '0 16px'
+      //           }}
+      //         >
+      //           <Form.Item
+      //             label={<FormattedMessage id='enterpriseColony.addCluster.host.name_Cluster' />}
+      //             style={
+      //               (guideStep &&
+      //                 guideStep === 4 &&
+      //                 Object.assign({}, { padding: '0 16px' }, highlighted)) ||
+      //               {}
+      //             }
+      //           >
+      //             {getFieldDecorator('name', {
+      //               initialValue: '',
+      //               rules: [
+      //                 { required: true, message: formatMessage({ id: 'enterpriseColony.addCluster.host.required' }) },
+      //                 {
+      //                   pattern: /^[a-z0-9A-Z-]+$/,
+      //                   message: formatMessage({ id: 'enterpriseColony.addCluster.host.supported' })
+      //                 },
+      //                 { max: 24, message: formatMessage({ id: 'enterpriseColony.addCluster.host.max' }) }
+      //               ]
+      //             })(<Input placeholder={formatMessage({ id: 'enterpriseColony.addCluster.host.only' })}
+      //               style={{
+      //                 textOverflow: 'ellipsis',
+      //                 overflow: 'hidden',
+      //                 whiteSpace: 'nowrap'
+      //               }} />)}
+      //           </Form.Item>
+      //           {guideStep && guideStep === 4 && handleNewbieGuiding && clusters && clusters.length === 0 && (
+      //             <Fragment>
+      //               {handleNewbieGuiding({
+      //                 tit: formatMessage({ id: 'enterpriseColony.addCluster.host.input_name' }),
+      //                 showSvg: false,
+      //                 showArrow: true,
+      //                 send: false,
+      //                 configName: 'kclustersAttention',
+      //                 desc: formatMessage({ id: 'enterpriseColony.addCluster.host.configuration_information' }),
+      //                 nextStep: 5,
+      //                 conPosition: { marginTop: '-22px' }
+      //               })}
+      //             </Fragment>
+      //           )}
+      //         </Col>
+      //       </Row>
+      //     )}
+
+      //     <Tabs
+      //       activeKey={activeKey}
+      //       onChange={key => {
+      //         this.handleTabs(key);
+      //       }}
+      //     >
+      //       <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Visual_configuration' />} key="1">
+      //         <div>
+      //           <Row>
+      //             <Col span={24} style={{ padding: '0 16px' }}>
+      //               <Form.Item
+      //                 label={<FormattedMessage id='enterpriseColony.addCluster.host.list' />}
+      //                 style={
+      //                   (guideStep &&
+      //                     guideStep === 5 &&
+      //                     Object.assign(
+      //                       {},
+      //                       { padding: '0 16px' },
+      //                       highlighted
+      //                     )) ||
+      //                   {}
+      //                 }
+      //               >
+      //                 {getFieldDecorator('nodeLists', {
+      //                   initialValue: ''
+      //                 })(
+      //                   <Table
+      //                     dataSource={dataSource}
+      //                     columns={columnEdits}
+      //                     components={components}
+      //                     bordered
+      //                     key={isCheckSsh}
+      //                     rowClassName={() => 'editable-row'}
+      //                     pagination={false}
+      //                   />
+      //                 )}
+      //               </Form.Item>
+      //               <Button
+      //                 onClick={this.handleAdd}
+      //                 style={{ marginBottom: 16 }}
+      //               >
+      //                 <FormattedMessage id='enterpriseColony.addCluster.host.add_node' />
+      //               </Button>
+      //             </Col>
+      //           </Row>
+      //         </div>
+      //       </TabPane>
+      //       <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration' />} key="2" />
+      //     </Tabs>
+      //     {guideStep && guideStep === 5 && handleNewbieGuiding && clusters && clusters.length === 0 && (
+      //       <Fragment>
+      //         {handleNewbieGuiding({
+      //           tit: formatMessage({ id: 'enterpriseColony.addCluster.host.Fill_in_node' }),
+      //           showSvg: false,
+      //           showArrow: false,
+      //           send: true,
+      //           btnText: '我知道了',
+      //           configName: 'kclustersAttention',
+      //           desc: formatMessage({ id: 'enterpriseColony.addCluster.host.configuration_information' }),
+      //           nextStep: 6,
+      //           conPosition: { top: '240px', left: '200px' },
+      //         })}
+      //       </Fragment>
+      //     )}
+      //     <div style={{ display: activeKey === '1' ? 'none' : 'block' }}>
+      //       {((clusterID && activeKey === '2') || !clusterID) && (
+      //         <CodeMirrorForm
+      //           help={helpError}
+      //           data={yamlVal || ''}
+      //           label={<FormattedMessage id='enterpriseColony.addCluster.host.RKE_cluste_configuration' />}
+      //           bg="151718"
+      //           width="1000px"
+      //           marginTop={120}
+      //           setFieldsValue={setFieldsValue}
+      //           formItemLayout={formItemLayout}
+      //           Form={Form}
+      //           getFieldDecorator={getFieldDecorator}
+      //           beforeUpload={this.beforeUpload}
+      //           mode="yaml"
+      //           name="yamls"
+      //           message={<FormattedMessage id='enterpriseColony.addCluster.host.input_rke' />}
+      //         />
+      //       )}
+      //     </div>
+      //   </Form>
+
+      //   <Row style={{ padding: '0 16px' }}>
+      //     <span style={{ fontWeight: 600, color: 'red' }}>
+      //       <FormattedMessage id='enterpriseColony.addCluster.host.start_at' />{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration' /> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation' />}
+      //       <FormattedMessage id='enterpriseColony.addCluster.host.soud' />
+      //     </span>
+
+      //     <Col span={24} style={{ marginTop: '16px' }}>
+      //       <span className={styles.cmd}>
+      //         <Icon
+      //           className={styles.copy}
+      //           type="copy"
+      //           onClick={() => {
+      //             copy(initNodeCmd);
+      //             notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
+      //           }}
+      //         />
+      //         {guideStep &&
+      //           guideStep === 7 &&
+      //           handleNewbieGuiding({
+      //             tit: formatMessage({ id: 'enterpriseColony.addCluster.host.Initialization' }),
+      //             send: true,
+      //             configName: 'nodeInitialization',
+      //             handleClick: () => {
+      //               copy(initNodeCmd);
+      //               this.handleCountDown();
+      //             },
+      //             handleClosed: () => {
+      //               this.handleCountDown();
+      //             },
+      //             desc: formatMessage({ id: 'enterpriseColony.addCluster.host.complete' }),
+      //             prevStep: false,
+      //             btnText: formatMessage({ id: 'enterpriseColony.addCluster.host.copy' }),
+      //             nextStep: 8,
+      //             conPosition: { left: '0', bottom: '-156px' },
+      //             svgPosition: { right: '-20px', marginTop: '-11px' }
+      //           })}
+      //         {initNodeCmd}
+      //       </span>
+      //     </Col>
+      //   </Row>
+      // </Modal>
     );
   }
 }

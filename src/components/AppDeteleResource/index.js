@@ -172,7 +172,7 @@ export default class AppDeteleResource extends PureComponent {
                 title={formatMessage({id:'appOverview.app.delete.title'})}
                 bodyStyle={{ height: isflag ? '200px' : '500px', overflowY: 'auto' }}
                 visible
-                width={600}
+                width={800}
                 onCancel={onCancel}
                 footer={!isflag ? [
                     <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,

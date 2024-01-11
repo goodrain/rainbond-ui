@@ -25,7 +25,7 @@ export default class Index extends PureComponent {
         onCancel={onCancel}
         footer={<Button onClick={onOk}><FormattedMessage id='componentOverview.body.MarketAppDetailShow.determine'/></Button>}
         title={title}
-        width={700}
+        width={800}
       >
         {details && details.indexOf('</') > -1 ? (
           <div

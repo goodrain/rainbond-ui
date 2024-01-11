@@ -235,7 +235,7 @@ export default class OauthTable extends PureComponent {
         title={formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.title'})}
         loading={loading}
         className={styles.TelescopicModal}
-        width={1150}
+        width={1024}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}

@@ -243,7 +243,7 @@ class Index extends Component {
                 <Modal
                     title={modalTitle}
                     visible={showPodSwitch}
-                    width={900}
+                    width={1024}
                     onCancel={this.handleCancel}
                     footer={[
                         <Button key="back" onClick={this.handleCancel}>

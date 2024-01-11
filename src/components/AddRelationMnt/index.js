@@ -148,7 +148,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         title={<FormattedMessage id="componentOverview.body.AddRelationMnt.title"/>}
-        width={1150}
+        width={1024}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}

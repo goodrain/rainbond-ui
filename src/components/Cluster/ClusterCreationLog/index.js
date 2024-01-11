@@ -60,7 +60,7 @@ export default class ClusterCreationLog extends PureComponent {
         className={styles.TelescopicModal}
         onCancel={onCancel}
         onOk={this.onOk}
-        width={1000}
+        width={1024}
         maskClosable={false}
         bodyStyle={{ background: '#000' }}
         footer={null}

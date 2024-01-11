@@ -165,11 +165,12 @@ class Index extends PureComponent {
     const { new_pods: newPods, old_pods: oldPods } = this.props;
     const { instanceInfo, visible, language } = this.state;
     const isOldPods = oldPods && oldPods.length > 0;
+    
     return (
       <div>
         <Modal
           title={instanceInfo && instanceInfo.name}
-          width="1000px"
+          width={1024}
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

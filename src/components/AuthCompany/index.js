@@ -350,10 +350,11 @@ export default class Index extends PureComponent {
         <FormattedMessage id='applicationMarket.AuthCompany.grant'/>
       </span>
     );
+    
     return (
       isShowModal && (
         <Modal
-          width={530}
+          width={480}
           title={title}
           visible
           onCancel={onCancel || this.hidden}

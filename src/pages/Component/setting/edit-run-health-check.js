@@ -61,9 +61,10 @@ export default class EditRunHealthCheck extends PureComponent {
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const scheme = getFieldValue('scheme') || 'tcp';
+    
     return (
       <Modal
-        width={700}
+        width={800}
         title={title}
         onOk={this.handleSubmit}
         onCancel={onCancel}

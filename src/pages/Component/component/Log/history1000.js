@@ -39,7 +39,7 @@ export default class History1000Log extends PureComponent {
       <Modal
         title={<FormattedMessage id='componentOverview.body.tab.log.History1000Log.title'/>}
         visible
-        width={1000}
+        width={1024}
         bodyStyle={{ background: '#222222', color: '#fff' }}
         className={styles.logModal}
         onCancel={this.props.onCancel}

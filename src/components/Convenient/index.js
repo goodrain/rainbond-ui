@@ -302,7 +302,7 @@ export default class Convenient extends PureComponent {
     return (
       <Modal
         title={title}
-        width={600}
+        width={800}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}

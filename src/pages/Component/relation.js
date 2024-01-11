@@ -21,10 +21,11 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 class ViewRelationInfo extends PureComponent {
   render() {
     const { appAlias, onCancel } = this.props;
+    // 
     return (
       <Modal
         title={<FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.title' />}
-        width={1000}
+        width={800}
         visible
         onCancel={onCancel}
         footer={[<Button onClick={onCancel}><FormattedMessage id='componentOverview.body.Relation.ViewRelationInfo.close' /></Button>]}

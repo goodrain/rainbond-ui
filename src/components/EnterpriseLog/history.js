@@ -44,7 +44,7 @@ export default class HistoryLog extends PureComponent {
       <Modal
         title={<FormattedMessage id='componentOverview.body.tab.log.HistoryLog.title' />}
         visible
-        width={700}
+        width={800}
         onCancel={this.props.onCancel}
         footer={[<Button onClick={this.props.onCancel}><FormattedMessage id='componentOverview.body.tab.log.HistoryLog.close' /></Button>]}
       >
