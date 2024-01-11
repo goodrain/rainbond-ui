@@ -9,7 +9,8 @@ import {
   Input,
   notification,
   Tabs,
-  Tooltip
+  Tooltip,
+  Switch
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -45,8 +46,9 @@ export default class AutoDeploy extends PureComponent {
        'api_webhooks' : 'code_webhooks',
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
-      deploy_keyword: 'deploy',
-      deploy_mirror: ''
+      deploy_keyword: '',
+      deploy_mirror: '',
+      isKeyword: false,
     };
   }
 
@@ -87,7 +89,8 @@ export default class AutoDeploy extends PureComponent {
             support_type: data.bean.support_type,
             tabActiveKey: activeKey,
             deploy_keyword: data.bean.deploy_keyword,
-            deploy_mirror: data.bean.trigger
+            deploy_mirror: data.bean.trigger,
+            isKeyword: data.bean.deploy_keyword,
           });
         }
         // this.props.form.setFieldsValue({ secret_key: data.bean.secret_key });
@@ -139,6 +142,7 @@ export default class AutoDeploy extends PureComponent {
   };
 
   handleCommandSubmit = () => {
+    const { isKeyword } = this.state
     this.props.form.validateFields(['deploy_keyword'], error => {
       if (error) return;
       const deploy_keyword = this.props.form.getFieldValue('deploy_keyword');
@@ -147,13 +151,14 @@ export default class AutoDeploy extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.app.service.service_alias,
-          keyword: deploy_keyword
+          keyword: isKeyword ? deploy_keyword : ''
         },
         callback: data => {
           if (data && data.status_code === 200) {
             notification.success({ message: formatMessage({id:'notification.success.to_update'}) });
             this.setState({
-              deploy_keyword: data.bean.deploy_keyword
+              deploy_keyword: data.bean.deploy_keyword,
+              isKeyword: data.bean.deploy_keyword,
             });
           }
         }
@@ -207,6 +212,15 @@ export default class AutoDeploy extends PureComponent {
   //     deployment_way:activeKey
   //   })
   // }
+  handleKeyword = (value) => {
+    this.setState({
+      isKeyword: value
+    },()=>{
+      if(!value){
+        this.handleCommandSubmit()
+      }
+    })
+  }
   render() {
     if (!this.state.display) return null;
     const { getFieldDecorator } = this.props.form;
@@ -217,7 +231,8 @@ export default class AutoDeploy extends PureComponent {
       tabLoading,
       support_type,
       url,
-      service_source
+      service_source,
+      isKeyword
     } = this.state;
     const setUrl = url.replace(
       'http://127.0.0.1:5000',
@@ -337,7 +352,7 @@ export default class AutoDeploy extends PureComponent {
                       </div>
                     </Description>
                     <Description term="Webhook">
-                      <div style={{ marginLeft: '34px' }}>
+                      <div style={{ marginLeft: '32px' }}>
                         <a>{setUrl} </a>
                         <CopyToClipboard
                           text={setUrl}
@@ -349,9 +364,13 @@ export default class AutoDeploy extends PureComponent {
                         </CopyToClipboard>
                       </div>
                     </Description>
-
-                    <Description term={<><FormattedMessage id='componentOverview.body.AutoDeploy.keyword'/> <span style={{display:'inline-block',paddingRight:'20px'}}></span></>} >
-                      <div style={{ display: 'flex' }}>
+                    <Description term="关键字触发">
+                      <div style={{ marginLeft: '28px' }}>
+                        <Switch onChange={this.handleKeyword} defaultChecked={this.state.deploy_keyword}></Switch>
+                      </div>
+                    </Description>
+                    <Description term={isKeyword && <><FormattedMessage id='componentOverview.body.AutoDeploy.keyword'/> <span style={{display:'inline-block',paddingRight:'20px'}}></span></>} >
+                      {isKeyword && <div style={{ display: 'flex' }}>
                         <div
                           style={{
                             paddingTop: '10px',
@@ -368,9 +387,6 @@ export default class AutoDeploy extends PureComponent {
                             <Icon type="question-circle-o" />
                           </Tooltip>
                         </div>
-                        {/* <span style={{ paddingTop: "10px" }}>
-                        @
-                  </span> */}
                         <Form onSubmit={this.handleCommandSubmit}>
                           <FormItem>
                             {getFieldDecorator('deploy_keyword', {
@@ -400,7 +416,7 @@ export default class AutoDeploy extends PureComponent {
                             </p>
                           </FormItem>
                         </Form>
-                      </div>
+                      </div>}
                     </Description>
                   </DescriptionList>
                   <Divider style={{ margin: '16px 0' }} />
