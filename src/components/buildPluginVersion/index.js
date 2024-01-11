@@ -115,10 +115,11 @@ export default class Index extends PureComponent {
     const eventId = this.state.event_id;
     const plugin_id = this.props.plugin_id;
     const build_version = this.props.build_version;
+    
     return (
       <Modal
         title={"版本构建日志"}
-        width={600}
+        width={800}
         visible={true}
         maskClosable={false}
         onOk={this.handleSubmit}

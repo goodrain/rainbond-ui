@@ -185,7 +185,7 @@ export default class EditHealthCheck extends PureComponent {
     ];
     return (
       <Modal
-        width={700}
+        width={800}
         title={title}
         onOk={this.handleSubmit}
         maskClosable={false}

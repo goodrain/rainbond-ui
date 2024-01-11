@@ -542,12 +542,13 @@ export default class KubernetesClusterShow extends PureComponent {
           columns={columns}
           dataSource={data}
         />
+        
         {isInstallRemind && (
           <Modal
             title={<FormattedMessage id='enterpriseColony.addCluster.host.reinstall_current_cluster'/>}
             confirmLoading={installLoading}
             className={styless.TelescopicModal}
-            width={900}
+            width={1024}
             visible
             onOk={() => {
               this.handleInstallLoading(true);

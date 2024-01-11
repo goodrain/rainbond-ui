@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
-import { Layout, Alert } from 'antd';
+import { Layout, Tooltip, Alert, Modal } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux, Link } from 'dva/router';
@@ -39,6 +39,7 @@ import styles from './EnterpriseLayout.less'
 import { loadRegionConfig } from '@/services/cloud';
 import "animate.css"
 const { Content } = Layout;
+Modal.defaultProps.width = 480;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
   const routerMap = {};

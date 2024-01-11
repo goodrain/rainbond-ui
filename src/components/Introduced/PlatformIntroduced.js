@@ -7,10 +7,10 @@ import styless from './index.less';
 export default class PlatformIntroduced extends PureComponent {
   render() {
     const { onCancel } = this.props;
-
+// 
     return (
       <Modal
-        width={600}
+        width={800}
         centered
         keyboard={false}
         maskClosable={false}

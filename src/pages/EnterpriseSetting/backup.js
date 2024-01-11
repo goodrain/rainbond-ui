@@ -274,7 +274,7 @@ export default class BackupManage extends PureComponent {
               onOk={this.submitOnRecover}
               confirmLoading={recoverLoading}
               visible
-              width={400}
+              width={480}
               title={formatMessage({id:'enterpriseSetting.BackupManage.importBackups.title'})}
             >
               <Alert

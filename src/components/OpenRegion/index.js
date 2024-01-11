@@ -73,7 +73,7 @@ class OpenRegion extends PureComponent {
       return (
         <Modal
           title={formatMessage({id:'confirmModal.openRegion.title'})}
-          width={600}
+          width={800}
           visible
           onOk={this.handleSubmit}
           onCancel={this.handleCancel}

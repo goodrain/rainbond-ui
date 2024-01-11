@@ -10,7 +10,7 @@ export default class ClusterIntroduced extends PureComponent {
 
     return (
       <Modal
-        width={600}
+        width={800}
         centered
         keyboard={false}
         maskClosable={false}

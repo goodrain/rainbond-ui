@@ -82,7 +82,7 @@ class EditClusterInfo extends PureComponent {
         title={title || formatMessage({id:'enterpriseColony.title'}) }
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
-        width={1000}
+        width={1024}
         onCancel={onCancel}
       >
         {!healthStatus && (

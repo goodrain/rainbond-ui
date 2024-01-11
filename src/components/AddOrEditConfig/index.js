@@ -414,7 +414,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         title={title || formatMessage({id:'teamOther.AddOrEditConfig.add'})}
-        width={1100}
+        width={1024}
         visible
         confirmLoading={loading}
         onOk={this.handleSubmit}

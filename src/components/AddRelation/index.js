@@ -112,7 +112,7 @@ export default class AddRelation extends PureComponent {
       <Modal
         // title="添加依赖"
         title={<FormattedMessage id='componentOverview.body.addRelation.title'/>}
-        width={1000}
+        width={1024}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}

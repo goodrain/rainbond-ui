@@ -135,10 +135,11 @@ export default class ViewRelationInfo extends PureComponent {
       wordBreak: 'break-all',
       wordWrap: 'break-word',
     };
+    
     return (
       <Modal
         title={formatMessage({id:'componentCheck.advanced.setup.depend_msg.title'})}
-        width={600}
+        width={800}
         visible={true}
         onCancel={this.props.onCancel}
         footer={[<Button onClick={this.props.onCancel}>

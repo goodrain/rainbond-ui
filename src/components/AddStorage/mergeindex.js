@@ -164,10 +164,11 @@ export default class AddVolumes extends PureComponent {
       current,
     };
 
+    
     return (
       <Modal
         title="挂载共享目录"
-        width={1150}
+        width={1024}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}

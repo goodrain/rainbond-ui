@@ -358,10 +358,11 @@ class CreateHelmAppModels extends PureComponent {
             onOk={this.handleAddGroup}
           />
         )}
+        
         <Modal
           title={title}
           visible
-          width={500}
+          width={480}
           className={styles.TelescopicModal}
           onOk={this.handleSubmit}
           onCancel={onCancel}

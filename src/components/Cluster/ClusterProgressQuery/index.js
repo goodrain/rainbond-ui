@@ -68,7 +68,7 @@ class ClusterProgressQuery extends PureComponent {
         title={title}
         visible
         maskClosable={false}
-        width={600}
+        width={800}
         onCancel={onCancel}
         className={modelstyles.TelescopicModal}
         footer={[

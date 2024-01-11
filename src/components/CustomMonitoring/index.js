@@ -116,11 +116,12 @@ export default class CustomMonitoring extends PureComponent {
       appDetail,
       appAlias
     };
+    
     return (
       <Modal
         title={info && info.ID ? <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.editChart'/> : <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitoring.addChart'/>}
         visible
-        width={600}
+        width={800}
         confirmLoading={loading}
         className={styles.TelescopicModal}
         onCancel={onCancel}
