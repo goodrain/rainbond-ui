@@ -82,10 +82,14 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         icon: 'plus',
         path: `team/${teamName}/region/${regionName}/create`,
         authority: ['admin', 'user'],
-        isClick: true,
         teamName: teamName,
         regionName: regionName,
         children: [
+          {
+            name: formatMessage({ id: 'menu.team.create.wizard' }),
+            path: `wizard`,
+            authority: ['admin', 'user']
+          },
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
             path: `code`,
