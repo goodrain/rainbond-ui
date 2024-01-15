@@ -8,7 +8,6 @@ import EditAdmin from '../../EditAdmin';
 import ConfirmModal from '../../ConfirmModal';
 import ScrollerX from '../../ScrollerX';
 import TeamMemberTable from '../../TeamImageTable';
-import { addAuthorizationMessage , gitAuthorizationMessage, editAuthorizationMessage, delAuthorizationMessage} from "../../../services/team"
 
 @connect(({ teamControl, loading }) => ({
   regions: teamControl.regions,
@@ -25,20 +24,26 @@ export default class MemberList extends PureComponent {
       page: 1,
       pageSize: 8,
       total: 0,
-      list:[]
+      imageList:[]
     };
   }
   componentDidMount() {
     this.getInitializeVal()
   }
   getInitializeVal = () => {
-    const teamName = globalUtil.getCurrTeamName();
-    gitAuthorizationMessage({
-      team_name: teamName,
-    }).then(res => {
-      this.setState({
-        list:res  &&  res.list
-      })
+    const { dispatch } = this.props
+    dispatch({
+      type: 'teamControl/getAuthorizationMessage',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            imageList: data.list
+          });
+        }
+      }
     })
   }
   onMoveTeam = member => {
@@ -58,25 +63,26 @@ export default class MemberList extends PureComponent {
   };
   handleEditAction = data => {
     const { toEditAction } = this.state
-    editAuthorizationMessage({
-      team_name: globalUtil.getCurrTeamName(),
-      secret_id:toEditAction.secret_id,
-      username:data.username,
-      password:data.password
-    }).then(res =>{
-      if(res  && res.response_data  &&  res.response_data.code == 200){
-        notification.success({
-          message: formatMessage({id:'notification.success.change'})
-        })
-        this.getInitializeVal()
-      }else{
-        notification.error({
-          message: formatMessage({id:'notification.error.change'})
+    const { dispatch } = this.props
+    dispatch({
+      type: 'teamControl/editAuthorizationMessage',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        secret_id: toEditAction.secret_id,
+        username: data.username,
+        password: data.password
+      },
+      callback: res => {
+        if(res && res.response_data && res.response_data.code == 200){
+          notification.success({
+            message: formatMessage({ id: 'notification.success.change' })
+          })
+          this.getInitializeVal()
+        }
+        this.setState({
+          toEditAction: null,
         })
       }
-      this.setState({
-        toEditAction:null,
-      })
     })
   };
   showAddMember = () => {
@@ -86,25 +92,26 @@ export default class MemberList extends PureComponent {
     this.setState({ showAddMember: false });
   };
   handleAddMember = values => {
-    addAuthorizationMessage({
-      team_name: globalUtil.getCurrTeamName(),
-      domain:values.domain,
-      username:values.username,
-      password:values.password
-    }).then(res =>{
-      if(res  && res.response_data  &&  res.response_data.code == 200){
-        notification.success({
-          message: formatMessage({id:'notification.success.add'})
-        })
-        this.getInitializeVal()
-      }else{
-        notification.error({
-          message: formatMessage({id:'notification.error.add'})
+    const { dispatch } = this.props
+    dispatch({
+      type: 'teamControl/addAuthorizationMessage',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        domain:values.domain,
+        username:values.username,
+        password:values.password
+      },
+      callback: res => {
+        if(res  && res.response_data  &&  res.response_data.code == 200){
+          notification.success({
+            message: formatMessage({id:'notification.success.add'})
+          })
+          this.getInitializeVal()
+        }
+        this.setState({
+          showAddMember:false,
         })
       }
-      this.setState({
-        showAddMember:false,
-      })
     })
   };
   hideDelMember = () => {
@@ -112,23 +119,24 @@ export default class MemberList extends PureComponent {
   };
   handleDelMember = () => {
     const { toDeleteMember } =this.state
-    delAuthorizationMessage({
-      team_name: globalUtil.getCurrTeamName(),
-      secret_id:toDeleteMember.secret_id
-    }).then( res =>{
-      if(res  && res.response_data  &&  res.response_data.code == 200){
-        notification.success({
-          message: formatMessage({id:'notification.success.delete'})
-        })
-        this.getInitializeVal()
-      }else{
-        notification.error({
-          message: formatMessage({id:'notification.error.delete'})
+    const { dispatch } = this.props
+    dispatch({
+      type: 'teamControl/delAuthorizationMessage',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        secret_id: toDeleteMember.secret_id
+      },
+      callback: res => {
+        if(res && res.response_data && res.response_data.code == 200){
+          notification.success({
+            message: formatMessage({id:'notification.success.delete'})
+          })
+          this.getInitializeVal()
+        }
+        this.setState({
+          toDeleteMember: null,
         })
       }
-      this.setState({
-        toDeleteMember:null,
-      })
     })
   };
   render() {
@@ -148,7 +156,7 @@ export default class MemberList extends PureComponent {
       toEditAction,
       toDeleteMember,
       toMoveTeam,
-      list
+      imageList
     } = this.state;
     return (
       <div>
@@ -175,7 +183,7 @@ export default class MemberList extends PureComponent {
               onMoveTeam={this.onMoveTeam}
               onDelete={this.onDelMember}
               onEditAction={this.onEditAction}
-              list={list}
+              list={imageList}
             />
           </ScrollerX>
         </Card>

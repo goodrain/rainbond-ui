@@ -705,7 +705,7 @@ export async function getAdvancedInformation(body) {
   )
 }
 /* 获取团队下镜像仓库授权信息 */
-export async function gitAuthorizationMessage (body = {}) {
+export async function getAuthorizationMessage (body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/registry/auth`,
     {
@@ -816,4 +816,36 @@ export async function getHelmAdvancedInfo(body) {
       }
     }
   )
+}
+
+// 获取镜像仓库中所有镜像名称
+export async function fetchImageNames (params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/registry/repos?region_name=${params.regionName}`,
+    {
+      method: 'post',
+      data: {
+        domain: params.domain,
+        username: params.username,
+        password: params.password
+      },
+      handleError
+    }
+  );
+}
+
+// 获取当前镜像的所有tag
+export async function fetchImageTags (params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/registry/tags?repo=${params.repo}&region_name=${params.regionName}`,
+    {
+      method: 'post',
+      data: {
+        domain: params.domain,
+        username: params.username,
+        password: params.password
+      },
+      handleError
+    }
+  );
 }

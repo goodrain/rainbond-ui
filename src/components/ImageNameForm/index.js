@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Row, Col, Spin, Empty } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
+import AddImage from '../../components/AddImage';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
@@ -13,7 +14,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
     span: 15
@@ -21,10 +22,10 @@ const formItemLayout = {
 };
 const formItemLayouts = {
   labelCol: {
-    span: 10
+    span: 7
   },
   wrapperCol: {
-    span: 14
+    span: 15
   }
 };
 
@@ -53,7 +54,16 @@ export default class Index extends PureComponent {
       localValue: null,
       localImageTags: [],
       event_id: '',
-      record: {}
+      record: {},
+      addImage: false,
+      warehouseList: [],
+      isHub: true,
+      warehouseImageList: [],
+      warehouseInfo: false,
+      tagLoading: false,
+      warehouseImageTags: [],
+      checkedValues: '',
+      imageNameInfo: '',
     };
   }
   componentWillMount() {
@@ -64,10 +74,24 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUpload();
+    this.handleGetWarehouse();
     const { handleType, groupId } = this.props;
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
+  }
+  handleGetWarehouse = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/fetchPlatformImageHub',
+      callback: data => {
+        if (data) {
+          this.setState({
+            warehouseList: data.list
+          });
+        }
+      }
+    })
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -80,13 +104,11 @@ export default class Index extends PureComponent {
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
-
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const { radioKey, event_id } = this.state
+    const { radioKey, event_id, checkedValues, warehouseInfo, isHub, imageNameInfo } = this.state
     form.validateFields((err, fieldsValue) => {
-
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
@@ -97,7 +119,16 @@ export default class Index extends PureComponent {
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
-
+        if(fieldsValue.imagefrom == 'address'){
+          if(isHub){
+            fieldsValue.docker_cmd = fieldsValue.docker_cmd
+          } else {
+            const cleanedUrl = warehouseInfo.domain.replace(/^(https?:\/\/)/, '');
+            fieldsValue.docker_cmd = `${cleanedUrl}/${imageNameInfo}:${checkedValues}`
+            fieldsValue.user_name = warehouseInfo.username
+            fieldsValue.password = warehouseInfo.password
+          }
+        }
         onSubmit(fieldsValue);
       }
     });
@@ -217,9 +248,6 @@ export default class Index extends PureComponent {
             this.setState({
               existFileList: data.bean.package_name
             });
-            // notification.success({
-            //   message: formatMessage({id:'notification.success.upload_file'})
-            // })
             this.loop = false
           }
         }
@@ -259,7 +287,10 @@ export default class Index extends PureComponent {
   handleChangeImageSource = (key) => {
     const { form } = this.props
     this.setState({
-      radioKey: key.target.value
+      radioKey: key.target.value,
+      warehouseImageTags: [],
+      imageNameInfo: '',
+      isHub: true,
     })
     form.resetFields(['docker_cmd'])
   }
@@ -316,6 +347,100 @@ export default class Index extends PureComponent {
       }
     })
   }
+  // 获取镜像仓库中所有的镜像
+  handleGetWarehouseImage = (item) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'teamControl/fetchImageNames',
+      payload: {
+        regionName: globalUtil.getCurrRegionName(),
+        domain: item.domain,
+        username: item.username,
+        password: item.password,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            warehouseImageList: data.list
+          });
+        }
+      }
+    })
+  }
+  // 获取镜像中所有的tag
+  handleGetWarehouseImageTags = (value) => {
+    const { dispatch } = this.props
+    const { warehouseInfo } = this.state
+    dispatch({
+      type: 'teamControl/fetchImageTags',
+      payload: {
+        regionName: globalUtil.getCurrRegionName(),
+        repo: value,
+        domain: warehouseInfo.domain,
+        username: warehouseInfo.username,
+        password: warehouseInfo.password,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            warehouseImageTags: data.list,
+            checkedValues: data.list[0] || '',
+            tagLoading: false
+          });
+        }
+      },
+      handleError: () => {
+        this.setState({ tagLoading: false })
+      }
+    })
+  }
+  onChangeCheckbox = (e) => {
+    this.setState({
+      checkedValues: e.target.value
+    })
+  }
+  onChangeRegistry = (value) =>{
+    const { warehouseList } = this.state
+    const { setFieldsValue } = this.props.form
+    setFieldsValue({ docker_cmd: '' });
+    if(value == 'DockerHub'){
+      this.setState({
+        warehouseImageTags: [],
+        warehouseInfo: false,
+        isHub: true,
+        imageNameInfo: undefined,
+        checkedValues: ''
+      })
+    } else {
+      this.setState({
+        isHub: false,
+        warehouseImageTags: [],
+        warehouseInfo: false,
+        imageNameInfo: undefined,
+        checkedValues: ''
+      },()=>{
+        warehouseList.map(item => {
+          if(item.secret_id == value){
+            this.setState({
+              warehouseInfo: item
+            })
+            this.handleGetWarehouseImage(item)
+          }
+        })
+      })
+    }
+  }
+  onChangeImageName = (value) => {
+    const { warehouseImageList, warehouseInfo, imageNameInfo } = this.state
+    const { setFieldsValue } = this.props.form
+    this.setState({ tagLoading: true, imageNameInfo: value })
+    setFieldsValue({ docker_cmd: value });
+    warehouseImageList.map(item => {
+      if(item == value && warehouseInfo){
+        this.handleGetWarehouseImageTags(value)
+      }
+    })
+  }
   render() {
     const { form, localList } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -330,8 +455,7 @@ export default class Index extends PureComponent {
       archInfo
     } = this.props;
 
-    const { language, fileList, radioKey, existFileList, localValue, localImageTags } = this.state;
-
+    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, imageNameInfo } = this.state;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -426,11 +550,11 @@ export default class Index extends PureComponent {
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
                 </Radio>
-                <Radio value='local'>
-                  {formatMessage({ id: 'teamAdd.create.image.local'})}
-                </Radio>
                 <Radio value='upload'>
                   {formatMessage({ id: 'teamAdd.create.image.upload'})}
+                </Radio>
+                <Radio value='local'>
+                  {formatMessage({ id: 'teamAdd.create.image.local'})}
                 </Radio>
               </Radio.Group>
             )}
@@ -439,13 +563,104 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}>
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
-                rules: [
-                  {
-                    required: true,
-                    validator: this.handleValiateCmd
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) }]
+              })(
+                <div className={styles.address}>
+                  <div className={styles.registryAddress}>
+                    {warehouseList.length > 0 ? (
+                      <Select defaultValue="DockerHub" onChange={this.onChangeRegistry}>
+                        <Option value='DockerHub'>
+                            Docker Hub
+                        </Option>
+                        {warehouseList.map(item => {
+                          return (
+                            <Option value={item.secret_id}>
+                                {item.secret_id}
+                            </Option>
+                          )
+                        })}
+                      </Select>
+                      ) : (
+                        <div className={styles.registry}>
+                            Docker Hub
+                        </div>
+                      )
+                    }
+                  </div>
+                  {isHub ? (
+                    <div className={styles.imageName}>
+                      <Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
+                    </div>
+                  ) : (
+                    <div className={styles.imageName}>
+                      <Select 
+                        placeholder={formatMessage({ id: 'placeholder.warehouse_address' })}
+                        showSearch
+                        filterOption={(input, option) => 
+                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                        value={imageNameInfo}
+                        onChange={this.onChangeImageName}
+                      >
+                      {warehouseImageList.map(item => {
+                        return (
+                          <Option value={item}>
+                            {item}
+                          </Option>
+                        )
+                      })}
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                )}
+            </Form.Item>
+          }
+          {radioKey === 'address' && !isHub && imageNameInfo &&
+            <Form.Item 
+              label=''
+              wrapperCol={{
+                xs: {
+                  span: 24,
+                  offset: 0
+                },
+                sm: {
+                  span: formItemLayout.wrapperCol.span,
+                  offset: formItemLayout.labelCol.span
+                }
+              }}
+            >
+              {getFieldDecorator('checkout', {
+                initialValue: ''
+              })(
+                <div className={styles.hubCheckbox}> 
+                  {tagLoading && 
+                    <Spin wrapperClassName={styles.spin} />
                   }
-                ]
-              })(<Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                  {!tagLoading && warehouseImageTags.length == 0 &&
+                    <div className={styles.empty}>
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    </div>
+                  }
+                  {!tagLoading && warehouseImageTags.length > 0 &&
+                    <Radio.Group 
+                      defaultValue={warehouseImageTags[0]} 
+                      className={styles.setCheckbox} 
+                      onChange={this.onChangeCheckbox}
+                    >
+                      <Row span={24}>
+                        {(warehouseImageTags || []).map(item => {
+                          return (
+                            <Radio value={item}>
+                              {item}
+                            </Radio>
+                          )
+                        })}
+                      </Row>
+                    </Radio.Group>
+                  }
+                </div>
+              )}
             </Form.Item>
           }
           {radioKey === 'cmd' &&
@@ -527,8 +742,7 @@ export default class Index extends PureComponent {
                 )}
               </Form.Item>
               <Form.Item
-                labelCol={language ? { span: 5 } : { span: 9 }}
-                wrapperCol={language ? { span: 19 } : { span: 15 }}
+                {...is_language}
                 label={formatMessage({ id: 'teamAdd.create.fileList' })}
               >
                 <div
@@ -570,7 +784,7 @@ export default class Index extends PureComponent {
               </Form.Item>
             </>
           }
-          {(radioKey === 'address' || radioKey === 'cmd') &&
+          {radioKey === 'cmd' &&
             <div style={{ textAlign: 'right', marginRight: isService ? '80px' : '100px' }}>
               {formatMessage({ id: 'teamAdd.create.image.hint1' })}
               <a
@@ -583,7 +797,7 @@ export default class Index extends PureComponent {
               </a>
             </div>
           }
-          {(radioKey === 'address' || radioKey === 'cmd') && <>
+          { radioKey === 'cmd' && <>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
               {...is_language}
@@ -611,7 +825,6 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
           </>}
-
           {archLegnth == 2 &&
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {

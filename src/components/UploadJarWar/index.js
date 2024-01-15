@@ -402,7 +402,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           <Form.Item
-              labelCol={language ? { span: 5 } : { span: 9 }}
+              labelCol={language ? { span: 5 } : { span: 7 }}
               wrapperCol={language ? { span: 19 } : { span: 15 }}
               label={formatMessage({ id: 'teamAdd.create.fileList' })}
             >

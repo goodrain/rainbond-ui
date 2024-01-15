@@ -34,7 +34,13 @@ import {
   fetchPluginUrl,
   fetchServiceID,
   fetchAppNames,
-  getHelmAdvancedInfo
+  getHelmAdvancedInfo,
+  getAuthorizationMessage,
+  addAuthorizationMessage,
+  editAuthorizationMessage,
+  delAuthorizationMessage,
+  fetchImageNames,
+  fetchImageTags,
 } from '../services/team';
 
 export default {
@@ -312,6 +318,42 @@ export default {
     },
     *getHelmAdvancedInfo({ payload, callback, handleError }, { call }) {
       const response = yield call(getHelmAdvancedInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getAuthorizationMessage({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAuthorizationMessage, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addAuthorizationMessage({ payload, callback, handleError }, { call }) {
+      const response = yield call(addAuthorizationMessage, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *editAuthorizationMessage({ payload, callback, handleError }, { call }) {
+      const response = yield call(editAuthorizationMessage, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *delAuthorizationMessage({ payload, callback, handleError }, { call }) {
+      const response = yield call(delAuthorizationMessage, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchImageNames({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchImageNames, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchImageTags({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchImageTags, payload, handleError);
       if (response && callback) {
         callback(response);
       }

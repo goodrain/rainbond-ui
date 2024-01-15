@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select, Skeleton } from 'antd';
+import { Form, Input, Modal, Select, Skeleton, Button } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -23,66 +23,7 @@ class ConfirmModal extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
-  componentDidMount() {
-    this.loadRoles();
-    const { viewName, data } = this.props;
-    if (
-      viewName === 'enterprise' &&
-      data &&
-      data.roles &&
-      data.roles.length > 0
-    ) {
-      this.fetchTeamUserRoles();
-    } else {
-      this.handleCloseCurrentRolesLoading();
-    }
-  }
-  fetchTeamUserRoles = () => {
-    const { dispatch, userId, eid, teamName } = this.props;
-    dispatch({
-      type: 'teamControl/fetchUserTeamsRoles',
-      payload: {
-        tenantName: teamName,
-        team_name: teamName,
-        enterprise_id: eid,
-        user_id: userId,
-        page: 1,
-        page_size: -1
-      },
-      callback: res => {
-        this.setState(
-          {
-            currentRoles: (res.bean && res.bean.roles) || []
-          },
-          () => {
-            this.handleCloseCurrentRolesLoading();
-          }
-        );
-      }
-    });
-  };
 
-  loadRoles = () => {
-    const { dispatch, teamName } = this.props;
-    dispatch({
-      type: 'teamControl/fetchTeamRoles',
-      payload: {
-        team_name: teamName || globalUtil.getCurrTeamName(),
-        page_size: -1,
-        page: 1
-      },
-      callback: data => {
-        this.setState(
-          {
-            roles: data.list || []
-          },
-          () => {
-            this.handleCloseRoleLoading();
-          }
-        );
-      }
-    });
-  };
   handleSubmit = () => {
     const { form, onOk } = this.props;
     form.validateFields((err, values) => {
@@ -113,27 +54,22 @@ class ConfirmModal extends PureComponent {
       callback();
     }
   }
-  
+  validateSecret = (rule, value, callback) => {
+    const { imageList } = this.props
+    // 只允许输入小写字母正则
+    let reg = /^[a-z]+$/g;
+    if(imageList.some(item => item.secret_id === value)){
+      callback(formatMessage({ id: 'placeholder.warehouse_exist' }));
+    } else if((value && !reg.test(value))){
+      callback(formatMessage({ id: 'placeholder.lowercase' }));
+    } else {
+      callback();
+    }
+  }
   render() {
-    const { onCancel, data, form, title, loading } = this.props;
+    const { onCancel, data, form, loading } = this.props;
     const { getFieldDecorator, getValueFormEvent } = form;
-    const {
-      roles,
-      currentRoles,
-      roleLoading,
-      currentRolesLoading,
-      language
-    } = this.state;
-    const initialValueRoles = [];
-    const arr =
-      (currentRoles && currentRoles.length > 0 && currentRoles) ||
-      (data && data.roles && data.roles.length > 0 && data.roles) ||
-      [];
-    arr.map(item => {
-      if (item.role_id) {
-        initialValueRoles.push(Number(item.role_id));
-      }
-    });
+    const { language } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -157,15 +93,47 @@ class ConfirmModal extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     return (
       <Modal
-        title={title || (data ? formatMessage({id:'confirmModal.edit.image.title'}) : formatMessage({id:'confirmModal.add.image.title'}))}
+        title={data ? formatMessage({ id: 'confirmModal.edit.common.image.title' }) : formatMessage({ id: 'confirmModal.add.common.image.title' })}
         visible
-        onOk={this.handleSubmit}
-        onCancel={onCancel}
+        footer={
+          <div>
+            <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>
+            <Button
+              type="primary"
+              loading={loading}
+              onClick={this.handleSubmit}
+            >
+              {formatMessage({ id: 'button.confirm' })}
+            </Button>
+          </div>
+        }
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.domain'})}>
+        {!data &&  
+          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.name'})}>
+            {getFieldDecorator('secret_id', {
+              initialValue: data && data.secret_id || '',
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({id:'placeholder.warehouse_name'}),
+                },
+                {
+                  validator: this.validateSecret
+                },
+                {
+                  max: 32,
+                  message: formatMessage({id:'placeholder.max32'}),
+                }
+              ],
+              getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
+            })(<Input placeholder={formatMessage({id:'placeholder.warehouse_name'})} />)}
+          </FormItem>
+        } 
+        {!data && 
+          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.domain'})}>
             {getFieldDecorator('domain', {
-              initialValue: '',
+              initialValue: data && data.domain || '',
               rules: [
                 {
                   required: true,
@@ -183,9 +151,10 @@ class ConfirmModal extends PureComponent {
               getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
             })(<Input placeholder={formatMessage({id:'placeholder.git_url_domain'})} />)}
           </FormItem>
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.username'})}>
+        }
+          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.username'})}>
             {getFieldDecorator('username', {
-              initialValue: '',
+              initialValue: data && data.username || '',
               rules: [
                 {
                   required: true,
@@ -198,9 +167,9 @@ class ConfirmModal extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
           </FormItem>
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.image.lable.password'})}>
+          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.password'})}>
             {getFieldDecorator('password', {
-              initialValue: '',
+              initialValue: data && data.password || '',
               rules: [
                 {
                   required: true,
