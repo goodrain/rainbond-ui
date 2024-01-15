@@ -195,6 +195,7 @@ export default class AppList extends PureComponent {
           <ScrollerX sm={800}>
             <Table
               loading={loading}
+              rowKey={(record,index) => index}
               size="default"
               scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
               pagination={{

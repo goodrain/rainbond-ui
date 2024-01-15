@@ -312,6 +312,7 @@ export default class MonitorNow extends PureComponent {
         >
           <ScrollerX sm={700}>
             <Table
+              rowKey={(record,index) => index}
               columns={[
                 {
                   title: "Url",

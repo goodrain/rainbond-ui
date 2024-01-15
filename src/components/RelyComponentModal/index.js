@@ -22,6 +22,7 @@ class RelyComponentModal extends PureComponent {
       >
         <Table
           pagination={false}
+          rowKey={(record,index) => index}
           style={{marginBottom:'20px'}}
           columns={[
             {

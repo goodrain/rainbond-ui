@@ -902,6 +902,7 @@ export default class AppList extends PureComponent {
               <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.record' })} key="2">
                 <Table
                   style={{ padding: '24px' }}
+                  rowKey={(record,index) => index}
                   loading={recordLoading || upgradeLoading}
                   columns={isHelm ? helmColumns : columns}
                   dataSource={list}

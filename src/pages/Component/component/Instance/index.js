@@ -275,6 +275,7 @@ class Index extends PureComponent {
 
                   <div style={{ height: '15px', background: '#fff' }} />
                   <Table
+                    rowKey={(record,index) => index}
                     dataSource={instanceInfo.containers}
                     columns={[
                       {
@@ -370,6 +371,7 @@ class Index extends PureComponent {
                   <div style={{ height: '15px', background: '#fff' }} />
                   <Table
                     dataSource={instanceInfo.events}
+                    rowKey={(record,index) => index}
                     columns={[
                       {
                         title:formatMessage({id:'componentOverview.body.tab.overview.instance.type'}),

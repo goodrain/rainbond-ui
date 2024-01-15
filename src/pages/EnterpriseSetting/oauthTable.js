@@ -289,6 +289,7 @@ export default class OauthTable extends PureComponent {
           </Row>
           <Table
             dataSource={oauthTable}
+            rowKey={(record,index) => index}
             style={{ width: '100%', overflowX: 'auto' }}
             columns={[
               {

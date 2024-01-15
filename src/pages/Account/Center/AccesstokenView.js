@@ -209,7 +209,7 @@ class BindingView extends Component {
             {formatMessage({id:'otherEnterprise.AccesstokenView.add'})}
           </Button>
         </Row>
-        <Table dataSource={dataSource} columns={columns} pagination={false} />
+        <Table rowKey={(record,index) => index} dataSource={dataSource} columns={columns} pagination={false} />
         {visible && (
           <AccesstokenForm
             onOk={this.handleSubmit}

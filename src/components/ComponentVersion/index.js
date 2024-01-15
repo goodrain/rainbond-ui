@@ -237,6 +237,7 @@ export default class componentVersion extends PureComponent {
         ]}
       >
         <Table
+          rowKey={(record,index) => index}
           dataSource={list}
           columns={columns}
           loading={loading}

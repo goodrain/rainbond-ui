@@ -373,6 +373,7 @@ class BaseInfo extends PureComponent {
         )}
         <Table
           rowSelection={rowSelection}
+          rowKey={(record,index) => index}
           dataSource={memoryList}
           columns={columns}
           pagination={false}

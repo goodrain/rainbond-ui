@@ -209,6 +209,7 @@ export default class AppDeteleResource extends PureComponent {
                 ) : (
                     <Table
                         dataSource={data}
+                        rowKey={(record,index) => index}
                         showHeader={false}
                         pagination={false}
                         expandIconColumnIndex={1}

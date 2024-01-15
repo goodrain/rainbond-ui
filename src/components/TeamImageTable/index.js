@@ -86,7 +86,7 @@ class TeamMemberTable extends PureComponent {
     ];
 
     return (
-      <Table pagination={list.length > 8 ? pagination : false} dataSource={list} columns={columns} />
+      <Table rowKey={(record,index) => index} pagination={list.length > 8 ? pagination : false} dataSource={list} columns={columns} />
     );
   }
 }

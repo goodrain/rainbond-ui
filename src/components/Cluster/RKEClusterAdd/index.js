@@ -1077,6 +1077,7 @@ export default class RKEClusterConfig extends PureComponent {
                       })(
                         <Table
                           dataSource={dataSource}
+                          rowKey={(record,index) => index}
                           columns={columnEdits}
                           components={components}
                           bordered

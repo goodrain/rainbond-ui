@@ -995,6 +995,7 @@ export default class EnterpriseClusters extends PureComponent {
           />
           <Table
             // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
+            rowKey={(record,index) => index}
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}

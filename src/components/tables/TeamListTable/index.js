@@ -67,6 +67,7 @@ class TeamListTable extends PureComponent {
     return (
       <Table
         pagination={pagination}
+        rowKey={(record,index) => index}
         dataSource={list}
         columns={columns}
         onChange={this.handleTableChange}

@@ -308,6 +308,7 @@ export default class AppPublishList extends PureComponent {
         >
           <ScrollerX sm={800}>
             <Table
+              rowKey={(record,index) => index}
               pagination={total > 10 ?{
                 current: page,
                 pageSize,

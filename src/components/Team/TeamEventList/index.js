@@ -270,6 +270,7 @@ export default class EventList extends PureComponent {
             >
               <Table
                 pagination={false}
+                rowKey={(record,index) => index}
                 dataSource={this.state.joinUsers || []}
                 columns={[
                   {

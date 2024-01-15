@@ -143,6 +143,7 @@ export default class Index extends PureComponent {
 
           <Table
             loading={this.loading}
+            rowKey={(record,index) => index}
             pagination={{
               total: total,
               page_num: page_num,

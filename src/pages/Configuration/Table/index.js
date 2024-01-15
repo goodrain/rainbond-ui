@@ -253,6 +253,7 @@ export default class ConfigurationTable extends PureComponent {
         >
           <Table
             size="default"
+            rowKey={(record,index) => index}
             pagination={total >pageSize ?{
               size: 'default',
               current: page,

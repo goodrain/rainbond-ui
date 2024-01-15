@@ -602,6 +602,7 @@ class StorageManage extends PureComponent {
       <>
         <h4><FormattedMessage id='componentOverview.body.handleEdit.share'/></h4>
         <Table
+          rowKey={(record,index) => index}
           columns={[
             {
               title: formatMessage({id:'componentOverview.body.handleEdit.name'}),

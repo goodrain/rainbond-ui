@@ -200,6 +200,7 @@ export default class Index extends PureComponent {
           >
             <ScrollerX sm={650}>
               <Table
+                rowKey={(record,index) => index}
                 pagination={this.state.total > this.state.pageSize ? {
                   current: this.state.page,
                   pageSize: this.state.pageSize,

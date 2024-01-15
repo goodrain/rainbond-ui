@@ -87,6 +87,7 @@ class OpenRegion extends PureComponent {
           )}
           <Table
             size="small"
+            rowKey={(record,index) => index}
             pagination={false}
             dataSource={this.state.regions || []}
             rowSelection={rowSelection}
@@ -109,6 +110,7 @@ class OpenRegion extends PureComponent {
       <Card title={formatMessage({id:'confirmModal.openRegion.card.title'})} style={{ height: '500px' }}>
         <Table
           size="small"
+          rowKey={(record,index) => index}
           pagination={false}
           dataSource={this.state.regions || []}
           rowSelection={rowSelection}

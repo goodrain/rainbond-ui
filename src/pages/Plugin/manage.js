@@ -653,6 +653,7 @@ export default class Index extends PureComponent {
         >
           <ScrollerX sm={700}>
             <Table
+              rowKey={(record,index) => index}
               columns={[
                 {
                   title: formatMessage({id:'teamOther.manage.config_name'}),
@@ -750,6 +751,7 @@ export default class Index extends PureComponent {
           title={formatMessage({id:'teamOther.manage.title'})}
         >
           <Table
+            rowKey={(record,index) => index}
             columns={[
               {
                 title: formatMessage({id:'teamOther.manage.name'}),
@@ -816,6 +818,7 @@ export default class Index extends PureComponent {
         </Card>
         <Card title={formatMessage({id:'teamOther.manage.already_installed'})}>
           <Table
+            rowKey={(record,index) => index}
             columns={[
               {
                 title: formatMessage({id:'teamOther.manage.Component_name'}),

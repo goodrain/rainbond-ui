@@ -161,6 +161,7 @@ export default class Index extends PureComponent {
 
         <Table
           pagination={pagination}
+          rowKey={(record,index) => index}
           dataSource={this.state.list}
           rowSelection={rowSelection}
           style={{ width: '100%', overflowX: 'auto' }}

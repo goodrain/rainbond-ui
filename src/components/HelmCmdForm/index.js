@@ -356,7 +356,7 @@ export default class Index extends PureComponent {
               <Popover
                 content={
                   <>
-                    <Table dataSource={HelmwaRehouseList} columns={columns} pagination={false} />
+                    <Table rowKey={(record,index) => index} dataSource={HelmwaRehouseList} columns={columns} pagination={false} />
                     <Button type="link" onClick={this.showStoreMoudle}>{formatMessage({ id: 'teamAdd.create.helm.Add' })}</Button>
                   </>
                 }

@@ -197,6 +197,7 @@ export default class Index extends PureComponent {
 
         <Table
           loading={loading}
+          rowKey={(record,index) => index}
           pagination={pagination}
           dataSource={this.state.list}
           rowSelection={rowSelection}

@@ -1433,6 +1433,7 @@ export default class Main extends PureComponent {
             >
               <Table
                 size="middle"
+                rowKey={(record,index) => index}
                 dataSource={plugins}
                 columns={[
                   {
@@ -1463,6 +1464,7 @@ export default class Main extends PureComponent {
           >
             <Table
               size="middle"
+              rowKey={(record,index) => index}
               dataSource={curPageData}
               columns={[
                 {
