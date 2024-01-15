@@ -466,6 +466,14 @@
         'confirmModal.deldete.attribute.desc':'Are you sure you want to delete this property?',
         'confirmModal.deldete.attribute.subDesc':'This operation is not recoverable',
 
+        //添加/修改镜像仓库授权信息    
+        'confirmModal.add.common.image.title':'Adding a mirror repository',
+        'confirmModal.edit.common.image.title':'Modifying an image repository',
+        'confirmModal.common.image.lable.name':'Warehouse name',
+        'confirmModal.common.image.lable.domain':'Image repo',
+        'confirmModal.common.image.lable.username':'Username',
+        'confirmModal.common.image.lable.password':'Password',
+
         
     }
     const notification = {
@@ -845,6 +853,11 @@
         'placeholder.userName.search':'Please enter a user name to search',
         'placeholder.limit_memory':'Memory limit value required',
         'placeholder.rewrites':'Complete Rewrites configuration',
+        'placeholder.warehouse_name':'Please enter a warehouse name',
+        'placeholder.warehouse_exist':'The warehouse name already exists',
+        'placeholder.lowercase':'The warehouse name can only be lowercase letters',
+        'placeholder.warehouse_not_empty':'The mirror repository address cannot be empty',
+        'placeholder.warehouse_address':'Please select a mirror or enter a mirror name filter',
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',

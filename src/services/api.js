@@ -1488,3 +1488,61 @@ export async function fetchTeamNames(body, handleError) {
     }
   );
 }
+
+// 获取平台镜像仓库数据
+export async function fetchPlatformImageHub(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/hub/registry`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 添加平台镜像仓库数据
+export async function addPlatformImageHub(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/hub/registry`,
+    {
+      method: 'post',
+      data: {
+        secret_id: body.secret_id,
+        domain: body.domain,
+        username: body.username,
+        password: body.password,
+      },
+      handleError
+    }
+  );
+}
+
+// 修改平台镜像仓库数据
+export async function updatePlatformImageHub(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/hub/registry?secret_id=${body.secret_id}`,
+    {
+      method: 'put',
+      data: {
+        domain: body.domain,
+        username: body.username,
+        password: body.password,
+      },
+      handleError
+    }
+  );
+}
+
+// 删除平台镜像仓库数据
+export async function deletePlatformImageHub(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/hub/registry`,
+    {
+      method: 'delete',
+      params: {
+        secret_id: body.secret_id
+      },
+      handleError
+    }
+  );
+}

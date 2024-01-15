@@ -15,18 +15,18 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 16
+    span: 15
   }
 };
 const en_formItemLayout = {
   labelCol: {
-    span: 8
+    span: 7
   },
   wrapperCol: {
-    span: 16
+    span: 15
   }
 };
 
@@ -322,11 +322,11 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
                 style={language ? {
                   display: 'inline-block',
-                  width: isService ? '' : 292,
+                  width: isService ? '' : 270,
                   marginRight: 15
                 } : {
                   display: 'inline-block',
-                  width: isService ? '' : 310,
+                  width: isService ? '' : 270,
                   marginRight: 15
                 }}
                 showSearch

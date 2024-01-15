@@ -4,7 +4,6 @@ import { Table } from 'antd';
 import teamUtil from '../../utils/team';
 import roleUtil from '../../utils/role';
 import globalUtil from "../../utils/global"
-import { gitAuthorizationMessage } from "../../services/app"
 
 class TeamMemberTable extends PureComponent {
   constructor(props) {
@@ -42,7 +41,7 @@ class TeamMemberTable extends PureComponent {
         dataIndex: 'password',
         key: "password",
         align:'center',
-        render(text, data){
+        render: (text, data) => {
           let num = text.length
           let str = ''
           for (let index = 0; index <= num-1; index++) {
@@ -56,7 +55,7 @@ class TeamMemberTable extends PureComponent {
           dataIndex: 'action',
           key: "action",
           align:'center',
-          render(_, data) {
+          render: (_, data) => {
             return (
               <div>
                 {isEdit && (
@@ -67,14 +66,12 @@ class TeamMemberTable extends PureComponent {
                     onClick={() => {
                       onEditAction(data);
                     }}
-                    href="javascript:;"
                   >
                     {formatMessage({id: 'teamManage.tabs.image.table.btn.edit'})}
                   </a>
                 )}
                 {isDelete && (
                   <a
-                    href="javascript:;"
                     onClick={() => {
                       onDelete(data);
                     }}

@@ -20,18 +20,18 @@ const { TextArea } = Input;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 14
+    span: 15
   }
 };
 const formItemLayouts = {
   labelCol: {
-    span: 10
+    span: 7
   },
   wrapperCol: {
-    span: 14
+    span: 15
   }
 };
 
@@ -358,11 +358,11 @@ export default class Index extends PureComponent {
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
                 style={language ? {
                   display: 'inline-block',
-                  width: isService ? '' : 250,
+                  width: isService ? '' : 270,
                   marginRight: 10
                 } : {
                   display: 'inline-block',
-                  width: isService ? '' : 264,
+                  width: isService ? '' : 270,
                   marginRight: 10
                 }}
                 disabled={!!isService}
@@ -481,8 +481,7 @@ export default class Index extends PureComponent {
                     )}
                   </Form.Item>
                   <Form.Item
-                    labelCol={language ? { span: 5 } : { span: 9 }}
-                    wrapperCol={language ? { span: 19 } : { span: 15 }}
+                    {...is_language}
                     label={formatMessage({ id: 'teamAdd.create.fileList' })}
                   >
                     <div

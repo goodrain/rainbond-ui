@@ -112,7 +112,11 @@ import {
   fetchInitCluster,
   fetchAlarmSwitch,
   updateAlarmSwitch,
-  fetchTeamNames
+  fetchTeamNames,
+  fetchPlatformImageHub,
+  addPlatformImageHub,
+  updatePlatformImageHub,
+  deletePlatformImageHub,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -959,6 +963,30 @@ export default {
     },
     *fetchTeamNames({ payload, callback, handleError }, { put, call }) {
       const response = yield call(fetchTeamNames, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchPlatformImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchPlatformImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addPlatformImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(addPlatformImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updatePlatformImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updatePlatformImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deletePlatformImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(deletePlatformImageHub, payload, handleError);
       if (callback) {
         callback(response);
       }

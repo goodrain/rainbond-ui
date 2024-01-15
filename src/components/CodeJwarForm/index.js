@@ -318,7 +318,7 @@ export default class Index extends PureComponent {
 
     const formItemLayout = {
       labelCol: {
-        span: 5
+        span: 7
       },
       wrapperCol: {
         span: 15
@@ -326,7 +326,7 @@ export default class Index extends PureComponent {
     };
     const en_formItemLayout = {
       labelCol: {
-        span: 9
+        span: 7
       },
       wrapperCol: {
         span: 15
@@ -423,8 +423,7 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
             <Form.Item
-              labelCol={language ? { span: 5 } : { span: 9 }}
-              wrapperCol={language ? { span: 19 } : { span: 15 }}
+              {...is_language}
               label={formatMessage({ id: 'teamAdd.create.fileList' })}
             >
               <div

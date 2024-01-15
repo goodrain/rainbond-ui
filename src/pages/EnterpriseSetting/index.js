@@ -9,6 +9,7 @@ import BackupManage from './backup';
 import Infrastructure from './infrastructure';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
+import ImageWarehouse from './imageWarehouse';
 import styles from "./index.less"
 
 
@@ -88,16 +89,28 @@ export default class EnterpriseSetting extends PureComponent {
           )}
           {adminer && (
             <TabPane 
-            tab={
-                 <div>
+              tab={
+                <div>
                   {/* 数据备份 */}
                   <FormattedMessage id='enterpriseSetting.TabPane.dataBackups'/>
                  </div>
                 } 
-            key="backup">
+              key="backup"
+            >
               <BackupManage {...this.props} />
             </TabPane>
           )}
+          <TabPane 
+            tab={
+              <div>
+              {/* 镜像仓库 */}
+              镜像仓库
+              </div>
+            } 
+            key="image"
+          >
+            <ImageWarehouse {...this.props} />
+          </TabPane>
         </Tabs>
       </PageHeaderLayout>
     );

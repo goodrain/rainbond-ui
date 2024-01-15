@@ -95,7 +95,7 @@ export default class Index extends PureComponent {
     return (
       <Card>
         <TopUpHints />
-        <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"600px"}}>
+        <div className={styles.formWrap} style={{ width: this.props.handleType && this.props.handleType === "Service" ? "auto" : "600px" }}>
           <ImageNameForm 
             localList={localImageList} 
             data={{ docker_cmd: image || "" }} 

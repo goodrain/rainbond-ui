@@ -12,18 +12,18 @@ const { TextArea } = Input;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 7
   },
   wrapperCol: {
-    span: 14
+    span: 15
   }
 };
 const formItemLayouts = {
   labelCol: {
-    span: 10
+    span: 7
   },
   wrapperCol: {
-    span: 14
+    span: 15
   }
 };
 

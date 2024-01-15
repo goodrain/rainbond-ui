@@ -468,7 +468,13 @@
         'confirmModal.deldete.attribute.desc':'确定要删除此属性吗？',
         'confirmModal.deldete.attribute.subDesc':'此操作不可恢复',
 
-
+        //添加/修改镜像仓库授权信息
+        'confirmModal.add.common.image.title':'添加镜像仓库',
+        'confirmModal.edit.common.image.title':'修改镜像仓库',
+        'confirmModal.common.image.lable.name':'仓库名称',
+        'confirmModal.common.image.lable.domain':'镜像仓库地址',
+        'confirmModal.common.image.lable.username':'用户名',
+        'confirmModal.common.image.lable.password':'密码',
     }
     const notification = {
         // 成功
@@ -855,6 +861,11 @@
         'placeholder.userName.search':'请输入用户名称进行搜索',
         'placeholder.limit_memory':'内存限制必填',
         'placeholder.rewrites':'需填写完整Rewrites配置',
+        'placeholder.warehouse_name':'请输入仓库名称',
+        'placeholder.warehouse_exist':'仓库名称已存在',
+        'placeholder.lowercase':'仓库名称只能输入小写字母',
+        'placeholder.warehouse_not_empty':'镜像仓库地址不能为空',
+        'placeholder.warehouse_address':'请选择镜像或输入镜像名称筛选',
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',
