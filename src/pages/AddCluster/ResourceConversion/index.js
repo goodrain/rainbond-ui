@@ -38,9 +38,6 @@ import FlexAttribute from '../../../components/FlexAttribute'
 import SpecialAttribute from '../../../components/SpecialAttribute'
 import Kubernetes from "../../../components/KubernetesAttribute"
 import CustomFooter from "../../../layouts/CustomFooter";
-import { object } from 'prop-types';
-import { log } from 'lodash-decorators/utils';
-import { TimelineChart } from '@/components/Charts';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
