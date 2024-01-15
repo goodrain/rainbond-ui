@@ -55,15 +55,6 @@ class Index extends PureComponent {
                 );
                 
               })}
-              {/* <Radio value="go1.20.4">go1.20<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="go1.19.9">go1.19</Radio>
-              <Radio value="go1.18.10">go1.18</Radio>
-              <Radio value="go1.17.13">go1.17</Radio>
-              <Radio value="go1.16.15">go1.16</Radio>
-              <Radio value="go1.15.15">go1.15</Radio>
-              <Radio value="go1.14.15">go1.14</Radio>
-              <Radio value="go1.13.15">go1.13</Radio>
-              <Radio value="go1.12.17">go1.12</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

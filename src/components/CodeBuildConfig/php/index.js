@@ -57,8 +57,6 @@ class Index extends PureComponent {
                 );
 
               })}
-              {/* <Radio value="apache">apache<FormattedMessage id='componentOverview.body.GoConfig.default' /></Radio>
-              <Radio value="nginx">nginx</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>
@@ -81,10 +79,6 @@ class Index extends PureComponent {
                 );
 
               })}
-              {/* <Radio value="8.2.5" selected="selected">
-                8.2.5<FormattedMessage id='componentOverview.body.GoConfig.default' />
-              </Radio>
-              <Radio value="8.1.18">8.1.18</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

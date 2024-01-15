@@ -29,16 +29,16 @@ export default class upload extends Component {
         super(props);
         this.state = {
             languageArr: [
-                { key: 'openJDK', value: 'OpenJDK' },
+                { key: 'openJDK', value: 'JDK' },
                 { key: 'golang', value: 'Golang' },
                 { key: 'node', value: 'Node' },
-                { key: 'web_compiler', value: 'Web构建' },
+                { key: 'web_compiler', value: 'JavaServer' },
+                { key: 'web_runtime', value: 'WebRuntime' },
                 { key: 'maven', value: 'Maven' },
                 { key: 'python', value: 'Python' },
-                { key: 'net_compiler', value: '.Net构建' },
-                { key: 'net_runtime', value: '.Net运行' },
+                { key: 'net_compiler', value: '.NetSDK' },
+                { key: 'net_runtime', value: '.NetRuntime' },
                 { key: 'php', value: 'PHP' },
-                { key: 'web_runtime', value: 'Web运行' },
             ],
             activeKey: "openJDK",
             tableLoading: false,
@@ -357,7 +357,7 @@ export default class upload extends Component {
                     </Col>
                 </Row>
                 <Modal
-                    title="Basic Modal"
+                    title="语言包上传"
                     visible={modalVisible}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
@@ -369,20 +369,20 @@ export default class upload extends Component {
                                 rules: [
                                     {
                                         required: true,
-                                        message: 'Input something!',
+                                        message: '请填写语言类型',
                                     },
                                 ],
-                            })(<Input placeholder="placeholder" disabled={true} />)}
+                            })(<Input placeholder="请填写语言类型" disabled={true} />)}
                         </Form.Item>
                         <Form.Item label={`版本号`} {...formItemLayout}>
                             {getFieldDecorator(`version`, {
                                 rules: [
                                     {
                                         required: true,
-                                        message: 'Input something!',
+                                        message: '请填写版本号',
                                     },
                                 ],
-                            })(<Input placeholder="placeholder" />)}
+                            })(<Input placeholder="请填写版本号" />)}
                         </Form.Item>
 
 
@@ -393,10 +393,10 @@ export default class upload extends Component {
                                     rules: [
                                         {
                                             required: true,
-                                            message: 'Input something!',
+                                            message: '请填写镜像地址',
                                         },
                                     ],
-                                })(<Input placeholder="placeholder" />)}
+                                })(<Input placeholder="请填写镜像地址" />)}
                             </Form.Item>
                             :
                             <>
@@ -423,10 +423,10 @@ export default class upload extends Component {
                                             rules: [
                                                 {
                                                     required: true,
-                                                    message: 'Input something!',
+                                                    message: '请填写文件名',
                                                 },
                                             ],
-                                        })(<Input placeholder="placeholder" disabled={true} />)}
+                                        })(<Input placeholder="请填写文件名" disabled={true} />)}
                                     </Form.Item>
                                 }
                             </>

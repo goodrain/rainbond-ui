@@ -63,10 +63,6 @@ class Index extends PureComponent {
                   </Radio>
                 )
               })}
-              {/* <Radio value="2.2-sdk-alpine" selected="selected">
-                2.2-sdk-alpine<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="2.1-sdk-alpine">2.1-sdk-alpine</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>
@@ -84,12 +80,6 @@ class Index extends PureComponent {
                   </Radio>
                 )
               })}
-              {/* <Radio value="2.2-aspnetcore-runtime" selected="selected">
-                2.2-aspnetcore-runtime<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="2.1-aspnetcore-runtime">
-                2.1-aspnetcore-runtime
-              </Radio> */}
             </RadioGroup>
           )}
         </Form.Item>

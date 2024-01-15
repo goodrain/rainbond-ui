@@ -156,7 +156,8 @@ class Index extends PureComponent {
           help={<FormattedMessage id='componentOverview.body.JavaMavenConfig.War'/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || globalUtil.getDefaultVsersion(buildSourceArr.web || [])
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || globalUtil.getDefaultVsersion(buildSourceArr.web_compiler
+              || [])
           })(
             <RadioGroup>
               {buildSourceArr && buildSourceArr.web_compiler?.map((item, index) => {
@@ -167,12 +168,6 @@ class Index extends PureComponent {
                   </Radio>
                 );
               })}
-              {/* <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="tomcat7">tomcat7</Radio>
-              <Radio value="tomcat8">tomcat8</Radio>
-              <Radio value="tomcat9">tomcat9</Radio>
-              <Radio value="jetty7">jetty7</Radio>
-              <Radio value="jetty9">jetty9</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>
@@ -207,32 +202,6 @@ class Index extends PureComponent {
             </Button>
           )}
         </Form.Item>
-        {/* <Form.Item
-          {...formItemLayout}
-          label="禁用Maven Mirror"
-          help="禁用Mirror后不再使用goodrain.me内部maven仓库进行缓存镜像"
-        >
-          {getFieldDecorator("BUILD_MAVEN_MIRROR_DISABLE", {
-            initialValue: !!(envs && envs.BUILD_MAVEN_MIRROR_DISABLE)
-          })(
-            <Switch
-              defaultChecked={!!(envs && envs.BUILD_MAVEN_MIRROR_DISABLE)}
-              checkedChildren="开"
-              unCheckedChildren="关"
-            />
-          )}
-        </Form.Item>
-        <Form.Item {...formItemLayout} label="MAVEN MIRROR OF配置">
-          {getFieldDecorator("BUILD_MAVEN_MIRROR_OF", {
-            initialValue: (envs && envs.BUILD_MAVEN_MIRROR_OF) || "central"
-          })(<Input placeholder="" />)}
-        </Form.Item>
-        <Form.Item {...formItemLayout} label="MAVEN MIRROR_URL">
-          {getFieldDecorator("BUILD_MAVEN_MIRROR_URL", {
-            initialValue:
-              (envs && envs.BUILD_MAVEN_MIRROR_URL) || "maven.goodrain.me"
-          })(<Input placeholder="" />)}
-        </Form.Item> */}
         <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.parameter'/>}>
           {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
             initialValue:

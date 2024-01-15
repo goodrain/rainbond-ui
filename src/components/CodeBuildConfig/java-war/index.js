@@ -50,10 +50,10 @@ class Index extends PureComponent {
 
         >
           {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.web || [])
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.web_compiler || [])
           })(
             <RadioGroup>
-              {buildSourceArr && buildSourceArr.web?.map((item, index) => {
+              {buildSourceArr && buildSourceArr.web_compiler?.map((item, index) => {
                 return (
                   <Radio key={index} value={item.version}>
                     {item.version}
@@ -61,12 +61,6 @@ class Index extends PureComponent {
                   </Radio>
                 );
               })}
-              {/* <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="tomcat7">tomcat7</Radio>
-              <Radio value="tomcat8">tomcat8</Radio>
-              <Radio value="tomcat9">tomcat9</Radio>
-              <Radio value="jetty7">jetty7</Radio>
-              <Radio value="jetty9">jetty9</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>
