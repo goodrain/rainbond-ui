@@ -1777,7 +1777,7 @@ export default class EnterpriseShared extends PureComponent {
                         {index < accessActions.length - 1 && (
                           <Divider
                             type="vertical"
-                            style={{ background: '#1890ff' }}
+                            className={styles.bgc}
                           />
                         )}
                       </a>

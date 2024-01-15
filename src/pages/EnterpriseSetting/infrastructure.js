@@ -500,7 +500,7 @@ class Infrastructure extends PureComponent {
           <Col span={4} style={{ textAlign: 'right' }}>
             <Switch
               onChange={this.onRegistChange}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
               checked={this.props.isRegist}
             />
           </Col>
@@ -541,7 +541,7 @@ class Infrastructure extends PureComponent {
               <Switch
                 onChange={this.handlChooseeOpen}
                 checked={israinbondTird}
-                className={styles.automaTictelescopingSwitch}
+                // className={styles.automaTictelescopingSwitch}
               />
             </Col>
           </Row>
@@ -587,7 +587,7 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenCertificate();
               }}
               checked={AutomaticCertificate}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
@@ -625,7 +625,7 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenImageHub();
               }}
               checked={isEnableAppstoreImageHub}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
@@ -662,7 +662,7 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenCloudBackup();
               }}
               checked={isEnableObjectStorage}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
@@ -699,7 +699,7 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenisEnableMonitoring();
               }}
               checked={isEnableMonitoring}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
@@ -756,7 +756,7 @@ class Infrastructure extends PureComponent {
           <Col span={4} style={{ textAlign: 'right' }}>
             <Switch
               onChange={this.isAlarmChange}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
               checked={this.props.isAlarm}
             />
           </Col>

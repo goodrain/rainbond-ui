@@ -249,7 +249,6 @@ export default class BackupManage extends PureComponent {
                 type="primary"
                 onClick={this.onAddBackup}
                 loading={addLoading}
-                className={styles.btns}
               >
                 {/* 增加备份 */}
                 <FormattedMessage id='enterpriseSetting.BackupManage.button.addBackups'/>

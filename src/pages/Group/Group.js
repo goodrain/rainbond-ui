@@ -39,6 +39,7 @@ import AppJoinMode from './AppJoinMode';
 import AppShape from './AppShape';
 import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
+import color from '../../../config/theme'
 import styles from './Index.less';
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
@@ -1212,14 +1213,16 @@ export default class Index extends PureComponent {
                 }}
                 style={{
                   height: "100%",
-                  color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
+                  width: "30%",
+                  color: type !== 'list' ? '' : 'rgba(0, 0, 0, 0.65)',
                   fontWeight: 'bold',
                   lineHeight: '60px',
-                  borderBottom: type !== 'list' ? '2px solid #1890ff' : 'none',
+                  borderBottom: type !== 'list' ? '' : 'none',
                 }}
+                className={type !== 'list' && styles.click_btn}
               >
                 <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
-                  {globalUtil.fetchSvg('topology', type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)', 20)}
+                  {globalUtil.fetchSvg('topology', type !== 'list' ? color['primary-color'] : 'rgba(0, 0, 0, 0.65)', 20)}
                 </span>
                 {formatMessage({ id: 'appOverview.topology' })}
               </a>
@@ -1230,14 +1233,16 @@ export default class Index extends PureComponent {
                   }}
                   style={{
                     height: "100%",
-                    color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
+                    width: "30%",
+                    color: type === 'list' ? '' : 'rgba(0, 0, 0, 0.65)',
                     fontWeight: 'bold',
                     lineHeight: '60px',
-                    borderBottom: type === 'list' ? '2px solid #1890ff' : 'none',
+                    borderBottom: type === 'list' ? '' : 'none',
                   }}
+                  className={type === 'list' && styles.click_btn}
                 >
                   <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
-                    {globalUtil.fetchSvg('list', type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)', 20)}
+                    {globalUtil.fetchSvg('list', type === 'list' ? color['primary-color'] : 'rgba(0, 0, 0, 0.65)', 20)}
                   </span>
                   {formatMessage({ id: 'appOverview.list' })}
                 </a>
@@ -1293,10 +1298,11 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px',
+                              color: '#F6F7FA',
                               boxShadow: 'none'
                             }}
+                            className={styles.btn}
                             onClick={() => {
                               this.changeType('shape');
                               this.setState({
@@ -1334,10 +1340,11 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px',
+                              color: '#F6F7FA',
                               boxShadow: 'none'
                             }}
+                            className={styles.btn}
                             onClick={() => {
                               this.changeType('aggregation');
                               this.setState({
@@ -1374,11 +1381,11 @@ export default class Index extends PureComponent {
                           <Radio.Button
                             style={{
                               textAlign: 'center', height: '32px',
-                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px', background: '#4C73B0',
-                              color: '#F6F7FA', borderColor: '#4C73B0',
+                              lineHeight: '32px', fontSize: '13px', padding: '0px 12px',
+                              color: '#F6F7FA', 
                               boxShadow: 'none'
                             }}
-        
+                            className={styles.btn}
                             onClick={() => {
                               this.changeType('shapes');
                               this.setState({

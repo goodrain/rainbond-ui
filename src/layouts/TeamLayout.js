@@ -4,7 +4,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification, Alert } from 'antd';
+import { Alert, Icon, Layout, notification, Tooltip, Modal } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -41,6 +41,7 @@ import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
 import "animate.css"
 const { Content } = Layout;
+Modal.defaultProps.width = 480;
 
 const query = {
   'screen-xs': {

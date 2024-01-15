@@ -1446,7 +1446,6 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderMarket
               title={formatMessage({id:'teamPlugin.btn.marketAdd'})}
-              
               titleSvg={pageheaderSvg.getSvg('appStoreSvg',18)}
               isAddMarket={this.props.isAddMarket}
               isSvg

@@ -32,21 +32,21 @@
 .tabsStyle{
   margin: 10px 0px 0;
   padding: 10px 32px 0;
-  background: #f1f2f5;
+  background: @rbd-background-color;
   height: 51px;
-  border-bottom: 1px solid #4d73b1;
+  border-bottom: 1px solid @primary-color;
   .tabs {
     margin: 0 0 -17px -8px;
 
     overflow: visible !important;
     :global{
       .ant-tabs-tab{
-        background-color: #F1F2F5 !important;
+        background-color: @rbd-background-color !important;
         margin-right: 0px !important;
         border: 1px solid  transparent !important;
       }
       .ant-tabs-bar{
-        border-bottom: 1px solid #4d73b1 !important;
+        border-bottom: 1px solid @primary-color !important;
         margin: 0;
         padding-bottom: 1px !important;
       }
@@ -55,7 +55,7 @@
       }
       .ant-tabs-tab-active{
         height: 41px !important ;
-        border: 1px solid #4d73b1 !important;
+        border: 1px solid @primary-color !important;
         border-bottom: 1px solid #fff !important;
         background-color: #fff !important;
       }

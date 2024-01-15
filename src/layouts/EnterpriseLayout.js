@@ -506,6 +506,7 @@ class EnterpriseLayout extends PureComponent {
                       overflow: 'auto',
                       width: '100%'
                     }}
+                    className={styles.bgc}
                   >
                     {/* 报警信息 */}
                     {isAlarm ? (

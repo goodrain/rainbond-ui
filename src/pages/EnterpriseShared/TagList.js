@@ -54,7 +54,7 @@ export default class TagList extends PureComponent {
     return (
       <Modal
         title={title}
-        width={600}
+        width={480}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
