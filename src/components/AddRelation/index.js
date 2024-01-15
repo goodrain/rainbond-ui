@@ -171,7 +171,7 @@ export default class AddRelation extends PureComponent {
 
         <Table
           size="middle"
-          rowKey={item => item.service_id}
+          rowKey={(record,index) => index}
           pagination={{
             current: this.state.page,
             pageSize: this.state.page_size,

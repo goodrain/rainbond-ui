@@ -857,6 +857,7 @@ export default class Main extends PureComponent {
               >
                 <Table
                   dataSource={appList}
+                  rowKey={(record,index) => index}
                   scroll={{ x: 1200 }}
                   style={{ width: '100%', overflowX: 'auto' }}
                   columns={[

@@ -72,7 +72,7 @@ export default class Index extends PureComponent {
         title="发票订单详情"
         width={1000}
       >
-        <Table dataSource={this.props.data} columns={columns} />
+        <Table rowKey={(record,index) => index} dataSource={this.props.data} columns={columns} />
       </Modal>
     );
   }

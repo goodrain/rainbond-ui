@@ -40,6 +40,7 @@ export default class index extends PureComponent {
                 {(value && value.length > 0) ? (
                     <>
                     <Table
+                        rowKey={(record,index) => index}
                         columns={[
                             {
                                 title: formatMessage({id:'enterpriseColony.import.recognition.tabs.k8s.name'}),

@@ -427,6 +427,7 @@ export default class Index extends PureComponent {
         </Row>
         <Row>
           <Table
+            rowKey={(record,index) => index}
             dataSource={list}
             columns={columns}
             style={{ background: '#fff', margin: '12px -12px 0 -12px' }}

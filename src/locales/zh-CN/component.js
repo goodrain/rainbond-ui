@@ -61,7 +61,7 @@ const componentOverview = {
     'componentOverview.promptModal.Current':'当前组件？',
     'componentOverview.promptModal.Upgrade':'从应用商店升级构建',
     'componentOverview.promptModal.cancel':'取消',
-    'componentOverview.promptModal.build':'构建',
+    'componentOverview.promptModal.build':'去升级',
     'componentOverview.promptModal.Force_build':'强制构建',
     'componentOverview.promptModal.app':'从应用商店应用',
     'componentOverview.promptModal.app_build':'构建而来,当前云市应用版本有更新!',

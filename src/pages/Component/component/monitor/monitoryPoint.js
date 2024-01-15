@@ -212,6 +212,7 @@ export default class customMonitor extends PureComponent {
           <ScrollerX sm={800}>
             <Table
               pagination={false}
+              rowKey={(record,index) => index}
               dataSource={monitors}
               columns={[
                 {

@@ -67,6 +67,7 @@ class EnvVariable extends PureComponent {
           {value && value.length > 0 ? (
             <Table
               style={{ width: '100%', overflowX: 'auto' }}
+              rowKey={(record,index) => index}
               columns={column}
               dataSource={value}
               pagination={true}

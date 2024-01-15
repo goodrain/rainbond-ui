@@ -261,6 +261,7 @@ export default class AddVolumes extends PureComponent {
           <TabPane tab="Tab 2" key="2">
             <Table
               pagination={pagination}
+              rowKey={(record,index) => index}
               dataSource={this.state.list}
               rowSelection={rowSelection}
               style={{ width: '100%', overflowX: 'auto' }}

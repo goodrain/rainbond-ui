@@ -355,6 +355,7 @@ class Index extends React.Component {
                   </div>
                   {serviceInfos && (
                     <Table
+                      rowKey={(record,index) => index}
                       title={() =>
                         service_info.length > 1 && (
                           <div

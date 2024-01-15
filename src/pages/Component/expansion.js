@@ -1311,6 +1311,7 @@ export default class Index extends PureComponent {
       >
         <Table
           className={styles.horizontalExpansionRecordTable}
+          rowKey={(record,index) => index}
           dataSource={sclaingRecord}
           pagination={total > page_size ? {
             current: page_num,

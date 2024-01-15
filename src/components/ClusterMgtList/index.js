@@ -291,6 +291,7 @@ class Index extends Component {
           {showInfo ?
             <Table
               columns={columns}
+              rowKey={(record,index) => index}
               dataSource={nodeList}
               pagination={nodeList && nodeList.length > 10 ? true : false}
               onRow={this.onClickRow}

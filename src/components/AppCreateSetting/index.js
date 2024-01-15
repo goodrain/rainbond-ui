@@ -599,7 +599,7 @@ class Mnt extends PureComponent {
             </Button>
           }
         >
-          <Table pagination={false} dataSource={volumes} columns={columns} />
+          <Table rowKey={(record,index) => index} pagination={false} dataSource={volumes} columns={columns} />
           <div
             style={{
               marginTop: 10,
@@ -621,6 +621,7 @@ class Mnt extends PureComponent {
         >
           <Table
             pagination={false}
+            rowKey={(record,index) => index}
             columns={[
               {
                 title: formatMessage({id:'componentCheck.advanced.setup.shared_storage.label.local_vol_path'}),
@@ -846,6 +847,7 @@ class Relation extends PureComponent {
       <Card title={formatMessage({id:'componentCheck.advanced.setup.component_dependency.title'})}>
         <Table
           pagination={false}
+          rowKey={(record,index) => index}
           columns={[
             {
               title: formatMessage({id:'componentCheck.advanced.setup.component_dependency.table.service_cname'}),

@@ -371,6 +371,7 @@ export default class Index extends PureComponent {
             <ScrollerX sm={650}>
               <Table
                 pagination={false}
+                rowKey={(record,index) => index}
                 columns={[
                   {
                     title: formatMessage({ id: 'componentOverview.body.mnt.volume_name' }),
@@ -467,7 +468,7 @@ export default class Index extends PureComponent {
             }
           >
             <ScrollerX sm={650}>
-              <Table pagination={false} dataSource={volumes} columns={columns} />
+              <Table rowKey={(record,index) => index} pagination={false} dataSource={volumes} columns={columns} />
             </ScrollerX>
           </Card>
         }
@@ -484,6 +485,7 @@ export default class Index extends PureComponent {
             <ScrollerX sm={850}>
               <Table
                 pagination={false}
+                rowKey={(record,index) => index}
                 columns={[
                   {
                     title: formatMessage({ id: 'componentOverview.body.mnt.local_vol_path' }),

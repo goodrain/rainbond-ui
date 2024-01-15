@@ -82,6 +82,7 @@ class StandardTable extends PureComponent {
       <div className={styles.standardTable}>
         <Table
           dataSource={list}
+          rowKey={(record,index) => index}
           columns={columns}
           pagination={paginationProps}
           onChange={this.handleTableChange}

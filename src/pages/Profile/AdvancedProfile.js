@@ -190,18 +190,21 @@ export default class AdvancedProfile extends Component {
     const { advancedOperation1, advancedOperation2, advancedOperation3 } = profile;
     const contentList = {
       tab1: <Table
+        rowKey={(record,index) => index}
         pagination={false}
         loading={loading}
         dataSource={advancedOperation1}
         columns={columns}
       />,
       tab2: <Table
+        rowKey={(record,index) => index}
         pagination={false}
         loading={loading}
         dataSource={advancedOperation2}
         columns={columns}
       />,
       tab3: <Table
+        rowKey={(record,index) => index}
         pagination={false}
         loading={loading}
         dataSource={advancedOperation3}

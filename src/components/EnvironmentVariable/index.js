@@ -741,6 +741,7 @@ class EnvironmentVariable extends React.Component {
             <EditableContext.Provider value={form}>
               <Table
                 style={{ width: '100%', overflowX: 'auto' }}
+                rowKey={(record,index) => index}
                 components={components}
                 columns={columns}
                 dataSource={innerEnvsList}

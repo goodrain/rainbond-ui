@@ -247,7 +247,7 @@ export default class ImageWarehouse extends PureComponent {
                         </Button>
                     </Col>
                 </Row>
-                <Table pagination={imageList.length > 8 ? pagination : false} dataSource={imageList} columns={columns} />
+                <Table rowKey={(record,index) => index} pagination={imageList.length > 8 ? pagination : false} dataSource={imageList} columns={columns} />
                 {showAddMember && (
                     <AddOrEditImageRegistry
                         loading={imageHubLoading}

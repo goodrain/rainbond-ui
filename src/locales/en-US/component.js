@@ -61,7 +61,7 @@ const componentOverview = {
     'componentOverview.promptModal.Current':'Current component?',
     'componentOverview.promptModal.Upgrade':'Upgrade build from Market',
     'componentOverview.promptModal.cancel':'Cancel',
-    'componentOverview.promptModal.build':'Build ',
+    'componentOverview.promptModal.build':'Upgrade',
     'componentOverview.promptModal.Force_build':'Force build',
     'componentOverview.promptModal.app':'From the app ',
     'componentOverview.promptModal.app_build':' the current application version has been updated!',

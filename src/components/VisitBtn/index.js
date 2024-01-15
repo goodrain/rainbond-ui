@@ -210,7 +210,7 @@ export default class Index extends PureComponent {
   showConnectInfo = infoArr => {
     return (
       <Table
-        rowKey={this.rowKey}
+        rowKey={(record,index) => index}
         className={styles.tdPadding}
         bordered
         columns={[

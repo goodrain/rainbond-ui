@@ -395,7 +395,7 @@ export default class index extends PureComponent {
                 columns={columnsGateWay}
                 loading={loading}
                 size="default"
-                rowKey={this.rowKey}
+                rowKey={(record,index) => index}
                 pagination={total > 10 ? {
                   total,
                   page_num,

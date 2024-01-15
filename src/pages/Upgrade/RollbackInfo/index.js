@@ -123,6 +123,7 @@ export default class rollsBackRecordList extends PureComponent {
       >
         <Table
           loading={recordLoading}
+          rowKey={(record,index) => index}
           columns={columns}
           dataSource={list}
           pagination={false}

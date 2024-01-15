@@ -233,7 +233,7 @@ class Index extends Component {
                                     <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.num' })}</Col>
                                     <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.edit' })}</Col>
                                 </Row>
-                                <Table columns={column} dataSource={dashboardList} pagination={false} />
+                                <Table rowKey={(record,index) => index} columns={column} dataSource={dashboardList} pagination={false} />
                             </div>
                         ) : (
                             <Skeleton active />
@@ -260,7 +260,7 @@ class Index extends Component {
                         <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.restart' })}</Col>
                         <Col span={4}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.runTime' })}</Col>
                     </Row>
-                    <Table columns={columns} dataSource={activePod} pagination={false} />
+                    <Table rowKey={(record,index) => index} columns={columns} dataSource={activePod} pagination={false} />
                 </Modal>
             </>
         );

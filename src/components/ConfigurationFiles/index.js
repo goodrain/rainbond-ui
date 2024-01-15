@@ -56,6 +56,7 @@ export default class ConfigurationFiles extends PureComponent {
               {value && value.length > 0 ? (
                 <Table
                 pagination={false}
+                rowKey={(record,index) => index}
                 columns={columns}
                 dataSource={value}
               />

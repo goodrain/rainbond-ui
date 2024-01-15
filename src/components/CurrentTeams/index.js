@@ -148,6 +148,7 @@ class currentTeams extends PureComponent {
         >
           <Table
             loading={Loading}
+            rowKey={(record,index) => index}
             scroll={{ y: 300 }}
             pagination={false}
             dataSource={list}

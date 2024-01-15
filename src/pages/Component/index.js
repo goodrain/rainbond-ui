@@ -890,10 +890,18 @@ class Main extends PureComponent {
       }
     });
   };
-  handleOkBuild = () => {
+  handleOkBuild = (key) => {
+    const { dispatch } = this.props
+    const { group_id } = this.fetchParameter();
     this.props.form.validateFields((err, fieldsValue) => {
       if (!err) {
-        this.handleDeploy(fieldsValue.group_version);
+        if(key === 'build'){
+          this.handleDeploy(fieldsValue.group_version);
+        } else if(key === 'upgrade'){
+          dispatch(
+            routerRedux.push(`${this.fetchPrefixUrl()}apps/${group_id}/upgrade`)
+          );
+        }
       }
     });
   };
@@ -1582,7 +1590,7 @@ class Main extends PureComponent {
                     type="primary"
                     loading={deployLoading}
                     onClick={() => {
-                      this.handleOkBuild();
+                      this.handleOkBuild('upgrade');
                     }}
                   >
                     <FormattedMessage id="componentOverview.promptModal.build"/>
@@ -1600,7 +1608,7 @@ class Main extends PureComponent {
                     type="primary"
                     loading={deployLoading}
                     onClick={() => {
-                      this.handleOkBuild();
+                      this.handleOkBuild('build');
                     }}
                   >
                     <FormattedMessage id="componentOverview.promptModal.Force_build"/>

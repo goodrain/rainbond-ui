@@ -592,6 +592,7 @@ export default class Index extends React.Component {
           <ScrollerX sm={850}>
             <Table
               pagination={false}
+              rowKey={(record,index) => index}
               columns={[
                 {
                   title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),

@@ -534,7 +534,7 @@ class Mnt extends PureComponent {
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
-        <Table pagination={false} dataSource={volumes} columns={columns} />
+        <Table rowKey={(record,index) => index} pagination={false} dataSource={volumes} columns={columns} />
 
         {this.state.showAddVar && (
           <AddOrEditVolume
@@ -714,6 +714,7 @@ class ConfigFiles extends PureComponent {
           <ScrollerX sm={650}>
             <Table
               pagination={false}
+              rowKey={(record,index) => index}
               columns={[
                 {
                   title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
@@ -1016,6 +1017,7 @@ class VmMnt extends PureComponent {
         </div>
         <Table 
           pagination={false} 
+          rowKey={(record,index) => index}
           dataSource={volumes} 
           columns={columns} 
         />

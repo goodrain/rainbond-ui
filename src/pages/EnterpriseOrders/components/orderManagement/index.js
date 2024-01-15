@@ -313,6 +313,7 @@ export default class EnterpriseClusters extends PureComponent {
         </Row>
         <Table
           loading={tabLoading}
+          rowKey={(record,index) => index}
           pagination={{
             current: page,
             pageSize: page_size,

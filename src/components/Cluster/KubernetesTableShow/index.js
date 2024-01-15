@@ -537,6 +537,7 @@ export default class KubernetesClusterShow extends PureComponent {
         </Row>
         <Table
           scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
+          rowKey={(record,index) => index}
           loading={loading}
           pagination={false}
           columns={columns}

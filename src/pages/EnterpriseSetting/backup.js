@@ -260,6 +260,7 @@ export default class BackupManage extends PureComponent {
             <Col>
               <Table
                 loading={backupLoading}
+                rowKey={(record,index) => index}
                 pagination={false}
                 dataSource={backups}
                 columns={columns}
