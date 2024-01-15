@@ -64,10 +64,6 @@ class Index extends PureComponent {
                   </Radio>
                 );
               })}
-              {/* <Radio value="nginx" selected="selected">
-                nginx<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="apache">apache</Radio> */}
             </RadioGroup>
           )}
         </Form.Item>
