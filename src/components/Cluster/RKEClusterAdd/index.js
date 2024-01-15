@@ -744,7 +744,10 @@ export default class RKEClusterConfig extends PureComponent {
       isCheckSsh: true
     })
   }
-
+  onClickDocsLink = () => {
+    // 跳转到外面的文档地址
+    window.open('https://rainbond.com/docs/troubleshooting/installation/ui')
+  }
   render() {
     const {
       onCancel,
@@ -819,9 +822,7 @@ export default class RKEClusterConfig extends PureComponent {
         title: 
         <div>
           {formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' })}&nbsp;
-          <Tooltip placement='bottom' title={formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity.desc' })}>
-            <Icon type="question-circle" />
-          </Tooltip>
+            <Icon onClick={this.onClickDocsLink} style={{ fontSize: '16px', color: '#1890ff' }} type="question-circle" />
         </div>,
         dataIndex: 'msg',
         width: 160,
