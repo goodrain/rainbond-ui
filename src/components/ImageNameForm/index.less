@@ -130,7 +130,7 @@
   }
   .imageName{
     height: 28px;
-    width: 100%;
+    width: calc(100% - 125px);
     line-height: 28px;
     :global {
       .ant-input{
@@ -142,15 +142,21 @@
         outline: none !important;
         box-shadow: none !important;
       }
-      .ant-input:focus {
+      .ant-select-selection:focus, .ant-input:focus {
         border: none;
         box-shadow: none;
       }
-      .ant-select-selection{
-        margin-right: 8px;
+      .ant-select-selection__rendered{
+        margin-right: 0px;
+      }
+      .ant-select-selection-selected-value{
+        padding-right: 0px;
       }
       .ant-select-arrow svg{
         display: none;
+      }
+      .ant-select{
+        border: none;
       }
       .ant-select-selection, .ant-select{
         border: none;

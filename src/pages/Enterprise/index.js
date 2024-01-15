@@ -38,8 +38,6 @@ import Records from '../../../public/images/records.png';
 import Team from '../../../public/images/team.png';
 import TeamCrew from '../../../public/images/teamCrew.png';
 import User from '../../../public/images/user.png';
-// import AuthCompany from '../../components/AuthCompany';
-import { Pie } from '../../components/Charts';
 import ConfirmModal from '../../components/ConfirmModal';
 import Consulting from '../../components/Consulting';
 import Convenient from '../../components/Convenient';
