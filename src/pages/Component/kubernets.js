@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", 'hostAliases', "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -45,6 +45,7 @@ class Index extends PureComponent {
         envFromSource: '#sample\n#- configMapRef:\n#    name: \n#- secretRef:\n#    name: ',
         livenessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
         readinessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
+        hostAliases: '#sample\n#- ip: "127.0.0.1"\n#  hostnames:\n#  - foo.local\n#  - bar.local\n#- ip: "10.1.2.3"\n#  hostnames:\n#  - foo.remote\n#  - bar.remote',
       },
       TooltipValue: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
@@ -249,6 +250,19 @@ class Index extends PureComponent {
                 name: selectVal,
                 save_type: "yaml",
                 attribute_value: value.volumeMounts || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
+
+          case "hostAliases":
+            if (value.hostAliases != null && value.hostAliases.length > 0 && value.hostAliases != TooltipValue) {
+              const label = {
+                name: selectVal,
+                save_type: "yaml",
+                attribute_value: value.hostAliases || []
               }
               this.handelAddOrEdit(label)
             } else {
@@ -689,7 +703,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  ((selectVal == "volumeMounts") || (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle' || selectVal == 'envFromSource' || selectVal == 'securityContext' || selectVal== "livenessProbe" || selectVal == 'readinessProbe') &&
+                  ((selectVal == "volumeMounts") || (selectVal == "hostAliases")|| (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle' || selectVal == 'envFromSource' || selectVal == 'securityContext' || selectVal== "livenessProbe" || selectVal == 'readinessProbe') &&
                   <>
                     <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
                     <CodeMirrorForm
@@ -762,7 +776,7 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name=='livenessProbe' || item.name == 'readinessProbe') ? (
+                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name=='livenessProbe' || item.name == 'readinessProbe') ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
@@ -781,7 +795,7 @@ class Index extends PureComponent {
                       })
                     }
                       {item.name &&
-                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name == 'livenessProbe' || item.name == 'readinessProbe') &&
+                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name == 'livenessProbe' || item.name == 'readinessProbe') &&
                         item.attribute_value.length > 0 &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
