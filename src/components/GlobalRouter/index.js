@@ -1,4 +1,6 @@
-import { Icon, Menu } from 'antd';
+/* eslint-disable react/jsx-no-target-blank */
+/* eslint-disable no-console */
+import { Icon, Menu,Button } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -14,7 +16,7 @@ const { SubMenu } = Menu;
 // 'http://demo.com/icon.png',   icon: <Icon type="setting" />,
 const getIcon = icon => {
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
-    return <img src={icon} alt="icon" className={styles.icon} />;
+    return < img src={icon} alt="icon" className={styles.icon} />;
   }
   if (typeof icon === 'string') {
     return <Icon type={icon} />;
@@ -31,7 +33,8 @@ export default class GlobalRouter extends PureComponent {
     this.menus = props.menuData;
     this.state = {
       collectionVisible: false,
-      openKeys: this.getDefaultCollapsedSubMenus(props)
+      openKeys: this.getDefaultCollapsedSubMenus(props),
+      collapsed: window.localStorage.getItem('collapsed') === 'true' ? true : false,
     };
   }
 
@@ -171,16 +174,9 @@ export default class GlobalRouter extends PureComponent {
               }
             : undefined
         }
-        style={bool &&
-          {            
-          display:'flex', 
-          alignItems:'center', 
-          justifyContent:'start',
-          height:60
-        }}
       >
         {icon}
-        <span style={{padding:'0 5px', textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}>{name}</span>
+        <span>{name}</span>
       </Link>
     );
   };
@@ -191,9 +187,8 @@ export default class GlobalRouter extends PureComponent {
     if (item.children && item.children.some(child => child.name)) {
       return (
         <SubMenu
-          className={styles.items}
           title={
-            <a className={styles.item}>
+            <a>
               {item.icon && getIcon(item.icon)}
               <span>{item.name}</span>
             </a>
@@ -204,7 +199,7 @@ export default class GlobalRouter extends PureComponent {
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path} style={bool ? { height: 40 } : { display:'flex', alignItems:'center', justifyContent:'center', height:60 }}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return <Menu.Item key={item.path} >{this.getMenuItemPath(item)}</Menu.Item>;
   };
   /**
    * 获得菜单子节点
@@ -304,7 +299,13 @@ export default class GlobalRouter extends PureComponent {
       }
     });
   };
-
+  toggleCollapsed = () => {
+    this.setState({
+      collapsed: !this.state.collapsed,
+    },()=>{
+      window.localStorage.setItem('collapsed', this.state.collapsed);
+    });
+  };
   render() {
     const { showMenu, viewLoading, pathname, menuData } = this.props;
     const { openKeys, collectionVisible } = this.state;
@@ -313,18 +314,21 @@ export default class GlobalRouter extends PureComponent {
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
+    
     return (
       <div
         style={{
-          background: '#fff',
-          width: '68px',
           display: showMenu ? 'block' : 'none',
-          transition: ".5s ease",
-          boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-          zIndex:9
+          width: this.state.collapsed ? '56px' : '200px',
+          transition: 'all 0.2s',
+          position: 'relative',
         }}
+        
       >
-        {collectionVisible && (
+        <p onClick={this.toggleCollapsed} className={styles.menuStyle}>
+        <Icon type={this.state.collapsed ? 'right' : 'left'} />
+        </p>
+        {/* {collectionVisible && (
           <CollectionView
             title={formatMessage({ id: 'sidecar.collection.add' })}
             visible={collectionVisible}
@@ -332,11 +336,10 @@ export default class GlobalRouter extends PureComponent {
             onOk={this.handleCollectionView}
             onCancel={this.handleCloseCollectionVisible}
           />
-        )}
+        )} */}
         <Menu
           className={styles.globalSider}
           key="Menu"
-          // theme="light"
           mode="inline"
           placement="left"
           onOpenChange={this.handleOpenChange}
@@ -345,11 +348,8 @@ export default class GlobalRouter extends PureComponent {
           defaultOpenKeys={[
             `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
           ]}
-          style={{
-            width: '68px',
-            height: 'calc(100vh - 64px)',
-            position: 'relative'
-          }}
+          inlineCollapsed={this.state.collapsed}
+          style={{ width: this.state.collapsed ? '56px' : '200px'}}
         >
           {this.getNavMenuItems(menuData || [])}
         </Menu>
