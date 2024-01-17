@@ -128,7 +128,6 @@ export default class AddRelation extends PureComponent {
             >
               <Option value="un_dependency">{formatMessage({id:'componentOther.AddRelation.un_dependency'})}</Option>
               <Option value="dependency-reverse">{formatMessage({id:'componentOther.AddRelation.dependency-reverse'})}</Option>
-
             </Select>
         </Col>
         <Col span={14}>
@@ -167,11 +166,12 @@ export default class AddRelation extends PureComponent {
           </FormItem>
         </Form>
         </Col>
+        {console.log(this.state.apps,'this.state.apps')}
         </Row>
 
         <Table
           size="middle"
-          rowKey={(record,index) => index}
+          rowKey={record => record.service_id}
           pagination={{
             current: this.state.page,
             pageSize: this.state.page_size,
