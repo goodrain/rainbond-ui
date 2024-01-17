@@ -1095,6 +1095,8 @@ const componentOther = {
     'componentOther.relationMnt.select_app':'Please select an application',
     'componentOther.relationMnt.com':'Search by component:',
     'componentOther.relationMnt.select_com':'Please select a component',
+    'componentOther.relationMnt.file_name':'Please enter a profile name to search',
+    'componentOther.relationMnt.name':'Search by name:',
   }
 
 export default Object.assign({}, componentOverview, componentOther);

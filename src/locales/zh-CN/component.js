@@ -1106,6 +1106,8 @@ const componentOverview = {
     'componentOther.relationMnt.select_app':'请选择应用',
     'componentOther.relationMnt.com':'按组件搜索：',
     'componentOther.relationMnt.select_com':'请选择组件',
+    'componentOther.relationMnt.file_name':'请输入配置文件名称或路径搜索',
+    'componentOther.relationMnt.name':'按名称/路径搜索：',
   }
 
 export default Object.assign({}, componentOverview, componentOther);
