@@ -614,6 +614,7 @@ export function getMnt(
         // query: body.query,
         dep_app_group: body.dep_app_group || '',
         dep_app_name: body.dep_app_name || '',
+        config_name: body.config_name || '',
         page: body.page,
         page_size: body.page_size,
         type: body.type ? body.type : 'mnt',
@@ -625,7 +626,7 @@ export function getMnt(
         const yourNewParams = params.volume_types
           .map(_ => `volume_types=${_}`)
           .join('&');
-        const str = `page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}&dep_app_name=${params.dep_app_name}&dep_app_group=${params.dep_app_group}`;
+        const str = `page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}&dep_app_name=${params.dep_app_name}&dep_app_group=${params.dep_app_group}&config_name=${params.config_name}`;
         return str;
       }
     }

@@ -1212,7 +1212,6 @@ export default class Index extends PureComponent {
                 }}
                 style={{
                   height: "100%",
-                  width: "30%",
                   color: type !== 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
                   fontWeight: 'bold',
                   lineHeight: '60px',
@@ -1231,7 +1230,6 @@ export default class Index extends PureComponent {
                   }}
                   style={{
                     height: "100%",
-                    width: "30%",
                     color: type === 'list' ? '#1890ff' : 'rgba(0, 0, 0, 0.65)',
                     fontWeight: 'bold',
                     lineHeight: '60px',

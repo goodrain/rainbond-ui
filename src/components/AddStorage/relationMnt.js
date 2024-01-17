@@ -76,7 +76,7 @@ export default class Index extends PureComponent {
         : ['share-file', 'memoryfs', 'local'],
       dep_app_group: this.state.dep_app_group || '',
       dep_app_name: this.state.dep_app_name || '',
-
+      config_name: this.state.config_name || ''
     }).then(data => {
       if (data) {
         if (bool) {
@@ -124,10 +124,12 @@ export default class Index extends PureComponent {
     })
   }
   handleDependChange = (e, bool) => {
-    if (!bool) {
+    if (bool === 'dep_app_group') {
       this.setState({ dep_app_group: e }, () => { this.loadUnMntList(false) })
-    } else {
+    } else if (bool === 'dep_app_name') {
       this.setState({ dep_app_name: e }, () => { this.loadUnMntList(false) })
+    } else if (bool === 'config_name') {
+      this.setState({ config_name: e }, () => { this.loadUnMntList(false) })
     }
   }
   render() {
@@ -157,12 +159,20 @@ export default class Index extends PureComponent {
       >
         <Row style={{paddingBottom:10}}>
           <Col span={6}>
+            {formatMessage({id:'componentOther.relationMnt.name'})}
+            <Input
+              style={{ width: 150 }}
+              onBlur={(e) => this.handleDependChange(e.target.value, 'config_name')}
+              placeholder={formatMessage({ id: 'componentOther.relationMnt.file_name' })}
+            />
+          </Col>
+          <Col span={6}>
             {formatMessage({id:'componentOther.relationMnt.app'})}
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_app'})}
               style={{ width: 150 }}
-              onChange={(e) => this.handleDependChange(e, false)}
+              onChange={(e) => this.handleDependChange(e, 'dep_app_group')}
 
             >
               {this.state.appList.map(item => {
@@ -175,13 +185,13 @@ export default class Index extends PureComponent {
               )}
             </Select>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.com'})}
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_com'})}
               style={{ width: 150 }}
-              onChange={(e) => this.handleDependChange(e, true)}
+              onChange={(e) => this.handleDependChange(e, 'dep_app_name')}
             >
               {this.state.comList.map(item => {
                 return (

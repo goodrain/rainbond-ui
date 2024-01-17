@@ -513,7 +513,8 @@ export default class Index extends React.Component {
               message={<FormattedMessage id='componentOverview.body.tab.env.setting.message' />}
               type="info"
               style={{
-                marginBottom: 24
+                marginBottom: 24,
+                marginTop: 24
               }}
             />
           </Col>
