@@ -89,8 +89,16 @@ export default class ComponentList extends Component {
   }
 
   getSelected() {
-    const key = this.state.selectedRowKeys;
-    const res = key.map(item => this.state.apps[item]);
+    const { selectedRowKeys, apps } = this.state
+    const key = selectedRowKeys;
+    const res = [] 
+    selectedRowKeys.map(item => {
+      apps.map((item1) => {
+        if(item == item1.service_id){
+          res.push(item1)
+        }
+      })
+    });
     return res;
   }
   updateApp = () => {
@@ -648,7 +656,7 @@ export default class ComponentList extends Component {
             }
             dataSource={apps || []}
             footer={() => footer}
-            rowKey={record => record.service_cname}
+            rowKey={record => record.service_id}
           />
           {batchDeleteShow && (
             <BatchDelete
