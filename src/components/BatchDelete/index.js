@@ -89,7 +89,7 @@ export default class MoveGroup extends PureComponent {
         {confirm ? (
           <Table
             dataSource={apps || []}
-            rowKey={(record,index) => index}
+            rowKey={(record,index) => record.service_id}
             columns={[
               {
                 title: formatMessage({id:'appOverview.list.BatchDelete.name'}),
