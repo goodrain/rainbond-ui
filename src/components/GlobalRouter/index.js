@@ -204,7 +204,7 @@ export default class GlobalRouter extends PureComponent {
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path} style={bool ? {height:40} : {display:'flex', alignItems:'center', justifyContent:'center',height:60}}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return <Menu.Item key={item.path} style={bool ? { height: 40 } : { display:'flex', alignItems:'center', justifyContent:'center', height:60 }}>{this.getMenuItemPath(item)}</Menu.Item>;
   };
   /**
    * 获得菜单子节点
@@ -338,6 +338,7 @@ export default class GlobalRouter extends PureComponent {
           key="Menu"
           // theme="light"
           mode="inline"
+          placement="left"
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
           inlineCollapsed="menu-fold"
