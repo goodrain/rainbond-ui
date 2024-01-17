@@ -12,7 +12,7 @@ import {
   Modal
 } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import React, { Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddStorage from '../../components/AddStorage';
@@ -24,7 +24,7 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import AddVarModal from './setting/env';
-
+import styles from '../../components/ConfirmModal/index.less'
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -474,7 +474,15 @@ export default class Index extends React.Component {
       isAttrNameList: arr
     });
   };
-
+  onLinkComponent = (item) => {
+    const { dispatch } = this.props;
+    dispatch(
+      // 跳转组件
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${item.service_alias}/environmentConfiguration`
+      )
+    );
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { mntList } = this.state;
@@ -636,7 +644,7 @@ export default class Index extends React.Component {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                        }/overview`}
+                        }/environmentConfiguration`}
                     >
                       {v}
                     </Link>
@@ -751,7 +759,7 @@ export default class Index extends React.Component {
           />
         )}
         <Modal
-          title={formatMessage({id:'componentOther.customEnvironmentVariables.title'})}
+          title='删除配置文件'
           visible={this.state.errorDelete}
           onOk={this.handleOk}
           onCancel={
@@ -760,9 +768,19 @@ export default class Index extends React.Component {
             }
           }
         >
-          <p>{formatMessage({id:'componentOther.customEnvironmentVariables.name'})}</p>
+          <div className={styles.content}>
+          <div className={styles.inner}>
+            <span className={styles.icon}>
+              <Icon type="exclamation-circle-o" />
+            </span>
+            <div className={styles.desc}>
+              <p>{formatMessage({id:'componentOther.customEnvironmentVariables.title'})}</p>
+            </div>
+          </div>
+        </div>
+          <p style={{ fontWeight: 600 }}>{formatMessage({id:'componentOther.customEnvironmentVariables.name'})}</p>
           {this.state.errorList?.map((item, index) => {
-            return <p key={index}>{item.service_cname}</p>;
+            return <p style={{ color: '#4d73b1', cursor: 'pointer' }} onClick={()=> this.onLinkComponent(item)} key={index}>{item.service_cname}</p>;
           })}
         </Modal>
       </Fragment>

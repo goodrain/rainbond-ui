@@ -158,20 +158,20 @@ export default class Index extends PureComponent {
         onCancel={this.handleCancel}
       >
         <Row style={{paddingBottom:10}}>
-          <Col span={6}>
+          <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.name'})}
             <Input
-              style={{ width: 150 }}
+              style={{ width: 240 }}
               onBlur={(e) => this.handleDependChange(e.target.value, 'config_name')}
               placeholder={formatMessage({ id: 'componentOther.relationMnt.file_name' })}
             />
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.app'})}
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_app'})}
-              style={{ width: 150 }}
+              style={{ width: 240 }}
               onChange={(e) => this.handleDependChange(e, 'dep_app_group')}
 
             >
@@ -190,7 +190,7 @@ export default class Index extends PureComponent {
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_com'})}
-              style={{ width: 150 }}
+              style={{ width: 240 }}
               onChange={(e) => this.handleDependChange(e, 'dep_app_name')}
             >
               {this.state.comList.map(item => {
