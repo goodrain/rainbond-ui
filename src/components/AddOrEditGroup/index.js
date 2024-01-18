@@ -35,7 +35,7 @@ export default class EditGroupName extends PureComponent {
   }
   // 生成英文名
   generateEnglishName = (name) => {
-    if(name != undefined){
+    if(name != undefined && name != ''){
       const { appNames } = this.props;
       const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();

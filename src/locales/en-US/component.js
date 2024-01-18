@@ -851,8 +851,8 @@ const componentOverview = {
     // tabs栏>Resource>AddAdmin
     'componentOverview.body.AddAdmin.profile':'ConfigFile content',
     'componentOverview.body.AddAdmin.content':'Please edit the content',
-    'componentOverview.body.AddAdmin.only':'It must consist of lowercase letters, numbers and "-" and must start and end with alphanumeric',
-    'componentOverview.body.AddAdmin.max':'Maximum length: 64 bits',
+    'componentOverview.body.AddAdmin.only':'Only lowercase letters are supported',
+    'componentOverview.body.AddAdmin.max':'Maximum length: 32 bits',
     'componentOverview.body.AddAdmin.min':'Minimum length: 2 bits',
     'componentOverview.body.AddAdmin.input_name':'Please enter the configuration name',
     'componentOverview.body.AddAdmin.name':'Configuration name',
