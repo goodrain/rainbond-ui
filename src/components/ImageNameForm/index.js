@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
             fieldsValue.docker_cmd = fieldsValue.docker_cmd
           } else {
             const cleanedUrl = warehouseInfo.domain.replace(/^(https?:\/\/)/, '');
-            fieldsValue.docker_cmd = `${cleanedUrl}/${imageNameInfo}:${checkedValues}`
+            fieldsValue.docker_cmd = `${cleanedUrl}/${fieldsValue.docker_cmd}`
             fieldsValue.user_name = warehouseInfo.username
             fieldsValue.password = warehouseInfo.password
           }
@@ -402,7 +402,6 @@ export default class Index extends PureComponent {
   onChangeRegistry = (value) =>{
     const { warehouseList } = this.state
     const { setFieldsValue } = this.props.form
-    setFieldsValue({ docker_cmd: '' });
     if(value == 'DockerHub'){
       this.setState({
         warehouseImageTags: [],
@@ -424,7 +423,7 @@ export default class Index extends PureComponent {
             this.setState({
               warehouseInfo: item
             })
-            this.handleGetWarehouseImage(item)
+            // this.handleGetWarehouseImage(item)
           }
         })
       })
@@ -560,7 +559,11 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           {radioKey === 'address' &&
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}>
+            <Form.Item 
+              {...is_language} 
+              label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
+              extra={<div style={{ fontSize: '12px' }}>私有仓库需要管理员在“平台管理-设置-镜像仓库”进行添加。</div>}
+            >
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) }]
@@ -570,24 +573,31 @@ export default class Index extends PureComponent {
                     {warehouseList.length > 0 ? (
                       <Select defaultValue="DockerHub" onChange={this.onChangeRegistry}>
                         <Option value='DockerHub'>
-                            Docker Hub
+                            公开仓库
                         </Option>
                         {warehouseList.map(item => {
                           return (
-                            <Option value={item.secret_id}>
-                                {item.secret_id}
-                            </Option>
+                              <Option value={item.secret_id}>
+                                <Tooltip placement="right" title={item.domain}>
+                                  <div style={{ width: '100%' }}>
+                                  {item.secret_id}
+                                  </div>
+                                </Tooltip>
+                              </Option>
                           )
                         })}
                       </Select>
                       ) : (
                         <div className={styles.registry}>
-                            Docker Hub
+                            公开仓库
                         </div>
                       )
                     }
                   </div>
-                  {isHub ? (
+                  <div className={styles.imageName}>
+                    <Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
+                  </div>
+                  {/* {isHub ? (
                     <div className={styles.imageName}>
                       <Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
                     </div>
@@ -611,12 +621,12 @@ export default class Index extends PureComponent {
                       })}
                       </Select>
                     </div>
-                  )}
+                  )} */}
                 </div>
                 )}
             </Form.Item>
           }
-          {radioKey === 'address' && !isHub && imageNameInfo &&
+          {/* {radioKey === 'address' && !isHub && imageNameInfo &&
             <Form.Item 
               label=''
               wrapperCol={{
@@ -662,7 +672,7 @@ export default class Index extends PureComponent {
                 </div>
               )}
             </Form.Item>
-          }
+          } */}
           {radioKey === 'cmd' &&
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('docker_cmd', {

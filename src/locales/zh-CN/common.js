@@ -664,7 +664,7 @@
         'placeholder.k8s_component_name':'请输入组件的英文名称',
         'placeholder.appEngName':'请输入应用的英文名称',
         'placeholder.git_url':'请输入仓库地址',
-        'placeholder.git_url_domain':'请输入仓库地址',
+        'placeholder.git_url_domain':'请输入仓库地址，如：docker.io',
         'placeholder.code_version':'请输入代码版本',
         'placeholder.notGit_url':'仓库地址不合法',
         'placeholder.subdirectories':'请输入子目录路径',
@@ -866,6 +866,7 @@
         'placeholder.lowercase':'仓库名称只能输入小写字母',
         'placeholder.warehouse_not_empty':'镜像仓库地址不能为空',
         'placeholder.warehouse_address':'请选择镜像或输入镜像名称筛选',
+        'placeholder.warehouse_address.ban':'禁止输入http或https'
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',

@@ -28,6 +28,10 @@ class ConfirmModal extends PureComponent {
     const { form, onOk } = this.props;
     form.validateFields((err, values) => {
       if (!err && onOk) {
+        if (values.domain.endsWith('/')) {
+          // 如果是，删除末尾的斜杠
+          values.domain = values.domain.slice(0, -1);
+        }
         onOk(values);
       }
     });
@@ -42,17 +46,20 @@ class ConfirmModal extends PureComponent {
       currentRolesLoading: false
     });
   };
-  //不能输入非汉字效验  效验不能输入非空字符串
+  //不能输入非汉字效验  效验不能输入非空字符串 
   validateNoChinese = (rule, value, callback) => {
     let reg = /^[^\u4e00-\u9fa5]+$/g;
     let regEmpty = /^\s*$/g;
+    let regNoHttp = /^(?!.*(?:https?)).*$/;
     if (value && !reg.test(value)) {
       callback(formatMessage({id:'placeholder.reg_Chinese'}));
     } else if (value && regEmpty.test(value)) {
       callback(formatMessage({id:'placeholder.regEmpty'}));
+    } else if (value && !regNoHttp.test(value)) {
+      callback(formatMessage({id: 'placeholder.warehouse_address.ban'}));
     } else {
       callback();
-    }
+    } 
   }
   validateSecret = (rule, value, callback) => {
     const { imageList } = this.props
@@ -140,7 +147,6 @@ class ConfirmModal extends PureComponent {
                   message: formatMessage({id:'placeholder.git_url_domain'}),
                 },
                 {
-                  message: formatMessage({id:'placeholder.not_Chinese'}),
                   validator: this.validateNoChinese
                 },
                 {
