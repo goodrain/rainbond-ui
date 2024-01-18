@@ -80,9 +80,11 @@
   padding: 4px 8px;
   .registryAddress{
     height: 28px;
+    max-width: 125px;
+    min-width: 100px;
     :global {
       .ant-select-focused{
-        width: 200px;
+        // width: 200px;
       }
       .ant-select-selection{
         border: 1px solid #E9EAEC;
@@ -101,9 +103,7 @@
         outline: none;
       }
       .ant-select-selection, .ant-select{
-        width: 125px;
         font-size: 12px;
-        // min-width: 64px;
         height: 28px;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -115,7 +115,7 @@
       border: 1px solid #E9EAEC;
       max-width: 125px;
       font-size: 12px;
-      min-width: 64px;
+      min-width: 100px;
       height: 28px;
       padding: 0px 11px;
       line-height: 28px;
