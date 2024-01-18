@@ -182,7 +182,7 @@ export default class Index extends PureComponent {
         },
         dispatch 
     } = this.props 
-    dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
+    dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
   handleJumpNext = () => {
       this.child.childFn()
