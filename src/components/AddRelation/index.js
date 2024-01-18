@@ -50,13 +50,8 @@ export default class AddRelation extends PureComponent {
       });
       return;
     }
-    if (this.state.dependValue  ==  "un_dependency") {
-      this.props.onSubmit && this.props.onSubmit(this.state.selectedRowKeys, 'un_dependency');
-    }else{
-    const ids = this.state.selectedRowKeys.join(',');
-      this.props.onSubmit && this.props.onSubmit(ids, 'dependency-reverse');
-    }
-
+    const ids = this.state.selectedRowKeys;
+    this.props.onSubmit && this.props.onSubmit(ids);
   };
   getUnRelationedApp = () => {
     getUnRelationedApp({
@@ -65,8 +60,7 @@ export default class AddRelation extends PureComponent {
       page: this.state.page,
       page_size: this.state.page_size,
       search_key: this.state.search_key,
-      condition: this.state.condition,
-      type: this.state.dependValue
+      condition: this.state.condition
     }).then(data => {
       if (data) {
         this.setState({
@@ -118,19 +112,7 @@ export default class AddRelation extends PureComponent {
         onCancel={this.handleCancel}
       >
         <Row>
-        <Col span={10}>
-          {formatMessage({id:'componentOther.AddRelation.type'})}
-        <Select
-              style={{ width: 150 }}
-              size="small"
-              value={this.state.dependValue}
-              onChange={this.handleDependChange}
-            >
-              <Option value="un_dependency">{formatMessage({id:'componentOther.AddRelation.un_dependency'})}</Option>
-              <Option value="dependency-reverse">{formatMessage({id:'componentOther.AddRelation.dependency-reverse'})}</Option>
-            </Select>
-        </Col>
-        <Col span={14}>
+        <Col span={24}>
         <Form
           style={{ textAlign: 'right', paddingBottom: 8 }}
           layout="inline"
@@ -166,7 +148,6 @@ export default class AddRelation extends PureComponent {
           </FormItem>
         </Form>
         </Col>
-        {console.log(this.state.apps,'this.state.apps')}
         </Row>
 
         <Table
