@@ -862,8 +862,8 @@ const componentOverview = {
     // tabs栏>Resource>AddAdmin
     'componentOverview.body.AddAdmin.profile':'配置文件内容',
     'componentOverview.body.AddAdmin.content':'请编辑内容',
-    'componentOverview.body.AddAdmin.only':'必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束',
-    'componentOverview.body.AddAdmin.max':'最大长度64位',
+    'componentOverview.body.AddAdmin.only':'只支持小写字母',
+    'componentOverview.body.AddAdmin.max':'最大长度32位',
     'componentOverview.body.AddAdmin.min':'最小长度2位',
     'componentOverview.body.AddAdmin.input_name':'请输入配置名称',
     'componentOverview.body.AddAdmin.name':'配置名称',
