@@ -515,7 +515,7 @@ export function getUnRelationedApp(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/${body.type}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/un_dependency`,
     {
       method: 'get',
       params: {

@@ -117,37 +117,18 @@ export default class Index extends PureComponent {
   handleCancelAddRelation = () => {
     this.setState({ showAddRelation: false });
   };
-  handleSubmitAddRelation = (ids, type = 'un_dependency') => {
-    if (type === 'un_dependency') {
-      batchAddRelationedApp({
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        dep_service_ids: ids
-      }).then(data => {
-        if (data) {
-          notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
-          this.loadRelationedApp();
-          this.handleCancelAddRelation();
-        }
-      });
-    } else {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'appControl/getReverseDependency',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          dep_service_id: ids
-        },
-        callback: data => {
-          if (data) {
-            notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
-            this.loadRelationedApp();
-            this.handleCancelAddRelation();
-          }
-        }
-      });
-    }
+  handleSubmitAddRelation = (ids) => {
+    batchAddRelationedApp({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appAlias,
+      dep_service_ids: ids
+    }).then(data => {
+      if (data) {
+        notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
+        this.loadRelationedApp();
+        this.handleCancelAddRelation();
+      }
+    });
   };
 
   handleRemoveRelationed = app => {
