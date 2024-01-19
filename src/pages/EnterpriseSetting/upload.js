@@ -30,15 +30,15 @@ export default class upload extends Component {
         this.state = {
             languageArr: [
                 { key: 'openJDK', value: 'JDK' },
+                { key: 'maven', value: 'Maven' },
                 { key: 'golang', value: 'Golang' },
                 { key: 'node', value: 'Node' },
                 { key: 'web_compiler', value: 'JavaServer' },
                 { key: 'web_runtime', value: 'WebRuntime' },
-                { key: 'maven', value: 'Maven' },
                 { key: 'python', value: 'Python' },
                 { key: 'net_compiler', value: '.NetSDK' },
                 { key: 'net_runtime', value: '.NetRuntime' },
-                { key: 'php', value: 'PHP' },
+                // { key: 'php', value: 'PHP' },
             ],
             activeKey: "openJDK",
             tableLoading: false,
@@ -78,6 +78,7 @@ export default class upload extends Component {
                         file_name: values.file_name || ''
                     },
                     callback: res => {
+                        form.resetFields();
                         if (res) {
                             notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
                             this.setState({
@@ -362,7 +363,12 @@ export default class upload extends Component {
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                 >
-                    <Form onSubmit={this.handleOk}>
+                    <Form 
+                        afterClose={() => {
+                            resetFields();
+                        }}
+                        onSubmit={this.handleOk}
+                    >
                         <Form.Item label="语言类型" {...formItemLayout}>
                             {getFieldDecorator(`lang`, {
                                 initialValue: activeKey,
