@@ -9,10 +9,12 @@
     }
     h2 {
       margin-bottom: 5px;
-      color: rgba(0,0,0,.65);
-      font-size: 16px;
+      // color: rgba(0,0,0,.65);
+      // font-size: 16px;
       font-weight: bolder;
-      font-family: PingFangSC-Medium;
+      font-size: @rbd-sub-title-size;
+      color: @rbd-sub-title-color;
+      line-height: @rbd-sub-title-line-height;
     }
   }
 }
@@ -32,15 +34,19 @@
       .resourceTitle{
         width: 100%;
         text-align: center;
-        font-size: 16px;
-        color: #8d9bad;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-content-color-secondary;
+        line-height: @rbd-sub-title-line-height;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
       .resourceValue{
-        color: #3d54c4;
-        font-size: 36px;
+        font-size: @rbd-display-size;
+        color: @primary-color;
+        line-height: @rbd-display-line-height;
+        // color: #3d54c4;
+        // font-size: 36px;
         font-weight: 700;
         width: 100%;
         height: 90px;
@@ -51,8 +57,10 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         span{
-          font-size: 20px;
-          color: #8d9bad;
+          font-size: @rbd-title-size;
+          color: @rbd-content-color-secondary;
+          line-height: @rbd-title-line-height;
+          font-weight: bolder;
         }
       }
     }
@@ -215,10 +223,12 @@
     }
     h2 {
       margin-bottom: 5px;
-      font-size: 16px;
-      color: rgba(0,0,0,.65);
+      // font-size: 16px;
+      // color: rgba(0,0,0,.65);
       font-weight: bolder;
-      font-family: PingFangSC-Medium;
+      font-size: @rbd-sub-title-size;
+      color: @rbd-sub-title-color;
+      line-height: @rbd-sub-title-line-height;
     }
   }
   
@@ -271,29 +281,36 @@
             color: #aeaeae;
             padding: 0px 12px;
             .appTitle {
-              font-size: 18px;
               margin-top: 10px;
               font-weight: bolder;
-              color: rgba(0, 0, 0, 0.6);
               width: 100%;
               white-space: nowrap; 
               overflow: hidden;
               text-overflow: ellipsis;
+              font-size: @rbd-sub-title-size;
+              color: @rbd-sub-title-color;
+              line-height: @rbd-sub-title-line-height;
             }
             .value{
                 display: flex;
-                font-size: 12px;
+                // font-size: 12px;
                 margin-top: 10px;
+                font-size: @rbd-auxiliary-size;
+                line-height: @rbd-auxiliary-line-height;
+                color: @rbd-auxiliary-color-secondary;
                 > div{
                   width: 100%;
                 }
             }
             .updateTime {
-                font-size: 12px;
+                // font-size: 12px;
                 margin-top: 10px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                font-size: @rbd-auxiliary-size;
+                line-height: @rbd-auxiliary-line-height;
+                color: @rbd-auxiliary-color-secondary;
             }
         }
       }

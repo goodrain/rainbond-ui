@@ -5,6 +5,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import PortInput from './portInput';
+import styles from './index.less'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -221,9 +222,10 @@ class DrawerForm extends PureComponent {
             <Form>
               <h3
                 style={{
-                  borderBottom: '1px solid #BBBBBB',
+                  // borderBottom: '1px solid #BBBBBB',
                   marginBottom: '10px'
                 }}
+                className={styles.rbd_sub_title}
               >
                 {formatMessage({id:'popover.access_strategy.lable.routingRule'})}
               </h3>
@@ -246,9 +248,10 @@ class DrawerForm extends PureComponent {
               </FormItem>
               <h3
                 style={{
-                  borderBottom: '1px solid #BBBBBB',
+                  // borderBottom: '1px solid #BBBBBB',
                   marginBottom: '10px'
                 }}
+                className={styles.rbd_sub_title}
               >
                 {formatMessage({id:'popover.access_strategy.lable.access_target'})}
               </h3>

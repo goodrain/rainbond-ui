@@ -187,7 +187,7 @@
   }
   .appBtn:hover,.instBtn:hover{
     border: 1px solid rgb(216, 215, 215);
-    color: #4d73d1;
+    color:  @primary-color;
   }
   .instBtn{
     width: 90%;
@@ -209,7 +209,7 @@
 }
 
 .cardTitle {
-  color: #1890ff;
+  color:  @primary-color;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -436,10 +436,14 @@
   color: @disabled-color;
   text-align: center;
   line-height: 64px;
-  font-size: 16px;
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-sub-title-line-height;
 
   i {
-    font-size: 24px;
+    font-size: @rbd-title-size;
+    color: @rbd-title-color;
+    line-height: @rbd-title-line-height;
     margin-right: 16px;
     position: relative;
     top: 3px;
@@ -448,11 +452,14 @@
 
 .heading {
   color: @heading-color;
-  font-size: 20px;
+  font-size: @rbd-title-size;
+  line-height: @rbd-title-line-height;
 }
 
 .stepDescription {
-  font-size: 14px;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color;
+  line-height: @rbd-content-line-height;
   position: relative;
   left: 38px;
 
@@ -500,15 +507,13 @@
   }
   p{
     margin-bottom: 0px;
-    font-size: 12px;
-    color: #999;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #999;
     letter-spacing: 0;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
   }
 }
 .versions{
@@ -535,10 +540,10 @@
     text-overflow: ellipsis;
     background: #f0f2f5;
     padding: 2px 5px;
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #7c7c7c;
     letter-spacing: 0;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
   }
 }
 .installBtn{
