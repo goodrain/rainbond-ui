@@ -10,7 +10,7 @@
 
 .btns,
 .btns:hover {
-  background: #4d73b1;
+  background: @primary-color;
   box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.3);
   font-family: PingFangSC-Regular;
   font-size: 12px;
@@ -24,38 +24,18 @@
   display: flex;
   align-items: center;
 }
-:global {
-  .ant-switch {
-    min-width: 32px !important;
-    width: 32px !important;
-    height: 14px !important;
-    background: rgba(234, 234, 234, 1) !important;
-    border-radius: 7px !important;
-  }
-
-  .ant-switch::after {
-    box-shadow: none !important;
-    background: #c8c8c8 !important;
-    width: 20px !important;
-    height: 20px !important;
-    top: -5px !important;
-    left: -5px !important;
-  }
-
-  .ant-input-disabled {
-    background: #e9e9e9 !important;
-  }
-
-  .ant-switch-checked {
-    background-color: #a8f3b7 !important;
-  }
-
-  .ant-switch-checked::after {
-    left: 118% !important;
-    margin-left: -1px !important;
-    -webkit-transform: translateX(-100%) !important;
-    transform: translateX(-100%) !important;
-    background-color: #21b174 !important;
+.infrastructureCard{
+  :global{
+    .ant-col-3 span{
+      font-size: @rbd-content-size;
+      color: @rbd-content-color;
+      line-height: @rbd-content-line-height;
+    }
+    .ant-col-17 span{
+      font-size: @rbd-content-size;
+      color: @rbd-content-color-secondary;
+      line-height: @rbd-content-line-height;
+    }
   }
 }
 .tabBarStyle{
@@ -99,4 +79,18 @@
       overflow: visible !important;
     }
   }
+}
+.plugin_container{
+  width: 400px;
+}
+.btnBox{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.teamMinTit{
+  font-size: @rbd-content-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-content-line-height;
+  font-weight: 500;
 }

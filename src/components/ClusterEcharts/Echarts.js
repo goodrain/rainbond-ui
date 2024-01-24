@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 const echarts = require('echarts');
+import global from '@/utils/global'
 
 export default class Chart extends Component {
     constructor(props){
@@ -34,22 +35,22 @@ export default class Chart extends Component {
       
         
       
-          let wqColor = svalue > 80 ? "#f5222d" : 'rgba(80, 152, 237,0.9)';
+          let wqColor = svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor();
           let nqColor = [
             [
               datas.value / 100,
               new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                 {
                   offset: 0,
-                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
+                  color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(),
                 },
                 {
                   offset: 0.5,
-                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
+                  color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(),
                 },
                 {
                   offset: 1,
-                  color: svalue > 80 ? "#f5222d" : "#3d54c4",
+                  color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(),
                 },
               ]),
             ],
@@ -67,7 +68,7 @@ export default class Chart extends Component {
               textStyle: {
                 fontWeight: "500",
                 fontSize: 12,
-                color: svalue > 80 ? "#f5222d" : "#79828f",
+                color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
               },
             },
             tooltip: {
@@ -106,7 +107,7 @@ export default class Chart extends Component {
                 axisLabel: {
                   distance: -34, //外层文字位置
                   fontSize: 10, //文字大小
-                  color: svalue > 80 ? "#f5222d" : "#3d54c4", //颜色
+                  color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(), //颜色
                 },
                 pointer: {
                   show: true,
@@ -119,35 +120,35 @@ export default class Chart extends Component {
                     color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                       {
                         offset: 0,
-                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                        color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                       },
                       {
                         offset: 0.5,
-                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                        color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                       },
                       {
                         offset: 1,
-                        color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                        color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                       },
                     ]),
                   },
                 },
                 detail: {
                   show: true,
-                  offsetCenter: [24, "39%"], //显示数值的位置
-                  color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                  offsetCenter: [30, "39%"], //显示数值的位置
+                  color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                   fontSize: 20,
                   rich: {
                     value: {
                       fontSize: 20,
                       lineHeight: 10,
-                      color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                      color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                       fontWeight: "700",
                     },
                     company: {
                       fontSize: 10,
                       lineHeight: 20,
-                      color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                      color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                     },
                   },
                   valueAnimation: true,
@@ -184,7 +185,7 @@ export default class Chart extends Component {
                   show: true,
                   length: 4,
                   lineStyle: {
-                    color:  svalue > 80 ? "#f5222d" : "#3d54c4",
+                    color:  svalue > 80 ? global.getPublicColor('rbd-error-status') :  global.getPublicColor(),
                     width: 1,
                     shadowBlur: 0.5,
                     opacity: 0.9,
@@ -195,7 +196,7 @@ export default class Chart extends Component {
                 itemStyle: {
                   //指针阴影
                   shadowBlur: 10,
-                  shadowColor:  svalue > 80 ? "#f5222d" : "rgba(0, 103, 255, 0.2)",
+                  shadowColor:  svalue > 80 ? global.getPublicColor('rbd-error-status') : "rgba(0, 103, 255, 0.2)",
                   shadowOffsetX: 0,
                   shadowOffsetY: 8,
                 },

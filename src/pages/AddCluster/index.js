@@ -24,6 +24,7 @@ import ShowInitRainbondDetail from '../../components/Cluster/ShowInitRainbondDet
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cloud from '../../utils/cloud';
 import rainbondUtil from '../../utils/rainbond';
+import global from '../../utils/global'
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
@@ -498,30 +499,30 @@ export default class EnterpriseClusters extends PureComponent {
       >
         <path
           d="M832 800H192a128 128 0 0 1-128-128V192a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v480a128 128 0 0 1-128 128z m64-544a128 128 0 0 0-128-128H256a128 128 0 0 0-128 128v352a128 128 0 0 0 128 128h512a128 128 0 0 0 128-128V256zM60.384 864h914.24c50.496 0 61.664 34.048 29.088 71.264C975.008 968.096 921.504 992 881.312 992H153.696c-40.192 0-93.664-23.904-122.4-56.736C-1.248 898.048 9.92 864 60.384 864z"
-          fill="#4d73b1"
+          fill={global.getPublicColor()}
           p-id="2591"
         />
         <path
           d="M384 928a128 32 0 1 0 256 0 128 32 0 1 0-256 0Z"
-          fill="#4d73b1"
+          fill={global.getPublicColor()}
           p-id="2592"
         />
         <path
           d="M256 493.504a114.496 114.016 90 1 0 228.032 0 114.496 114.016 90 1 0-228.032 0Z"
-          fill="#4d73b1"
+          fill={global.getPublicColor()}
           p-id="2593"
         />
         <path
           d="M508.512 380m-123.488 0a123.488 123.488 0 1 0 246.976 0 123.488 123.488 0 1 0-246.976 0Z"
-          fill="#4d73b1"
+          fill={global.getPublicColor()}
           p-id="2594"
         />
         <path
           d="M654.016 493.504m-114.016 0a114.016 114.016 0 1 0 228.032 0 114.016 114.016 0 1 0-228.032 0Z"
-          fill="#4d73b1"
+          fill={global.getPublicColor()}
           p-id="2595"
         />
-        <path d="M398.016 460.992h256V608h-256z" fill="#4d73b1" p-id="2596" />
+        <path d="M398.016 460.992h256V608h-256z" fill={global.getPublicColor()} p-id="2596" />
       </svg>
     );
     const helmIcon = (

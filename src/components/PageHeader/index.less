@@ -7,7 +7,7 @@
 }
 
 .icons:hover {
-  background: #4d73b1;
+  background: @primary-color;
 }
 .verticalCen {
   display: flex;
@@ -110,8 +110,8 @@
   }
 
   .title {
-    font-family: PingFangSC-Medium;
-    font-size: 16px;
+    font-size: @rbd-sub-title-size;
+    line-height: @rbd-sub-title-line-height;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.65);
     letter-spacing: 0;
@@ -137,11 +137,11 @@
   }
 
   .content {
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #9ca2a8 !important;
+    font-size: @rbd-auxiliary-size;
+    color: @rbd-auxiliary-color-secondary !important;
     letter-spacing: 0;
     line-height: 23px;
+    line-height: @rbd-auxiliary-line-height;
   }
 
   .title,

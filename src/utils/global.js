@@ -5,6 +5,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import cookie from './cookie';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import PublicColor from '../../config/theme'
 import styles from './utils.less';
 
 const global = {
@@ -500,10 +501,10 @@ const global = {
       defaulAppImg: (
         <svg t="1666955709192" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="52809" width="44" height="44">
           <path d="M243.2 364.8l-2.133333 300.8 260.266666 153.6 264.533334-147.2 2.133333-300.8-262.4-153.6-262.4 147.2z m241.066667 401.066667L277.333333 646.4l2.133334-243.2 206.933333 108.8-2.133333 253.866667z m243.2-115.2l-206.933334 115.2 2.133334-256 206.933333-104.533334-2.133333 245.333334z m-221.866667-170.666667l-198.4-104.533333 200.533333-115.2 198.4 117.333333-200.533333 102.4z"
-            fill="#4d73b1" p-id="52810">
+            fill={color|| this.getPublicColor()} p-id="52810">
           </path>
           <path d="M665.6 151.466667l-34.133333 53.333333 209.066666 125.866667-4.266666 381.866666-64 38.4 32 55.466667 93.866666-55.466667 4.266667-456.533333v-2.133333zM170.666667 322.133333l337.066666-189.866666 66.133334 40.533333 32-53.333333-96-57.6h-2.133334L108.8 283.733333l-2.133333 277.333334h61.866666zM501.333333 904.533333L166.4 708.266667l2.133333-76.8-61.866666-2.133334-2.133334 115.2 394.666667 232.533334h2.133333l241.066667-136.533334 2.133333-2.133333-32-55.466667z"
-            fill="#4d73b1" p-id="52811">
+            fill={color|| this.getPublicColor()} p-id="52811">
           </path>
         </svg>
       ),
@@ -2377,6 +2378,13 @@ const global = {
       'pending-rollback': formatMessage({ id: 'ApplicationState.pending-rollback' })
     }
     return appState[AppStatus] || formatMessage({ id: 'ApplicationState.leave_unused' })
+  },
+  getPublicColor(type) {
+    if (type) {
+      return PublicColor[type] || PublicColor['primary-color'];
+    }else{
+      return PublicColor['primary-color'];
+    }
   }
 };
 

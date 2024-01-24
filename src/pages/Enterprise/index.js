@@ -746,14 +746,14 @@ export default class Enterprise extends PureComponent {
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const cloudSvg = (
       <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="160" height="144">
-        <path className={styleSvg.icon_path} stroke="#3d54c4" stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill="#3d54c4" p-id="35828"></path>
-        <path className={styleSvg.icon_path} stroke="#3d54c4" stroke-width="3" d="M643.072 598.016c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h141.312c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-141.312zM928.256 598.016h-62.464c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.312-11.264-24.576-24.576-24.576zM510.464 740.352H448c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill="#3d54c4" p-id="35829"></path>
+        <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35828"></path>
+        <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M643.072 598.016c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h141.312c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-141.312zM928.256 598.016h-62.464c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.312-11.264-24.576-24.576-24.576zM510.464 740.352H448c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35829"></path>
       </svg>
     )
     const errorSvg = (
       <svg t="1666323029464" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6854" width="100" height="100">
         <path d="M512 1024C229.248 1024 0 794.752 0 512S229.248 0 512 0s512 229.248 512 512-229.248 512-512 512z m0-77.44c240 0 434.56-194.56 434.56-434.56 0-240-194.56-434.56-434.56-434.56C272 77.44 77.44 272 77.44 512c0 240 194.56 434.56 434.56 434.56zM511.658667 210.773333h0.682666a42.666667 42.666667 0 0 1 42.666667 42.666667v344.917333a42.666667 42.666667 0 0 1-42.666667 42.666667h-0.682666a42.666667 42.666667 0 0 1-42.666667-42.666667V253.482667a42.666667 42.666667 0 0 1 42.666667-42.666667zM512 813.226667a43.008 43.008 0 1 1 0-86.058667 43.008 43.008 0 0 1 0 86.058667z"
-          fill="#d81e06" p-id="6855">
+          fill={globalUtil.getPublicColor('rbd-error-status')} p-id="6855">
         </path>
       </svg>
     )
@@ -765,8 +765,8 @@ export default class Enterprise extends PureComponent {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         p-id="5557"
-        width="20"
-        height="20">
+        width="22"
+        height="22">
         <path d="M832 896V212.8c0-8.8-7.2-16-16-16H640V80c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v816h-64v64h768v-64h-64z m-64-635.2V864H640V768h64v-64h-64v-64h64v-64h-64v-64h64v-64h-64v-64h64v-64h-64v-59.2h128zM256 128h320v736H256V128z m64 64h64v64h-64v-64z m128 0h64v64h-64v-64zM320 320h64v64h-64v-64z m128 0h64v64h-64v-64zM320 448h64v64h-64v-64z m128 0h64v64h-64v-64zM320 576h64v64h-64v-64z m128 0h64v64h-64v-64zM320 704h64v64h-64v-64z m128 0h64v64h-64v-64z"
           p-id="5558"
           fill="#4e74ae">
@@ -781,8 +781,8 @@ export default class Enterprise extends PureComponent {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         p-id="9646"
-        width="20"
-        height="20"
+        width="22"
+        height="22"
       >
         <path d="M651.324 798.725c0-10.753-7.756-19.458-17.308-19.458H391.775c-9.55 0-17.303 8.705-17.303 19.458v77.824H201.436v58.363h622.906v-58.363H651.324v-77.824zM902.027 89.647H123.769c-32.243 0-58.366 26.104-58.366 58.348V692.77c0 32.221 26.123 58.368 58.366 58.368h778.259c32.243 0 58.368-26.146 58.368-58.368V147.995c0-32.245-26.125-58.348-58.369-58.348z m0 583.63c0 10.734-8.723 19.452-19.457 19.452H143.227c-10.753 0-19.453-8.718-19.453-19.452V167.433c0-10.757 8.7-19.457 19.453-19.457h739.344c10.733 0 19.457 8.7 19.457 19.457v505.844h-0.001z m-199.315-37.223h105.26V329.596h-105.26v306.458z m-168.417 0h105.26V235.301h-105.26v400.753z m-315.782 0h105.26V518.187h-105.26v117.867z m147.364 0h105.261V423.87H365.877v212.185z m0 0"
           fill="#4e74ae"
@@ -798,8 +798,8 @@ export default class Enterprise extends PureComponent {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         p-id="16493"
-        width="20"
-        height="20"
+        width="22"
+        height="22"
       >
         <path d="M512 880.94c-203.44 0-368.94-165.5-368.94-368.94S308.56 143.06 512 143.06 880.94 308.56 880.94 512 715.44 880.94 512 880.94z m0-685.18c-174.37 0-316.23 141.86-316.23 316.24S337.63 828.24 512 828.24 828.24 686.38 828.24 512 686.37 195.76 512 195.76z" fill="#4e74ae" p-id="16494">
         </path>
@@ -815,8 +815,8 @@ export default class Enterprise extends PureComponent {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         p-id="15021"
-        width="20"
-        height="20">
+        width="22"
+        height="22">
         <path d="M764.5696 353.28l4.4544 4.5056 93.8496-94.6176c8.96-9.0112 8.96-18.0224 8.96-27.0336a64.6656 64.6656 0 0 0-8.96-27.0336 40.3968 40.3968 0 0 0-49.152 4.5056l-93.7984 94.4128 8.9088 4.5056c8.96 18.0224 22.3232 27.0336 35.7376 40.7552zM188.16 519.7824H58.5728a35.84 35.84 0 0 0 0 72.0896h129.5872z m361.9328-419.0208a35.3792 35.3792 0 0 0-35.84-35.84 38.6048 38.6048 0 0 0-35.84 35.84V240.64h71.68zM264.1408 357.5808l4.4544-4.5056A171.4176 171.4176 0 0 1 308.8384 312.32l8.9088-4.5056-98.304-98.9184c-17.8688-13.5168-40.192-13.5168-53.6064 0a64.6656 64.6656 0 0 0-8.96 27.0336 64.6656 64.6656 0 0 0 8.96 27.0336z m705.9968 162.2016h-129.5872v72.0896h129.5872a35.84 35.84 0 0 0 0-72.0896zM599.04 600.8832h-80.2304l44.6976-45.056c8.96-9.0112 8.96-18.0224 8.96-27.0336a64.6656 64.6656 0 0 0-8.96-27.0336 34.8672 34.8672 0 0 0-49.152 0l-107.2128 103.6288a35.5328 35.5328 0 0 0 0 49.5616q13.3632 13.5168 40.192 13.5168h75.9808L460.8 740.5568c-8.96 9.0112-8.96 18.0224-8.96 27.0336A64.6656 64.6656 0 0 0 460.8 794.624c8.8576 9.216 17.8176 9.216 26.7264 9.216a63.232 63.232 0 0 0 26.8288-9.0112l107.52-108.1344a58.5216 58.5216 0 0 0 17.8688-45.056c-0.256-22.7328-13.6704-40.7552-40.704-40.7552z m259.1744 292.864h-57.9072v-328.9088C800.3072 407.1424 670.72 276.48 514.3552 276.48s-285.952 130.6624-285.952 288.3584v328.9088H170.2912a35.84 35.84 0 0 0 0 72.0896h688.128a35.84 35.84 0 0 0 0-72.0896z m-129.5872 0H299.8784v-306.3808c0-58.5728 22.3232-112.64 62.5664-157.696a204.544 204.544 0 0 1 303.8208 0c40.2432 40.5504 62.5664 99.1232 62.5664 157.696z"
           fill="#4e74ae"
           p-id="15022">
@@ -848,10 +848,10 @@ export default class Enterprise extends PureComponent {
           <div className={enterpriseStyles.title}>
             <div>
               <span>{enterpriseInfoSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2></div>
+              <h2 className={enterpriseStyles.rbd_title}>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2></div>
             <div>
               <span>{enterpriseDataSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2></div>
+              <h2 className={enterpriseStyles.rbd_title}>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2></div>
           </div>
           <Card
             style={{ marginBottom: '20px', background: 'transparent' }}
@@ -866,7 +866,8 @@ export default class Enterprise extends PureComponent {
                     {enterpriseInfo && (
                       <div className={enterpriseStyles.enterpriseName}>
                         {/* 企业名称 */}
-                        <FormattedMessage id="enterpriseOverview.information.name" /> <span style={{ color: '#333' }}>{enterpriseInfo.enterprise_alias}</span>
+                        <p>
+                        <FormattedMessage id="enterpriseOverview.information.name" /> <span >{enterpriseInfo.enterprise_alias}</span>
                         {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
                           <a
                             style={{ marginLeft: 32 }}
@@ -878,6 +879,7 @@ export default class Enterprise extends PureComponent {
                             <FormattedMessage id="enterpriseOverview.information.serve" />
                           </a>
                         )}
+                        </p>
                       </div>
                     )}
                     {enterpriseInfo && (
@@ -886,7 +888,7 @@ export default class Enterprise extends PureComponent {
                           <Tooltip title={enterpriseInfo.enterprise_id}>
                             {/* 联合云id */}
                             <FormattedMessage id="enterpriseOverview.information.unite" />:&nbsp;
-                            <span style={{ color: '#333' }}>
+                            <span>
                               {enterpriseInfo.enterprise_id}
                             </span>
                           </Tooltip>
@@ -895,7 +897,7 @@ export default class Enterprise extends PureComponent {
                           <Tooltip title={enterpriseVersion}>
                             {/* 平台版本 */}
                             <FormattedMessage id="enterpriseOverview.information.versions" />:&nbsp;
-                            <span style={{ color: '#333' }}>
+                            <span>
                               {enterpriseVersion || '-'}
                             </span>
                           </Tooltip>
@@ -904,7 +906,7 @@ export default class Enterprise extends PureComponent {
                           <Tooltip title={enterpriseInfo.create_time}>
                             {/* 创建时间 */}
                             <FormattedMessage id="enterpriseOverview.information.time" />:&nbsp;
-                            <span style={{ color: '#333' }}>
+                            <span>
                               {enterpriseInfo.create_time}
                             </span>
                           </Tooltip>
@@ -920,7 +922,7 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.piece}>
                     <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                     <p>
-                      <Link style={colors} to={`/enterprise/${eid}/clusters`} >
+                      <Link to={`/enterprise/${eid}/clusters`} >
                         {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
                       </Link>
                     </p>
@@ -928,7 +930,7 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.piece}>
                     <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
                     <p>
-                      <Link to={`/enterprise/${eid}/teams`} style={colors}>
+                      <Link to={`/enterprise/${eid}/teams`}>
                         {overviewInfo && overviewInfo.total_teams}
                       </Link>
                     </p>
@@ -936,7 +938,7 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.piece}>
                     <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
                     <p>
-                      <Link to={`/enterprise/${eid}/users`} style={colors}>
+                      <Link to={`/enterprise/${eid}/users`}>
                         {overviewInfo && overviewInfo.total_users}
                       </Link>
                     </p>
@@ -944,7 +946,7 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.piece}>
                     <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
                     <p>
-                      <Link to={`/enterprise/${eid}/shared/local`} style={colors} >
+                      <Link to={`/enterprise/${eid}/shared/local`}>
                         {overviewInfo && overviewInfo.shared_apps}
                       </Link>
                     </p>
@@ -959,7 +961,7 @@ export default class Enterprise extends PureComponent {
           <div className={enterpriseStyles.title}>
             <div>
               <span>{clustersInfoSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
+              <h2 className={enterpriseStyles.rbd_title}>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
             </div>
           </div>
           <Card
@@ -1066,7 +1068,7 @@ export default class Enterprise extends PureComponent {
                           <Empty
                             image={errorSvg}
                             description={
-                              <span style={{ color: '#d81e06', fontSize: '24px' }}>
+                              <span style={{ color: globalUtil.getPublicColor('rbd-error-status'), fontSize: '18px' }}>
                                 {formatMessage({ id: 'enterpriseOverview.overview.Abnormal' })}
                               </span>
                             } />
@@ -1121,7 +1123,7 @@ export default class Enterprise extends PureComponent {
           <div className={enterpriseStyles.title}>
             <div>
               <span>{appErrorSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
+              <h2 className={enterpriseStyles.rbd_title}>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
             </div>
           </div>
           <Card
@@ -1172,7 +1174,7 @@ export default class Enterprise extends PureComponent {
                             {service_cname}
                           </span>
                           &nbsp;
-                          <span style={{ color: 'red' }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                          <span style={{ color: globalUtil.getPublicColor('error-color') }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
                         </div>
                         <div>
                           <span style={{ marginTop: '2px' }}>

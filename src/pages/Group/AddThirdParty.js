@@ -190,7 +190,6 @@ export default class AddThirdParty extends PureComponent {
             ></rect>
             <text
               id="API"
-              font-family="Helvetica-Bold, Helvetica"
               font-size="16"
               font-weight="bold"
               fill="#FFFFFF"

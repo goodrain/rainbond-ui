@@ -1,8 +1,9 @@
+@import "~antd/lib/style/themes/default.less";
 .TelescopicModal {
   .btns {
     color: #fff;
-    background: rgba(24, 121, 255, 1) !important;
-    box-shadow: 0px 0px 8px 0px rgba(78, 152, 220, 0.8);
+    background: @primary-color !important;
+    box-shadow: 0px 0px 8px 0px @primary-1;
   }
   .cm-s-seti .CodeMirror-gutters{
     left: 0 !important;
@@ -62,9 +63,8 @@
 
 .conformDesc {
   font-size: 12px;
-  font-family: PingFangSC-Regular, PingFang SC;
   font-weight: 400;
-  color: rgba(153, 153, 153, 1);
+  color: @rbd-content-color-secondary;
   line-height: 14px;
   width: 300px;
 }
@@ -83,5 +83,18 @@
       height: 364px;
       padding: 0 24px;
     }
+  }
+}
+.settingStyle{
+  margin: 0 auto;
+  padding: 24px;
+  // display: flex;
+  // justify-content: center;
+  h2{
+    font-size: @rbd-sub-title-size;
+    color: @rbd-sub-title-color;
+    line-height: @rbd-sub-title-line-height;
+    // text-align: center;
+    margin-bottom: 24px;
   }
 }

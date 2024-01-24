@@ -266,7 +266,7 @@ export default class ClusterLink extends PureComponent {
           <Row style={{ marginBottom: '10px' }}>
             <Col span={24}>
               <Alert
-                style={{ fontSize: '16px', fontWeight: 'bolder' }}
+                // style={{ fontSize: '16px' }}
                 type="info"
                 message={<>
                 {formatMessage({id:'enterpriseColony.cloud.msg1'})}
@@ -281,7 +281,6 @@ export default class ClusterLink extends PureComponent {
             <div className={styles.antd_row_btn}>
               <Button
                 className={styles.antd_btn}
-                type="primary"
                 onClick={() => this.toLinkNext('goback')}
               >
                 <FormattedMessage id='button.previous'/>

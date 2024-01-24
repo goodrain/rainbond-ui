@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import global from '@/utils/global'
 const echarts = require('echarts');
 
 export default class Chart extends Component {
@@ -22,7 +23,7 @@ export default class Chart extends Component {
                     x: 'center',
                     top: '30%',
                     textStyle: {
-                        color: svalue> 80 ? "#f5222d" : 'black',
+                        color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
                         fontSize: 16,
                         fontWeight: '600',
 
@@ -34,7 +35,7 @@ export default class Chart extends Component {
                     y: '40%',
                     textStyle: {
                         fontSize: 20,
-                        color: svalue> 80 ? "#f5222d" : 'black',
+                        color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
                         fontFamily: 'DINAlternate-Bold, DINAlternate',
                         foontWeight: '600',
                     },
@@ -79,11 +80,11 @@ export default class Chart extends Component {
                             color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [
                                 {
                                     offset: 0,
-                                    color: svalue> 80 ? "#f5222d" : '#22ac38',
+                                    color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(),
                                 },
                                 {
                                     offset: 1,
-                                    color: svalue> 80 ? "#f5222d" : '#22ac38',
+                                    color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor(),
                                 },
                             ]),
                         },

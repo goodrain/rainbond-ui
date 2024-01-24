@@ -37,10 +37,7 @@ export default {
     ]
   ],
   ignoreMomentLocale: true,
-  theme: {
-    'card-actions-background': defaultSettings.primaryColor,
-    'primary-color': defaultSettings.primaryColor
-  },
+  theme: './config/theme.js',
   lessLoaderOptions: {
     javascriptEnabled: true
   },
@@ -49,11 +46,11 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://127.0.0.1:8000',
+      target: 'http://8.130.173.238:7070',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://127.0.0.1:8000',
+      target: 'http://8.130.173.238:7070',
       changeOrigin: true
     }
   }

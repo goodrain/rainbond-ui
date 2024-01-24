@@ -10,13 +10,13 @@
                 font-size: 20px;
                 line-height: 28px;
                 font-weight: 600;
-                color: #36435c;
+                color: @rbd-content-color;
             }
             p:nth-of-type(2){
                 margin-top: 6px;
                 font-size: 14px;
                 line-height: 20px;
-                color: rgba(141, 155, 173, 1);
+                color: @rbd-content-color-secondary;
                 font-weight:600;
             }
         }
@@ -35,14 +35,26 @@
     .ant-descriptions-view{
         padding: 30px 10px 0;
         border-top: 1px solid #eff4f9;
-        .ant-descriptions-item-label{
-            color: rgba(141, 155, 173, 1);
-            font-size: 14px;
-            font-weight:600;
-        }
-        .ant-descriptions-item-content{
-            padding-left: 10px !important;
-            color: rgba(0, 0, 0, 1);
+        .ant-descriptions-row{
+            display: flex;
+            .ant-descriptions-item{
+                width: 33%;
+                display: flex;
+                align-items: center;
+                .ant-descriptions-item-content{
+                    width: 70%;
+                    padding-left: 10px !important;
+                    color: @rbd-content-color;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .ant-descriptions-item-label{
+                    color: @rbd-content-color-secondary;
+                    font-size: 14px;
+                    font-weight:600;
+                }
+            }
         }
     }
    }

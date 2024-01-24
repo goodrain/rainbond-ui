@@ -5,15 +5,18 @@
     div{
         width: 50%;
         height: 30px;
-        line-height: 30px;
         display: flex;
         align-items: center;
         h2{
-            font-size: 16px;
             font-weight: bolder;
             color: rgba(0, 0, 0, 0.65);
             font-family: PingFangSC-Medium;
             margin-left: 4px;
+        }
+        .rbd_title{
+            font-size: @rbd-sub-title-size;
+            color: @rbd-sub-title-color;
+            line-height: @rbd-sub-title-line-height;
         }
     }
 }
@@ -38,9 +41,9 @@
             width: 50%;
             .enterpriseName, .enterpriseId {
                 width: 100%;
-                font-family: PingFangSC-Medium;
-                font-size: 12px;
-                color: #8d9bad;
+                font-size: @rbd-content-size;
+                color: @rbd-content-color-secondary;
+                line-height: @rbd-content-line-height;
                 letter-spacing: 0;
                 margin-bottom: 12px;
                 p{
@@ -48,9 +51,14 @@
                     span:last-child {
                         width: 200px;
                         overflow: hidden;
-                        color:'#333';
                         white-space: nowrap;
                         text-overflow: ellipsis;
+                        color: @rbd-content-color;
+                        line-height: @rbd-content-line-height;
+                    }
+                    &>span> span:first-child{
+                        color: @rbd-content-color-secondary;
+                        line-height: @rbd-content-line-height;
                     }
                 } 
             }
@@ -91,25 +99,26 @@
             border-radius: 10px;
             transition: all .2s ease-in-out;
             p:last-child{
-                color: #3d54c4;
+                color: @primary-color;
                 width: 100%;
                 text-align: center;
-                font-size: 36px;
-                font-weight: 700;
+                font-size: @rbd-display-size;
+                line-height: @rbd-display-line-height;
+                font-weight: bolder;
+                cursor: 'pointer';
               }
               p:first-child{
-                font-size: 16px;
-                color: #8d9bad;
-                font-family: PingFangSC-Medium;
+                font-size: @rbd-sub-title-size;
+                color: @rbd-content-color-secondary;
+                line-height: @rbd-sub-title-line-height;
               }
         }
     }
 }
 .clusterInfo{
     width: 100%;
-    font-family: PingFangSC-Medium;
-    height: 240px;
-    background: rgba(42, 130, 228, 4%);
+    height: 246px;
+    background: #fff;
     border-radius: 5px;
     justify-content: space-around;
     margin-bottom: 10px;
@@ -132,7 +141,8 @@
         }
         .clusterName{
             margin-right: 20px;
-            font-size: 16px;
+            font-size: @rbd-sub-title-size;
+            line-height: @rbd-sub-title-line-height;
             font-weight: 700;
             display: flex;
             .status{
@@ -141,7 +151,7 @@
                     width: 8px;
                     height: 8px;
                     border-radius: 50%;
-                    background: #57D727;
+                    background: @rbd-success-status;
                     display: inline-block;
                     margin: 0px 6px;
     
@@ -192,13 +202,15 @@
                 p{
                     width: 100%;
                     margin-top: 4px;
-                    font-size: 14px;
+                    font-size: @rbd-content-size;
+                    line-height: @rbd-content-line-height;
+                    color: @rbd-content-color;
                     display: flex;
                     flex-flow: nowrap;
                     align-items: center;
                     span:first-child{
                         margin-left: 4px;
-                        color: #8d9bad;
+                        color: @rbd-content-color-secondary;
                     }
                     .k8sName{
                         width: 50%;
@@ -266,12 +278,13 @@
             padding: 0px 12px;
             .content_data{
                 p{
-                    // padding-left: 36px;
                     text-align: center;
-                    color: #8d9bad;
+                    color: @rbd-content-color-secondary;
+                    font-size: @rbd-sub-title-size;
                     span{
-                        color: #3d54c4;
-                        font-size: 20px;
+                        font-size: @rbd-title-size;
+                        color: @primary-color;
+                        line-height: @rbd-title-line-height;
                         font-weight: bolder;
                         margin-right: 4px;
                     }
@@ -280,10 +293,11 @@
             .node{
                 p{
                     text-align: center;
-                    color: #8d9bad;
+                    color: @rbd-content-color-secondary;
+                    font-size: @rbd-sub-title-size;
                     span{
-                        color: #3d54c4;
-                        font-size: 20px;
+                        color: @primary-color;
+                        font-size: @rbd-title-size;
                         font-weight: bolder;
                         margin-right: 4px;
                     }
@@ -295,13 +309,14 @@
                     line-height: 130px;
                     font-weight: bolder;
                     .running{
-                        color: #2CC66A;
-                        font-size: 40px;
+                        color: @rbd-success-status;
+                        font-size: @rbd-display-size;
+                        line-height: @rbd-display-line-height;
                         margin-right: 6px;
                     }
                     .sum{
-                        color: #8d9bad;
-                        font-size: 20px;
+                        color: @rbd-content-color-secondary;;
+                        font-size: @rbd-title-size;
                     }
                 }
             }
@@ -328,7 +343,8 @@
                 width: 48%;
                 padding: 0% 2%;
                 div{
-                    font-size: 20px;
+                    font-size: @rbd-title-size;
+                    line-height: @rbd-title-line-height;
                     font-weight: 700;
                     margin-bottom: 6px;
                 }
