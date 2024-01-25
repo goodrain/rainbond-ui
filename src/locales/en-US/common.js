@@ -652,6 +652,7 @@
         'notification.market.hint.null_app4':'Sync from the cloud',
         'notification.market.hint.null_app5':'The current market does not have the installation permission,',
         'notification.market.hint.null_app6':'To docking',
+        'notification.settimg.image.checking':'Detection failed, please check the warehouse address or user name password!',
     }
     const placeholder = {
         'placeholder.appName':'select the application to deploy',

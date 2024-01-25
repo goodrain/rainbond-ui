@@ -117,6 +117,7 @@ import {
   addPlatformImageHub,
   updatePlatformImageHub,
   deletePlatformImageHub,
+  checkHubLink,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -987,6 +988,12 @@ export default {
     },
     *deletePlatformImageHub({ payload, callback, handleError }, { put, call }) {
       const response = yield call(deletePlatformImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *checkHubLink({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(checkHubLink, payload, handleError);
       if (callback) {
         callback(response);
       }
