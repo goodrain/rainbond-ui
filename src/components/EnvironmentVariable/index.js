@@ -715,10 +715,13 @@ class EnvironmentVariable extends React.Component {
           style={{
             borderRadius:5,
             border: isConfigPort ? 'none' : '',
-            padding: isConfigPort ? 0 : '24px'
+            padding: 0
           }}
           loading={loading}
-          title={isConfigPort ?  null : title}
+          title={<>
+            {isConfigPort ?  null : title}
+            {!isConfigPort && <span className={styles.desc}>表格列出了所有将被注入到依赖此组件的外部组件中的环境变量。</span>}
+          </>}
           extra={type === 'Outer' && addButton}
         >
           {type === 'Inner' && (
@@ -763,6 +766,7 @@ class EnvironmentVariable extends React.Component {
               </div>
             </EditableContext.Provider>
           </ScrollerX>
+          
         </Card>
       </Fragment>
     );

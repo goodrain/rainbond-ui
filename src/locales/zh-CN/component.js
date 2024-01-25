@@ -387,7 +387,7 @@ const componentOverview = {
    'componentOverview.body.Relation.ViewRelationInfo.title':'依赖信息查看',
    'componentOverview.body.Relation.ViewRelationInfo.close':'关闭',
    'componentOverview.body.Relation.EnvironmentVariable.title':'组件连接信息',
-   'componentOverview.body.Relation.EnvironmentVariable.information':'依赖组件信息',
+   'componentOverview.body.Relation.EnvironmentVariable.information':'依赖外部组件',
    'componentOverview.body.Relation.EnvironmentVariable.conflict':'(依赖的组件有相同的端口冲突,请处理)',
    'componentOverview.body.Relation.EnvironmentVariable.add':'添加依赖',
    'componentOverview.body.Relation.table.service_cname':'组件名',
