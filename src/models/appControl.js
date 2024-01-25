@@ -141,7 +141,8 @@ import {
   upgrade,
   vmPause,
   getComponentNames,
-  getReverseDependency
+  getReverseDependency,
+  addReverseDependency
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1172,6 +1173,12 @@ export default {
     },
     *getReverseDependency({ payload, callback }, { call }) {
       const response = yield call(getReverseDependency, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addReverseDependency({ payload, callback }, { call }) {
+      const response = yield call(addReverseDependency, payload);
       if (response && callback) {
         callback(response);
       }

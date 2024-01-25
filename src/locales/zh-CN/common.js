@@ -656,6 +656,7 @@
         'notification.market.hint.null_app4':'从云端同步',
         'notification.market.hint.null_app5':'当前市场没有安装权限，',
         'notification.market.hint.null_app6':'去对接',
+        'notification.settimg.image.checking':'检测不通过，请查看仓库地址或用户名密码！',
 
     }
     const placeholder = {

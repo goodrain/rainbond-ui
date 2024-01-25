@@ -818,22 +818,6 @@ export async function getHelmAdvancedInfo(body) {
   )
 }
 
-// 获取镜像仓库中所有镜像名称
-export async function fetchImageNames (params, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/console/v2/proxy-pass/registry/repos?region_name=${params.regionName}`,
-    {
-      method: 'post',
-      data: {
-        domain: params.domain,
-        username: params.username,
-        password: params.password
-      },
-      handleError
-    }
-  );
-}
-
 // 获取当前镜像的所有tag
 export async function fetchImageTags (params, handleError) {
   return request(

@@ -25,10 +25,13 @@ export default class ImageWarehouse extends PureComponent {
             pageSize: 8,
             total: 0,
             imageList: [],
-            imageHubLoading: false
+            imageHubLoading: false,
+            clusters: []
         };
     }
     componentDidMount() {
+        // 示例用法
+        this.loadClusters()
         this.getImageHub()
     }
     // 获取数据
@@ -36,9 +39,6 @@ export default class ImageWarehouse extends PureComponent {
         const { dispatch } = this.props
         dispatch({
             type: 'global/fetchPlatformImageHub',
-            payload: {
-                team_name: globalUtil.getCurrTeamName()
-            },
             callback: data => {
                 if (data) {
                     this.setState({
@@ -54,7 +54,6 @@ export default class ImageWarehouse extends PureComponent {
         dispatch({
             type: 'global/addPlatformImageHub',
             payload: {
-                team_name: globalUtil.getCurrTeamName(),
                 secret_id: values.secret_id,
                 domain: values.domain,
                 username: values.username,
@@ -81,7 +80,6 @@ export default class ImageWarehouse extends PureComponent {
         dispatch({
             type: 'global/updatePlatformImageHub',
             payload: {
-                team_name: globalUtil.getCurrTeamName(),
                 secret_id: editData.secret_id,
                 username: data.username,
                 password: data.password
@@ -108,7 +106,6 @@ export default class ImageWarehouse extends PureComponent {
         dispatch({
             type: 'global/deletePlatformImageHub',
             payload: {
-                team_name: globalUtil.getCurrTeamName(),
                 secret_id: toDeleteImageHub.secret_id
             },
             callback: res => {
@@ -124,6 +121,34 @@ export default class ImageWarehouse extends PureComponent {
             }
         })
     };
+    loadClusters = () => {
+        const {
+          dispatch,
+          match: {
+            params: { eid }
+          }
+        } = this.props;
+        dispatch({
+          type: 'region/fetchEnterpriseClusters',
+          payload: {
+            enterprise_id: eid
+          },
+          callback: res => {
+            if (res && res.list) {
+              const clusters = [];
+              res.list.map((item, index) => {
+                item.key = `cluster${index}`;
+                clusters.push(item);
+                return item;
+              });
+              this.setState({ clusters });
+            } else {
+              this.setState({ clusters: [] });
+            }
+          }
+        });
+      };
+    
     onSubmite = (value) => {
         const { editData } = this.state
         this.setState({ imageHubLoading: true  })
@@ -148,8 +173,7 @@ export default class ImageWarehouse extends PureComponent {
     handleCancelDelImageHubModel = () => {
         this.setState({ toDeleteImageHub: null });
     };
-    
-    
+        
     render() {
         const {
             currentTeam,
@@ -166,7 +190,8 @@ export default class ImageWarehouse extends PureComponent {
             toDeleteImageHub,
             toMoveTeam,
             imageList,
-            imageHubLoading
+            imageHubLoading,
+            clusters
         } = this.state;
         const columns = [
             {
@@ -251,6 +276,7 @@ export default class ImageWarehouse extends PureComponent {
                 {showAddMember && (
                     <AddOrEditImageRegistry
                         loading={imageHubLoading}
+                        clusters={clusters}
                         imageList={imageList}
                         data={editData}
                         onOk={this.onSubmite}
