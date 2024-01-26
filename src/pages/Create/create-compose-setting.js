@@ -22,6 +22,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import appUtil from '../../utils/app';
 import {buildApp} from '../../services/createApp';
 import AppCreateSetting from '../../components/AppCreateSetting';
+import styles from './index.less';
 
 const TabPane = Tabs.TabPane;
 
@@ -153,7 +154,9 @@ export default class Index extends PureComponent {
             <div>
                 <h2 style={{
                     textAlign: 'center'
-                }}>{formatMessage({ id: 'componentCheck.advanced.setup' })}</h2>
+                }}
+                className={styles.rbd_title}
+                >{formatMessage({ id: 'componentCheck.advanced.setup' })}11</h2>
                 <div style={{
                     overflow: 'hidden'
                 }}>

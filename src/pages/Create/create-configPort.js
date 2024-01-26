@@ -12,6 +12,7 @@ import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
+import styles from './index.less';
 
 @connect(
   ({ loading, teamControl, appControl }) => ({
@@ -255,6 +256,7 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center'
           }}
+          className={styles.rbd_title}
         >
           {formatMessage({id:'componentCheck.advanced.setup'})}
         </h2>

@@ -1197,25 +1197,25 @@ export default class Index extends PureComponent {
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+      <span style={{ color:  globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraVolume = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+      <span style={{ color: globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraEnv = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+      <span style={{ color: globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
   genExtraMnt = (key) => {
     return (
-      <span style={{ color: '#4D73B1', fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+      <span style={{ color: globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
@@ -1310,7 +1310,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{ color: portsData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
+                      <span className={styles.panelTitle} style={{ color: portsData.length > 0 ? globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'enterpriseColony.import.recognition.port' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}>
                           {formatMessage({ id: 'enterpriseColony.import.recognition.port.desc' })}
@@ -1321,7 +1321,7 @@ export default class Index extends PureComponent {
                           {formatMessage({ id: 'enterpriseColony.import.recognition.port.info' })}&nbsp;&nbsp;
                           {portsData.map((item => {
                             return <span>
-                              <Tag color="blue">{item.container_port}</Tag>
+                              <Tag color={globalUtil.getPublicColor()}>{item.container_port}</Tag>
                             </span>
                           }))}
                         </span>}
@@ -1338,7 +1338,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ?  globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}>
                           {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}
@@ -1349,7 +1349,7 @@ export default class Index extends PureComponent {
                           {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.name' })}&nbsp;&nbsp;
                           {volumesData.map((item => {
                             return <span>
-                              <Tag color="blue">{item.volume_name}</Tag>
+                              <Tag color={globalUtil.getPublicColor()}>{item.volume_name}</Tag>
                             </span>
                           }))}
                         </span>}
@@ -1367,7 +1367,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ?  globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}>
                           {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}
@@ -1378,7 +1378,7 @@ export default class Index extends PureComponent {
                           {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.name' })}&nbsp;&nbsp;
                           {innerEnvsList.map((item => {
                             return <span>
-                              <Tag color="blue">{item.attr_name}</Tag>
+                              <Tag color={globalUtil.getPublicColor()}>{item.attr_name}</Tag>
                             </span>
                           }))}
                         </span>}
@@ -1404,7 +1404,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{ color: mntDataList.length > 0 ? '#000' : '#bdbaba' }}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
+                      <span className={styles.panelTitle} style={{ color: mntDataList.length > 0 ? globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'componentCheck.advanced.setup.storage_config.title' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}>
                           {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.desc' })}
@@ -1415,7 +1415,7 @@ export default class Index extends PureComponent {
                           {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.name' })}&nbsp;&nbsp;
                           {mntDataList.map((item => {
                             return <span>
-                              <Tag color="blue">{item.volume_name}</Tag>
+                              <Tag color={globalUtil.getPublicColor()}>{item.volume_name}</Tag>
                             </span>
                           }))}
                         </span>}

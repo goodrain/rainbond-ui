@@ -9,6 +9,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import styles from './index.less';
 
 @connect(
   ({ teamControl }) => ({
@@ -193,6 +194,7 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center'
           }}
+          className={styles.rbd_title}
         >
           {formatMessage({id:'JavaMaven.title'})}
         </h2>
