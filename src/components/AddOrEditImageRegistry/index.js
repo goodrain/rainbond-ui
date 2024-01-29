@@ -138,6 +138,7 @@ class ConfirmModal extends PureComponent {
       <Modal
         title={data ? formatMessage({ id: 'confirmModal.edit.common.image.title' }) : formatMessage({ id: 'confirmModal.add.common.image.title' })}
         visible
+        onCancel={onCancel}
         footer={
           <div>
             <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>
