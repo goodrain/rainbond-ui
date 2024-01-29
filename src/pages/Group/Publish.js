@@ -325,7 +325,7 @@ export default class AppPublishList extends PureComponent {
                       return val;
                     }
                     return (
-                      <span style={{ color: '#999999' }}>
+                      <span style={{ color: globalUtil.getPublicColor('rbd-content-color') }}>
                         {data.status === 0 ? formatMessage({ id: 'appPublish.table.versions.notSpecified' }) : '-'}
                       </span>
                     );
@@ -359,7 +359,7 @@ export default class AppPublishList extends PureComponent {
                         </Popover>
                       );
                     }
-                    return <span style={{ color: '#999999' }}>{formatMessage({ id: 'appPublish.table.versions.notSpecified' })}</span>;
+                    return <span style={{ color: globalUtil.getPublicColor('rbd-content-color') }}>{formatMessage({ id: 'appPublish.table.versions.notSpecified' })}</span>;
                   }
                 },
                 {
@@ -408,9 +408,9 @@ export default class AppPublishList extends PureComponent {
                       case 0:
                         return formatMessage({ id: 'appPublish.table.status.release' });
                       case 1:
-                        return <span style={{ color: 'green' }}>{formatMessage({ id: 'appPublish.table.status.release_finish' })}</span>;
+                        return <span style={{ color: globalUtil.getPublicColor('rbd-success-status') }}>{formatMessage({ id: 'appPublish.table.status.release_finish' })}</span>;
                       case 2:
-                        return <span style={{ color: '#999999' }}>{formatMessage({ id: 'appPublish.table.status.canceled' })}</span>;
+                        return <span style={{ color: globalUtil.getPublicColor('rbd-content-color') }}>{formatMessage({ id: 'appPublish.table.status.canceled' })}</span>;
                     }
                     return '';
                   }

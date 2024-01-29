@@ -94,11 +94,11 @@
       div {
         width: 45%;
         span {
-          color: @heading-color;
+          color: @rbd-content-color;
         }
         span:nth-of-type(1) {
           margin-right: 14px;
-          color: @rbd-content-color;
+          color: @rbd-content-color-secondary;
         }
       }
       div:nth-of-type(1) {
@@ -110,12 +110,17 @@
       padding: 10px;
       border: 1px solid #eee;
       border-radius: 10px;
-      & > div:nth-of-type(1) {
-        font-size: 14px;
+
+      & > div {
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
+        color: @rbd-content-color-secondary;
       }
       .conrBox {
         & > div:nth-of-type(2) {
           margin-top: 10px;
+          font-size: @rbd-title-size;
+          line-height: @rbd-title-line-height;
         }
         text-align: center;
         width: 25%;
@@ -127,8 +132,10 @@
       padding: 10px;
       border-radius: 10px;
       justify-content: space-evenly;
-      & > div:nth-of-type(1) {
-        font-size: 14px;
+      & > div {
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
+        color: @rbd-content-color-secondary;
       }
       .conrBox {
         display: flex;
@@ -136,6 +143,8 @@
         justify-content: space-between;
         & > div:nth-of-type(2) {
           margin-top: 10px;
+          font-size: @rbd-title-size;
+          line-height: @rbd-title-line-height;
         }
         text-align: center;
       }
@@ -149,7 +158,6 @@
       line-height: @rbd-content-line-height;
       &:hover {
       color: @primary-color!important;
-
       }
     }
   }
@@ -264,11 +272,11 @@
       div {
         width: 55%;
         span {
-          color: @heading-color;
+          color: @rbd-content-color;
         }
         span:nth-of-type(1) {
           margin-right: 14px;
-          color: rgba(0, 0, 0, 0.45);
+          color: @rbd-content-color-secondary !important;
         }
       }
       div:nth-of-type(1) {
@@ -296,9 +304,9 @@
     margin: 10px 0;
     a {
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.45);
+      color: @primary-color !important;
       &:hover {
-        color: #1890ff !important;
+        color: @primary-color !important;
       }
     }
   }
@@ -315,7 +323,7 @@
   margin-right: 8px;
   :global {
     .ant-badge-status-text {
-      color: rgba(0, 0, 0, 0.45) !important;
+      color: @rbd-content-color !important;
       font-weight: 400;
     }
   }
@@ -332,13 +340,12 @@
   align-items: center;
   justify-content: flex-end;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.85);
-  font-family: 'PingFangSC-Medium';
+  color: @rbd-content-color;
   font-size: 18px;
   .operationState {
     font-size: 14px;
     margin-right: 8px;
-    color: rgba(0, 0, 0, 0.45);
+    color: @rbd-content-color-secondary;
   }
 }
 .associated {
@@ -432,18 +439,20 @@
 
 .ServiceTitle {
   height: 22px;
-  line-height: 22px;
   border-left: 4px solid rgba(187, 187, 187, 1);
   padding-left: 10px;
-  color: rgba(16, 16, 16, 1);
-  font-size: 14px;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color;
+  line-height: @rbd-content-line-height;
   text-align: left;
   font-family: SourceHanSansSC-regular;
   margin-bottom: 10px;
 }
 
 .ServiceSmallTitle {
-  font-size: 12px;
+  font-size: @rbd-auxiliary-size;
+  color: @rbd-auxiliary-color;
+  line-height: @rbd-auxiliary-line-height;
 }
 
 .ServiceBox {
@@ -463,14 +472,14 @@
     position: absolute;
     top: -17px;
     font-size: 25px;
-    color: #d9d9d9;
+    color: @rbd-content-color-secondary;
     left: 40%;
   }
 }
 
 .ServiceDiv {
   width: 20%;
-  color: rgba(16, 16, 16, 1);
+  color: @rbd-content-color;
   font-size: 15px;
   font-family: SourceHanSansSC-regular;
   margin: 5px 0;
@@ -650,7 +659,7 @@
   }
 }
 .showOrhide{
-  color:'#8C8C8C';
+  color: @rbd-content-color-secondary;
   cursor: pointer;
   font-size:'12px';
   z-index: 1002;
@@ -684,8 +693,8 @@
   }
   .name_span{
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.85);
-    font-family: 'PingFangSC-Medium';
+    color: @rbd-content-color;
+
     font-size: 24px;
     letter-spacing: 0;
     width: calc(100% - 70px);
@@ -701,11 +710,11 @@
   // padding-top: 30px;
   span:nth-of-type(1){
     margin-right: 14px;
-    color: rgba(0, 0, 0, 0.45);
+    color: @rbd-content-color;
   }
   span:nth-of-type(2){
     margin-right: 14px;
-    color: rgba(0, 0, 0, 0.85);
+    color: @rbd-content-color-secondary;
   }
 }
 
@@ -723,7 +732,7 @@
     margin-right: 20px;
   }
   a{
-    color: #00000073;
+    color: @rbd-content-color;
   }
 }
 .btn{

@@ -889,7 +889,7 @@ export default class Index extends PureComponent {
               </span>
             </div>
           </div>
-          <div className={styles.conrHeader} style={{ margin: '35px 0px' }}>
+          <div className={styles.conrHeader} style={{ margin: '37px 0px' }}>
             {/* -------------------------------------------- */}
             <div style={{ display: 'flex', alignItems: 'center', }}>
               <span>{formatMessage({ id: 'appOverview.govern' })}</span>
@@ -919,7 +919,7 @@ export default class Index extends PureComponent {
                       </div>
                     }
                   >
-                    <span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
+                    <span style={{ color: globalUtil.getPublicColor('rbd-sub-title-color') }}>
                       {currApp.principal}
                     </span>
                   </Tooltip>
@@ -930,7 +930,8 @@ export default class Index extends PureComponent {
                   <Icon
                     style={{
                       cursor: 'pointer',
-                      marginLeft: '5px'
+                      marginLeft: '5px',
+                      color: globalUtil.getPublicColor()
                     }}
                     onClick={this.handleToEditAppDirector}
                     type="edit"
@@ -1214,7 +1215,7 @@ export default class Index extends PureComponent {
                 style={{
                   height: "100%",
                   width: "30%",
-                  color: type !== 'list' ? '' : 'rgba(0, 0, 0, 0.65)',
+                  color: type !== 'list' ? '' : globalUtil.getPublicColor('rbd-sub-title-color'),
                   fontWeight: 'bold',
                   lineHeight: '60px',
                   borderBottom: type !== 'list' ? '' : 'none',
@@ -1222,7 +1223,7 @@ export default class Index extends PureComponent {
                 className={type !== 'list' && styles.click_btn}
               >
                 <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
-                  {globalUtil.fetchSvg('topology', type !== 'list' ? color['primary-color'] : 'rgba(0, 0, 0, 0.65)', 20)}
+                  {globalUtil.fetchSvg('topology', type !== 'list' ? color['primary-color'] : globalUtil.getPublicColor('rbd-sub-title-color'), 20)}
                 </span>
                 {formatMessage({ id: 'appOverview.topology' })}
               </a>
@@ -1234,7 +1235,7 @@ export default class Index extends PureComponent {
                   style={{
                     height: "100%",
                     width: "30%",
-                    color: type === 'list' ? '' : 'rgba(0, 0, 0, 0.65)',
+                    color: type === 'list' ? '' : globalUtil.getPublicColor('rbd-sub-title-color'),
                     fontWeight: 'bold',
                     lineHeight: '60px',
                     borderBottom: type === 'list' ? '' : 'none',
@@ -1242,7 +1243,7 @@ export default class Index extends PureComponent {
                   className={type === 'list' && styles.click_btn}
                 >
                   <span style={{ verticalAlign: 'sub', marginRight: 5, lineHeight: '60px', }}>
-                    {globalUtil.fetchSvg('list', type === 'list' ? color['primary-color'] : 'rgba(0, 0, 0, 0.65)', 20)}
+                    {globalUtil.fetchSvg('list', type === 'list' ? color['primary-color'] : globalUtil.getPublicColor('rbd-sub-title-color'), 20)}
                   </span>
                   {formatMessage({ id: 'appOverview.list' })}
                 </a>
