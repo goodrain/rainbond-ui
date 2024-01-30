@@ -85,8 +85,8 @@
 .logpassed {
   background: linear-gradient(
       to right,
-      #39aa56 0,
-      #39aa56 5px,
+      #00D777 0,
+      #00D777 5px,
       #fff 5px,
       #fff 100%
     )
@@ -96,8 +96,8 @@
 .logfailed {
   background: linear-gradient(
       to right,
-      #db4545 0,
-      #db4545 5px,
+      #CD0200 0,
+      #CD0200 5px,
       #fff 5px,
       #fff 100%
     )
@@ -107,8 +107,8 @@
 .logfored {
   background: linear-gradient(
       to right,
-      #f69c49 0,
-      #f69c49 5px,
+      #F69D4A 0,
+      #F69D4A 5px,
       #fff 5px,
       #fff 100%
     )
@@ -187,7 +187,7 @@
 .nodeBox {
   width: 40px;
   height: 35px;
-  background: #259b24;
+  background:  @rbd-success-status;
   border-radius: 15%;
   margin: 0 auto;
 }
@@ -202,7 +202,7 @@ font {
 }
 
 .text {
-  color: #39aa56;
+  color:  @rbd-success-status;
   margin-bottom: 10px;
   font-size: 14px;
 }
@@ -266,27 +266,27 @@ font {
 }
 
 .passeda {
-  color: #39aa56;
+  color: @rbd-success-status;
   font-size: 15px !important;
 
   .icon {
-    color: #39aa56;
+    color: @rbd-success-status;
   }
 
   font {
-    color: #39aa56;
+    color: @rbd-success-status;
   }
 }
 
 .faileda {
-  color: #db4545;
+  color: @rbd-error-status;
 
   .icon {
-    color: #db4545;
+    color: @rbd-error-status;
   }
 
   font {
-    color: #db4545;
+    color: @rbd-error-status;
   }
 }
 
@@ -310,8 +310,8 @@ font {
 .passed {
   background: linear-gradient(
       to right,
-      #39aa56 0,
-      #39aa56 10px,
+      #00D777 0,
+      #00D777 10px,
       #fff 10px,
       #fff 100%
     )
@@ -321,8 +321,8 @@ font {
 .failed {
   background: linear-gradient(
       to right,
-      #db4545 0,
-      #db4545 10px,
+      #CD0200 0,
+      #CD0200 10px,
       #fff 10px,
       #fff 100%
     )
@@ -361,7 +361,7 @@ font {
   margin-right: 0.3rem;
 
   a {
-    color: #39aa56;
+    color:  @rbd-success-status;
   }
 }
 
@@ -476,7 +476,7 @@ font {
       overflow: hidden;
 
       a {
-        color: #39aa56;
+        color:  @rbd-success-status;
         font-size: 13px;
       }
     }
@@ -802,13 +802,13 @@ font {
 
 .success {
   .logItemDate:before {
-    background: #28cb75;
+    background:  @rbd-success-status;
   }
 }
 
 .fail {
   .logItemDate:before {
-    background: #da4f49;
+    background: @rbd-error-status;
   }
 }
 

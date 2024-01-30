@@ -194,7 +194,6 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center'
           }}
-          className={styles.rbd_title}
         >
           {formatMessage({id:'JavaMaven.title'})}
         </h2>

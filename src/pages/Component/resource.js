@@ -830,6 +830,7 @@ export default class Index extends PureComponent {
             style={{
               marginBottom: 24
             }}
+            className={styles.tabsCard}
             extra={method != 'vm' &&[
               appUtil.isOauthByBuildSource(buildSource) ? (
                 <a onClick={this.changeEditOauth} href="javascript:;">

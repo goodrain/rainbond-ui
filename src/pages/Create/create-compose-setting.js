@@ -155,7 +155,6 @@ export default class Index extends PureComponent {
                 <h2 style={{
                     textAlign: 'center'
                 }}
-                className={styles.rbd_title}
                 >{formatMessage({ id: 'componentCheck.advanced.setup' })}11</h2>
                 <div style={{
                     overflow: 'hidden'

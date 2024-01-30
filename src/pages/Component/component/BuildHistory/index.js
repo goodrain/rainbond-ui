@@ -19,6 +19,7 @@ import globalUtil from '../../../../utils/global';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import LogShow from '../LogShow';
+import Svg from '../../../../utils/pageHeaderSvg'
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
 @connect()
@@ -157,7 +158,7 @@ class Index extends PureComponent {
                                     className={styles.icon}
                                     style={{
                                       textAlign: 'center',
-                                      color: '#db4545',
+                                      color: globalUtil.getPublicColor('rbd-error-status'),
                                       display: 'inline-block',
                                       lineHeight: 1,
                                     }}
@@ -188,9 +189,9 @@ class Index extends PureComponent {
                                     width: 180,
                                     color:
                                       status === 'success'
-                                        ? '#39aa56'
+                                        ? globalUtil.getPublicColor('rbd-success-status')
                                         : status === 'failure'
-                                        ? '#db4545'
+                                        ? globalUtil.getPublicColor('rbd-error-status')
                                         : '#9d9d9d',
                                         textOverflow: 'ellipsis',
                                         overflow: 'hidden',
@@ -228,10 +229,11 @@ class Index extends PureComponent {
                                     <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.address'/>)
                                 }
                               >
-                                {kind &&
+                                {/* {kind &&
                                   (kind === '源码构建'
                                     ? globalUtil.fetchSvg('basicInfo')
-                                    : globalUtil.fetchSvg('warehouse'))}
+                                    : globalUtil.fetchSvg('warehouse'))} */}
+                                { kind && Svg.getSvg((kind === '源码构建' ? 'msg' : kind === '本地文件' ? 'fileName':'jingxiang'),12,'rbd-content-color-secondary')}
                               </Tooltip>
 
                               <Tooltip
@@ -313,10 +315,11 @@ class Index extends PureComponent {
                                       <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.imageName'/>)
                                   }
                                 >
-                                  {kind &&
+                                  {/* {kind &&
                                     (kind === '源码构建'
                                       ? globalUtil.fetchSvg('branch')
-                                      : globalUtil.fetchSvg('basicInfo'))}
+                                      : globalUtil.fetchSvg('basicInfo'))} */}
+                                      { kind && Svg.getSvg((kind === '源码构建' ? 'fenzhi' : kind === '本地文件' ? 'upLoad':'jingxiang'),12,'rbd-content-color-secondary')}
                                 </Tooltip>
 
                                 <Tooltip
@@ -373,10 +376,11 @@ class Index extends PureComponent {
                                     } `}
                                     style={{ color: 'rgba(0, 0, 0, 0.65)' }}
                                   >
-                                    {kind &&
+                                    {/* {kind &&
                                       (kind === '源码构建'
                                         ? globalUtil.fetchSvg('warehouse')
-                                        : globalUtil.fetchSvg('branch'))}
+                                        : globalUtil.fetchSvg('branch'))} */}
+                                      { kind && Svg.getSvg((kind === '源码构建' ? 'code' : kind === '本地文件' ? 'MD5':'jingxiangTga'),12,'rbd-content-color-secondary')}
                                   </span>
                                 </Tooltip>
 
@@ -423,7 +427,7 @@ class Index extends PureComponent {
                                 'logState',
                                 status === 'failure'
                                   ? '#39AA56#db4545'
-                                  : '#39AA56'
+                                  : globalUtil.getPublicColor('rbd-success-status')
                               )}
                               <font
                                 style={{
@@ -431,7 +435,7 @@ class Index extends PureComponent {
                                   color:
                                     status === 'failure'
                                       ? '#39AA56#db4545'
-                                      : '#39AA56',
+                                      : globalUtil.getPublicColor('rbd-success-status')
                                 }}
                               >
                                 {this.showStatus(status)}
@@ -458,7 +462,7 @@ class Index extends PureComponent {
                                 <font
                                   style={{
                                     display: 'inline-block',
-                                    color: 'rgba(0,0,0,0.45)',
+                                    color: globalUtil.getPublicColor('rbd-content-color')
                                   }}
                                 >
                                   {globalUtil.fetchTime(
@@ -489,7 +493,7 @@ class Index extends PureComponent {
                                 <font
                                   style={{
                                     display: 'inline-block',
-                                    color: 'rgba(0,0,0,0.45)',
+                                    color: globalUtil.getPublicColor('rbd-content-color')
                                   }}
                                 >
                                   {create_time &&

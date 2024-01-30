@@ -1,6 +1,6 @@
 // 全局更改 antd 主题色
 module.exports = {
-'primary-color': '#EB5A10' , // 全局主色
+'primary-color': '#4D73B1' , // 全局主色
 'success-color': '#18B633', // 成功色
 'warning-color': '#FF8D3C', // 警告色
 'error-color': '#FC481B', // 错误色
@@ -49,13 +49,13 @@ module.exports = {
 // 状态色
 
 // 成功
-'rbd-success-status': '#52c41a',
+'rbd-success-status': '#00D777',
 // 异常
-'rbd-error-status': '#f5222d',
+'rbd-error-status': '#CD0200',
 // 警告
-'rbd-warning-status': '#faad14',
+'rbd-warning-status': '#F69D4A',
 // 下线
-'rbd-down-status': '#b7b7b7',
+'rbd-down-status': '#708090',
 // 处理 维护
 'rbd-processing-status': '#1890ff',
 // 未知

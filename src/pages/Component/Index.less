@@ -33,7 +33,7 @@
       cursor: pointer;
 
       &:hover {
-        color: #333;
+        color: @rbd-content-color-secondary;
       }
     }
   }
@@ -46,11 +46,10 @@
     }
 
     .ant-card-head-title {
-      font-size: 16px;
-      font-family: PingFangSC-Medium, PingFang SC;
+      font-size: @rbd-sub-title-size;
+      color: @rbd-sub-title-color;
+      line-height: @rbd-sub-title-line-height;
       font-weight: 500;
-      color: rgba(22, 22, 22, 1);
-      line-height: 22px;
     }
 
     .ant-divider-horizontal {
@@ -79,7 +78,7 @@
   height: 12px;
   line-height: 12px;
   font-size: 12px;
-  color: red !important;
+  color: @rbd-error-status !important;
 }
 
 .errorDescBox {
@@ -143,11 +142,10 @@
 
   div {
     width: 33.33%;
-    font-size: 12px;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
     font-weight: 400;
-    color: rgba(102, 102, 102, 1);
-    line-height: 17px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -164,12 +162,11 @@
   margin-bottom: 10px;
 
   div {
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
     width: 33.33%;
-    font-size: 12px;
-    font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
-    color: rgba(102, 102, 102, 1);
-    line-height: 17px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -214,9 +211,12 @@
 }
 
 .remindDesc {
-  color: #999999;
-  line-height: 32px;
-  font-size: 12px;
+  // color: #999999;
+  // line-height: 32px;
+  // font-size: 12px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  color: @rbd-auxiliary-color-secondary;
 }
 
 .clerBorder {
@@ -298,10 +298,10 @@
     }
 
     .ant-table-tbody > tr > td {
-      color: #333333 !important;
       border-bottom: none !important;
-      font-size: 14px;
-      font-family: PingFangSC-Light, PingFang SC;
+      font-size: @rbd-content-size;
+      color: @rbd-content-color !important;
+      line-height: @rbd-content-line-height;
     }
   }
 }
@@ -349,7 +349,7 @@
       margin-left: -1px !important;
       -webkit-transform: translateX(-100%) !important;
       transform: translateX(-100%) !important;
-      background-color: #21b174 !important;
+      background-color: @rbd-success-status !important;
     }
   }
 }
@@ -371,8 +371,10 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.45);
+  font-size: @rbd-auxiliary-size;
+  color: @rbd-auxiliary-color;
+  line-height: @rbd-auxiliary-line-height;
+  margin-left: 4px;
 }
 
 :global {
@@ -382,23 +384,25 @@
 }
 
 .contentTitle {
-  line-height: 28px;
+  font-size: @rbd-title-big-size;
+  color: @rbd-title-big-color;
+  line-height: @rbd-title-big-line-height;
   font-weight: 500;
-  color: @heading-color;
   margin-bottom: 12px;
-  font-family: 'PingFangSC-Medium';
-  font-size: 24px;
   letter-spacing: 0;
 }
 
 .content_Box a {
   font-size: 14px;
   font-weight: 400 !important;
-  color: rgba(0, 0, 0, 0.45);
+  font-size: @rbd-content-size;
+  color: @rbd-content-color-secondary;
+  line-height: @rbd-content-line-height;
+  margin-bottom: 4px;
 }
 
 .content_Box a:hover {
-  color: #1890ff !important;
+  color: @primary-color !important;
 }
 
 .logModal {
@@ -532,8 +536,9 @@
     align-items: center;
 
     span {
-      color: rgba(0, 0, 0, 0.85);
-      font-size: 14px;
+      font-size: @rbd-content-size;
+      color: @rbd-content-color-secondary;
+      line-height: @rbd-content-line-height;
       display: inline-block;
       width: 90px;
     }
@@ -543,14 +548,15 @@
       white-space: nowrap;
       text-overflow: ellipsis;
       width: 80%;
-      color: #0000008c;
+      color: @rbd-content-color;
     }
   }
 
   div {
     padding-left: 10px;
-    color: rgba(0, 0, 0, 0.85);
-    font-size: 14px;
+    font-size: @rbd-content-size;
+    color: @rbd-content-color;
+    line-height: @rbd-content-line-height;
     width: 100%;
     display: flex;
     flex-wrap: wrap;
@@ -563,8 +569,9 @@
       align-items: center;
 
       span {
-        color: rgba(0, 0, 0, 0.85);
-        font-size: 14px;
+        font-size: @rbd-content-size;
+        color: @rbd-content-color;
+        line-height: @rbd-content-line-height;
         display: inline-block;
         width: 30%;
       }
@@ -595,8 +602,9 @@
     align-items: center;
 
     span {
-      color: rgba(0, 0, 0, 0.85);
-      font-size: 14px;
+      font-size: @rbd-content-size;
+      color: @rbd-content-color;
+      line-height: @rbd-content-line-height;
       display: inline-block;
       width: 150px;
       text-align: end;
@@ -606,8 +614,9 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      width: 80%;
-      color: #0000008c;
+      font-size: @rbd-content-size;
+      color: @rbd-content-color;
+      line-height: @rbd-content-line-height;
       text-align: start;
       padding-left: 20px;
     }
@@ -615,8 +624,9 @@
 
   div {
     padding-left: 10px;
-    color: rgba(0, 0, 0, 0.85);
-    font-size: 14px;
+    font-size: @rbd-content-size;
+    color: @rbd-content-color;
+    line-height: @rbd-content-line-height;
     width: 100%;
     display: flex;
     flex-wrap: wrap;
@@ -629,8 +639,9 @@
       align-items: center;
 
       span {
-        color: rgba(0, 0, 0, 0.85);
-        font-size: 14px;
+        font-size: @rbd-content-size;
+        color: @rbd-content-color;
+        line-height: @rbd-content-line-height;
         display: inline-block;
         width: 30%;
       }
@@ -650,15 +661,16 @@
 .buildBox {
   background: linear-gradient(
       to right,
-      #39aa56 0,
-      #39aa56 10px,
+      #00D777  0,
+      #00D777 10px,
       #fff 10px,
       #fff 100%
     )
     no-repeat;
   border-radius: 2px;
   border: 1px solid #eaeaea;
-  font-size: 16px;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
 
   .buildContent {
     display: flex;
@@ -669,11 +681,12 @@
       padding-left: 2.2rem;
 
       .buildState {
-        color: #39aa56;
+        color: @rbd-success-status;
         margin: 1rem 0;
         padding-left: 1rem;
         font-weight: 400;
-        font-size: 16px;
+        font-size: @rbd-sub-title-size;
+        line-height: @rbd-sub-title-line-height;
       }
 
       .buildCommitInfo {
@@ -689,10 +702,14 @@
         white-space: nowrap;
 
         a {
-          color: rgba(0, 0, 0, 0.65);
           display: flex;
           align-items: center;
-          font-size: 14px;
+          font-size: @rbd-content-size;
+          color: @rbd-content-color-secondary;
+          line-height: @rbd-content-line-height;
+          svg{
+            margin-right: 6px;
+          }
         }
       }
     }
@@ -701,8 +718,10 @@
       margin: 1rem 0 0.7rem;
 
       a {
-        font-size: 14px;
-        color: #3296fa;
+        font-size: @rbd-content-size;
+        color: @primary-color;
+        line-height: @rbd-content-line-height;
+        
       }
     }
 
@@ -711,11 +730,12 @@
       padding-left: 2rem;
 
       .buildState {
-        color: #39aa56;
+        color: @rbd-success-status;
         margin: 1rem 0;
         padding-left: 1rem;
         font-weight: 400;
-        font-size: 14px;
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
       }
 
       .buildwidth {
@@ -735,10 +755,11 @@
         white-space: nowrap;
 
         a {
-          color: #666;
+          font-size: @rbd-auxiliary-size;
+          line-height: @rbd-auxiliary-line-height;
+          color: @rbd-auxiliary-color-secondary;
           display: flex;
           align-items: center;
-          font-size: 13px;
         }
       }
 
@@ -752,8 +773,8 @@
 .logpassed {
   background: linear-gradient(
       to right,
-      #39aa56 0,
-      #39aa56 5px,
+      #00D777  0,
+      #00D777  5px,
       #fff 5px,
       #fff 100%
     )
@@ -763,8 +784,8 @@
 .logfailed {
   background: linear-gradient(
       to right,
-      #db4545 0,
-      #db4545 5px,
+      #CD0200 0,
+      #CD0200 5px,
       #fff 5px,
       #fff 100%
     )
@@ -774,8 +795,8 @@
 .logfored {
   background: linear-gradient(
       to right,
-      #f69c49 0,
-      #f69c49 5px,
+      #F69D4A 0,
+      #F69D4A 5px,
       #fff 5px,
       #fff 100%
     )
@@ -852,14 +873,15 @@
 }
 
 font {
-  color: #666;
+  color: @rbd-content-color-secondary;
   vertical-align: inherit;
 }
 
 .text {
-  color: #39aa56;
+  color: @rbd-success-status;
   margin-bottom: 10px;
-  font-size: 14px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
 }
 
 .imgs {
@@ -925,44 +947,46 @@ font {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: rgba(0, 0, 0, 0.45);
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  color: @rbd-content-color;
   width: 78%;
 }
 
 .passeda {
-  color: #39aa56;
-  font-size: 15px !important;
-
+  color: @rbd-success-status;
+  font-size: @rbd-content-size !important;
+  line-height: @rbd-content-line-height;
   .icon {
-    color: #39aa56;
+    color: @rbd-success-status;
   }
 
   font {
-    color: #39aa56;
+    color: @rbd-success-status;
   }
 }
 
 .faileda {
-  color: #db4545;
+  color: @rbd-error-status;
 
   .icon {
-    color: #db4545;
+    color: @rbd-error-status;
   }
 
   font {
-    color: #db4545;
+    color: @rbd-error-status;
   }
 }
 
 .canceleda {
-  color: #9d9d9d;
+  color: @rbd-down-status;
 
   .icon {
-    color: #9d9d9d;
+    color: @rbd-down-status;
   }
 
   font {
-    color: #9d9d9d;
+    color: @rbd-down-status;
   }
 }
 
@@ -974,13 +998,19 @@ font {
   display: flex;
   align-items: center;
   padding-right: 20px;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color-secondary;
+  line-height: @rbd-content-line-height;
+  svg{
+    margin-right: 6px;
+  }
 }
 
 .passed {
   background: linear-gradient(
       to right,
-      #39aa56 0,
-      #39aa56 10px,
+      #00D777 0,
+      #00D777  10px,
       #fff 10px,
       #fff 100%
     )
@@ -990,8 +1020,8 @@ font {
 .failed {
   background: linear-gradient(
       to right,
-      #db4545 0,
-      #db4545 10px,
+      #CD0200 0,
+      #CD0200 10px,
       #fff 10px,
       #fff 100%
     )
@@ -1036,7 +1066,7 @@ font {
   margin-right: 0.3rem;
 
   a {
-    color: #39aa56;
+    color: @rbd-success-status;
   }
 }
 
@@ -1189,7 +1219,7 @@ font {
       overflow: hidden;
 
       a {
-        color: #39aa56;
+        color: @rbd-success-status;
         font-size: 13px;
       }
     }
@@ -1290,7 +1320,8 @@ font {
 
 .commandText {
   line-height: 32px;
-  color: #333333;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color;
   width: 70px !important;
   display: inline-block;
 }
@@ -1522,13 +1553,13 @@ font {
 
 .success {
   .logItemDate:before {
-    background: #28cb75;
+    color: @rbd-success-status;
   }
 }
 
 .fail {
   .logItemDate:before {
-    background: #da4f49;
+    color: @rbd-error-status;
   }
 }
 
