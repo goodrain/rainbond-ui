@@ -81,6 +81,7 @@ export default class index extends Component {
     fetchData = () => {
         const end = Date.now() / 1000;
         const start = end - (30 * 60);
+        console.log(end, start)
         this.fetchQpsRateSum(start, end);
         this.fetchFlowRateSum(start, end);
         this.fetchDelayRateSum(start, end);
