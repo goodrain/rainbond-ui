@@ -9,12 +9,75 @@ export default class GatewayMonitorChart extends Component {
     componentDidMount() {
         this.loadGatewayMonitorEcharts()
     }
+    componentDidUpdate(prevProps) {
+        // 检查数据属性是否发生变化，并在需要时触发重新渲染
+        if (this.props.data !== prevProps.data) {
+            // 执行任何必要的图表更新逻辑
+            this.loadGatewayMonitorEcharts();
+        }
+    }
+    tooltipFormatter = (params) => {
+        const { keys } = this.props
+        var tooltip = params[0].name + '<br/>';
+        params.forEach((item) => {
+            var valueInMB = keys == 'flow' ? (Math.round(item.value / 1024) + 'MB') 
+                                            : keys == 'delay' ? 
+                                            (Math.round(item.value / 1000) + 's')
+                                            : keys == 'qps' ? 
+                                            (item.value + '次/s')
+                                            : keys == 'error_rate' ? 
+                                            (item.value + '次/s')
+                                            : item.value;
+            tooltip += `<div style=\"display:flex;justify-content: space-between;\">
+                <div>
+                    ${item.marker}
+                    <span>${item.seriesName}</span>
+                </div>
+                <div style=\"margin-left: 12px\">
+                    ${valueInMB}
+                </div>
+            </div>`
+        });
+        return tooltip;
+    };
     loadGatewayMonitorEcharts = () => {
         const { keys, svalue, cname, chartTitle } = this.props
         const echartsId = '#' + keys + 'gatewayMonitor'
         // 1.创建实例对象
         const myEcharts1 = echarts.init(document.querySelector(echartsId));
         // 2. options配置项
+        const seriesArr = [];
+        let routeArr = data.map((item) => {
+            return item.route;
+        });
+        data.map((item, index) => {
+            const seriesItem = {
+                name: item.route,
+                type: 'line',
+                data: item.values,
+                symbolSize: 0.5,
+                symbol: 'circle',
+                smooth: true,
+                yAxisIndex: 0,
+                showSymbol: false,
+                emphasis: {
+                    focus: 'series',
+                },
+                lineStyle: {
+                    width: 1,
+                    shadowColor: 'rgba(158,135,255, 0.3)',
+                    shadowBlur: 10,
+                    shadowOffsetY: 15,
+                },
+                itemStyle: {
+                    normal: {
+                        color: item.color,
+                        borderColor: item.color,
+                    },
+                },
+            };
+            seriesArr.push(seriesItem);
+        })
 
         const colorList = ['#9E87FF', '#73DDFF', '#fe9a8b', '#F56948', '#9E87FF'];
 
@@ -49,20 +112,15 @@ export default class GatewayMonitorChart extends Component {
                 show: true,
             },
             legend: {
-                x: 'center',
-                y: 'top',
-                show: false,
-                top: '5%',
-                right: '5%',
-                itemWidth: 6,
-                itemGap: 20,
-                textStyle: {
-                    color: '#556677',
-                },
-                data: ['处理任务数', '回退数', '被回退数', '123'],
-            },
+                bottom: '2%',
+                orient: 'horizontal', //图例方向【horizontal/vertical】
+                selectedMode: true, //不允许点击图例
+                itemGap: 10,
+                data: routeArr,
+             },
             tooltip: {
                 trigger: 'axis',
+                type: 'cross',
                 axisPointer: {
                     label: {
                         show: true,
@@ -76,6 +134,7 @@ export default class GatewayMonitorChart extends Component {
                         width: 0,
                     },
                 },
+                formatter: this.tooltipFormatter,
                 backgroundColor: '#fff',
                 textStyle: {
                     color: '#5c6c7c',
@@ -87,19 +146,7 @@ export default class GatewayMonitorChart extends Component {
                 top: '15%',
                 y2: 88,
             },
-            // dataZoom: [
-            //     {
-            //         type: 'inside',
-            //         start: 0,
-            //         end: 100,
-            //     },
-            //     {
-            //         start: 0,
-            //         end: 100,
-            //     },
-            // ],
-            xAxis: [
-                {
+            xAxis: {
                     type: 'category',
                     data: date,
                     axisLine: {
@@ -163,7 +210,6 @@ export default class GatewayMonitorChart extends Component {
                     },
                     boundaryGap: false,
                 },
-            ],
             yAxis: [
                 {
                     type: 'value',
@@ -177,6 +223,17 @@ export default class GatewayMonitorChart extends Component {
                         },
                     },
                     axisLabel: {
+                        formatter: (value)=>{
+                            if(keys == 'qps'){
+                                return value + ' 次/s'
+                            }else if(keys == 'flow'){
+                                return Math.round(value / 1024) + ' MB/s'
+                            }else if(keys == 'error_rate'){
+                                return value + ' 次/s'
+                            }else{
+                                return Math.round(value / 1000) + ' s'
+                            }
+                        },
                         textStyle: {
                             color: '#556677',
                         },
