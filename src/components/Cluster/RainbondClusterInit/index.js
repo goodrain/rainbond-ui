@@ -31,7 +31,7 @@ import ClusterComponents from '../ClusterComponents';
 import InitRainbondDetail from '../ShowInitRainbondDetail';
 import yaml from 'js-yaml'
 import SelectNode from './selectNode';
-import Etcd from '../../../pages/addCluster/component/etcd';
+import Etcd from '../../../pages/AddCluster/component/etcd';
 import styles from './index.less';
 
 
