@@ -441,7 +441,7 @@ import {
               )
             }
             style={{ borderRadius: 5 }}
-            id={isBoxShadow ? 'box-shadow' : 'border-color'}
+            // id={isBoxShadow ? 'box-shadow' : 'border-color'}
             bodyStyle={{ padding: '0' }}
           >
             <Table

@@ -71,7 +71,7 @@ class Control extends Component {
                     res.list.map(item => {
                         if (item.name == "rainbond-gateway-base") {
                             this.setState({
-                                gatewayShow: false,
+                                gatewayShow: true,
                             })
                         }
                     })

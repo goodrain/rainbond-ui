@@ -1,12 +1,12 @@
 import { Col, Icon, Input, notification, Row } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 class DAHosts extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ host: '' }]
+      values: [{ path: '' }]
     };
   }
   componentDidMount() {
@@ -21,14 +21,14 @@ class DAHosts extends Component {
   }
   onKeyChange = (value, index) => {
     const { values } = this.state;
-    values[index].host = value;
+    values[index].path = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push({ host: ''});
+      setArr.push({ path: '' });
     }
     this.setState({ values: setArr });
   }
@@ -38,8 +38,8 @@ class DAHosts extends Component {
       const res = [];
       for (let index = 0; index < setValue.length; index++) {
         res.push({
-          host: setValue[index]
-      });
+          path: setValue[index]
+        });
       }
       this.setValues(res);
     }
@@ -48,11 +48,11 @@ class DAHosts extends Component {
     const { values } = this.state;
     if (values.length > 100) {
       notification.warning({
-        message: formatMessage({id:'notification.warn.add_max'})
+        message: formatMessage({ id: 'notification.warn.add_max' })
       });
       return null;
     }
-    this.setState({ values: values.concat({ host: '' }) });
+    this.setState({ values: values.concat({ path: '' }) });
   };
 
   remove = index => {
@@ -64,15 +64,15 @@ class DAHosts extends Component {
   triggerChange(values) {
     const res = [];
     const { onChange } = this.props;
-    const hostArr = values.map(obj => obj.host);
+    const hostArr = values.map(obj => obj.path);
     if (onChange) {
-      onChange(hostArr,this.props.index);
+      onChange(hostArr, this.props.index);
     }
   }
 
   render() {
-    const  { setspan = false, setSvgSpan = false } = this.props
-    const hostPlaceholder = this.props.hostPlaceholder || formatMessage({id:'teamGateway.DrawerGateWayAPI.hostPlaceholder'});
+    const { setspan = false, setSvgSpan = false, } = this.props
+    const hostPlaceholder = this.props.hostPlaceholder || formatMessage({ id: 'teamGateway.DrawerGateWayAPI.hostPlaceholder' });
     const { values } = this.state;
     return (
       <div>
@@ -82,27 +82,28 @@ class DAHosts extends Component {
             <Row key={index}>
               <Col span={setspan || 20}>
                 <Input
-                  name="host"
+                  name="path"
                   onChange={e => {
                     this.onKeyChange(e.target.value, index);
                   }}
-                  value={item.host}
+                  value={item.path}
                   placeholder={hostPlaceholder}
                 />
               </Col>
-              <Col span={setSvgSpan || 3} style={{ textAlign: 'center', marginLeft: 10 }}>
-                <Icon
-                  type={first ? 'plus-circle' : 'minus-circle'}
-                  style={{ fontSize: '20px' }}
-                  onClick={() => {
-                    if (first) {
-                      this.add();
-                    } else {
-                      this.remove(index);
-                    }
-                  }}
-                />
-              </Col>
+                <Col span={setSvgSpan || 3} style={{ textAlign: 'center', marginLeft: 10 }} >
+                  <Icon
+                    type={first ? 'plus-circle' : 'minus-circle'}
+                    style={{ fontSize: '20px' }}
+                    onClick={() => {
+                      if (first) {
+                        this.add();
+                      } else {
+                        this.remove(index);
+                      }
+                    }}
+                  />
+                </Col>
+              
             </Row>
           );
         })}
