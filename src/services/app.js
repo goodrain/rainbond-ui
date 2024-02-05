@@ -502,6 +502,31 @@ export function getRelationedApp(
 }
 
 /*
+  获取被外部组件依赖的组件列表
+*/
+
+export function getRelatumApp(
+  body = {
+    team_name,
+    app_alias,
+    page,
+    pageSize
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency-list`,
+    {
+      method: 'get',
+      params: {
+        page: body.page,
+        page_size: body.pageSize
+      }
+    }
+  );
+}
+
+
+/*
   获取应用可以依赖的应用
 */
 export function getUnRelationedApp(
@@ -3331,14 +3356,30 @@ export async function getComponentNames(body = {}) {
   );
 }
 
-// 确定反向依赖
+// 查找能被反向依赖列表
 export async function getReverseDependency(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency-reverse`,
+    {
+      method: 'get',
+      params: {
+        page: body.page || 1,
+        page_size: body.page_size || 8,
+        condition: body.condition,
+        search_key: body.search_key
+      }
+    }
+  );
+}
+
+// 确定反向依赖
+export async function addReverseDependency(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency-reverse`,
     {
       method: 'post',
       data: {
-        be_dep_service_ids: body.dep_service_id
+        be_dep_service_ids: body.be_dep_service_ids
       }
     }
   );

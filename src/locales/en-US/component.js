@@ -377,7 +377,7 @@ const componentOverview = {
    'componentOverview.body.Relation.ViewRelationInfo.title':'Dependency information viewing',
    'componentOverview.body.Relation.ViewRelationInfo.close':'Close',
    'componentOverview.body.Relation.EnvironmentVariable.title':'Component connection information',
-   'componentOverview.body.Relation.EnvironmentVariable.information':'Dependent component information',
+   'componentOverview.body.Relation.EnvironmentVariable.information':'Dependent external component',
    'componentOverview.body.Relation.EnvironmentVariable.conflict':'(The dependent components have the same port conflict, please handle)',
    'componentOverview.body.Relation.EnvironmentVariable.add':'Add dependency',
    'componentOverview.body.Relation.table.service_cname':'Component Name',
