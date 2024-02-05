@@ -111,18 +111,16 @@ export default class RainbondInit extends PureComponent {
             ))}
           </Steps>
         </Row>
-        <Card>
-          <Row style={{ marginBottom: '16px' }}>
-            <RainbondClusterInit
-              eid={eid}
-              completeInit={this.completeInit}
-              selectProvider={provider}
-              taskID={taskID}
-              clusterID={clusterID}
-              preStep={this.preStep}
-            />
-          </Row>
-        </Card>
+        <Row>
+          <RainbondClusterInit
+            eid={eid}
+            completeInit={this.completeInit}
+            selectProvider={provider}
+            taskID={taskID}
+            clusterID={clusterID}
+            preStep={this.preStep}
+          />
+        </Row>
       </PageHeaderLayout>
     );
   }
