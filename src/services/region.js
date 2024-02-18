@@ -137,6 +137,7 @@ export async function fetchHelmCommand(param) {
       nodesForChaos: param.data.nodesForChaos,
       nodesForGateway: param.data.nodesForGateway,
       DockingType:param.data.type,
+      runtime: param.data.runtime,
       appui: false,
       cloudserver: param.cloudserver ? param.cloudserver : ''
     }

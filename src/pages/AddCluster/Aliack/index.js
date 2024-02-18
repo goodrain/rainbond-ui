@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Form, Input, Row, Steps } from 'antd';
+import { Button, Card, Form, Input, Row, Steps, Radio } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
@@ -20,6 +20,7 @@ const FormItem = Form.Item;
 const { Step } = Steps;
 const dataObj = {
   enableHA: true,
+  runtime: 'docker',
   gatewayIngressIPs: '',
   imageHub: {
     enable: false,
@@ -149,7 +150,7 @@ export default class ClusterLink extends PureComponent {
         }else{
           dataObj.imageHub.enable = false;
         }
-        
+        dataObj.runtime = values.runtime || '';
         dataObj.imageHub.domain = values.domain || '';
         dataObj.imageHub.namespace = values.namespace || '';
         dataObj.imageHub.username = values.username || '';
@@ -370,6 +371,30 @@ handleValidatorsGateway = (_, val, callback) => {
                       }
                     ]
                   })(<DAinput />)}
+                </FormItem>
+              </Row>
+              {/* 容器运行时 */}
+              <Row className={ language ? styles.antd_row : styles.en_antd_row}>
+                <div>
+                  <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                    容器运行时:
+                  </span>
+                </div>
+                <FormItem
+                  {...formItemLayout}
+                  className={styles.antd_form}
+                >
+                  {getFieldDecorator('runtime', {
+                    initialValue: 'docker',
+                    rules: [
+                      { required: true },
+                    ]
+                  })(
+                    <Radio.Group>
+                      <Radio value='docker'>Docker</Radio>
+                      <Radio value='containerd'>Containerd</Radio>
+                    </Radio.Group> 
+                  )}
                 </FormItem>
               </Row>
               <Row className={styles.antd_rows}>
