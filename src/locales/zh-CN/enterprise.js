@@ -887,7 +887,7 @@ const enterpriseColony = {
     'enterpriseColony.cloud.msg3':'，服务器执行完成，点击 “下一步”。',
     'enterpriseColony.cloud.success':'集群对接成功',
     'enterpriseColony.cloud.back':'点击返回集群管理按钮查看当前对接的集群',
-    'enterpriseColony.cloud.return':'返回集群管理',
+    'enterpriseColony.cloud.return':'完成',
     'enterpriseColony.cloud.import':'导入已有应用',
     'enterpriseColony.cloud.fail':'当前集群对接失败',
     'enterpriseColony.cloud.Refresh':'可能服务器命令还没有执行完毕，可以“刷新进度”或去服务器执行“ watch kubectl get po -n rbd-system ”命令，查看Pod状态。',

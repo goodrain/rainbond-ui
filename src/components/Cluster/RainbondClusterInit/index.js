@@ -30,7 +30,7 @@ import CodeMirrorForm from '../../CodeMirrorForm';
 import ClusterComponents from '../ClusterComponents';
 import InitRainbondDetail from '../ShowInitRainbondDetail';
 import yaml from 'js-yaml'
-import SelectNode from './selectNode';
+import SelectNode from '../../SelectNode';
 import Etcd from '../../../pages/AddCluster/component/etcd';
 import styles from './index.less';
 

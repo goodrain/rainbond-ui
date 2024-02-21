@@ -36,17 +36,10 @@ export default class ClusterLink extends PureComponent {
       user,
       location: { search }
     } = this.props;
-    const { data, token, copy, name, step } = Qs.parse(search.substr(1)) || {};
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      status: 'failed',
-      flagStatus: false,
-      data,
-      token,
-      copy,
-      name,
-      step
+      status: 'installing',
     };
   }
   componentWillMount() {
@@ -56,9 +49,19 @@ export default class ClusterLink extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  componentDidMount() {
-    this.getRegionLength();
+  componentWillUnmount() {
+    clearInterval(this.pollingTimer);
   }
+
+  componentDidMount() {
+    this.startPolling();
+  }
+
+  startPolling = () => {
+    this.getRegionLength();
+    this.pollingTimer = setInterval(this.getRegionLength, 3000);
+  };
+
   getRegionLength = () => {
     const {
       dispatch,
@@ -66,40 +69,29 @@ export default class ClusterLink extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { token } = this.state;
+    const token = this.props.location.query.token;
+    const host = this.props.location.query.host;
     dispatch({
       type: 'region/fetchHelmJoinStatus',
       payload: {
         eid,
-        token
+        token: token,
+        api_host: host
       },
       callback: res => {
         if (res.status_code === 200) {
+          if(res.bean.health_status === 'installed'){
+            clearInterval(this.pollingTimer);
+          }
           this.setState({
-            flagStatus: true,
-            status: res.response_data.msg
+            status: res.bean.health_status
           });
         }
       }
     });
   };
-  loadSteps = () => {
-    const steps = [
-      {
-        title: formatMessage({id:'enterpriseColony.ACksterList.basic'})
-      },
-      {
-        title: formatMessage({id:'enterpriseColony.ACksterList.senior'})
-      },
-      {
-        title: formatMessage({id:'enterpriseColony.ACksterList.install'})
-      },
-      {
-        title: formatMessage({id:'enterpriseColony.ACksterList.Docking'})
-      }
-    ];
-    return steps;
-  };
+
+  // 返回上一步
   toLinkNext = value => {
     const {
       dispatch,
@@ -107,40 +99,29 @@ export default class ClusterLink extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { data, copy, token, name, step } = this.state;
-    // 返回上一步
-    if (value === 'install') {
-      router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/install`,
-        search: Qs.stringify({
-          data,
-          copy,
-          token,
-          name,
-          step,
-          isResult: true
-        })
-      });
-    } else if (value === 'finish') {
-      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-    }else if (value === 'next') {
-      dispatch(routerRedux.push(`/enterprise/${eid}/importMessage?region_id=`));
-    }
-  };
-  //   刷新进度
-  refreshStatus = () => {
-    this.setState({
-      flagStatus: false
+    dispatch({
+      type: 'region/deleteHelmEvents',
+      payload: { 
+        eid,
+      },
+      callback: res => {
+        if (value === 'install') {
+          dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList`));
+        } else if (value === 'finish') {
+          dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+        }
+      }
     });
-    this.getRegionLength();
+    
   };
+
   renderBody = () => {
     const { status } = this.state;
     let type = '';
     let title = '';
     let desc = '';
     let actions = [];
-    if (status === 'success') {
+    if (status === 'installed') {
       type = 'success';
       title = `${formatMessage({id:'enterpriseColony.cloud.success'})}`
       desc = `${formatMessage({id:'enterpriseColony.cloud.back'})}`
@@ -153,21 +134,12 @@ export default class ClusterLink extends PureComponent {
           type="primary"
         >
           <FormattedMessage id='enterpriseColony.cloud.return'/>
-        </Button>,
-        <Button
-        className={styles.antd_btn}
-        onClick={() => {
-          this.toLinkNext('next');
-        }}
-        type="primary"
-      >
-        <FormattedMessage id='enterpriseColony.cloud.import'/>
-      </Button>
+        </Button>
       ];
     }
-    if (status === 'failed') {
-      type = 'error';
-      title = `${formatMessage({id:'enterpriseColony.cloud.fail'})}`;
+    if (status === 'installing') {
+      type = 'ing';
+      title = `正在对接集群`;
       desc =`${formatMessage({id:'enterpriseColony.cloud.Refresh'})}`;
       actions = [
         <Button
@@ -175,18 +147,8 @@ export default class ClusterLink extends PureComponent {
           onClick={() => {
             this.toLinkNext('install');
           }}
-          type="primary"
         >
-          <FormattedMessage id='button.previous'/>
-        </Button>,
-        <Button
-          onClick={() => {
-            this.refreshStatus();
-          }}
-          className={styles.antd_btn}
-          type="primary"
-        >
-          <FormattedMessage id='enterpriseColony.cloud.speed'/>
+          <FormattedMessage id='button.cancel'/>
         </Button>
       ];
     }
@@ -202,43 +164,15 @@ export default class ClusterLink extends PureComponent {
     );
   };
   render() {
-    const {
-      match: {
-        params: { eid, provider, clusterID }
-      }
-    } = this.props;
-    const { flagStatus } = this.state;
-    const { getFieldDecorator } = this.props.form;
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 2 },
-        sm: { span: 2 }
-      },
-      wrapperCol: {
-        xs: { span: 5 },
-        sm: { span: 5 }
-      }
-    };
+
     return (
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
       titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
-        <Row style={{ marginBottom: '16px' }}>
-          <Steps current={3}>
-            {this.loadSteps().map(item => (
-              <Step key={item.title} title={item.title} />
-            ))}
-          </Steps>
-        </Row>
         <Card style={{ padding: '24px' }}>
-          {!flagStatus && (
-            <Spin tip="Loading...">
-              <Card bordered={false}>{this.renderBody()}</Card>
-            </Spin>
-          )}
-          {flagStatus && <Card bordered={false}>{this.renderBody()}</Card>}
+          {<Card bordered={false}>{this.renderBody()}</Card>}
         </Card>
       </PageHeaderLayout>
     );

@@ -885,7 +885,7 @@ const enterpriseColony = {
     'enterpriseColony.cloud.msg3': '. After the server completes the execution, click "next".',
     'enterpriseColony.cloud.success': 'Cluster docking succeeded',
     'enterpriseColony.cloud.back': 'Click the back to cluster management button to view the currently docked clusters',
-    'enterpriseColony.cloud.return': 'Return to cluster management',
+    'enterpriseColony.cloud.return': 'Finish',
     'enterpriseColony.cloud.import': 'Import existing applications',
     'enterpriseColony.cloud.fail': 'Current cluster docking failed',
     'enterpriseColony.cloud.Refresh': 'The server command may not be complete. You can "Refresh progress" or run "watch kubectl get po -n rbd-system" on the server to check the Pod status.',

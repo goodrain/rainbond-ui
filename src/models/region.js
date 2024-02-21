@@ -27,7 +27,10 @@ import {
   fetClusterNodeTaint,
   updataClusterNodeTaint,
   fetDashboardList,
-  fetClusterNodeContainer
+  fetClusterNodeContainer,
+  fetchHelmEvents,
+  createHelmEvents,
+  deleteHelmEvents,
 } from '../services/region';
 
 export default {
@@ -234,6 +237,24 @@ export default {
     },
     *fetClusterNodeContainer({ payload, callback, handleError }, { call }) {
       const response = yield call(fetClusterNodeContainer, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *createHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(createHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *deleteHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteHelmEvents, payload, handleError);
       if (response && callback) {
         callback(response);
       }
