@@ -58,7 +58,7 @@ class DAinput extends Component {
     }
   }
   render() {
-    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.end'})}`;
+    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.master'})}`;
     const { values } = this.state;
     const { keys } = this.props
     return (

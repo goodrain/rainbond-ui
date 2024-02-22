@@ -18,7 +18,8 @@ import {
   Icon,
   Card,
   message,
-  Collapse
+  Collapse,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -63,18 +64,30 @@ export default class RainbondClusterInit extends PureComponent {
       isMirror: 'default',
       isEctype: 'default',
       menuKey: 'basics',
-      dataObj: {
-        operator:{
-          env: {
-            CONTAINER_RUNTIME: 'docker',
-            HELM_TOKEN: ''
-          }
-        },
-        Cluster: {}
-      },
-      yamlJson: '',
-      isModal: false
+      isModal: false,
+      token: '',
+      isCheck: false,
     };
+    this.formObj = {
+      operator: {
+        env: [
+          {
+            name: 'CONTAINER_RUNTIME',
+            value: 'docker'
+          },
+          {
+            name: 'HELM_TOKEN',
+            value: ''
+          },
+        ]
+      },
+      Cluster: {},
+      Component: {
+        rbd_app_ui: {
+          enable: false
+        }
+      }
+    }
   }
   componentDidMount() {
     this.handleHelmEvents()
@@ -89,11 +102,11 @@ export default class RainbondClusterInit extends PureComponent {
     } = this.props;
     dispatch({
       type: 'region/fetchHelmEvents',
-      payload: { 
-        eid 
+      payload: {
+        eid
       },
       callback: res => {
-        if(res.create_status){
+        if (res.create_status) {
           dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList/result?token=${res.token}&host=${res.api_host}`))
         } else {
           this.helmToken()
@@ -109,114 +122,17 @@ export default class RainbondClusterInit extends PureComponent {
         params: { eid }
       },
     } = this.props;
-    const { dataObj } = this.state
-    const setdDataObj = dataObj
+
     dispatch({
       type: 'region/fetchHelmToken',
       payload: { eid },
       callback: res => {
-        if (res.status_code === 200) {
-          if (res.bean) {
-            setdDataObj.operator.env.HELM_TOKEN = res.bean
-            const yamls = yaml.dump(setdDataObj)
-            this.setState({
-              dataObj: setdDataObj,
-              yamlJson: yamls,
-            })
-          }
+        if (res.bean) {
+          this.setState({
+            token: res.bean
+          })
         }
       }
-    });
-  };
-  handleSubmit = () => {
-    const { form } = this.props;
-    const { dataObj } = this.state;
-    form.validateFields((err, values) => {
-      let setdDataObj = {
-        Cluster: {}
-      };
-
-      if (values.runtime || dataObj.operator) {
-        setdDataObj.operator = {
-          env: {
-            CONTAINER_RUNTIME: values.runtime || dataObj.operator.env.variable_name,
-            HELM_TOKEN: dataObj.operator.env.HELM_TOKEN
-          }
-        }
-      }
-
-      // 负载均衡
-      if (values.gatewayIngressIPs || dataObj.Cluster.gatewayIngressIPs) {
-        setdDataObj.Cluster.gatewayIngressIPs = values.gatewayIngressIPs || dataObj.Cluster.gatewayIngressIPs
-      }
-
-      // 网关节点
-      if (values.nodesForGateway || dataObj.Cluster.nodesForGateway) {
-        setdDataObj.Cluster.nodesForGateway = values.nodesForGateway || dataObj.Cluster.nodesForGateway
-      }
-
-      // 构建节点
-      if (values.nodesForChaos || dataObj.Cluster.nodesForChaos) {
-        setdDataObj.Cluster.nodesForChaos = values.nodesForChaos || dataObj.Cluster.nodesForChaos
-      }
-
-      // 存储
-      if (values.storageClassName1 || dataObj.Cluster.RWX) {
-        setdDataObj.Cluster.RWX = {
-          config: {
-            storageClassName: values.storageClassName1 || dataObj.Cluster.RWX.config.storageClassName
-          }
-        }
-      }
-
-      if (values.storageClassName2 || dataObj.Cluster.RWO) {
-        setdDataObj.Cluster.RWO = {
-          storageClassName: values.storageClassName2 || dataObj.Cluster.RWO.storageClassName
-        }
-      }
-
-      // Etcd
-      if (values.endpoints || values.secretName || dataObj.Cluster.etcd) {
-        setdDataObj.Cluster.etcd = {
-          endpoints: values.endpoints.map(item => item.ip) || dataObj.Cluster.etcd.endpoints || [],
-          secretName: values.secretName || dataObj.Cluster.etcd.secretName
-        }
-      }
-
-      // 镜像仓库
-      if (values.domain || values.namespace || values.hub_username || values.hub_password || dataObj.Cluster.imageHub) {
-        setdDataObj.Cluster.imageHub = {
-          domain: values.domain || dataObj.Cluster.imageHub.domain || "",
-          namespace: values.namespace || dataObj.Cluster.imageHub.namespace || "",
-          username: values.hub_username || dataObj.Cluster.imageHub.username || "",
-          password: values.hub_password || dataObj.Cluster.imageHub.password || "",
-
-        }
-      }
-
-      // 数据库
-      if (values.regionDatabase_host || values.regionDatabase_port || values.regionDatabase_username || values.regionDatabase_password || values.regionDatabase_dbname || dataObj.Cluster.regionDatabase) {
-        setdDataObj.Cluster.regionDatabase = {
-          host: values.regionDatabase_host || dataObj.Cluster.regionDatabase.host || "",
-          port: values.regionDatabase_port || dataObj.Cluster.regionDatabase.port || "",
-          username: values.regionDatabase_username || dataObj.Cluster.regionDatabase.username || "",
-          password: values.regionDatabase_password || dataObj.Cluster.regionDatabase.password || "",
-          dbname: values.regionDatabase_dbname || dataObj.Cluster.regionDatabase.dbname || ""
-        }
-      }
-
-      // 镜像仓库地址
-      if (values.mirror_address || dataObj.Cluster.rainbondImageRepository) {
-        setdDataObj.Cluster.rainbondImageRepository = values.mirror_address || dataObj.Cluster.rainbondImageRepository
-      }
-
-
-      const yamls = yaml.dump(setdDataObj)
-      console.log(yamls,'yamls')
-      this.setState({
-        yamlJson: yamls,
-        dataObj: setdDataObj
-      })
     });
   };
 
@@ -233,11 +149,20 @@ export default class RainbondClusterInit extends PureComponent {
         }
       });
       if (isPass) {
+        this.setState({
+          isCheck: true
+        })
         callback();
       } else {
+        this.setState({
+          isCheck: false
+        })
         callback('请填写完整的节点名称');
       }
     } else {
+      this.setState({
+        isCheck: true
+      })
       callback();
     }
   };
@@ -248,108 +173,231 @@ export default class RainbondClusterInit extends PureComponent {
     });
   }
   onChangeRunTime = e => {
-    const { form: { setFieldsValue } } = this.props
-    setFieldsValue({ runtime: e.target.value })
-    this.handleSubmit()
+    this.formObj.operator.env[0].value = e.target.value
   }
   handleOnChangeIp = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ gatewayIngressIPs: value })
-    this.handleSubmit()
+    if (value) {
+      this.formObj.Cluster.gatewayIngressIPs = value
+    } else {
+      delete this.formObj.Cluster.gatewayIngressIPs
+    }
   }
   handleOnChangeGateway = e => {
-    const { form: { setFieldsValue } } = this.props
-    setFieldsValue({ nodesForGateway: e })
-    this.handleSubmit()
+    console.log(e, 'e')
+    if (e) {
+      this.formObj.Cluster.nodesForGateway = e
+    } else {
+      delete this.formObj.Cluster.nodesForGateway
+    }
   }
   handleOnChangeForChaos = e => {
-    const { form: { setFieldsValue } } = this.props
-    setFieldsValue({ nodesForChaos: e })
-    this.handleSubmit()
+    console.log(e, 'e')
+    if (e) {
+      this.formObj.Cluster.nodesForChaos = e
+    } else {
+      delete this.formObj.Cluster.nodesForChaos
+    }
   }
   handleOnChangeRwx = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ storageClassName1: value })
-    this.handleSubmit()
+    if (value) {
+      this.formObj.Cluster.RWX = {
+        config: {
+          storageClassName: value
+        }
+      }
+    } else {
+      delete this.formObj.Cluster.RWX
+    }
   }
   handleOnChangeRwo = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ storageClassName2: value })
-    this.handleSubmit()
+    if (value) {
+      this.formObj.Cluster.RWO = {
+        storageClassName: value
+      }
+    } else {
+      delete this.formObj.Cluster.RWO
+    }
   }
   handleOnChangeSecretName = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ secretName: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.etcd) {
+        this.formObj.Cluster.etcd = {};
+      }
+      this.formObj.Cluster.etcd.secretName = value
+    } else {
+      delete this.formObj.Cluster.etcd.secretName
+    }
   }
   handleOnChangeEndpoints = e => {
-    const { form: { setFieldsValue } } = this.props
-    setFieldsValue({ endpoints: e })
-    this.handleSubmit()
+    if (e) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.etcd = {};
+      }
+      this.formObj.Cluster.etcd.endpoints = e.map(item => item.ip)
+    } else {
+      if (this.formObj.Cluster.etcd) {
+        delete this.formObj.Cluster.etcd.endpoints
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+          delete this.formObj.Cluster.imageHub;
+        }
+      }
+    }
   }
   handleOnChangeDomain = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ domain: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.imageHub) {
+        this.formObj.Cluster.imageHub = {};
+      }
+      this.formObj.Cluster.imageHub.domain = value
+    } else {
+      if (this.formObj.Cluster.imageHub) {
+        delete this.formObj.Cluster.imageHub.domain;
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+          delete this.formObj.Cluster.imageHub;
+        }
+      }
+    }
   }
   handleOnChangeNamespace = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ namespace: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.imageHub) {
+        this.formObj.Cluster.imageHub = {};
+      }
+      this.formObj.Cluster.imageHub.namespace = value
+    } else {
+      if (this.formObj.Cluster.imageHub) {
+        delete this.formObj.Cluster.imageHub.namespace;
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+          delete this.formObj.Cluster.imageHub;
+        }
+      }
+    }
   }
   handleOnChangeUsername = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ hub_username: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.imageHub) {
+        this.formObj.Cluster.imageHub = {};
+      }
+      this.formObj.Cluster.imageHub.username = value;
+    } else {
+      if (this.formObj.Cluster.imageHub) {
+        delete this.formObj.Cluster.imageHub.username;
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+          delete this.formObj.Cluster.imageHub;
+        }
+      }
+    }
   }
   handleOnChangePassword = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ hub_password: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.imageHub) {
+        this.formObj.Cluster.imageHub = {};
+      }
+      this.formObj.Cluster.imageHub.password = value
+    } else {
+      if (this.formObj.Cluster.imageHub) {
+        delete this.formObj.Cluster.imageHub.password;
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+          delete this.formObj.Cluster.imageHub;
+        }
+      }
+    }
   }
   handleOnChangeDbHost = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ regionDatabase_host: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.regionDatabase = {};
+      }
+      this.formObj.Cluster.regionDatabase.host = value
+    } else {
+      if (this.formObj.Cluster.regionDatabase) {
+        delete this.formObj.Cluster.regionDatabase.host;
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+          delete this.formObj.Cluster.regionDatabase;
+        }
+      }
+    }
   }
   handleOnChangeDbPort = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ regionDatabase_port: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.regionDatabase = {};
+      }
+      this.formObj.Cluster.regionDatabase.port = value
+    } else {
+      if (this.formObj.Cluster.regionDatabase) {
+        delete this.formObj.Cluster.regionDatabase.port;
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+          delete this.formObj.Cluster.regionDatabase;
+        }
+      }
+    }
   }
   handleOnChangeDbUsername = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ regionDatabase_username: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.regionDatabase = {};
+      }
+      this.formObj.Cluster.regionDatabase.username = value
+    } else {
+      if (this.formObj.Cluster.regionDatabase) {
+        delete this.formObj.Cluster.regionDatabase.username;
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+          delete this.formObj.Cluster.regionDatabase;
+        }
+      }
+    }
   }
   handleOnChangeDbPassword = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ regionDatabase_password: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.regionDatabase = {};
+      }
+      this.formObj.Cluster.regionDatabase.password = value
+    } else {
+      if (this.formObj.Cluster.regionDatabase) {
+        delete this.formObj.Cluster.regionDatabase.password;
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+          delete this.formObj.Cluster.regionDatabase;
+        }
+      }
+    }
   }
   handleOnChangeDbName = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ regionDatabase_dbname: value })
-    this.handleSubmit()
+    if (value) {
+      if (!this.formObj.Cluster.regionDatabase) {
+        this.formObj.Cluster.regionDatabase = {};
+      }
+      this.formObj.Cluster.regionDatabase.name = value
+    } else {
+      if (this.formObj.Cluster.regionDatabase) {
+        delete this.formObj.Cluster.regionDatabase.name;
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+          delete this.formObj.Cluster.regionDatabase;
+        }
+      }
+    }
   }
   handleOnChangeMirrorAddress = e => {
-    const { form: { setFieldsValue } } = this.props
     const value = e.target.value;
-    setFieldsValue({ mirror_address: value })
-    this.handleSubmit()
+    if (value) {
+      this.formObj.Cluster.rainbondImageRepository = value
+    } else {
+      delete this.formObj.Cluster.rainbondImageRepository
+    }
   }
 
   handleOpenModal = () => {
@@ -367,9 +415,9 @@ export default class RainbondClusterInit extends PureComponent {
     const {
       ipArray,
       menuKey,
-      yamlJson,
-      dataObj,
-      isModal
+      isModal,
+      token,
+      isCheck
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -389,9 +437,13 @@ export default class RainbondClusterInit extends PureComponent {
         sm: { span: 16 }
       }
     };
+    const mode = this.props.location.query.mode || 'helm';
+    this.formObj.operator.env[1].value = token
     const { getFieldDecorator, setFieldsValue } = form;
-    const dataInfo = dataObj.Cluster || {};
-    const isDisabled = dataInfo.gatewayIngressIPs && dataInfo.nodesForGateway && dataInfo.nodesForChaos;
+    const yamlJson = yaml.dump(this.formObj)
+    const dataInfo = this.formObj.Cluster || {};
+    const isDisabled = dataInfo.gatewayIngressIPs && dataInfo.nodesForGateway && dataInfo.nodesForChaos && isCheck;
+
     return (
       <Fragment>
         <PageHeaderLayout
@@ -400,7 +452,7 @@ export default class RainbondClusterInit extends PureComponent {
           titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
         >
           <Col span={24} style={{ padding: '0px 24px', marginBottom: '24px' }}>
-            <Form onSubmit={this.handleSubmit} style={{ display: 'flex', justifyContent: 'space-between' }}> 
+            <Form style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Col span={12}>
                 <Card className={styles.cardBox}>
                   <Col span={4}>
@@ -422,16 +474,18 @@ export default class RainbondClusterInit extends PureComponent {
                   </Col>
                   <Col span={20}>
                     <div className={styles.nextBtn}>
-                      <Button 
-                        onClick={() => {
-                          this.handleOpenModal()
-                        }} 
-                        disabled={!isDisabled} 
-                        style={{ float: 'right'}} 
-                        type='primary'
-                      >
-                        下一步
-                      </Button>
+                      <Tooltip placement="bottom" title={!isDisabled ? '缺少必填项参数' : ''}>
+                        <Button
+                          onClick={() => {
+                            this.handleOpenModal()
+                          }}
+                          disabled={!isDisabled}
+                          style={{ float: 'right' }}
+                          type='primary'
+                        >
+                          下一步
+                        </Button>
+                      </Tooltip>
                     </div>
                     <div className={styles.basics}>
                       {menuKey == 'basics' && <>
@@ -444,7 +498,7 @@ export default class RainbondClusterInit extends PureComponent {
                             label="选择运行时"
                           >
                             {getFieldDecorator('runtime', {
-                              initialValue: dataObj.operator.env.CONTAINER_RUNTIME || 'docker',
+                              initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'docker',
                             })(
                               <Radio.Group onChange={this.onChangeRunTime}>
                                 <Radio value={'docker'}>Docker</Radio>
@@ -455,7 +509,15 @@ export default class RainbondClusterInit extends PureComponent {
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            负载均衡 <span>*</span>
+                            {mode == 'ack'
+                              ? 'SLB 负载均衡'
+                              : mode == 'huawei'
+                                ? 'ELB 负载均衡'
+                                : mode == 'tencent'
+                                  ? '负载均衡'
+                                  : '负载均衡'
+                            }
+                            <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -474,13 +536,13 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input onChange={this.handleOnChangeIp} />
+                              <Input placeholder={formatMessage({ id: 'enterpriseColony.ACksterList.ip_demo' })} onChange={this.handleOnChangeIp} />
                             )}
                           </Form.Item>
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            网关节点 <span>*</span>
+                            网关节点<span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -498,7 +560,7 @@ export default class RainbondClusterInit extends PureComponent {
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            构建节点 <span>*</span>
+                            构建节点<span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -516,7 +578,14 @@ export default class RainbondClusterInit extends PureComponent {
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            存储
+                            {mode == 'ack'
+                              ? 'NAS 存储'
+                              : mode == 'huawei'
+                                ? 'SFS 存储'
+                                : mode == 'tencent'
+                                  ? 'CFS 存储'
+                                  : '存储'
+                            }
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -587,7 +656,7 @@ export default class RainbondClusterInit extends PureComponent {
                         {/* 镜像仓库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            镜像仓库
+                          {mode == 'helm' ? '镜像仓库' : '容器镜像服务'}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -645,13 +714,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangePassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(<Input type='password' autoComplete="new-password" onChange={this.handleOnChangePassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
                           </Form.Item>
                         </Row>
                         {/* 数据库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            数据库
+                          {mode == 'helm' ? '数据库' : 'RDS 数据库'}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -714,7 +783,7 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeDbPassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(<Input type='password' autoComplete="new-password" onChange={this.handleOnChangeDbPassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
                           </Form.Item>
                           {/* 数据库名称 */}
                           <Form.Item
@@ -723,7 +792,7 @@ export default class RainbondClusterInit extends PureComponent {
                           >
                             {/* 控制台数据库 */}
                             {getFieldDecorator('regionDatabase_dbname', {
-                              initialValue: dataInfo.regionDatabase ? dataInfo.regionDatabase.dbname : '',
+                              initialValue: dataInfo.regionDatabase ? dataInfo.regionDatabase.name : '',
                               rules: [
                                 {
                                   pattern: /^[^\s]*$/,
@@ -753,7 +822,7 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input style={{marginBottom: '36px'}} onChange={this.handleOnChangeMirrorAddress} />)}
+                            })(<Input style={{ marginBottom: '36px' }} onChange={this.handleOnChangeMirrorAddress} />)}
                           </Form.Item>
                         </Row>
                       </>}
@@ -783,9 +852,9 @@ export default class RainbondClusterInit extends PureComponent {
             </Form>
           </Col>
         </PageHeaderLayout >
-        {isModal && 
-          <CommandModal 
-            dataObj={dataObj}
+        {isModal &&
+          <CommandModal
+            dataObj={this.formObj}
             copyData={yamlJson}
             {...this.props}
             onCancle={this.handleCancleModal}

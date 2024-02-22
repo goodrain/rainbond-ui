@@ -188,13 +188,13 @@ export default class EnterpriseClusters extends PureComponent {
         dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList`));
         break;
       case 'aliyun':
-        dispatch(routerRedux.push(`/enterprise/${eid}/provider/Aliack`));
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList?mode=ack`));
         break;
       case 'tencent':
-        dispatch(routerRedux.push(`/enterprise/${eid}/provider/TencentList`));
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList?mode=tencent`));
         break;
       case 'huawei':
-        dispatch(routerRedux.push(`/enterprise/${eid}/provider/HuaweiList`));
+        dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList?mode=huawei`));
         break;
       default:
         break;
