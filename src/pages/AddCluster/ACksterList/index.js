@@ -157,7 +157,7 @@ export default class RainbondClusterInit extends PureComponent {
         this.setState({
           isCheck: false
         })
-        callback('请填写完整的节点名称');
+        callback(formatMessage({ id:'enterpriseColony.ACksterList.node_name' }));
       }
     } else {
       this.setState({
@@ -184,7 +184,6 @@ export default class RainbondClusterInit extends PureComponent {
     }
   }
   handleOnChangeGateway = e => {
-    console.log(e, 'e')
     if (e) {
       this.formObj.Cluster.nodesForGateway = e
     } else {
@@ -192,7 +191,6 @@ export default class RainbondClusterInit extends PureComponent {
     }
   }
   handleOnChangeForChaos = e => {
-    console.log(e, 'e')
     if (e) {
       this.formObj.Cluster.nodesForChaos = e
     } else {
@@ -464,17 +462,17 @@ export default class RainbondClusterInit extends PureComponent {
                         onClick={this.handleClick}
                       >
                         <Menu.Item key="basics">
-                          <span>基础配置</span>
+                          <span>{formatMessage({id:'enterpriseColony.ACksterList.basic'})}</span>
                         </Menu.Item>
                         <Menu.Item key="advanced">
-                          <span>高级配置</span>
+                          <span>{formatMessage({id:'enterpriseColony.ACksterList.senior'})}</span>
                         </Menu.Item>
                       </Menu>
                     </div>
                   </Col>
                   <Col span={20}>
                     <div className={styles.nextBtn}>
-                      <Tooltip placement="bottom" title={!isDisabled ? '缺少必填项参数' : ''}>
+                      <Tooltip placement="bottom" title={!isDisabled ? formatMessage({id:'enterpriseColony.ACksterList.not_required'}) : ''}>
                         <Button
                           onClick={() => {
                             this.handleOpenModal()
@@ -483,7 +481,7 @@ export default class RainbondClusterInit extends PureComponent {
                           style={{ float: 'right' }}
                           type='primary'
                         >
-                          下一步
+                          {formatMessage({id:'button.next_step'})}
                         </Button>
                       </Tooltip>
                     </div>
@@ -491,11 +489,11 @@ export default class RainbondClusterInit extends PureComponent {
                       {menuKey == 'basics' && <>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            运行时
+                          {formatMessage({id:'enterpriseColony.ACksterList.runtimeTitle'})}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="选择运行时"
+                            label={formatMessage({id:'enterpriseColony.ACksterList.change_runtime'})}
                           >
                             {getFieldDecorator('runtime', {
                               initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'docker',
@@ -510,18 +508,18 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'ack'
-                              ? 'SLB 负载均衡'
+                              ? formatMessage({id: 'enterpriseColony.cloud.slb'})
                               : mode == 'huawei'
-                                ? 'ELB 负载均衡'
+                                ? formatMessage({id: 'enterpriseColony.cloud.elb'})
                                 : mode == 'tencent'
-                                  ? '负载均衡'
-                                  : '负载均衡'
+                                  ? formatMessage({id: 'enterpriseColony.cloud.load'})
+                                  : formatMessage({id: 'enterpriseColony.cloud.load'})
                             }
                             <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="IP地址"
+                            label={formatMessage({id:'enterpriseColony.ACksterList.ip_address'})}
                           >
                             {getFieldDecorator('gatewayIngressIPs', {
                               initialValue: dataInfo.gatewayIngressIPs || '',
@@ -542,11 +540,12 @@ export default class RainbondClusterInit extends PureComponent {
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            网关节点<span> *</span>
+                            {formatMessage({id:'enterpriseColony.ACksterList.gateway'})}
+                            <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="节点IP"
+                            label={formatMessage({id:'enterpriseColony.ACksterList.nodeIP'})}
                           >
                             {getFieldDecorator('nodesForGateway', {
                               initialValue: dataInfo.nodesForGateway || '',
@@ -560,11 +559,12 @@ export default class RainbondClusterInit extends PureComponent {
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            构建节点<span> *</span>
+                            {formatMessage({id:'enterpriseColony.Advanced.creat_node'})}
+                            <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="节点名称"
+                            label={formatMessage({id:'enterpriseColony.Advanced.node_name'})}
                           >
                             {getFieldDecorator('nodesForChaos', {
                               initialValue: dataInfo.nodesForChaos || '',
@@ -579,12 +579,12 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'ack'
-                              ? 'NAS 存储'
+                              ? formatMessage({id:'enterpriseColony.cloud.nas'})
                               : mode == 'huawei'
-                                ? 'SFS 存储'
+                                ? formatMessage({id:'enterpriseColony.cloud.sfs'})
                                 : mode == 'tencent'
-                                  ? 'CFS 存储'
-                                  : '存储'
+                                  ? formatMessage({id:'enterpriseColony.cloud.cfs'})
+                                  : formatMessage({id:'enterpriseColony.Advanced.storage'})
                             }
                           </div>
                           <Form.Item
@@ -627,7 +627,7 @@ export default class RainbondClusterInit extends PureComponent {
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="secret名称"
+                            label={formatMessage({id:'enterpriseColony.Advanced.name'})}
                           >
                             {getFieldDecorator('secretName', {
                               initialValue: dataInfo.etcd ? dataInfo.etcd.secretName : '',
@@ -641,7 +641,7 @@ export default class RainbondClusterInit extends PureComponent {
                           </Form.Item>
                           <Form.Item
                             {...is_formItemLayout}
-                            label="节点名称"
+                            label={formatMessage({id:'enterpriseColony.Advanced.node'})}
                           >
                             {getFieldDecorator('endpoints', {
                               initialValue: dataInfo.etcd ? dataInfo.etcd.endpoints : '',
@@ -656,11 +656,11 @@ export default class RainbondClusterInit extends PureComponent {
                         {/* 镜像仓库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                          {mode == 'helm' ? '镜像仓库' : '容器镜像服务'}
+                          {mode == 'helm' ? formatMessage({id:'enterpriseColony.Advanced.mirror'}) : formatMessage({id:'enterpriseColony.cloud.image'})}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={'域名'}
+                            label={formatMessage({id:'enterpriseColony.cloud.image_address'})}
                           >
                             {getFieldDecorator('domain', {
                               initialValue: dataInfo.imageHub ? dataInfo.imageHub.domain : '',
@@ -720,7 +720,7 @@ export default class RainbondClusterInit extends PureComponent {
                         {/* 数据库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                          {mode == 'helm' ? '数据库' : 'RDS 数据库'}
+                          {mode == 'helm' ? formatMessage({id:'enterpriseColony.Advanced.access'}) : formatMessage({id:'enterpriseColony.cloud.access'})}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -807,11 +807,11 @@ export default class RainbondClusterInit extends PureComponent {
                         {/* 组件镜像源 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            组件镜像源
+                            {formatMessage({id:'enterpriseColony.ACksterList.component_image'})}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={'仓库地址'}
+                            label={formatMessage({id:'enterpriseColony.ACksterList.warehouse_address'})}
                           >
                             {/* 仓库地址 */}
                             {getFieldDecorator('mirror_address', {
@@ -833,14 +833,14 @@ export default class RainbondClusterInit extends PureComponent {
               <Col span={12} style={{ paddingLeft: '12px' }}>
                 <div className={styles.yamlBox}>
                   <div className={styles.titleYaml}>
-                    <span>Yaml 预览</span>
+                    <span>{formatMessage({id:'enterpriseColony.ACksterList.yaml_file_title'})}</span>
                     <Button
                       onClick={() => {
                         copy(yamlJson)
-                        message.success('复制成功');
+                        message.success(formatMessage({id:'notification.success.copy'}));
                       }}
                     >
-                      复制
+                      {formatMessage({id:'button.copy'})}
                     </Button>
                   </div>
                   <Form.Item>

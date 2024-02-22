@@ -22,9 +22,6 @@ import {
       };
     }
   
-    componentDidMount() {
-      
-    }
     handleSubmit = () => {
         const {
           dispatch,
@@ -34,7 +31,7 @@ import {
           dataObj,
           onOk
         } = this.props;
-        const token = dataObj.operator.env.HELM_TOKEN
+        const token = dataObj.operator.env[1].value
         const host = dataObj.Cluster.gatewayIngressIPs;
         dispatch({
           type: 'region/createHelmEvents',
@@ -67,9 +64,7 @@ import {
         <Modal
           visible
           width={700}
-        //   confirmLoading={loading}
           maskClosable={false}
-        //   className={styles.TelescopicModal}
           title={'按照下面的指南配置'}
           onOk={this.handleSubmit}
           onCancel={onOk}
