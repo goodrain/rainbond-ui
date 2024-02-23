@@ -57,12 +57,6 @@ export default class RainbondClusterInit extends PureComponent {
       isComponents: false,
       guideStep: 10,
       ipArray: [],
-      isStorage: 'default',
-      isEtcd: 'default',
-      isImage: 'default',
-      isDatabase: 'default',
-      isMirror: 'default',
-      isEctype: 'default',
       menuKey: 'basics',
       isModal: false,
       token: '',
@@ -157,7 +151,7 @@ export default class RainbondClusterInit extends PureComponent {
         this.setState({
           isCheck: false
         })
-        callback(formatMessage({ id:'enterpriseColony.ACksterList.node_name' }));
+        callback(formatMessage({ id: 'enterpriseColony.ACksterList.node_name' }));
       }
     } else {
       this.setState({
@@ -166,7 +160,28 @@ export default class RainbondClusterInit extends PureComponent {
       callback();
     }
   };
-
+  handleValidatorsEndpoints = (_, value, callback) => {
+    if (value && value.length > 0) {
+      let isPass = false;
+      value.some(item => {
+        if (item.ip) {
+          isPass = true;
+        } else if (value.length == 1 && !item.ip) {
+          isPass = true;
+        } else {
+          isPass = false;
+          return true;
+        }
+      });
+      if (isPass) {
+        callback();
+      } else {
+        callback(formatMessage({ id: 'enterpriseColony.ACksterList.node_name' }));
+      }
+    } else {
+      callback();
+    }
+  }
   handleClick = e => {
     this.setState({
       menuKey: e.key
@@ -201,6 +216,7 @@ export default class RainbondClusterInit extends PureComponent {
     const value = e.target.value;
     if (value) {
       this.formObj.Cluster.RWX = {
+        enable: true,
         config: {
           storageClassName: value
         }
@@ -213,6 +229,7 @@ export default class RainbondClusterInit extends PureComponent {
     const value = e.target.value;
     if (value) {
       this.formObj.Cluster.RWO = {
+        enable: true,
         storageClassName: value
       }
     } else {
@@ -225,22 +242,42 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.etcd) {
         this.formObj.Cluster.etcd = {};
       }
+      this.formObj.Cluster.etcd.enable = true
       this.formObj.Cluster.etcd.secretName = value
     } else {
-      delete this.formObj.Cluster.etcd.secretName
+      if (this.formObj.Cluster.etcd) {
+        delete this.formObj.Cluster.etcd.secretName
+        if (
+          Object.keys(this.formObj.Cluster.etcd).length === 1 ||
+          (Object.keys(this.formObj.Cluster.etcd).length === 2 &&
+            this.formObj.Cluster.etcd.endpoints.length == 1 &&
+            this.formObj.Cluster.etcd.endpoints[0] == '')
+        ) {
+          delete this.formObj.Cluster.etcd;
+        }
+      }
     }
   }
   handleOnChangeEndpoints = e => {
     if (e) {
-      if (!this.formObj.Cluster.regionDatabase) {
+      if (!this.formObj.Cluster.etcd) {
         this.formObj.Cluster.etcd = {};
       }
+      this.formObj.Cluster.etcd.enable = true
       this.formObj.Cluster.etcd.endpoints = e.map(item => item.ip)
+      if (
+        Object.keys(this.formObj.Cluster.etcd).length === 1 ||
+        (Object.keys(this.formObj.Cluster.etcd).length === 2 &&
+          this.formObj.Cluster.etcd.endpoints.length == 1 &&
+          this.formObj.Cluster.etcd.endpoints[0] == '')
+      ) {
+        delete this.formObj.Cluster.etcd;
+      }
     } else {
       if (this.formObj.Cluster.etcd) {
         delete this.formObj.Cluster.etcd.endpoints
-        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
-          delete this.formObj.Cluster.imageHub;
+        if (Object.keys(this.formObj.Cluster.etcd).length === 1) {
+          delete this.formObj.Cluster.etcd;
         }
       }
     }
@@ -251,11 +288,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.imageHub) {
         this.formObj.Cluster.imageHub = {};
       }
+      this.formObj.Cluster.imageHub.enable = true
       this.formObj.Cluster.imageHub.domain = value
     } else {
       if (this.formObj.Cluster.imageHub) {
         delete this.formObj.Cluster.imageHub.domain;
-        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 1) {
           delete this.formObj.Cluster.imageHub;
         }
       }
@@ -267,11 +305,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.imageHub) {
         this.formObj.Cluster.imageHub = {};
       }
+      this.formObj.Cluster.imageHub.enable = true
       this.formObj.Cluster.imageHub.namespace = value
     } else {
       if (this.formObj.Cluster.imageHub) {
         delete this.formObj.Cluster.imageHub.namespace;
-        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 1) {
           delete this.formObj.Cluster.imageHub;
         }
       }
@@ -283,11 +322,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.imageHub) {
         this.formObj.Cluster.imageHub = {};
       }
+      this.formObj.Cluster.imageHub.enable = true
       this.formObj.Cluster.imageHub.username = value;
     } else {
       if (this.formObj.Cluster.imageHub) {
         delete this.formObj.Cluster.imageHub.username;
-        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 1) {
           delete this.formObj.Cluster.imageHub;
         }
       }
@@ -299,11 +339,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.imageHub) {
         this.formObj.Cluster.imageHub = {};
       }
+      this.formObj.Cluster.imageHub.enable = true
       this.formObj.Cluster.imageHub.password = value
     } else {
       if (this.formObj.Cluster.imageHub) {
         delete this.formObj.Cluster.imageHub.password;
-        if (Object.keys(this.formObj.Cluster.imageHub).length === 0) {
+        if (Object.keys(this.formObj.Cluster.imageHub).length === 1) {
           delete this.formObj.Cluster.imageHub;
         }
       }
@@ -315,11 +356,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.regionDatabase) {
         this.formObj.Cluster.regionDatabase = {};
       }
+      this.formObj.Cluster.regionDatabase.enable = true
       this.formObj.Cluster.regionDatabase.host = value
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.host;
-        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 1) {
           delete this.formObj.Cluster.regionDatabase;
         }
       }
@@ -331,11 +373,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.regionDatabase) {
         this.formObj.Cluster.regionDatabase = {};
       }
+      this.formObj.Cluster.regionDatabase.enable = true
       this.formObj.Cluster.regionDatabase.port = value
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.port;
-        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 1) {
           delete this.formObj.Cluster.regionDatabase;
         }
       }
@@ -347,11 +390,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.regionDatabase) {
         this.formObj.Cluster.regionDatabase = {};
       }
+      this.formObj.Cluster.regionDatabase.enable = true
       this.formObj.Cluster.regionDatabase.username = value
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.username;
-        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 1) {
           delete this.formObj.Cluster.regionDatabase;
         }
       }
@@ -363,11 +407,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.regionDatabase) {
         this.formObj.Cluster.regionDatabase = {};
       }
+      this.formObj.Cluster.regionDatabase.enable = true
       this.formObj.Cluster.regionDatabase.password = value
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.password;
-        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 1) {
           delete this.formObj.Cluster.regionDatabase;
         }
       }
@@ -379,11 +424,12 @@ export default class RainbondClusterInit extends PureComponent {
       if (!this.formObj.Cluster.regionDatabase) {
         this.formObj.Cluster.regionDatabase = {};
       }
+      this.formObj.Cluster.regionDatabase.enable = true
       this.formObj.Cluster.regionDatabase.name = value
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.name;
-        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 0) {
+        if (Object.keys(this.formObj.Cluster.regionDatabase).length === 1) {
           delete this.formObj.Cluster.regionDatabase;
         }
       }
@@ -408,6 +454,17 @@ export default class RainbondClusterInit extends PureComponent {
       isModal: false
     })
   }
+
+  handleGoback = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      },
+    } = this.props;
+    dispatch(routerRedux.push(`/enterprise/${eid}/addCluster`))
+  }
+
   render() {
     const { form } = this.props;
     const {
@@ -462,17 +519,25 @@ export default class RainbondClusterInit extends PureComponent {
                         onClick={this.handleClick}
                       >
                         <Menu.Item key="basics">
-                          <span>{formatMessage({id:'enterpriseColony.ACksterList.basic'})}</span>
+                          <span>{formatMessage({ id: 'enterpriseColony.ACksterList.basic' })}</span>
                         </Menu.Item>
                         <Menu.Item key="advanced">
-                          <span>{formatMessage({id:'enterpriseColony.ACksterList.senior'})}</span>
+                          <span>{formatMessage({ id: 'enterpriseColony.ACksterList.senior' })}</span>
                         </Menu.Item>
                       </Menu>
                     </div>
                   </Col>
                   <Col span={20}>
                     <div className={styles.nextBtn}>
-                      <Tooltip placement="bottom" title={!isDisabled ? formatMessage({id:'enterpriseColony.ACksterList.not_required'}) : ''}>
+                      <Button
+                        onClick={() => {
+                          this.handleGoback()
+                        }}
+                        style={{ float: 'right', marginRight: '12px' }}
+                      >
+                        {formatMessage({ id: 'button.last_step' })}
+                      </Button>
+                      <Tooltip placement="bottom" title={!isDisabled ? formatMessage({ id: 'enterpriseColony.ACksterList.not_required' }) : ''}>
                         <Button
                           onClick={() => {
                             this.handleOpenModal()
@@ -481,7 +546,7 @@ export default class RainbondClusterInit extends PureComponent {
                           style={{ float: 'right' }}
                           type='primary'
                         >
-                          {formatMessage({id:'button.next_step'})}
+                          {formatMessage({ id: 'button.next_step' })}
                         </Button>
                       </Tooltip>
                     </div>
@@ -489,11 +554,11 @@ export default class RainbondClusterInit extends PureComponent {
                       {menuKey == 'basics' && <>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                          {formatMessage({id:'enterpriseColony.ACksterList.runtimeTitle'})}
+                            {formatMessage({ id: 'enterpriseColony.ACksterList.runtimeTitle' })}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.ACksterList.change_runtime'})}
+                            label={formatMessage({ id: 'enterpriseColony.ACksterList.change_runtime' })}
                           >
                             {getFieldDecorator('runtime', {
                               initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'docker',
@@ -508,18 +573,18 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'ack'
-                              ? formatMessage({id: 'enterpriseColony.cloud.slb'})
+                              ? formatMessage({ id: 'enterpriseColony.cloud.slb' })
                               : mode == 'huawei'
-                                ? formatMessage({id: 'enterpriseColony.cloud.elb'})
+                                ? formatMessage({ id: 'enterpriseColony.cloud.elb' })
                                 : mode == 'tencent'
-                                  ? formatMessage({id: 'enterpriseColony.cloud.load'})
-                                  : formatMessage({id: 'enterpriseColony.cloud.load'})
+                                  ? formatMessage({ id: 'enterpriseColony.cloud.load' })
+                                  : formatMessage({ id: 'enterpriseColony.cloud.load' })
                             }
                             <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.ACksterList.ip_address'})}
+                            label={formatMessage({ id: 'enterpriseColony.ACksterList.ip_address' })}
                           >
                             {getFieldDecorator('gatewayIngressIPs', {
                               initialValue: dataInfo.gatewayIngressIPs || '',
@@ -534,18 +599,21 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input placeholder={formatMessage({ id: 'enterpriseColony.ACksterList.ip_demo' })} onChange={this.handleOnChangeIp} />
+                              <Input
+                                placeholder={formatMessage({ id: 'enterpriseColony.ACksterList.ip_demo' })}
+                                onChange={this.handleOnChangeIp}
+                              />
                             )}
                           </Form.Item>
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            {formatMessage({id:'enterpriseColony.ACksterList.gateway'})}
+                            {formatMessage({ id: 'enterpriseColony.ACksterList.gateway' })}
                             <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.ACksterList.nodeIP'})}
+                            label={formatMessage({ id: 'enterpriseColony.ACksterList.nodeIP' })}
                           >
                             {getFieldDecorator('nodesForGateway', {
                               initialValue: dataInfo.nodesForGateway || '',
@@ -554,17 +622,23 @@ export default class RainbondClusterInit extends PureComponent {
                                   validator: this.handleValidatorsNodes
                                 }
                               ]
-                            })(<DAinput valueArr={dataInfo.nodesForGateway} onChange={this.handleOnChangeGateway} keys='gateway' />)}
+                            })(
+                              <DAinput
+                                valueArr={dataInfo.nodesForGateway}
+                                onChange={this.handleOnChangeGateway}
+                                keys='gateway'
+                              />
+                            )}
                           </Form.Item>
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            {formatMessage({id:'enterpriseColony.Advanced.creat_node'})}
+                            {formatMessage({ id: 'enterpriseColony.Advanced.creat_node' })}
                             <span> *</span>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.Advanced.node_name'})}
+                            label={formatMessage({ id: 'enterpriseColony.Advanced.node_name' })}
                           >
                             {getFieldDecorator('nodesForChaos', {
                               initialValue: dataInfo.nodesForChaos || '',
@@ -573,18 +647,24 @@ export default class RainbondClusterInit extends PureComponent {
                                   validator: this.handleValidatorsNodes
                                 }
                               ]
-                            })(<IpNode valueArr={dataInfo.nodesForChaos} onChange={this.handleOnChangeForChaos} keys='chaos' />)}
+                            })(
+                              <IpNode
+                                valueArr={dataInfo.nodesForChaos}
+                                onChange={this.handleOnChangeForChaos}
+                                keys='chaos'
+                              />
+                            )}
                           </Form.Item>
                         </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'ack'
-                              ? formatMessage({id:'enterpriseColony.cloud.nas'})
+                              ? formatMessage({ id: 'enterpriseColony.cloud.nas' })
                               : mode == 'huawei'
-                                ? formatMessage({id:'enterpriseColony.cloud.sfs'})
+                                ? formatMessage({ id: 'enterpriseColony.cloud.sfs' })
                                 : mode == 'tencent'
-                                  ? formatMessage({id:'enterpriseColony.cloud.cfs'})
-                                  : formatMessage({id:'enterpriseColony.Advanced.storage'})
+                                  ? formatMessage({ id: 'enterpriseColony.cloud.cfs' })
+                                  : formatMessage({ id: 'enterpriseColony.Advanced.storage' })
                             }
                           </div>
                           <Form.Item
@@ -599,7 +679,12 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeRwx} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeRwx}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })}
+                              />
+                            )}
                           </Form.Item>
 
                           <Form.Item
@@ -617,7 +702,6 @@ export default class RainbondClusterInit extends PureComponent {
                             })(<Input onChange={this.handleOnChangeRwo} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_storage' })} />)}
                           </Form.Item>
                         </Row>
-
                       </>}
                       {/* 高级配置 */}
                       {menuKey == 'advanced' && <>
@@ -627,7 +711,7 @@ export default class RainbondClusterInit extends PureComponent {
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.Advanced.name'})}
+                            label={formatMessage({ id: 'enterpriseColony.Advanced.name' })}
                           >
                             {getFieldDecorator('secretName', {
                               initialValue: dataInfo.etcd ? dataInfo.etcd.secretName : '',
@@ -637,30 +721,40 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeSecretName} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.inpiut_Name' })} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeSecretName}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.inpiut_Name' })}
+                              />
+                            )}
                           </Form.Item>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.Advanced.node'})}
+                            label={formatMessage({ id: 'enterpriseColony.Advanced.node' })}
                           >
                             {getFieldDecorator('endpoints', {
                               initialValue: dataInfo.etcd ? dataInfo.etcd.endpoints : '',
                               rules: [
                                 {
-                                  validator: this.handleValidatorsNodes
+                                  validator: this.handleValidatorsEndpoints
                                 }
                               ]
-                            })(<Etcd valueArr={dataInfo.etcd && dataInfo.etcd.endpoints} onChange={this.handleOnChangeEndpoints} />)}
+                            })(
+                              <Etcd
+                                valueArr={dataInfo.etcd && dataInfo.etcd.endpoints}
+                                onChange={this.handleOnChangeEndpoints}
+                              />
+                            )}
                           </Form.Item>
                         </Row>
                         {/* 镜像仓库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                          {mode == 'helm' ? formatMessage({id:'enterpriseColony.Advanced.mirror'}) : formatMessage({id:'enterpriseColony.cloud.image'})}
+                            {mode == 'helm' ? formatMessage({ id: 'enterpriseColony.Advanced.mirror' }) : formatMessage({ id: 'enterpriseColony.cloud.image' })}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.cloud.image_address'})}
+                            label={formatMessage({ id: 'enterpriseColony.cloud.image_address' })}
                           >
                             {getFieldDecorator('domain', {
                               initialValue: dataInfo.imageHub ? dataInfo.imageHub.domain : '',
@@ -670,7 +764,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeDomain} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_mirror' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeDomain}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_mirror' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           <Form.Item
                             {...is_formItemLayout}
@@ -685,7 +785,11 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input onChange={this.handleOnChangeNamespace} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
+                              <Input
+                                onChange={this.handleOnChangeNamespace}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
                             )}
                           </Form.Item>
                           <Form.Item
@@ -700,7 +804,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeUsername} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeUsername}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           <Form.Item
                             {...is_formItemLayout}
@@ -714,13 +824,21 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input type='password' autoComplete="new-password" onChange={this.handleOnChangePassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                type='password'
+                                autoComplete="new-password"
+                                onChange={this.handleOnChangePassword}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                         </Row>
                         {/* 数据库 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                          {mode == 'helm' ? formatMessage({id:'enterpriseColony.Advanced.access'}) : formatMessage({id:'enterpriseColony.cloud.access'})}
+                            {mode == 'helm' ? formatMessage({ id: 'enterpriseColony.Advanced.access' }) : formatMessage({ id: 'enterpriseColony.cloud.access' })}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -735,7 +853,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeDbHost} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_address' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeDbHost}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_address' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           {/* 连接端口 */}
                           <Form.Item
@@ -751,7 +875,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeDbPort} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_Port' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeDbPort}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_Port' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           {/* 用户名 */}
                           <Form.Item
@@ -767,7 +897,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input onChange={this.handleOnChangeDbUsername} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeDbUsername}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_Name' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           {/* 密码 */}
                           <Form.Item
@@ -783,7 +919,15 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input type='password' autoComplete="new-password" onChange={this.handleOnChangeDbPassword} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                            })(
+                              <Input
+                                type='password'
+                                autoComplete="new-password"
+                                onChange={this.handleOnChangeDbPassword}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })}
+                                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                              />
+                            )}
                           </Form.Item>
                           {/* 数据库名称 */}
                           <Form.Item
@@ -800,18 +944,26 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input onChange={this.handleOnChangeDbName} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_access_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
+                              <Input
+                                onChange={this.handleOnChangeDbName}
+                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_access_Name' })}
+                                style={{
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              />
                             )}
                           </Form.Item>
                         </Row>
                         {/* 组件镜像源 */}
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
-                            {formatMessage({id:'enterpriseColony.ACksterList.component_image'})}
+                            {formatMessage({ id: 'enterpriseColony.ACksterList.component_image' })}
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
-                            label={formatMessage({id:'enterpriseColony.ACksterList.warehouse_address'})}
+                            label={formatMessage({ id: 'enterpriseColony.ACksterList.warehouse_address' })}
                           >
                             {/* 仓库地址 */}
                             {getFieldDecorator('mirror_address', {
@@ -822,7 +974,13 @@ export default class RainbondClusterInit extends PureComponent {
                                   message: formatMessage({ id: 'placeholder.no_spaces' })
                                 }
                               ]
-                            })(<Input style={{ marginBottom: '36px' }} onChange={this.handleOnChangeMirrorAddress} />)}
+                            })(
+                              <Input
+                                style={{ marginBottom: '60px' }}
+                                placeholder={formatMessage({ id: 'enterpriseColony.ACksterList.component_image.address' })}
+                                onChange={this.handleOnChangeMirrorAddress}
+                              />
+                            )}
                           </Form.Item>
                         </Row>
                       </>}
@@ -833,18 +991,18 @@ export default class RainbondClusterInit extends PureComponent {
               <Col span={12} style={{ paddingLeft: '12px' }}>
                 <div className={styles.yamlBox}>
                   <div className={styles.titleYaml}>
-                    <span>{formatMessage({id:'enterpriseColony.ACksterList.yaml_file_title'})}</span>
+                    <span>{formatMessage({ id: 'enterpriseColony.ACksterList.yaml_file_title' })}</span>
                     <Button
                       onClick={() => {
                         copy(yamlJson)
-                        message.success(formatMessage({id:'notification.success.copy'}));
+                        message.success(formatMessage({ id: 'notification.success.copy' }));
                       }}
                     >
-                      {formatMessage({id:'button.copy'})}
+                      {formatMessage({ id: 'button.copy' })}
                     </Button>
                   </div>
                   <Form.Item>
-                    <TextArea value={yamlJson} style={{ height: '632px', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
+                    <TextArea value={yamlJson} style={{ height: 'calc(80vh-58px)', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
                   </Form.Item>
                 </div>
 

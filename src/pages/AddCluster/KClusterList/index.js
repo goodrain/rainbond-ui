@@ -234,6 +234,9 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
       },
       {
+        title: '集群初始化'
+      },
+      {
         title: formatMessage({id:'enterpriseColony.addCluster.docking'})
       }
     ];

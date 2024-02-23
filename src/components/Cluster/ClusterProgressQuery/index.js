@@ -71,11 +71,7 @@ class ClusterProgressQuery extends PureComponent {
         width={600}
         onCancel={onCancel}
         className={modelstyles.TelescopicModal}
-        footer={[
-          <Button type="primary" onClick={onCancel}>
-            <FormattedMessage id='button.next'/>
-          </Button>
-        ]}
+        footer={[]}
       >
         {showCreateLog && (
           <ClusterCreationLog
@@ -131,14 +127,7 @@ class ClusterProgressQuery extends PureComponent {
             pending={
               pending && (
                 <div>
-                  {pending}&nbsp;
-                  {showComponentText ? (
-                    <a onClick={() => this.handleIsComponents(true)}>
-                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.components'/>
-                    </a>
-                  ) : (
-                    ''
-                  )}
+                  {pending}
                 </div>
               )
             }

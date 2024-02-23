@@ -121,6 +121,13 @@ export default class ClusterLink extends PureComponent {
     let title = '';
     let desc = '';
     let actions = [];
+    const installDesc = (
+      <div>
+        {formatMessage({id:'enterpriseColony.cloud.Refresh1'})}
+        <a href='https://www.rainbond.com/docs/installation/install-with-helm/install-from-kubernetes' target='_blank'>{formatMessage({id:'enterpriseColony.cloud.Refresh2'})}</a>
+        {formatMessage({id:'enterpriseColony.cloud.Refresh3'})}
+      </div>
+    )
     if (status === 'installed') {
       type = 'success';
       title = `${formatMessage({id:'enterpriseColony.cloud.success'})}`
@@ -140,7 +147,6 @@ export default class ClusterLink extends PureComponent {
     if (status === 'installing') {
       type = 'ing';
       title = `正在对接集群`;
-      desc =`${formatMessage({id:'enterpriseColony.cloud.Refresh'})}`;
       actions = [
         <Button
           className={styles.antd_btn}
@@ -159,7 +165,7 @@ export default class ClusterLink extends PureComponent {
         type={type}
         title={title}
         actions={actions}
-        description={<div>{desc}</div>}
+        description={<div>{status === 'installing' ? installDesc : desc}</div>}
       />
     );
   };

@@ -629,9 +629,6 @@ export default class RKEClusterConfig extends PureComponent {
         internalIP: item.internalIP,
       }
     });
-    const jsonString = JSON.stringify(ipArr);
-    // 使用localStorage存储JSON字符串
-    window.localStorage.setItem("ipAddresses", jsonString);
     if (yamls || (dataSource && dataSource.length > 0)) {
       if (key === '2') {
         info.nodes = dataSource;

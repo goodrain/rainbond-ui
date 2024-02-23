@@ -61,6 +61,17 @@ export default class RainbondInit extends PureComponent {
       routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
     );
   };
+  nextStep = () => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid, provider, clusterID }
+      }
+    } = this.props;
+    dispatch(
+      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/check`)
+    );
+  };
   loadSteps = () => {
     const steps = [
         {
@@ -71,6 +82,9 @@ export default class RainbondInit extends PureComponent {
         },
         {
           title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
+        },
+        {
+          title: '集群初始化'
         },
         {
           title: formatMessage({id:'enterpriseColony.addCluster.docking'})
@@ -119,6 +133,7 @@ export default class RainbondInit extends PureComponent {
             taskID={taskID}
             clusterID={clusterID}
             preStep={this.preStep}
+            nextStep={this.nextStep}
           />
         </Row>
       </PageHeaderLayout>

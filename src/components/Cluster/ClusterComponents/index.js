@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { Button, Col, Collapse, Icon, Modal, Row, Spin } from 'antd';
+import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -136,7 +136,7 @@ class ClusterComponents extends PureComponent {
     );
   };
   render() {
-    const { onCancel } = this.props;
+    const { onCancel, openInitInfo } = this.props;
     const {
       list,
       evens,
@@ -173,27 +173,7 @@ class ClusterComponents extends PureComponent {
       </Button>
     );
     return (
-      <Modal
-        visible
-        title={
-          componentInfo
-            ? `${formatMessage({id:'enterpriseColony.ClusterComponents.details'})}`
-            : `${formatMessage({id:'enterpriseColony.ClusterComponents.Rainbond'})}` + `(${runningApp.length}/${toatlApp})`
-        }
-        className={styles.TelescopicModal}
-        width={1100}
-        onCancel={onCancel}
-        footer={
-          <Button
-            style={{ marginTop: '20px' }}
-            onClick={() => {
-              onCancel();
-            }}
-          >
-            {formatMessage({id:'button.close'})}
-          </Button>
-        }
-      >
+      <div>
         <Spin
           spinning={
             componentInfo
@@ -497,7 +477,7 @@ class ClusterComponents extends PureComponent {
             </div>
           )}
         </Spin>
-      </Modal>
+      </div>
     );
   }
 }

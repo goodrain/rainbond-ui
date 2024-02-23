@@ -241,6 +241,13 @@ export default [
           },
           {
             path:
+              '/enterprise/:eid/provider/:provider/kclusters/:clusterID/check',
+            component: './AddCluster/RainbondComponentCheck',
+            name: 'RainbondComponentCheck',
+            authority: ['admin', 'user']
+          },
+          {
+            path:
               '/enterprise/:eid/provider/:provider/kclusters/:clusterID/link',
             component: './AddCluster/ClusterLink',
             name: 'ClusterLink',

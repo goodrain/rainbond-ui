@@ -35,7 +35,7 @@ import {
         const host = dataObj.Cluster.gatewayIngressIPs;
         dispatch({
           type: 'region/createHelmEvents',
-          payload: { 
+          payload: {
             eid,
             token: token,
             api_host: host
@@ -49,7 +49,7 @@ import {
 
     handleCopy = (copyValue) => {
         copy(copyValue);
-        message.success('复制成功');
+        message.success(formatMessage({ id: 'notification.success.copy' }));
     }
     
 
@@ -65,7 +65,7 @@ import {
           visible
           width={700}
           maskClosable={false}
-          title={'按照下面的指南配置'}
+          title={formatMessage({id: 'enterpriseColony.ACksterList.commandModal.title'})}
           onOk={this.handleSubmit}
           onCancel={onOk}
           footer={
@@ -75,7 +75,7 @@ import {
                 type="primary"
                 onClick={this.handleSubmit}
               >
-                下一步
+                {formatMessage({ id: 'button.next_step' })}
               </Button>
             </div>
           }
@@ -87,9 +87,9 @@ import {
                         <span className={styles.number}>1</span>
                         <div className={styles.content}>
                             <span>
-                            点击右侧复制按钮，复制 yaml 文件内容，并在集群中创建 values.yaml 文件
+                            {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step1'})}
                             </span>
-                            <Button onClick={()=>this.handleCopy(copyData)}>{copySvg}复制</Button>
+                            <Button onClick={()=>this.handleCopy(copyData)}>{copySvg}{formatMessage({id:'button.copy'})}</Button>
                         </div>
                     </div>
                 </li>
@@ -98,9 +98,11 @@ import {
                         <span className={styles.number}>2</span>
                         <div className={styles.content}>
                             <span>
-                                使用如下命令添加和更新 Helm 仓库
+                            {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step2'})}
+                            <a href='https://www.rainbond.com/docs/ops-guide/tools/#helm-cli' target='_blank'> Helm </a>
+                            {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step5'})}
                             </span>
-                            <Button onClick={()=>this.handleCopy(step2)}>{copySvg}复制</Button>
+                            <Button onClick={()=>this.handleCopy(step2)}>{copySvg}{formatMessage({id:'button.copy'})}</Button>
                         </div>
                     </div>
                     <div className={styles.code}>
@@ -116,9 +118,9 @@ import {
                         <span className={styles.number}>3</span>
                         <div className={styles.content}>
                             <span>
-                            使用如下命令安装Rainbond，需要指定第一步中创建的 values.yaml 文件
+                            {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step3'})}
                             </span>
-                            <Button onClick={()=>this.handleCopy(step3)}>{copySvg}复制</Button>
+                            <Button onClick={()=>this.handleCopy(step3)}>{copySvg}{formatMessage({id:'button.copy'})}</Button>
                         </div>
                     </div>
                     <div className={styles.code}>
@@ -132,7 +134,7 @@ import {
                         <span className={styles.number}>4</span>
                         <div className={styles.content}>
                             <span>
-                                执行完上述命令后，可点击“下一步”等待集群对接完成。
+                            {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step4'})}
                             </span>
                         </div>
                     </div>
