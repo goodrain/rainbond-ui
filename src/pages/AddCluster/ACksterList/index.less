@@ -1,6 +1,32 @@
+.titleHeader{
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  .titleSvg {
+	height: 46px;
+	width: 46px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 2px;
+	text-align: center;
+	svg {
+	  color: @primary-color;
+	  width: 50px;
+	}
+  }
+  .titleName {
+	font-size: 16px;
+	font-weight: 600;	
+	margin-left: 12px;
+  }
+}
 .cardBox{
   background-color: #fff;
-  height: 80vh;
+  height: 74vh;
   overflow: hidden;
   :global {
     .ant-card-body {
@@ -9,7 +35,7 @@
   }
   .menuBox {
     width: 100%;
-    height: 80vh;
+    height: 74vh;
     border-right: 1px solid #E9EAEC;
     :global {
       .ant-menu{
@@ -40,7 +66,7 @@
   background: #0d1c3f;
   color: #fff;
   flex: 1;
-  height: 80vh;
+  height: 74vh;
   min-width: 420px;
   overflow: hidden;
   padding: 16px 0;
@@ -204,14 +230,15 @@
 }
 
 .nextBtn{
+	// background: #fff;
   display: flex;
-  justify-content: right;
+  justify-content: center;
   padding: 12px 24px;
 }
 
 .basics{
   padding: 6px 24px;
-  height: 80vh;
+  height: 74vh;
   overflow: auto;
 
   :global{

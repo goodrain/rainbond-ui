@@ -506,10 +506,32 @@ export default class RainbondClusterInit extends PureComponent {
           content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
           titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
         >
-          <Col span={24} style={{ padding: '0px 24px', marginBottom: '24px' }}>
+          <Col span={24} style={{ padding: '0px 24px' }}>
             <Form style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Col span={12}>
+              <Col span={16}>
                 <Card className={styles.cardBox}>
+                <div className={styles.titleHeader}>
+                  <div className={styles.titleSvg}>
+                    {mode == 'ack'
+                      ? globalUtil.fetchSvg('aliIcon')
+                      : mode == 'huawei'
+                        ? globalUtil.fetchSvg('huaweiIcon')
+                        : mode == 'tencent'
+                          ? globalUtil.fetchSvg('tencentIcon')
+                          : globalUtil.fetchSvg('kubernetesIcon')
+                    }
+                  </div>
+                  <div className={styles.titleName}>
+                    {mode == 'ack'
+                      ? formatMessage({ id: 'enterpriseColony.addCluster.ali' })
+                      : mode == 'huawei'
+                        ? formatMessage({ id: 'enterpriseColony.addCluster.huawei' })
+                        : mode == 'tencent'
+                          ? formatMessage({ id: 'enterpriseColony.addCluster.tenxun' })
+                          : formatMessage({ id: 'enterpriseColony.addCluster.colony' })
+                    }
+                  </div>
+                </div>
                   <Col span={4}>
                     <div className={styles.menuBox}>
                       <Menu
@@ -528,28 +550,6 @@ export default class RainbondClusterInit extends PureComponent {
                     </div>
                   </Col>
                   <Col span={20}>
-                    <div className={styles.nextBtn}>
-                      <Button
-                        onClick={() => {
-                          this.handleGoback()
-                        }}
-                        style={{ float: 'right', marginRight: '12px' }}
-                      >
-                        {formatMessage({ id: 'button.last_step' })}
-                      </Button>
-                      <Tooltip placement="bottom" title={!isDisabled ? formatMessage({ id: 'enterpriseColony.ACksterList.not_required' }) : ''}>
-                        <Button
-                          onClick={() => {
-                            this.handleOpenModal()
-                          }}
-                          disabled={!isDisabled}
-                          style={{ float: 'right' }}
-                          type='primary'
-                        >
-                          {formatMessage({ id: 'button.next_step' })}
-                        </Button>
-                      </Tooltip>
-                    </div>
                     <div className={styles.basics}>
                       {menuKey == 'basics' && <>
                         <Row className={styles.row}>
@@ -988,26 +988,42 @@ export default class RainbondClusterInit extends PureComponent {
                   </Col>
                 </Card>
               </Col>
-              <Col span={12} style={{ paddingLeft: '12px' }}>
+              <Col span={8} style={{ paddingLeft: '12px' }}>
                 <div className={styles.yamlBox}>
                   <div className={styles.titleYaml}>
                     <span>{formatMessage({ id: 'enterpriseColony.ACksterList.yaml_file_title' })}</span>
-                    <Button
-                      onClick={() => {
-                        copy(yamlJson)
-                        message.success(formatMessage({ id: 'notification.success.copy' }));
-                      }}
-                    >
-                      {formatMessage({ id: 'button.copy' })}
-                    </Button>
                   </div>
                   <Form.Item>
-                    <TextArea value={yamlJson} style={{ height: 'calc(80vh-58px)', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
+                    <TextArea value={yamlJson} style={{ height: 'calc(74vh-58px)', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
                   </Form.Item>
                 </div>
 
               </Col>
             </Form>
+          </Col>
+          <Col span={24} style={{ padding: '0px 24px' }}>
+            <div className={styles.nextBtn}>
+              <Button
+                onClick={() => {
+                  this.handleGoback()
+                }}
+                style={{ marginRight: '12px', width: '100px' }}
+              >
+                {formatMessage({ id: 'button.return' })}
+              </Button>
+              <Tooltip placement="bottom" title={!isDisabled ? formatMessage({ id: 'enterpriseColony.ACksterList.not_required' }) : ''}>
+                <Button
+                  onClick={() => {
+                    this.handleOpenModal()
+                  }}
+                  disabled={!isDisabled}
+                  style={{ width: '100px' }}
+                  type='primary'
+                >
+                  应用
+                </Button>
+              </Tooltip>
+            </div>
           </Col>
         </PageHeaderLayout >
         {isModal &&

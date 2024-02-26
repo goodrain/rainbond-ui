@@ -29,7 +29,6 @@ import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import ClusterComponents from '../ClusterComponents';
-import InitRainbondDetail from '../ShowInitRainbondDetail';
 import yaml from 'js-yaml'
 import SelectNode from '../../SelectNode';
 import Etcd from '../../../pages/AddCluster/component/etcd';
@@ -922,7 +921,7 @@ export default class RainbondClusterInit extends PureComponent {
                 <Button onClick={preStep} style={{ marginRight: '16px' }}>
                   <FormattedMessage id='button.previous' />
                 </Button>
-                {showComponent}
+                {/* {showComponent} */}
                 <Button
                   onClick={() => {
                     this.setState({ showInitDetail: true });
@@ -938,7 +937,7 @@ export default class RainbondClusterInit extends PureComponent {
                 <Button onClick={preStep} style={{ marginRight: '16px' }}>
                   <FormattedMessage id='button.previous' />
                 </Button>
-                {showComponent}
+                {/* {showComponent} */}
                 <Button
                   loading={loading}
                   onClick={this.handleSubmit}
@@ -963,17 +962,7 @@ export default class RainbondClusterInit extends PureComponent {
               })}
           </Col>
         </Form>}
-        {showInitDetail && task && (
-          <InitRainbondDetail
-            onCancel={this.cancelShowInitDetail}
-            eid={eid}
-            guideStep={guideStep}
-            handleNewbieGuiding={this.handleNewbieGuiding}
-            providerName={selectProvider}
-            clusterID={task.clusterID}
-            taskID={task.taskID}
-          />
-        )}
+
       </div>
     );
   }

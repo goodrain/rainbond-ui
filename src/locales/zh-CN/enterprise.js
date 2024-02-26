@@ -698,8 +698,8 @@ const enterpriseColony = {
     'enterpriseColony.ShowUpdateClusterDetail.title': 'Kubernetes 集群配置进度查询',
     'enterpriseColony.ShowUpdateClusterDetail.msg': '配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区',
     // ShowInitRainbondDetail
-    'enterpriseColony.ShowInitRainbondDetail.title': '平台集群初始化进度查询',
-    'enterpriseColony.ShowInitRainbondDetail.msg': '初始化流程预计耗时20分钟，请耐心等待，若遇到错误请反馈到社区',
+    'enterpriseColony.ShowInitRainbondDetail.title': '平台集群初始化进度',
+    'enterpriseColony.ShowInitRainbondDetail.msg': '初始化流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区',
     // BaseAddCluster
     'enterpriseColony.BaseAddCluster.add': '添加集群',
     'enterpriseColony.BaseAddCluster.id': '集群ID',
@@ -780,10 +780,10 @@ const enterpriseColony = {
     'enterpriseColony.ACksterList.component_image':'组件镜像源',
     'enterpriseColony.ACksterList.warehouse_address':'仓库地址',
     'enterpriseColony.ACksterList.component_image.address':'请输入组件镜像源仓库地址',
-    'enterpriseColony.ACksterList.yaml_file_title':'Yaml 预览',
+    'enterpriseColony.ACksterList.yaml_file_title':'Values.yaml 预览',
     'enterpriseColony.ACksterList.node_name':'请填写完整的节点名称',
     'enterpriseColony.ACksterList.ip_address':'IP地址',
-    'enterpriseColony.ACksterList.commandModal.title':'Follow the instructions below',
+    'enterpriseColony.ACksterList.commandModal.title':'按照下面的说明操作',
     'enterpriseColony.ACksterList.commandModal.step1':'点击右侧复制按钮，复制 Yaml 文件内容，并在集群中创建 values.yaml 文件',
     'enterpriseColony.ACksterList.commandModal.step2':'使用如下命令添加和更新',
     'enterpriseColony.ACksterList.commandModal.step3':'使用如下命令安装Rainbond，需要指定第一步中创建的 values.yaml 文件',

@@ -64,15 +64,18 @@ class ClusterProgressQuery extends PureComponent {
       pending = false;
     }
     return (
-      <Modal
-        title={title}
-        visible
-        maskClosable={false}
-        width={600}
-        onCancel={onCancel}
-        className={modelstyles.TelescopicModal}
-        footer={[]}
-      >
+      // <Modal
+      //   title={title}
+      //   visible
+      //   maskClosable={false}
+      //   width={600}
+      //   onCancel={onCancel}
+      //   className={modelstyles.TelescopicModal}
+      //   footer={[]}
+      // >
+      // </Modal>
+      <div>
+        <div className={styles.componentTitle}>{title}</div>
         {showCreateLog && (
           <ClusterCreationLog
             eid={eid}
@@ -166,7 +169,7 @@ class ClusterProgressQuery extends PureComponent {
           </Timeline>
           {complete && <span><FormattedMessage id='enterpriseColony.ClusterProgressQuery.over'/></span>}
         </Row>
-      </Modal>
+      </div>
     );
   }
 }

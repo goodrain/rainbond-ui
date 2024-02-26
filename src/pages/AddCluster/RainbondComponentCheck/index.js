@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Card, Form, Row, Steps, Button } from 'antd';
+import { Card, Form, Row, Steps, Button, Col } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -12,7 +12,7 @@ import InitRainbondDetail from '../../../components/Cluster/ShowInitRainbondDeta
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import userUtil from '../../../utils/user';
-
+import styles from './index.less';
 const { Step } = Steps;
 
 @Form.create()
@@ -37,7 +37,6 @@ export default class RainbondInit extends PureComponent {
       guideStep: 10,
       task: null
     };
-    this.refresh = true;
   }
   componentWillMount() {
     const { adminer } = this.state;
@@ -55,47 +54,7 @@ export default class RainbondInit extends PureComponent {
     this.loadTask();
   }
 
-  loadTaskEvents = () => {
-    const {
-      dispatch,
-      rainbondInfo,
-      enterprise,
-      match: {
-        params: { eid, provider, clusterID }
-      }
-    } = this.props;
-    const { task } = this.state;
-    dispatch({
-      type: 'cloud/loadTaskEvents',
-      payload: {
-        enterprise_id: eid,
-        taskID: task.taskID
-      },
-      callback: data => {
-        if (data.events) {
-          const { complete, steps } = cloud.showInitRainbondSteps(data.events);
-          if (complete && steps.length > 0) {
-            globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
-              eid,
-              taskID: task.taskID,
-              status: steps[steps.length - 1].Status,
-              message: steps[steps.length - 1].Message,
-              install_step: 'createRainbond',
-              provider: provider
-            });
-            this.refresh = false
-            this.completeInit();
-          }
-          if (!complete && this.refresh) {
-            setTimeout(() => this.loadTaskEvents(), 4000);
-          }
-        }
-      },
-      handleError: res => {
-        cloud.handleCloudAPIError(res);
-      }
-    });
-  };
+
 
   loadTask = noopen => {
     const {
@@ -122,10 +81,7 @@ export default class RainbondInit extends PureComponent {
           res.response_data.data
         ) {
           const { data } = res.response_data;
-          this.setState({ task: data },()=>{
-            this.loadTaskEvents();
-          });
-          
+          this.setState({ task: data });
         }
       },
       handleError: res => {
@@ -190,7 +146,7 @@ export default class RainbondInit extends PureComponent {
   cancelShowInitDetail = () => {
     this.setState({ showInitDetail: false });
   }
-  
+
   render() {
     const {
       match: {
@@ -211,13 +167,28 @@ export default class RainbondInit extends PureComponent {
             ))}
           </Steps>
         </Row>
-        <Card styles={{height: '80vh'}}>
-          <ClusterComponents
-            eid={eid}
-            clusterID={clusterID}
-            providerName={provider}
-          />
-          <Row style={{display:'flex',justifyContent:'center',marginTop: '24px'}}>
+        <div className={styles.clusterInit}>
+          <div className={styles.initRainbond}>
+            {task && <InitRainbondDetail
+              onCancel={this.cancelShowInitDetail}
+              eid={eid}
+              guideStep={guideStep}
+              providerName={provider}
+              clusterID={clusterID}
+              taskID={task && task.taskID}
+              completeInit={this.completeInit}
+            />}
+          </div>
+          <div className={styles.clusterComponent}>
+            <ClusterComponents
+              eid={eid}
+              clusterID={clusterID}
+              providerName={provider}
+            />
+          </div>
+        </div>
+
+        {/* <Row style={{display:'flex',justifyContent:'center',marginTop: '24px'}}>
             <Button
               onClick={() => {
                 this.setState({ showInitDetail: true });
@@ -226,18 +197,10 @@ export default class RainbondInit extends PureComponent {
             >
               查看进度
             </Button>
-          </Row>
-        </Card>
-        {showInitDetail && task && (
-          <InitRainbondDetail
-            onCancel={this.cancelShowInitDetail}
-            eid={eid}
-            guideStep={guideStep}
-            providerName={provider}
-            clusterID={clusterID}
-            taskID={task.taskID}
-          />
-        )}
+          </Row> */}
+        {/* {showInitDetail && task && (
+          
+        )} */}
       </PageHeaderLayout>
     );
   }

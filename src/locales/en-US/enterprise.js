@@ -696,8 +696,8 @@ const enterpriseColony = {
     'enterpriseColony.ShowUpdateClusterDetail.title': 'Kubernetes Cluster configuration progress query',
     'enterpriseColony.ShowUpdateClusterDetail.msg': 'The configuration process takes about 10 minutes. If any error occurs, report it to the community',
     // ShowInitRainbondDetail
-    'enterpriseColony.ShowInitRainbondDetail.title': 'Query the platform cluster initialization progress',
-    'enterpriseColony.ShowInitRainbondDetail.msg': 'The initialization process is expected to take about 20 minutes. If any error occurs, report it to the community',
+    'enterpriseColony.ShowInitRainbondDetail.title': 'Platform initialization progress',
+    'enterpriseColony.ShowInitRainbondDetail.msg': 'The initialization process is expected to take about 10 minutes. If any error occurs, report it to the community',
     // BaseAddCluster
     'enterpriseColony.BaseAddCluster.add': 'Add cluster',
     'enterpriseColony.BaseAddCluster.id': 'The cluster ID',
@@ -778,9 +778,10 @@ const enterpriseColony = {
     'enterpriseColony.ACksterList.component_image':'Component image source',
     'enterpriseColony.ACksterList.warehouse_address':'Address',
     'enterpriseColony.ACksterList.component_image.address':'Enter the component image source repository address',
-    'enterpriseColony.ACksterList.yaml_file_title':'Yaml Preview',
+    'enterpriseColony.ACksterList.yaml_file_title':'Values.yaml Preview',
     'enterpriseColony.ACksterList.node_name':'Please fill in the complete node name',
     'enterpriseColony.ACksterList.ip_address':'IP address',
+    'enterpriseColony.ACksterList.commandModal.title':'Follow the instructions below',
     'enterpriseColony.ACksterList.commandModal.step1':'Copy the yaml file contents and create the values.yaml file in the cluster',
     'enterpriseColony.ACksterList.commandModal.step2':'Use the following command to add and update the',
     'enterpriseColony.ACksterList.commandModal.step3':'To install Rainbond, specify the values.yaml file created in the first step',

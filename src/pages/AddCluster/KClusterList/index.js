@@ -10,7 +10,6 @@ import ACKBuyConfig from '../../../components/Cluster/ACKBuyConfig';
 import CustomClusterAdd from '../../../components/Cluster/CustomClusterAdd';
 import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow';
 import RKEClusterConfig from '../../../components/Cluster/RKEClusterAdd';
-import ShowKubernetesCreateDetail from '../../../components/Cluster/ShowKubernetesCreateDetail';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cloud from '../../../utils/cloud';
@@ -492,15 +491,6 @@ export default class EnterpriseClusters extends PureComponent {
                 })
               : ''}
           </Col>
-          {showTaskDetail && lastTask && (
-            <ShowKubernetesCreateDetail
-              onCancel={this.cancelShowCreateDetail}
-              eid={eid}
-              selectProvider={provider}
-              taskID={lastTask.taskID}
-              clusterID={currentClusterID}
-            />
-          )}
         </Card>
       </PageHeaderLayout>
     );

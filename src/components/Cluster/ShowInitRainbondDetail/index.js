@@ -58,7 +58,8 @@ class InitRainbondDetail extends PureComponent {
       taskID,
       rainbondInfo,
       enterprise,
-      providerName
+      providerName,
+      completeInit
     } = this.props;
     dispatch({
       type: 'cloud/loadTaskEvents',
@@ -79,6 +80,7 @@ class InitRainbondDetail extends PureComponent {
               install_step: 'createRainbond',
               provider: providerName
             });
+            completeInit()
           }
           this.setState({
             clusterID: data.clusterID,
@@ -86,6 +88,7 @@ class InitRainbondDetail extends PureComponent {
             loading: false,
             steps
           });
+          
           if (!complete && this.refresh) {
             setTimeout(() => this.loadTaskEvents(), 4000);
           }

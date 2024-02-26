@@ -65,27 +65,7 @@ export default class ClusterLink extends PureComponent {
     }
   }
   componentDidMount() {
-    console.log(this.props,'props')
-    // const {
-    //   location: { search }
-    // } = this.props;
-    // const { data, name, step, token, copy, isResult = false } =
-    //   Qs.parse(search.substr(1)) || {};
-    // const deepClone = cloneDeep(data);
-    // const newData = this.handleOptionData(deepClone);
-    // // 从前2步回来
-    // if ((step === 'base' && !isResult) || (step === 'advanced' && !isResult)) {
-    //   // 获取toekn值
-    //   this.helmToken(newData);
-    // } else if (isResult) {
-    //   //  从第四步跳转过来;
-    //   this.setState({
-    //     resCommand: data,
-    //     copyCommand: copy,
-    //     commandFlag: true,
-    //     helmToken: token
-    //   });
-    // }
+
   }
   handleOptionData = data => {
     if (!data) return;
