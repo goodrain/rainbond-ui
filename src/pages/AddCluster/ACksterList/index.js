@@ -555,7 +555,18 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {formatMessage({ id: 'enterpriseColony.ACksterList.runtimeTitle' })}
-                            <Tooltip placement="right" title={<div>入口IP请开放 80、443、6060、6443、7070、8443 端口，可以是 VIP、负载均衡 IP 或任意网关安装节点的 IP。<a href='https://www.baidu.com'>查看文档</a></div>}>
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.runtime' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.runtime' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.runtime' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.runtime' })
+                                }
+                              </div>}>
                               <div>
                                 {globalUtil.fetchSvg('tip')}
                               </div>
@@ -586,6 +597,23 @@ export default class RainbondClusterInit extends PureComponent {
                                   : formatMessage({ id: 'enterpriseColony.cloud.load' })
                             }
                             <span> *</span>
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.gatewayIngressIPs' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.gatewayIngressIPs' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.gatewayIngressIPs' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.gatewayIngressIPs' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -615,6 +643,23 @@ export default class RainbondClusterInit extends PureComponent {
                           <div className={styles.title_name}>
                             {formatMessage({ id: 'enterpriseColony.ACksterList.gateway' })}
                             <span> *</span>
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.gatewayIngressIPs' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.gatewayIngressIPs' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.gatewayIngressIPs' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.gatewayIngressIPs' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -640,6 +685,23 @@ export default class RainbondClusterInit extends PureComponent {
                           <div className={styles.title_name}>
                             {formatMessage({ id: 'enterpriseColony.Advanced.creat_node' })}
                             <span> *</span>
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.nodesForChaos' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.nodesForChaos' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.nodesForChaos' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.nodesForChaos' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -671,6 +733,23 @@ export default class RainbondClusterInit extends PureComponent {
                                   ? formatMessage({ id: 'enterpriseColony.cloud.cfs' })
                                   : formatMessage({ id: 'enterpriseColony.Advanced.storage' })
                             }
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.storage' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.storage' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.storage' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.storage' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -713,6 +792,23 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             Etcd
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.etcd' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.etcd' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.etcd' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.etcd' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -756,6 +852,23 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'helm' ? formatMessage({ id: 'enterpriseColony.Advanced.mirror' }) : formatMessage({ id: 'enterpriseColony.cloud.image' })}
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.image' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.image' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.image' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.image' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -844,6 +957,23 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'helm' ? formatMessage({ id: 'enterpriseColony.Advanced.access' }) : formatMessage({ id: 'enterpriseColony.cloud.access' })}
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.database' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.database' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.database' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.database' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -965,6 +1095,23 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {formatMessage({ id: 'enterpriseColony.ACksterList.component_image' })}
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {mode == 'ack'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.component_image' })
+                                  : mode == 'huawei'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.component_image' })
+                                    : mode == 'tencent'
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.component_image' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.component_image' })
+                                }
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
