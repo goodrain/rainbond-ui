@@ -121,7 +121,7 @@ export default class RainbondInit extends PureComponent {
         title: formatMessage({ id: 'enterpriseColony.addCluster.Initialize' })
       },
       {
-        title: '集群初始化'
+        title: formatMessage({id : 'enterpriseColony.addCluster.clusterInit'})
       },
       {
         title: formatMessage({ id: 'enterpriseColony.addCluster.docking' })
@@ -187,20 +187,6 @@ export default class RainbondInit extends PureComponent {
             />
           </div>
         </div>
-
-        {/* <Row style={{display:'flex',justifyContent:'center',marginTop: '24px'}}>
-            <Button
-              onClick={() => {
-                this.setState({ showInitDetail: true });
-              }}
-              type="primary"
-            >
-              查看进度
-            </Button>
-          </Row> */}
-        {/* {showInitDetail && task && (
-          
-        )} */}
       </PageHeaderLayout>
     );
   }

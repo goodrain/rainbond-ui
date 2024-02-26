@@ -510,28 +510,28 @@ export default class RainbondClusterInit extends PureComponent {
             <Form style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Col span={16}>
                 <Card className={styles.cardBox}>
-                <div className={styles.titleHeader}>
-                  <div className={styles.titleSvg}>
-                    {mode == 'ack'
-                      ? globalUtil.fetchSvg('aliIcon')
-                      : mode == 'huawei'
-                        ? globalUtil.fetchSvg('huaweiIcon')
-                        : mode == 'tencent'
-                          ? globalUtil.fetchSvg('tencentIcon')
-                          : globalUtil.fetchSvg('kubernetesIcon')
-                    }
+                  <div className={styles.titleHeader}>
+                    <div className={styles.titleSvg}>
+                      {mode == 'ack'
+                        ? globalUtil.fetchSvg('aliIcon')
+                        : mode == 'huawei'
+                          ? globalUtil.fetchSvg('huaweiIcon')
+                          : mode == 'tencent'
+                            ? globalUtil.fetchSvg('tencentIcon')
+                            : globalUtil.fetchSvg('kubernetesIcon')
+                      }
+                    </div>
+                    <div className={styles.titleName}>
+                      {mode == 'ack'
+                        ? formatMessage({ id: 'enterpriseColony.addCluster.ali' })
+                        : mode == 'huawei'
+                          ? formatMessage({ id: 'enterpriseColony.addCluster.huawei' })
+                          : mode == 'tencent'
+                            ? formatMessage({ id: 'enterpriseColony.addCluster.tenxun' })
+                            : formatMessage({ id: 'enterpriseColony.addCluster.colony' })
+                      }
+                    </div>
                   </div>
-                  <div className={styles.titleName}>
-                    {mode == 'ack'
-                      ? formatMessage({ id: 'enterpriseColony.addCluster.ali' })
-                      : mode == 'huawei'
-                        ? formatMessage({ id: 'enterpriseColony.addCluster.huawei' })
-                        : mode == 'tencent'
-                          ? formatMessage({ id: 'enterpriseColony.addCluster.tenxun' })
-                          : formatMessage({ id: 'enterpriseColony.addCluster.colony' })
-                    }
-                  </div>
-                </div>
                   <Col span={4}>
                     <div className={styles.menuBox}>
                       <Menu
@@ -555,6 +555,11 @@ export default class RainbondClusterInit extends PureComponent {
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {formatMessage({ id: 'enterpriseColony.ACksterList.runtimeTitle' })}
+                            <Tooltip placement="right" title={<div>入口IP请开放 80、443、6060、6443、7070、8443 端口，可以是 VIP、负载均衡 IP 或任意网关安装节点的 IP。<a href='https://www.baidu.com'>查看文档</a></div>}>
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
                           </div>
                           <Form.Item
                             {...is_formItemLayout}
@@ -1020,7 +1025,7 @@ export default class RainbondClusterInit extends PureComponent {
                   style={{ width: '100px' }}
                   type='primary'
                 >
-                  应用
+                  {formatMessage({ id: 'button.app' })}
                 </Button>
               </Tooltip>
             </div>
