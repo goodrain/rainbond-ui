@@ -15,7 +15,8 @@ import {
   Row,
   AutoComplete,
   Radio,
-  Switch
+  Switch,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -445,17 +446,27 @@ export default class RainbondClusterInit extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({id:'enterpriseColony.RainbondClusterInit.collapse.basics'})}</span>
+                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.basics' })}</span>
                     </span>}
                   key="basics"
                 >
                   <Row className={styles.row}>
                     <div className={styles.title_name}>
-                      {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.gatewayIngressIPs'})}
+                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.gatewayIngressIPs' })}
+                      <Tooltip
+                        placement="right"
+                        title={<div>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.gatewayIngressIPs' })}
+                        </div>}
+                      >
+                        <div>
+                          {globalUtil.fetchSvg('tip')}
+                        </div>
+                      </Tooltip>
                     </div>
                     <Form.Item
                       {...is_formItemLayout}
-                      label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.gatewayIngressIPs'})}
+                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.gatewayIngressIPs' })}
                     >
                       {getFieldDecorator('gatewayIngressIPs', {
                         rules: [
@@ -489,11 +500,21 @@ export default class RainbondClusterInit extends PureComponent {
                   </Row>
                   <Row className={styles.row}>
                     <div className={styles.title_name}>
-                      {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForGateway'})}
+                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForGateway' })}
+                      <Tooltip
+                        placement="right"
+                        title={<div>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForGateway' })}
+                        </div>}
+                      >
+                        <div>
+                          {globalUtil.fetchSvg('tip')}
+                        </div>
+                      </Tooltip>
                     </div>
                     <Form.Item
                       {...is_formItemLayout}
-                      label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForGateway'})}
+                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForGateway' })}
                     >
                       {getFieldDecorator('nodesForGateway', {
                         rules: [
@@ -510,11 +531,21 @@ export default class RainbondClusterInit extends PureComponent {
                   </Row>
                   <Row className={styles.row}>
                     <div className={styles.title_name}>
-                      {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForChaos'})}
+                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForChaos' })}
+                      <Tooltip
+                        placement="right"
+                        title={<div>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForChaos' })}
+                        </div>}
+                      >
+                        <div>
+                          {globalUtil.fetchSvg('tip')}
+                        </div>
+                      </Tooltip>
                     </div>
                     <Form.Item
                       {...is_formItemLayout}
-                      label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForChaos'})}
+                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForChaos' })}
                     >
                       {getFieldDecorator('nodesForChaos', {
                         rules: [
@@ -532,7 +563,17 @@ export default class RainbondClusterInit extends PureComponent {
                   <Row className={styles.row}>
                     <div className={styles.row_flex}>
                       <div className={styles.title_name}>
-                        {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.storageClassName'})}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.storageClassName' })}
+                        <Tooltip
+                          placement="right"
+                          title={<div>
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.storage' })}
+                          </div>}
+                        >
+                          <div>
+                            {globalUtil.fetchSvg('tip')}
+                          </div>
+                        </Tooltip>
                       </div>
                       <Form.Item
                         {...formItemLayout}
@@ -541,8 +582,8 @@ export default class RainbondClusterInit extends PureComponent {
                           initialValue: isStorage
                         })(
                           <Radio.Group onChange={this.hanldeStorageChange}>
-                            <Radio value="default">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.default'})}</Radio>
-                            <Radio value="custom">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.custom'})}</Radio>
+                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                           </Radio.Group>
                         )}
                       </Form.Item>
@@ -589,6 +630,16 @@ export default class RainbondClusterInit extends PureComponent {
                     <div className={styles.row_flex}>
                       <div className={styles.title_name}>
                         Etcd
+                        <Tooltip
+                          placement="right"
+                          title={<div>
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.etcd' })}
+                          </div>}
+                        >
+                          <div>
+                            {globalUtil.fetchSvg('tip')}
+                          </div>
+                        </Tooltip>
                       </div>
                       <Form.Item
                         {...formItemLayout}
@@ -597,8 +648,8 @@ export default class RainbondClusterInit extends PureComponent {
                           initialValue: isEtcd
                         })(
                           <Radio.Group onChange={this.hanldeEtcdChange}>
-                            <Radio value="default">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.default'})}</Radio>
-                            <Radio value="custom">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.custom'})}</Radio>
+                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                           </Radio.Group>
                         )}
                       </Form.Item>
@@ -606,7 +657,7 @@ export default class RainbondClusterInit extends PureComponent {
                     {isEtcd == 'custom' &&
                       <Form.Item
                         {...is_formItemLayout}
-                        label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.secretName'})}
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.secretName' })}
                       >
                         {getFieldDecorator('secretName', {
                           rules: [
@@ -624,7 +675,7 @@ export default class RainbondClusterInit extends PureComponent {
                     {isEtcd == 'custom' &&
                       <Form.Item
                         {...is_formItemLayout}
-                        label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.endpoints'})}
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.endpoints' })}
                       >
                         {getFieldDecorator('endpoints', {
                           rules: [
@@ -647,7 +698,7 @@ export default class RainbondClusterInit extends PureComponent {
                 <Panel
                   header={
                     <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({id:'enterpriseColony.RainbondClusterInit.collapse.advanced'})}</span>
+                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.advanced' })}</span>
                     </span>}
                   key="advanced"
                 >
@@ -655,7 +706,17 @@ export default class RainbondClusterInit extends PureComponent {
                   <Row className={styles.row}>
                     <div className={styles.row_flex}>
                       <div className={styles.title_name}>
-                        {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.image'})}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.image' })}
+                        <Tooltip
+                          placement="right"
+                          title={<div>
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.image' })}
+                          </div>}
+                        >
+                          <div>
+                            {globalUtil.fetchSvg('tip')}
+                          </div>
+                        </Tooltip>
                       </div>
                       <Form.Item
                         {...formItemLayout}
@@ -664,8 +725,8 @@ export default class RainbondClusterInit extends PureComponent {
                           initialValue: isImage
                         })(
                           <Radio.Group onChange={this.hanldeImageChange}>
-                            <Radio value="default">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.default'})}</Radio>
-                            <Radio value="custom">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.custom'})}</Radio>
+                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                           </Radio.Group>
                         )}
                       </Form.Item>
@@ -748,7 +809,17 @@ export default class RainbondClusterInit extends PureComponent {
                   <Row className={styles.row}>
                     <div className={styles.row_flex}>
                       <div className={styles.title_name}>
-                        {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.database'})}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.database' })}
+                        <Tooltip
+                          placement="right"
+                          title={<div>
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.database' })}
+                          </div>}
+                        >
+                          <div>
+                            {globalUtil.fetchSvg('tip')}
+                          </div>
+                        </Tooltip>
                       </div>
                       <Form.Item
                         {...formItemLayout}
@@ -757,8 +828,8 @@ export default class RainbondClusterInit extends PureComponent {
                           initialValue: isDatabase
                         })(
                           <Radio.Group onChange={this.hanldeDatabaseChange}>
-                            <Radio value="default">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.default'})}</Radio>
-                            <Radio value="custom">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.custom'})}</Radio>
+                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                           </Radio.Group>
                         )}
                       </Form.Item>
@@ -867,7 +938,17 @@ export default class RainbondClusterInit extends PureComponent {
                   <Row className={styles.row}>
                     <div className={styles.row_flex}>
                       <div className={styles.title_name}>
-                        {formatMessage({id: 'enterpriseColony.RainbondClusterInit.row.title.mirror'})}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.mirror' })}
+                        <Tooltip
+                          placement="right"
+                          title={<div>
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.mirror' })}
+                          </div>}
+                        >
+                          <div>
+                            {globalUtil.fetchSvg('tip')}
+                          </div>
+                        </Tooltip>
                       </div>
                       <Form.Item
                         {...formItemLayout}
@@ -876,8 +957,8 @@ export default class RainbondClusterInit extends PureComponent {
                           initialValue: isMirror
                         })(
                           <Radio.Group onChange={this.hanldeMirrorChange}>
-                            <Radio value="default">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.default'})}</Radio>
-                            <Radio value="custom">{formatMessage({id: 'enterpriseColony.RainbondClusterInit.radio.custom'})}</Radio>
+                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                           </Radio.Group>
                         )}
                       </Form.Item>
@@ -885,7 +966,7 @@ export default class RainbondClusterInit extends PureComponent {
                     {isMirror == 'custom' &&
                       <Form.Item
                         {...is_formItemLayout}
-                        label={formatMessage({id: 'enterpriseColony.RainbondClusterInit.form.label.mirror_address'})}
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.mirror_address' })}
                       >
                         {/* 仓库地址 */}
                         {getFieldDecorator('mirror_address', {

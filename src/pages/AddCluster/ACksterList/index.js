@@ -212,6 +212,20 @@ export default class RainbondClusterInit extends PureComponent {
       delete this.formObj.Cluster.nodesForChaos
     }
   }
+  handleOnChangeServer = e => {
+    const value = e.target.value;
+    if (value) {
+      this.formObj.Cluster.RWX = {
+        enable: true,
+        type: 'aliyun',
+        config: {
+          server: value
+        }
+      }
+    } else {
+      delete this.formObj.Cluster.RWX
+    }
+  }
   handleOnChangeRwx = e => {
     const value = e.target.value;
     if (value) {
@@ -223,17 +237,6 @@ export default class RainbondClusterInit extends PureComponent {
       }
     } else {
       delete this.formObj.Cluster.RWX
-    }
-  }
-  handleOnChangeRwo = e => {
-    const value = e.target.value;
-    if (value) {
-      this.formObj.Cluster.RWO = {
-        enable: true,
-        storageClassName: value
-      }
-    } else {
-      delete this.formObj.Cluster.RWO
     }
   }
   handleOnChangeSecretName = e => {
@@ -751,9 +754,28 @@ export default class RainbondClusterInit extends PureComponent {
                               </div>
                             </Tooltip>
                           </div>
-                          <Form.Item
+                          {mode == 'ack' ? (<Form.Item
                             {...is_formItemLayout}
-                            label="RWX"
+                            label={formatMessage({ id: 'enterpriseColony.ACksterList.mount'})}
+                          >
+                            {getFieldDecorator('server', {
+                              initialValue: dataInfo.RWX ? dataInfo.RWX.config.server : '',
+                              rules: [
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(
+                              <Input
+                                onChange={this.handleOnChangeServer}
+                                placeholder={formatMessage({ id: 'enterpriseColony.cloud.dome_mount' })}
+                              />
+                            )}
+                          </Form.Item>) : 
+                          (<Form.Item
+                            {...is_formItemLayout}
+                            label={"RWX"}
                           >
                             {getFieldDecorator('storageClassName1', {
                               initialValue: dataInfo.RWX ? dataInfo.RWX.config.storageClassName : '',
@@ -769,22 +791,7 @@ export default class RainbondClusterInit extends PureComponent {
                                 placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })}
                               />
                             )}
-                          </Form.Item>
-
-                          <Form.Item
-                            {...is_formItemLayout}
-                            label="RWO"
-                          >
-                            {getFieldDecorator('storageClassName2', {
-                              initialValue: dataInfo.RWO ? dataInfo.RWO.storageClassName : '',
-                              rules: [
-                                {
-                                  pattern: /^[^\s]*$/,
-                                  message: formatMessage({ id: 'placeholder.no_spaces' })
-                                }
-                              ]
-                            })(<Input onChange={this.handleOnChangeRwo} placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_storage' })} />)}
-                          </Form.Item>
+                          </Form.Item>) }
                         </Row>
                       </>}
                       {/* 高级配置 */}
