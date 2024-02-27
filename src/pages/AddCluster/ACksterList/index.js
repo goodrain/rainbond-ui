@@ -67,7 +67,7 @@ export default class RainbondClusterInit extends PureComponent {
         env: [
           {
             name: 'CONTAINER_RUNTIME',
-            value: 'docker'
+            value: 'containerd'
           },
           {
             name: 'HELM_TOKEN',
@@ -526,12 +526,12 @@ export default class RainbondClusterInit extends PureComponent {
                     </div>
                     <div className={styles.titleName}>
                       {mode == 'ack'
-                        ? formatMessage({ id: 'enterpriseColony.addCluster.ali' })
+                        ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.title' })
                         : mode == 'huawei'
-                          ? formatMessage({ id: 'enterpriseColony.addCluster.huawei' })
+                          ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.title' })
                           : mode == 'tencent'
-                            ? formatMessage({ id: 'enterpriseColony.addCluster.tenxun' })
-                            : formatMessage({ id: 'enterpriseColony.addCluster.colony' })
+                            ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.title' })
+                            : formatMessage({ id: 'enterpriseColony.ACksterList.helm.title' })
                       }
                     </div>
                   </div>
@@ -580,11 +580,17 @@ export default class RainbondClusterInit extends PureComponent {
                             label={formatMessage({ id: 'enterpriseColony.ACksterList.change_runtime' })}
                           >
                             {getFieldDecorator('runtime', {
-                              initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'docker',
+                              initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'containerd',
                             })(
                               <Radio.Group onChange={this.onChangeRunTime}>
-                                <Radio value={'docker'}>Docker</Radio>
-                                <Radio value={'containerd'}>Containerd</Radio>
+                                {mode == 'ack' || mode == 'huawei' ? (
+                                  <Radio value={'containerd'}>Containerd</Radio>
+                                ) : (
+                                  <>
+                                    <Radio value={'containerd'}>Containerd</Radio>
+                                    <Radio value={'docker'}>Docker</Radio>
+                                  </>
+                                )}
                               </Radio.Group>
                             )}
                           </Form.Item>
@@ -596,7 +602,7 @@ export default class RainbondClusterInit extends PureComponent {
                               : mode == 'huawei'
                                 ? formatMessage({ id: 'enterpriseColony.cloud.elb' })
                                 : mode == 'tencent'
-                                  ? formatMessage({ id: 'enterpriseColony.cloud.load' })
+                                  ? formatMessage({ id: 'enterpriseColony.cloud.clb' })
                                   : formatMessage({ id: 'enterpriseColony.cloud.load' })
                             }
                             <span> *</span>
@@ -650,12 +656,12 @@ export default class RainbondClusterInit extends PureComponent {
                               placement="right"
                               title={<div>
                                 {mode == 'ack'
-                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.gatewayIngressIPs' })
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.nodesForGateway' })
                                   : mode == 'huawei'
-                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.gatewayIngressIPs' })
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.nodesForGateway' })
                                     : mode == 'tencent'
-                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.gatewayIngressIPs' })
-                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.gatewayIngressIPs' })
+                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.nodesForGateway' })
+                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.nodesForGateway' })
                                 }
                               </div>}
                             >
@@ -788,7 +794,13 @@ export default class RainbondClusterInit extends PureComponent {
                             })(
                               <Input
                                 onChange={this.handleOnChangeRwx}
-                                placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })}
+                                placeholder=
+                                {mode == 'huawei'
+                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.storage.desc' })
+                                  : mode == 'tencent'
+                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.storage.desc' })
+                                    : formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })
+                                }
                               />
                             )}
                           </Form.Item>) }
