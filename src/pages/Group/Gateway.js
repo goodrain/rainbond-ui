@@ -5,8 +5,12 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'
-import HttpTable from '../../components/HttpTable';
-import TcpTable from '../../components/TcpTable';
+// import HttpTable from '../../components/HttpTable';
+// import TcpTable from '../../components/TcpTable';
+import GatewayMonitor from '../NewGateway/GatewayMonitor';
+import GatewayCertificate from '../NewGateway/GatewayCertificate';
+import GatewayRoute from '../NewGateway/GatewayRoute';
+import GatewayService from '../NewGateway/GatewayService';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import {
@@ -31,13 +35,7 @@ export default class AppGatewayList extends PureComponent {
     super(props);
     this.state = {
       appDetail: {},
-      tabKey:
-        props.match &&
-          props.match.params &&
-          props.match.params.types &&
-          props.match.params.types
-          ? props.match.params.types
-          : 'http',
+      tabKey:'monitor',
       open:
         this.props.match &&
           this.props.match.params &&
@@ -175,12 +173,12 @@ export default class AppGatewayList extends PureComponent {
       }
     });
   };
-  handleTabChange = key => {
+  handleTabChange = (key, open = false) => {
     const { batchGateway, gatewayShow } = this.state
     if (batchGateway && gatewayShow) {
-      this.setState({ tabKeys: key, open: false });
+      this.setState({ tabKeys: key, open: open });
     } else {
-      this.setState({ tabKey: key, open: false });
+      this.setState({ tabKey: key, open: open });
     }
   };
 
@@ -195,12 +193,23 @@ export default class AppGatewayList extends PureComponent {
       }
       return <GatewayApi operationPermissions={operationPermissions} appID={appID} />;
     } else {
-      if (tabKey === 'http') {
+      if (tabKey === 'certificate') {
         return (
-          <HttpTable operationPermissions={operationPermissions} open={open} appID={appID} />
+          <GatewayCertificate operationPermissions={operationPermissions} open={open} appID={appID}/>
         );
+      } else if (tabKey === 'route') {
+        return (
+          <GatewayRoute operationPermissions={operationPermissions} open={open} onTabChange={this.handleTabChange} appID={appID}/>
+        );
+      } else if (tabKey === 'service') {
+        return (
+          <GatewayService operationPermissions={operationPermissions} open={open} appID={appID}/>
+        );
+      } else if (tabKey === 'monitor'){
+        return (
+          <GatewayMonitor operationPermissions={operationPermissions} open={open} appID={appID}/>
+        )
       }
-      return <TcpTable operationPermissions={operationPermissions} appID={appID} />;
     }
   };
 
@@ -240,13 +249,21 @@ export default class AppGatewayList extends PureComponent {
           ] :
             [
               {
-                key: 'http',
-                tab: 'HTTP',
+                key: 'monitor',
+                tab: '网关监测',
               },
               {
-                key: 'tcp',
-                tab: 'TCP/UDP',
+                key: 'route',
+                tab: '路由管理',
               },
+              {
+                key: 'service',
+                tab: '目标服务',
+              },
+              {
+                key: 'certificate',
+                tab: '证书管理',
+              }
             ]}
           onTabChange={this.handleTabChange}
         >

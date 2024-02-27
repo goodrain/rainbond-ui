@@ -41,7 +41,13 @@ import {
     addApiGatewayService,
     editApiGatewayService,
     deleteApiGatewayService,
-    getQpsRate,
+    fetchGetServiceAddress,
+    handleApiGatewayCert,
+    deleteApiGatewayCert,
+    fetchGetTcpService,
+    fetchEditTcpService,
+    fetchDeleteTcpService,
+    getTeamGatewayData,
 } from '../services/gateWay';
 
 export default {
@@ -349,12 +355,48 @@ export default {
                 callback(response)
             }
         },
-        *getQpsRate({ callback, payload, handleError }, { call }) {
-            const response = yield call(getQpsRate, payload, handleError);
+        *getTeamGatewayData({ callback, payload, handleError }, { call }) {
+            const response = yield call(getTeamGatewayData, payload, handleError);
             if (callback) {
                 callback(response)
             }
         },
+        *fetchGetServiceAddress({ callback, payload, handleError }, { call }) {
+            const response = yield call(fetchGetServiceAddress, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *handleApiGatewayCert({ callback, payload, handleError }, { call }) {
+            const response = yield call(handleApiGatewayCert, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteApiGatewayCert({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteApiGatewayCert, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *fetchGetTcpService({ callback, payload, handleError }, { call }) {
+            const response = yield call(fetchGetTcpService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *fetchEditTcpService({ callback, payload, handleError }, { call }) {
+            const response = yield call(fetchEditTcpService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *fetchDeleteTcpService({ callback, payload, handleError }, { call }) {
+            const response = yield call(fetchDeleteTcpService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        }
     },
 
     reducers: {

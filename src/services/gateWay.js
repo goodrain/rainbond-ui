@@ -530,7 +530,7 @@ export async function editLimitingStrategy(params, handleError) {
 /** 获取Api-Gateway路由列表 */
 export async function getApiGatewayList(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/routes`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/routes`,
     {
       method: 'get',
       params: {
@@ -544,7 +544,7 @@ export async function getApiGatewayList(params, handleError) {
 /** 新增Api-Gateway路由 */
 export async function addApiGateway(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/routes/http?namespace=${ params.namespace }&appID=${ params.appID }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/routes/http?namespace=${ params.namespace }&appID=${ params.appID }`,
     {
       method: 'post',
       data: {
@@ -556,7 +556,7 @@ export async function addApiGateway(params, handleError) {
 /** 编辑Api-Gateway路由 */
 export async function editApiGateway(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/routes/http/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/routes/http/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
     {
       method: 'put',
       data: {
@@ -578,7 +578,7 @@ export async function editApiGateway(params, handleError) {
 // 无需认证
 export async function deleteApiGateway(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/routes/http/${ params.name }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/routes/http/${ params.name }`,
     {
       method: 'delete',
       data: {
@@ -603,7 +603,7 @@ export async function deleteApiGateway(params, handleError) {
 // 无需认证
 export async function getApiGatewayService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/service`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/service`,
     {
       method: 'get',
       params: {
@@ -626,7 +626,7 @@ export async function getApiGatewayService(params, handleError) {
 // 无需认证
 export async function addApiGatewayService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/service?namespace=${ params.namespace }&appID=${ params.appID }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/service?namespace=${ params.namespace }&appID=${ params.appID }`,
     {
       method: 'post',
       data: {
@@ -649,7 +649,7 @@ export async function addApiGatewayService(params, handleError) {
 // 无需认证
 export async function editApiGatewayService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/service/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/service/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
     {
       method: 'put',
       data: {
@@ -671,7 +671,7 @@ export async function editApiGatewayService(params, handleError) {
 // 无需认证
 export async function deleteApiGatewayService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/api-gateway/v1/service/${ params.name }`,
+    `${apiconfig.baseUrl}/console/api-gateway/v1/service/${ params.name }`,
     {
       method: 'delete',
       data: {
@@ -690,7 +690,7 @@ export async function deleteApiGatewayService(params, handleError) {
 
 /** 删除Api-Gateway证书 */
 // 获取请求速率
-export async function getQpsRate(params, handleError) {
+export async function getTeamGatewayData(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/open/monitor/query`,
     {
@@ -705,3 +705,63 @@ export async function getQpsRate(params, handleError) {
     }
   )
 }
+export async function deleteApiGatewayCert(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/cert/${params.alias}`,
+    {
+      method: 'delete',
+      handleError
+    }
+  );
+}
+
+// 获取服务地址列表
+export function fetchGetServiceAddress(params) {
+  return request(
+    `${apiconfig.baseUrl}/openapi/v1/teams/${params.team_name}/regions/${params.region_name}/apps_port`,
+    {
+      method: 'get',
+      isToken: true,
+      headers:{
+        Authorization: params.token
+      },
+    },
+  );
+}
+
+// 获取tcp服务列表
+export function fetchGetTcpService(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp`,
+    {
+      method: 'get',
+      params: {
+        appID: params.appID,
+        region_name: params.region_name
+      },
+    },
+  );
+}
+// 编辑tcp服务
+export function fetchEditTcpService(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}`,
+    {
+      method: 'post',
+      data: {
+        ...params.values
+      },
+    },
+  );
+}
+
+// 删除tcp服务
+export function fetchDeleteTcpService(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp/${params.name}?appID=${params.appID}&region_name=${params.region_name}`,
+    {
+      method: 'delete',
+    },
+  );
+}
+

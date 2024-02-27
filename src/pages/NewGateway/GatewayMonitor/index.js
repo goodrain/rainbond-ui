@@ -112,6 +112,15 @@ export default class index extends Component {
         return labelRoute.replace(/^\d+/,'')
     }
 
+    changeTwoDecimal(x) {
+        var f_x = parseFloat(x);
+        if (isNaN(f_x)) {
+            return false;
+        }
+        f_x = Math.round(f_x * 100) / 100;
+        return f_x;
+    }
+
     handlePollingIntervalChange = (value) => {
         this.setState({ pollingInterval: value * 1000 }, () => {
             this.stopPolling();
@@ -329,7 +338,7 @@ export default class index extends Component {
                             <div className={styles.title_col}>
                                 <p>流量速率(MB/s)</p>
                                 <div>
-                                    {flowRateSum != 'NaN' ? Math.round(flowRateSum / 1024) : 0}
+                                    {flowRateSum != 'NaN' ? this.changeTwoDecimal(flowRateSum / 1024 / 1024) : 0}
                                 </div>
                             </div>
                         </Col>

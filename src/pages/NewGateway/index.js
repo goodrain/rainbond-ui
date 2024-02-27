@@ -57,7 +57,6 @@ class Control extends Component {
             globalUtil.withoutPermission(dispatch);
         }
     }
-
     fetchPipePipeline = (eid) => {
         const { dispatch, currUser } = this.props;
         dispatch({
@@ -111,12 +110,12 @@ class Control extends Component {
             }
         })
     }
-    handleTabChange = key => {
+    handleTabChange = (key, open = false) => {
         const { batchGateway, gatewayShow } = this.state
         if (batchGateway && gatewayShow) {
-            this.setState({ tabKeys: key, open: false });
+            this.setState({ tabKeys: key, open: open });
         } else {
-            this.setState({ tabKey: key, open: false });
+            this.setState({ tabKey: key, open: open });
         }
     };
     handlePermissions = type => {
@@ -131,7 +130,7 @@ class Control extends Component {
         if (batchGateway && gatewayShow) {
             if (tabKeys === 'default') {
                 return (
-                    <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} />
+                    <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey}/>
                 );
             }
             return <GatewayApi operationPermissions={operationPermissions} />;
@@ -142,7 +141,7 @@ class Control extends Component {
                 );
             } else if (tabKey === 'route') {
                 return (
-                    <GatewayRoute operationPermissions={operationPermissions} open={open} />
+                    <GatewayRoute operationPermissions={operationPermissions} open={open} onTabChange={this.handleTabChange}/>
                 );
             } else if (tabKey === 'service') {
                 return (
@@ -191,15 +190,15 @@ class Control extends Component {
                                 },
                                 {
                                     key: 'route',
-                                    tab: '路由管理',
+                                    tab:  formatMessage({id:'teamNewGateway.NewGateway.index.management'}),
                                 },
                                 {
                                     key: 'service',
-                                    tab: '目标服务',
+                                    tab: formatMessage({id:'teamNewGateway.NewGateway.index.Services'}),
                                 },
                                 {
                                     key: 'certificate',
-                                    tab: '证书管理',
+                                    tab: formatMessage({id:'teamNewGateway.NewGateway.index.certificate'}),
                                 }
                             ]
                         }

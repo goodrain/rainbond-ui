@@ -16,18 +16,20 @@ export default class GatewayMonitorChart extends Component {
             this.loadGatewayMonitorEcharts();
         }
     }
+
+    
     tooltipFormatter = (params) => {
-        const { keys } = this.props
+        const { keys, changeTwoDecimal } = this.props
         var tooltip = params[0].name + '<br/>';
         params.forEach((item) => {
-            var valueInMB = keys == 'flow' ? (Math.round(item.value / 1024) + 'MB') 
-                                            : keys == 'delay' ? 
-                                            (Math.round(item.value / 1000) + 's')
-                                            : keys == 'qps' ? 
-                                            (item.value + '次/s')
-                                            : keys == 'error_rate' ? 
-                                            (item.value + '次/s')
-                                            : item.value;
+            var valueInMB = keys == 'flow' ? (changeTwoDecimal(item.value / 1024 / 1024) + 'MB')
+                : keys == 'delay' ?
+                    (Math.round(item.value / 1000) + 's')
+                    : keys == 'qps' ?
+                        (item.value + '次/s')
+                        : keys == 'error_rate' ?
+                            (item.value + '次/s')
+                            : item.value;
             tooltip += `<div style=\"display:flex;justify-content: space-between;\">
                 <div>
                     ${item.marker}
@@ -41,7 +43,7 @@ export default class GatewayMonitorChart extends Component {
         return tooltip;
     };
     loadGatewayMonitorEcharts = () => {
-        const { keys, svalue, cname, chartTitle } = this.props
+        const { keys, svalue, cname, chartTitle, data, changeTwoDecimal } = this.props
         const echartsId = '#' + keys + 'gatewayMonitor'
         // 1.创建实例对象
         const myEcharts1 = echarts.init(document.querySelector(echartsId));
@@ -79,25 +81,6 @@ export default class GatewayMonitorChart extends Component {
             seriesArr.push(seriesItem);
         })
 
-        const colorList = ['#9E87FF', '#73DDFF', '#fe9a8b', '#F56948', '#9E87FF'];
-
-        var base = +new Date(2000, 9, 3);
-        var oneDay = 24 * 3600 * 1000;
-        var date = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-        var data1 = [];
-        var data2 = [];
-        var data3 = [];
-        var data4 = [];
-        var data5 = [];
-
-        for (var i = 1; i < 13; i++) {
-            data1.push(Math.round(Math.random() * 10) + 0);
-            data2.push(Math.round(Math.random() * 10) + 10);
-            data3.push(Math.round(Math.random() * 10) + 20);
-            data4.push(Math.round(Math.random() * 10) + 30);
-            data5.push(Math.round(Math.random() * 10) + 40);
-        }
 
         const option = {
             backgroundColor: '#fff',
@@ -112,12 +95,12 @@ export default class GatewayMonitorChart extends Component {
                 show: true,
             },
             legend: {
-                bottom: '2%',
+                bottom: '2%', //图例距离底部的距离
                 orient: 'horizontal', //图例方向【horizontal/vertical】
-                selectedMode: true, //不允许点击图例
-                itemGap: 10,
-                data: routeArr,
-             },
+                selectedMode: true, //允许点击图例 true / false
+                itemGap: 4, //图例之间的距离
+                data: routeArr, //图例的数据数组
+            },
             tooltip: {
                 trigger: 'axis',
                 type: 'cross',
@@ -144,72 +127,23 @@ export default class GatewayMonitorChart extends Component {
             },
             grid: {
                 top: '15%',
-                y2: 88,
+                y2: 96,
             },
             xAxis: {
-                    type: 'category',
-                    data: date,
-                    axisLine: {
-                        show: true,
-                        lineStyle: {
-                            color: '#DCE2E8',
-                        },
-                    },
-                    axisTick: {
-                        show: true,
-                    },
-                    axisLabel: {
-                        interval: 0,
-                        textStyle: {
-                            color: '#556677',
-                        },
-                        // 默认x轴字体大小
-                        fontSize: 12,
-                        // margin:文字到x轴的距离
-                        margin: 15,
-                    },
-                    axisPointer: {
-                        label: {
-                            padding: [0, 0, 10, 0],
-                            margin: 15,
-                            // 移入时的字体大小
-                            fontSize: 12,
-                            backgroundColor: {
-                                type: 'linear',
-                                x: 0,
-                                y: 0,
-                                x2: 0,
-                                y2: 1,
-                                colorStops: [
-                                    {
-                                        offset: 0,
-                                        color: '#fff', // 0% 处的颜色
-                                    },
-                                    {
-                                        offset: 0.86,
-                                        color: '#fff', // 0% 处的颜色
-                                    },
-                                    {
-                                        offset: 0.86,
-                                        color: '#33c0cd', // 0% 处的颜色
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: '#33c0cd', // 100% 处的颜色
-                                    },
-                                ],
-                                global: false, // 缺省为 false
-                            },
-                        },
-                    },
-                    splitLine: {
-                        show: false,
-                        lineStyle: {
-                            type: 'dashed',
-                        },
-                    },
-                    boundaryGap: false,
+                type: 'category',
+                data: data[0].timeStamps,
+                axisLine: {
+                    show: false,
                 },
+                axisTick: {
+                    show: false,
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: '#393939', //X轴文字颜色
+                    }
+                },
+            },
             yAxis: [
                 {
                     type: 'value',
@@ -223,14 +157,14 @@ export default class GatewayMonitorChart extends Component {
                         },
                     },
                     axisLabel: {
-                        formatter: (value)=>{
-                            if(keys == 'qps'){
+                        formatter: (value) => {
+                            if (keys == 'qps') {
                                 return value + ' 次/s'
-                            }else if(keys == 'flow'){
-                                return Math.round(value / 1024) + ' MB/s'
-                            }else if(keys == 'error_rate'){
+                            } else if (keys == 'flow') {
+                                return changeTwoDecimal(value / 1024 / 1024) + ' MB/s'
+                            } else if (keys == 'error_rate') {
                                 return value + ' 次/s'
-                            }else{
+                            } else {
                                 return Math.round(value / 1000) + ' s'
                             }
                         },
