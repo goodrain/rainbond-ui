@@ -12,7 +12,6 @@ import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
-import styles from './index.less';
 
 @connect(
   ({ loading, teamControl, appControl }) => ({

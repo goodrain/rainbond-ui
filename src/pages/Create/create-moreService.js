@@ -9,7 +9,6 @@ import ConfirmModal from '../../components/ConfirmModal';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-import styles from './index.less';
 
 @connect(
   ({ teamControl }) => ({
