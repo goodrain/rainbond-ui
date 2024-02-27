@@ -46,11 +46,19 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://127.0.0.1:8000',
+      target: 'http://8.130.173.238:7070',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://127.0.0.1:8000',
+      target: 'http://8.130.173.238:7070',
+      changeOrigin: true
+    },
+    '/openapi/v1': {
+      target: 'http://8.130.173.238:7070',
+      changeOrigin: true
+    },
+    '/api-gateway': {
+      target: 'http://8.130.173.238:7070',
       changeOrigin: true
     }
   }

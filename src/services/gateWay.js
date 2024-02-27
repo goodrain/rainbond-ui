@@ -469,3 +469,223 @@ export async function deleteGateWayApi(params, handleError) {
     }
   );
 }
+
+/** 获取限流策略 */
+export async function getLimitingStrategy(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/http-limiting-policy`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+/** 添加限流策略 */
+export async function addLimitingStrategy(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/http-limiting-policy`,
+    {
+      method: 'post',
+      data: {
+        limiting_name: params.limiting_name,
+        access_memory_size: params.access_memory_size,
+        max_access_rate: params.max_access_rate, 
+      },
+      handleError
+    }
+  );
+}
+
+/** 删除限流策略 */
+export async function deleteLimitingStrategy(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/http-limiting-policy`,
+    {
+      method: 'delete',
+      data: {
+        limiting_name: params.limiting_name,
+      },
+      handleError
+    }
+  );
+}
+
+/** 编辑限流策略 */
+export async function editLimitingStrategy(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/http-limiting-policy`,
+    {
+      method: 'put',
+      data: {
+        limiting_name: params.limiting_name,
+        access_memory_size: params.access_memory_size,
+        max_access_rate: params.max_access_rate,
+      },
+      handleError
+    }
+  );
+}
+
+/** 获取Api-Gateway路由列表 */
+export async function getApiGatewayList(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/routes`,
+    {
+      method: 'get',
+      params: {
+        appID: params.appID,
+        namespace: params.namespace
+      },
+      handleError
+    }
+  );
+}
+/** 新增Api-Gateway路由 */
+export async function addApiGateway(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/routes/http?namespace=${ params.namespace }&appID=${ params.appID }`,
+    {
+      method: 'post',
+      data: {
+      },
+      handleError
+    }
+  );
+}
+/** 编辑Api-Gateway路由 */
+export async function editApiGateway(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/routes/http/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
+    {
+      method: 'put',
+      data: {
+      },
+      handleError
+    }
+  );
+}
+
+/** 删除Api-Gateway路由 */
+// 接口状态:
+// 已完成
+// 接口URL:
+// DEL
+// 127.0.0.1:8888/api-gateway/v1/routes/http/{name}?namespace=admin&appID=a
+// Content-Type:
+// application/json
+// 认证方式:
+// 无需认证
+export async function deleteApiGateway(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/routes/http/${ params.name }`,
+    {
+      method: 'delete',
+      data: {
+        appID: params.appID,
+        namespace: params.namespace
+      },
+      handleError
+    }
+  );
+}
+/** 查询Api-Gateway路由 */
+
+/** 获取Api-Gateway目标服务 */
+// 接口状态:
+// 已完成
+// 接口URL:
+// GET
+// 127.0.0.1:8888/api-gateway/v1/service?namespace=admin&appID=a
+// Content-Type:
+// multipart/form-data
+// 认证方式:
+// 无需认证
+export async function getApiGatewayService(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/service`,
+    {
+      method: 'get',
+      params: {
+        appID: params.appID,
+        namespace: params.namespace
+      },
+      handleError
+    }
+  );
+}
+/** 新增Api-Gateway目标服务 */
+// 接口状态:
+// 已完成
+// 接口URL:
+// POST
+// 127.0.0.1:8888/api-gateway/v1/service?namespace=default&appID=a
+// Content-Type:
+// application/json
+// 认证方式:
+// 无需认证
+export async function addApiGatewayService(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/service?namespace=${ params.namespace }&appID=${ params.appID }`,
+    {
+      method: 'post',
+      data: {
+       
+      },
+      handleError
+    }
+  );
+}
+
+/** 编辑Api-Gateway目标服务 */
+// 接口状态:
+// 已完成
+// 接口URL:
+// PUT
+// 127.0.0.1:8888/api-gateway/v1/service/rbd-8kbql?namespace=default&appID=a
+// Content-Type:
+// application/json
+// 认证方式:
+// 无需认证
+export async function editApiGatewayService(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/service/${ params.name }?namespace=${ params.namespace }&appID=${ params.appID }`,
+    {
+      method: 'put',
+      data: {
+       
+      },
+      handleError
+    }
+  );
+}
+/** 删除Api-Gateway目标服务 */
+// 接口状态:
+// 已完成
+// 接口URL:
+// DEL
+// 127.0.0.1:8888/api-gateway/v1/service/rbd-7p68d?namespace=default&appID=a
+// Content-Type:
+// multipart/form-data
+// 认证方式:
+// 无需认证
+export async function deleteApiGatewayService(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api-gateway/v1/service/${ params.name }`,
+    {
+      method: 'delete',
+      data: {
+        appID: params.appID,
+        namespace: params.namespace
+      },
+      handleError
+    }
+  );
+}
+/** 查询Api-Gateway证书 */
+
+/** 新增Api-Gateway证书 */
+
+/** 编辑Api-Gateway证书 */
+
+/** 删除Api-Gateway证书 */

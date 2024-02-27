@@ -28,7 +28,19 @@ import {
     queryDetailGateWayApi,
     deleteGateWayApi,
     addDetailGateWayApi,
-    editDetailGateWayApi
+    editDetailGateWayApi,
+    getLimitingStrategy,
+    addLimitingStrategy,
+    deleteLimitingStrategy,
+    editLimitingStrategy,
+    getApiGatewayList,
+    addApiGateway,
+    editApiGateway,
+    deleteApiGateway,
+    getApiGatewayService,
+    addApiGatewayService,
+    editApiGatewayService,
+    deleteApiGatewayService,
 } from '../services/gateWay';
 
 export default {
@@ -260,6 +272,78 @@ export default {
         },
         *editDetailGateWayApi({ callback, payload, handleError }, { call }) {
             const response = yield call(editDetailGateWayApi, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *addLimitingStrategy({ callback, payload, handleError }, { call }) {
+            const response = yield call(addLimitingStrategy, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteLimitingStrategy({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteLimitingStrategy, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *editLimitingStrategy({ callback, payload, handleError }, { call }) {
+            const response = yield call(editLimitingStrategy, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getLimitingStrategy({ callback, payload, handleError }, { call }) {
+            const response = yield call(getLimitingStrategy, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getApiGatewayList({ callback, payload, handleError }, { call }) {
+            const response = yield call(getApiGatewayList, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *addApiGateway({ callback, payload, handleError }, { call }) {
+            const response = yield call(addApiGateway, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *editApiGateway({ callback, payload, handleError }, { call }) {
+            const response = yield call(editApiGateway, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteApiGateway({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteApiGateway, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getApiGatewayService({ callback, payload, handleError }, { call }) {
+            const response = yield call(getApiGatewayService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *addApiGatewayService({ callback, payload, handleError }, { call }) {
+            const response = yield call(addApiGatewayService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *editApiGatewayService({ callback, payload, handleError }, { call }) {
+            const response = yield call(editApiGatewayService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteApiGatewayService({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteApiGatewayService, payload, handleError);
             if (callback) {
                 callback(response)
             }

@@ -594,21 +594,13 @@ export default [
             name: '500',
             authority: ['admin', 'user']
           },
-
           {
-            path:
-              '/team/:teamName/region/:regionName/gateway/control/:types?/:isopen?',
-            component: './GateWay/control',
-            name: 'control',
+            path: '/team/:teamName/region/:regionName/gateway',
+            component: './NewGateway',
+            name: 'route',
             authority: ['admin', 'user']
           },
 
-          {
-            path: '/team/:teamName/region/:regionName/gateway/license',
-            component: './GateWay/license',
-            name: 'license',
-            authority: ['admin', 'user']
-          },
           {
             path: '/team/:teamName/region/:regionName/importMessageYaml',
             component: './AddCluster/ImportMessageYaml',
