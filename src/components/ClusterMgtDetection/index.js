@@ -209,7 +209,7 @@ class Index extends Component {
                 className: styles.columnMoney,
                 width: '25%',
                 render: (item, row) => {
-                    return <div style={{ color: '#4d73b1', cursor: 'pointer' }} onClick={() => this.showActivePod(row)}>
+                    return <div style={{ color: globalUtil.getPublicColor(), cursor: 'pointer' }} onClick={() => this.showActivePod(row)}>
                         {formatMessage({ id: 'enterpriseColony.mgt.cluster.pod' })}
                     </div>
                 }

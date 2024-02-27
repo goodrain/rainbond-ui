@@ -2,6 +2,7 @@ import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../utils/cookie';
 import roleUtil from '../utils/role';
 import { isUrl } from '../utils/utils';
+import getMenuSvg from './getMenuSvg';
 
 const newbieGuide = cookie.get('newbie_guide');
 function setTeamMenu(pluginMenu, menuName){
@@ -14,37 +15,10 @@ function setTeamMenu(pluginMenu, menuName){
 }
 
 function menuData(teamName, regionName, permissionsInfo, showPipeline) {
-  const Pipeline = (
-        <i className="anticon">
-            <svg 
-              t="1676966831715" 
-              class="icon" 
-              viewBox="0 0 1024 1024" 
-              version="1.1" 
-              xmlns="http://www.w3.org/2000/svg" 
-              p-id="7785" 
-              width="22px" 
-              height="22px"
-            >
-              <path 
-                d="M520.704 64L170.496 241.152v360.448l349.696 177.152 349.696-177.152V241.152l-349.184-177.152z m283.648 497.152l-285.696 144.896-91.648-47.104 157.696-89.6c8.704 4.096 16.896 6.656 25.6 6.656 31.744 0 57.344-25.6 57.344-57.344s-25.6-57.344-57.344-57.344c-29.696 0-53.248 21.504-55.296 49.152l-198.144 111.104-123.904-61.952V279.552l285.696-144.896 102.4 51.2-164.352 91.648c-8.704-4.096-16.896-6.144-25.6-6.144C399.36 271.36 373.76 296.96 373.76 328.704s25.6 57.344 57.344 57.344c29.696 0 53.248-21.504 55.296-49.152l202.752-113.152L802.304 281.6v279.552h2.048z" 
-                fill="#9CA2A8" 
-                p-id="7786"
-              >
-              </path>
-              <path 
-                d="M522.752 883.2l-352.256-173.056v70.656l352.256 175.104 347.648-175.104v-70.656l-347.648 173.056z" 
-                fill="#9CA2A8" 
-                p-id="7787"
-              >
-                </path>
-            </svg>
-            </i>
-        )
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.team.dashboard' }),
-      icon: 'dashboard',
+      icon: getMenuSvg.getSvg('dashboard'),
       path: `team/${teamName}/region/${regionName}/index`,
       authority: ['admin', 'user']
     }
@@ -79,7 +53,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     if (appCreateView && componentCreateView && componentConstructView) {
       var item = {
         name: formatMessage({ id: 'menu.team.create' }),
-        icon: 'plus',
+        icon: getMenuSvg.getSvg('add'),
         path: `team/${teamName}/region/${regionName}/create`,
         authority: ['admin', 'user'],
         teamName: teamName,
@@ -88,37 +62,44 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
           {
             name: formatMessage({ id: 'menu.team.create.wizard' }),
             path: `wizard`,
+            icon: getMenuSvg.getSvg('wizard'),
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.code' }),
             path: `code`,
+            icon: getMenuSvg.getSvg('code'),
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.market' }),
             path: `market`,
+            icon: getMenuSvg.getSvg('market'),
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({id:'Vm.createVm.docker'}),
             path: `image`,
+            icon: getMenuSvg.getSvg('image'),
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({id:'Vm.createVm.titleVm'}),
             path: `vm`,
+            icon: getMenuSvg.getSvg('vm'),
             authority: ['admin', 'user']
           },
           // 基于软件包/yaml创建
           {
             name: formatMessage({ id: 'menu.team.create.upload' }),
             path: `yaml`,
+            icon: getMenuSvg.getSvg('yaml'),
             authority: ['admin', 'user']
           },
           {
             name: formatMessage({ id: 'menu.team.create.third' }),
             path: `outer`,
+            icon: getMenuSvg.getSvg('outer'),
             authority: ['admin', 'user']
           }
         ]
@@ -134,8 +115,8 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     }
     if (setTeamMenu(showPipeline,'pipeline')) {
       addMenuArr({
-        name: formatMessage({id:'menu.team.pipeline'}),
-        icon: Pipeline,
+        name: formatMessage({ id: 'menu.team.pipeline' }),
+        icon: getMenuSvg.getSvg('Pipeline'),
         path: `team/${teamName}/region/${regionName}/Pipeline`,
         authority: ['admin', 'user']
       });
@@ -146,6 +127,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         children.push({
           name: formatMessage({ id: 'menu.team.gateway.control' }),
           path: 'control',
+          icon: getMenuSvg.getSvg('control'),
           authority: ['admin', 'user']
         });
       }
@@ -154,12 +136,13 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         children.push({
           name: formatMessage({ id: 'menu.team.gateway.certificate' }),
           path: 'license',
+          icon: getMenuSvg.getSvg('license'),
           authority: ['admin', 'user']
         });
       }
       addMenuArr({
         name: formatMessage({ id: 'menu.team.gateway' }),
-        icon: 'gateway',
+        icon: getMenuSvg.getSvg('gateway'),
         path: `team/${teamName}/region/${regionName}/gateway`,
         authority: ['admin', 'user'],
         children
@@ -169,7 +152,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     if (pluginView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.plugin' }),
-        icon: 'api',
+        icon: getMenuSvg.getSvg('api'),
         path: `team/${teamName}/region/${regionName}/myplugns`,
         authority: ['admin', 'user']
       });
@@ -178,7 +161,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     if (dynamic || members || clusters || roles) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.setting' }),
-        icon: 'setting',
+        icon: getMenuSvg.getSvg('setting'),
         path: `team/${teamName}/region/${regionName}/team`,
         authority: ['admin', 'user']
       });

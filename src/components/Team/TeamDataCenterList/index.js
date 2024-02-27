@@ -142,7 +142,7 @@ export default class DatacenterList extends PureComponent {
                       {isUninstall && (
                         <a
                           onClick={() => this.showCloseRegion(item.region_name)}
-                          style={{ float: 'right', color: '#1890ff' }}
+                          style={{ float: 'right' }}
                         >
                           {formatMessage({id: 'teamManage.tabs.cluster.unload'})}
                         </a>

@@ -1,0 +1,76 @@
+.containerLeft,
+.containerRight {
+  margin-top: 12px;
+  :global {
+    .CodeMirror {
+      padding-top: 0px !important;
+    }
+    .CodeMirror-sizer {
+      padding-top: 0px !important;
+    }
+    .CodeMirror-line {
+      word-wrap: break-word !important;
+      white-space: pre-wrap !important;
+      word-break: normal;
+    }
+    .CodeMirror-merge-gap {
+      display: none;
+    }
+    // 左边
+    .CodeMirror-merge-r-inserted {
+      background-image: none !important;
+      background-color: #feb7b2;
+      text-decoration: line-through;
+    }
+    .CodeMirror-merge-r-deleted {
+      background-image: none !important;
+      background-color: #c3faae;
+    }
+  }
+}
+.containerLeft {
+  :global {
+    .CodeMirror-merge-right {
+      display: none;
+    }
+    .CodeMirror-merge-editor {
+      width: 100%;
+    }
+  }
+}
+.containerRight {
+  :global {
+    .CodeMirror-merge-right {
+      width: 100%;
+    }
+    .CodeMirror-merge-editor {
+      display: none;
+    }
+  }
+}
+.add {
+  color: @rbd-success-status;
+}
+.delete {
+  color: @rbd-error-status;
+  text-decoration: line-through;
+}
+.isDelete {
+  text-decoration: line-through;
+}
+// 表格字体
+.addTable {
+  :global {
+    .ant-table-row {
+      color: @rbd-success-status;
+    }
+  }
+}
+.deleteTable {
+  :global {
+    .ant-table-row {
+      color: @rbd-error-status;
+      text-decoration: line-through;
+    }
+  }
+}

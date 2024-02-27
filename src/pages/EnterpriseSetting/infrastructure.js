@@ -482,7 +482,8 @@ class Infrastructure extends PureComponent {
       <Card
         hoverable
         bordered={false}
-        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' , borderBottom:'1px solid  #ccc', borderRadius:0}}
+        style={{borderRadius:0}}
+        className={styles.infrastructureCard}
       >
         <Row type="flex" align="middle">
           <Col span={3}>
@@ -499,7 +500,7 @@ class Infrastructure extends PureComponent {
           <Col span={4} style={{ textAlign: 'right' }}>
             <Switch
               onChange={this.onRegistChange}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
               checked={this.props.isRegist}
             />
           </Col>
@@ -512,6 +513,7 @@ class Infrastructure extends PureComponent {
           style={{ borderTop: '1px solid  #ccc' }}
           hoverable
           bordered={false}
+          className={styles.infrastructureCard}
         >
           <Row type="flex" align="middle">
             <Col span={3}>
@@ -539,7 +541,7 @@ class Infrastructure extends PureComponent {
               <Switch
                 onChange={this.handlChooseeOpen}
                 checked={israinbondTird}
-                className={styles.automaTictelescopingSwitch}
+                // className={styles.automaTictelescopingSwitch}
               />
             </Col>
           </Row>
@@ -554,6 +556,7 @@ class Infrastructure extends PureComponent {
         hoverable
         bordered={false}
         style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' ,borderRadius:0}}
+        className={styles.infrastructureCard}
       >
         <Row type="flex" align="middle">
           <Col span={3}>
@@ -584,7 +587,7 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenCertificate();
               }}
               checked={AutomaticCertificate}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
@@ -592,7 +595,7 @@ class Infrastructure extends PureComponent {
     );
 
     const MirrorWarehouseInformation = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' ,borderRadius:0}}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' ,borderRadius:0}} className={styles.infrastructureCard}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 内部组件库镜像仓库 */}
@@ -622,14 +625,14 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenImageHub();
               }}
               checked={isEnableAppstoreImageHub}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
       </Card>
     );
     const CloudBackup = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc',borderRadius:0 }}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc',borderRadius:0 }} className={styles.infrastructureCard}>
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 对象存储 */}
@@ -659,14 +662,14 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenCloudBackup();
               }}
               checked={isEnableObjectStorage}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
       </Card>
     );
     const Monitoring = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' , borderRadius:0}}>
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' , borderRadius:0}} className={styles.infrastructureCard} >
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 监控 */}
@@ -696,14 +699,19 @@ class Infrastructure extends PureComponent {
                   : this.handelOpenisEnableMonitoring();
               }}
               checked={isEnableMonitoring}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
             />
           </Col>
         </Row>
       </Card>
     );
-    const BasicInformation = (
-      <Card style={{ marginTop: '10px' ,borderRadius:0}} hoverable bordered={false}>
+    const verificationCode = (
+      <Card 
+      hoverable 
+      bordered={false} 
+      style={{ borderTop: '1px solid  #ccc' }}
+      className={styles.infrastructureCard}
+      >
         <Row type="flex" align="middle">
           <Col span={3}>
             {/* 基础信息 */}
@@ -733,6 +741,7 @@ class Infrastructure extends PureComponent {
         hoverable
         bordered={false}
         style={{ borderTop: '1px solid  #ccc' , borderRadius:0}}
+        className={styles.infrastructureCard}
       >
         <Row type="flex" align="middle">
           <Col span={3}>
@@ -747,7 +756,7 @@ class Infrastructure extends PureComponent {
           <Col span={4} style={{ textAlign: 'right' }}>
             <Switch
               onChange={this.isAlarmChange}
-              className={styles.automaTictelescopingSwitch}
+              // className={styles.automaTictelescopingSwitch}
               checked={this.props.isAlarm}
             />
           </Col>

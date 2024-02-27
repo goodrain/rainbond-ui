@@ -37,10 +37,7 @@ export default {
     ]
   ],
   ignoreMomentLocale: true,
-  theme: {
-    'card-actions-background': defaultSettings.primaryColor,
-    'primary-color': defaultSettings.primaryColor
-  },
+  theme: './config/theme.js',
   lessLoaderOptions: {
     javascriptEnabled: true
   },

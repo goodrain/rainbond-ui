@@ -332,9 +332,9 @@ export default class AddServiceComponent extends PureComponent {
           onClick={this.toAddService}
           style={{
             marginLeft: '12px',
-            color: '#595959',
-            borderColor: '#D9D9D9',
-            background: '#fff'
+            // color: globalUtil.getPublicColor('rbd-content-color'),
+            // borderColor: '#D9D9D9',
+            // background: '#fff'
           }}
         >
           <Icon type="plus" />

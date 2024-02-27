@@ -445,7 +445,7 @@ export default class Index extends PureComponent {
     const extraContent = (
       <div className={styles.extraContent}>
         <div className={styles.statItem}>
-          <p>应用总数</p>
+          <p>应用总数11</p>
           <p>{index.overviewInfo.team_app_num || 0}</p>
         </div>
         <div className={styles.statItem}>

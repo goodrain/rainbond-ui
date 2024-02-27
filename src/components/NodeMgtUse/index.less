@@ -3,8 +3,9 @@
 
     :global {
         .ant-col-6 {
-            color: #8d9bad;
-            font-size: 16px;
+            font-size: @rbd-sub-title-size;
+            color: @rbd-content-color-secondary;
+            line-height: @rbd-sub-title-line-height;
             font-weight: 600;
         }
     }
@@ -28,8 +29,9 @@
     :global {
         .ant-col-6 {
             p {
-                color: #8d9bad;
-                font-size: 14px;
+                font-size: @rbd-content-size;
+                line-height: @rbd-content-line-height;
+                color: @rbd-content-color-secondary;
                 font-weight: 500;
                 margin-bottom: 0 !important;
             }
@@ -37,9 +39,10 @@
             p:nth-of-type(1) {
                 span {
                     margin-right: 6px;
-                    color: #52c41a;
+                    color: @primary-color;
                     font-weight: 600;
-                    font-size: 18px;
+                    font-size: @rbd-title-size;
+                    line-height: @rbd-title-line-height;
 
                 }
             }
@@ -47,9 +50,10 @@
             p:nth-of-type(2) {
                 span {
                     margin-right: 6px;
-                    color: #b7b7b7;
                     font-weight: 600;
-                    font-size: 18px;
+                    font-size: @rbd-title-size;
+                    color: @rbd-content-color-secondary;
+                    line-height: @rbd-title-line-height;
 
                 }
             }

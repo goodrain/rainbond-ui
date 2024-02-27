@@ -52,7 +52,7 @@ export default class Index extends PureComponent {
         >
           {type === 'link' ? (
             <a
-              style={{ fontSize: '14px' }}
+              style={{ fontSize: '12px' }}
               onClick={e => {
                 e.stopPropagation();
                 window.open(singleLink);
@@ -110,7 +110,7 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           {type === 'link' ? (
-            <a style={{ fontSize: '14px' }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
+            <a style={{ fontSize: '12px' }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
           ) : (
             <Button type="primary"><FormattedMessage id='componentOverview.header.right.visit'/></Button>
           )}

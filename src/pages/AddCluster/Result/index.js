@@ -175,7 +175,7 @@ export default class ClusterLink extends PureComponent {
           onClick={() => {
             this.toLinkNext('install');
           }}
-          type="primary"
+          // type="primary"
         >
           <FormattedMessage id='button.previous'/>
         </Button>,

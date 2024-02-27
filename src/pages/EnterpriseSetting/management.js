@@ -234,7 +234,6 @@ export default class Management extends PureComponent {
         <Button
           type="primary"
           onClick={this.onAddAdmin}
-          className={styles.btns}
         >
           {/* 添加管理员 */}
           <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add'/>
@@ -256,7 +255,7 @@ export default class Management extends PureComponent {
             className={styles.teamMinTit}
             type="flex"
             align="middle"
-            style={{ padding: 10 ,background:'#f5f6f8'}}
+            style={{ padding: 16 ,background:'#FAFAFA'}}
           >
             <Col span={5}>
               {/* 名称 */}

@@ -55,29 +55,29 @@ class Index extends Component {
     switch (status) {
       case "Ready":
         return (
-          <span style={{ color: '#52c41a', }}>
-            <Badge color="#52c41a" />
+          <span style={{ color: global.getPublicColor('rbd-success-status'), }}>
+            <Badge color={global.getPublicColor('rbd-success-status')} />
             {status}
           </span>
         );
       case 'NotReady':
         return (
-          <span style={{ color: 'red', }}>
-            <Badge color="red" />
+          <span style={{ color: global.getPublicColor('rbd-error-status'), }}>
+            <Badge color={global.getPublicColor('rbd-error-status')} />
             {status}
           </span>
         );
         case 'Ready,SchedulingDisabled':
           return (
-            <span style={{ color: '#52c41a'}}>
-              <Badge color="#52c41a" />
+            <span style={{ color: global.getPublicColor('rbd-success-status')}}>
+              <Badge color={global.getPublicColor('rbd-success-status')} />
               {status}
             </span>
           );
       default:
         return (
-          <span style={{ color: 'black', }}>
-            <Badge color="black" />
+          <span style={{ color: global.getPublicColor('rbd-unKnown-status'), }}>
+            <Badge color={global.getPublicColor('rbd-unKnown-status')} />
             {/* 未知 */}
             <FormattedMessage id='enterpriseColony.table.state.unknown' />
           </span>
@@ -185,14 +185,14 @@ class Index extends Component {
         render: text =>
           text &&
           text.length > 0 &&
-          text.map(item => <Tag color="blue">{item}</Tag>)
+          text.map(item => <Tag color={global.getPublicColor()}>{item}</Tag>)
       },
       {
         title: formatMessage({id:'enterpriseColony.mgt.node.framework'}),
         dataIndex: 'arch',
         key: 'arch',
         render: text => {
-          return <Tag color="blue">{text}</Tag>
+          return <Tag color={global.getPublicColor()}>{text}</Tag>
         } 
       },
       {

@@ -1777,7 +1777,7 @@ export default class EnterpriseShared extends PureComponent {
                         {index < accessActions.length - 1 && (
                           <Divider
                             type="vertical"
-                            style={{ background: '#1890ff' }}
+                            className={styles.bgc}
                           />
                         )}
                       </a>
@@ -1881,8 +1881,6 @@ export default class EnterpriseShared extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        // title="应用市场管理"
-        // content="应用市场支持Rainstore应用商店和Helm应用商店的对接和管理"
         title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
         content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
         titleSvg={pageheaderSvg.getSvg('storeSvg',20)} 
@@ -2063,7 +2061,7 @@ export default class EnterpriseShared extends PureComponent {
                 return <TabPane
                   tab={
                     <span className={styles.verticalCen}>
-                      {globalUtil.fetchSvg('localMarket')}
+                      {/* {globalUtil.fetchSvg('localMarket')} */}
                       {/* 本地组件库 */}
                       <FormattedMessage id="applicationMarket.localMarket.title" />
                     </span>
@@ -2086,7 +2084,6 @@ export default class EnterpriseShared extends PureComponent {
                   <TabPane
                     tab={
                       <span className={styles.verticalCen}>
-                        {globalUtil.fetchSvg('cloudMarket')}
                         {alias || name}
                       </span>
                     }
@@ -2101,7 +2098,6 @@ export default class EnterpriseShared extends PureComponent {
                   <TabPane
                     tab={
                       <span className={styles.verticalCen}>
-                        {globalUtil.fetchSvg('HelmSvg')}
                         {name}
                       </span>
                     }

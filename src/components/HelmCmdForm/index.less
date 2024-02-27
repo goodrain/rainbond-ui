@@ -1,7 +1,8 @@
 .storeList{
     // padding-right: 20%;
-    color: rgb(80, 151, 239);
-    font-size: 14px;
+    color: @primary-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
     cursor: pointer;
     text-align: right;
 }
@@ -56,11 +57,11 @@
     width: 100px;
     height: 30px;
     .publicItemName{
+      font-size: @rbd-content-size;
+      color: @rbd-content-color;
+      line-height: @rbd-content-line-height;
       font-weight: 500;
-      line-height: 30px;
-      font-size: 12px;
       text-align: center;
-      color: #000;
       border: 1px solid #e3e3e3;
       background-color: #fff;
       border-radius: 5px;
@@ -73,8 +74,8 @@
   }
   .active{
     .publicItemName{
-      color: #1890ff;
-      border: 1px solid #1890ff;
+      color: @primary-color;
+      border: 1px solid @primary-color;
     }
   }
 }

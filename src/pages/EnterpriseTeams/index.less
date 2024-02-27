@@ -1,8 +1,9 @@
+@import '~antd/lib/style/themes/default.less';
 .teamsTit {
   margin-bottom : 10px;
-  font-family   : PingFangSC-Medium;
-  font-size     : 14px;
-  color         : #919191;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color-secondary;
+  line-height: @rbd-content-line-height;
   letter-spacing: 0;
 }
 .rowTitle{
@@ -10,13 +11,13 @@
   // margin-bottom : 5px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  font-family   : PingFangSC-Regular;
-  font-size     : 12px;
-  color         : #999999;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color;
+  line-height: @rbd-content-line-height;
   letter-spacing: 0;
   display: flex;
   background-color: #f5f6f8;
-  padding: 10px 0 ;
+  padding: 16px 0 ;
 }
 .teamMinTit {
   width: 96%;
@@ -24,9 +25,9 @@
 .teamMinTits {
   padding-left       : 24px;
   margin-bottom : 5px;
-  font-family   : PingFangSC-Regular;
-  font-size     : 12px;
-  color         : #999999;
+  color: @rbd-auxiliary-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   letter-spacing: 0;
 }
 .borTitle{
@@ -35,27 +36,29 @@
 }
 
 .teamContent {
-  font-family   : PingFangSC-Regular;
-  font-size     : 14px;
-  color         : #333333;
+  font-size: @rbd-content-size;
+  color: @rbd-auxiliary-color-secondary;
   letter-spacing: 0;
 }
 
 .pl24 {
   width: 100%;
   height      : 70px;
+  font-weight: 500;
   // padding-left: 24px;
 }
 .pls24{
   height      : 70px;
   padding-left: 24px;
+  font-weight: 500;
 }
 .pl23 {
   width: 96%;
+  font-weight: 500;
   height      : 70px;
 }
 .pl23:hover{
-  background: #f7f6f6;
+  background: @primary-1;
 }
 .bor {
   width: 4%;
@@ -69,9 +72,11 @@
   height     : 70px;
   display    : flex;
   align-items: center;
+  font-weight: 500;
 }
 .example {
   text-align   : center;
+  font-weight: 500;
   border-radius: 4px;
   margin-bottom: 20px;
   padding      : 30px 50px;
@@ -84,9 +89,8 @@
     .ant-btn-primary,
     .ant-btn-primary:hover,
     .ant-btn-primary:focus {
-      box-shadow      : 0 3px 6px 0 rgba(33, 50, 79, 0.24);
-      background-color: #4D73B1 !important;
-      border-color    : #4D73B1 !important;
+      background-color: @primary-color !important;
+      border-color    : @primary-color  !important;
     }
   }
 }

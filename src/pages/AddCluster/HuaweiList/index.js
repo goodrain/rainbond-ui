@@ -624,7 +624,7 @@ export default class ClusterLink extends PureComponent {
               <FormItem className={styles.antd_row_btn}>
                 <Button
                   className={styles.antd_btn}
-                  type="primary"
+                  // type="primary"
                   onClick={() => {
                     this.props.dispatch(
                       routerRedux.push(`/enterprise/${eid}/addCluster`)
@@ -635,7 +635,7 @@ export default class ClusterLink extends PureComponent {
                 </Button>
                 <Button
                   className={styles.antd_btn}
-                  type="primary"
+                  // type="primary"
                   onClick={() => {
                     this.toLinkNext('advanced');
                   }}

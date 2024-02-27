@@ -605,7 +605,7 @@ handleValidatorsGateway = (_, val, callback) => {
               <FormItem className={styles.antd_row_btn}>
                 <Button
                   className={styles.antd_btn}
-                  type="primary"
+                  // type="primary"
                   onClick={() => {
                     this.props.dispatch(
                       routerRedux.push(`/enterprise/${eid}/addCluster`)
@@ -616,7 +616,7 @@ handleValidatorsGateway = (_, val, callback) => {
                 </Button>
                 <Button
                   className={styles.antd_btn}
-                  type="primary"
+                  // type="primary"
                   onClick={() => {
                     this.toLinkNext('advanced');
                   }}

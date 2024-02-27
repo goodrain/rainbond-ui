@@ -140,7 +140,7 @@ export default class ImportMessage extends PureComponent {
                 boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
                 }}>
                 <Row type="flex" style={{ alignItems: 'center', padding: '24px 0px' }}>
-                    <div style={{ width: '120px', textAlign: 'right' }}><h3 style={{ marginBottom: '0em' }}>NameSpace：</h3></div>
+                    <div style={{ width: '120px', textAlign: 'right' }}><h3 className={styles.rbd_sub_title}>NameSpace：</h3></div>
                     <Select 
                         showSearch
                         filterOption={(input, option) => 
@@ -158,7 +158,7 @@ export default class ImportMessage extends PureComponent {
                     </Select>
                 </Row>
                 <Row type="flex" style={{ width: '100%', padding: '24px 0px', minHeight: '400px' }}>
-                    <div style={{ width: '120px', textAlign: 'right' }}><h3>{formatMessage({ id: 'enterpriseColony.import.list.title' })}</h3></div>
+                    <div style={{ width: '120px', textAlign: 'right' }}><h3 className={styles.rbd_sub_title}>{formatMessage({ id: 'enterpriseColony.import.list.title' })}</h3></div>
                     {loadingSwitch ? (
                         <div className={styles.loadingstyle}>
                             <Spin size="large" />

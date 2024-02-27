@@ -31,6 +31,7 @@ import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
 import Strategy from './strategy';
 import cookie from '../../utils/cookie';
+import styles from './resource.less';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -702,6 +703,7 @@ export default class Index extends React.Component {
             marginBottom: 24
           }}
           title={<FormattedMessage id='componentOverview.body.setting.information' />}
+          className={styles.tabsCard}
         >
           {method != 'vm' ? (
             <Form>
@@ -844,7 +846,7 @@ export default class Index extends React.Component {
             }
           >
             {startProbe && (
-              <div style={{ display: 'flex' }}>
+              <div style={{ display: 'flex' }} className={styles.healthy}>
                 <div style={{ width: '33%', textAlign: 'center' }}>
                   <FormattedMessage id='componentOverview.body.setting.state' />{this.handleState(startProbe)}
                 </div>

@@ -4,6 +4,7 @@ import { Col, Form, Row, Tooltip,Card ,Skeleton} from 'antd';
 import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import Svg from '../../../../utils/pageHeaderSvg.js';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -76,12 +77,12 @@ class Index extends PureComponent {
                       status.status !== 'closed' && (
                         <li>
                           <a target="_blank">
-                            {globalUtil.fetchSvg('runTime')}
+                            {Svg.getSvg('runTime',16,'rbd-content-color-secondary')}
                             {/* 运行 */}
                             <FormattedMessage id='componentOverview.body.tab.overview.run'/>
                             <span
                               style={{
-                                color: 'rgba(0,0,0,0.45)',
+                                color: globalUtil.getPublicColor('rbd-content-color'),
                                 paddingLeft: '20px'
                               }}
                             >
@@ -97,7 +98,7 @@ class Index extends PureComponent {
                       )}
                     <li>
                       <a>
-                        {globalUtil.fetchSvg('distributionMemory')}
+                      {Svg.getSvg('fenpei',16,'rbd-content-color-secondary')}
                         {/* 分配 */}
                         <FormattedMessage id='componentOverview.body.tab.overview.allocation'/>
                         {!resourcesLoading && (
@@ -105,7 +106,7 @@ class Index extends PureComponent {
                             <Tooltip title={setMemory}>
                               <span
                                 style={{
-                                  color: 'rgba(0,0,0,0.45)',
+                                  color: globalUtil.getPublicColor('rbd-content-color'),
                                   padding: '0 20px',
                                   minWidth: '80px'
                                 }}
@@ -120,7 +121,7 @@ class Index extends PureComponent {
                     </li>
                     <li>
                       <a>
-                        {globalUtil.fetchSvg('useDisk')}
+                      {Svg.getSvg('zhanyong',16,'rbd-content-color-secondary')}
                         {/* 占用 */}
                         <FormattedMessage id='componentOverview.body.tab.overview.occupy'/>
                         {!resourcesLoading && (
@@ -128,7 +129,7 @@ class Index extends PureComponent {
                             <Tooltip title={numeral(disk).format('0,0')}>
                               <span
                                 style={{
-                                  color: 'rgba(0,0,0,0.45)',
+                                  color: globalUtil.getPublicColor('rbd-content-color'),
                                   padding: '0 20px',
                                   minWidth: '80px'
                                 }}
@@ -150,8 +151,8 @@ class Index extends PureComponent {
                   <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
                   <span className={` ${styles.en_alcen}  `}>
                     {globalUtil.fetchSvg('basicInfo')}
-
-                    <span style={{ color: 'rgba(0,0,0,0.65)' }}>
+                  
+                    <span style={{ color: globalUtil.getPublicColor('rbd-title-color') }}>
                       {/* 版本号 */}
                       虚拟机镜像
                     </span>
@@ -160,8 +161,8 @@ class Index extends PureComponent {
                     style={{
                       color:
                         beanData && beanData.vm_image
-                          ? '#39aa56'
-                          : 'rgba(0, 0, 0, 0.45)'
+                          ? globalUtil.getPublicColor('rbd-success-status')
+                          : globalUtil.getPublicColor('rbd-content-color')
                     }}
                   >
                     {beanData && beanData.vm_image
@@ -174,9 +175,8 @@ class Index extends PureComponent {
                 <div className={styles.buildRightBox}>
                 <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
                   <span className={` ${styles.en_alcen}  `}>
-                    {globalUtil.fetchSvg('version')}
-
-                    <span style={{ color: 'rgba(0,0,0,0.65)' }}>
+                  {Svg.getSvg('banben',16,'rbd-content-color-secondary')}
+                    <span style={{ color: globalUtil.getPublicColor('rbd-content-color-secondary') }}>
                       {/* 版本号 */}
                       <FormattedMessage id='componentOverview.body.tab.overview.version'/>
                     </span>
@@ -185,8 +185,8 @@ class Index extends PureComponent {
                     style={{
                       color:
                         beanData && beanData.build_version
-                          ? '#39aa56'
-                          : 'rgba(0, 0, 0, 0.45)'
+                          ? globalUtil.getPublicColor('rbd-success-status')
+                          : globalUtil.getPublicColor('rbd-content-color')
                     }}
                   >
                     {beanData && beanData.build_version
@@ -201,7 +201,8 @@ class Index extends PureComponent {
                         <span
                           className={` ${styles.en_alcen}  `}
                         >
-                          {globalUtil.fetchSvg('warehouse')}
+                          {/* {globalUtil.fetchSvg('warehouse')} */}
+                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'code':buildSource === 'package_build' ? 'MD5':'dizhi'),16,'rbd-content-color-secondary')}
                           {buildSource && buildSource === 'source_code'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.codeVersion'/>
                             : buildSource === 'package_build'
@@ -238,7 +239,8 @@ class Index extends PureComponent {
                         <span
                           className={` ${styles.en_alcen}  `}
                         >
-                          {globalUtil.fetchSvg('basicInfo')}
+                          {/* {globalUtil.fetchSvg('basicInfo')} */}
+                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'msg':buildSource === 'package_build' ? 'fileName':'jingxiang'),16,'rbd-content-color-secondary')}
                           {buildSource && buildSource === 'source_code'
                             ?  <FormattedMessage id='componentOverview.body.tab.overview.submit'/>
                             : buildSource === 'package_build'
@@ -278,7 +280,7 @@ class Index extends PureComponent {
                         <span
                           className={` ${styles.en_alcen}  `}
                         >
-                          {globalUtil.fetchSvg('branch')}
+                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'fenzhi':buildSource === 'package_build' ? 'upLoad':'jingxiangTga'),16,'rbd-content-color-secondary')}
 
                           {buildSource && buildSource === 'source_code'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.codeBranch'/>

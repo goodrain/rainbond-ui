@@ -27,8 +27,11 @@
           width: 100%;
           margin-top: 14px;
           text-align: center;
-          font-size: 18px;
+          // font-size: 18px;
           font-weight: 700;
+          font-size: @rbd-sub-title-size;
+          color: @rbd-sub-title-color;
+          line-height: @rbd-sub-title-line-height;
         }
         .initDesc{
           width: 100%;
@@ -37,9 +40,10 @@
           margin-top: 14px;
           p{
             width: 74%;
-            text-indent: 12px;
-            color: #8d8d8d;
             word-break: break-all;
+            font-size: @rbd-content-size;
+            color: @rbd-content-color-secondary;
+            line-height: @rbd-content-line-height;
           }
         }
       }
@@ -53,15 +57,15 @@
         p{
           width: 100%;
           text-align: center;
-          font-size: 16px;
           margin-top: 26px;
           cursor: pointer;
-          font-size: 16px;
-          color: #1574e2;
+          color: @primary-color;
           font-weight: 600;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          font-size: @rbd-sub-title-size;
+          line-height: @rbd-sub-title-line-height;
         }
       }
       .bottomDocker{

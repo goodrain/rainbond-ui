@@ -1,3 +1,4 @@
+@import '~antd/lib/style/themes/default.less';
 .svgStyle {
     display: flex;
     align-items: center;
@@ -8,10 +9,10 @@
 }
 
 .dsahboard {
-    color: #52c41a;
+    color: @rbd-success-status;
 
     span {
-        color: #b7b7b7;
+        color: @rbd-content-color-secondary;
     }
 }
 
@@ -25,7 +26,6 @@
     }
 
     div:nth-of-type(2) {
-        // background-color: #52c41a;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -54,10 +54,10 @@
     width: 100%;
     :global{
         .ant-col-6{
-            height: 40px;
+            padding: 16px 0;
             background-color: rgb(245, 246, 248);
             font-weight: 600;
-            color: #B2B2B5;
+            color: @rbd-sub-title-color;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -72,12 +72,14 @@
 }
 
 .spanStyle{
-    color: rgb(141, 155, 173);
-    font-size: 12px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
     font-weight: 500;
     span{
-        color: #2CC66A;
-        font-size: 14px;
+        font-size: @rbd-content-size;
+        color: @rbd-success-status;
+        line-height: @rbd-content-line-height;
         font-weight: 600;
 
     }
@@ -90,10 +92,10 @@ td.columnMoney {
 .modalStyle{
     :global{
         .ant-col-4{
-            height: 40px;
+            padding: 16px 0;
             background-color: rgb(245, 246, 248);
             font-weight: 600;
-            color: #B2B2B5;
+            color: @rbd-sub-title-color;
             display: flex;
             align-items: center;
             justify-content: start;

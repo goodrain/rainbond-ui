@@ -505,12 +505,7 @@ export default class ClusterLink extends PureComponent {
                         };
                       });
                     }}
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      lineHeight: '30px',
-                      height: '30px'
-                    }}
+                    className={styles.etcd_enabledStyle}
                   >
                     {etcd_enabled}
                   </CheckableTag>
@@ -578,12 +573,7 @@ export default class ClusterLink extends PureComponent {
                           };
                         });
                       }}
-                      style={{
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        lineHeight: '30px',
-                        height: '30px'
-                      }}
+                      className={styles.etcd_enabledStyle}
                     >
                       {storage_enabled}
                     </CheckableTag>
@@ -658,12 +648,7 @@ export default class ClusterLink extends PureComponent {
                           };
                         });
                       }}
-                      style={{
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        lineHeight: '30px',
-                        height: '30px'
-                      }}
+                      className={styles.etcd_enabledStyle}
                     >
                       {database_enabled}
                     </CheckableTag>
@@ -800,12 +785,7 @@ export default class ClusterLink extends PureComponent {
                           };
                         });
                       }}
-                      style={{
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        lineHeight: '30px',
-                        height: '30px'
-                      }}
+                      className={styles.etcd_enabledStyle}
                     >
                       {image_enabled}
                     </CheckableTag>
@@ -913,12 +893,7 @@ export default class ClusterLink extends PureComponent {
                         };
                       });
                     }}
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      lineHeight: '30px',
-                      height: '30px'
-                    }}
+                    className={styles.etcd_enabledStyle}
                   >
                     {node_enabled}
                   </CheckableTag>
@@ -955,7 +930,6 @@ export default class ClusterLink extends PureComponent {
               <FormItem className={styles.antd_row_btn}>
                 <Button
                   className={styles.antd_btn}
-                  type="primary"
                   onClick={() => {
                     this.toLinkNext('goback');
                   }}

@@ -33,8 +33,10 @@ import roleUtil from '../../utils/role';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 import styles from './index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import publicColor from '../../../config/theme'
 
 const { Search } = Input;
 
@@ -636,7 +638,7 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }}>
         {adminer ? (
           <Button
             type="primary"
@@ -655,7 +657,7 @@ export default class EnterpriseTeams extends PureComponent {
       </Col>
     );
     const en_operation = (
-      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={language ? 7 : 6} style={{ textAlign: 'right' }}>
         {adminer ? (
           <Button
             type="primary"
@@ -784,7 +786,7 @@ export default class EnterpriseTeams extends PureComponent {
                   className={styles.pl23}
                   onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                <Col style={{color:'#4D73B1', fontWeight:'600',width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
+                <Col style={{color: globalUtil.getPublicColor(), fontWeight:'600',width:'13%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
                 <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
@@ -871,7 +873,7 @@ export default class EnterpriseTeams extends PureComponent {
                   key={team_id}
                   // onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', fontSize:'16px'}}>{team_alias}</Col>
+                  <Col span={6} style={{color: globalUtil.getPublicColor(), fontWeight:'600', fontSize:'16px'}}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col

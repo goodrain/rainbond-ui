@@ -153,7 +153,8 @@ export default class Index extends PureComponent {
             <div>
                 <h2 style={{
                     textAlign: 'center'
-                }}>{formatMessage({ id: 'componentCheck.advanced.setup' })}</h2>
+                }}
+                >{formatMessage({ id: 'componentCheck.advanced.setup' })}</h2>
                 <div style={{
                     overflow: 'hidden'
                 }}>

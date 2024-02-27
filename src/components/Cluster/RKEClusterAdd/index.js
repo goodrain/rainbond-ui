@@ -35,6 +35,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
+import global from '../../../utils/global';
 import styles from './index.less';
 
 const { Paragraph } = Typography;
@@ -840,7 +841,7 @@ export default class RKEClusterConfig extends PureComponent {
           return code ? (
             <div>
               <div>
-                {code == 200 ? <div style={{ color: '#36B37E' }}>success</div> : <div style={{ color: '#FF5630' }}>{msg}</div>}
+                {code == 200 ? <div style={{ color: global.getPublicColor('success-color') }}>success</div> : <div style={{ color: global.getPublicColor('error-color') }}>{msg}</div>}
               </div>
             </div>
           ) : (
@@ -1146,8 +1147,8 @@ export default class RKEClusterConfig extends PureComponent {
           </div>
         </Form>
 
-        <Row style={{ padding: '0 16px' }}>
-          <span style={{ fontWeight: 600, color: 'red' }}>
+        <Row style={{ padding: '0 16px', marginBottom: 60 }}>
+          <span style={{ fontWeight: 600, color: global.getPublicColor('error-color') }}>
             <FormattedMessage id='enterpriseColony.addCluster.host.start_at' />{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration' /> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation' />}
             <FormattedMessage id='enterpriseColony.addCluster.host.soud' />
           </span>

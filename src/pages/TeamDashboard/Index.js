@@ -341,14 +341,16 @@ export default class Index extends PureComponent {
       <Fragment>
         {(index.overviewInfo.region_health || loadingOverview) &&
           <div className={styles.teamAppTitle}>
-            <span>{globalUtil.fetchSvg('teamViewTitle')}</span>
-            <h2 className={styles.topContainerTitle}>
-              {loadingOverview ? (
-                <Spin size="small"></Spin>
-              ) : (
-                index.overviewInfo.team_alias
-              )}
-            </h2>
+            <div>
+              <span>{globalUtil.fetchSvg('teamViewTitle', globalUtil.getPublicColor())}</span>
+              <h2 className={styles.topContainerTitle}>
+                {loadingOverview ? (
+                  <Spin size="small"></Spin>
+                ) : (
+                  index.overviewInfo.team_alias
+                )}
+              </h2>
+            </div>
           </div>
         }
         {loadingOverview && !index.overviewInfo.region_health && (
@@ -438,7 +440,7 @@ export default class Index extends PureComponent {
             {/* 热门应用标题 */}
             <div className={styles.teamHotAppTitle}>
               <div className={styles.teamHotAppTitleLeft}>
-                <span>{globalUtil.fetchSvg('teamViewHotsvg')}</span>
+                <span>{globalUtil.fetchSvg('teamViewHotsvg', globalUtil.getPublicColor())}</span>
                 <h2><FormattedMessage id="teamOverview.appList" /></h2>
               </div>
             </div>

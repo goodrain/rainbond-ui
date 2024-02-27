@@ -196,7 +196,7 @@ export default class ImportMessage extends PureComponent {
         return (
             <div>
                 <Spin spinning={this.state.importLoading} size="large" tip="Loading...">
-                    <h2>{formatMessage({id:'enterpriseColony.import.recognition.title'})}
+                    <h2 className={styles.rbd_title}>{formatMessage({id:'enterpriseColony.import.recognition.title'})}
                         {namespace && namespace.length > 0 ? namespace : formatMessage({id:'enterpriseColony.import.recognition.null'})}
                     </h2>
                     <h3 className={styles.applist}>{formatMessage({id:'enterpriseColony.import.recognition.app.title'})}</h3>

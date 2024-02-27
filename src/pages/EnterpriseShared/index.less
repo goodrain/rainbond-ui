@@ -1,45 +1,52 @@
 .teamsTit {
   margin-bottom: 10px;
-  font-family: PingFangSC-Medium;
-  font-size: 14px;
-  color: #919191;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  color: @rbd-content-color-secondary;
   letter-spacing: 0;
 }
+
 .installBox {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+
   &:hover {
-    fill: #4d73b1 !important;
+    fill: @primary-color !important;
+
     svg path,
     div {
-      color: #4d73b1 !important;
-      fill: #4d73b1 !important;
+      color: @primary-color !important;
+      fill: @primary-color !important;
     }
-    color: #4d73b1 !important;
+
+    color: @primary-color !important;
   }
 }
+
 .appBoxs {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 
-  & > div:nth-of-type(1) {
+  &>div:nth-of-type(1) {
     width: 20px;
 
     i {
       cursor: pointer;
-      font-size: 20px;
+      font-size: @rbd-title-size;
+      color: @rbd-title-color;
+      line-height: @rbd-title-line-height;
     }
   }
 
-  & > div:nth-of-type(2) {
+  &>div:nth-of-type(2) {
     width: 120px;
   }
 
-  & > div:nth-of-type(3) {
+  &>div:nth-of-type(3) {
     width: 50%;
     margin-right: 30px;
 
@@ -51,14 +58,14 @@
     }
   }
 
-  & > div:nth-of-type(4) {
+  &>div:nth-of-type(4) {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     width: 30%;
   }
 
-  & > a {
+  &>a {
     width: 33px;
   }
 }
@@ -66,9 +73,8 @@
 .appVersion {
   background: #f0f2f5;
   padding: 2px 5px;
-  font-family: PingFangSC-Regular;
-  font-size: 12px;
-  color: #7c7c7c;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   letter-spacing: 0;
   width: fit-content;
   margin: 0 0 5px 5px;
@@ -81,9 +87,9 @@
 .devStatus {
   min-width: 60px;
   min-height: 22px;
-  background: #4d73b1;
-  font-family: PingFangSC-Regular;
-  font-size: 14px;
+  background: @primary-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
   color: #fff;
   letter-spacing: 0;
   margin-bottom: 6px;
@@ -92,9 +98,8 @@
 }
 
 .descText {
-  font-family: PingFangSC-Regular;
-  font-size: 12px;
-  color: #9ca2a8;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   letter-spacing: 0;
   line-height: 23px;
   margin: -8px 0 9px 0;
@@ -104,16 +109,16 @@
   text-align: center;
   margin-top: 140px;
 
-  & > p {
+  &>p {
     margin: 35px 0 18px 0;
   }
 
-  & > div {
+  &>div {
     button {
       height: 32px;
       margin-right: 20px;
-      font-family: PingFangSC-Regular;
-      font-size: 12px;
+      font-size: @rbd-auxiliary-size;
+      line-height: @rbd-auxiliary-line-height;
       color: #ffffff;
       letter-spacing: 0;
       padding: 0 5px;
@@ -124,7 +129,7 @@
 .lt {
   cursor: default;
   width: 28px;
-  background: #4d73b1;
+  background: @primary-color;
   box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.3);
   height: 70px;
   display: flex;
@@ -151,7 +156,7 @@
 }
 
 .h70 {
-  & > div {
+  &>div {
     height: 70px;
   }
 }
@@ -175,7 +180,7 @@
   display: flex;
   align-items: center;
 
-  & > div {
+  &>div {
     height: 40px;
     width: 100%;
     padding: 0 5px;
@@ -185,9 +190,9 @@
     }
 
     p:nth-of-type(1) {
-      font-family: PingFangSC-Medium;
-      font-size: 14px;
-      color: #384551;
+      font-size: @rbd-content-size;
+      color: @rbd-content-color;
+      line-height: @rbd-content-line-height;
       letter-spacing: 0;
     }
 
@@ -195,9 +200,9 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-family: PingFangSC-Regular;
-      font-size: 12px;
-      color: #999999;
+      font-size: @rbd-auxiliary-size;
+      color: @rbd-auxiliary-color-secondary;
+      line-height: @rbd-auxiliary-line-height;
       letter-spacing: 0;
     }
   }
@@ -236,11 +241,11 @@
   }
 
   .setCheckboxGroup {
-    margin: -4px 0 0 86px;
+    margin: 0 0 0 86px;
     width: calc(100% - 110px) !important;
 
     :global {
-      .ant-checkbox-wrapper + span {
+      .ant-checkbox-wrapper+span {
         vertical-align: middle;
       }
     }
@@ -270,8 +275,7 @@
   .dev_status {
     min-width: 58px;
     min-height: 22px;
-    background: #4d73b1;
-    font-family: PingFangSC-Regular;
+    background: @primary-color;
     font-size: 14px;
     color: #ffffff;
     letter-spacing: 0;
@@ -279,9 +283,9 @@
   }
 
   .dev_version {
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #999999;
+    font-size: @rbd-auxiliary-size;
+    color: @rbd-auxiliary-color-secondary;
+    line-height: @rbd-auxiliary-line-height;
     letter-spacing: 0;
     width: 100%;
   }
@@ -298,9 +302,9 @@
     text-overflow: ellipsis;
     background: #f0f2f5;
     padding: 2px 5px;
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #7c7c7c;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
     letter-spacing: 0;
   }
 }
@@ -308,9 +312,9 @@
 .teamMinTit {
   padding: 0 24px;
   margin-bottom: 5px;
-  font-family: PingFangSC-Regular;
-  font-size: 12px;
-  color: #999999;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  color: @rbd-auxiliary-color-secondary;
   letter-spacing: 0;
 }
 
@@ -336,17 +340,6 @@
   margin: 20px 0;
 }
 
-.btns {
-  :global {
-    .ant-btn-primary,
-    .ant-btn-primary:hover,
-    .ant-btn-primary:focus {
-      box-shadow: 0 3px 6px 0 rgba(33, 50, 79, 0.24);
-      background-color: #4d73b1 !important;
-      border-color: #4d73b1 !important;
-    }
-  }
-}
 
 .setTabs {
   :global {
@@ -358,53 +351,64 @@
       background: #fff;
       padding: 6px 16px 8px;
 
-      & > span {
+      &>span {
         vertical-align: super;
       }
     }
-    .ant-tabs-nav-container{
+
+    .ant-tabs-nav-container {
       margin-left: 24px !important;
     }
   }
+
   overflow: visible !important;
-  :global{
-    .ant-tabs-tab{
-      background-color: #F1F2F6 !important;
+
+  :global {
+    .ant-tabs-tab {
+      background-color: @rbd-background-color !important;
       margin-right: 0px !important;
-      border: 1px solid  transparent !important;
+      border: 1px solid transparent !important;
     }
-    .ant-tabs-bar{
-      border-bottom: 1px solid #4d73b1 !important;
+
+    .ant-tabs-bar {
+      border-bottom: 1px solid @primary-color !important;
       margin: 0;
       padding-bottom: 1px !important;
     }
-    .ant-tabs-tab-active{
-      height: 41px !important ;
-      border: 1px solid #4d73b1 !important;
+
+    .ant-tabs-tab-active {
+      height: 41px !important;
+      border: 1px solid @primary-color !important;
       border-bottom: 1px solid #fff !important;
       background-color: #fff !important;
     }
-    .ant-tabs-top-content{
+
+    .ant-tabs-top-content {
       border-radius: 5px;
 
     }
-    .ant-tabs-card-content{
-      // padding-top: 26px;
+
+    .ant-tabs-card-content {
       background-color: #fff;
       box-shadow: #242e4229 2px 4px 10px 0px !important;
-      // padding: 10px;
-      // z-index: 99;
     }
-    .ant-tabs-nav-scroll{
+
+    .ant-tabs-nav-scroll {
       overflow: visible !important;
     }
-    .ant-tabs-nav-container-scrolling{
+
+    .ant-tabs-nav-container-scrolling {
       overflow: visible !important;
     }
-    .ant-tabs-nav-container{
+
+    .ant-tabs-nav-container {
       overflow: visible !important;
     }
   }
+
+  overflow: visible !important;
+
+  
 }
 
 .addSvg {
@@ -412,10 +416,11 @@
   padding: 12px 0px 5px;
   margin-right: 0 !important;
 }
-.setTabs{
-  :global{
+
+.setTabs {
+  :global {
     .ant-input-search {
-      input{
+      input {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -424,3 +429,7 @@
   }
 }
 
+.bgc {
+  color: @primary-color ;
+  background-color: @primary-color ;
+}

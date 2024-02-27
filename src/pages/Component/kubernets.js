@@ -557,7 +557,7 @@ class Index extends PureComponent {
           p-id="1601"
           data-spm-anchor-id="a313x.7781069.0.i0"
           class="selected"
-          fill="#707070"
+          fill={globalUtil.getPublicColor()}
         >
         </path>
       </svg>

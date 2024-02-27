@@ -48,7 +48,9 @@
                 display: flex;
                 justify-content: end;
                 padding-top: 6px;
-                font-size: 14px;
+                font-size: @rbd-content-size;
+                line-height: @rbd-content-line-height;
+                color: @rbd-content-color-secondary;
                 padding-right: 40px;
                 font-weight:bolder;
                 text-align: right;
@@ -62,7 +64,7 @@
                 
                 span{
                     cursor: pointer;
-                    color: #4d73b1;
+                    color: @primary-color;
                 }
                 
                 
@@ -142,5 +144,6 @@
     padding-right: 50px;
     font-weight: 600;
     justify-content: end;
+    color: @rbd-content-color-secondary;
     
 }

@@ -112,24 +112,24 @@ class Index extends Component {
     switch (status) {
       case '0':
         return (
-          <div style={{ color: '#1890ff' }}>
-            <Badge color="#1890ff" />
+          <div style={{ color: globalUtil.getPublicColor('rbd-processing-status') }}>
+            <Badge color={globalUtil.getPublicColor('rbd-processing-status')} />
             {/* 编辑中 */}
             <FormattedMessage id='enterpriseColony.table.state.edit' />
           </div>
         );
       case '1':
         return (
-          <div style={{ color: '#52c41a' }}>
-            <Badge color="#52c41a" />
+          <div style={{ color: globalUtil.getPublicColor('rbd-success-status') }}>
+            <Badge color={ globalUtil.getPublicColor('rbd-success-status')} />
             {/* 运行中 */}
             <FormattedMessage id='enterpriseColony.table.state.run' />
           </div>
         );
       case '2':
         return (
-          <div style={{ color: '#b7b7b7' }}>
-            <Badge color="#b7b7b7" />
+          <div style={{ color:  globalUtil.getPublicColor('rbd-down-status') }}>
+            <Badge color={ globalUtil.getPublicColor('rbd-down-status')} />
             {/* 已下线 */}
             <FormattedMessage id='enterpriseColony.table.state.down' />
           </div>
@@ -137,24 +137,24 @@ class Index extends Component {
 
       case '3':
         return (
-          <div style={{ color: '#1890ff' }}>
-            <Badge color="#1890ff" />
+          <div style={{ color: globalUtil.getPublicColor('rbd-processing-status') }}>
+            <Badge color={globalUtil.getPublicColor('rbd-processing-status')} />
             {/* 维护中 */}
             <FormattedMessage id='enterpriseColony.table.state.maintain' />
           </div>
         );
       case '5':
         return (
-          <div style={{ color: 'red' }}>
-            <Badge color="red" />
+          <div style={{ color: globalUtil.getPublicColor('rbd-error-status') }}>
+            <Badge color={globalUtil.getPublicColor('rbd-error-status')} />
             {/* 异常 */}
             <FormattedMessage id='enterpriseColony.table.state.abnormal' />
           </div>
         );
       default:
         return (
-          <div style={{ color: '#fff' }}>
-            <Badge color="#fff" />
+          <div style={{ color: globalUtil.getPublicColor('rbd-unKnown-status') }}>
+            <Badge color={globalUtil.getPublicColor('rbd-unKnown-status')} />
             {/* 未知 */}
             <FormattedMessage id='enterpriseColony.table.state.unknown' />
           </div>
@@ -676,7 +676,7 @@ class Index extends Component {
                     <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
                     <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                       {arch.length > 0 && arch.map((item) => {
-                        return <Tag color="blue">{item}</Tag>
+                        return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
                       })}
                     </Descriptions.Item>
                     <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
