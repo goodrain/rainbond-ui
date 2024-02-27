@@ -249,6 +249,7 @@ export default class HttpTable extends PureComponent {
     });
   };
   resolveOk = () => {
+    console.log('进来了')
     this.setState(
       {
         whetherOpenForm: false

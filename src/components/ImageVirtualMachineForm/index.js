@@ -41,7 +41,7 @@ const formItemLayouts = {
     groups: global.groups,
     rainbondInfo: global.rainbondInfo,
     createAppByDockerrunLoading:
-      loading.effects['createApp/createAppByDockerrun']
+    loading.effects['createApp/createAppByDockerrun']
   }),
   null,
   null,

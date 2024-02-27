@@ -19,18 +19,29 @@ class Index extends Component {
 
     }
     render() {
-        const { operationPermissions, open, tabKey, appID } = this.props
+        const { operationPermissions, appID } = this.props
+        const { tabKeys, open } = this.state
         return (
-            <Card style={{ padding: '0px', border: 'none' }} className={styles.pluginCard}>
-                <Tabs defaultActiveKey={tabKey} onChange={this.callback} className={styles.tabsStyle}>
-                    <TabPane tab="HTTP" key="http">
-                        <HttpTable operationPermissions={operationPermissions} open={open} appID={appID} />
+            <div className={styles.cardContainer}>
+                <Tabs
+                    activeKey={tabKeys}
+                    onChange={this.callback}
+                    type="card"
+                >
+                    <TabPane tab={'网关监测'} key="monitor">
+                        <GatewayMonitor operationPermissions={operationPermissions} open={open} appID={appID} />
                     </TabPane>
-                    <TabPane tab="TCP/UDP" key="tcp">
-                        <TcpTable operationPermissions={operationPermissions} appID={appID}/>
+                    <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.index.management'})} key="route">
+                        <GatewayRoute operationPermissions={operationPermissions} open={open} appID={appID}  onTabChange={this.callback}/>
+                    </TabPane>
+                    <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.index.Services'})} key="service">
+                        <GatewayService operationPermissions={operationPermissions} appID={appID} open={open}/>
+                    </TabPane>
+                    <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.index.certificate'})} key="certificate">
+                        <GatewayCertificate operationPermissions={operationPermissions} appID={appID} />
                     </TabPane>
                 </Tabs>
-            </Card>
+            </div>
         );
     }
 }

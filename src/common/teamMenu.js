@@ -121,33 +121,13 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         authority: ['admin', 'user']
       });
     }
-    if (control || certificate) {
-      const children = [];
-      if (control) {
-        children.push({
-          name: formatMessage({ id: 'menu.team.gateway.control' }),
-          path: 'control',
-          icon: getMenuSvg.getSvg('control'),
-          authority: ['admin', 'user']
-        });
-      }
-
-      if (certificate) {
-        children.push({
-          name: formatMessage({ id: 'menu.team.gateway.certificate' }),
-          path: 'license',
-          icon: getMenuSvg.getSvg('license'),
-          authority: ['admin', 'user']
-        });
-      }
-      addMenuArr({
-        name: formatMessage({ id: 'menu.team.gateway' }),
-        icon: getMenuSvg.getSvg('gateway'),
-        path: `team/${teamName}/region/${regionName}/gateway`,
-        authority: ['admin', 'user'],
-        children
-      });
-    }
+    addMenuArr({
+      name: formatMessage({ id: 'menu.team.gateway' }),
+      icon: 'gateway',
+      path: `team/${teamName}/region/${regionName}/gateway`,
+      authority: ['admin', 'user'],
+      // children
+    });
 
     if (pluginView) {
       addMenuArr({

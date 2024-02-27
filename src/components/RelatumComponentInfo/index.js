@@ -38,7 +38,6 @@ export default class Index extends PureComponent {
   }
 
   onPageChange = page => {
-    console.log(page, 'page')
     this.setState({ page }, () => {
       this.loadRelationedApp();
     });
