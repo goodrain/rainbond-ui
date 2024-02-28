@@ -768,7 +768,7 @@ export default class RainbondClusterInit extends PureComponent {
                                 message: formatMessage({ id: 'placeholder.no_spaces' })
                               }
                             ]
-                          })(<Input type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
                         </Form.Item>
                       </>}
                   </Row>
@@ -876,7 +876,7 @@ export default class RainbondClusterInit extends PureComponent {
                                 message: formatMessage({ id: 'placeholder.no_spaces' })
                               }
                             ]
-                          })(<Input type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
                         </Form.Item>
                         {/* 数据库名称 */}
                         <Form.Item
