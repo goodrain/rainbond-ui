@@ -962,7 +962,7 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input
+                              <Input.Password
                                 type='password'
                                 autoComplete="new-password"
                                 onChange={this.handleOnChangePassword}
@@ -1074,7 +1074,7 @@ export default class RainbondClusterInit extends PureComponent {
                                 }
                               ]
                             })(
-                              <Input
+                              <Input.Password
                                 type='password'
                                 autoComplete="new-password"
                                 onChange={this.handleOnChangeDbPassword}
