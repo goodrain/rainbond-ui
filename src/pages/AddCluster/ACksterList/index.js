@@ -377,7 +377,7 @@ export default class RainbondClusterInit extends PureComponent {
         this.formObj.Cluster.regionDatabase = {};
       }
       this.formObj.Cluster.regionDatabase.enable = true
-      this.formObj.Cluster.regionDatabase.port = value
+      this.formObj.Cluster.regionDatabase.port = Number(value)
     } else {
       if (this.formObj.Cluster.regionDatabase) {
         delete this.formObj.Cluster.regionDatabase.port;

@@ -256,24 +256,16 @@ export default class RainbondClusterInit extends PureComponent {
         }
         if (values.isEtcd == 'custom') {
           dataObj.spec.etcdConfig = {
-            endpoints: values.endpoints.map(item => item.ip)
-          }
-          dataObj.spec.etcdConfig = {
+            endpoints: values.endpoints.map(item => item.ip),
             secretName: values.secretName
           }
         }
+
         if (values.image == 'custom') {
           dataObj.spec.imageHub = {
-            domain: values.domain
-          }
-
-          dataObj.spec.imageHub = {
-            namespace: values.namespace
-          }
-          dataObj.spec.imageHub = {
-            username: values.username
-          }
-          dataObj.spec.imageHub = {
+            domain: values.domain,
+            namespace: values.namespace,
+            username: values.username,
             password: values.password
           }
         }
@@ -281,24 +273,18 @@ export default class RainbondClusterInit extends PureComponent {
           dataObj.spec.rainbondVolumeSpecRWX = {
             storageClassName: values.storageClassName1
           }
-          dataObj.spec.rainbondVolumeSpecRWO = {
-            storageClassName: values.storageClassName2
-          }
         }
         if (values.database == 'custom') {
           dataObj.spec.regionDatabase = {
             host: values.regionDatabase_host,
-            port: values.regionDatabase_port,
+            port: Number(values.regionDatabase_port),
             username: values.regionDatabase_username,
             password: values.regionDatabase_password,
-            dbname: values.regionDatabase_dbname
+            name: values.regionDatabase_dbname
           }
         }
         if (values.mirror == 'custom') {
           dataObj.spec.rainbondImageRepository = values.mirror_address
-        }
-        if (values.ectype == 'custom') {
-          dataObj.spec.replicas = Number(values.replicas)
         }
 
         const yamls = yaml.dump(dataObj)
@@ -597,7 +583,7 @@ export default class RainbondClusterInit extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_storageClass' })
+                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })
                             },
                             {
                               pattern: /^[^\s]*$/,
