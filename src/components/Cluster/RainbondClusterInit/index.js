@@ -606,25 +606,6 @@ export default class RainbondClusterInit extends PureComponent {
                           ]
                         })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
                       </Form.Item>}
-
-                    {isStorage == 'custom' &&
-                      <Form.Item
-                        {...is_formItemLayout}
-                        label="RWO"
-                      >
-                        {getFieldDecorator('storageClassName2', {
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.StorageClass' })
-                            },
-                            {
-                              pattern: /^[^\s]*$/,
-                              message: formatMessage({ id: 'placeholder.no_spaces' })
-                            }
-                          ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_storage' })} />)}
-                      </Form.Item>}
                   </Row>
                   <Row className={styles.row}>
                     <div className={styles.row_flex}>
@@ -973,14 +954,14 @@ export default class RainbondClusterInit extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_address' })
+                              message: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })
                             },
                             {
                               pattern: /^[^\s]*$/,
                               message: formatMessage({ id: 'placeholder.no_spaces' })
                             }
                           ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_address' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
                       </Form.Item>}
                   </Row>
                 </Panel>
