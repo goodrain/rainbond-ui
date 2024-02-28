@@ -1165,7 +1165,7 @@ export default class RainbondClusterInit extends PureComponent {
                     <span>{formatMessage({ id: 'enterpriseColony.ACksterList.yaml_file_title' })}</span>
                   </div>
                   <Form.Item>
-                    <TextArea value={yamlJson} style={{ height: 'calc(74vh-58px)', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
+                    <TextArea value={yamlJson} style={{ height: 'calc(74vh - 58px)', overflow: 'auto', border: 'none', color: '#fff' }} disabled rows={46} />
                   </Form.Item>
                 </div>
 
