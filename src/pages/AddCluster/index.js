@@ -301,17 +301,6 @@ export default class EnterpriseClusters extends PureComponent {
       <Menu>
         <Menu.Item>
           <a
-            rel="noopener noreferrer"
-            onClick={e => {
-              e.preventDefault();
-              this.toClusterList('custom');
-            }}
-          >
-            <FormattedMessage id='enterpriseColony.addCluster.adopt'/>
-          </a>
-        </Menu.Item>
-        <Menu.Item>
-          <a
             onClick={e => {
               e.preventDefault();
               this.addClusterShow();

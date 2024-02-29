@@ -30,6 +30,7 @@ import styles from '../ACKBuyConfig/index.less';
 import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
+import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import styless from '../RKEClusterAdd/index.less';
 import istyles from './index.less';
 
@@ -605,6 +606,15 @@ export default class KubernetesClusterShow extends PureComponent {
             clusterID={updateClusterID}
             nodeList={nodeList}
             rkeConfig={rkeConfig}
+          />
+        )}
+        {showUpdateKubernetesTasks && (
+          <ShowUpdateClusterDetail
+            eid={eid}
+            clusterID={clusterID}
+            task={updateTask}
+            selectProvider={selectProvider}
+            onCancel={this.cancelShowUpdateKubernetes}
           />
         )}
       </div>
