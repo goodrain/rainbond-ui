@@ -14,7 +14,6 @@ import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
 import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
-import ShowUpdateClusterDetail from '../../../components/Cluster/ShowUpdateClusterDetail';
 import SVG from '../../../utils/pageHeaderSvg'
 import global from '@/utils/global';
 import styles from "./index.less";
@@ -329,15 +328,6 @@ class Index extends Component {
             clusterID={updateClusterID}
             nodeList={nodeListArr}
             rkeConfig={rkeConfig}
-          />
-        )}
-        {showUpdateKubernetesTasks && (
-          <ShowUpdateClusterDetail
-            eid={eid}
-            clusterID={clusterID}
-            task={updateTask}
-            selectProvider={"rke"}
-            onCancel={this.cancelShowUpdateKubernetes}
           />
         )}
       </>

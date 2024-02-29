@@ -31,7 +31,6 @@ import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
 import styless from '../RKEClusterAdd/index.less';
-import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
 import istyles from './index.less';
 
 const { Paragraph } = Typography;
@@ -412,13 +411,6 @@ export default class KubernetesClusterShow extends PureComponent {
               </a>
             )}
 
-            {/* {row.state === 'running' &&
-              (selectProvider === 'rke' || selectProvider === 'custom') && (
-                <a onClick={() => this.handleIsComponents(row.cluster_id)}>
-                  <FormattedMessage id='enterpriseColony.addCluster.host.look'/>
-                </a>
-              )} */}
-
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
@@ -615,25 +607,6 @@ export default class KubernetesClusterShow extends PureComponent {
             rkeConfig={rkeConfig}
           />
         )}
-        {showUpdateKubernetesTasks && (
-          <ShowUpdateClusterDetail
-            eid={eid}
-            clusterID={clusterID}
-            task={updateTask}
-            selectProvider={selectProvider}
-            onCancel={this.cancelShowUpdateKubernetes}
-          />
-        )}
-        {/* {isComponents && (
-          <ClusterComponents
-            eid={eid}
-            clusterID={isComponents}
-            providerName={selectProvider}
-            onCancel={() => {
-              this.handleIsComponents(false);
-            }}
-          />
-        )} */}
       </div>
     );
   }
