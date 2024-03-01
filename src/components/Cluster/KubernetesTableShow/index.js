@@ -27,7 +27,6 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
@@ -498,7 +497,26 @@ export default class KubernetesClusterShow extends PureComponent {
               </Paragraph>
             </Col>
           )}
-          <Col span={24} style={{ textAlign: 'right' }}>
+          <Col span={12} style={{ textAlign: 'left' }}>
+            {selectClusterName && (
+              <span style={{ marginRight: '16px' }}>
+                <FormattedMessage id='enterpriseColony.addCluster.host.Cluster_selected'/> {selectClusterName},
+                <FormattedMessage id='enterpriseColony.addCluster.host.cluster_complies'/>
+              </span>
+            )}
+            {!selectClusterName &&
+              lastTask &&
+              lastTask.name &&
+              showLastTaskDetail && (
+                <span>
+                   <FormattedMessage id='enterpriseColony.addCluster.host.Last_created'/>{lastTask.name},
+                  <Button onClick={showLastTaskDetail} type="link">
+                    <FormattedMessage id='enterpriseColony.addCluster.host.creation_progress'/>
+                  </Button>
+                </span>
+              )}
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Button type="primary" onClick={showBuyClusterConfig}>
               <FormattedMessage id='enterpriseColony.addCluster.host.add'/>
             </Button>

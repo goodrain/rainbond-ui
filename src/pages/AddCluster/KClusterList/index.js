@@ -9,6 +9,7 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import ACKBuyConfig from '../../../components/Cluster/ACKBuyConfig';
 import CustomClusterAdd from '../../../components/Cluster/CustomClusterAdd';
 import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow';
+import ShowKubernetesCreateDetail from '../../../components/Cluster/ShowKubernetesCreateDetail';
 import RKEClusterConfig from '../../../components/Cluster/RKEClusterAdd';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -491,6 +492,15 @@ export default class EnterpriseClusters extends PureComponent {
                 })
               : ''}
           </Col>
+          {showTaskDetail && lastTask && (
+            <ShowKubernetesCreateDetail
+              onCancel={this.cancelShowCreateDetail}
+              eid={eid}
+              selectProvider={provider}
+              taskID={lastTask.taskID}
+              clusterID={currentClusterID}
+            />
+          )}
         </Card>
       </PageHeaderLayout>
     );
