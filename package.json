@@ -138,7 +138,6 @@
     "trailingComma": "none"
   },
   "resolutions": {
-    "**/**/fsevents": "^2.0.6",
     "**/**/node-gyp": "5.0.0"
   }
 }
