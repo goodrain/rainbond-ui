@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
+import moment from 'moment';
 import { Table, Card, Button, Row, Col, Form, Input, DatePicker, Select } from 'antd';
-import RouteDrawer from '../../../components/RouteDrawer';
 import globalUtil from '../../../utils/global';
 import GatewayMonitorChart from '../../../components/GatewayMonitorChart'
 import styles from './index.less';
+import { start } from '@/services/app';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -70,7 +71,7 @@ export default class index extends Component {
     }
 
     componentDidMount() {
-        this.fetchQpsRate()
+        this.startPolling();
     }
 
     componentWillUnmount() {
@@ -80,7 +81,6 @@ export default class index extends Component {
     fetchData = () => {
         const end = Date.now() / 1000;
         const start = end - (30 * 60);
-        console.log(end, start)
         this.fetchQpsRateSum(start, end);
         this.fetchFlowRateSum(start, end);
         this.fetchDelayRateSum(start, end);
@@ -161,19 +161,162 @@ export default class index extends Component {
     // 获取请求速率分组数据
     fetchQpsRate = (ago, time) => {
         const { dispatch } = this.props
+        const { color, nameSpace, appID } = this.state
         const regionName = globalUtil.getCurrRegionName()
+        const query = appID ? `sum(rate(apisix_http_status{route=~"${nameSpace}_${appID}.*"}[1m])) by (route)` : `sum(rate(apisix_http_status{route=~"${nameSpace}.*"}[1m])) by (route)`;
         dispatch({
-            type: 'gateWay/getQpsRate',
+            type: 'gateWay/getTeamGatewayData',
             payload: {
-                query: 'sum(rate(apisix_http_status{route=~"rbd-system.*"}[1m])) by (route)',
+                query,
                 regionName,
-                start: '1701829894.312',
-                end: '1701833494.312',
+                start: ago,
+                end: time,
                 step: 14,
             },
             callback: res => {
-                if (res && res.list) {
-                    console.log(res,'res')
+                if (res && res.result.length > 0) {
+                    // 创建一个新数组来存放提取的数据
+                    const extractedData = [];
+                    // 遍历原始数组
+                    res.result.forEach((item, index) => {
+                        // 获取route
+                        const route = this.handleRouteLabel(item.metric.route);
+
+                        // 获取values数组中的时间戳和值
+                        const timeStamps = item.values.map(entry => {
+                            return globalUtil.formatDateTimeByTimestamp(entry[0])
+                        });
+                        const values = item.values.map(entry => Math.round(entry[1]));
+                        // 将提取的数据存入新数组
+                        extractedData.push({ route, values, timeStamps, color: color[index] });
+                    });
+                    this.setState({
+                        qpsRate: extractedData,
+                    })
+                }
+            }
+        })
+    }
+    // 获取流量大小分组数据
+    fetchFlowRate = (ago, time) => {
+        const { dispatch } = this.props
+        const { color, nameSpace, appID } = this.state
+        const regionName = globalUtil.getCurrRegionName()
+        const query = appID ? `sum(rate(apisix_bandwidth{route=~"${nameSpace}_${appID}.*",type="egress"}[1m])) by (route)` : `sum(rate(apisix_bandwidth{route=~"${nameSpace}.*",type="egress"}[1m])) by (route)`;
+        dispatch({
+            type: 'gateWay/getTeamGatewayData',
+            payload: {
+                query,
+                regionName,
+                start: ago,
+                end: time,
+                step: 14,
+            },
+            callback: res => {
+                if (res && res.result.length > 0) {
+                    // 创建一个新数组来存放提取的数据
+                    const extractedData = [];
+                    // 遍历原始数组
+                    res.result.forEach((item, index) => {
+                        // 获取route
+                        const route = this.handleRouteLabel(item.metric.route);
+
+                        // 获取values数组中的时间戳和值
+                        const timeStamps = item.values.map(entry => {
+                            return globalUtil.formatDateTimeByTimestamp(entry[0])
+                        });
+                        const values = item.values.map(entry => Math.round(entry[1]));
+                        // 将提取的数据存入新数组
+                        extractedData.push({ route, values, timeStamps, color: color[index] });
+                    });
+                    this.setState({
+                        flowRate: extractedData,
+                    })
+                }
+            }
+        })
+    }
+    // 获取延迟大小分组数据
+    fetchDelayRate = (ago, time) => {
+        const { dispatch } = this.props
+        const { color, nameSpace, appID } = this.state
+        const regionName = globalUtil.getCurrRegionName()
+        const query = appID ? `sum(rate(apisix_http_latency_sum{type="upstream",  route=~"${nameSpace}_${appID}.*"}[30s])) by (route) /  sum(rate(apisix_http_latency_count{type="upstream",  route=~"${nameSpace}_${appID}.*"}[30s])) by (route)` 
+                            : `sum(rate(apisix_http_latency_sum{type="upstream",  route=~"${nameSpace}.*"}[30s])) by (route) /  sum(rate(apisix_http_latency_count{type="upstream",  route=~"${nameSpace}.*"}[30s])) by (route)`
+        dispatch({
+            type: 'gateWay/getTeamGatewayData',
+            payload: {
+                query,
+                regionName,
+                start: ago,
+                end: time,
+                step: 14,
+            },
+            callback: res => {
+                if (res && res.result.length > 0) {
+                    // 创建一个新数组来存放提取的数据
+                    const extractedData = [];
+                    // 遍历原始数组
+                    res.result.forEach((item, index) => {
+                        // 获取route
+                        const route = this.handleRouteLabel(item.metric.route);
+
+                        // 获取values数组中的时间戳和值
+                        const timeStamps = item.values.map(entry => {
+                            return globalUtil.formatDateTimeByTimestamp(entry[0])
+                        });
+                        const values = item.values.map(entry => {
+                            if(entry[1] == 'NaN'){
+                                return 0
+                            }else{
+                                return Math.round(entry[1])
+                            }
+                        });
+                        // 将提取的数据存入新数组
+                        extractedData.push({ route, values, timeStamps, color: color[index] });
+                    });
+                    this.setState({
+                        delayRate: extractedData,
+                    })
+                }
+            }
+        })
+    }
+    // 获取错误率分组数据
+    fetchErrorRate = (ago, time) => {
+        const { dispatch } = this.props
+        const { color, nameSpace, appID } = this.state
+        const regionName = globalUtil.getCurrRegionName()
+        const query = appID ? `sum(rate(apisix_http_status{route=~"${nameSpace}_${appID}.*",code=~"4..|5.."}[1m])) by (route)` : `sum(rate(apisix_http_status{route=~"${nameSpace}.*",code=~"4..|5.."}[1m])) by (route)`
+        dispatch({
+            type: 'gateWay/getTeamGatewayData',
+            payload: {
+                query,
+                regionName,
+                start: ago,
+                end: time,
+                step: 14,
+            },
+            callback: res => {
+                if (res && res.result.length > 0) {
+                    // 创建一个新数组来存放提取的数据
+                    const extractedData = [];
+                    // 遍历原始数组
+                    res.result.forEach((item, index) => {
+                        // 获取route
+                        const route = this.handleRouteLabel(item.metric.route);
+
+                        // 获取values数组中的时间戳和值
+                        const timeStamps = item.values.map(entry => {
+                            return globalUtil.formatDateTimeByTimestamp(entry[0])
+                        });
+                        const values = item.values.map(entry => Math.round(entry[1]));
+                        // 将提取的数据存入新数组
+                        extractedData.push({ route, values, timeStamps, color: color[index] });
+                    });
+                    this.setState({
+                        errorRate: extractedData,
+                    })
                 }
             }
         })
@@ -327,10 +470,9 @@ export default class index extends Component {
                     <Row type="flex">
                         <Col span={6} className={styles.box_col}>
                             <div className={styles.title_col}>
-                                <p>Qps</p>
-
+                                <p>Qps(次/s)</p>
                                 <div>
-                                    30次/s
+                                    {qpsRateSum != 'NaN' ? qpsRateSum : 0}
                                 </div>
                             </div>
                         </Col>
@@ -352,9 +494,9 @@ export default class index extends Component {
                         </Col>
                         <Col span={6} className={styles.box_col}>
                             <div className={styles.title_col}>
-                                <p>错误率</p>
+                                <p>错误率(次/s)</p>
                                 <div>
-                                    12%
+                                    {errorRateSum != 'NaN' ? errorRateSum : 0}
                                 </div>
                             </div>
                         </Col>
