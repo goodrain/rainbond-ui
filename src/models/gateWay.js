@@ -34,12 +34,10 @@ import {
     deleteLimitingStrategy,
     editLimitingStrategy,
     getApiGatewayList,
-    addApiGateway,
-    editApiGateway,
+    handleApiGateway,
     deleteApiGateway,
     getApiGatewayService,
-    addApiGatewayService,
-    editApiGatewayService,
+    handleApiGatewayService,
     deleteApiGatewayService,
     fetchGetServiceAddress,
     handleApiGatewayCert,
@@ -313,14 +311,8 @@ export default {
                 callback(response)
             }
         },
-        *addApiGateway({ callback, payload, handleError }, { call }) {
-            const response = yield call(addApiGateway, payload, handleError);
-            if (callback) {
-                callback(response)
-            }
-        },
-        *editApiGateway({ callback, payload, handleError }, { call }) {
-            const response = yield call(editApiGateway, payload, handleError);
+        *handleApiGateway({ callback, payload, handleError }, { call }) {
+            const response = yield call(handleApiGateway, payload, handleError);
             if (callback) {
                 callback(response)
             }
@@ -337,14 +329,8 @@ export default {
                 callback(response)
             }
         },
-        *addApiGatewayService({ callback, payload, handleError }, { call }) {
-            const response = yield call(addApiGatewayService, payload, handleError);
-            if (callback) {
-                callback(response)
-            }
-        },
-        *editApiGatewayService({ callback, payload, handleError }, { call }) {
-            const response = yield call(editApiGatewayService, payload, handleError);
+        *handleApiGatewayService({ callback, payload, handleError }, { call }) {
+            const response = yield call(handleApiGatewayService, payload, handleError);
             if (callback) {
                 callback(response)
             }
