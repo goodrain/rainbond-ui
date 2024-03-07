@@ -109,11 +109,14 @@ export default function request(url, options) {
   const regionName = cookie.get('region_name');
   const currRegionName = globalUtil.getCurrRegionName();
   const currTeamName = globalUtil.getCurrTeamName();
+  const Authorization = newOptions.isToken && options.headers.Authorization
 
   let interfaceRegionName = '';
   let interfaceTeamName = '';
-  if (token && newOptions.passAuthorization) {
+  if (token && newOptions.passAuthorization && !newOptions.isToken) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
+  } else {
+    newOptions.headers.Authorization = Authorization;
   }
 
   if (

@@ -171,7 +171,11 @@ const teamGateway = {
   'teamGateway.strategy.table.type.tooltip.onclick':'请点击开启对外服务方可操作',
   'teamGateway.strategy.table.type.open':'开启',
   'teamGateway.strategy.table.type.joinMsg':'连接信息',
-  'teamGateway.strategy.table.type.null':'无',
+  'teamGateway.strategy.table.type.null':'空',
+  'teamGateway.strategy.table.type.detele':'确认要删除吗？',
+  'teamGateway.strategy.table.type.add':'确认要添加吗？',
+  'teamGateway.strategy.table.type.p1':'您选择的组件未开启外部访问，是否自动打开并添加此访问策略？',
+  'teamGateway.strategy.table.type.p2':'当前组件处于关闭状态，启动后方可访问，是否启动组件？',
 
   // certificate
   'teamGateway.certificate.title':'证书管理',
