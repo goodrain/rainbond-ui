@@ -172,6 +172,10 @@ const teamGateway = {
   'teamGateway.strategy.table.type.open':'Open',
   'teamGateway.strategy.table.type.joinMsg':'ConnectInfo',
   'teamGateway.strategy.table.type.null':'Empty',
+  'teamGateway.strategy.table.type.detele':'Are you sure you want to delete it?',
+  'teamGateway.strategy.table.type.add':'Are you sure you want to add it?',
+  'teamGateway.strategy.table.type.p1':'The component you selected does not have external access enabled. Do you automatically enable and add this access policy?',
+  'teamGateway.strategy.table.type.p2':'The current component is in the closed state, and can be accessed after starting. Do you want to start the component?',
 
   // certificate
   'teamGateway.certificate.title':'Certificate management',
