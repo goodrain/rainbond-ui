@@ -26,6 +26,7 @@ class LicenseDrawer extends PureComponent {
     const { onOk } = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err && onOk) {
+        values.certificate_type = "gateway"
         onOk(values);
       }
     });
@@ -145,30 +146,7 @@ class LicenseDrawer extends PureComponent {
                 rules: rulesArr
               })(<Input placeholder={formatMessage({id:'placeholder.certificate.name'})} />)}
             </FormItem>
-            {isGateway ? (
-              <FormItem {...formItemLayout} label={formatMessage({id:'teamGateway.DrawerGateWayAPI.Gateway'})}>
-              {getFieldDecorator('certificate_type', {
-                initialValue: editData ? editData.certificate_type : formatMessage({id:'popover.manage.certificate.label.server'}),
-                rules: [{ required: true }]
-              })(
-                <RadioGroup>
-                  <Radio value={formatMessage({id:'popover.manage.certificate.label.server'})} onClick={()=>this.rules(formatMessage({id:'popover.manage.certificate.label.server'}))}>{formatMessage({id:'teamGateway.control.table.default'})}</Radio>
-                  <Radio value="gateway"  onClick={()=>this.rules("gateway")}>{formatMessage({id:'teamGateway.control.table.GatewayApi'})}</Radio>
-                </RadioGroup>
-              )}
-            </FormItem>
-            ):(
-              <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.kind'})}>
-              {getFieldDecorator('certificate_type', {
-                initialValue: formatMessage({id:'popover.manage.certificate.label.server'}),
-                rules: [{ required: true }]
-              })(
-                <RadioGroup>
-                  <Radio value={formatMessage({id:'popover.manage.certificate.label.server'})}>{formatMessage({id:'popover.manage.certificate.label.server'})}</Radio>
-                </RadioGroup>
-              )}
-            </FormItem>
-            )}
+
             {certificateList.map(item => {
               const { value, name, label, messages, mode } = item;
               return (
