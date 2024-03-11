@@ -680,5 +680,67 @@ const Vm = {
   'Vm.createVm.vm':'virtual machine',
 }
 
+const gatewayplugin = {
 
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm);   
+  'gatewayplugin.null':'nothing',
+  'gatewayplugin.Notempty':'Non empty',
+  'gatewayplugin.list.limit-req':'The limit req plugin uses the leaky bucket algorithm to limit the request rate of a single client to a service.',
+  'gatewayplugin.list.limit-conn':'The limit conn plugin is used to limit the number of concurrent requests from clients to a single service. When the number of concurrent requests from the client to the router reaches the limit, custom status codes and response information can be returned.',
+  'gatewayplugin.list.limit-count':'The limit count plugin uses a fixed time window algorithm, mainly used to limit the total number of requests from a single client to a service within a specified time range, and will return the remaining number of requests in the HTTP response header. The principle of this plugin is similar to the rate limit of the GitHub API',
+  
+  // limit-req
+  'gatewayplugin.limit-req.null': 'Null',
+  'gatewayplugin.limit-req.Notempty': 'Notempty',
+  'gatewayplugin.limit-req.rate': 'The specified request rate (in seconds), requests that exceed the rate but do not exceed (rate+burst) will be delayed in processing.',
+  'gatewayplugin.limit-req.inputrate': 'Please fill in rate',
+  'gatewayplugin.limit-req.burst': 'Requests with a request rate exceeding (rate+burst) will be directly rejected',
+  'gatewayplugin.limit-req.inputburst': 'Please fill in burst',
+  'gatewayplugin.limit-req.key_type': 'The type of user specified key to be used. The default value is: var.',
+  'gatewayplugin.limit-req.inputkey_type': 'Please fill in key_type',
+  'gatewayplugin.limit-req.key': 'The keys that are currently accepted are: remote_addr (client IP address), server_addr (server IP address), X-Forwarded-For or X-Real-IP in the request header, consumer_name (Consumer username).',
+  'gatewayplugin.limit-req.inputkey': 'Please fill in key',
+  'gatewayplugin.limit-req.rejected_code': 'The HTTP status code returned when a request that exceeds the threshold is rejected. The default value is 503',
+  'gatewayplugin.limit-req.inputrejected_code': 'Please fill in rejected_code',
+  'gatewayplugin.limit-req.rejected_msg': 'Please fill in rejected_msg',
+  'gatewayplugin.limit-req.inputrejected_msg': 'The response body returned when a request that exceeds the threshold is rejected.',
+  'gatewayplugin.limit-req.nodelay': 'When set to true, requests whose rate exceeds rate but does not exceed (rate + burst) are not delayed; When set to false, a delay is added. The default value is false',
+  'gatewayplugin.limit-req.inputnodelay': 'Please fill in nodelay',
+  'gatewayplugin.limit-req.allow_degradation': 'When set to true, the request is automatically allowed to continue if the rate-limiting plug-in feature is temporarily unavailable. The default value is false',
+  // limit-conn
+  'gatewayplugin.limit-conn.conn': 'The maximum number of concurrent requests allowed. Requests exceeding the limit of conn but below conn+burst will be delayed in processing.',
+  'gatewayplugin.limit-conn.inputconn': 'Please fill in conn',
+  'gatewayplugin.limit-conn.burst': 'Requests with a request rate exceeding (rate+burst) will be directly rejected.',
+  'gatewayplugin.limit-conn.inputburst': 'Please fill in burst',
+  'gatewayplugin.limit-conn.default_conn_delay': 'The default processing delay time for typical connections (or requests).',
+  'gatewayplugin.limit-conn.inputdefault_conn_delay': 'Please fill in default_conn_delay',
+  'gatewayplugin.limit-conn.only_use_default_delay': 'Strict pattern of delay time. If this parameter is set to true, default_conn_delay is used to delay processing. The default value is false',
+  'gatewayplugin.limit-conn.inputonly_use_default_delay': 'Please fill in only_use_default_delay',
+  'gatewayplugin.limit-conn.key_type': 'The type of user specified key to be used. The default value is: var.',
+  'gatewayplugin.limit-conn.inputkey_type': 'Please fill in key_type',
+  'gatewayplugin.limit-conn.key': 'Please fill in key',
+  'gatewayplugin.limit-conn.inputkey': 'The keys that are currently accepted are: remote_addr (client IP address), server_addr (server IP address), X-Forwarded-For or X-Real-IP in the request header, consumer_name (Consumer username).',
+  'gatewayplugin.limit-conn.rejected_code': 'The HTTP status code returned when the number of requests exceeds the conn + burst threshold. The default value is 503',
+  'gatewayplugin.limit-conn.inputrejected_code': 'Please fill in rejected_code',
+  'gatewayplugin.limit-conn.rejected_msg': 'The information returned when the number of requests exceeds the conn+burst threshold.',
+  'gatewayplugin.limit-conn.inputrejected_msg': 'Please fill in rejected_msg',
+  'gatewayplugin.limit-conn.allow_degradation': 'When set to true, if the speed limit plugin function is temporarily unavailable, it will automatically allow the request to continue. The default value is false',
+  // limit-count
+  'gatewayplugin.limit-count.count': 'The maximum number of concurrent requests allowed. Requests exceeding the count limit but below the count+burst will be delayed in processing.',
+  'gatewayplugin.limit-count.inputcount': 'Please fill in count',
+  'gatewayplugin.limit-count.time_window': 'The size of the time window in seconds. If the time defined by this attribute is exceeded, the counting will restart.',
+  'gatewayplugin.limit-count.inputtime_window': 'Please fill in time_window',
+  'gatewayplugin.limit-count.key_type': 'The type of key. The default value is var',
+  'gatewayplugin.limit-count.inputkey_type': 'Please fill in key_type',
+  'gatewayplugin.limit-count.key': 'Used to do the request count basis. If key_type is constant, then key is treated as a constant. If key_type is var, then key is treated as a variable. If key_type is var_combination, then key is used as a variable combination, such as $remote_addr $consumer_name, The plugin is subject to both $remote_addr and $consumer_name variables; If the value of key is null, $remote_addr will be used as the default key. Default value: remote_addr',
+  'gatewayplugin.limit-count.inputkey': 'Please fill in key',
+  'gatewayplugin.limit-count.rejected_code': 'The HTTP status code returned when a request that exceeds the threshold is rejected. The default value is 503',
+  'gatewayplugin.limit-count.inputrejected_code': 'Please fill in rejected_code',
+  'gatewayplugin.limit-count.inputrejected_msg': 'Please fill in rejected_msg',
+  'gatewayplugin.limit-count.rejected_msg': 'The response body returned when a request that exceeds the threshold is rejected.',
+  'gatewayplugin.limit-count.policy': 'A strategy for retrieving and increasing limit counts. When set to local, the counter is saved in memory locally on the node.',
+  'gatewayplugin.limit-count.inputpolicy': 'Please fill in policy',
+  'gatewayplugin.limit-count.show_limit_quota_header': 'When set to true, the X-RateLimit-Limit (the total number of requests restricted) and X-RateLimit-Remaining (the number of requests remaining to be sent) fields are displayed in the response header. The default value is true',
+}
+
+
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);   

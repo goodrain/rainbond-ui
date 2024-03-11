@@ -91,7 +91,7 @@ export default class index extends Component {
                 appID: app_id || appID || '',
                 type: type,
                 service_alias: values.backends && values.backends.length > 0 ? values.backends.map(item => { return item.serviceName }).join(',') : '',
-                name: (values.name && this.splitString(values.name,'|') )|| ''
+                name: values.name || ''
             },
             callback: res => {
                 if(res){
