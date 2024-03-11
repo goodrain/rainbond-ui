@@ -121,7 +121,7 @@ export default class index extends Component {
             type: 'gateWay/deleteApiGateway',
             payload: {
                 teamName: teamName,
-                name: this.splitString(data.name,'|','name') ,
+                name: data.name.split("|")[0] || '',
                 appID: appID || '',
                 type: type
             },
