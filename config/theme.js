@@ -13,7 +13,7 @@ module.exports = {
 'label-color':'#444444', // 表单 label 文本色
 
 
-'rbd-background-color': '#F3F3F3', // rainbond 背景色
+'rbd-background-color': '#f0f2f5', // rainbond 背景色
 'rbd-label-color': '#8d9bad', // rainbond 标签色
 // 特大号醒目文字
 'rbd-display-size': '36px',

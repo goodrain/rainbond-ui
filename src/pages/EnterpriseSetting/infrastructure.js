@@ -510,7 +510,7 @@ class Infrastructure extends PureComponent {
     const Oauth = (
       <div>
         <Card
-          style={{ borderTop: '1px solid  #ccc' }}
+          style={{ borderTop: '1px solid  #ccc', borderRadius:0 }}
           hoverable
           bordered={false}
           className={styles.infrastructureCard}
@@ -555,7 +555,7 @@ class Infrastructure extends PureComponent {
       <Card
         hoverable
         bordered={false}
-        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' ,borderRadius:0}}
+        style={{ borderTop: '1px solid  #ccc', borderRadius:0}}
         className={styles.infrastructureCard}
       >
         <Row type="flex" align="middle">
