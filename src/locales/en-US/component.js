@@ -1080,7 +1080,7 @@ const componentOverview = {
 
     'componentOverview.MemoryForm.title':'Memory',
     'componentOverview.MemoryForm.message':'Please select memory',
-
+    'componentOverview.body.safety.SafetyCodeScan.Controlserror':'Operation failure',
 }
     
   

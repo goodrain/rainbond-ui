@@ -1092,7 +1092,7 @@ const componentOverview = {
 
     'componentOverview.MemoryForm.title':'内存',
     'componentOverview.MemoryForm.message':'请选择内存',
-
+    'componentOverview.body.safety.SafetyCodeScan.Controlserror':'操作失败',
 
 }
     

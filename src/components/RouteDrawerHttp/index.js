@@ -105,7 +105,7 @@ export default class index extends Component {
         formRefs.forEach((formRef, index) => {
             if (!formRef) return
             const form = formRef.props.form;
-            form.validateFields((err, values) => {                
+            form.validateFields((err, values) => {    
                 if (!err) {
                     const { name, ...config } = values;
                     plugins.push({name:values.name,secretRef:'', enable: true, config: config})
@@ -127,7 +127,8 @@ export default class index extends Component {
                     plugins: plugins,
                 };
                 if (editInfo && Object.keys(editInfo).length > 0) {
-                    data.name = editInfo.name;
+                    const splitString = editInfo.name.split("|")[0];
+                    data.name = splitString
                 }
                 if (values.priority) {
                     data.priority = Number(values.priority);
@@ -400,7 +401,6 @@ export default class index extends Component {
         ];
         const appKey = appID && { key: appID };
         let appKeys = {};
-
         if (groupSelect === 'k8s') {
             if (editInfo && editInfo.name) {
                 const matchResult = editInfo.name.match(/^(\d+)/);
@@ -423,6 +423,7 @@ export default class index extends Component {
         const containerPorts =
             portList && portList.length > 0 && portList[0].container_port;
         const isOk = !(componentLoading || portLoading);
+
         return (
             <Drawer
                 title={Object.keys(editInfo).length > 0 ? formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.edit'}) :formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.add'})}
