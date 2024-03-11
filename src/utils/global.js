@@ -2384,6 +2384,17 @@ const global = {
       return PublicColor['primary-color'];
     }
   },
+  // 将时间戳转化成YYYY-MM-DD HH:MM格式
+  formatDateTimeByTimestamp(timestamp) {
+    const timestamps = timestamp * 1000; // 将秒转换为毫秒
+    const date = new Date(timestamps);
+
+    const hours = ('0' + date.getHours()).slice(-2); // 添加前导零
+    const minutes = ('0' + date.getMinutes()).slice(-2); // 添加前导零
+
+    const formattedTime = hours + ':' + minutes;
+    return formattedTime
+  }
 };
 
 export default global;
