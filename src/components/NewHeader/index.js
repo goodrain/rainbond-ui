@@ -5,6 +5,7 @@ import {
     notification,
     Row,
     Select,
+    Tooltip
 } from 'antd';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -14,7 +15,7 @@ class Headers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            values: [{ name: '', value: '', type: '', type1: '' }]
+            values: [{ name: '', value: '', scope: 'Header', op: 'Equal' }]
         };
     }
     componentDidMount() {
@@ -41,13 +42,13 @@ class Headers extends Component {
     };
     onSelectChange = (value, index) => {
         const { values } = this.state;
-        values[index].type = value;
+        values[index].scope = value;
         this.triggerChange(values);
         this.setValues(values);
     };
     onSelect1Change = (value, index) => {
         const { values } = this.state;
-        values[index].type1 = value;
+        values[index].op = value;
         this.triggerChange(values);
         this.setValues(values);
     };
@@ -55,7 +56,7 @@ class Headers extends Component {
     setValues(arr) {
         const setArr = arr || [];
         if (!setArr.length) {
-            setArr.push({ name: '', value: '', type: '', type1: '' });
+            setArr.push({ name: '', value: '', scope: 'Header', op: 'Equal' });
         }
         this.setState({ values: setArr });
     }
@@ -74,7 +75,7 @@ class Headers extends Component {
             return null;
         }
         this.setState({
-            values: values.concat({ name: '', value: '', type: '', type1: '' })
+            values: values.concat({ name: '', value: '', scope: 'Header', op: 'Equal' })
         });
     };
 
@@ -90,13 +91,13 @@ class Headers extends Component {
             res.push({
                 name: values[i].name,
                 value: values[i].value,
-                type: values[i].type,
-                type1: values[i].type1
+                scope: values[i].scope,
+                op: values[i].op
             });
         }
         const { onChange } = this.props;
         if (onChange) {
-            onChange(res,this.props.index);
+            onChange(res, this.props.index);
         }
     }
 
@@ -119,23 +120,24 @@ class Headers extends Component {
                                 <Select
                                     name="select"
                                     allowClear
-                                    value={item.type || ''}
-                                    placeholder={'type'}
+                                    value={item.scope != '' ? item.scope : 'Header'}
+                                    placeholder='scope'
                                     onChange={e => {
                                         this.onSelectChange(e, index);
                                     }}
                                     style={{ width: "90%" }}
                                 >
-                                    <Select.Option value="Exact">{formatMessage({id:'teamGateway.license.Precise'})}</Select.Option>
-                                    <Select.Option value="RegularExpression">{formatMessage({id:'teamGateway.license.regular'})}</Select.Option>
+                                    <Select.Option value="Header">Header</Select.Option>
+                                    <Select.Option value="Query">Query</Select.Option>
+                                    <Select.Option value="Cookie">Cookie</Select.Option>
                                 </Select>
                             </Col>
                             <Col
                                 span={5}
                             >
                                 <Input
-                                    style={{ width: "90%"}}
-                                    name="key"
+                                    style={{ width: "90%" }}
+                                    name="name"
                                     onChange={e => {
                                         this.onNameChange(e.target.value, index);
                                     }}
@@ -143,32 +145,45 @@ class Headers extends Component {
                                     placeholder={'name'}
                                 />
                             </Col>
-                            <Col span={5}>
+                            <Col span={7}>
                                 <Select
-                                    name="select"
+                                    name="op"
                                     allowClear
-                                    value={item.type1 || ''}
+                                    value={item.op !== '' ? item.op : 'Equal'}
                                     placeholder={'type'}
                                     onChange={e => {
                                         this.onSelect1Change(e, index);
                                     }}
-                                    style={{ width: "90%" }}
+                                    style={{ width: "95%" }}
                                 >
-                                    <Select.Option value="Exact">{formatMessage({id:'teamGateway.license.Precise'})}</Select.Option>
-                                    <Select.Option value="RegularExpression">{formatMessage({id:'teamGateway.license.regular'})}</Select.Option>
+                                    <Select.Option value="Equal">等于</Select.Option>
+                                    <Select.Option value="NotEqual">不等于</Select.Option>
+                                    <Select.Option value="GreaterThan">大于</Select.Option>
+                                    <Select.Option value="LessThan">小于</Select.Option>
+                                    <Select.Option value="NotIn">不包括</Select.Option>
+                                    <Select.Option value="RegexMatch">正则匹配</Select.Option>
+                                    <Select.Option value="RegexNotMatch">正则不匹配</Select.Option>
+                                    <Select.Option value="RegexMatchCaseInsensitive">
+                                        <Tooltip placement="left" title='正则匹配不区分大小写'>
+                                            正则匹配不区分大小写
+                                        </Tooltip>
+                                    </Select.Option>
+                                    <Select.Option value="RegexNotMatchCaseInsensitive">
+                                        <Tooltip placement="left" title='正则不匹配不区分大小写'>
+                                            正则不匹配不区分大小写
+                                        </Tooltip>
+                                    </Select.Option>
                                 </Select>
                             </Col>
                             <Col
-                                span={5}
+                                span={3}
                             >
-
                                 <Input
-                                    // style={{ width: "90%" }}
                                     name="value"
                                     onChange={e => {
                                         this.onValueChange(e.target.value, index);
                                     }}
-                                    value={item.value||''}
+                                    value={item.value || ''}
                                     placeholder={'value'}
                                 />
                             </Col>
