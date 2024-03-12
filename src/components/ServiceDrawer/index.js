@@ -240,21 +240,21 @@ export default class index extends Component {
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.send'})}>
                         {getFieldDecorator('send', {
                             rules: [{ validator: this.handleValidator }],
-                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.send && parseInt(editInfo.timeout.send, 10)) || null
+                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.send && parseInt(editInfo.timeout.send, 10)) || 5
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.sentime'})} style={{ width: "30%" }} addonAfter="s" min={1} type="number" />)}
                     </Form.Item>
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.accept'})}>
                         {getFieldDecorator('read', {
                             // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.accepttime'}) }],
                             rules: [{ validator: this.handleValidator }],
-                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.read && parseInt(editInfo.timeout.read, 10)) || null
+                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.read && parseInt(editInfo.timeout.read, 10)) || 5
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.accepttime'})} style={{ width: "30%" }} addonAfter="s" min={1} type="number" />)}
                     </Form.Item>
                     <Form.Item  {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.connect'})}>
                         {getFieldDecorator('connect', {
                             // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.connecttime'}) }],
                             rules: [{ validator: this.handleValidator }],
-                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.connect && parseInt(editInfo.timeout.connect, 10)) || null
+                            initialValue: (editInfo && editInfo.timeout && editInfo.timeout.connect && parseInt(editInfo.timeout.connect, 10)) || 5
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.connecttime'})} style={{ width: "30%" }} addonAfter="s" min={1} type="number" />)}
                     </Form.Item>
                     <Form.Item  {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.retry'})}>
