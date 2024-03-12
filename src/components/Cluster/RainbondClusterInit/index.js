@@ -231,7 +231,7 @@ export default class RainbondClusterInit extends PureComponent {
       };
       if (!err) {
         if (values.gatewayIngressIPs) {
-          dataObj.spec.gatewayIngressIPs = values.gatewayIngressIPs
+          dataObj.spec.gatewayIngressIPs = [values.gatewayIngressIPs]
         }
 
         if (values.nodesForGateway) {
@@ -252,7 +252,21 @@ export default class RainbondClusterInit extends PureComponent {
           dataObj.spec.nodesForGateway = gatewayArr
         }
         if (values.nodesForChaos) {
-          dataObj.spec.nodesForChaos = values.nodesForChaos
+          const forChaos = [];
+          for (let i = 0; i < values.nodesForChaos.length; i++) {
+            for (let j = 0; j < ipArray.length; j++) {
+              if (values.nodesForChaos[i].name === ipArray[j].ip) {
+                // 合并两个对象
+                let nodesChaos = {
+                  name: values.nodesForChaos[i].name,
+                  internalIP: ipArray[j].internalIP,
+                  externalIP: ipArray[j].ip
+                };
+                forChaos.push(nodesChaos);
+              }
+            }
+          }
+          dataObj.spec.nodesForChaos = forChaos
         }
         if (values.isEtcd == 'custom') {
           dataObj.spec.etcdConfig = {
@@ -286,7 +300,6 @@ export default class RainbondClusterInit extends PureComponent {
         if (values.mirror == 'custom') {
           dataObj.spec.rainbondImageRepository = values.mirror_address
         }
-
         const yamls = yaml.dump(dataObj)
         setRainbondClusterConfig({
           enterprise_id: eid,
