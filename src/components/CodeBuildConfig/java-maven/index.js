@@ -263,7 +263,7 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.start'/>}>
           {getFieldDecorator('BUILD_PROCFILE', {
-            initialValue: (envs && envs.BUILD_PROCFILE) || 'web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war',
+            initialValue: (envs && envs.BUILD_PROCFILE) || 'web: java $JAVA_OPTS -jar target/*.jar',
             rules: [
               {
                 required: true,
@@ -271,7 +271,7 @@ class Index extends PureComponent {
               }
             ]
           })(
-            <Input placeholder="web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war" />
+            <Input placeholder="web: java $JAVA_OPTS -jar target/*.jar" />
           )}
         </Form.Item>
       </div>
