@@ -70,8 +70,8 @@ class Index extends PureComponent {
             help={<FormattedMessage id="componentOverview.body.GoConfig.remove"/>}
           >
             {getFieldDecorator('BUILD_NODE_MODULES_CACHE', {
-              initialValue: !!(envs && envs.BUILD_NODE_MODULES_CACHE)
-            })(<Switch defaultChecked={!!(envs && envs.BUILD_NODE_MODULES_CACHE)} />)}
+              initialValue: envs && envs.BUILD_NODE_MODULES_CACHE == "True" ? true : false
+            })(<Switch defaultChecked={envs.BUILD_NODE_MODULES_CACHE == "True" ? true : false} />)}
             </Form.Item>
           ):(
             <Form.Item

@@ -187,6 +187,22 @@ class DrawerForm extends PureComponent {
           setHeaders = [...setHeaders, ...webSockets];
         }
         valueObj.set_headers = setHeaders;
+
+        let responseHeaders = Array.isArray(values.response_headers)
+        ? values.response_headers
+        : [];
+        const isResponseWebSocket = this.handleSetWebSocket(responseHeaders);
+        const firstResponseHeaders = responseHeaders && responseHeaders.length === 1;
+        if (
+          firstResponseHeaders &&
+          (!responseHeaders[0].item_key || !responseHeaders[0].item_value)
+        ) {
+          responseHeaders = [];
+        }
+        if (setWebSocket && !isResponseWebSocket) {
+          responseHeaders = [...responseHeaders, ...webSockets];
+        }
+        valueObj.response_headers = responseHeaders
         info.value = valueObj
         onOk(info, group_name, routingConfiguration);
       }
@@ -413,7 +429,7 @@ class DrawerForm extends PureComponent {
       if (isPass) {
         callback();
       } else {
-        callback(new Error('自定义请求头参数配置错误'));
+        callback(new Error('请求头参数配置错误'));
       }
     } else {
       return callback();
@@ -575,7 +591,9 @@ class DrawerForm extends PureComponent {
       gateWayArr
     } = this.state;
     const setHeaders = this.props.editInfo && this.props.editInfo.value && this.props.editInfo.value.set_headers;
+    const responseHeaders = this.props.editInfo && this.props.editInfo.value && this.props.editInfo.value.response_headers;
     const defaultSetHeaders = this.handleSetWebSocket(setHeaders, true);
+    const responseSetHeaders = this.handleSetWebSocket(responseHeaders, true);
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     const serviceId = editInfo && editInfo.service_id && editInfo.service_id;
     const serviceIds =
@@ -1017,7 +1035,14 @@ class DrawerForm extends PureComponent {
                     {getFieldDecorator('set_headers', {
                       initialValue: defaultSetHeaders,
                       rules: [{ validator: this.handleHeanderValidators }]
-                    })(<Parameterinput editInfo={defaultSetHeaders} />)}
+                    })(<Parameterinput keys='request' editInfo={defaultSetHeaders} />)}
+                  </FormItem>
+
+                  <FormItem {...is_languages} label='自定义响应头'>
+                    {getFieldDecorator('response_headers', {
+                      initialValue: responseSetHeaders,
+                      rules: [{ validator: this.handleHeanderValidators }]
+                    })(<Parameterinput keys='response' editInfo={responseSetHeaders} />)}
                   </FormItem>
                 </Panel>
               </Collapse>
@@ -1061,7 +1086,7 @@ class DrawerForm extends PureComponent {
         {this.state.descriptionVisible && (
           <Modal
             closable={false}
-            title={formatMessage({id:'popover.cancel'})}
+            title={formatMessage({id:'popover.access_strategy.modal.domain'})}
             visible={this.state.descriptionVisible}
             onOk={this.handleOk_description}
             footer={[
@@ -1070,7 +1095,7 @@ class DrawerForm extends PureComponent {
                 size="small"
                 onClick={this.handleOk_description}
               >
-                {formatMessage({id:'popover.access_strategy.modal.domain'})}
+                {formatMessage({id:'popover.cancel'})}
               </Button>
             ]}
             zIndex={9999}

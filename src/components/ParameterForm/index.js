@@ -47,6 +47,7 @@ class ParameterForm extends PureComponent {
       if (!err && onOk) {
         const info = Object.assign({}, values);
         const setWebSocket = values.WebSocket;
+        // 请求头
         let setHeaders = Array.isArray(values.set_headers)
           ? values.set_headers
           : [];
@@ -61,7 +62,24 @@ class ParameterForm extends PureComponent {
         if (setWebSocket && !isWebSocket) {
           setHeaders = [...setHeaders, ...webSockets];
         }
-        info.set_headers = setHeaders;
+        info.response_headers = setHeaders;
+
+        // 响应头
+        let responseHeaders = Array.isArray(values.response_headers)
+          ? values.response_headers
+          : [];
+        const isResponseWebSocket = this.handleSetWebSocket(responseHeaders);
+        const firstResponseHeaders = responseHeaders && responseHeaders.length === 1;
+        if (
+          firstResponseHeaders &&
+          (!responseHeaders[0].item_key || !responseHeaders[0].item_value)
+        ) {
+          responseHeaders = [];
+        }
+        if (setWebSocket && !isResponseWebSocket) {
+          responseHeaders = [...responseHeaders, ...webSockets];
+        }
+        info.response_headers = responseHeaders;
         onOk(info);
       }
     });

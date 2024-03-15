@@ -323,7 +323,7 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
   };
-  fetchRkeconfig = (obj = {}, isNext) => {
+  fetchRkeconfig = (obj = {}, isNext, fieldsValue = {}) => {
     const { form, eid } = this.props;
     const { activeKey } = this.state;
     const { setFieldsValue } = form;
@@ -379,7 +379,7 @@ export default class RKEClusterConfig extends PureComponent {
             notification.warning({ message: helpError });
           }
           if (isNext && !helpError) {
-            this.handleStartCheck(isNext);
+            this.handleStartCheck(isNext, fieldsValue, val)
           }
         }
       })
@@ -436,29 +436,27 @@ export default class RKEClusterConfig extends PureComponent {
 
   createCluster = () => {
     const { form, dispatch, eid, clusterID } = this.props;
+    const { dataSource, yamlVal } = this.state;
     if (clusterID) {
       this.updateCluster();
       return null;
     }
     form.validateFields((err, fieldsValue) => {
       if (!err) {
-        this.setState({ loading: true });
 
-        dispatch({
-          type: 'cloud/createKubernetesCluster',
-          payload: {
-            enterprise_id: eid,
-            provider_name: 'rke',
-            encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls),
-            ...fieldsValue
-          },
-          callback: data => {
-            this.handleOk(data);
-          },
-          handleError: res => {
-            this.handleError(res);
-          }
-        });
+        const etcdCount = dataSource.reduce((acc, curr) => {
+          return acc + (curr.roles.includes("etcd") ? 1 : 0);
+        }, 0);
+        // 判断 "etcd" 出现的总次数是否为奇数
+        const isOdd = etcdCount % 2 === 1;
+        if(isOdd){
+          this.setState({ loading: true });
+          this.handleCheckSsh(fieldsValue)
+        } else {
+          notification.warning({
+            message: 'etcd节点数量必须为奇数'
+          });
+        }
       }
     });
   };
@@ -558,9 +556,11 @@ export default class RKEClusterConfig extends PureComponent {
         return `${formatMessage({ id: 'enterpriseColony.addCluster.host.unkonw' })}`;
     }
   };
-  handleStartCheck = isNext => {
+  handleStartCheck = (isNext, fieldsValue = {}, yamls) => {
     let next = false;
+    const { eid, dispatch } = this.props;
     const { activeKey } = this.state;
+    fieldsValue.yamls = yamls || ''
     if (activeKey === '1') {
       this.handleEnvGroup(
         () => {
@@ -592,7 +592,21 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
     if (next && isNext) {
-      this.createCluster();
+      dispatch({
+        type: 'cloud/createKubernetesCluster',
+        payload: {
+          enterprise_id: eid,
+          provider_name: 'rke',
+          encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls),
+          ...fieldsValue
+        },
+        callback: data => {
+          this.handleOk(data);
+        },
+        handleError: res => {
+          this.handleError(res);
+        }
+      });
     }
   };
   handleCheck = isCheck => {
@@ -617,7 +631,7 @@ export default class RKEClusterConfig extends PureComponent {
       activeKey
     });
   };
-  handleTabs = (key, isNext = false) => {
+  handleTabs = (key, isNext = false, fieldsValue = false) => {
     const { dataSource, yamlVal } = this.state;
     const { form } = this.props;
     const { getFieldValue } = form;
@@ -629,9 +643,6 @@ export default class RKEClusterConfig extends PureComponent {
         internalIP: item.internalIP,
       }
     });
-    const jsonString = JSON.stringify(ipArr);
-    // 使用localStorage存储JSON字符串
-    window.localStorage.setItem("ipAddresses", jsonString);
     if (yamls || (dataSource && dataSource.length > 0)) {
       if (key === '2') {
         info.nodes = dataSource;
@@ -640,7 +651,7 @@ export default class RKEClusterConfig extends PureComponent {
         info.encodedRKEConfig = yamls && this.encodeBase64Content(yamls);
       }
     }
-    this.fetchRkeconfig(info, isNext);
+    this.fetchRkeconfig(info, isNext, fieldsValue);
     if (!isNext) {
       this.handleActiveKey(`${key}`);
     }
@@ -665,16 +676,18 @@ export default class RKEClusterConfig extends PureComponent {
     }, 1000);
   };
   // 检查ssh
-  handleCheckSsh = () => {
+  handleCheckSsh = (fieldsValue) => {
     const { dataSource, isCheckSsh, activeKey } = this.state;
     const { dispatch } = this.props;
+    this.isFlag = false
     this.handleCheck(false)
     dataSource.forEach(item => {
       delete item.code;
     });
     this.setState({
       isCheckStatus: true,
-      dataSource
+      dataSource,
+      loading: true
     })
     let arr = []
     for (let i = 0, l = dataSource.length; i < l; i++) {
@@ -703,7 +716,9 @@ export default class RKEClusterConfig extends PureComponent {
                     loading: true
                   },
                   () => {
-                    this.handleTabs(activeKey === '1' ? '2' : '1', true);
+                    if((index + 1) == dataSource.length){
+                      this.handleTabs(activeKey === '1' ? '2' : '1', true, fieldsValue);
+                    }
                   }
                 );
               }
@@ -904,7 +919,6 @@ export default class RKEClusterConfig extends PureComponent {
       zIndex: 1000,
       background: '#fff'
     };
-
     return (
       <Modal
         visible
@@ -922,7 +936,7 @@ export default class RKEClusterConfig extends PureComponent {
               }) || {}}
               disabled={isCheckStatus}
               onClick={() => {
-                this.handleCheckSsh()
+                this.createCluster()
               }}
               loading={loading}
             >
@@ -940,7 +954,7 @@ export default class RKEClusterConfig extends PureComponent {
                   conPosition: { right: '110px', bottom: 0 },
                   svgPosition: { right: '50px', marginTop: '-11px' },
                   handleClick: () => {
-                    this.handleCheckSsh();
+                    this.createCluster();
                   }
                 })}
               </Fragment>

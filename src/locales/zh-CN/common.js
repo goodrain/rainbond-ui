@@ -190,6 +190,7 @@
         'button.fold':'折叠',
         'button.config':'去配置',
         'button.change':'更改',
+        'button.app':'应用',
     }
     const status = {
         'status.component.running':'运行中',

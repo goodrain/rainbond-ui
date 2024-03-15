@@ -16,7 +16,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cloud from '../../../utils/cloud';
-
+import styles from './index.less'
 @connect()
 @Form.create()
 export default class SetRegionConfig extends PureComponent {
@@ -219,7 +219,7 @@ export default class SetRegionConfig extends PureComponent {
               />
             )}
             {configs.apiAddress && (
-              <Descriptions>
+              <Descriptions className={styles.descLabel}>
                 <Descriptions.Item  label={<FormattedMessage id='enterpriseColony.SetRegionConfig.api'/>}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     {configs.apiAddress}

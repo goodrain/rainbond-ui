@@ -105,6 +105,7 @@ class ShowKubernetesCreateDetail extends PureComponent {
     const { title } = this.props;
     return (
       <ClusterProgressQuery
+        isK8sProgress={true}
         title={title || <FormattedMessage id='enterpriseColony.ShowKubernetesCreateDetail.msg'/>}
         msg={formatMessage({id:'enterpriseColony.ShowKubernetesCreateDetail.msg'})}
         {...this.state}

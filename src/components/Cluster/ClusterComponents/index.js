@@ -1,10 +1,10 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { Button, Col, Collapse, Icon, Modal, Row, Spin } from 'antd';
+import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getPodEvent, getRainbondComponents } from '../../../services/cloud';
 import handleAPIError from '../../../utils/error';
 import styles from '../../CreateTeam/index.less';
@@ -28,7 +28,11 @@ class ClusterComponents extends PureComponent {
     };
   }
   componentDidMount() {
+    this.refresh = true;
     this.fetchRainbondComponents();
+  }
+  componentWillUnmount() {
+    this.refresh = false;
   }
   fetchRainbondComponents = () => {
     const { eid, clusterID, providerName } = this.props;
@@ -40,18 +44,20 @@ class ClusterComponents extends PureComponent {
     })
       .then(res => {
         const list = (res && res.response_data) || [];
-        if (componentInfo) {
-          let info = false;
-          list.map(item => {
-            if (
-              componentInfo.app === item.app &&
-              item.pods &&
-              item.pods.length
-            ) {
-              info = Object.assign({}, item.pods[0], { app: item.app });
-            }
-          });
-          this.handleComponentDetails(info);
+        let info = false;
+        list.map(item => {
+          if (
+            componentInfo.app === item.app &&
+            item.pods &&
+            item.pods.length
+          ) {
+            info = Object.assign({}, item.pods[0], { app: item.app });
+          }
+        });
+        this.handleComponentDetails(info);
+
+        if (this.refresh) {
+          setTimeout(() => this.fetchRainbondComponents(), 4000);
         }
         this.setState({
           list
@@ -68,6 +74,7 @@ class ClusterComponents extends PureComponent {
         if (code && code !== 7002) {
           handleAPIError(err);
         }
+        this.fetchRainbondComponents()
       })
       .finally(() => {
         this.setState({
@@ -136,7 +143,7 @@ class ClusterComponents extends PureComponent {
     );
   };
   render() {
-    const { onCancel } = this.props;
+    const { onCancel, openInitInfo } = this.props;
     const {
       list,
       evens,
@@ -173,27 +180,12 @@ class ClusterComponents extends PureComponent {
       </Button>
     );
     return (
-      <Modal
-        visible
-        title={
-          componentInfo
-            ? `${formatMessage({id:'enterpriseColony.ClusterComponents.details'})}`
-            : `${formatMessage({id:'enterpriseColony.ClusterComponents.Rainbond'})}` + `(${runningApp.length}/${toatlApp})`
-        }
-        className={styles.TelescopicModal}
-        width={1100}
-        onCancel={onCancel}
-        footer={
-          <Button
-            style={{ marginTop: '20px' }}
-            onClick={() => {
-              onCancel();
-            }}
-          >
-            {formatMessage({id:'button.close'})}
-          </Button>
-        }
-      >
+      <div>
+        <div className={styless.componentTitle}>
+          {componentInfo
+            ? `${formatMessage({ id: 'enterpriseColony.ClusterComponents.details' })}`
+            : `${formatMessage({ id: 'enterpriseColony.ClusterComponents.Rainbond' })}` + `(${runningApp.length}/${toatlApp})`}
+        </div>
         <Spin
           spinning={
             componentInfo
@@ -202,7 +194,7 @@ class ClusterComponents extends PureComponent {
           }
         >
           {componentInfo ? (
-            <div>
+            <div className={styless.copmonentDetail}>
               <div style={{ marginBottom: '20px' }}>
                 <Icon
                   type="arrow-left"
@@ -211,9 +203,7 @@ class ClusterComponents extends PureComponent {
                     this.handleComponentDetails(false);
                   }}
                 />
-                {reloadBtn}
               </div>
-
               <div className={styless.componentHeader}>
                 <div>
                   Pod:
@@ -230,7 +220,7 @@ class ClusterComponents extends PureComponent {
               <div className={styless.componentBox}>
                 <div>
                   <div>
-                    <span><FormattedMessage id='enterpriseColony.ClusterComponents.Name'/></span>
+                    <span><FormattedMessage id='enterpriseColony.ClusterComponents.Name' /></span>
                     <span>
                       {componentInfo.metadata &&
                         componentInfo.metadata.namespace}
@@ -238,7 +228,7 @@ class ClusterComponents extends PureComponent {
                   </div>
                   <div style={{ width: '66.66%', border: 'none' }}>
                     <div className={styless.componentBoxs}>
-                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.Image'/></div>
+                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.Image' /></div>
                       <div>
                         {componentInfo.spec &&
                           componentInfo.spec.containers &&
@@ -267,7 +257,7 @@ class ClusterComponents extends PureComponent {
                   </div>
                   <div>
                     <p>
-                      <span><FormattedMessage id='enterpriseColony.ClusterComponents.Time'/></span>
+                      <span><FormattedMessage id='enterpriseColony.ClusterComponents.Time' /></span>
                       {componentInfo.metadata &&
                         componentInfo.metadata.creationTimestamp &&
                         moment(componentInfo.metadata.creationTimestamp).format(
@@ -275,7 +265,7 @@ class ClusterComponents extends PureComponent {
                         )}
                     </p>
                     <p>
-                      <span><FormattedMessage id='enterpriseColony.ClusterComponents.Number'/></span>
+                      <span><FormattedMessage id='enterpriseColony.ClusterComponents.Number' /></span>
                       {componentInfo.status &&
                         componentInfo.status.containerStatuses &&
                         componentInfo.status.containerStatuses.length &&
@@ -292,19 +282,19 @@ class ClusterComponents extends PureComponent {
                 <Panel
                   header={
                     <div className={styless.panelBox}>
-                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.container'/></div>
-                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.Container_pod'/></div>
+                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.container' /></div>
+                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.Container_pod' /></div>
                     </div>
                   }
                   key="1"
                 >
                   <div className={styless.customTables}>
                     <Row className={styless.customTablesTit}>
-                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.state'/></Col>
-                      <Col span={6}><FormattedMessage id='enterpriseColony.ClusterComponents.name'/></Col>
-                      <Col span={10}><FormattedMessage id='enterpriseColony.ClusterComponents.image'/></Col>
+                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.state' /></Col>
+                      <Col span={6}><FormattedMessage id='enterpriseColony.ClusterComponents.name' /></Col>
+                      <Col span={10}><FormattedMessage id='enterpriseColony.ClusterComponents.image' /></Col>
                       <Col span={4} style={{ textAlign: 'center' }}>
-                        <FormattedMessage id='enterpriseColony.ClusterComponents.number'/>
+                        <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
                       </Col>
                     </Row>
                     {componentInfo.status &&
@@ -340,18 +330,18 @@ class ClusterComponents extends PureComponent {
                 <Panel
                   header={
                     <div className={styless.panelBox}>
-                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.event'/></div>
-                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.pod'/></div>
+                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.event' /></div>
+                      <div><FormattedMessage id='enterpriseColony.ClusterComponents.pod' /></div>
                     </div>
                   }
                   key="2"
                 >
                   <div className={styless.customTables}>
                     <Row className={styless.customTablesTit}>
-                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.type'/></Col>
-                      <Col span={6}><FormattedMessage id='enterpriseColony.ClusterComponents.Cause'/></Col>
-                      <Col span={10}><FormattedMessage id='enterpriseColony.ClusterComponents.information'/></Col>
-                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.last'/></Col>
+                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.type' /></Col>
+                      <Col span={6}><FormattedMessage id='enterpriseColony.ClusterComponents.Cause' /></Col>
+                      <Col span={10}><FormattedMessage id='enterpriseColony.ClusterComponents.information' /></Col>
+                      <Col span={4}><FormattedMessage id='enterpriseColony.ClusterComponents.last' /></Col>
                     </Row>
                     {evens && evens.length ? (
                       evens.map(item => {
@@ -384,7 +374,7 @@ class ClusterComponents extends PureComponent {
                           marginTop: '15px'
                         }}
                       >
-                        <FormattedMessage id='enterpriseColony.ClusterComponents.null'/>
+                        <FormattedMessage id='enterpriseColony.ClusterComponents.null' />
                       </div>
                     )}
                   </div>
@@ -394,9 +384,9 @@ class ClusterComponents extends PureComponent {
           ) : (
             <div className={styless.customTables}>
               <Row className={styless.customTablesTit}>
-                <Col span={3}><FormattedMessage id='enterpriseColony.ClusterComponents.state'/></Col>
-                <Col span={7}><FormattedMessage id='enterpriseColony.ClusterComponents.name'/></Col>
-                <Col span={14}><FormattedMessage id='enterpriseColony.ClusterComponents.image'/>{reloadBtn}</Col>
+                <Col span={3}><FormattedMessage id='enterpriseColony.ClusterComponents.state' /></Col>
+                <Col span={7}><FormattedMessage id='enterpriseColony.ClusterComponents.name' /></Col>
+                <Col span={14}><FormattedMessage id='enterpriseColony.ClusterComponents.image' /></Col>
               </Row>
               <div className={styless.boxs}>
                 {list && list.length ? (
@@ -450,7 +440,7 @@ class ClusterComponents extends PureComponent {
                                     <span
                                       style={{ color: 'rgba(0, 0, 0, 0.35)' }}
                                     >
-                                      <FormattedMessage id='enterpriseColony.ClusterComponents.Time'/>
+                                      <FormattedMessage id='enterpriseColony.ClusterComponents.Time' />
                                       {metadata &&
                                         metadata.creationTimestamp &&
                                         moment(
@@ -460,7 +450,7 @@ class ClusterComponents extends PureComponent {
                                     <span
                                       style={{ color: 'rgba(0, 0, 0, 0.35)' }}
                                     >
-                                      &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number'/>
+                                      &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
                                       {status &&
                                         status.containerStatuses &&
                                         status.containerStatuses.length &&
@@ -476,7 +466,7 @@ class ClusterComponents extends PureComponent {
                           <div
                             style={{ marginTop: '12px', textAlign: 'center ' }}
                           >
-                            <FormattedMessage id='enterpriseColony.ClusterComponents.Pods'/>
+                            <FormattedMessage id='enterpriseColony.ClusterComponents.Pods' />
                           </div>
                         )}
                       </Row>
@@ -490,14 +480,14 @@ class ClusterComponents extends PureComponent {
                       marginTop: '15px'
                     }}
                   >
-                    <FormattedMessage id='enterpriseColony.ClusterComponents.created'/>
+                    <FormattedMessage id='enterpriseColony.ClusterComponents.created' />
                   </div>
                 )}
               </div>
             </div>
           )}
         </Spin>
-      </Modal>
+      </div>
     );
   }
 }

@@ -1,72 +1,271 @@
-// 每行
-.antd_row {
+.titleHeader{
   display: flex;
-  border-bottom: 1px dashed #e4e4e4;
-  // margin-bottom: 30px;
-  // align-items: center;
-  padding: 36px 12px;
-  // 标题
-  & > div {
-    width: 140px;
-    text-align: left;
-    & > span {
-      display: inline-block;
-      // border: 1px solid #c1c4c5;
-      padding: 6px 0px;
-    }
+  align-items: center;
+  padding: 0 12px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  .titleSvg {
+	height: 46px;
+	width: 46px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 2px;
+	text-align: center;
+	svg {
+	  color: @primary-color;
+	  width: 50px;
+	}
   }
-  // 表单
-  .antd_form {
-    flex: 1;
+  .titleName {
+	font-size: 16px;
+	font-weight: 600;	
+	margin-left: 12px;
   }
+}
+.cardBox{
+  background-color: #fff;
+  height: 74vh;
+  overflow: hidden;
   :global {
-    .ant-form-item {
-      margin-bottom: 0px !important;
+    .ant-card-body {
+      padding: 0px;
     }
-    .ant-form-extra {
-      width: 600px;
+  }
+  .menuBox {
+    width: 100%;
+    height: 74vh;
+    border-right: 1px solid #E9EAEC;
+    :global {
+      .ant-menu{
+        background-color: transparent !important;
+      }
+      .ant-menu-item{
+        height: 36px;
+        padding-left: 16px !important;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center; 
+        font-weight: 600;
+      }
+      .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+        background: transparent;
+        color: #1890ff !important;
+        border-radius: 0;
+      }
     }
   }
 }
-.en_antd_row{
-  display: flex;
-  border-bottom: 1px dashed #e4e4e4;
-  // margin-bottom: 30px;
-  // align-items: center;
-  padding: 36px 12px;
-  // 标题
-  & > div {
-    width: 250px;
-    text-align: left;
-    & > span {
-      display: inline-block;
-      // border: 1px solid #c1c4c5;
-      padding: 6px 0px;
+
+.formBox {
+  padding-left: 24px;
+}
+.yamlBox {
+  background: #0d1c3f;
+  color: #fff;
+  flex: 1;
+  height: 74vh;
+  min-width: 420px;
+  overflow: hidden;
+  padding: 16px 0;
+  position: relative;
+  border-radius: 4px;
+  .titleYaml {
+    display: flex;
+    font-size: 20px;
+    font-weight: 600;
+    justify-content: space-between;
+    margin-bottom: 26px;
+    padding: 0 20px;
+    :global {
+      .ant-btn {
+        background: transparent !important;
+        color: #fff !important;
+      }
     }
-  }
-  // 表单
-  .antd_form {
-    flex: 1;
   }
   :global {
-    .ant-form-item {
-      margin-bottom: 0px !important;
+    .ant-form-item{
+      margin-bottom: 0;
     }
-    .ant-form-extra {
-      width: 600px;
+    .ant-input-disabled{
+      background-color: transparent !important;
     }
   }
 }
-// .antd_row:hover {
-//   border: 1px solid #5672ac;
-// }
-// 底部按钮
-.antd_row_btn {
-  text-align: center;
-  margin-top: 20px;
-  .antd_btn {
-    // width: 88px
-    padding: 0 5px;
-    margin-left: 10px;
+.typeBtnWrap{
+	text-align: center;
+	font-size: 16px;
+	float:left;
+	width: 150px;
+	margin-right: 24px;
+	.typeBtn {
+		display: block;
+		cursor: pointer;
+		height:40px;
+		line-height: 40px;
+		width: 150px;
+		margin-bottom:-3px;
+		position: relative;
+		:global {
+		    .anticon {visibility: hidden;margin-left: 30px}
+		}
+		border:1px solid #e8e8e8;
+		margin-bottom: -1px;
+		background: #fafafa;
+
+	}
+	.typeBtn:first-child {
+	   	border-top-left-radius: 2px;
+		border-top-right-radius: 2px;
+	}
+	.typeBtn:last-child {
+	   	border-bottom-left-radius: 2px;
+		border-bottom-right-radius: 2px;
+	}
+	.active {
+		background: #fff;
+		z-index:1;
+		
+		:global {
+		    .anticon {visibility: visible;}
+		}
+	}
+
+}
+.en_typeBtnWrap{
+	text-align: center;
+	font-size: 16px;
+	float:left;
+	width: 180px;
+	margin-right: 24px;
+	.en_typeBtn {
+		display: block;
+		cursor: pointer;
+		height:40px;
+		line-height: 40px;
+		width: 180px;
+		margin-bottom:-3px;
+		position: relative;
+		:global {
+		    .anticon {visibility: hidden;margin-left: 15px}
+		}
+		border:1px solid #e8e8e8;
+		margin-bottom: -1px;
+		background: #fafafa;
+
+	}
+	.en_typeBtn:first-child {
+	   	border-top-left-radius: 2px;
+		border-top-right-radius: 2px;
+	}
+	.en_typeBtn:last-child {
+	   	border-bottom-left-radius: 2px;
+		border-bottom-right-radius: 2px;
+	}
+	.active {
+		background: #fff;
+		z-index:1;
+		
+		:global {
+		    .anticon {visibility: visible;}
+		}
+	}
+
+}
+
+.content {
+	min-height: 500px;
+}
+
+.ant_radio_disabled{
+    :global{
+        span{
+            color: rgba(0, 0, 0, 0.65);
+        }
+		.ant-form-explain{
+
+		}
+    }
+}
+
+.ports {
+
+	
+}
+.selectRow{
+	:global{
+		.ant-form-explain{
+			margin-left: 230px;
+		}
+    }
+}
+.panelTitle{
+	width: 200px;
+	display: inline-block;
+	font-size: 16px;
+	font-weight: 600;
+}
+.panelSpan{
+	width: 540px;
+	display: inline-block;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	vertical-align: -7px;
+	font-size: 14px;
+	color: #8d8d8d;
+}
+.spanList{
+	display: inline-block;
+	width: 340px;
+	margin-top: 4px;
+	margin-left: 20px;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	vertical-align: -7px;
+}
+
+.nextBtn{
+	// background: #fff;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.basics{
+  padding: 6px 24px;
+  height: 74vh;
+  overflow: auto;
+
+  :global{
+    .ant-form-item label{
+      font-size: 12px !important;
+    }
+    .ant-form-item{
+      margin-bottom: 4px;
+    }
   }
+	.row{
+		padding: 4px 12px;
+		border-bottom: 1px dashed #e8e8e8;
+		.title_name{
+			font-weight: bold;
+			font-size: 14px;
+			margin-bottom: 12px;
+			display: flex;
+			align-items: center;
+			> div {
+				display: flex;
+				align-items: center;
+				margin-left: 4px;
+			}
+			span{
+				color: red;
+			}
+		}
+	}
 }
