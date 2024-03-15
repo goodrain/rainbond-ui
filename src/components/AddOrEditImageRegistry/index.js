@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select, Skeleton, Button } from 'antd';
+import { Form, Input, Modal, Select, Skeleton, Button, Spin, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -20,19 +20,55 @@ class ConfirmModal extends PureComponent {
       currentRoles: [],
       roleLoading: true,
       currentRolesLoading: true,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      checking: true,
+      checkLoading: false
     };
   }
-
+  // 检查仓库链接状态
+  handleCheckImageHub = (values) => {
+    const { dispatch, clusters, onOk } = this.props
+    this.setState({ checkLoading: true })
+    dispatch({
+      type: 'global/checkHubLink',
+      payload: {
+          regionName: clusters[0].region_name,
+          domain: values.domain,
+          username: values.username,
+          password: values.password
+      },
+      callback: res => {
+          if(res){
+            this.setState({
+              checking: false,
+              checkLoading: false
+            })
+            onOk(values);
+          }
+      },
+      handleError: res => {
+        this.setState({
+          checking: true,
+          checkLoading: false
+        })
+        notification.error({ message: formatMessage({ id: 'notification.settimg.image.checking' }) });
+      }
+    })
+  };
   handleSubmit = () => {
-    const { form, onOk } = this.props;
+    const { form, onOk, editData } = this.props;
+    const { checking } = this.state
     form.validateFields((err, values) => {
       if (!err && onOk) {
-        if (values.domain.endsWith('/')) {
+        if (values.domain && values.domain.endsWith('/')) {
           // 如果是，删除末尾的斜杠
           values.domain = values.domain.slice(0, -1);
         }
-        onOk(values);
+        if(values.domain){
+          this.handleCheckImageHub(values);
+        } else {
+          onOk(values);
+        }
       }
     });
   };
@@ -76,7 +112,7 @@ class ConfirmModal extends PureComponent {
   render() {
     const { onCancel, data, form, loading } = this.props;
     const { getFieldDecorator, getValueFormEvent } = form;
-    const { language } = this.state;
+    const { language, checking, checkLoading } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -102,6 +138,7 @@ class ConfirmModal extends PureComponent {
       <Modal
         title={data ? formatMessage({ id: 'confirmModal.edit.common.image.title' }) : formatMessage({ id: 'confirmModal.add.common.image.title' })}
         visible
+        onCancel={onCancel}
         footer={
           <div>
             <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>
@@ -115,7 +152,12 @@ class ConfirmModal extends PureComponent {
           </div>
         }
       >
+        
         <Form onSubmit={this.handleSubmit}>
+        <Spin
+          spinning={checkLoading}
+          tip="正在检测..."
+        >
         {!data &&  
           <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.name'})}>
             {getFieldDecorator('secret_id', {
@@ -188,6 +230,7 @@ class ConfirmModal extends PureComponent {
               ]
             })(<Input placeholder={formatMessage({id:'placeholder.password_1'})} type="password" />)}
           </FormItem>
+          </Spin>
         </Form>
       </Modal>
     );

@@ -63,7 +63,7 @@ export default class Index extends PureComponent {
       tagLoading: false,
       warehouseImageTags: [],
       checkedValues: '',
-      imageNameInfo: '',
+      domain: '',
     };
   }
   componentWillMount() {
@@ -107,7 +107,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const { radioKey, event_id, checkedValues, warehouseInfo, isHub, imageNameInfo } = this.state
+    const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
@@ -120,11 +120,13 @@ export default class Index extends PureComponent {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
         if(fieldsValue.imagefrom == 'address'){
+          const colonIndex = fieldsValue.docker_cmd.indexOf(':');
           if(isHub){
-            fieldsValue.docker_cmd = fieldsValue.docker_cmd
+            
+            fieldsValue.docker_cmd = checkedValues ? ((colonIndex !== -1) ? fieldsValue.docker_cmd : (fieldsValue.docker_cmd + ':' + checkedValues)) : fieldsValue.docker_cmd
           } else {
             const cleanedUrl = warehouseInfo.domain.replace(/^(https?:\/\/)/, '');
-            fieldsValue.docker_cmd = `${cleanedUrl}/${fieldsValue.docker_cmd}`
+            fieldsValue.docker_cmd = (colonIndex !== -1) ? `${cleanedUrl}/${fieldsValue.docker_cmd}` : `${cleanedUrl}/${fieldsValue.docker_cmd}:${checkedValues}`
             fieldsValue.user_name = warehouseInfo.username
             fieldsValue.password = warehouseInfo.password
           }
@@ -289,8 +291,10 @@ export default class Index extends PureComponent {
     this.setState({
       radioKey: key.target.value,
       warehouseImageTags: [],
-      imageNameInfo: '',
+      checkedValues: '',
       isHub: true,
+      warehouseInfo: false,
+      domain: ''
     })
     form.resetFields(['docker_cmd'])
   }
@@ -347,50 +351,46 @@ export default class Index extends PureComponent {
       }
     })
   }
-  // 获取镜像仓库中所有的镜像
-  handleGetWarehouseImage = (item) => {
-    const { dispatch } = this.props
-    dispatch({
-      type: 'teamControl/fetchImageNames',
-      payload: {
-        regionName: globalUtil.getCurrRegionName(),
-        domain: item.domain,
-        username: item.username,
-        password: item.password,
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            warehouseImageList: data.list
-          });
-        }
-      }
-    })
-  }
+
   // 获取镜像中所有的tag
   handleGetWarehouseImageTags = (value) => {
     const { dispatch } = this.props
-    const { warehouseInfo } = this.state
+    const { warehouseInfo, isHub, checkedValues, domain } = this.state
     dispatch({
       type: 'teamControl/fetchImageTags',
       payload: {
         regionName: globalUtil.getCurrRegionName(),
         repo: value,
-        domain: warehouseInfo.domain,
+        domain: isHub ? (domain || 'docker.io') : warehouseInfo.domain,
         username: warehouseInfo.username,
         password: warehouseInfo.password,
       },
       callback: data => {
         if (data) {
-          this.setState({
-            warehouseImageTags: data.list,
-            checkedValues: data.list[0] || '',
-            tagLoading: false
-          });
+          if(checkedValues && data.bean.tags.length > 0){
+            const resItem = data.bean.tags.some((item)=>{
+              return item == checkedValues && item
+            })
+            this.setState({
+              warehouseImageTags: resItem ? [checkedValues] : [],
+              checkedValues: checkedValues,
+              tagLoading: false
+            });
+          } else {
+            this.setState({
+              warehouseImageTags: data.bean.tags,
+              checkedValues: data.bean.tags[0] || '',
+              tagLoading: false
+            });
+          }
         }
       },
-      handleError: () => {
-        this.setState({ tagLoading: false })
+      handleError: (err) => {
+        this.setState({ 
+          tagLoading: false,
+          warehouseImageTags: [],
+          checkedValues: '',
+        })
       }
     })
   }
@@ -399,7 +399,7 @@ export default class Index extends PureComponent {
       checkedValues: e.target.value
     })
   }
-  onChangeRegistry = (value) =>{
+  onChangeRegistry = (value) => {
     const { warehouseList } = this.state
     const { setFieldsValue } = this.props.form
     if(value == 'DockerHub'){
@@ -407,7 +407,6 @@ export default class Index extends PureComponent {
         warehouseImageTags: [],
         warehouseInfo: false,
         isHub: true,
-        imageNameInfo: undefined,
         checkedValues: ''
       })
     } else {
@@ -415,7 +414,6 @@ export default class Index extends PureComponent {
         isHub: false,
         warehouseImageTags: [],
         warehouseInfo: false,
-        imageNameInfo: undefined,
         checkedValues: ''
       },()=>{
         warehouseList.map(item => {
@@ -423,22 +421,56 @@ export default class Index extends PureComponent {
             this.setState({
               warehouseInfo: item
             })
-            // this.handleGetWarehouseImage(item)
           }
         })
       })
     }
   }
-  onChangeImageName = (value) => {
-    const { warehouseImageList, warehouseInfo, imageNameInfo } = this.state
+
+  onQueryImageName = (e) => {
     const { setFieldsValue } = this.props.form
-    this.setState({ tagLoading: true, imageNameInfo: value })
-    setFieldsValue({ docker_cmd: value });
-    warehouseImageList.map(item => {
-      if(item == value && warehouseInfo){
-        this.handleGetWarehouseImageTags(value)
+    const { isHub } = this.state
+    this.setState({ tagLoading: true })
+    const values = e.target.value
+    const url = values.match(/([\w\.-]+)\/([\w\\/-]+)/)
+    const colonIndex = values.indexOf(':');
+    if(url && isHub){
+      if (colonIndex !== -1) {
+        const resultString = values.substring(0, colonIndex);
+        const tag = values.substring(colonIndex + 1);
+        this.setState({
+          checkedValues: tag,
+          domain: url[1]
+        },() => {
+          this.handleGetWarehouseImageTags(url[2])
+        })
+      } else {
+        this.setState({
+          checkedValues: '',
+          domain: url[1]
+        },() => {
+          this.handleGetWarehouseImageTags(url[2])
+        })
       }
-    })
+    } else {
+      if (colonIndex !== -1) {
+        const resultString = values.substring(0, colonIndex);
+        const tag = values.substring(colonIndex + 1);
+        this.setState({
+          checkedValues: tag,
+          domain: ''
+        },() => {
+          this.handleGetWarehouseImageTags(resultString)
+        })
+      } else {
+        this.setState({
+          checkedValues: '',
+          domain: ''
+        },() => {
+          this.handleGetWarehouseImageTags(values)
+        })
+      }
+    }
   }
   render() {
     const { form, localList } = this.props;
@@ -454,7 +486,7 @@ export default class Index extends PureComponent {
       archInfo
     } = this.props;
 
-    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, imageNameInfo } = this.state;
+    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues } = this.state;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -562,7 +594,7 @@ export default class Index extends PureComponent {
             <Form.Item 
               {...is_language} 
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
-              extra={<div style={{ fontSize: '12px' }}>私有仓库需要管理员在“平台管理-设置-镜像仓库”进行添加。</div>}
+              extra={<div style={{ fontSize: '12px' }}>私有仓库需要管理员在“平台管理-设置-镜像仓库”进行添加，按回车进行搜索。</div>}
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
@@ -589,44 +621,19 @@ export default class Index extends PureComponent {
                       </Select>
                       ) : (
                         <div className={styles.registry}>
-                            公开仓库
+                          公开仓库
                         </div>
                       )
                     }
                   </div>
                   <div className={styles.imageName}>
-                    <Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
+                    <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
                   </div>
-                  {/* {isHub ? (
-                    <div className={styles.imageName}>
-                      <Input placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
-                    </div>
-                  ) : (
-                    <div className={styles.imageName}>
-                      <Select 
-                        placeholder={formatMessage({ id: 'placeholder.warehouse_address' })}
-                        showSearch
-                        filterOption={(input, option) => 
-                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                        value={imageNameInfo}
-                        onChange={this.onChangeImageName}
-                      >
-                      {warehouseImageList.map(item => {
-                        return (
-                          <Option value={item}>
-                            {item}
-                          </Option>
-                        )
-                      })}
-                      </Select>
-                    </div>
-                  )} */}
                 </div>
                 )}
             </Form.Item>
           }
-          {/* {radioKey === 'address' && !isHub && imageNameInfo &&
+          {radioKey === 'address' &&
             <Form.Item 
               label=''
               wrapperCol={{
@@ -672,7 +679,7 @@ export default class Index extends PureComponent {
                 </div>
               )}
             </Form.Item>
-          } */}
+          }
           {radioKey === 'cmd' &&
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('docker_cmd', {

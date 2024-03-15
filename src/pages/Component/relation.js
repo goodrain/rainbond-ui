@@ -7,6 +7,7 @@ import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import AddRelation from '../../components/AddRelation';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
+import RelatumComponentInfo from '../../components/RelatumComponentInfo';
 import NoPermTip from '../../components/NoPermTip';
 import ScrollerX from '../../components/ScrollerX';
 import {
@@ -16,6 +17,7 @@ import {
 } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import styles from './relation.less'
 
 // 查看连接信息
 class ViewRelationInfo extends PureComponent {
@@ -154,21 +156,15 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <EnvironmentVariable
-          // title="组件连接信息"
-          title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
-          type="Outer"
-          autoQuery
-          appAlias={appAlias}
-        />
         {method != 'vm' &&
           <Card
-            title={[
-              <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information' /></span>,
+            title={<>
+              <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information' /></span>
               <span style={{ color: 'red' }}>
                 {showText && formatMessage({ id: 'componentOverview.body.Relation.EnvironmentVariable.conflict' })}
               </span>
-            ]}
+              <span className={styles.desc}>表格列出了当前组件所依赖的其他外部组件，它们是当前组件的依赖项。</span>
+            </>}
             extra={
               <Button onClick={this.showAddRelation}>
                 <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add' />
@@ -176,7 +172,7 @@ export default class Index extends PureComponent {
             }
             style={{
               borderRadius: 5,
-              marginTop: '20px'
+              marginBottom: '20px'
             }}
           >
             <ScrollerX sm={650}>
@@ -248,6 +244,21 @@ export default class Index extends PureComponent {
             </ScrollerX>
           </Card>
         }
+        <Card
+          
+        >
+          <EnvironmentVariable
+            // title="组件连接信息"
+            title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
+            type="Outer"
+            autoQuery
+            appAlias={appAlias}
+          />
+        
+          <RelatumComponentInfo 
+            {...this.props} 
+          />
+        </Card>
 
         {this.state.showAddRelation && (
           <AddRelation

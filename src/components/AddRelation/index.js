@@ -41,7 +41,7 @@ export default class AddRelation extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getUnRelationedApp();
+    this.getRelationedApp();
   }
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
@@ -53,36 +53,61 @@ export default class AddRelation extends PureComponent {
     const ids = this.state.selectedRowKeys;
     this.props.onSubmit && this.props.onSubmit(ids);
   };
-  getUnRelationedApp = () => {
-    getUnRelationedApp({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
-      page: this.state.page,
-      page_size: this.state.page_size,
-      search_key: this.state.search_key,
-      condition: this.state.condition
-    }).then(data => {
-      if (data) {
-        this.setState({
-          apps: data.list || [],
-          total: data.total,
-          selectedRowKeys: []
-        });
-      }
-    });
+  getRelationedApp = () => {
+    const { dispatch, type, appAlias } = this.props
+    if(type === 'relatum'){
+      dispatch({
+        type: 'appControl/getReverseDependency',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appAlias,
+          page: this.state.page,
+          page_size: this.state.page_size,
+          search_key: this.state.search_key,
+          condition: this.state.condition
+        },
+        callback: res => {
+          if(res){
+            this.setState({
+              apps: res.list || [],
+              total: res.total,
+              selectedRowKeys: []
+            });
+          }
+        }
+      })
+    } else {
+      getUnRelationedApp({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        page: this.state.page,
+        page_size: this.state.page_size,
+        search_key: this.state.search_key,
+        condition: this.state.condition
+      }).then(data => {
+        if (data) {
+          this.setState({
+            apps: data.list || [],
+            total: data.total,
+            selectedRowKeys: []
+          });
+        }
+      });
+    }
+    
   };
   handleCancel = () => {
     this.props.onCancel && this.props.onCancel();
   };
   onPageChange = page => {
     this.setState({ page }, () => {
-      this.getUnRelationedApp();
+      this.getRelationedApp();
     });
   };
   handleSearch = e => {
     e.preventDefault();
     this.state.page = 1;
-    this.getUnRelationedApp();
+    this.getRelationedApp();
   };
   handleKeyChange = e => {
     this.setState({ search_key: e.target.value });
@@ -92,7 +117,7 @@ export default class AddRelation extends PureComponent {
   };
   handleDependChange = value => {
     this.setState({ dependValue: value },()=>{
-    this.getUnRelationedApp();
+    this.getRelationedApp();
     });
   }
   render() {

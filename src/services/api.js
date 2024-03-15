@@ -1546,3 +1546,19 @@ export async function deletePlatformImageHub(body, handleError) {
     }
   );
 }
+
+// 检查仓库链接状态
+export async function checkHubLink(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/registry/check?region_name=${body.regionName}`,
+    {
+      method: 'post',
+      data: {
+        domain: body.domain,
+        username: body.username,
+        password: body.password,
+      },
+      handleError
+    }
+  );
+}

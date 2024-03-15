@@ -39,7 +39,6 @@ import {
   addAuthorizationMessage,
   editAuthorizationMessage,
   delAuthorizationMessage,
-  fetchImageNames,
   fetchImageTags,
 } from '../services/team';
 
@@ -342,12 +341,6 @@ export default {
     },
     *delAuthorizationMessage({ payload, callback, handleError }, { call }) {
       const response = yield call(delAuthorizationMessage, payload, handleError);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *fetchImageNames({ payload, callback, handleError }, { call }) {
-      const response = yield call(fetchImageNames, payload, handleError);
       if (response && callback) {
         callback(response);
       }

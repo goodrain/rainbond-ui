@@ -179,7 +179,6 @@
   width: 100%;
   min-height: 100px;
   max-height: 160px;
-  overflow: auto;
   border-radius: 4px;
   padding: 4px 8px;
   .spin{
@@ -193,7 +192,10 @@
       display: flex;
       flex-wrap: wrap;
       position: relative;
-      top: -21px;
+      top: -8px;
+      min-height: 100px;
+      max-height: 160px;
+      overflow: auto;
     }
   
     :global {
