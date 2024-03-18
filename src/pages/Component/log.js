@@ -56,30 +56,6 @@ export default class Index extends PureComponent {
     // this.initializeSSE(100);
   }
 
-  fetchData = () => {
-    fetch('http://8.130.116.127:7070/console/sse/v2/tenants/yamehu6c/services/gr00f4f0/pods/sourcecode-demo-java-maven-demo-799f58f489-p5kxs/logs?region_name=rainbond')
-      .then(response => {
-        // 获取 reader
-        const reader = response.body.getReader();
-        console.log(reader.read().then(process), 'reader')
-        // 读取数据
-        return reader.read().then(function process({ done, value }) {
-          console.log(done, 'done')
-          console.log(value, 'value')
-          if (done) {
-            console.log('Stream finished');
-            return;
-          }
-
-          console.log('Received data chunk', value);
-
-          // 读取下一段数据
-          return reader.read().then(process);
-        });
-      })
-      .catch(console.error);
-  }
-
   componentDidUpdate(prevProps, prevState) {
     if (
       this.refs.box &&
@@ -90,37 +66,16 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
-    // if (this.props.socket) {
-    //   this.props.socket.closeLogMessage();
-    // }
     if (this.eventSource) {
       this.eventSource.close();
     }
   }
-  initializeSSE = (lines) => {
-    const { appAlias, regionName, teamName } = this.props;
-    const url = `http://192.168.2.241:8888/v2/tenants/${'4a71qpxn'}/services/${'gr609579'}/pods/${'sourcecode-demo-java-maven-demo-65f6c5cf45-d8kd9'}/logs?region_name=${'rainbond'}&lines=${lines}`;
-    this.eventSource = new EventSource(url, { withCredentials: true });
-
-    this.eventSource.onmessage = (event) => {
-      const newMessage = event.data;
-      this.setState((prevState) => ({
-        logs: [...prevState.logs, newMessage],
-      }));
-    };
-
-    this.eventSource.onerror = (error) => {
-      console.error('EventSource failed:', error);
-      this.eventSource.close();
-    };
-  };
 
   initializeEventSources(pods, lines) {
     const { appAlias, regionName, teamName } = this.props;
     pods.forEach(pod => {
       if(pod.pod_name){
-        console.log(pod.pod_name,'pod_name')
-        const url = `http://8.130.116.127:7070/console/sse/v2/tenants/${teamName}/services/${appAlias}/pods/${pod.pod_name}/logs?region_name=${regionName}&lines=${lines}`;
+        const url = `/console/sse/v2/tenants/${teamName}/services/${appAlias}/pods/${pod.pod_name}/logs?region_name=${regionName}&lines=${lines}`;
         this.eventSources[pod.pod_name] = new EventSource(url, {withCredentials: true});
         this.eventSources[pod.pod_name].onmessage = (event) => {
           const newMessage = event.data;
@@ -128,7 +83,6 @@ export default class Index extends PureComponent {
             logs: [...prevState.logs, newMessage],
           }));
         };
-        console.log(this.eventSources, 'this.eventSources')
         this.eventSources[pod.pod_name].onerror = (error) => {
           console.error(`${pod.pod_name} EventSource failed:`, error);
           this.closeEventSource(pod.pod_name); // 出错时关闭EventSource实例
@@ -189,9 +143,7 @@ export default class Index extends PureComponent {
         list.push({
           name: formatMessage({ id: 'componentOverview.body.tab.log.allLogs' }),
         });
-        // list.map((item, index) => {
-        //   this.initializeSSE(100)
-        // })
+
         this.setState({
           instances: list
         }, () => {
@@ -209,40 +161,40 @@ export default class Index extends PureComponent {
   handleStop = () => {
     this.setState({ started: false });
     if (this.eventSource) {
-      // this.closeAllEventSources()
+      this.closeAllEventSources()
     }
   };
   handleStart = () => {
     const { instances } = this.state
     this.setState({ started: true });
-    // this.initializeEventSources(instances, 0)
-    // this.initializeSSE(0);
+    this.initializeEventSources(instances, 0)
   };
   onChangeCascader = value => {
-    console.log(value, 'value')
-    // if (value && value.length > 1) {
-    //   this.setState(
-    //     {
-    //       pod_name: value[0].slice(3),
-    //       container_name: value[1].slice(3)
-    //     },
-    //     () => {
-    //       this.fetchContainerLog();
-    //     }
-    //   );
-    // } else {
-    //   this.setState(
-    //     {
-    //       pod_name: '',
-    //       container_name: '',
-    //       containerLog: []
-    //     },
-    //     () => {
-    //       this.closeTimer();
-    //       this.fetchServiceLog();
-    //     }
-    //   );
-    // }
+    const { instances } = this.state
+    if (value && value.length > 1) {
+      this.setState(
+        {
+          pod_name: value[0].slice(3),
+          container_name: value[1].slice(3)
+        },
+        () => {
+          this.fetchContainerLog();
+          this.closeEventSource()
+        }
+      );
+    } else {
+      this.setState(
+        {
+          pod_name: '',
+          container_name: '',
+          containerLog: []
+        },
+        () => {
+          this.closeTimer();
+          this.initializeEventSources(instances, 0)
+        }
+      );
+    }
   };
 
   // onFinish = value => {
@@ -326,49 +278,49 @@ export default class Index extends PureComponent {
   //     }
   //   });
   // };
-  // hanleTimer = () => {
-  //   const { refreshValue } = this.state;
-  //   this.closeTimer();
-  //   if (!refreshValue) {
-  //     return null;
-  //   }
-  //   this.timer = setTimeout(() => {
-  //     this.fetchContainerLog();
-  //   }, refreshValue * 1000);
-  // };
+  hanleTimer = () => {
+    const { refreshValue } = this.state;
+    this.closeTimer();
+    if (!refreshValue) {
+      return null;
+    }
+    this.timer = setTimeout(() => {
+      this.fetchContainerLog();
+    }, refreshValue * 1000);
+  };
 
-  // closeTimer = () => {
-  //   if (this.timer) {
-  //     clearInterval(this.timer);
-  //   }
-  // };
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
 
-  // fetchContainerLog = () => {
-  //   const { pod_name, container_name } = this.state;
-  //   getContainerLog({
-  //     team_name: globalUtil.getCurrTeamName(),
-  //     app_alias: this.props.appAlias,
-  //     pod_name,
-  //     container_name
-  //   }).then(data => {
-  //     if (
-  //       data &&
-  //       data.status_code &&
-  //       data.status_code === 200 &&
-  //       data.response_data
-  //     ) {
-  //       const arr = data.response_data.split('\n');
-  //       this.setState(
-  //         {
-  //           containerLog: arr || []
-  //         },
-  //         () => {
-  //           this.hanleTimer();
-  //         }
-  //       );
-  //     }
-  //   });
-  // };
+  fetchContainerLog = () => {
+    const { pod_name, container_name } = this.state;
+    getContainerLog({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appAlias,
+      pod_name,
+      container_name
+    }).then(data => {
+      if (
+        data &&
+        data.status_code &&
+        data.status_code === 200 &&
+        data.response_data
+      ) {
+        const arr = data.response_data.split('\n');
+        this.setState(
+          {
+            containerLog: arr || []
+          },
+          () => {
+            this.hanleTimer();
+          }
+        );
+      }
+    });
+  };
 
   // showDownHistoryLog = () => {
   //   this.setState({ showHistoryLog: true });
