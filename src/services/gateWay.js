@@ -643,13 +643,9 @@ export async function deleteApiGatewayCert(params, handleError) {
 // 获取服务地址列表
 export function fetchGetServiceAddress(params) {
   return request(
-    `${apiconfig.baseUrl}/openapi/v1/teams/${params.team_name}/regions/${params.region_name}/apps_port`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/regions/${params.region_name}/apps_port`,
     {
       method: 'get',
-      isToken: true,
-      headers:{
-        Authorization: params.token
-      },
     },
   );
 }
