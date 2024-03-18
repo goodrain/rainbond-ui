@@ -406,44 +406,11 @@ export default class RKEClusterConfig extends PureComponent {
       });
   };
 
-  updateCluster = () => {
-    const { dispatch, eid, clusterID, form } = this.props;
-    const { dataSource, yamlVal } = this.state;
-    if (dataSource && dataSource.length === 0) {
-      message.warning('请定义集群节点');
-    }
-    form.validateFields((error, values) => {
-      if (!error) {
-        this.setState({ loading: true });
-        dispatch({
-          type: 'cloud/updateKubernetesCluster',
-          payload: {
-            enterprise_id: eid,
-            clusterID,
-            provider: 'rke',
-            encodedRKEConfig: this.encodeBase64Content(values.yamls || yamlVal)
-          },
-          callback: data => {
-            this.handleOk(data && data.response_data);
-          },
-          handleError: res => {
-            this.handleError(res);
-          }
-        });
-      }
-    });
-  };
-
   createCluster = () => {
     const { form, dispatch, eid, clusterID } = this.props;
     const { dataSource, yamlVal } = this.state;
-    if (clusterID) {
-      this.updateCluster();
-      return null;
-    }
     form.validateFields((err, fieldsValue) => {
       if (!err) {
-
         const etcdCount = dataSource.reduce((acc, curr) => {
           return acc + (curr.roles.includes("etcd") ? 1 : 0);
         }, 0);
@@ -558,8 +525,8 @@ export default class RKEClusterConfig extends PureComponent {
   };
   handleStartCheck = (isNext, fieldsValue = {}, yamls) => {
     let next = false;
-    const { eid, dispatch } = this.props;
-    const { activeKey } = this.state;
+    const { eid, dispatch, clusterID } = this.props;
+    const { activeKey, dataSource } = this.state;
     fieldsValue.yamls = yamls || ''
     if (activeKey === '1') {
       this.handleEnvGroup(
@@ -591,7 +558,27 @@ export default class RKEClusterConfig extends PureComponent {
         this.handleCheck(next);
       }
     });
-    if (next && isNext) {
+    if (clusterID && next && isNext ) {
+      if (dataSource && dataSource.length === 0) {
+        message.warning('请定义集群节点');
+      }
+      dispatch({
+        type: 'cloud/updateKubernetesCluster',
+        payload: {
+          enterprise_id: eid,
+          clusterID,
+          provider: 'rke',
+          encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls)
+        },
+        callback: data => {
+          this.handleOk(data && data.response_data);
+        },
+        handleError: res => {
+          this.handleError(res);
+        }
+      });
+     
+    } else if (next && isNext && !clusterID) {
       dispatch({
         type: 'cloud/createKubernetesCluster',
         payload: {
