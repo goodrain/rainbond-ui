@@ -80,9 +80,12 @@ export default class DatacenterList extends PureComponent {
     const {
       regions,
       projectLoading,
-      datecenterPermissions: { isInstall, isUninstall }
+      // datecenterPermissions: { isInstall, isUninstall }
     } = this.props;
     const { openRegion, showUninstallCluster, closeRegionLoading } = this.state;
+
+    const isInstall = true;
+    const isUninstall = true;
 
     return (
       <div>

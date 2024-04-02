@@ -48,7 +48,7 @@ class Control extends Component {
       total: '',
       editData: '',
       id: '',
-      operationPermissions: this.handlePermissions('queryCertificateInfo'),
+      // operationPermissions: this.handlePermissions('queryCertificateInfo'),
       gatewayShow: false,
       batchGateway: false,
       name: '',
@@ -58,9 +58,10 @@ class Control extends Component {
     this.fetchPipePipeline();
     this.handleBatchGateWay();
     const { dispatch, } = this.props;
-    const {
-      operationPermissions: { isAccess }
-    } = this.state;
+    // const {
+    //   operationPermissions: { isAccess }
+    // } = this.state;
+    const isAccess = true;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
     } else {

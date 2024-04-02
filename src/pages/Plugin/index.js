@@ -572,14 +572,15 @@ class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      operationPermissions: this.handlePermissions('queryPluginInfo')
+      // operationPermissions: this.handlePermissions('queryPluginInfo')
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
-    const {
-      operationPermissions: { isAccess }
-    } = this.state;
+    // const {
+    //   operationPermissions: { isAccess }
+    // } = this.state;
+    const isAccess = true;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
     }

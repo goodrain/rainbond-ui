@@ -45,7 +45,7 @@ export default class CreateCheck extends React.Component {
     super(props);
     this.state = {
       // failure、checking、success
-      appPermissions: this.handlePermissions('queryAppInfo'),
+      // appPermissions: this.handlePermissions('queryAppInfo'),
       status: 'checking',
       checkUuid: '',
       errorInfo: [],
@@ -596,8 +596,9 @@ export default class CreateCheck extends React.Component {
   renderError = () => {
     const {
       errorInfo,
-      appPermissions: { isDelete }
+      // appPermissions: { isDelete }
     } = this.state;
+    const isDelete = true;
     const extra = (
       <div>
         {errorInfo.map((item, index) => (
@@ -817,13 +818,14 @@ export default class CreateCheck extends React.Component {
       isDeploy,
       appDetail,
       serviceInfo,
-      appPermissions: { isDelete },
+      // appPermissions: { isDelete },
       codeLanguage,
       source_from,
       ports,
       packageLange,
       Directory
     } = this.state;
+    const isDelete = true;
     let extra = '';
     const arr = [];
     if (serviceInfo && serviceInfo.length > 0) {
@@ -1045,8 +1047,10 @@ export default class CreateCheck extends React.Component {
       isDeploy,
       appDetail,
       isMulti,
-      appPermissions: { isDelete }
+      // appPermissions: { isDelete }
     } = this.state;
+    const isDelete = true;
+    
     const mr8 = { marginRight: '8px' };
     let actions = [];
     if (ServiceGetData && isMulti) {
@@ -1205,8 +1209,9 @@ export default class CreateCheck extends React.Component {
     const { ButtonGroupState = false, handleServiceBotton } = this.props;
     const {
       ServiceGetData,
-      appPermissions: { isDelete }
+      // appPermissions: { isDelete }
     } = this.state;
+    const isDelete = true;
     const actions = isDelete && (
       <Button onClick={this.showDelete} type="default">
         {formatMessage({ id: 'button.abandon_create' })}

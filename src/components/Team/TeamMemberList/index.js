@@ -150,7 +150,7 @@ export default class MemberList extends PureComponent {
       currentTeam,
       memberPermissions,
       toMoveTeamLoading,
-      memberPermissions: { isCreate }
+      // memberPermissions: { isCreate }
     } = this.props;
     const {
       page,
@@ -163,6 +163,7 @@ export default class MemberList extends PureComponent {
       toDeleteMember,
       toMoveTeam
     } = this.state;
+    const isCreate = true;
     const pagination = {
       current: page,
       pageSize,

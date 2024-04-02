@@ -144,7 +144,7 @@ export default class MemberList extends PureComponent {
       currentTeam,
       memberPermissions,
       toMoveTeamLoading,
-      memberPermissions: { isCreate, isAccess }
+      // memberPermissions: { isCreate, isAccess }
     } = this.props;
     const {
       page,
@@ -158,6 +158,8 @@ export default class MemberList extends PureComponent {
       toMoveTeam,
       imageList
     } = this.state;
+    const isCreate = true;
+    const isAccess = true;
     return (
       <div>
         <Card

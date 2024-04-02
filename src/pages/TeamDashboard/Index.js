@@ -29,6 +29,7 @@ import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
 import TeamWizard from '../Create/wizard'
 import userUtil from '../../utils/user';
+import role from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './Index.less';
 
@@ -58,6 +59,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       // 团队应用的图表数据
+      // appOverView: this.
       appColorData: {
         value: 70,
         company: '%',
@@ -97,16 +99,9 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     //  获取团队的权限
-    const { currUser } = this.props;
-    const teamPermissions = userUtil.getTeamByTeamPermissions(
-      currUser.teams,
-      globalUtil.getCurrTeamName()
-    );
-    if (teamPermissions && teamPermissions.length !== 0) {
-      // 加载团队下的资源
+      const { currentTeamPermissionsInfo } = this.props;
       this.loadOverview();
       this.loadHotApp();
-    }
   }
   // 组件销毁停止计时器
   componentWillUnmount() {

@@ -40,11 +40,11 @@ export default class Index extends PureComponent {
       teamsUrl: this.props.currentEnterprise
         ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/teams`
         : '/',
-      eventPermissions: this.handleEventPermissions('dynamic_describe'),
-      memberPermissions: this.handlePermissions('queryTeamMemberInfo'),
-      datecenterPermissions: this.handlePermissions('queryTeamRegionInfo'),
-      rolePermissions: this.handlePermissions('queryTeamRolesInfo'),
-      registryPermissions: this.handlePermissions('queryTeamRegistryAuth') 
+      // eventPermissions: this.handleEventPermissions('dynamic_describe'),
+      // memberPermissions: this.handlePermissions('queryTeamMemberInfo'),
+      // datecenterPermissions: this.handlePermissions('queryTeamRegionInfo'),
+      // rolePermissions: this.handlePermissions('queryTeamRolesInfo'),
+      // registryPermissions: this.handlePermissions('queryTeamRegistryAuth') 
     };
   }
 
@@ -52,11 +52,15 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const {
       eventPermissions,
-      memberPermissions: { isAccess: memberAccess },
-      datecenterPermissions: { isAccess: datecenterAccess },
-      rolePermissions: { isAccess: roleAccess },
-      registryPermissions:{ isAccess: registryAccess}
+      // memberPermissions: { isAccess: memberAccess },
+      // datecenterPermissions: { isAccess: datecenterAccess },
+      // rolePermissions: { isAccess: roleAccess },
+      // registryPermissions:{ isAccess: registryAccess}
     } = this.state;
+    const memberAccess = true;
+    const datecenterAccess = true;
+    const roleAccess = true;
+    const registryAccess = true;
     if (
       !eventPermissions &&
       !memberAccess &&
@@ -67,15 +71,15 @@ export default class Index extends PureComponent {
     }
 
     let scopes = '';
-    if (eventPermissions) {
-      scopes = 'event';
-    } else if (memberAccess) {
-      scopes = 'member';
-    } else if (datecenterAccess) {
-      scopes = 'datecenter';
-    } else {
+    // if (eventPermissions) {
+    //   scopes = 'event';
+    // } else if (memberAccess) {
+    //   scopes = 'member';
+    // } else if (datecenterAccess) {
+    //   scopes = 'datecenter';
+    // } else {
       scopes = 'role';
-    }
+    // }
     this.setState({ scope: scopes });
     const {
       location: { state }
@@ -216,13 +220,18 @@ export default class Index extends PureComponent {
       datecenterPermissions,
       rolePermissions,
       registryPermissions,
-      memberPermissions: { isAccess: memberAccess },
-      datecenterPermissions: { isAccess: datecenterAccess },
-      rolePermissions: { isAccess: roleAccess },
-      registryPermissions: { isAccess: registryAccess},
+      // memberPermissions: { isAccess: memberAccess },
+      // datecenterPermissions: { isAccess: datecenterAccess },
+      // rolePermissions: { isAccess: roleAccess },
+      // registryPermissions: { isAccess: registryAccess},
       tabActiveKey,
       logoInfo = false
     } = this.state;
+    const memberAccess = true
+    const datecenterAccess = true
+    const roleAccess = true
+    const registryAccess = true
+
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
@@ -332,7 +341,7 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         tabList={tabList}
-        tabActiveKey={scope}
+        tabActiveKey={'role'}
         onTabChange={this.handleTabChange}
         content={pageHeaderContent}
         extraContent={extraContent}

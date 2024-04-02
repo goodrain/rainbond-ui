@@ -19,9 +19,12 @@ class TeamMemberTable extends PureComponent {
       onDelete,
       onEditAction,
       onMoveTeam,
-      memberPermissions: { isEdit, isDelete, isAccess },
+      // memberPermissions: { isEdit, isDelete, isAccess },
       team,
     } = this.props;
+    const isEdit= true;
+    const isDelete= true;
+    const isAccess = true;
     const columns = [
       {
         title: formatMessage({id: 'teamManage.tabs.image.table.imageAddress'}),

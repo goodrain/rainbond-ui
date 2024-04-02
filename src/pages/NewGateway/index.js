@@ -14,6 +14,7 @@ import GatewayService from './GatewayService';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import roleUtil from '../../utils/role';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+
 import globalUtil from '../../utils/global';
 
 @connect(({ user, teamControl, enterprise }) => ({
@@ -35,7 +36,7 @@ class Control extends Component {
                     this.props.match.params.types
                     ? this.props.match.params.types
                     : false,
-            operationPermissions: this.handlePermissions('queryControlInfo'),
+            // operationPermissions: this.handlePermissions('queryControlInfo'),
             tabKeys: 'default',
             gatewayShow: false,
             batchGateway: false,
@@ -49,10 +50,10 @@ class Control extends Component {
     componentWillMount() {
         this.fetchPipePipeline();
         const { dispatch } = this.props;
-        const {
-            operationPermissions: { isAccess },
-        } = this.state;
-
+        // const {
+        //     operationPermissions: { isAccess },
+        // } = this.state;
+        const isAccess = true;
         if (!isAccess) {
             globalUtil.withoutPermission(dispatch);
         }

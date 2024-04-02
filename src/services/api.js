@@ -3,9 +3,12 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
 // fetch Permissions
-export async function getPermissions() {
+export async function getPermissions(body) {
   return request(`${apiconfig.baseUrl}/console/perms`, {
-    method: 'get'
+    method: 'get',
+    params: {
+      tenant_id: body.tenant_id
+    }
   });
 }
 

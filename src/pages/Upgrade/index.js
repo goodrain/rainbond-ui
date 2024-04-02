@@ -91,10 +91,11 @@ export default class AppList extends PureComponent {
 
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
-    const isUpgrade = roleUtil.queryAppInfo(
-      currentTeamPermissionsInfo,
-      'upgrade'
-    );
+    // const isUpgrade = roleUtil.queryAppInfo(
+    //   currentTeamPermissionsInfo,
+    //   'upgrade'
+    // );
+    const isUpgrade = true;
     if (!isUpgrade) {
       globalUtil.withoutPermission(dispatch);
     }

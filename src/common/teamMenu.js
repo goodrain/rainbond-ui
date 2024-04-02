@@ -34,21 +34,32 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     menuArr.push(obj);
   }
   if (permissionsInfo) {
-    const appView = results('app', 'describe');
-    const appCreateView = results('app', 'create');
-    const componentCreateView = results('component', 'create');
-    const componentConstructView = results('component', 'construct');
-    const control = results('gatewayRule', 'describe');
-    const certificate = results('certificate', 'describe');
-    const pluginView = results('plugin', 'describe');
-    // 动态
-    const dynamic = results('teamBasicInfo', 'dynamic_describe');
-    // 成员
-    const members = results('teamMember', 'describe');
-    // 集群
-    const clusters = results('teamRegion', 'describe');
-    // 角色
-    const roles = results('teamRole', 'describe');
+    // const appView = results('app', 'describe');
+    // const appCreateView = results('app', 'create');
+    // const componentCreateView = results('component', 'create');
+    // const componentConstructView = results('component', 'construct');
+    // const control = results('gatewayRule', 'describe');
+    // const certificate = results('certificate', 'describe');
+    // const pluginView = results('plugin', 'describe');
+    // // 动态
+    // const dynamic = results('teamBasicInfo', 'dynamic_describe');
+    // // 成员
+    // const members = results('teamMember', 'describe');
+    // // 集群
+    // const clusters = results('teamRegion', 'describe');
+    // // 角色
+    // const roles = results('teamRole', 'describe');
+    const appView = true;
+    const appCreateView = true;
+    const componentCreateView = true;
+    const componentConstructView = true;
+    const control = true;
+    const certificate = true;
+    const pluginView = true;
+    const dynamic = true;
+    const members = true;
+    const clusters = true;
+    const roles = true;
 
     if (appCreateView && componentCreateView && componentConstructView) {
       var item = {
