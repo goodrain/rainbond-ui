@@ -1,14 +1,14 @@
 import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../utils/cookie';
-import roleUtil from '../utils/role';
+import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 
 const newbieGuide = cookie.get('newbie_guide');
-function setTeamMenu(pluginMenu, menuName){
-  if(pluginMenu){
-    const isShow = pluginMenu.some(item =>{
-        return item.name == menuName
+function setTeamMenu(pluginMenu, menuName) {
+  if (pluginMenu) {
+    const isShow = pluginMenu.some(item => {
+      return item.name == menuName
     })
     return isShow
   }
@@ -23,34 +23,30 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
       authority: ['admin', 'user']
     }
   ];
-  function results(moduleName, targets) {
-    return roleUtil.queryTeamUserPermissionsInfo(
-      permissionsInfo,
-      moduleName,
-      targets
+  function results() {
+    return roleUtil.queryTeamOrAppPermissionsInfo(
+      permissionsInfo.team,
+      'team'
     );
   }
   function addMenuArr(obj) {
     menuArr.push(obj);
   }
   if (permissionsInfo) {
-    const appView = results('app', 'describe');
-    const appCreateView = results('app', 'create');
-    const componentCreateView = results('component', 'create');
-    const componentConstructView = results('component', 'construct');
-    const control = results('gatewayRule', 'describe');
-    const certificate = results('certificate', 'describe');
-    const pluginView = results('plugin', 'describe');
-    // 动态
-    const dynamic = results('teamBasicInfo', 'dynamic_describe');
-    // 成员
-    const members = results('teamMember', 'describe');
-    // 集群
-    const clusters = results('teamRegion', 'describe');
-    // 角色
-    const roles = results('teamRole', 'describe');
-
-    if (appCreateView && componentCreateView && componentConstructView) {
+    const {
+      isTeamOverview,
+      isTeamAppCreate,
+      isTeamGatewayMonitor,
+      isTeamRouteManage,
+      isTeamTargetServices,
+      isTeamCertificate,
+      isTeamPluginManage,
+      isTeamDynamic,
+      isTeamRegion,
+      isTeamRole,
+      isTeamRegistryAuth
+    } = results();
+    if (isTeamAppCreate) {
       var item = {
         name: formatMessage({ id: 'menu.team.create' }),
         icon: getMenuSvg.getSvg('add'),
@@ -78,13 +74,13 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
             authority: ['admin', 'user']
           },
           {
-            name: formatMessage({id:'Vm.createVm.docker'}),
+            name: formatMessage({ id: 'Vm.createVm.docker' }),
             path: `image`,
             icon: getMenuSvg.getSvg('image'),
             authority: ['admin', 'user']
           },
           {
-            name: formatMessage({id:'Vm.createVm.titleVm'}),
+            name: formatMessage({ id: 'Vm.createVm.titleVm' }),
             path: `vm`,
             icon: getMenuSvg.getSvg('vm'),
             authority: ['admin', 'user']
@@ -113,7 +109,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
       // }
       addMenuArr(item);
     }
-    if (setTeamMenu(showPipeline,'pipeline')) {
+    if (setTeamMenu(showPipeline, 'pipeline')) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.pipeline' }),
         icon: getMenuSvg.getSvg('Pipeline'),
@@ -121,15 +117,16 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         authority: ['admin', 'user']
       });
     }
-    addMenuArr({
-      name: formatMessage({ id: 'menu.team.gateway' }),
-      icon: 'gateway',
-      path: `team/${teamName}/region/${regionName}/gateway`,
-      authority: ['admin', 'user'],
-      // children
-    });
-
-    if (pluginView) {
+    if (isTeamGatewayMonitor || isTeamRouteManage || isTeamTargetServices || isTeamCertificate) {
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.gateway' }),
+        icon: 'gateway',
+        path: `team/${teamName}/region/${regionName}/gateway`,
+        authority: ['admin', 'user'],
+        // children
+      });
+    }
+    if (isTeamPluginManage) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.plugin' }),
         icon: getMenuSvg.getSvg('api'),
@@ -138,7 +135,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
       });
     }
 
-    if (dynamic || members || clusters || roles) {
+    if (isTeamDynamic || isTeamRegion || isTeamRole || isTeamRegistryAuth) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.setting' }),
         icon: getMenuSvg.getSvg('setting'),
@@ -148,7 +145,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     }
     if (newbieGuide === 'false') {
       return menuArr;
-    } 
+    }
     // else if (newbieGuide !== undefined) {
     //   addMenuArr({
     //     name: '任务',
@@ -158,7 +155,6 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     //   });
     // }
   }
-
   return menuArr;
 }
 

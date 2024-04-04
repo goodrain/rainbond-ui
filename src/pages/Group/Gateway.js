@@ -19,7 +19,7 @@ import {
   createTeam
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -43,25 +43,24 @@ export default class AppGatewayList extends PureComponent {
           this.props.match.params.types
           ? this.props.match.params.types
           : false,
-      operationPermissions: this.handlePermissions('queryControlInfo'),
       tabKeys: 'default',
       gatewayShow: false,
       batchGateway: false,
       batchGatewayLoading: false,
-      gatewayLoading: false
+      gatewayLoading: false,
+      monitorPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_gateway_monitor',`app_${this.getGroupId()}`),
+      routePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_route_manage',`app_${this.getGroupId()}`),
+      argetServicesPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_target_services',`app_${this.getGroupId()}`),
+      certificatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_certificate',`app_${this.getGroupId()}`),
     };
   }
   componentWillMount() {
     this.fetchPipePipeline();
     this.handleBatchGateWay();
-    const { dispatch } = this.props;
-    const {
-      operationPermissions: { isAccess }
-    } = this.state;
-
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    }
+    const {monitorPermission, routePermission, argetServicesPermission, certificatePermission} = this.state
+    this.setState({
+        tabKey: monitorPermission.isAccess ? 'monitor' : routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'monitor'
+    })
   }
 
   componentDidMount() {
@@ -184,34 +183,88 @@ export default class AppGatewayList extends PureComponent {
 
   renderContent = () => {
     const { appID } = this.props.match.params;
-    const { open, tabKey, operationPermissions, tabKeys, batchGateway, gatewayShow } = this.state;
+    const { 
+      open, 
+      tabKey, 
+      operationPermissions, 
+      tabKeys, 
+      batchGateway, 
+      gatewayShow,
+      monitorPermission, 
+      routePermission, 
+      argetServicesPermission, 
+      certificatePermission 
+     } = this.state;
     if (batchGateway && gatewayShow) {
       if (tabKeys === 'default') {
         return (
-          <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey} appID={appID} />
+          <TolerantGateway  open={open} tabKey={tabKey} appID={appID} />
         );
       }
-      return <GatewayApi operationPermissions={operationPermissions} appID={appID} />;
+      return <GatewayApi  appID={appID} />;
     } else {
       if (tabKey === 'certificate') {
         return (
-          <GatewayCertificate operationPermissions={operationPermissions} open={open} appID={appID}/>
+          <GatewayCertificate  open={open} appID={appID} permission={certificatePermission}/>
         );
       } else if (tabKey === 'route') {
         return (
-          <GatewayRoute operationPermissions={operationPermissions} open={open} onTabChange={this.handleTabChange} appID={appID}/>
+          <GatewayRoute  open={open} onTabChange={this.handleTabChange} appID={appID} permission={routePermission}/>
         );
       } else if (tabKey === 'service') {
         return (
-          <GatewayService operationPermissions={operationPermissions} open={open} appID={appID}/>
+          <GatewayService  open={open} appID={appID} permission={argetServicesPermission}/>
         );
       } else if (tabKey === 'monitor'){
         return (
-          <GatewayMonitor operationPermissions={operationPermissions} open={open} appID={appID}/>
+          <GatewayMonitor  open={open} appID={appID}/>
         )
       }
     }
   };
+  handleTabList = (isGateway) => {
+    const { monitorPermission, routePermission, argetServicesPermission, certificatePermission } = this.state
+    let arr = []
+    if (monitorPermission.isAccess) {
+        arr.push({
+            key: 'monitor',
+            tab: '网关监测',
+        })
+    }
+    if (routePermission.isAccess) {
+        arr.push({
+            key: 'route',
+            tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.management' }),
+        })
+    }
+    if (argetServicesPermission.isAccess) {
+        arr.push({
+            key: 'service',
+            tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.Services' }),
+        })
+    }
+    if (certificatePermission.isAccess) {
+        arr.push({
+            key: 'certificate',
+            tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.certificate' }),
+        })
+    }
+    if (isGateway) {
+        return [
+            {
+                key: 'default',
+                tab: formatMessage({ id: 'teamGateway.control.table.default' }),
+            },
+            {
+                key: 'GatewayApi',
+                tab: formatMessage({ id: 'teamGateway.control.table.GatewayApi' }),
+            },
+        ]
+    } else {
+        return arr
+    }
+
+}
 
   render() {
     const { currentTeam, currentEnterprise, currentRegionName } = this.props;
@@ -237,34 +290,7 @@ export default class AppGatewayList extends PureComponent {
           content={formatMessage({ id: 'appGateway.desc' })}
           titleSvg={pageheaderSvg.getSvg('gatewaySvg', 18)}
           tabActiveKey={isGateway ? this.state.tabKeys : this.state.tabKey}
-          tabList={isGateway ? [
-            {
-              key: 'default',
-              tab: formatMessage({ id: 'teamGateway.control.table.default' }),
-            },
-            {
-              key: 'GatewayApi',
-              tab: formatMessage({ id: 'teamGateway.control.table.GatewayApi' }),
-            },
-          ] :
-            [
-              {
-                key: 'monitor',
-                tab: '网关监测',
-              },
-              {
-                key: 'route',
-                tab: '路由管理',
-              },
-              {
-                key: 'service',
-                tab: '目标服务',
-              },
-              {
-                key: 'certificate',
-                tab: '证书管理',
-              }
-            ]}
+          tabList={this.handleTabList(isGateway)}
           onTabChange={this.handleTabChange}
         >
           {this.renderContent()}

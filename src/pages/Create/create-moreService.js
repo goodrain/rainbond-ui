@@ -22,7 +22,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      appPermissions: this.handlePermissions('queryAppInfo'),
+      // appPermissions: this.handlePermissions('queryAppInfo'),
       data: null,
       JavaMavenData: [],
       is_deploy: true,
@@ -178,8 +178,9 @@ export default class Index extends PureComponent {
       buildState,
       showDelete,
       deleteLoading,
-      appPermissions: { isDelete }
+      // appPermissions: { isDelete }
     } = this.state;
+    const isDelete = true
     const arr = data;
     if (arr && arr.length > 0) {
       arr.map((item, index) => {

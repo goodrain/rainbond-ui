@@ -14,7 +14,7 @@ import TeamImageList from '../../components/Team/TeamImageList'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import styles from './index.less';
 import MoveTeam from './move_team';
@@ -40,25 +40,25 @@ export default class Index extends PureComponent {
       teamsUrl: this.props.currentEnterprise
         ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/teams`
         : '/',
-      eventPermissions: this.handleEventPermissions('dynamic_describe'),
-      memberPermissions: this.handlePermissions('queryTeamMemberInfo'),
-      datecenterPermissions: this.handlePermissions('queryTeamRegionInfo'),
-      rolePermissions: this.handlePermissions('queryTeamRolesInfo'),
-      registryPermissions: this.handlePermissions('queryTeamRegistryAuth') 
+      eventPermissions: this.handlePermissions('team_dynamic'),
+      memberPermissions: this.handlePermissions('team_member'),
+      datecenterPermissions: this.handlePermissions('team_region'),
+      rolePermissions: this.handlePermissions('team_role'),
+      registryPermissions: this.handlePermissions('team_registry_auth') 
     };
   }
 
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      eventPermissions,
+      eventPermissions:{  isAccess: dynamicAccess},
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
       registryPermissions:{ isAccess: registryAccess}
     } = this.state;
     if (
-      !eventPermissions &&
+      !dynamicAccess &&
       !memberAccess &&
       !datecenterAccess &&
       !roleAccess
@@ -67,7 +67,7 @@ export default class Index extends PureComponent {
     }
 
     let scopes = '';
-    if (eventPermissions) {
+    if (dynamicAccess) {
       scopes = 'event';
     } else if (memberAccess) {
       scopes = 'member';
@@ -114,16 +114,10 @@ export default class Index extends PureComponent {
   getParam() {
     return this.props.match.params;
   }
-  handleEventPermissions = type => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.queryTeamBasicInfo(currentTeamPermissionsInfo, type);
-  };
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
+    console.log(currentTeamPermissionsInfo,"currentTeamPermissionsInfo");
+    return  roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, type);
   };
 
   showEditName = () => {
@@ -216,6 +210,7 @@ export default class Index extends PureComponent {
       datecenterPermissions,
       rolePermissions,
       registryPermissions,
+      eventPermissions: { isAccess: dynamicAccess },
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
@@ -290,7 +285,7 @@ export default class Index extends PureComponent {
     );
 
     const tabList = [];
-    if (eventPermissions) {
+    if (dynamicAccess) {
       tabList.push({
         key: 'event',
         tab: formatMessage({id: 'teamManage.tabs.dynamic'})
@@ -332,7 +327,7 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         tabList={tabList}
-        tabActiveKey={scope}
+        tabActiveKey={scope || 'event'}
         onTabChange={this.handleTabChange}
         content={pageHeaderContent}
         extraContent={extraContent}
@@ -344,7 +339,7 @@ export default class Index extends PureComponent {
           <TeamMemberList memberPermissions={memberPermissions} />
         )}
         {scope === 'role' && <TeamRoleList rolePermissions={rolePermissions} />}
-        {scope === 'event' && eventPermissions && (
+        {scope === 'event' && dynamicAccess && (
           <TeamEventList memberPermissions={memberPermissions} />
         )}
         {scope === 'image' && registryAccess && (

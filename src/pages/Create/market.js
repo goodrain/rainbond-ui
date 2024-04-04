@@ -36,7 +36,7 @@ import PageHeaderMarket from '../../layouts/PageHeaderMarket';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import CommandMarket from './command-market';
 import sourceUtil from '../../utils/source-unit';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -127,19 +127,22 @@ export default class Main extends PureComponent {
         query: ''
       },
       addAppLoading: false,
-      archInfo: []
+      archInfo: [],
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+
     };
     this.mount = false;
   }
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
-    this.mount = true;
-    this.handleArchCpuInfo();
-    this.getMarketsTab();
-    this.getHelmMarketsTab();
+    const {teamAppCreatePermission:{isAccess}} = this.state;
+    if(isAccess){
+      this.mount = true;
+      this.handleArchCpuInfo();
+      this.getMarketsTab();
+      this.getHelmMarketsTab();
+    }
   }
   componentWillUnmount() {
     this.mount = false;
@@ -1050,8 +1053,12 @@ export default class Main extends PureComponent {
       helmStoreTab,
       helmInfoSwitch,
       marketInfoSwitch,
-      archInfo
+      archInfo,
+      teamAppCreatePermission:{isAccess}
     } = this.state;
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     const keyword = this.props.match && this.props.match.params && this.props.match.params.keyword || '';
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;

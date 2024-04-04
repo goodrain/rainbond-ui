@@ -94,12 +94,12 @@ export default class index extends Component {
                 name: values.name || ''
             },
             callback: res => {
-                if(res){
+                if (res) {
                     this.setState({
                         routeDrawer: false
                     }, () => {
                         notification.success({
-                            message: formatMessage({id:'notification.success.succeeded'}),
+                            message: formatMessage({ id: 'notification.success.succeeded' }),
                         });
                         this.getTableData()
                     })
@@ -107,7 +107,7 @@ export default class index extends Component {
             },
             handleError: (err) => {
                 notification.error({
-                    message: formatMessage({id:'componentOverview.body.safety.SafetyCodeScan.Controlserror'}),
+                    message: formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
                 });
             }
         })
@@ -127,34 +127,34 @@ export default class index extends Component {
             },
             callback: res => {
                 notification.success({
-                    message: formatMessage({id:'notification.success.succeeded'}),
+                    message: formatMessage({ id: 'notification.success.succeeded' }),
                 });
                 this.getTableData()
             },
             handleError: (err) => {
                 notification.error({
-                    message: formatMessage({id:'componentOverview.body.safety.SafetyCodeScan.Controlserror'}),
+                    message: formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
                 });
             }
         })
 
     }
-    splitString = (inputString, delimiter,type='comid') => {
+    splitString = (inputString, delimiter, type = 'comid') => {
         const regex = new RegExp(`(.+?)\\${delimiter}(.+)`);
         const result = inputString.match(regex);
         if (result) {
-          const part1 = result[1];
-          const part2 = result[2];
-          return type=='name' ? part1 : part2;
+            const part1 = result[1];
+            const part2 = result[2];
+            return type == 'name' ? part1 : part2;
         } else {
-          return null;
+            return null;
         }
-      }
+    }
     componentsRouter = (serviceName) => {
         const { dispatch } = this.props;
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-        const ComponentID = this.splitString(serviceName,'|','comid');
+        const ComponentID = this.splitString(serviceName, '|', 'comid');
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${ComponentID}/overview`));
     }
     render() {
@@ -164,11 +164,18 @@ export default class index extends Component {
             editInfo,
             tableLoading
         } = this.state;
-        const { appID } = this.props;
+        const {
+            appID,
+            permission: {
+                isCreate,
+                isDelete,
+                isEdit
+            }
+        } = this.props;
         const { getFieldDecorator } = this.props.form;
         const columns = [
             {
-                title:  formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.host'}),
+                title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' }),
                 dataIndex: 'host',
                 key: 'host',
                 render: (text, record) => (
@@ -177,7 +184,7 @@ export default class index extends Component {
                             record.match.hosts.length > 0 ?
                             record.match.hosts.map((item, index) => {
                                 return (
-                                    <Row style={{ marginBottom: 4 }}key={index}>
+                                    <Row style={{ marginBottom: 4 }} key={index}>
                                         <Tag key={index} color="volcano">
                                             {item}
                                         </Tag>
@@ -189,7 +196,7 @@ export default class index extends Component {
                 ),
             },
             {
-                title: formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.path'}),
+                title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.path' }),
                 dataIndex: 'path',
                 key: 'path',
                 render: (text, record) => (
@@ -210,7 +217,7 @@ export default class index extends Component {
                 ),
             },
             {
-                title: formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.service'}),
+                title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.service' }),
                 dataIndex: 'serviceName',
                 key: 'serviceName',
                 render: (text, record) => (
@@ -218,7 +225,7 @@ export default class index extends Component {
                         {record.backends && record.backends.length > 0 && record.backends.map((item, index) => {
                             return (
                                 <Row style={{ marginBottom: 4 }} key={index}>
-                                    <Tag key={index} color="blue" onClick={()=>this.componentsRouter(record.name)} style={{cursor:'pointer'}}>
+                                    <Tag key={index} color="blue" onClick={() => this.componentsRouter(record.name)} style={{ cursor: 'pointer' }}>
                                         {item.serviceName}:{item.servicePort}
                                     </Tag>
                                 </Row>
@@ -243,22 +250,26 @@ export default class index extends Component {
             //     key: 'advanced',
             // },
             {
-                title:  formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.handle'}),
+                title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.handle' }),
                 dataIndex: 'address',
                 key: 'address',
                 render: (text, record) => (
                     <span>
-                        <a onClick={() => this.routeDrawerShow(record, 'edit')}>
-                            {formatMessage({id:'teamGateway.certificate.table.edit'})}
-                        </a>
-                        <Popconfirm
-                            title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
-                            onConfirm={() => {
-                                this.handleDelete(record);
-                            }}
-                        >
-                            <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
-                        </Popconfirm>
+                        {isEdit &&
+                            <a onClick={() => this.routeDrawerShow(record, 'edit')}>
+                                {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
+                            </a>
+                        }
+                        {isDelete &&
+                            <Popconfirm
+                                title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
+                                onConfirm={() => {
+                                    this.handleDelete(record);
+                                }}
+                            >
+                                <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
+                            </Popconfirm>
+                        }
                     </span>
                 ),
             },
@@ -277,12 +288,13 @@ export default class index extends Component {
             <div>
                 <Card
                     extra={
+                        isCreate &&
                         <Button
                             icon="form"
                             type="primary"
                             onClick={() => this.routeDrawerShow({}, 'add')}
                         >
-                            {formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.add'})}
+                            {formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
                         </Button>
                     }
                     bodyStyle={{ padding: '0' }}

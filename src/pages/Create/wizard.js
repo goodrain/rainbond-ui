@@ -12,12 +12,14 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CustomFooter from "../../layouts/CustomFooter"
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './wizard.less';
 
-@connect(({ enterprise, user }) => ({
+@connect(({ enterprise, user, teamControl }) => ({
     currentEnterprise: enterprise.currentEnterprise,
     user: user.currentUser,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 
 export default class Index extends PureComponent {
@@ -27,11 +29,15 @@ export default class Index extends PureComponent {
             rainStoreTab: '',
             language: cookie.get('language') === 'zh-CN' ? true : false,
             scope: 'enterprise',
+            teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
         };
     }
     componentDidMount() {
-        this.getMarketsTab()
-        this.getCloudRecommendApps()
+        const {teamAppCreatePermission:{isAccess}} = this.state;
+        if(isAccess){
+            this.getMarketsTab()
+            this.getCloudRecommendApps()
+        }
     }
     getCloudRecommendApps = v => {
         const { scope } = this.state;
@@ -96,7 +102,10 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
-        const { rainStoreTab, language, localist } = this.state
+        const { rainStoreTab, language, localist, teamAppCreatePermission:{isAccess} } = this.state
+        if(!isAccess){
+            return roleUtil.noPermission()
+        }
         return (
             <Fragment>
                 <div className={styles.overviewBox}>

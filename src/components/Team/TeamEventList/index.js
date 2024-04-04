@@ -216,11 +216,12 @@ export default class EventList extends PureComponent {
   render() {
     const {
       activitiesLoading,
-      memberPermissions: { isCreate },
+      // memberPermissions: { isCreate },
       form
     } = this.props;
     const { joinSettingShow, roles, total } = this.state;
     const { getFieldDecorator } = form;
+    const isCreate = true;
     const pagination = {
       current: this.state.page,
       pageSize: this.state.pageSize,

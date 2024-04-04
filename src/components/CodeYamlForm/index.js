@@ -51,7 +51,7 @@ export default class Index extends PureComponent {
     this.loop = false;
     this.statusloop = false;
     const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+    // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')

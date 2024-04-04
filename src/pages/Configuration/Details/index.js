@@ -42,20 +42,20 @@ export default class ConfigurationDetails extends PureComponent {
       info: {},
       loading: true,
       helpfulVisable: false,
-      appConfigGroupPermissions: this.handlePermissions(
-        'queryAppConfigGroupInfo'
-      ),
+      // appConfigGroupPermissions: this.handlePermissions(
+      //   'queryAppConfigGroupInfo'
+      // ),
       allChecked: false
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
-    const {
-      appConfigGroupPermissions: { isCreate, isEdit }
-    } = this.state;
-    if (!isCreate && !isEdit) {
-      globalUtil.withoutPermission(dispatch);
-    }
+    // const {
+    //   appConfigGroupPermissions: { isCreate, isEdit }
+    // } = this.state;
+    // if (!isCreate && !isEdit) {
+    //   globalUtil.withoutPermission(dispatch);
+    // }
   }
   componentDidMount() {
     this.loadConfigurationDetails();

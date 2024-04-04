@@ -339,13 +339,14 @@ export default class ComponentList extends Component {
     const {
       componentPermissions: {
         isStart,
-        isRestart,
+        // isRestart,
         isStop,
         isDelete,
         isEdit,
         isUpdate,
         isConstruct
       },
+      componentPermissions,
       batchMoveLoading,
       reStartLoading,
       startLoading,
@@ -353,6 +354,14 @@ export default class ComponentList extends Component {
       groupId,
       groups
     } = this.props;
+    // console.log(componentPermissions,"componentPermissions");
+    // const isStart = true;
+    // const isRestart = true;
+    // const isStop = true;
+    // const isDelete = true;
+    // const isEdit = true;
+    // const isUpdate = true;
+    // const isConstruct = true;
     const {
       selectedRowKeys,
       current,
@@ -498,7 +507,7 @@ export default class ComponentList extends Component {
           <Fragment>
             {data.service_source && data.service_source !== 'third_party' && (
               <Fragment>
-                {isRestart && (
+                {isUpdate && (
                   <Popconfirm
                     title={formatMessage({id:'confirmModal.component.restart.title'})}
                     onConfirm={() => {
@@ -530,7 +539,7 @@ export default class ComponentList extends Component {
                     }}
                   >
                     <Button type="link">
-                      {formatMessage({id:'appOverview.list.table.stop'})}
+                      {formatMessage({id:'appOverview.btn.stop'})}
                     </Button>
                   </Popconfirm>
                 )}
@@ -552,13 +561,13 @@ export default class ComponentList extends Component {
         action: 'upgrade'
       },
       {
-        permissions: isRestart,
+        permissions: isUpdate,
         name: formatMessage({id:'appOverview.list.table.restart'}),
         action: 'restart'
       },
       {
         permissions: isStop,
-        name: formatMessage({id:'appOverview.list.table.stop'}),
+        name: formatMessage({id:'appOverview.btn.stop'}),
         action: 'stop'
       },
       {

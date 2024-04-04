@@ -12,8 +12,9 @@ import GatewayRoute from './GatewayRoute';
 import GatewayMonitor from './GatewayMonitor';
 import GatewayService from './GatewayService';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+
 import globalUtil from '../../utils/global';
 
 @connect(({ user, teamControl, enterprise }) => ({
@@ -27,7 +28,7 @@ class Control extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tabKey:'monitor',
+            tabKey: 'monitor',
             open:
                 this.props.match &&
                     this.props.match.params &&
@@ -35,27 +36,26 @@ class Control extends Component {
                     this.props.match.params.types
                     ? this.props.match.params.types
                     : false,
-            operationPermissions: this.handlePermissions('queryControlInfo'),
             tabKeys: 'default',
             gatewayShow: false,
             batchGateway: false,
             batchGatewayLoading: false,
-            gatewayLoading: false
+            gatewayLoading: false,
+            monitorPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_gateway_monitor'),
+            routePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_route_manage'),
+            argetServicesPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_target_services'),
+            certificatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_certificate'),
         };
     }
     componentDidMount() {
+        const {monitorPermission, routePermission, argetServicesPermission, certificatePermission} = this.state
+        this.setState({
+            tabKey: monitorPermission.isAccess ? 'monitor' : routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'monitor'
+        })
         this.handleBatchGateWay();
     }
     componentWillMount() {
         this.fetchPipePipeline();
-        const { dispatch } = this.props;
-        const {
-            operationPermissions: { isAccess },
-        } = this.state;
-
-        if (!isAccess) {
-            globalUtil.withoutPermission(dispatch);
-        }
     }
     fetchPipePipeline = (eid) => {
         const { dispatch, currUser } = this.props;
@@ -126,94 +126,139 @@ class Control extends Component {
         );
     };
     renderContent = () => {
-        const { open, tabKey, operationPermissions, tabKeys, batchGateway, gatewayShow } = this.state;
+        const { 
+            open, 
+            tabKey, 
+            operationPermissions, 
+            tabKeys, 
+            batchGateway, 
+            gatewayShow,
+            monitorPermission, 
+            routePermission, 
+            argetServicesPermission, 
+            certificatePermission 
+        } = this.state;
+
+
         if (batchGateway && gatewayShow) {
             if (tabKeys === 'default') {
                 return (
-                    <TolerantGateway operationPermissions={operationPermissions} open={open} tabKey={tabKey}/>
+                    <TolerantGateway  open={open} tabKey={tabKey} />
                 );
             }
-            return <GatewayApi operationPermissions={operationPermissions} />;
+            return <GatewayApi  />;
         } else {
             if (tabKey === 'certificate') {
                 return (
-                    <GatewayCertificate operationPermissions={operationPermissions} open={open} />
+                    <GatewayCertificate  open={open} permission={certificatePermission}/>
                 );
             } else if (tabKey === 'route') {
                 return (
-                    <GatewayRoute operationPermissions={operationPermissions} open={open} onTabChange={this.handleTabChange}/>
+                    <GatewayRoute  open={open} onTabChange={this.handleTabChange} permission={routePermission}/>
                 );
             } else if (tabKey === 'service') {
                 return (
-                    <GatewayService operationPermissions={operationPermissions} open={open} />
+                    <GatewayService  open={open} permission={argetServicesPermission}/>
                 );
             } else if (tabKey === 'monitor') {
                 return (
-                    <GatewayMonitor />
+                    <GatewayMonitor/>
                 );
             }
 
         };
     }
-
-        render() {
-            const { currentEnterprise, currentTeam, currentRegionName } = this.props;
-            const { batchGateway, gatewayShow, gatewayLoading, batchGatewayLoading } = this.state;
-            let breadcrumbList = [];
-            breadcrumbList = createTeam(
-                createEnterprise(breadcrumbList, currentEnterprise),
-                currentTeam,
-                currentRegionName
-            );
-            breadcrumbList.push({ title: formatMessage({ id: 'teamGateway.strategy.manage' }) });
-            const isGateway = batchGateway && gatewayShow
-            return (
-                <>{gatewayLoading && batchGatewayLoading ? (
-                    <PageHeaderLayout
-                        title={formatMessage({ id: 'teamGateway.strategy.title' })}
-                        titleSvg={pageheaderSvg.getSvg('gatewaySvg', 18)}
-                        tabActiveKey={isGateway ? this.state.tabKeys : this.state.tabKey}
-                        breadcrumbList={breadcrumbList}
-                        tabList={isGateway ? [
-                            {
-                                key: 'default',
-                                tab: formatMessage({ id: 'teamGateway.control.table.default' }),
-                            },
-                            {
-                                key: 'GatewayApi',
-                                tab: formatMessage({ id: 'teamGateway.control.table.GatewayApi' }),
-                            },
-                        ] :
-                            [  {
-                                    key: 'monitor',
-                                    tab: '网关监测',
-                                },
-                                {
-                                    key: 'route',
-                                    tab:  formatMessage({id:'teamNewGateway.NewGateway.index.management'}),
-                                },
-                                {
-                                    key: 'service',
-                                    tab: formatMessage({id:'teamNewGateway.NewGateway.index.Services'}),
-                                },
-                                {
-                                    key: 'certificate',
-                                    tab: formatMessage({id:'teamNewGateway.NewGateway.index.certificate'}),
-                                }
-                            ]
-                        }
-                        onTabChange={this.handleTabChange}
-                    >
-                        {this.renderContent()}
-                    </PageHeaderLayout>
-                ) : (
-                    <div style={{ width: 'calc( 100vw - 68px)', height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <Spin size="large" />
-                    </div>
-                )}</>
-
-            );
+    handleTabList = (isGateway) => {
+        const { monitorPermission, routePermission, argetServicesPermission, certificatePermission } = this.state
+        let arr = []
+        if (monitorPermission.isAccess) {
+            arr.push({
+                key: 'monitor',
+                tab: '网关监测',
+            })
         }
+        if (routePermission.isAccess) {
+            arr.push({
+                key: 'route',
+                tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.management' }),
+            })
+        }
+        if (argetServicesPermission.isAccess) {
+            arr.push({
+                key: 'service',
+                tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.Services' }),
+            })
+        }
+        if (certificatePermission.isAccess) {
+            arr.push({
+                key: 'certificate',
+                tab: formatMessage({ id: 'teamNewGateway.NewGateway.index.certificate' }),
+            })
+        }
+        if (isGateway) {
+            return [
+                {
+                    key: 'default',
+                    tab: formatMessage({ id: 'teamGateway.control.table.default' }),
+                },
+                {
+                    key: 'GatewayApi',
+                    tab: formatMessage({ id: 'teamGateway.control.table.GatewayApi' }),
+                },
+            ]
+        } else {
+            return arr
+        }
+
     }
+
+    render() {
+        const {
+            currentEnterprise,
+            currentTeam,
+            currentRegionName
+        } = this.props;
+        const {
+            batchGateway,
+            gatewayShow,
+            gatewayLoading,
+            batchGatewayLoading,
+            monitorPermission,
+            routePermission,
+            argetServicesPermission,
+            certificatePermission
+        } = this.state;
+        if(!monitorPermission.isAccess && !routePermission.isAccess && !argetServicesPermission.isAccess && !certificatePermission.isAccess){
+            return roleUtil.noPermission()
+        }
+        let breadcrumbList = [];
+        breadcrumbList = createTeam(
+            createEnterprise(breadcrumbList, currentEnterprise),
+            currentTeam,
+            currentRegionName
+        );
+        breadcrumbList.push({ title: formatMessage({ id: 'teamGateway.strategy.manage' }) });
+        const isGateway = batchGateway && gatewayShow
+        return (
+            <>{gatewayLoading && batchGatewayLoading ? (
+                <PageHeaderLayout
+                    title={formatMessage({ id: 'teamGateway.strategy.title' })}
+                    titleSvg={pageheaderSvg.getSvg('gatewaySvg', 18)}
+                    tabActiveKey={isGateway ? this.state.tabKeys : this.state.tabKey}
+                    breadcrumbList={breadcrumbList}
+                    tabList={this.handleTabList(isGateway)}
+                    onTabChange={this.handleTabChange}
+                >
+                    {this.renderContent()}
+                </PageHeaderLayout>
+            ) : (
+                <div style={{ width: 'calc( 100vw - 68px)', height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <Spin size="large" />
+                </div>
+            )}</>
+
+        );
+    }
+}
 
 export default Control;

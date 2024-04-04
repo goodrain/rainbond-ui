@@ -1057,7 +1057,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      componentPermissions: this.handlePermissions('queryComponentInfo'),
+      // componentPermissions: this.handlePermissions('queryComponentInfo'),
       type: 'deploy',
       language: cookie.get('language') === 'zh-CN' ? true : false,
       portsData: [],
@@ -1271,7 +1271,7 @@ export default class Index extends PureComponent {
     const { appDetail } = this.props;
     const {
       type,
-      componentPermissions: { isEnv, isRely, isStorage, isPort },
+      // componentPermissions: { isEnv, isRely, isStorage, isPort },
       language,
       portsData,
       volumesData,
@@ -1290,6 +1290,10 @@ export default class Index extends PureComponent {
       iconEnv,
       iconMnt
     } = this.state;
+    const isEnv = true;
+    const isRely = true;
+    const isStorage = true;
+    const isPort = true;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     return (
       <div>

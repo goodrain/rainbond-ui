@@ -48,7 +48,6 @@ class Control extends Component {
       total: '',
       editData: '',
       id: '',
-      operationPermissions: this.handlePermissions('queryCertificateInfo'),
       gatewayShow: false,
       batchGateway: false,
       name: '',
@@ -57,15 +56,7 @@ class Control extends Component {
   componentWillMount() {
     this.fetchPipePipeline();
     this.handleBatchGateWay();
-    const { dispatch, } = this.props;
-    const {
-      operationPermissions: { isAccess }
-    } = this.state;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    } else {
-      this.load();
-    }
+    this.load();
   }
 
   onPageChange = pageNumber => {
@@ -142,7 +133,7 @@ class Control extends Component {
     });
   };
   handleCick = () => {
-    this.setState({ visibleDrawer: true, isGatewayInfo:false });
+    this.setState({ visibleDrawer: true, isGatewayInfo: false });
   };
   handleClose = () => {
     this.setState({ visibleDrawer: false, editData: '' });
@@ -155,13 +146,13 @@ class Control extends Component {
         teamName: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if(data && data.status_code === 200){
-          if(type == 'add'){
+        if (data && data.status_code === 200) {
+          if (type == 'add') {
             notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });
-          }else{
+          } else {
             notification.success({ message: data ? formatMessage({ id: 'notification.success.change' }) : formatMessage({ id: 'notification.error.change' }) });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
@@ -171,7 +162,7 @@ class Control extends Component {
       }
     });
   }
-  deleteApiGatewayCert = (values) =>{
+  deleteApiGatewayCert = (values) => {
     console.log('deleteApiGatewayCert');
     this.props.dispatch({
       type: 'gateWay/deleteApiGatewayCert',
@@ -187,7 +178,7 @@ class Control extends Component {
 
     if (!editData) {
       this.setState({
-        name:values.alias
+        name: values.alias
       })
       this.props.dispatch({
         type: 'gateWay/addLicense',
@@ -220,7 +211,7 @@ class Control extends Component {
         callback: data => {
           if (data && data.status_code === 200) {
             setTimeout(() => {
-              this.handleApiGatewayCert(values,'edit')
+              this.handleApiGatewayCert(values, 'edit')
             }, 500);
           }
         }
@@ -284,13 +275,23 @@ class Control extends Component {
     );
   };
   render() {
-    const { currentEnterprise, currentTeam, currentRegionName, form, isBoxShadow } = this.props;
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      form,
+      isBoxShadow,
+      permission: {
+        isCreate,
+        isDelete,
+        isEdit
+      }
+    } = this.props;
     const {
       page,
       pageSize,
       total,
       licenseList,
-      operationPermissions: { isCreate, isEdit, isDelete },
       batchGateway,
       gatewayShow,
       name,
@@ -407,7 +408,7 @@ class Control extends Component {
 
               {isDelete && (
                 <Popconfirm
-                  title={formatMessage({id:'teamGateway.strategy.table.type.detele'})}
+                  title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
                   onConfirm={() => {
                     this.handleDelete(record);
                   }}

@@ -29,7 +29,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      appPermissions: this.handlePermissions('queryAppInfo'),
+      // appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
       handleBuildSwitch: false
     };
@@ -180,9 +180,10 @@ export default class Index extends PureComponent {
   } = this.props
     const {
       showDelete,
-      appPermissions: { isDelete },
+      // appPermissions: { isDelete },
       handleBuildSwitch
     } = this.state;
+    const isDelete = true;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
       return null;

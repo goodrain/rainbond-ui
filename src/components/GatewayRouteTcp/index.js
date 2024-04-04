@@ -139,7 +139,14 @@ export default class index extends Component {
             editInfo,
             tableLoading
         } = this.state;
-        const { appID } = this.props;
+        const {
+            appID,
+            permission: {
+                isCreate,
+                isDelete,
+                isEdit
+            }
+        } = this.props;
         const { getFieldDecorator } = this.props.form;
         const columns = [
             {
@@ -181,17 +188,21 @@ export default class index extends Component {
                 key: 'address',
                 render: (text, record) => (
                     <span>
-                        <a onClick={() => this.routeDrawerShow(record, 'edit')}>
-                            {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
-                        </a>
-                        <Popconfirm
-                            title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
-                            onConfirm={() => {
-                                this.handleDelete(record);
-                            }}
-                        >
-                            <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
-                        </Popconfirm>
+                        {isEdit &&
+                            <a onClick={() => this.routeDrawerShow(record, 'edit')}>
+                                {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
+                            </a>
+                        }
+                        {isDelete &&
+                            <Popconfirm
+                                title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
+                                onConfirm={() => {
+                                    this.handleDelete(record);
+                                }}
+                            >
+                                <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
+                            </Popconfirm>
+                        }
                     </span>
                 ),
             },
@@ -210,6 +221,7 @@ export default class index extends Component {
             <div>
                 <Card
                     extra={
+                        isCreate &&
                         <Button
                             icon="form"
                             type="primary"

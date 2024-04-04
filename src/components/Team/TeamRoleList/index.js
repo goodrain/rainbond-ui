@@ -7,14 +7,15 @@ import roleUtil from '../../../utils/role';
 import ConfirmModal from '../../ConfirmModal';
 import cookie from '@/utils/cookie';
 import styles from './index.less';
-import PermissionsForm from './permissionsForm';
+import PermissionsForm from './newPermissionsFrom';
 
 const { Item } = Menu;
 const { TabPane } = Tabs;
 
-@connect(({ teamControl, loading }) => ({
+@connect(({ teamControl, loading, index }) => ({
   teamControl,
-  activitiesLoading: loading.effects['activities/fetchList']
+  activitiesLoading: loading.effects['activities/fetchList'],
+  overviewInfo: index.overviewInfo
 }))
 export default class RoleList extends PureComponent {
   constructor(props) {
@@ -88,9 +89,12 @@ export default class RoleList extends PureComponent {
   };
 
   loadPermissions = () => {
-    const { dispatch } = this.props;
+    const { dispatch, overviewInfo } = this.props;
     dispatch({
       type: 'global/fetchPermissions',
+      payload: {
+        tenant_id: overviewInfo && overviewInfo.team_id
+      },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({

@@ -6,7 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import OuterCustom from './outer-custom';
 
 @connect(
@@ -21,9 +21,14 @@ import OuterCustom from './outer-custom';
   { pure: false }
 )
 export default class Main extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+    };
+  }
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
@@ -40,6 +45,10 @@ export default class Main extends PureComponent {
       currentRegionName,
       match
     } = this.props;
+    const { teamAppCreatePermission:{isAccess} } = this.state;
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     let { type } = match.params;
 
     const map = {

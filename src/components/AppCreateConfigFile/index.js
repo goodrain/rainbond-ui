@@ -717,8 +717,10 @@ class RenderDeploy extends PureComponent {
   childFn = (e) => {
     const {
       appDetail,
-      componentPermissions: { isDeploytype, isSource },
+      // componentPermissions: { isDeploytype, isSource },
     } = this.props;
+    const isDeploytype = true;
+    const isSource = true;
     const { runtimeInfo } = this.state
     const language = appUtil.getLanguage(appDetail);
     if (language && runtimeInfo && isSource) {
@@ -745,11 +747,13 @@ class RenderDeploy extends PureComponent {
     const {
       visible,
       appDetail,
-      componentPermissions: { isDeploytype, isSource },
+      // componentPermissions: { isDeploytype, isSource },
       handleBuildSwitch,
       handleEditInfo,
       handleEditRuntime
     } = this.props;
+    const isDeploytype = true;
+    const isSource = true;
     const { runtimeInfo, volumes } = this.state;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     if (!runtimeInfo) return null;
@@ -796,7 +800,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      componentPermissions: this.handlePermissions('queryComponentInfo'),
+      // componentPermissions: this.handlePermissions('queryComponentInfo'),
       type: 'deploy',
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
@@ -848,7 +852,7 @@ export default class Index extends PureComponent {
               updateDetail={this.props.updateDetail}
               handleEditInfo={handleEditInfo}
               appDetail={appDetail}
-              componentPermissions={componentPermissions}
+              // componentPermissions={componentPermissions}
               handleBuildSwitch={handleBuildSwitch}
               handleEditRuntime={handleEditRuntime}
               onRef={this.onRef}

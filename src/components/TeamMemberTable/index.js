@@ -16,7 +16,6 @@ class TeamMemberTable extends PureComponent {
       memberPermissions: { isEdit, isDelete },
       team,
     } = this.props;
-
     const columns = [
       {
         title: formatMessage({id: 'teamManage.tabs.member.table.userName'}),
