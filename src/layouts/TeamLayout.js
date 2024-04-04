@@ -30,7 +30,7 @@ import Exception from '../pages/Exception/403';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
-import roleUtil from '../utils/role';
+import roleUtil from '../utils/newRole';
 import userUtil from '../utils/user';
 import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
@@ -94,6 +94,8 @@ class TeamLayout extends PureComponent {
       GroupShow: true,
       marginShow: true,
       vm_url:"",
+      teamOverviewPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_overview'),
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
     };
   }
 
@@ -101,7 +103,10 @@ class TeamLayout extends PureComponent {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.fetchUserInfo();
-    this.getAppNames();
+    const {teamAppCreatePermission:{isAccess}} = this.state
+    if(isAccess){
+      this.getAppNames();
+    }
   }
   componentWillUpdate() {
     const updata = JSON.parse(window.sessionStorage.getItem('updata'))
@@ -257,78 +262,55 @@ class TeamLayout extends PureComponent {
   getTeamOverview = () => {
     this.load();
     const { dispatch } = this.props;
-    const { enterpriseList } = this.state;
+    const { enterpriseList, teamOverviewPermission:{isAccess} } = this.state;
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
-    dispatch({
-      type: 'global/getTeamOverview',
-      payload: {
-        team_name: teamName,
-        region_name: regionName
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          window.sessionStorage.setItem("team_id",res.bean.team_id)
-          this.setState(
-            {
-              eid: res.bean.eid
-            },()=>{
-              this.fetchPipePipeline(res.bean.eid)
+    if(isAccess){
+      dispatch({
+        type: 'global/getTeamOverview',
+        payload: {
+          team_name: teamName,
+          region_name: regionName
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            window.sessionStorage.setItem("team_id",res.bean.team_id)
+            this.setState(
+              {
+                eid: res.bean.eid
+              },()=>{
+                this.fetchPipePipeline(res.bean.eid)
+              }
+            );
+          }
+        },
+        handleError: err => {
+          if (err && err.data && err.data.code) {
+            const errtext =
+              err.data.code === 10411
+                ? '当前集群不可用'
+                : err.data.code === 10412
+                  ? '当前集群不存在'
+                  : false;
+            if (errtext && enterpriseList.length > 0) {
+              notification.warning({ message: errtext });
+              dispatch(
+                routerRedux.push(
+                  `/enterprise/${enterpriseList[0].enterprise_id}/personal`
+                )
+              );
+            } else {
+              notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
             }
-          );
-        }
-      },
-      handleError: err => {
-        if (err && err.data && err.data.code) {
-          const errtext =
-            err.data.code === 10411
-              ? '当前集群不可用'
-              : err.data.code === 10412
-                ? '当前集群不存在'
-                : false;
-          if (errtext && enterpriseList.length > 0) {
-            notification.warning({ message: errtext });
-            dispatch(
-              routerRedux.push(
-                `/enterprise/${enterpriseList[0].enterprise_id}/personal`
-              )
-            );
-          } else {
-            notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
           }
         }
-      }
-    });
-  };
-
-  loadPermissions = (ID, teamName, regionName) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'teamControl/fetchTeamUserPermissions',
-      payload: { user_id: ID, team_name: teamName },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          const results = roleUtil.queryTeamUserPermissionsInfo(
-            res.bean,
-            'teamBasicInfo',
-            'describe'
-          );
-          this.setState({ teamView: results });
-          if (!results) {
-            dispatch(
-              routerRedux.replace(
-                `/team/${teamName}/region/${regionName}/exception/403`
-              )
-            );
-          }
-        }
-      }
-    });
+      });
+    }
   };
 
   load = () => {
-    const { enterpriseList, eid } = this.state;
+    const { enterpriseList, eid, teamOverviewPermission:{isAccess} } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
@@ -347,10 +329,13 @@ class TeamLayout extends PureComponent {
       type: 'teamControl/fetchCurrentRegionName',
       payload: { currentRegionName: regionName }
     });
-    dispatch({
-      type: 'region/fetchProtocols',
-      payload: { team_name: teamName, region_name: regionName }
-    });
+    if(isAccess){
+      dispatch({
+        type: 'region/fetchProtocols',
+        payload: { team_name: teamName, region_name: regionName }
+      });
+      this.fetchTeamApps();
+    }
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     this.setState({
       currentEnterprise: enterpriseList[0],
@@ -360,7 +345,6 @@ class TeamLayout extends PureComponent {
       GroupShow: true
     });
     this.fetchEnterpriseInfo(eid);
-    this.fetchTeamApps();
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });

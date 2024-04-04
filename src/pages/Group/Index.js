@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-nested-ternary */
 import globalUtil from '@/utils/global';
-import roleUtil from '@/utils/role';
+import roleUtil from '@/utils/newRole';
 import { Spin } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -26,22 +26,11 @@ export default class Index extends PureComponent {
       currApp: {},
       loading: true,
       appID: this.getGroupId(),
-      operationPermissions: this.handlePermissions('queryControlInfo'),
-      appPermissions: this.handlePermissions('queryAppInfo'),
-      appConfigGroupPermissions: this.handlePermissions(
-        'queryAppConfigGroupInfo'
-      ),
-      componentPermissions: this.handlePermissions('queryComponentInfo')
+      componentPermissions: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_overview',  `app_${this.getGroupId()}` ),
+      appPermissions: roleUtil.queryTeamOrAppPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app', `app_${this.getGroupId()}`),
     };
   }
   componentWillMount() {
-    const { dispatch } = this.props;
-    const {
-      appPermissions: { isAccess }
-    } = this.state;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    }
   }
 
   getGroupId() {
@@ -49,16 +38,13 @@ export default class Index extends PureComponent {
     return params.appID;
   }
 
-  handlePermissions = type => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
-  };
 
   render() {
     const { groupDetail } = this.props;
+    const { isAppOverview } = this.state.appPermissions
+    if(!isAppOverview){
+      return roleUtil.noPermission()
+    }
     return (
       <Fragment>
         {JSON.stringify(groupDetail) === '{}' ? (

@@ -4,7 +4,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import VirtualMachine from './virtual-machine'
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 
@@ -25,12 +25,11 @@ export default class Main extends PureComponent {
   constructor(props){
     super(props)
     this.state = {
-      archInfo: []
+      archInfo: [],
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
     }
   }
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
     this.handleArchCpuInfo()
   }
   handleArchCpuInfo = () => {
@@ -75,7 +74,10 @@ export default class Main extends PureComponent {
       currentRegionName,
       match,
     } = this.props;
-    const { archInfo } = this.state
+    const { archInfo, teamAppCreatePermission: { isAccess } } = this.state
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     let { type } = match.params;
     if (!type) {
       type = 'VirtualMachine';

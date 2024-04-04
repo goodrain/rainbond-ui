@@ -41,7 +41,7 @@ import {
 } from '../../utils/breadcrumb';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import styles from './index.less';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import RollsBackRecordDetails from './RollbackInfo/details';
@@ -86,29 +86,15 @@ export default class AppList extends PureComponent {
       rollbackRecords: false,
       rollbackRecordDetails: false,
       versionArr: {},
+      upgradePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_upgrade', `app_${globalUtil.getAppID()}`)
     };
   }
-
-  componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    // const isUpgrade = roleUtil.queryAppInfo(
-    //   currentTeamPermissionsInfo,
-    //   'upgrade'
-    // );
-    const isUpgrade = true;
-    if (!isUpgrade) {
-      globalUtil.withoutPermission(dispatch);
-    }
-  }
-
   componentDidMount() {
-    
     this.fetchAppDetail();
     this.getApplication();
     this.fetchAppLastUpgradeRecord();
-
   }
-  getHelmvs = (vals,index) => {
+  getHelmvs = (vals, index) => {
     const { dispatch } = this.props;
     const repo_name = vals.source.substr(vals.source.indexOf(':') + 1)
     dispatch({
@@ -124,9 +110,9 @@ export default class AppList extends PureComponent {
         if (res && res.bean) {
           const arrVersion = { ...res.bean.chart_information };
           const obj = {}
-          obj[index]=arrVersion.Version
+          obj[index] = arrVersion.Version
           this.setState({
-            versionArr: {...this.state.versionArr, ...obj}
+            versionArr: { ...this.state.versionArr, ...obj }
           })
         }
       }
@@ -201,23 +187,23 @@ export default class AppList extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             dataList: res.list || []
-          }, 
-          () => {
-            const { dataList, versionArr } = this.state;
-            // versionArr && versionArr.length == 0 && 
-            dataList.map((item,index) => {
-              if (item.source.includes('helm')) {
-                this.getHelmvs(item,index)
-              } 
-              else {
-                const xx = {};
-                xx[index]='';
-                this.setState({
-                  versionArr: {...this.state.versionArr, ...xx}
-                })
-              }
-            })
-          }
+          },
+            () => {
+              const { dataList, versionArr } = this.state;
+              // versionArr && versionArr.length == 0 && 
+              dataList.map((item, index) => {
+                if (item.source.includes('helm')) {
+                  this.getHelmvs(item, index)
+                }
+                else {
+                  const xx = {};
+                  xx[index] = '';
+                  this.setState({
+                    versionArr: { ...this.state.versionArr, ...xx }
+                  })
+                }
+              })
+            }
           );
         }
         this.handleCancelLoading();
@@ -575,7 +561,17 @@ export default class AppList extends PureComponent {
       rollbackRecords,
       rollbackRecordDetails,
       backUpgradeLoading,
+      upgradePermission,
+      upgradePermission: {
+        isAppModelList,
+        isUpgradeRecord,
+        isUpgrade,
+        isRollback
+      }
     } = this.state;
+    if (!isAppModelList && !isUpgradeRecord) {
+      return roleUtil.noPermission()
+    }
     const paginationProps = {
       onChange: this.handleTableChange,
       pageSize,
@@ -655,7 +651,7 @@ export default class AppList extends PureComponent {
           </Tooltip>
           <p>
             {this.state.versionArr &&
-              Object.keys(this.state.versionArr).length> 0 &&
+              Object.keys(this.state.versionArr).length > 0 &&
               data.current_version &&
               this.compareVersion(this.state.versionArr[index], data.current_version)
               ?
@@ -796,15 +792,15 @@ export default class AppList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appUpgrade.title' })}
         content={formatMessage({ id: 'appUpgrade.desc' })}
-        titleSvg={pageheaderSvg.getSvg('upgradeSvg',18)}
+        titleSvg={pageheaderSvg.getSvg('upgradeSvg', 18)}
         extraContent={null}
       >
-        <div 
+        <div
           style={loadingDetail ? {} : {
             borderRadius: 5,
-            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-            overflow:'hidden'
-        }}
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            overflow: 'hidden'
+          }}
         >
           {loadingDetail ? (
             <Spin />
@@ -815,101 +811,105 @@ export default class AppList extends PureComponent {
               onChange={this.handleTabs}
               className={styles.tabss}
             >
-              <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.list' })} key="1">
-                <div className={styles.cardList}>
-                  <List
-                    rowKey="id"
-                    size="large"
-                    loading={loadingList}
-                    dataSource={[...dataList]}
-                    renderItem={(item, index) => (
-                      <List.Item
-                        actions={(item.source.indexOf('helm') != -1) ? ([
-                          <a
-                            style={{
-                              display:
-                                this.state.versionArr &&
-                                  Object.keys(this.state.versionArr).length> 0 &&
-                                  item.current_version &&
-                                  this.compareVersion(this.state.versionArr[index], item.current_version)
-                                  ? "block"
-                                  : "none"
-                            }}
-                            onClick={e => {
-                              e.preventDefault();
-                              this.jump(upgrade, item, this.state.versionArr[index]);
-                            }}
-                          >
-                            {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
-                          </a>,
-                          <a
-                            onClick={() => {
-                              this.jump(install, item);
-                            }}
-                          >
-                            {formatMessage({ id: 'helmAppInstall.Upgrade.reinstall' })}
-                          </a>
-                        ]
-                        ) : (
-                          [
+              {isAppModelList &&
+                <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.list' })} key="1">
+                  <div className={styles.cardList}>
+                    <List
+                      rowKey="id"
+                      size="large"
+                      loading={loadingList}
+                      dataSource={[...dataList]}
+                      renderItem={(item, index) => (
+                        <List.Item
+                          actions={(item.source.indexOf('helm') != -1) ? ([
                             <a
+                              style={{
+                                display:
+                                  this.state.versionArr &&
+                                    Object.keys(this.state.versionArr).length > 0 &&
+                                    item.current_version &&
+                                    this.compareVersion(this.state.versionArr[index], item.current_version)
+                                    ? "block"
+                                    : "none"
+                              }}
                               onClick={e => {
                                 e.preventDefault();
-                                this.fetchAppLastRollbackRecord(item);
+                                this.jump(upgrade, item, this.state.versionArr[index]);
                               }}
                             >
                               {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
                             </a>,
                             <a
                               onClick={() => {
-                                this.showComponentVersion(item);
+                                this.jump(install, item);
                               }}
                             >
-                              {formatMessage({ id: 'appUpgrade.btn.addon' })}
+                              {formatMessage({ id: 'helmAppInstall.Upgrade.reinstall' })}
                             </a>
                           ]
-                        )}
-                      >
-                        <List.Item.Meta
-                          avatar={
-                            <getApplication
-                              src={
-                                item.pic ||
-                                require('../../../public/images/app_icon.jpg')
-                              }
-                              shape="square"
-                              size="large"
-                            />
-                          }
-                          title={
-                            <a
-                              onClick={() => {
-                                this.showMarketAppDetail(item);
-                              }}
-                            >
-                              {item.group_name}
-                            </a>
-                          }
-                          description={item.describe}
-                        />
-                        {item.source.includes('helm') ? <ListContentHelm data={item} index={index} /> : <ListContent data={item} />}
-                        {/* <ListContent data={item} /> */}
-                      </List.Item>
-                    )}
+                          ) : (
+                            [
+                              <a
+                                onClick={e => {
+                                  e.preventDefault();
+                                  this.fetchAppLastRollbackRecord(item);
+                                }}
+                              >
+                                {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
+                              </a>,
+                              <a
+                                onClick={() => {
+                                  this.showComponentVersion(item);
+                                }}
+                              >
+                                {formatMessage({ id: 'appUpgrade.btn.addon' })}
+                              </a>
+                            ]
+                          )}
+                        >
+                          <List.Item.Meta
+                            avatar={
+                              <getApplication
+                                src={
+                                  item.pic ||
+                                  require('../../../public/images/app_icon.jpg')
+                                }
+                                shape="square"
+                                size="large"
+                              />
+                            }
+                            title={
+                              <a
+                                onClick={() => {
+                                  this.showMarketAppDetail(item);
+                                }}
+                              >
+                                {item.group_name}
+                              </a>
+                            }
+                            description={item.describe}
+                          />
+                          {item.source.includes('helm') ? <ListContentHelm data={item} index={index} /> : <ListContent data={item} />}
+                          {/* <ListContent data={item} /> */}
+                        </List.Item>
+                      )}
+                    />
+                  </div>
+                </TabPane>
+              }
+              {isUpgradeRecord &&
+                <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.record' })} key="2">
+                  <Table
+                    style={{ padding: '24px' }}
+                    rowKey={(record, index) => index}
+                    loading={recordLoading || upgradeLoading}
+                    columns={isHelm ? helmColumns : columns}
+                    dataSource={list}
+                    pagination={total > pageSize ? paginationProps : false}
                   />
-                </div>
-              </TabPane>
+                </TabPane>
+              }
 
-              <TabPane tab={formatMessage({ id: 'appUpgrade.tabs.record' })} key="2">
-                <Table
-                  style={{ padding: '24px' }}
-                  rowKey={(record,index) => index}
-                  loading={recordLoading || upgradeLoading}
-                  columns={isHelm ? helmColumns : columns}
-                  dataSource={list}
-                  pagination={total >pageSize ? paginationProps : false}
-                />
-              </TabPane>
             </Tabs>
           )}
         </div>

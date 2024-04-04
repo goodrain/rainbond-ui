@@ -108,7 +108,7 @@ export default class index extends Component {
             serviceDrawer: false
           }, () => {
             notification.success({
-              message: formatMessage({id:'notification.success.succeeded'}),
+              message: formatMessage({ id: 'notification.success.succeeded' }),
             });
           })
           this.getTableData()
@@ -116,7 +116,7 @@ export default class index extends Component {
       },
       handleError: (err) => {
         notification.error({
-          message: formatMessage({id:'componentOverview.body.safety.SafetyCodeScan.Controlserror'}),
+          message: formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
         });
       }
     })
@@ -135,30 +135,44 @@ export default class index extends Component {
       callback: res => {
         if (res) {
           notification.success({
-            message: formatMessage({id:'notification.success.succeeded'}),
+            message: formatMessage({ id: 'notification.success.succeeded' }),
           });
           this.getTableData()
         }
       },
       handleError: (err) => {
         notification.error({
-          message: formatMessage({id:'componentOverview.body.safety.SafetyCodeScan.Controlserror'}),
+          message: formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
         });
       }
     })
 
   }
   render() {
+    const {
+      serviceDrawer,
+      dataSource,
+      editInfo,
+      tableLoading
+    } = this.state;
+    const {
+      appID,
+      permission: {
+        isCreate,
+        isDelete,
+        isEdit
+      }
+    } = this.props;
     const { getFieldDecorator } = this.props.form;
     const columns = [
       {
-        title:  formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.name'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.name' }),
         dataIndex: 'name',
         key: 'name',
         align: 'center',
       },
       {
-        title:  formatMessage({id:'teamNewGateway.NewGateway.GatewayService.address'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayService.address' }),
         dataIndex: 'address',
         key: 'address',
         align: 'center',
@@ -178,23 +192,27 @@ export default class index extends Component {
         )
       },
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.handle'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.handle' }),
         dataIndex: 'handle',
         key: 'handle',
         align: 'center',
         render: (text, record) => (
           <span>
-            <a onClick={() => this.routeDrawerShow(record)}>
-            {formatMessage({id:'teamGateway.certificate.table.edit'})}
-            </a>
-            <Popconfirm
-              title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
-              onConfirm={() => {
-                this.handleDelete(record);
-              }}
-            >
-              <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
-            </Popconfirm>
+            {isEdit &&
+              <a onClick={() => this.routeDrawerShow(record)}>
+                {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
+              </a>
+            }
+            {isDelete &&
+              <Popconfirm
+                title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
+                onConfirm={() => {
+                  this.handleDelete(record);
+                }}
+              >
+                <a>{formatMessage({ id: 'teamGateway.certificate.table.delete' })}</a>
+              </Popconfirm>
+            }
           </span>
         ),
       },
@@ -209,17 +227,10 @@ export default class index extends Component {
         sm: { span: 12 },
       },
     };
-    const {
-      serviceDrawer,
-      dataSource,
-      editInfo,
-      tableLoading
-    } = this.state;
-    const { appID } = this.props;
     return (
       <div>
         <Card
-          extra={<Button icon="form" type="primary" onClick={() => this.routeDrawerShow({})}>{formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.creat'})}</Button>}
+          extra={isCreate && <Button icon="form" type="primary" onClick={() => this.routeDrawerShow({})}>{formatMessage({ id: 'teamNewGateway.NewGateway.ServiceDrawer.creat' })}</Button>}
           bodyStyle={{ padding: '0' }}
         >
           <Table

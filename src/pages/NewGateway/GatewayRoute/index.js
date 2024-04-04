@@ -22,15 +22,28 @@ export default class index extends Component {
         const {
             tableKey,
         } = this.state;
-        const { appID, open, operationPermissions, onTabChange } = this.props;
+        const { appID, open, operationPermissions, onTabChange, permission } = this.props;
         return (
             <div>
-                <Tabs onChange={(e)=>{this.setState({tableKey: e})}} activeKey={tableKey}>
+                <Tabs onChange={(e) => { this.setState({ tableKey: e }) }} activeKey={tableKey}>
                     <TabPane tab="HTTP" key="http">
-                        <GatewayRouteHttp operationPermissions={operationPermissions} open={open} onTabChange={onTabChange} type={tableKey} appID={appID}/>
+                        <GatewayRouteHttp
+                            operationPermissions={operationPermissions}
+                            open={open}
+                            onTabChange={onTabChange}
+                            type={tableKey}
+                            appID={appID}
+                            permission={permission}
+                        />
                     </TabPane>
                     <TabPane tab="TCP" key="tcp">
-                        <GatewayRouteTcp operationPermissions={operationPermissions} open={open}  type={tableKey} appID={appID}/>
+                        <GatewayRouteTcp
+                            operationPermissions={operationPermissions}
+                            open={open}
+                            type={tableKey}
+                            appID={appID}
+                            permission={permission}
+                        />
                     </TabPane>
                 </Tabs>
 

@@ -1,5 +1,6 @@
 import globalUtil from '../utils/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import Exception from '../components/Exception'
 
 const actionMaps = {
     admin: '管理员',
@@ -82,29 +83,29 @@ const En_AccessText = {
 
 // 定义菜单与权限属性的映射结构
 const teamMenuPermissionsMap = {
-    team_overview: 'isTeamOverview',
-    team_app_create: 'isTeamAppCreate',
-    team_gateway_monitor: 'isTeamGatewayManage',
-    team_route_manage: 'isTeamGatewayManage',
-    team_target_services: 'isTeamGatewayManage',
-    team_certificate: 'isTeamGatewayManage',
-    team_dynamic: 'isTeamManage',
-    team_region: 'isTeamManage',
-    team_role: 'isTeamManage',
-    team_registry_auth: 'isTeamManage',
-    team_plugin_manage: 'isTeamPluginManage',
+    team_overview: 'isTeamOverview',//团队总览
+    team_app_create: 'isTeamAppCreate',//新建应用
+    team_gateway_monitor: 'isTeamGatewayMonitor',//网关监控
+    team_route_manage: 'isTeamRouteManage',//路由管理
+    team_target_services: 'isTeamTargetServices',//目标服务
+    team_certificate: 'isTeamCertificate',//证书管理
+    team_dynamic: 'isTeamDynamic',//动态
+    team_region: 'isTeamRegion',//集群管理
+    team_role: 'isTeamRole',//角色管理
+    team_registry_auth: 'isTeamRegistryAuth',//镜像仓库授权管理
+    team_plugin_manage: 'isTeamPluginManage',//插件管理
 };
 
 const appMenuPermissionsMap = {
-    app_overview: 'isAppOverview',
-    app_release: 'isAppRelease',
-    app_upgrade: 'isAppUpgrade',
-    app_gateway_monitor: 'isAppGatewayManage',
-    app_route_manage: 'isAppGatewayManage',
-    app_target_services: 'isAppGatewayManage',
-    app_certificate: 'isAppGatewayManage',
-    app_resources: 'isAppResources',
-    app_config_group: 'isAppConfigGroup',
+    app_overview: 'isAppOverview', //应用总览
+    app_release: 'isAppRelease',//应用发布
+    app_upgrade: 'isAppUpgrade',//应用升级
+    app_gateway_monitor: 'isAppGatewayMonitor',//网关监控
+    app_route_manage: 'isAppRouteManage',//路由管理
+    app_target_services: 'isAppTargetServices',//目标服务
+    app_certificate: 'isAppCertificate',//证书管理
+    app_resources: 'isAppResources',//应用资源
+    app_config_group: 'isAppConfigGroup',//应用管理
 };
 export default {
     // 身份
@@ -143,7 +144,7 @@ export default {
             'install',
             'uninstall'
         ];
-        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct'];
+        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct','copy'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -201,7 +202,7 @@ export default {
             'isInstall',
             'isUninstall'
         ];
-        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct'];
+        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct','isCopy'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -268,12 +269,10 @@ export default {
         const referencePermissions = this.queryReferencePermissionsInfo(module);
         const permissionsObj = {};
 
-        // 使用forEach遍历disposeActions数组
         disposeActions.forEach((item, index) => {
             permissionsObj[item] = this.handlePermissionsInfo(data, referencePermissions[index], module, appid);
         });
 
-        console.log(permissionsObj, "obj");
         return permissionsObj;
     },
     /**
@@ -441,6 +440,10 @@ export default {
     queryTeamOrAppPermissionsInfo(data, type, appid = '') {
         return this.queryMenuPermissionsInfo(type == 'team' ? teamMenuPermissionsMap : appMenuPermissionsMap, data, appid);
     },
+    // 没有权限
+    noPermission(){
+        return <Exception type={403} style={{ minHeight: 600, height: '80%' }} actions/>
+    }
 };
 
 

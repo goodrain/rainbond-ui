@@ -320,11 +320,10 @@ export default class RoleList extends PureComponent {
   // 解析keys 找到对应的应用
   findApp = (keys) => {
     const { groups } = this.props;
-
     // 截取_后面的字符串
     var match = keys.match(/_(\d+)/);
     let appNames = '';
-    groups.map(item => {
+    (groups || []).map(item => {
       if (item.group_id == match[1]) {
         appNames = item.group_name;
       }

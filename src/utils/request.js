@@ -200,11 +200,11 @@ export default function request(url, options) {
               isNouse: true
             });
             break;
-          case 10402:
-            push(
-              `/team/${currTeamName}/region/${currRegionName}/exception/403`
-            );
-            break;
+          // case 10402:
+          //   push(
+          //     `/team/${currTeamName}/region/${currRegionName}/exception/403`
+          //   );
+          //   break;
           case 10405:
             handleStoreDispatch('global/showNeedLogin');
             if (newOptions.handleError) {

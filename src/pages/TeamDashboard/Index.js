@@ -95,13 +95,17 @@ export default class Index extends PureComponent {
       searchVisible: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       appListLoading: true,
+      teamOverviewPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_overview'),
+      teamAppCreatePermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
     };
   }
   componentDidMount() {
     //  获取团队的权限
-      const { currentTeamPermissionsInfo } = this.props;
+    const { teamOverviewPermission } = this.state;
+    if (teamOverviewPermission.isAccess) {
       this.loadOverview();
       this.loadHotApp();
+    }
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
@@ -320,6 +324,7 @@ export default class Index extends PureComponent {
       emptyConfig,
       language,
       appListLoading,
+      teamAppCreatePermission: { isAccess }
     } = this.state;
     const {
       index,
@@ -443,25 +448,28 @@ export default class Index extends PureComponent {
             {/* appList */}
             {<div className={styles.appListBox} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
               <div className={styles.teamHotAppTitleSearch}>
-              <Button
-                  style={{float:'left'}}
-                  type="primary"
-                  onClick={() => {
-                    // this.setState({ createAppVisible: true });
-                    this.props.dispatch(routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/wizard` }))
-                  }}
-                >
-                  {formatMessage({ id: 'teamOverview.createApp' })}
-                </Button>
+                {
+                  isAccess &&
+                  <Button
+                    style={{ float: 'left' }}
+                    type="primary"
+                    onClick={() => {
+                      // this.setState({ createAppVisible: true });
+                      this.props.dispatch(routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/wizard` }))
+                    }}
+                  >
+                    {formatMessage({ id: 'teamOverview.createApp' })}
+                  </Button>
+                }
                 <Search
                   placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
                   onSearch={this.onSearch}
                   defaultValue={query}
                   allowClear
-                  style={{ width: 400, margin: '0 0 0 10px' , float:'right'}}
+                  style={{ width: 400, margin: '0 0 0 10px', float: 'right' }}
                 />
                 <Select
-                  style={language ? { width: '140px',float:'right' } : { width: '200px',float:'right' }}
+                  style={language ? { width: '140px', float: 'right' } : { width: '200px', float: 'right' }}
                   placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                   defaultValue={1}
                   onChange={this.handleSortChange}
@@ -614,6 +622,10 @@ export default class Index extends PureComponent {
       language,
       appListLoading,
       loadingNotData,
+      teamOverviewPermission: {
+        isAccess,
+        isResourceLimit
+      }
     } = this.state;
     const {
       index,
@@ -622,16 +634,18 @@ export default class Index extends PureComponent {
         query: { team_alias }
       }
     } = this.props;
+    if (!isAccess) {
+      return role.noPermission()
+    }
     // 当前团队名称
     const teamName = globalUtil.getCurrTeamName();
     // 当前集群名称
     const regionName = globalUtil.getCurrRegionName();
-
     return (
       <Fragment>
         {loadingNotData ?
           (
-            <div style={{width:'100%', height: '600px', display:'flex',justifyContent:'center',alignItems:'center'}}>
+            <div style={{ width: '100%', height: '600px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Spin size="large" tip="Loading..." />
             </div>
           ) : (

@@ -11,7 +11,7 @@ import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../utils/rainbond';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import Yaml from './yaml-yaml';
 import Helm from './helm-cmd';
 
@@ -30,9 +30,14 @@ import Helm from './helm-cmd';
   { pure: false }
 )
 export default class Main extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.state = {
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+    }
+  }
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
@@ -51,6 +56,10 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
+    const { teamAppCreatePermission:{isAccess} } = this.state;
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     const map = {
       yaml: Yaml,
       importCluster: ImportCluster,

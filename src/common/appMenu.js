@@ -1,21 +1,22 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { formatMessage } from 'umi-plugin-locale';
-import roleUtil from '../utils/role';
+import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 
 function menuData(teamName, regionName, appID, permissionsInfo) {
-  const appPermissions = roleUtil.querySpecifiedPermissionsInfo(
-    permissionsInfo,
-    'queryAppInfo'
-  );
+  const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team,'app',`app_${appID}`);
+  const {
+    isAppRelease,
+    isAppUpgrade,
+    isAppGatewayMonitor,
+    isAppRouteManage,
+    isAppTargetServices,
+    isAppCertificate,
+    isAppResources,
+    isAppConfigGroup,
+  } = appPermissions;
 
-  const control = roleUtil.queryControlInfo(permissionsInfo, 'describe');
-  const isAppConfigGroup = roleUtil.queryAppConfigGroupInfo(
-    permissionsInfo,
-    'describe'
-  );
-  const { isShare, isBackup, isUpgrade } = appPermissions;
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
@@ -29,7 +30,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     menuArr.push(obj);
   }
 
-  if (isShare) {
+  if (isAppRelease) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.publish' }),
       icon: getMenuSvg.getSvg('publish'),
@@ -38,7 +39,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
     });
   }
 
-  if (control) {
+  if (isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.gateway' }),
       icon: getMenuSvg.getSvg('gateway'),
@@ -46,7 +47,7 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
-  if (isUpgrade) {
+  if (isAppUpgrade) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: getMenuSvg.getSvg('upgrade'),
@@ -62,12 +63,14 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
+  if (isAppResources) {
   addMenuArr({
     name: formatMessage({ id: 'menu.app.k8s' }),
     icon: getMenuSvg.getSvg('kubenetes'),
     path: `team/${teamName}/region/${regionName}/apps/${appID}/resource`,
     authority: ['admin', 'user']
   });
+}
   return menuArr;
 }
 

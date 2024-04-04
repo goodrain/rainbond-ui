@@ -9,7 +9,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
 import Jwar from './jwar';
@@ -29,20 +29,19 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
   { pure: false }
 )
 export default class Main extends PureComponent {
-  constructor(props){
+  constructor(props) {
     super(props)
-    this.state= {
+    this.state = {
       serversList: null,
-      archInfo: []
+      archInfo: [],
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
     }
   }
 
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
-  }
 
-  componentDidMount(){
+  }
+  componentDidMount() {
     const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
     this.fetchEnterpriseInfo(enterprise_id)
     this.handleArchCpuInfo()
@@ -102,7 +101,10 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName,
     } = this.props;
-    const { serversList, archInfo } = this.state
+    const { serversList, archInfo, teamAppCreatePermission: { isAccess }  } = this.state
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
@@ -112,15 +114,15 @@ export default class Main extends PureComponent {
     const tabList = [
       {
         key: 'custom',
-        tab: formatMessage({id: 'teamAdd.create.code.customSource'})
+        tab: formatMessage({ id: 'teamAdd.create.code.customSource' })
       },
       {
         key: 'jwar',
-        tab: formatMessage({id: 'teamAdd.create.code.package'})
+        tab: formatMessage({ id: 'teamAdd.create.code.package' })
       }
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
-      tabList.push({ key: 'demo', tab: formatMessage({id:'teamAdd.create.code.demo'})});
+      tabList.push({ key: 'demo', tab: formatMessage({ id: 'teamAdd.create.code.demo' }) });
     }
     const servers = oauthUtil.getEnableGitOauthServer(serversList);
     if (servers && servers.length > 0) {
@@ -145,7 +147,7 @@ export default class Main extends PureComponent {
         return tabList;
       });
     }
-    
+
     let { type } = match.params;
     if (!type) {
       type = 'custom';
@@ -162,12 +164,12 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title={formatMessage({id: 'teamAdd.create.code.title'})}
+        title={formatMessage({ id: 'teamAdd.create.code.title' })}
         onTabChange={this.handleTabChange}
         content={<p><FormattedMessage id="teamAdd.create.code.desc" /></p>}
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getSvg('addSvg',18)}
+        titleSvg={pageheaderSvg.getSvg('addSvg', 18)}
       >
         {Com ? (
           <Com
@@ -178,7 +180,7 @@ export default class Main extends PureComponent {
           />
         ) : (
           <>
-          {formatMessage({id: 'teamAdd.create.error'})}
+            {formatMessage({ id: 'teamAdd.create.error' })}
           </>
         )}
       </PageHeaderLayout>

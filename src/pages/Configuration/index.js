@@ -3,7 +3,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import globalUtil from '@/utils/global';
-import roleUtil from '@/utils/role';
+import roleUtil from '@/utils/newRole';
 import ConfigurationHeader from './Header';
 import ConfigurationTable from './Table';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -19,28 +19,10 @@ export default class Configuration extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      appConfigGroupPermissions: this.handlePermissions(
-        'queryAppConfigGroupInfo'
-      )
+      appConfigGroupPermissions: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo&&this.props.currentTeamPermissionsInfo.team,"app_config_group",`app_${globalUtil.getAppID()}`)
+      
     };
   }
-
-  componentWillMount() {
-    const { dispatch } = this.props;
-    const {
-      appConfigGroupPermissions: { isAccess }
-    } = this.state;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    }
-  }
-  handlePermissions = (type) => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
-  };
 
   render() {
     const {
@@ -63,6 +45,9 @@ export default class Configuration extends PureComponent {
       currentTeam,
       currentRegionName
     );
+    if(!appConfigGroupPermissions.isAccess){
+      return roleUtil.noPermission()
+    }
     return (
       <ConfigurationHeader breadcrumbList={breadcrumbList}>
         <ConfigurationTable {...parameter} />

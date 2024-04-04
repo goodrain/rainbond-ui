@@ -113,9 +113,9 @@ export default class RoleList extends PureComponent {
   };
 
   render() {
-    // const {
-    //   rolePermissions: { isCreate, isEdit, isDelete }
-    // } = this.props;
+    const {
+      rolePermissions: { isCreate, isEdit, isDelete }
+    } = this.props;
     const {
       roleList,
       rolesLoading,
@@ -126,9 +126,6 @@ export default class RoleList extends PureComponent {
       deleteRole,
       language
     } = this.state;
-    const isCreate = true;
-    const isEdit = true;
-    const isDelete = true;
     const roles = roleList && roleList.length > 0;
     return (
       <Fragment>

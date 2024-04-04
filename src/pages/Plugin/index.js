@@ -12,7 +12,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import styles from './Index.less';
 import Manage from './manage';
 import Lists from '../../components/Lists'
@@ -572,31 +572,21 @@ class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // operationPermissions: this.handlePermissions('queryPluginInfo')
+      operationPermissions: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_plugin_manage')
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
-    // const {
-    //   operationPermissions: { isAccess }
-    // } = this.state;
-    const isAccess = true;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    }
   }
 
-  handlePermissions = type => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
-  };
 
   render() {
     const { match } = this.props;
     const { pluginId } = match.params;
+    const {operationPermissions: {isAccess}} = this.state;
+    if(!isAccess){
+      return roleUtil.noPermission()
+    }
     if (pluginId) {
       return <Manage {...this.props} {...this.state} />;
     }

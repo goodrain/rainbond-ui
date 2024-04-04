@@ -23,7 +23,7 @@ import {
   createTeam
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
 import style from './publish.less';
@@ -50,15 +50,16 @@ export default class AppPublishList extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       showExporterApp: false,
       is_exporting: false,
-      appData: null
+      appData: null,
+      publishPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_release', `app_${globalUtil.getAppID()}`)
     };
   }
   componentWillMount() {
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    const isShare = roleUtil.queryAppInfo(currentTeamPermissionsInfo, 'share');
-    if (!isShare) {
-      globalUtil.withoutPermission(dispatch);
-    }
+    const { currentTeamPermissionsInfo } = this.props;
+    // const isShare = roleUtil.queryAppInfo(currentTeamPermissionsInfo, 'share');
+    // if (!isShare) {
+    //   globalUtil.withoutPermission(dispatch);
+    // }
   }
 
   componentDidMount() {
@@ -180,7 +181,7 @@ export default class AppPublishList extends PureComponent {
 
   cancelPublish = recordID => {
     if (recordID === undefined || recordID === '') {
-      notification.warning({ message: formatMessage({id:'notification.warn.parameter_error'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.parameter_error' }) });
       return;
     }
     const { teamName } = this.props.match.params;
@@ -235,7 +236,7 @@ export default class AppPublishList extends PureComponent {
   showAppExport = (data) => {
     data.version = Array.of(data.version)
     data.app_id = data.app_model_id
-    this.setState({ showExporterApp: true, appData:data });
+    this.setState({ showExporterApp: true, appData: data });
   };
   render() {
     let breadcrumbList = [];
@@ -252,15 +253,24 @@ export default class AppPublishList extends PureComponent {
       language,
       showExporterApp,
       is_exporting,
-      appData
+      appData,
+      publishPermission: {
+        isAccess,
+        isShare,
+        isExport,
+        isDelete,
+      }
     } = this.state;
+    if (!isAccess) {
+      return roleUtil.noPermission();
+    }
     const {
       currentEnterprise,
       currentTeam,
       currentRegionName,
       dispatch,
       match: {
-        params:{
+        params: {
           teamName,
           regionName
         }
@@ -283,38 +293,40 @@ export default class AppPublishList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appPublish.title' })}
         content={formatMessage({ id: 'appPublish.desc' })}
-        titleSvg={pageheaderSvg.getSvg('publishSvg',18)}
+        titleSvg={pageheaderSvg.getSvg('publishSvg', 18)}
       >
-        <Card 
-          loading={loading} 
+        <Card
+          loading={loading}
           extra={
-            <div style={language ? {}:{display:'flex'}}>
-            <Button
-              style={language ? {marginRight: 8}:{ marginRight: 8 ,padding:5,}}
-              type="primary"
-              onClick={this.onPublishLocal}
-            >
-              {formatMessage({ id: 'appPublish.btn.local' })}
-            </Button>
-            <Button  onClick={this.onPublishStore} style={language ? {marginRight: 8}:{marginRight: 8 ,padding:5,}}>
-              {formatMessage({ id: 'appPublish.btn.market' })}
-            </Button>
-          </div>
+            isShare &&
+            <div style={language ? {} : { display: 'flex' }}>
+              <Button
+                style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }}
+                type="primary"
+                onClick={this.onPublishLocal}
+              >
+                {formatMessage({ id: 'appPublish.btn.local' })}
+              </Button>
+              <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }}>
+                {formatMessage({ id: 'appPublish.btn.market' })}
+              </Button>
+            </div>
+
           }
           style={{
-                  borderRadius: 5,
-                  boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
           }}
         >
           <ScrollerX sm={800}>
             <Table
-              rowKey={(record,index) => index}
-              pagination={total > 10 ?{
+              rowKey={(record, index) => index}
+              pagination={total > 10 ? {
                 current: page,
                 pageSize,
                 total,
                 onChange: this.onPageChange
-              }:false}
+              } : false}
               dataSource={recoders || []}
               columns={[
                 {
@@ -380,7 +392,7 @@ export default class AppPublishList extends PureComponent {
                       default:
                         return (
                           <p style={{ marginBottom: 0 }}>
-                            {storeName || formatMessage({ id: 'appPublish.table.scope.app_shop' }) }
+                            {storeName || formatMessage({ id: 'appPublish.table.scope.app_shop' })}
                           </p>
                         );
                     }
@@ -423,6 +435,7 @@ export default class AppPublishList extends PureComponent {
                     return (
                       <div>
                         {data.status === 0 ? (
+                          isShare &&
                           <div>
                             <a
                               style={{ marginRight: '5px' }}
@@ -443,23 +456,24 @@ export default class AppPublishList extends PureComponent {
                           </div>
                         ) : (
                           <div>
-                            {(data.scope == 'team' || data.scope == 'enterprise') && (
-                              <a onClick={()=>this.showAppExport(data)}>
-                                {formatMessage({id:'applicationMarket.localMarket.export_app'})}
-                                {is_exporting ? `${formatMessage({id:'applicationMarket.localMarket.in_export'})}` : ''}
-                                </a>
+                            {(data.scope == 'team' || data.scope == 'enterprise') && isExport && (
+                              <a onClick={() => this.showAppExport(data)}>
+                                {formatMessage({ id: 'applicationMarket.localMarket.export_app' })}
+                                {is_exporting ? `${formatMessage({ id: 'applicationMarket.localMarket.in_export' })}` : ''}
+                              </a>
                             )}
-                            <Popconfirm
-                              title={formatMessage({ id: 'appPublish.table.btn.confirm_delete'})}
-                              onConfirm={() => {
-                                this.deleteRecord(data.record_id);
-                              }}
-                              okText={formatMessage({ id: 'appPublish.table.btn.confirm' })}
-                              cancelText={formatMessage({ id: 'appPublish.table.btn.cancel' })}
-                            >
-                              <a href="#">{formatMessage({ id: 'appPublish.table.btn.delete' })}</a>
-                            </Popconfirm>
-                            
+                            {isDelete &&
+                              <Popconfirm
+                                title={formatMessage({ id: 'appPublish.table.btn.confirm_delete' })}
+                                onConfirm={() => {
+                                  this.deleteRecord(data.record_id);
+                                }}
+                                okText={formatMessage({ id: 'appPublish.table.btn.confirm' })}
+                                cancelText={formatMessage({ id: 'appPublish.table.btn.cancel' })}
+                              >
+                                <a href="#">{formatMessage({ id: 'appPublish.table.btn.delete' })}</a>
+                              </Popconfirm>
+                            }
                           </div>
                         )}
                       </div>

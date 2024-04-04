@@ -123,8 +123,8 @@ import {
       this.mount = false;
     }
     componentWillMount() {
-      const { currentTeamPermissionsInfo, dispatch } = this.props;
-      roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+      // const { currentTeamPermissionsInfo, dispatch } = this.props;
+      // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
     }
     componentDidMount() {
       this.mount = true;

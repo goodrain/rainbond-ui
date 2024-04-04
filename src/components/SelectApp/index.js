@@ -97,7 +97,8 @@ export default class SelectApp extends PureComponent {
     const teamName = currentTeam.team_name;
     const regionName = currentRegion.team_region_name;
     const currentTeamAppsPageLink = `/team/${teamName}/region/${regionName}/apps`;
-    const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
+    // const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
+    const isCreateApp = true;
     const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}`;
     const dropdown = (
       <div className={style.dropBox}>
