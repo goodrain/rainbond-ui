@@ -16,13 +16,17 @@ import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import roleUtil from  '../../../../utils/newRole'
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import LogShow from '../LogShow';
 import Svg from '../../../../utils/pageHeaderSvg'
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
-@connect()
+@connect(({ appControl, teamControl }) => ({
+  appDetail: appControl.appDetail,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+}))
 @Form.create()
 class Index extends PureComponent {
   constructor(props) {
@@ -31,9 +35,20 @@ class Index extends PureComponent {
       logVisible: false,
       EventID: '',
       language : cookie.get('language') === 'zh-CN' ? true : false,
+      appUpgradePermission: this.handlePermissions()
     };
   }
   componentDidMount() {}
+  handlePermissions = () => {
+    const { currentTeamPermissionsInfo, appDetail } = this.props;
+    if(currentTeamPermissionsInfo && appDetail){
+      return roleUtil.queryPermissionsInfo(
+        currentTeamPermissionsInfo?.team,
+        'app_upgrade',
+        `app_${appDetail?.service?.group_id}`
+      );
+    }
+  };
 
   showModal = EventID => {
     this.setState({
@@ -84,14 +99,14 @@ class Index extends PureComponent {
     const {
       dataList,
       current_version,
-      componentPermissions: { isRollback, isDelete },
+      componentPermissions: { isDelete },
       pages,
       pageSize,
       total,
       onPageChange,
       onShowSizeChange,
     } = this.props;
-    const { EventID, logVisible, language } = this.state;
+    const { EventID, logVisible, language, appUpgradePermission:{isUpgrade, isRollback} } = this.state;
     return (
       <Row gutter={24}>
         {logVisible && (
@@ -517,7 +532,7 @@ class Index extends PureComponent {
                               <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.log'/>
                             </a>
                           </span>
-                          {upgrade_or_rollback == 1 && isRollback ? (
+                          {upgrade_or_rollback == 1 && isUpgrade ? (
                             <Popconfirm
                               title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popUpgrade'/>}
                               onConfirm={() => {

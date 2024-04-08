@@ -7,6 +7,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from "../../utils/global"
+import roleUtil from '../../utils/newRole';
 import jsYaml from 'js-yaml'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
@@ -14,7 +15,9 @@ import ConfirmModal from "../../components/ConfirmModal";
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
-@connect()
+@connect(({ teamControl }) => ({
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+}))
 @Form.create()
 class Index extends PureComponent {
   constructor(props) {
@@ -24,13 +27,14 @@ class Index extends PureComponent {
       content: [],
       localContent: '',
       type: "add",
-      title: formatMessage({id:'addKubenetesResource.btn.add'}),
+      title: formatMessage({ id: 'addKubenetesResource.btn.add' }),
       showDeletePort: false,
       deleteVal: {},
       editName: '',
       editId: 0,
       isSubmit: true,
       loadingSwitch: true,
+      resourcePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_resources', `app_${globalUtil.getAppID()}`),
     };
   }
   componentDidMount() {
@@ -47,7 +51,7 @@ class Index extends PureComponent {
         this.setState({
           content: res.list,
           localContent: ' ',
-          loadingSwitch:false
+          loadingSwitch: false
         })
       }
     })
@@ -56,14 +60,14 @@ class Index extends PureComponent {
     this.setState({
       visible: false,
       isSubmit: true,
-      type:'add'
+      type: 'add'
     });
   };
   // 新增
   handleConfigurationOperation = () => {
     this.setState({
       visible: true,
-      title: formatMessage({id:'addKubenetesResource.btn.add'}),
+      title: formatMessage({ id: 'addKubenetesResource.btn.add' }),
       type: "add",
       localContent: false,
     });
@@ -74,16 +78,16 @@ class Index extends PureComponent {
       const label = {
         yaml: val.yaml
       }
-      const yamlValidation= this.handYamlValidation(val.yaml)
-      if(yamlValidation){
+      const yamlValidation = this.handYamlValidation(val.yaml)
+      if (yamlValidation) {
         if (val.yaml) {
           this.handelAddOrEdit(label)
         } else {
           notification.error({
-            message: formatMessage({id:'notification.hint.resource.msg'})
+            message: formatMessage({ id: 'notification.hint.resource.msg' })
           })
         }
-      } 
+      }
     });
   };
   // 编辑
@@ -93,9 +97,9 @@ class Index extends PureComponent {
     getSingleKubernetesVal({
       team_name: teamName,
       app_id: app_id,
-      list_name:row.name,
-      id:row.ID
-    }).then(res =>{
+      list_name: row.name,
+      id: row.ID
+    }).then(res => {
       if (res && res.response_data && res.response_data.code == 200) {
         this.setState({
           type: val,
@@ -103,16 +107,16 @@ class Index extends PureComponent {
           editName: row.name,
           localContent: res.list.content,
           editId: row.ID,
-          title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
+          title: formatMessage({ id: 'addKubenetesResource.table.btn.edit' })
         })
-      }else{
+      } else {
         this.setState({
           type: val,
           visible: true,
           editName: row.name,
           localContent: row.content,
           editId: row.ID,
-          title: formatMessage({id:'addKubenetesResource.table.btn.edit'})
+          title: formatMessage({ id: 'addKubenetesResource.table.btn.edit' })
         })
       }
     })
@@ -127,14 +131,14 @@ class Index extends PureComponent {
   }
   // 删除提示框弹出
   deleteButton = (val) => {
-    if(val){
+    if (val) {
       this.setState({
         showDeletePort: !this.state.showDeletePort
       })
       this.setState({
         deleteVal: val,
       })
-    }else{
+    } else {
       this.setState({
         showDeletePort: !this.state.showDeletePort
       })
@@ -154,7 +158,7 @@ class Index extends PureComponent {
     }).then(res => {
       if (res && res.response_data && res.response_data.code == 200) {
         notification.success({
-          message: formatMessage({id:'notification.success.delete'})
+          message: formatMessage({ id: 'notification.success.delete' })
         })
         this.getPageContent()
       }
@@ -182,12 +186,12 @@ class Index extends PureComponent {
       }).then(res => {
         if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
-            message: formatMessage({id:'notification.success.add'})
+            message: formatMessage({ id: 'notification.success.add' })
           })
           this.getPageContent()
         } else {
           notification.error({
-            message: formatMessage({id:'notification.error.add'})
+            message: formatMessage({ id: 'notification.error.add' })
           })
           this.getPageContent()
         }
@@ -202,12 +206,12 @@ class Index extends PureComponent {
       }).then(res => {
         if (res && res.response_data && res.response_data.code == 200) {
           notification.success({
-            message: formatMessage({id:'notification.success.change'})
+            message: formatMessage({ id: 'notification.success.change' })
           })
           this.getPageContent()
         } else {
           notification.error({
-            message: formatMessage({id:'notification.error.change'})
+            message: formatMessage({ id: 'notification.error.change' })
           })
           this.getPageContent()
         }
@@ -219,66 +223,85 @@ class Index extends PureComponent {
   }
   handYamlValidation = (value) => {
     try {
-        if(value){
-            const jsonData = jsYaml.loadAll(value)
-            return jsonData
-        }   
+      if (value) {
+        const jsonData = jsYaml.loadAll(value)
+        return jsonData
+      }
     } catch (e) {
-        const errorInfo = e.message.indexOf("\n")
-        const str = e.message.substring(0, errorInfo);
-        notification.error({ message: str, duration: 30, top: 10 })
+      const errorInfo = e.message.indexOf("\n")
+      const str = e.message.substring(0, errorInfo);
+      notification.error({ message: str, duration: 30, top: 10 })
     }
-  } 
+  }
   onSelectChange = (selectedRowKeys) => {
     this.setState({ selectedRowKeys });
-   };
-   batchDeletion = () =>{
-     const {selectedRowKeys} = this.state;
-     const { dispatch } = this.props;
-     const teamName = globalUtil.getCurrTeamName()
-     const app_id = globalUtil.getAppID();
-     this.setState({
-       handelType:"multiple"
-     })
-     dispatch({
-       type: 'application/batchDelSingleKubernetesVal',
-       payload: {
-         List_id: selectedRowKeys,
-         team_name: teamName,
-         app_id: app_id,
-       },
-       callback: data => {
+  };
+  batchDeletion = () => {
+    const { selectedRowKeys } = this.state;
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName()
+    const app_id = globalUtil.getAppID();
+    this.setState({
+      handelType: "multiple"
+    })
+    dispatch({
+      type: 'application/batchDelSingleKubernetesVal',
+      payload: {
+        List_id: selectedRowKeys,
+        team_name: teamName,
+        app_id: app_id,
+      },
+      callback: data => {
         notification.success({
-          message: formatMessage({id:'notification.success.delete'})
+          message: formatMessage({ id: 'notification.success.delete' })
         })
-         this.setState({
-           showDeletePort: !this.state.showDeletePort,
-           selectedRowKeys: []
-         },()=>{
-           this.getPageContent()
-         })
-         
-       },
-       handleError: (err)=>{
-         notification.error({
-          message: formatMessage({id:'notification.error.delete'})
+        this.setState({
+          showDeletePort: !this.state.showDeletePort,
+          selectedRowKeys: []
+        }, () => {
+          this.getPageContent()
         })
-         this.setState({
-           showDeletePort: !this.state.showDeletePort,
-           selectedRowKeys: []
-         },()=>{
-           this.getPageContent()
-         })
-       }
-     });
-   }
+
+      },
+      handleError: (err) => {
+        notification.error({
+          message: formatMessage({ id: 'notification.error.delete' })
+        })
+        this.setState({
+          showDeletePort: !this.state.showDeletePort,
+          selectedRowKeys: []
+        }, () => {
+          this.getPageContent()
+        })
+      }
+    });
+  }
   render() {
     const {
       form: { getFieldDecorator, setFieldsValue },
-
     } = this.props;
-    const { content, localContent, title, isSubmit, loadingSwitch, TooltipValue, type, selectedRowKeys, handelType } = this.state;
-    const isBool = (type == "add") ? true : false 
+    const {
+      content,
+      localContent,
+      title,
+      isSubmit,
+      loadingSwitch,
+      TooltipValue,
+      type,
+      selectedRowKeys,
+      handelType,
+      resourcePermission,
+      resourcePermission: {
+        isAccess,
+        isDelete,
+        isCreate,
+        isEdit,
+      }
+    } = this.state;
+    if (!isAccess) {
+      return roleUtil.noPermission()
+    }
+    const isBool = (type == "add") ? true : false
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -307,61 +330,61 @@ class Index extends PureComponent {
 
     const columns = [
       {
-        title: formatMessage({id: 'addKubenetesResource.table.name'}),
+        title: formatMessage({ id: 'addKubenetesResource.table.name' }),
         dataIndex: 'name',
         key: 'name',
         align: 'center',
         width: 300
       },
       {
-        title: formatMessage({id: 'addKubenetesResource.table.type'}),
+        title: formatMessage({ id: 'addKubenetesResource.table.type' }),
         dataIndex: 'kind',
         key: 'kind',
         align: 'center',
         width: 200
       },
       {
-        title: formatMessage({id: 'addKubenetesResource.table.status'}),
+        title: formatMessage({ id: 'addKubenetesResource.table.status' }),
         dataIndex: 'state',
         key: 'state',
         align: 'center',
         width: 200,
         render: (text, record) => {
           return <div>
-            {text == 1 && <span style={{ color: 'green' }}>{formatMessage({id: 'addKubenetesResource.table.success'})}</span>}
-            {text == 2 && <span style={{ color: 'green' }}>{formatMessage({id: 'addKubenetesResource.table.update_success'})}</span>}
+            {text == 1 && <span style={{ color: 'green' }}>{formatMessage({ id: 'addKubenetesResource.table.success' })}</span>}
+            {text == 2 && <span style={{ color: 'green' }}>{formatMessage({ id: 'addKubenetesResource.table.update_success' })}</span>}
             {text == 3 &&
               <>
-                <span style={{ color: 'red' }}>{formatMessage({id: 'addKubenetesResource.table.error'})}</span>
+                <span style={{ color: 'red' }}>{formatMessage({ id: 'addKubenetesResource.table.error' })}</span>
                 <Popover
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
-                  title={formatMessage({id:'addKubenetesResource.table.errorDetail'})}
+                  title={formatMessage({ id: 'addKubenetesResource.table.errorDetail' })}
                   content={record.error_overview}
                   trigger="click"
                 >
                   <span
                     style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
                   >
-                    {formatMessage({id: 'addKubenetesResource.table.checkDetail'})}
+                    {formatMessage({ id: 'addKubenetesResource.table.checkDetail' })}
                   </span>
                 </Popover>
               </>
             }
             {text == 4 &&
               <div >
-                <span style={{ color: 'red' }}>{formatMessage({id: 'addKubenetesResource.table.update_error'})}</span>
+                <span style={{ color: 'red' }}>{formatMessage({ id: 'addKubenetesResource.table.update_error' })}</span>
                 <Popover
                   overlayClassName={styles.tooltip_style}
                   placement="bottom"
-                  title={formatMessage({id: 'addKubenetesResource.table.errorDetail'})}
+                  title={formatMessage({ id: 'addKubenetesResource.table.errorDetail' })}
                   content={record.error_overview}
                   trigger="click"
                 >
                   <span
                     style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
                   >
-                    {formatMessage({id: 'addKubenetesResource.table.checkDetail'})}
+                    {formatMessage({ id: 'addKubenetesResource.table.checkDetail' })}
                   </span>
                 </Popover>
               </div>
@@ -370,7 +393,7 @@ class Index extends PureComponent {
         }
       },
       {
-        title: formatMessage({id: 'addKubenetesResource.table.operate'}),
+        title: formatMessage({ id: 'addKubenetesResource.table.operate' }),
         dataIndex: 'content',
         key: 'content',
         align: 'center',
@@ -378,20 +401,27 @@ class Index extends PureComponent {
         render: (text, record) => {
           return (
             <>
-              {record.state === 3 ? (
-                <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({id: 'addKubenetesResource.table.btn.check'})}</span>
-              ) : (
-                <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({id: 'addKubenetesResource.table.btn.edit'})}</span>
-              )
+              {isEdit && <>
+                {
+                  record.state === 3 ? (
+                    <span className={styles.action} onClick={() => this.editErrButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({ id: 'addKubenetesResource.table.btn.check' })}</span>
+                  ) : (
+                    <span className={styles.action} onClick={() => this.editButton("edit", record)} style={{ marginRight: "10px" }}>{formatMessage({ id: 'addKubenetesResource.table.btn.edit' })}</span>
+                  )
+                }
+              </>
               }
+              {isDelete &&
                 <span className={styles.action} onClick={() => {
-                this.setState({
-                  handelType:'single'
-                })
-                this.deleteButton(record)}
+                  this.setState({
+                    handelType: 'single'
+                  })
+                  this.deleteButton(record)
+                }
                 }>
-                  {formatMessage({id: 'addKubenetesResource.table.btn.delete'})}
-              </span>
+                  {formatMessage({ id: 'addKubenetesResource.table.btn.delete' })}
+                </span>
+              }
             </>
           );
         }
@@ -400,62 +430,64 @@ class Index extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title={formatMessage({id: 'addKubenetesResource.title'})}
-        content={formatMessage({id: 'addKubenetesResource.desc'})}
-        titleSvg={pageheaderSvg.getSvg('k8sSvg',18)}
+        title={formatMessage({ id: 'addKubenetesResource.title' })}
+        content={formatMessage({ id: 'addKubenetesResource.desc' })}
+        titleSvg={pageheaderSvg.getSvg('k8sSvg', 18)}
       >
-        <Card 
-        className={styles.CardStyle}
-        style={{
-          borderRadius: 5,
-          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-        }}
-        extra={
-          <div
+        <Card
+          className={styles.CardStyle}
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: selectedRowKeys && selectedRowKeys.length > 0 ?'space-between': "end"
+            borderRadius: 5,
+            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
           }}
-          >
-          {selectedRowKeys && selectedRowKeys.length > 0 && 
-          <Button
-          type="primary"
-          onClick={() => {
-            this.deleteButton();
-            this.setState({
-              handelType:'multiple'
-            })
-          }}
-          >
-           <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete'/>
-          </Button>
+          extra={
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: isDelete && selectedRowKeys && selectedRowKeys.length > 0 ? 'space-between' : "end"
+              }}
+            >
+              {isDelete && selectedRowKeys && selectedRowKeys.length > 0 &&
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    this.deleteButton();
+                    this.setState({
+                      handelType: 'multiple'
+                    })
+                  }}
+                >
+                  <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete' />
+                </Button>
+              }
+              {isCreate &&
+                <Button
+                  type="primary"
+                  icon="plus"
+                  onClick={() => {
+                    this.handleConfigurationOperation();
+                  }}
+                >
+                  {formatMessage({ id: 'addKubenetesResource.btn.add' })}
+                </Button>
+              }
+            </div>
           }
-          <Button
-            type="primary"
-            icon="plus"
-            onClick={() => {
-              this.handleConfigurationOperation();
-            }}
-          >
-            {formatMessage({id: 'addKubenetesResource.btn.add'})}
-          </Button>
-          </div>
-        }
         >
           {loadingSwitch ? (
             <div className={styles.loadingStyle}>
               <Spin size="large" />
             </div>
-          ): (
-              <Table 
-              dataSource = { content } 
-              columns = { columns } 
-              rowSelection={rowSelection} 
+          ) : (
+            <Table
+              dataSource={content}
+              columns={columns}
+              rowSelection={rowSelection}
               rowKey={record => record.ID}
-              />
+            />
 
-            )}
+          )}
 
         </Card>
         <Drawer
@@ -473,8 +505,8 @@ class Index extends PureComponent {
               getFieldDecorator={getFieldDecorator}
               formItemLayout={formItemLayouts}
               name={"yaml"}
-              message={formatMessage({id:'notification.hint.confiuration.editContent'})}
-              data={localContent || "" }
+              message={formatMessage({ id: 'notification.hint.confiuration.editContent' })}
+              data={localContent || ""}
               mode={'yaml'}
               isAuto={true}
             />
@@ -492,21 +524,21 @@ class Index extends PureComponent {
             }}
           >
             <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-              {formatMessage({id:'button.cancel'})}
+              {formatMessage({ id: 'button.cancel' })}
             </Button>
             {isSubmit &&
               <Button onClick={this.handleSubmit} type="primary">
-                {formatMessage({id:'button.confirm'})}
+                {formatMessage({ id: 'button.confirm' })}
               </Button>
             }
           </div>
         </Drawer>
         {this.state.showDeletePort && (
           <ConfirmModal
-            title={formatMessage({id:'confirmModal.delete.resource.title'})}
-            desc={formatMessage({id:'confirmModal.delete.resource.desc'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            onOk={handelType == "multiple" ? this.batchDeletion :  this.handleDel}
+            title={formatMessage({ id: 'confirmModal.delete.resource.title' })}
+            desc={formatMessage({ id: 'confirmModal.delete.resource.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            onOk={handelType == "multiple" ? this.batchDeletion : this.handleDel}
             onCancel={this.cancalDeletePort}
           />
         )}

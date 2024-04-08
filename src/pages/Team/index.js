@@ -116,7 +116,6 @@ export default class Index extends PureComponent {
   }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
-    console.log(currentTeamPermissionsInfo,"currentTeamPermissionsInfo");
     return  roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, type);
   };
 
