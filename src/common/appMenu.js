@@ -71,6 +71,14 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
+  if (isAppResources) {
+  addMenuArr({
+    name: formatMessage({ id: 'menu.app.k8s' }),
+    icon: getMenuSvg.getSvg('kubenetes'),
+    path: `team/${teamName}/region/${regionName}/apps/${appID}/resource`,
+    authority: ['admin', 'user']
+  });
+}
   return menuArr;
 }
 

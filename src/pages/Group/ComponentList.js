@@ -353,6 +353,14 @@ export default class ComponentList extends Component {
       groupId,
       groups
     } = this.props;
+    // console.log(componentPermissions,"componentPermissions");
+    // const isStart = true;
+    // const isRestart = true;
+    // const isStop = true;
+    // const isDelete = true;
+    // const isEdit = true;
+    // const isUpdate = true;
+    // const isConstruct = true;
     const {
       selectedRowKeys,
       current,
