@@ -641,7 +641,7 @@ export default class AddServiceComponent extends PureComponent {
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, 'market', null);
               }}
-              isComponents
+              
             />
           )}
           <div

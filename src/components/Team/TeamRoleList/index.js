@@ -33,11 +33,20 @@ export default class RoleList extends PureComponent {
   componentDidMount() {
     this.loadTeamRoles();
     this.loadPermissions();
+    this.fetchTeamApps();
   }
   onDelRole = item => {
     this.setState({ deleteRole: item });
   };
-
+  fetchTeamApps = () => {
+    this.props.dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        team_name:  globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName()
+      }
+    });
+  };
   showAddRole = () => {
     this.setState({ showAddRole: true });
   };

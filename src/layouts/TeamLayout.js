@@ -310,6 +310,7 @@ class TeamLayout extends PureComponent {
   };
 
   load = () => {
+    this.queryComponentDeatil();
     const { enterpriseList, eid, teamOverviewPermission:{isAccess} } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
@@ -349,7 +350,6 @@ class TeamLayout extends PureComponent {
       this.setState({ isMobile: mobile });
     });
     // 连接云应用市场
-    this.queryComponentDeatil();
     this.handleUpDataHeader();
   };
 

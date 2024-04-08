@@ -5,7 +5,7 @@ import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 
 function menuData(teamName, regionName, appID, permissionsInfo) {
-  const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team,'app',`app_${appID}`);
+  const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team, 'app', `app_${appID}`);
   const {
     isAppRelease,
     isAppUpgrade,
@@ -52,6 +52,14 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: getMenuSvg.getSvg('upgrade'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
+      authority: ['admin', 'user']
+    });
+  }
+  if (isAppResources) {
+    addMenuArr({
+      name: formatMessage({ id: 'menu.app.k8s' }),
+      icon: getMenuSvg.getSvg('kubenetes'),
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/asset`,
       authority: ['admin', 'user']
     });
   }

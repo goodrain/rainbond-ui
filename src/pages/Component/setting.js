@@ -21,6 +21,7 @@ import SetMemberAppAction from '../../components/SetMemberAppAction';
 import appProbeUtil from '../../utils/appProbe-util';
 import appStatusUtil from '../../utils/appStatus-util';
 import globalUtil from '../../utils/global';
+import role from '@/utils/newRole';
 import Kubernetes from './kubernets';
 import AddTag from './setting/add-tag';
 import EditHealthCheck from './setting/edit-health-check';
@@ -84,7 +85,6 @@ export default class Index extends React.Component {
     };
   }
   componentDidMount() {
-    if (!this.canView()) return;
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.fetchInnerEnvs();
     this.fetchStartProbe();
@@ -242,9 +242,9 @@ export default class Index extends React.Component {
   // 是否可以浏览当前界面
   canView() {
     const {
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth }
+      componentPermissions: {isOtherSetting }
     } = this.props;
-    return isDeploytype || isCharacteristic || isHealth;
+    return isOtherSetting;
   }
   cancelDeleteVar = () => {
     this.setState({ deleteVar: null });
@@ -638,10 +638,13 @@ export default class Index extends React.Component {
       baseInfo,
       teamControl,
       form,
-      componentPermissions: { isDeploytype, isCharacteristic, isHealth },
+      componentPermissions: { isOtherSetting },
       appDetail,
       method
     } = this.props;
+    if(!isOtherSetting){
+      return role.noPermission()
+    }
     const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
     const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
@@ -724,7 +727,6 @@ export default class Index extends React.Component {
                 label={<FormattedMessage id='componentOverview.body.setting.type' />}
               >
                 {extend_methods && globalUtil.getComponentType(extend_methods)}
-                {isDeploytype && (
                   <Button
                     onClick={this.setupAttribute}
                     size="small"
@@ -732,33 +734,7 @@ export default class Index extends React.Component {
                   >
                     <FormattedMessage id='componentOverview.body.setting.change' />
                   </Button>
-                )}
               </FormItem>
-              {/* <FormItem
-              style={{
-                marginBottom: 0
-              }}
-              {...formItemLayout}
-              label="组件特性"
-            >
-              {(tags || []).map((tag, i) => (
-                <Tag
-                  key={`tag${i}`}
-                  closable
-                  onClose={e => {
-                    e.preventDefault();
-                    this.handleRemoveTag(tag);
-                  }}
-                >
-                  {tag.label_alias}
-                </Tag>
-              ))}
-              {isCharacteristic && (
-                <Button onClick={this.onAddTag} size="small">
-                  添加特性
-                </Button>
-              )}
-            </FormItem> */}
               <FormItem
                 style={{
                   marginBottom: 0
@@ -795,7 +771,7 @@ export default class Index extends React.Component {
             </Form>
           )}
         </Card>
-        {isHealth && (
+
           <Card
             style={{
               marginBottom: 24
@@ -864,7 +840,6 @@ export default class Index extends React.Component {
               </div>
             )}
           </Card>
-        )}
         {((appDetail && appDetail.service && appDetail.service.extend_method) === 'job' ||
           (appDetail && appDetail.service && appDetail.service.extend_method) === 'cronjob') && (
             <Strategy

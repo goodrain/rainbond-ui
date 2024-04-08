@@ -65,7 +65,6 @@ export default class RoleList extends PureComponent {
   };
 
   onCheck = checkedKeys => {
-    console.log(checkedKeys,"checkedKeys");
     this.setState({ checkedKeys });
   };
 
@@ -133,7 +132,6 @@ export default class RoleList extends PureComponent {
         false
       );
     }
-    console.log(rolePermissionItem,"rolePermissionItem");
     if (checkedKeys) {
       if (isEditor) {
         this.setState(
@@ -243,7 +241,6 @@ export default class RoleList extends PureComponent {
   handleRolePermissions = values => {
     if (values) {
       const { dispatch, onCancelAddRole, isAddRole } = this.props;
-      console.log(values.permissions,"=======");
       dispatch({
         type: 'teamControl/updateRolePermissions',
         payload: {
@@ -274,7 +271,6 @@ export default class RoleList extends PureComponent {
       if (!err) {
         const { isAddRole } = this.props;
         // const { rolePermissionItem } = this.state;
-        console.log(values,"values");
         this.setState({ loading: true }, () => {
           // if (rolePermissionItem) {
           //   this.handlePermissions(rolePermissionItem, true);

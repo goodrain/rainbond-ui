@@ -163,7 +163,6 @@ class Control extends Component {
     });
   }
   deleteApiGatewayCert = (values) => {
-    console.log('deleteApiGatewayCert');
     this.props.dispatch({
       type: 'gateWay/deleteApiGatewayCert',
       payload: {

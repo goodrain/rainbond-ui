@@ -326,7 +326,7 @@ export default [
             title: '应用配置组管理'
           },
           {
-            path: '/team/:teamName/region/:regionName/apps/:appID/resource',
+            path: '/team/:teamName/region/:regionName/apps/:appID/asset',
             component: './Resource',
             name: 'Resource',
             authority: ['admin', 'user']

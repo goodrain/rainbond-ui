@@ -43,7 +43,7 @@ import {
 import dateUtil from '../../utils/date-util';
 import globalUtil from '../../utils/global';
 import regionUtil from '../../utils/region';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import ConnectionInformation from './connectionInformation';
@@ -1019,7 +1019,7 @@ class Main extends PureComponent {
     const {
       appDetail,
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
-      appPermissions: { isEdit: isAppEdit }
+      // appPermissions: { isEdit: isAppEdit }
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
@@ -1116,7 +1116,7 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {status && status.status && isAppEdit && !loadingDetail && !isHelm && (
+              {status && status.status && isEdit && !loadingDetail && !isHelm && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
@@ -1162,6 +1162,7 @@ class Main extends PureComponent {
         isAccess,
         isStart,
         isVisitWebTerminal,
+        isServiceMonitor,
         isConstruct,
         isUpdate,
         isTelescopic,
@@ -1171,11 +1172,9 @@ class Main extends PureComponent {
         isPort,
         isPlugin,
         isSource,
-        isDeploytype,
-        isCharacteristic,
-        isHealth
+        isOtherSetting,
       },
-      appPermissions,
+      // appPermissions,
       componentPermissions,
       groups = [],
       form,
@@ -1350,11 +1349,6 @@ class Main extends PureComponent {
 
       },
       {
-        key: 'monitor',
-        // tab: '监控',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.monitor'})
-      },
-      {
         key: 'log',
         // tab: '日志',
         tab: formatMessage({id:'componentOverview.body.tab.bar.log'})
@@ -1366,6 +1360,13 @@ class Main extends PureComponent {
         key: 'expansion',
         // tab: '伸缩',
         tab: formatMessage({id:'componentOverview.body.tab.bar.expansion'})
+      });
+    }
+    if(isServiceMonitor){
+      tabs.push({
+        key: 'monitor',
+        // tab: '监控',
+        tab: formatMessage({id:'componentOverview.body.tab.bar.monitor'})
       });
     }
 
@@ -1417,7 +1418,7 @@ class Main extends PureComponent {
       });
     }
 
-    if (isDeploytype || isCharacteristic || isHealth) {
+    if (isOtherSetting) {
       tabs.push({
         key: 'setting',
         // tab: '其他设置',
@@ -1668,7 +1669,7 @@ class Main extends PureComponent {
           <Com
             method={method}
             groupDetail={groupDetail}
-            appPermissions={appPermissions}
+            // appPermissions={appPermissions}
             componentPermissions={componentPermissions}
             timers={componentTimer}
             status={status}
@@ -1726,8 +1727,9 @@ class Main extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ teamControl }) => ({
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+  ({ teamControl, appControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    appDetail: appControl.appDetail,
   }),
   null,
   null,
@@ -1742,30 +1744,25 @@ export default class Index extends PureComponent {
     this.id = '';
     this.state = {
       show: true,
-      componentPermissions: this.handlePermissions('queryComponentInfo'),
-      appPermissions: this.handlePermissions('queryAppInfo')
+      componentPermissions: this.handlePermissions(),
     };
   }
-  componentWillMount() {
-    const { dispatch } = this.props;
-    const {
-      componentPermissions: { isAccess }
-    } = this.state;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
+  handlePermissions = () => {
+    const { currentTeamPermissionsInfo, appDetail } = this.props;
+    if(currentTeamPermissionsInfo && appDetail){
+      return roleUtil.queryPermissionsInfo(
+        currentTeamPermissionsInfo?.team,
+        'app_overview',
+        `app_${appDetail?.service?.group_id}`
+      );
     }
-  }
-  handlePermissions = type => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
   };
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
-  componentDidMount() {}
+  componentDidMount() { 
+
+  }
   flash = () => {
     this.setState(
       {
@@ -1777,7 +1774,15 @@ export default class Index extends PureComponent {
     );
   };
   render() {
-    // Switching applications show
+    const { 
+      componentPermissions,
+      componentPermissions:{
+        isAccess
+      }
+     } = this.state;
+     if(!isAccess){
+      return roleUtil.noPermission()
+     }
     if (this.id !== this.getAlias()) {
       this.id = this.getAlias();
       this.flash();

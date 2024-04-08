@@ -717,15 +717,16 @@ export default class AppList extends PureComponent {
         render: (_, item) =>
           item.can_rollback && (
             <div>
-              <a
-                onClick={e => {
-                  e.preventDefault();
-                  this.showRollback(item);
-                }}
-              >
-                {formatMessage({ id: 'appUpgrade.table.operate.roll_back' })}
-              </a>
-
+              {isRollback &&
+                <a
+                  onClick={e => {
+                    e.preventDefault();
+                    this.showRollback(item);
+                  }}
+                >
+                  {formatMessage({ id: 'appUpgrade.table.operate.roll_back' })}
+                </a>
+              }
               <a
                 onClick={e => {
                   e.preventDefault();
@@ -771,7 +772,6 @@ export default class AppList extends PureComponent {
       }
     ];
     let breadcrumbList = [];
-
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -821,7 +821,7 @@ export default class AppList extends PureComponent {
                       dataSource={[...dataList]}
                       renderItem={(item, index) => (
                         <List.Item
-                          actions={(item.source.indexOf('helm') != -1) ? ([
+                          actions={(item.source.indexOf('helm') != -1) ? (isUpgrade ? [
                             <a
                               style={{
                                 display:
@@ -846,25 +846,43 @@ export default class AppList extends PureComponent {
                             >
                               {formatMessage({ id: 'helmAppInstall.Upgrade.reinstall' })}
                             </a>
+                          ] : [
+                            <a
+                              onClick={() => {
+                                this.jump(install, item);
+                              }}
+                            >
+                              {formatMessage({ id: 'helmAppInstall.Upgrade.reinstall' })}
+                            </a>
                           ]
                           ) : (
-                            [
-                              <a
-                                onClick={e => {
-                                  e.preventDefault();
-                                  this.fetchAppLastRollbackRecord(item);
-                                }}
-                              >
-                                {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
-                              </a>,
-                              <a
-                                onClick={() => {
-                                  this.showComponentVersion(item);
-                                }}
-                              >
-                                {formatMessage({ id: 'appUpgrade.btn.addon' })}
-                              </a>
-                            ]
+                            isUpgrade ?
+                              [
+                                <a
+                                  onClick={e => {
+                                    e.preventDefault();
+                                    this.fetchAppLastRollbackRecord(item);
+                                  }}
+                                >
+                                  {formatMessage({ id: 'appUpgrade.btn.upgrade' })}
+                                </a>,
+                                <a
+                                  onClick={() => {
+                                    this.showComponentVersion(item);
+                                  }}
+                                >
+                                  {formatMessage({ id: 'appUpgrade.btn.addon' })}
+                                </a>
+                              ] :
+                              [
+                                <a
+                                  onClick={() => {
+                                    this.showComponentVersion(item);
+                                  }}
+                                >
+                                  {formatMessage({ id: 'appUpgrade.btn.addon' })}
+                                </a>
+                              ]
                           )}
                         >
                           <List.Item.Meta

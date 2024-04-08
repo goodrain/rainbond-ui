@@ -169,8 +169,8 @@ export default {
                     ...defaultTargetArr,
                     ...defaultTargetOperationArr,
                     ...[
-                        'copy',
                         'visit_web_terminal',
+                        'service_monitor',
                         'telescopic',
                         'env',
                         'rely',
@@ -178,12 +178,8 @@ export default {
                         'port',
                         'plugin',
                         'source',
-                        'deploy_type',
-                        'characteristic',
-                        'health',
-                        'service_monitor',
-                        'maven_setting',
-                        'safety'
+                        'safety',
+                        'other_setting'
                     ]
                 ];
                 break;
@@ -228,6 +224,7 @@ export default {
                     ...defaultOperationArr,
                     ...[
                         'isVisitWebTerminal',
+                        'isServiceMonitor',
                         'isTelescopic',
                         'isEnv',
                         'isRely',
@@ -235,12 +232,8 @@ export default {
                         'isPort',
                         'isPlugin',
                         'isSource',
-                        'isDeploytype',
-                        'isCharacteristic',
-                        'isHealth',
-                        'isServiceMonitor',
-                        'isMavenSetting',
-                        'isSafety'
+                        'isSafety',
+                        'isOtherSetting',
                     ]
                 ];
                 break;
