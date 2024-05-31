@@ -3944,6 +3944,13 @@ binaryextensions@^2.1.2:
   resolved "https://registry.yarnpkg.com/binaryextensions/-/binaryextensions-2.3.0.tgz#1d269cbf7e6243ea886aa41453c3651ccbe13c22"
   integrity sha512-nAihlQsYGyc5Bwq6+EsubvANYGExeJKHDO3RjnvwU042fawQTQfM3Kxn7IHUXQOz4bzfwsGYYHGSvXyW4zOGLg==
 
+bindings@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.5.0.tgz#10353c9e945334bc0511a6d90b38fbc7c9c504df"
+  integrity sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
+  dependencies:
+    file-uri-to-path "1.0.0"
+
 bizcharts-plugin-slider@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/bizcharts-plugin-slider/-/bizcharts-plugin-slider-2.1.1.tgz#1fb0333d04fceca95d7dd1a187c9ec2ad015f9f3"
@@ -4634,8 +4641,6 @@ chokidar@3.0.2:
     is-glob "^4.0.1"
     normalize-path "^3.0.0"
     readdirp "^3.1.1"
-  optionalDependencies:
-    fsevents "^2.0.6"
 
 chokidar@^2.0.0, chokidar@^2.0.4, chokidar@^2.1.8:
   version "2.1.8"
@@ -4653,8 +4658,6 @@ chokidar@^2.0.0, chokidar@^2.0.4, chokidar@^2.1.8:
     path-is-absolute "^1.0.0"
     readdirp "^2.2.1"
     upath "^1.1.1"
-  optionalDependencies:
-    fsevents "^1.2.7"
 
 chokidar@^3.3.0, chokidar@^3.4.1:
   version "3.4.3"
@@ -4668,8 +4671,6 @@ chokidar@^3.3.0, chokidar@^3.4.1:
     is-glob "~4.0.1"
     normalize-path "~3.0.0"
     readdirp "~3.5.0"
-  optionalDependencies:
-    fsevents "~2.1.2"
 
 chownr@^1.0.1, chownr@^1.1.1, chownr@^1.1.4:
   version "1.1.4"
@@ -6687,12 +6688,12 @@ ecc-jsbn@~0.1.1:
     safer-buffer "^2.1.0"
 
 echarts@^5.1.2:
-  version "5.5.0"
-  resolved "https://registry.npmjs.org/echarts/-/echarts-5.5.0.tgz#c13945a7f3acdd67c134d8a9ac67e917830113ac"
-  integrity sha512-rNYnNCzqDAPCr4m/fqyUFv7fD9qIsd50S6GDFgO1DxZhncCsNsG7IfUlAlvZe5oSEQxtsjnHiUuppzccry93Xw==
+  version "5.1.2"
+  resolved "https://registry.nlark.com/echarts/download/echarts-5.1.2.tgz#aa1ab0cef5b74fa2f7c620261a5f286893d30fd1"
+  integrity sha1-qhqwzvW3T6L3xiAmGl8oaJPTD9E=
   dependencies:
-    tslib "2.3.0"
-    zrender "5.5.0"
+    tslib "2.0.3"
+    zrender "5.1.1"
 
 editions@^2.2.0:
   version "2.3.1"
@@ -8099,6 +8100,11 @@ file-loader@^1.1.6:
     loader-utils "^1.0.2"
     schema-utils "^0.4.5"
 
+file-uri-to-path@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
+  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
+
 filelist@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/filelist/-/filelist-1.0.1.tgz#f10d1a3ae86c1694808e8f20906f43d4c9132dbb"
@@ -8512,11 +8518,6 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
-
-fsevents@^1.2.7, fsevents@^2.0.6, fsevents@~2.1.2:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.2.1.tgz#1fb02ded2036a8ac288d507a65962bd87b97628d"
-  integrity sha512-bTLYHSeC0UH/EFXS9KqWnXuOl/wHK5Z/d+ghd5AsFMYN7wIGkUCOJyzy88+wJKkZPGON8u4Z9f6U4FdgURE9qA==
 
 function-bind@^1.1.1, function-bind@~1.1.1:
   version "1.1.1"
@@ -10674,8 +10675,6 @@ jest-haste-map@^24.9.0:
     micromatch "^3.1.10"
     sane "^4.0.3"
     walker "^1.0.7"
-  optionalDependencies:
-    fsevents "^1.2.7"
 
 jest-jasmine2@^24.9.0:
   version "24.9.0"
@@ -12567,6 +12566,11 @@ mute-stream@0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
+
+nan@^2.12.1:
+  version "2.14.2"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
+  integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
 nanoid@^3.1.20:
   version "3.1.20"
@@ -19109,10 +19113,10 @@ tsconfig-paths@^3.9.0:
     minimist "^1.2.0"
     strip-bom "^3.0.0"
 
-tslib@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
-  integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+tslib@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.nlark.com/tslib/download/tslib-2.0.3.tgz?cache=0&sync_timestamp=1628722556410&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ftslib%2Fdownload%2Ftslib-2.0.3.tgz#8e0741ac45fc0c226e58a17bfc3e64b9bc6ca61c"
+  integrity sha1-jgdBrEX8DCJuWKF7/D5kubxsphw=
 
 tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.2:
   version "1.14.1"
@@ -21290,12 +21294,12 @@ yup@^0.27.0:
     synchronous-promise "^2.0.6"
     toposort "^2.0.2"
 
-zrender@5.5.0:
-  version "5.5.0"
-  resolved "https://registry.npmjs.org/zrender/-/zrender-5.5.0.tgz#54d0d6c4eda81a96d9f60a9cd74dc48ea026bc1e"
-  integrity sha512-O3MilSi/9mwoovx77m6ROZM7sXShR/O/JIanvzTwjN3FORfLSr81PsUGd7jlaYOeds9d8tw82oP44+3YucVo+w==
+zrender@5.1.1:
+  version "5.1.1"
+  resolved "https://registry.nlark.com/zrender/download/zrender-5.1.1.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fzrender%2Fdownload%2Fzrender-5.1.1.tgz#0515f4f8cc0f4742f02a6b8819550a6d13d64c5c"
+  integrity sha1-BRX0+MwPR0LwKmuIGVUKbRPWTFw=
   dependencies:
-    tslib "2.3.0"
+    tslib "2.0.3"
 
 zscroller@~0.4.0:
   version "0.4.8"
