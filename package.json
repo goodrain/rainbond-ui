@@ -140,5 +140,9 @@
   "resolutions": {
     "**/**/fsevents": "^2.0.6",
     "**/**/node-gyp": "5.0.0"
+  },
+  "optionalDependencies": {
+    "nightmare": "2.10.0",
+    "fsevents": "^2.3.2"
   }
 }
