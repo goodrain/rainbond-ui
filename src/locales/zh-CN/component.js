@@ -942,6 +942,7 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.key':'请输入对应的key,value',
     'componentOverview.body.Kubernetes.content':'请编辑内容',
     'componentOverview.body.Kubernetes.input':'请输入serviceAccountName属性',
+    'componentOverview.body.Kubernetes.input_cmd':'请输入cmd属性',
     'componentOverview.body.Kubernetes.privileged':'是否开启 {type} 属性',
     'componentOverview.body.Kubernetes.Cancel':'取 消',
     'componentOverview.body.Kubernetes.Confirm':'确 认',
