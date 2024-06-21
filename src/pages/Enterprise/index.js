@@ -54,6 +54,7 @@ import cookie from '../../utils/cookie';
 import Rke from '../../../public/images/rke.svg'
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
+import { fetchAllVersion } from '../../services/api'
 import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'
@@ -117,6 +118,7 @@ export default class Enterprise extends PureComponent {
     const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     this.loading();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
+    // 判断window.sessionStorage存储内是否有isShowUpdateVersion
     if (isShowUpdateVersion === null) {
       this.fetchAllVersion()
     }
@@ -129,21 +131,18 @@ export default class Enterprise extends PureComponent {
   fetchAllVersion = () => {
     const {dispatch, rainbondInfo} = this.props
     const currentVersion = rainbondInfo.version.value.split('-')[0]
-    dispatch({
-      type: 'global/fetchAllVersion',
-      callback: res => {
-        if (res && res.response_data) {
-          res.response_data.forEach((item, index) => {
-            if (item.split('-')[0] === currentVersion && index !== 0) {
-              window.sessionStorage.setItem('isShowUpdateVersion', 'v5.15.1')
-              this.setState({
-                isVersionUpdate: true,
-              })
-            }
-          })
-        }
+    fetchAllVersion().then(res => {
+      if (res) {
+        res.forEach((item, index) => {
+          if (item.split('-')[0] === currentVersion && index !== 0) {
+            window.sessionStorage.setItem('isShowUpdateVersion', currentVersion)
+            this.setState({
+              isVersionUpdate: true,
+            })
+          }
+        })
       }
-    })
+    }).catch(e => {console.log(e)})
   }
   handleRouteupdate = () => {
     const { dispatch } = this.props
@@ -1311,7 +1310,7 @@ export default class Enterprise extends PureComponent {
         {
           isVersionUpdate && (
             <Modal
-              title="有新版本更新"
+              title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
               visible
               onOk={this.handleRouteupdate}
               onCancel={() => {
@@ -1320,7 +1319,7 @@ export default class Enterprise extends PureComponent {
                 })
               }}
             >
-              <p>确定要去更新新版本吗?</p>
+              <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
             </Modal>
           )
         }

@@ -118,6 +118,9 @@ const enterpriseOverview = {
     'enterpriseOverview.overview.InstallStep.Docking': '对接应用市场,获取授权',
     'enterpriseOverview.overview.InstallStep.demo': '查看演示示例',
     'enterpriseOverview.overview.InstallStep.start': '马上开始',
+    // 版本更新弹窗
+    'enterpriseOverview.overview.UpdateVersion.title': '有新版本更新',
+    'enterpriseOverview.overview.UpdateVersion.tip': '要去更新新版本吗?',
 
 }
 //应用市场

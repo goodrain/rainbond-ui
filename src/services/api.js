@@ -1566,43 +1566,39 @@ export async function checkHubLink(body, handleError) {
   );
 }
 // 获取所有主机版本数据
-export async function fetchAllVersion(handleError) {
-  return request(
-    `${apiconfig.baseUrl}/api/versions`,
-    {
-      method: 'get',
-      handleError
-    }
-  );
+export async function fetchAllVersion() {
+  try {
+    const data = await fetch('https://update.goodrain.com/api/versions', {
+      method: 'GET'
+    })
+    return data.json()
+  } catch {}
 } 
 // 获取某个主机版本详情
-export async function fetchVersionDetails(body, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/api/versions/${body.version}`,
-    {
-      method: 'get',
-      handleError
-    }
-  );
+export async function fetchVersionDetails(version) {
+  try {
+    const data = await fetch(`https://update.goodrain.com/api/versions/${version}`, {
+      method: 'GET'
+    })
+    return data.json()
+  } catch {}
 }
 // 获取某个主机版本data
-export async function fetchVersionData(body, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/api/update/${body.version}`,
-    {
-      method: 'get',
-      handleError
-    }
-  )
+export async function fetchVersionData(version) {
+  try {
+    const data = await fetch(`https://update.goodrain.com/api/update/${version}`, {
+      method: 'GET'
+    })
+    return data.json()
+  } catch {}
 } 
 // 更新某个主机版本
-export async function updateVersion(body, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/console/update`,
-    {
-      method: 'post',
-      data: body.data,
-      handleError
-    }
-  )
+export async function updateVersion(body_data) {
+  try {
+    const data = await fetch(`https://update.goodrain.com/api/update`, {
+      method: 'POST',
+      body: JSON.stringify(body_data),
+    })
+    return data.json()
+  } catch {}
 }

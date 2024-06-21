@@ -118,10 +118,6 @@ import {
   updatePlatformImageHub,
   deletePlatformImageHub,
   checkHubLink,
-  fetchAllVersion,
-  fetchVersionDetails,
-  fetchVersionData,
-  updateVersion,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -998,30 +994,6 @@ export default {
     },
     *checkHubLink({ payload, callback, handleError }, { put, call }) {
       const response = yield call(checkHubLink, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *fetchAllVersion({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(fetchAllVersion, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *fetchVersionDetails({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(fetchVersionDetails, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *fetchVersionData({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(fetchVersionData, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *updateVersion({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(updateVersion, payload, handleError);
       if (callback) {
         callback(response);
       }

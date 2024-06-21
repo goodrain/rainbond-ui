@@ -43,6 +43,7 @@ export default class EnterpriseSetting extends PureComponent {
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
     }
+    // 判断地址栏是否有showupdate, 存在显示版本更新列表
     if (location.query.showupdate) {
       this.setState({activeKey: 'updateversion'})
     }

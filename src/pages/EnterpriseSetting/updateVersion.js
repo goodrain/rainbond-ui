@@ -14,6 +14,7 @@ import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import ReactMarkdown from 'react-markdown';
+import { fetchAllVersion, fetchVersionDetails, fetchVersionData, updateVersion } from '../../services/api'
 import styles from './index.less'
 
 const { Panel } = Collapse;
@@ -38,47 +39,45 @@ export default class UpdateVersion extends PureComponent {
   componentDidMount () {
     this.fetchAllVersion()
   }
+  // 获取全部主机版本
   fetchAllVersion = () => {
-    const { dispatch, rainbondInfo } = this.props
+    const { rainbondInfo } = this.props
     const { activeKey, isShowComplete } = this.state
     const currentVersion = rainbondInfo.version.value.split('-')[0]
 
-    dispatch({
-      type: 'global/fetchAllVersion',
-      callback: res => {
-        if (res && res.response_data) {
-          let list = res.response_data
-          const filterList = list.filter(item => item.split('-')[0] === currentVersion)
-          if (isShowComplete === 'complete') {
-            this.setState({
-              isShowComplete: 'not_start',
-            })
-          }
-          if (list[0].split('-')[0] === currentVersion || filterList.length === 0) {
-            this.setState({
-              isShowVersionList: false
-            })
-          } else {
-            this.setState({
-              activeKey: list[0]
-            }, () => {
-              this.fetchVersionDetails(list[0])
-            })
-            list.forEach((item, index) => {
-              if (item.split('-')[0] === currentVersion && index !== 0) {
-                this.setState({
-                  loading: false,
-                  versionList: list.slice(0, index)
-                })
-              }
-            })
-          }
+    fetchAllVersion().then(res => {
+      if (res) {
+        let list = res
+        const filterList = list.filter(item => item.split('-')[0] === currentVersion)
+        if (isShowComplete === 'complete') {
+          this.setState({
+            isShowComplete: 'not_start',
+          })
+        }
+        if (list[0].split('-')[0] === currentVersion || filterList.length === 0) {
+          this.setState({
+            isShowVersionList: false
+          })
+        } else {
+          this.setState({
+            activeKey: list[0]
+          }, () => {
+            this.fetchVersionDetails(list[0])
+          })
+          list.forEach((item, index) => {
+            if (item.split('-')[0] === currentVersion && index !== 0) {
+              this.setState({
+                loading: false,
+                versionList: list.slice(0, index)
+              })
+            }
+          })
         }
       }
-    })
+    }).catch(e => {console.log(e)})
   }
+  // 获取主机版本详情
   fetchVersionDetails = (version) => {
-    const { dispatch } = this.props
     const { activeKey } = this.state
 
     if (version === undefined) {
@@ -91,20 +90,16 @@ export default class UpdateVersion extends PureComponent {
       activeKey: '',
       isShowContent: false
     }, () => {
-      dispatch({
-        type: 'global/fetchVersionDetails',
-        payload: {
-          version
-        },
-        callback: res => {
+      fetchVersionDetails(version).then(res => {
+        if (res && res.body) {
           this.setState({
             activeKey: version,
             isShowContent: true,
-            details: res.response_data.body,
+            details: res.body,
             submit_version: version.split('-')[0],
           })
         }
-      })
+      }).catch(e => {console.log(e)})
     })
   }
   handleSumbit = () => {
@@ -113,7 +108,6 @@ export default class UpdateVersion extends PureComponent {
     })
   }
   fetchVersionData = () => {
-    const { dispatch } = this.props
     const { isShowComplete, activeKey } = this.state
     if (isShowComplete === 'not_start') {
       this.setState({
@@ -121,17 +115,11 @@ export default class UpdateVersion extends PureComponent {
         isShowModalClose: false,
         isShowModalFooter: false,
       }, () => {
-        dispatch({
-          type: 'global/fetchVersionData',
-          payload: {
-            version: activeKey,
-          },
-          callback: res => {
-            if (res && res.response_data) {
-              this.UpdateVersion(res.response_data)
-            }
+        fetchVersionData(activeKey).then(res => {
+          if (res) {
+            this.updateVersion(res)
           }
-        })
+        }).catch(e => {console.log(e)})
       })
     }
     if (isShowComplete === 'complete') {
@@ -142,26 +130,17 @@ export default class UpdateVersion extends PureComponent {
       })
     }
   }
-  UpdateVersion = (data) => {
-    const { dispatch, rainbondInfo, enterprise: {enterprise_id} } = this.props
-    const { versionList } = this.state
-    const currentVersion = rainbondInfo.version.value.split('-')[0]
-
-    dispatch({
-      type: 'global/updateVersion',
-      payload: {
-        data
-      },
-      callback: res => {
-        if (res && res.response_data && res.response_data.code === 200) {
-          this.setState({
-            isShowComplete: 'complete',
-            isShowModalClose: true,
-            isShowModalFooter: true,
-          })
-        }
+  // 更新主机版本
+  updateVersion = (data) => {
+    updateVersion(data).then(res => {
+      if (res && res.code === 200) {
+        this.setState({
+          isShowComplete: 'complete',
+          isShowModalClose: true,
+          isShowModalFooter: true,
+        })
       }
-    })
+    }).catch(e => {console.log(e)})
   }
   handleCancel = () => {
     this.setState({
@@ -182,11 +161,7 @@ export default class UpdateVersion extends PureComponent {
     const handleVersionSvg = (item) => (
       <div className={styles.svg_style}>
         <Tooltip title={formatMessage({ id: 'enterpriseSetting.updateVersion.tooltip.title' })}>
-          <svg viewBox="0 0 1024 1024" width="14" height="14">
-            <path d="M512 0a512 512 0 1 1 0 1024A512 512 0 0 1 512 0z m0 85.333333a426.666667 426.666667 0 1 0 0 853.333334A426.666667 426.666667 0 0 0 512 85.333333z m0 597.333334a85.333333 85.333333 0 1 1 0 170.666666 85.333333 85.333333 0 0 1 0-170.666666z m0-512a79.872 79.872 0 0 1 79.616 85.162666l-18.944 284.757334a60.842667 60.842667 0 0 1-121.344 0l-18.944-284.757334A79.872 79.872 0 0 1 512 170.666667z"
-              fill={globalUtil.getPublicColor()}
-              p-id="6210" />
-          </svg>
+          {globalUtil.fetchSvg('updateVersion')}
         </Tooltip>
         <span>{item}</span>
       </div>
