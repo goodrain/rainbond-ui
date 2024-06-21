@@ -54,6 +54,7 @@ import cookie from '../../utils/cookie';
 import Rke from '../../../public/images/rke.svg'
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
+import { fetchAllVersion } from '../../services/api'
 import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'
@@ -103,6 +104,7 @@ export default class Enterprise extends PureComponent {
       appAlertLoding: true,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       troubleshootVisible: false,
+      isVersionUpdate: false,
     };
   }
   componentWillMount() {
@@ -113,13 +115,43 @@ export default class Enterprise extends PureComponent {
     }
   }
   componentDidMount() {
+    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     this.loading();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
+    // 判断window.sessionStorage存储内是否有isShowUpdateVersion
+    if (isShowUpdateVersion === null) {
+      this.fetchAllVersion()
+    }
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
     // 组件销毁  清除定时器
     clearTimeout(this.interval)
+  }
+  fetchAllVersion = () => {
+    const {dispatch, rainbondInfo} = this.props
+    const currentVersion = rainbondInfo.version.value.split('-')[0]
+    fetchAllVersion().then(res => {
+      if (res) {
+        res.forEach((item, index) => {
+          if (item.split('-')[0] === currentVersion && index !== 0) {
+            window.sessionStorage.setItem('isShowUpdateVersion', currentVersion)
+            this.setState({
+              isVersionUpdate: true,
+            })
+          }
+        })
+      }
+    }).catch(e => {console.log(e)})
+  }
+  handleRouteupdate = () => {
+    const { dispatch } = this.props
+    const { eid } = this.state
+    this.setState({
+      isVersionUpdate: false
+    }, () => {
+      dispatch(routerRedux.push(`/enterprise/${eid}/setting?showupdate=true`));
+    })
   }
   // 获取新手引导的配置
   handleLoadNewGuideConfig = () => {
@@ -1231,7 +1263,8 @@ export default class Enterprise extends PureComponent {
       eid,
       isNewbieGuide,
       showClusterIntroduced,
-      clusters
+      clusters,
+      isVersionUpdate
     } = this.state;
     const { rainbondInfo } = this.props;
     return (
@@ -1274,6 +1307,22 @@ export default class Enterprise extends PureComponent {
               onViewInstance={this.onViewInstance}
             />
           )} */}
+        {
+          isVersionUpdate && (
+            <Modal
+              title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
+              visible
+              onOk={this.handleRouteupdate}
+              onCancel={() => {
+                this.setState({
+                  isVersionUpdate: false
+                })
+              }}
+            >
+              <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
+            </Modal>
+          )
+        }
         <CustomFooter />
       </div>
     );

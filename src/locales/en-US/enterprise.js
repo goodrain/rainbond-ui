@@ -117,6 +117,9 @@ const enterpriseOverview = {
     'enterpriseOverview.overview.InstallStep.Docking': 'Connect with the application market and obtain authorization',
     'enterpriseOverview.overview.InstallStep.demo': 'Demo',
     'enterpriseOverview.overview.InstallStep.start': 'Start now',
+    // Version update popup window
+    'enterpriseOverview.overview.UpdateVersion.title': 'There are new version updates',
+    'enterpriseOverview.overview.UpdateVersion.tip': 'Want to update a new version?',
 
 }
 //应用市场
@@ -555,9 +558,10 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.checking':'Checking...',
     'enterpriseColony.addCluster.host.await_check':'Wait for detection',
     'enterpriseColony.addCluster.host.ip': 'Externel IP',
-    'enterpriseColony.addCluster.host.Intranet_ip': ' Internal IP',
-    'enterpriseColony.addCluster.host.ssh': 'SSH Port',
+    'enterpriseColony.addCluster.host.Intranet_ip': 'User',
+    'enterpriseColony.addCluster.host.ssh': 'User Password',
     'enterpriseColony.addCluster.host.Node_type': 'NodeType',
+    'enterpriseColony.addCluster.host.Detection_status': 'Detection status',
     'enterpriseColony.addCluster.host.operation': 'Operation',
     'enterpriseColony.addCluster.host.delete': 'Are you sure you want to delete?',
     'enterpriseColony.addCluster.host.Configure_cluster': 'Configure cluster',
@@ -922,7 +926,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.dispatch': 'Dispatch',
     'enterpriseColony.mgt.cluster.banDispatch': 'Prohibit dispatching',
     'enterpriseColony.mgt.cluster.evacuation': 'Evacuate',
-    'enterpriseColony.mgt.cluster.editNode': 'Edit Node',
+    'enterpriseColony.mgt.cluster.delete_node': 'Delete Node',
+    'enterpriseColony.mgt.cluster.addNode': 'Add Node',
     'enterpriseColony.mgt.cluster.totalCpu': 'Total CPU: ',
     'enterpriseColony.mgt.cluster.totalMemory': 'Total Memory :',
     'enterpriseColony.mgt.cluster.totalStore': 'Total Storage:',
@@ -1009,6 +1014,8 @@ const enterpriseSetting = {
     'enterpriseSetting.TabPane.basicsSetting': 'Basic settings',
     'enterpriseSetting.TabPane.enterpriseAdmin': 'Enterprise administrator',
     'enterpriseSetting.TabPane.dataBackups': 'Data backup',
+    'enterpriseSetting.TabPane.mirrorWarehouse': 'Mirror warehouse', 
+    'enterpriseSetting.TabPane.updateVersion': 'Version update',
     // tabs>TabPane>basicsSetting
     'enterpriseSetting.basicsSetting.login.title': 'User registration',
     'enterpriseSetting.basicsSetting.login.content': 'Controls whether users can register functions.',
@@ -1101,6 +1108,15 @@ const enterpriseSetting = {
     'enterpriseSetting.BackupManage.importBackups.title': 'Confirming Data Recovery',
     'enterpriseSetting.BackupManage.importBackups.alert': 'Backup data restoration is a risky operation. This operation is recommended for cross-platform data migration scenarios, and the original restoration is performed only increments. If you do proceed, you will need to verify your identity twice.',
     'enterpriseSetting.BackupManage.importBackups.form.label.password': 'Account password',
+    // tabs>TabPane>updateVersion
+    'enterpriseSetting.updateVersion.alert.title': 'The current version is {title}. Please read the version details carefully to check whether it is updated',
+    'enterpriseSetting.updateVersion.collapse.panel.title': 'View more',
+    'enterpriseSetting.updateVersion.modal.title': 'Warm reminder',
+    'enterpriseSetting.updateVersion.modal.content_title': 'Are you sure you want to update {title}',
+    'enterpriseSetting.updateVersion.modal.content_desc': 'The update cannot be paused or canceled. Please read the updated version description carefully',
+    'enterpriseSetting.updateVersion.result.update_title': 'Do not operate while updating...',
+    'enterpriseSetting.updateVersion.result.update_success': 'Update successfully',
+    'enterpriseSetting.updateVersion.tooltip.title': 'Version number',
 }
 //个人中心
 const otherEnterprise = {
