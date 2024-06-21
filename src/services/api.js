@@ -1565,3 +1565,44 @@ export async function checkHubLink(body, handleError) {
     }
   );
 }
+// 获取所有主机版本数据
+export async function fetchAllVersion(handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api/versions`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+} 
+// 获取某个主机版本详情
+export async function fetchVersionDetails(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api/versions/${body.version}`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 获取某个主机版本data
+export async function fetchVersionData(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api/update/${body.version}`,
+    {
+      method: 'get',
+      handleError
+    }
+  )
+} 
+// 更新某个主机版本
+export async function updateVersion(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/update`,
+    {
+      method: 'post',
+      data: body.data,
+      handleError
+    }
+  )
+}

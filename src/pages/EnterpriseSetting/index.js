@@ -10,6 +10,7 @@ import Infrastructure from './infrastructure';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import Management from './management';
 import ImageWarehouse from './imageWarehouse';
+import UpdateVersion from './updateVersion';
 import styles from "./index.less"
 
 
@@ -38,9 +39,12 @@ export default class EnterpriseSetting extends PureComponent {
   }
   componentWillMount() {
     const { adminer } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, location } = this.props;
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
+    }
+    if (location.query.showupdate) {
+      this.setState({activeKey: 'updateversion'})
     }
   }
   onChange = key => {
@@ -104,12 +108,23 @@ export default class EnterpriseSetting extends PureComponent {
             tab={
               <div>
               {/* 镜像仓库 */}
-              镜像仓库
+                <FormattedMessage id='enterpriseSetting.TabPane.mirrorWarehouse'/>
               </div>
             } 
             key="image"
           >
             <ImageWarehouse {...this.props} />
+          </TabPane>
+          <TabPane
+            tab={
+              <div>
+                {/* 版本更新 */}
+                <FormattedMessage id='enterpriseSetting.TabPane.updateVersion'/>
+              </div>
+            }
+            key="updateversion"
+          >
+            <UpdateVersion {...this.props} />
           </TabPane>
         </Tabs>
       </PageHeaderLayout>

@@ -103,6 +103,7 @@ export default class Enterprise extends PureComponent {
       appAlertLoding: true,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       troubleshootVisible: false,
+      isVersionUpdate: false,
     };
   }
   componentWillMount() {
@@ -113,13 +114,45 @@ export default class Enterprise extends PureComponent {
     }
   }
   componentDidMount() {
+    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     this.loading();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
+    if (isShowUpdateVersion === null) {
+      this.fetchAllVersion()
+    }
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
     // 组件销毁  清除定时器
     clearTimeout(this.interval)
+  }
+  fetchAllVersion = () => {
+    const {dispatch, rainbondInfo} = this.props
+    const currentVersion = rainbondInfo.version.value.split('-')[0]
+    dispatch({
+      type: 'global/fetchAllVersion',
+      callback: res => {
+        if (res && res.response_data) {
+          res.response_data.forEach((item, index) => {
+            if (item.split('-')[0] === currentVersion && index !== 0) {
+              window.sessionStorage.setItem('isShowUpdateVersion', 'v5.15.1')
+              this.setState({
+                isVersionUpdate: true,
+              })
+            }
+          })
+        }
+      }
+    })
+  }
+  handleRouteupdate = () => {
+    const { dispatch } = this.props
+    const { eid } = this.state
+    this.setState({
+      isVersionUpdate: false
+    }, () => {
+      dispatch(routerRedux.push(`/enterprise/${eid}/setting?showupdate=true`));
+    })
   }
   // 获取新手引导的配置
   handleLoadNewGuideConfig = () => {
@@ -1231,7 +1264,8 @@ export default class Enterprise extends PureComponent {
       eid,
       isNewbieGuide,
       showClusterIntroduced,
-      clusters
+      clusters,
+      isVersionUpdate
     } = this.state;
     const { rainbondInfo } = this.props;
     return (
@@ -1274,6 +1308,22 @@ export default class Enterprise extends PureComponent {
               onViewInstance={this.onViewInstance}
             />
           )} */}
+        {
+          isVersionUpdate && (
+            <Modal
+              title="有新版本更新"
+              visible
+              onOk={this.handleRouteupdate}
+              onCancel={() => {
+                this.setState({
+                  isVersionUpdate: false
+                })
+              }}
+            >
+              <p>确定要去更新新版本吗?</p>
+            </Modal>
+          )
+        }
         <CustomFooter />
       </div>
     );

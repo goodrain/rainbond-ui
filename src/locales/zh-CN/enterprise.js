@@ -556,9 +556,10 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.checking':'检测中...',
     'enterpriseColony.addCluster.host.await_check':'等待检测',
     'enterpriseColony.addCluster.host.ip':'IP 地址',
-    'enterpriseColony.addCluster.host.Intranet_ip':' 内网 IP 地址',
-    'enterpriseColony.addCluster.host.ssh':'SSH 端口',
+    'enterpriseColony.addCluster.host.Intranet_ip':'账号',
+    'enterpriseColony.addCluster.host.ssh':'账号密码',
     'enterpriseColony.addCluster.host.Node_type':'节点类型',
+    'enterpriseColony.addCluster.host.Detection_status': '检测状态',
     'enterpriseColony.addCluster.host.operation':'操作',
     'enterpriseColony.addCluster.host.delete':'确定要删除吗?',
     'enterpriseColony.addCluster.host.Configure_cluster':'配置集群',
@@ -924,7 +925,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.dispatch':'调度',
     'enterpriseColony.mgt.cluster.banDispatch':'禁止调度',
     'enterpriseColony.mgt.cluster.evacuation':'排空',
-    'enterpriseColony.mgt.cluster.editNode':'编辑节点',
+    'enterpriseColony.mgt.cluster.delete_node': '删除节点',
+    'enterpriseColony.mgt.cluster.addNode':'添加节点',
     'enterpriseColony.mgt.cluster.totalCpu':'CPU总量：',
     'enterpriseColony.mgt.cluster.totalMemory':'内存总量：',
     'enterpriseColony.mgt.cluster.totalStore':'存储总量：',
@@ -1012,6 +1014,8 @@ const enterpriseSetting = {
     'enterpriseSetting.TabPane.basicsSetting': '基础设置',
     'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员管理',
     'enterpriseSetting.TabPane.dataBackups': '数据备份',
+    'enterpriseSetting.TabPane.mirrorWarehouse': '镜像仓库', 
+    'enterpriseSetting.TabPane.updateVersion': '版本更新',
     // tabs>TabPane>basicsSetting
     'enterpriseSetting.basicsSetting.login.title': '用户注册',
     'enterpriseSetting.basicsSetting.login.content': '控制用户是否可以注册功能。',
@@ -1104,6 +1108,15 @@ const enterpriseSetting = {
     'enterpriseSetting.BackupManage.importBackups.title': '确认恢复数据',
     'enterpriseSetting.BackupManage.importBackups.alert': '备份数据恢复是一个危险的操作，该操作最好用于数据跨平台迁移场景，原地还原仅做增量动作。如果确定进行，需要二次验证您的身份。',
     'enterpriseSetting.BackupManage.importBackups.form.label.password': '账号密码',
+    // tabs>TabPane>updateVersion
+    'enterpriseSetting.updateVersion.alert.title': '当前版本为{title}, 请仔细阅读版本详情确认是否更新',
+    'enterpriseSetting.updateVersion.collapse.panel.title': '查看更多',
+    'enterpriseSetting.updateVersion.modal.title': '温馨提示',
+    'enterpriseSetting.updateVersion.modal.content_title': '确定要更新{title}版本吗？',
+    'enterpriseSetting.updateVersion.modal.content_desc': '更新开始不可以暂停或者取消, 请仔细阅读更新版本的详情描述',
+    'enterpriseSetting.updateVersion.result.update_title': '更新中请勿操作...',
+    'enterpriseSetting.updateVersion.result.update_success': '更新成功',
+    'enterpriseSetting.updateVersion.tooltip.title': '版本号',
 }
 //个人中心
 const otherEnterprise= {
