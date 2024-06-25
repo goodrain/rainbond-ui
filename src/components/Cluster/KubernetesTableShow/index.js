@@ -78,7 +78,6 @@ export default class KubernetesClusterShow extends PureComponent {
       type: 'cloud/deleteKubernetesCluster',
       payload: {
         enterprise_id: eid,
-        providerName: selectProvider,
         clusterID
       },
       callback: () => {
@@ -281,6 +280,14 @@ export default class KubernetesClusterShow extends PureComponent {
         }
       },
       {
+        title: formatMessage({id:'enterpriseColony.addCluster.host.state'}),
+        width: 150,
+        dataIndex: 'state',
+        render: (text, row) => {
+          return cloud.getAliyunClusterStatus(text, row, linkedClusters);
+        }
+      },
+      {
         title: formatMessage({id:'enterpriseColony.addCluster.host.name'}),
         width: 120,
         dataIndex: 'name',
@@ -330,14 +337,6 @@ export default class KubernetesClusterShow extends PureComponent {
       title: formatMessage({id:'enterpriseColony.addCluster.host.current_version'}),
       width: 250,
       dataIndex: 'current_version'
-    });
-    columns.push({
-      title: formatMessage({id:'enterpriseColony.addCluster.host.state'}),
-      width: 150,
-      dataIndex: 'state',
-      render: (text, row) => {
-        return cloud.getAliyunClusterStatus(text, row, linkedClusters);
-      }
     });
     columns.push({
       title: formatMessage({id:'enterpriseColony.addCluster.host.cluster_id'}),

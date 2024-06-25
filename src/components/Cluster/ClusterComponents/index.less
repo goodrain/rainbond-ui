@@ -134,3 +134,27 @@
   height: 410px;
   overflow: auto;
 }
+.container_style {
+  padding-bottom: 24px;
+  :global {
+    .ant-spin {
+      max-height: 100% !important;
+    }
+  }
+}
+.componentState_style {
+  height: 40px;
+  color: @rbd-sub-title-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  :global {
+    .anticon {
+      font-size: 18px !important;
+    }
+    .ant-col:nth-child(2) {
+      span {
+        font-size: 18px !important;
+      }
+    }
+  }
+}

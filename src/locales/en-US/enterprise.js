@@ -660,6 +660,15 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.cluster': 'You can select a running cluster',
     'enterpriseColony.addCluster.host.Rainbond': 'The Rainbond cluster service starts',
     'enterpriseColony.addCluster.host.install': ' Initialize installation ',
+    // ShowNodeComponent
+    'enterpriseColony.ShowNodeComponent.node_com': 'Node component',
+    'enterpriseColony.ShowNodeComponent.cluter_com': 'Kubernetes cluster component',
+    'enterpriseColony.ShowNodeComponent.role': 'roles',
+    'enterpriseColony.ShowNodeComponent.version': 'version',
+    'enterpriseColony.ShowNodeComponent.external_iP': 'External IP',
+    'enterpriseColony.ShowNodeComponent.internal_iP': 'Internal IP',
+    'enterpriseColony.ShowNodeComponent.arch': 'Arch',
+    'enterpriseColony.ShowNodeComponent.container_version': 'ContainerRunTimeVersion',
     // ShowKubernetesCreateDetail
     'enterpriseColony.ShowKubernetesCreateDetail.msg': 'The cluster installation process takes about 10 minutes. If any error occurs, report it to the community',
     'enterpriseColony.ShowKubernetesCreateDetail.title': 'Cluster creation progress',
@@ -674,6 +683,7 @@ const enterpriseColony = {
     'enterpriseColony.ClusterProgressQuery.over': 'Finished',
     'enterpriseColony.ClusterProgressQuery.hand': 'In Progress',
     'enterpriseColony.ClusterProgressQuery.creat_log': 'Cluster creation log',
+    'enterpriseColony.ClusterProgressQuery.cluster_state': 'Detecting cluster status',
     // ClusterComponents
     'enterpriseColony.ClusterComponents.Name': 'Namespace:',
     'enterpriseColony.ClusterComponents.Image': 'Image:',
@@ -926,7 +936,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.dispatch': 'Dispatch',
     'enterpriseColony.mgt.cluster.banDispatch': 'Prohibit dispatching',
     'enterpriseColony.mgt.cluster.evacuation': 'Evacuate',
-    'enterpriseColony.mgt.cluster.delete_node': 'Delete Node',
+    'enterpriseColony.mgt.cluster.delete_node': 'Delete',
     'enterpriseColony.mgt.cluster.addNode': 'Add Node',
     'enterpriseColony.mgt.cluster.totalCpu': 'Total CPU: ',
     'enterpriseColony.mgt.cluster.totalMemory': 'Total Memory :',

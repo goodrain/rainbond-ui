@@ -676,6 +676,7 @@ const enterpriseColony = {
     'enterpriseColony.ClusterProgressQuery.over': '已结束',
     'enterpriseColony.ClusterProgressQuery.hand': '进行中',
     'enterpriseColony.ClusterProgressQuery.creat_log': '集群创建日志',
+    'enterpriseColony.ClusterProgressQuery.cluster_state': '检测集群状态',
     // ClusterComponents
     'enterpriseColony.ClusterComponents.Name': '命名空间：',
     'enterpriseColony.ClusterComponents.Image': '镜像：',
@@ -698,6 +699,15 @@ const enterpriseColony = {
     'enterpriseColony.ClusterComponents.created': '暂无创建出 pod',
     'enterpriseColony.ClusterComponents.details': '组件详情',
     'enterpriseColony.ClusterComponents.Rainbond': 'Rainbond集群组件',
+    // ShowNodeComponent
+    'enterpriseColony.ShowNodeComponent.node_com': '节点组件',
+    'enterpriseColony.ShowNodeComponent.cluter_com': 'K8s集群组件',
+    'enterpriseColony.ShowNodeComponent.role': '类型',
+    'enterpriseColony.ShowNodeComponent.version': '版本',
+    'enterpriseColony.ShowNodeComponent.external_iP': 'IP',
+    'enterpriseColony.ShowNodeComponent.internal_iP': '内网IP',
+    'enterpriseColony.ShowNodeComponent.arch': '结构',
+    'enterpriseColony.ShowNodeComponent.container_version': '版本容器',
     // ShowUpdateClusterDetail
     'enterpriseColony.ShowUpdateClusterDetail.title': 'Kubernetes 集群配置进度查询',
     'enterpriseColony.ShowUpdateClusterDetail.msg': '配置流程预计耗时10分钟，请耐心等待，若遇到错误请反馈到社区',
@@ -928,7 +938,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.dispatch':'调度',
     'enterpriseColony.mgt.cluster.banDispatch':'禁止调度',
     'enterpriseColony.mgt.cluster.evacuation':'排空',
-    'enterpriseColony.mgt.cluster.delete_node': '删除节点',
+    'enterpriseColony.mgt.cluster.delete_node': '删除',
     'enterpriseColony.mgt.cluster.addNode':'添加节点',
     'enterpriseColony.mgt.cluster.totalCpu':'CPU总量：',
     'enterpriseColony.mgt.cluster.totalMemory':'内存总量：',

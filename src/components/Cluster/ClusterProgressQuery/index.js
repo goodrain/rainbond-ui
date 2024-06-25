@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import modelstyles from '../../CreateTeam/index.less';
 import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
+import ShowNodeComponent from '../ShowNodeComponent'
 import styles from '../ShowKubernetesCreateDetail/index.less';
 
 @connect(({ global }) => ({
@@ -44,7 +45,9 @@ class ClusterProgressQuery extends PureComponent {
       guideStep,
       handleNewbieGuiding,
       isLog = true,
-      rainbondInfo
+      rainbondInfo,
+      isShowNodeComponent,
+      clusterList,
     } = this.props;
     const { showCreateLog, isComponents } = this.state;
 
@@ -65,10 +68,10 @@ class ClusterProgressQuery extends PureComponent {
     }
     return (
       <Modal
-        title={title}
+        title={isShowNodeComponent === 'showNode' ? formatMessage({id:'enterpriseColony.ClusterProgressQuery.cluster_state'}) : title}
         visible
         maskClosable={false}
-        width={600}
+        width={isShowNodeComponent === 'showNode' ? 1100 : 600}
         onCancel={onCancel}
         className={modelstyles.TelescopicModal}
         footer={[
@@ -97,86 +100,95 @@ class ClusterProgressQuery extends PureComponent {
             }}
           />
         )}
-        <Row loading={loading} className={styles.box}>
-          <Alert
-            style={{ marginBottom: '16px' }}
-            message={
-              <span>
-                {msg}
-                {!enterpriseEdition && (
-                  <>
-                    <a target="_blank" href="https://www.rainbond.com/community/support" style={{ padding: 0 }}>
-                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.ding'/>
-                    </a>
-                    <FormattedMessage id='enterpriseColony.ClusterProgressQuery.support'/>
-                  </>
-                )}
-              </span>
-            }
-            type="info"
-            showIcon
-          />
-          {guideStep && guideStep !== 13 && handleNewbieGuiding
-            ? handleNewbieGuiding({
-                tit: formatMessage({id:'enterpriseColony.ClusterProgressQuery.state'}),
-                btnText: formatMessage({id:'enterpriseColony.ClusterProgressQuery.Known'}),
-                configName: 'clusterTheInitialization',
-                showSvg: false,
-                conPosition: { right: '-97px', top: '88px' },
-                nextStep: 13
-              })
-            : ''}
-          <Timeline
-            loading={loading}
-            pending={
-              pending && (
-                <div>
-                  {pending}&nbsp;
-                  {showComponentText ? (
-                    <a onClick={() => this.handleIsComponents(true)}>
-                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.components'/>
-                    </a>
-                  ) : (
-                    ''
+        {
+          isShowNodeComponent !== 'showNode' ? (
+            <Row loading={loading} className={styles.box}>
+            <Alert
+              style={{ marginBottom: '16px' }}
+              message={
+                <span>
+                  {msg}
+                  {!enterpriseEdition && (
+                    <>
+                      <a target="_blank" href="https://www.rainbond.com/community/support" style={{ padding: 0 }}>
+                        <FormattedMessage id='enterpriseColony.ClusterProgressQuery.ding'/>
+                      </a>
+                      <FormattedMessage id='enterpriseColony.ClusterProgressQuery.support'/>
+                    </>
                   )}
-                </div>
-              )
-            }
-          >
-            {steps &&
-              steps.length &&
-              steps.map((item, index) => {
-                const { Status, Title, Description, Message, reason } = item;
-                return (
-                  <Timeline.Item color={item.Color} key={`step${index}`}>
-                    <h4>{Title}</h4>
-                    <p>{Description}</p>
-                    <p>{Message}</p>
-                    {reason && reason === 'NamespaceBeingTerminated' && (
-                      <Alert
-                        style={{ marginBottom: '16px' }}
-                        message= {<FormattedMessage id='enterpriseColony.ClusterProgressQuery.name'/>}
-                        type="warning"
-                        showIcon
-                      />
+                </span>
+              }
+              type="info"
+              showIcon
+            />
+            {guideStep && guideStep !== 13 && handleNewbieGuiding
+              ? handleNewbieGuiding({
+                  tit: formatMessage({id:'enterpriseColony.ClusterProgressQuery.state'}),
+                  btnText: formatMessage({id:'enterpriseColony.ClusterProgressQuery.Known'}),
+                  configName: 'clusterTheInitialization',
+                  showSvg: false,
+                  conPosition: { right: '-97px', top: '88px' },
+                  nextStep: 13
+                })
+              : ''}
+            <Timeline
+              loading={loading}
+              pending={
+                pending && (
+                  <div>
+                    {pending}&nbsp;
+                    {showComponentText ? (
+                      <a onClick={() => this.handleIsComponents(true)}>
+                        <FormattedMessage id='enterpriseColony.ClusterProgressQuery.components'/>
+                      </a>
+                    ) : (
+                      ''
                     )}
-                    {isLog && Status === 'failure' && clusterID && (
-                      <div>
-                        <Button
-                          type="link"
-                          style={{ padding: 0 }}
-                          onClick={this.queryCreateLog}
-                        >
-                          <FormattedMessage id='enterpriseColony.ClusterProgressQuery.log'/>
-                        </Button>
-                      </div>
-                    )}
-                  </Timeline.Item>
-                );
-              })}
-          </Timeline>
-          {complete && <span><FormattedMessage id='enterpriseColony.ClusterProgressQuery.over'/></span>}
-        </Row>
+                  </div>
+                )
+              }
+            >
+              {steps &&
+                steps.length &&
+                steps.map((item, index) => {
+                  const { Status, Title, Description, Message, reason } = item;
+                  return (
+                    <Timeline.Item color={item.Color} key={`step${index}`}>
+                      <h4>{Title}</h4>
+                      <p>{Description}</p>
+                      <p>{Message}</p>
+                      {reason && reason === 'NamespaceBeingTerminated' && (
+                        <Alert
+                          style={{ marginBottom: '16px' }}
+                          message= {<FormattedMessage id='enterpriseColony.ClusterProgressQuery.name'/>}
+                          type="warning"
+                          showIcon
+                        />
+                      )}
+                      {isLog && Status === 'failure' && clusterID && (
+                        <div>
+                          <Button
+                            type="link"
+                            style={{ padding: 0 }}
+                            onClick={this.queryCreateLog}
+                          >
+                            <FormattedMessage id='enterpriseColony.ClusterProgressQuery.log'/>
+                          </Button>
+                        </div>
+                      )}
+                    </Timeline.Item>
+                  );
+                })}
+            </Timeline>
+            {complete && <span><FormattedMessage id='enterpriseColony.ClusterProgressQuery.over'/></span>}
+          </Row>
+          ) : (
+            <ShowNodeComponent
+              clusterList={clusterList}
+              cluster_id={clusterID}
+            />
+          )
+        }
       </Modal>
     );
   }

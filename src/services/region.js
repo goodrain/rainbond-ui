@@ -306,3 +306,31 @@ export async function fetClusterNodeContainer(param, handleError) {
     handleError
   });
 }
+// 添加集群节点
+export async function addClusterNode(params, handleError) {
+  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes?cluster_id=${params.clusterID}`, {
+    method: 'put',
+    data: params.data,
+    handleError
+  });
+}
+// 删除集群节点
+export async function deleteClusterNode(params, handleError) {
+  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
+    method: 'put',
+    data: {
+      cluster_id : params.clusterID
+    },
+    handleError
+  });
+}
+// 获取k8s集群状态
+export async function fetchClusterStatus(params, handleError) {
+  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
+    method: 'get',
+    params: {
+      cluster_id : params.clusterID
+    },
+    handleError
+  });
+}
