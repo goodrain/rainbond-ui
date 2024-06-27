@@ -24,7 +24,7 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", 'hostAliases', "affinity", "tolerations", "serviceAccountName", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", 'hostAliases', "affinity", "tolerations", "serviceAccountName", "cmd", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
@@ -397,6 +397,19 @@ class Index extends PureComponent {
             }
             break;
 
+          case 'cmd':
+            if (value.cmd != null && value.cmd.length > 0) {
+              const label = {
+                name: selectVal,
+                save_type: "string",
+                attribute_value: value.cmd || []
+              }
+              this.handelAddOrEdit(label)
+            } else {
+              this.notificationFun()
+            }
+            break;
+
           case 'privileged':
             if (value.privileged != null) {
               const label = {
@@ -738,6 +751,21 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
+                  selectVal == "cmd" &&
+                  <Form.Item  {...formItemLayouts}>
+                    <div style={language ? {} : { marginLeft: 38 }}>
+                      <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.input_cmd' /></p>
+                      <div className={language ? styles.accountName_style : styles.en_accountName_style}>
+                        {getFieldDecorator(`${selectVal}`, {
+                          initialValue: strValue || '',
+                          rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' }), }]
+                        })(<Input placeholder={formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' })} />)}
+                      </div>
+                    </div>
+                  </Form.Item>
+                }
+                {
+                  selectVal &&
                   (selectVal == "privileged" || selectVal == 'shareProcessNamespace' || selectVal == 'hostIPC') &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
@@ -803,6 +831,15 @@ class Index extends PureComponent {
                       }
                       {item.name &&
                         (item.name == "serviceAccountName") &&
+                        item.attribute_value.length > 0 &&
+                        <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
+                          <Tooltip key={index} placement="top" title={item.attribute_value}>
+                            {item.attribute_value}
+                          </Tooltip>
+                        </div>
+                      }
+                      {item.name &&
+                        (item.name == "cmd") &&
                         item.attribute_value.length > 0 &&
                         <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
                           <Tooltip key={index} placement="top" title={item.attribute_value}>

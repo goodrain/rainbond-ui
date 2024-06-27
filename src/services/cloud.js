@@ -1,4 +1,5 @@
 import request from '../utils/request';
+import apiconfig from '../../config/api.config';
 
 /* 获取企业的cloud access key */
 export async function queryEnterpriseAccesskey(body = {}) {
@@ -170,12 +171,9 @@ export async function updateInitTaskStatus(body, handleError) {
 
 export async function deleteKubernetesCluster(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}`,
+    `${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${body.enterprise_id}/rke2/${body.clusterID}`,
     {
       method: 'delete',
-      params: {
-        provider_name: body.providerName
-      },
       handleError
     }
   );
@@ -330,4 +328,29 @@ export async function fetchCheckSsh(body, handleError) {
       handleError
     }
   );
+}
+// 新建k8s集群
+export async function AddClusterRke2(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${body.eid}/rke2`,
+    {
+      method: 'post',
+      data: {
+        name: body.name,
+        nodes: body.nodes,
+      },
+      handleError
+    }
+  )
+}
+// 检测节点账户密码是否正确
+export async function fetchCheckSshPwd(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/enterprise-server/api/v1/check_ssh_pwd`,
+    {
+      method: 'post',
+      data: body.data,
+      handleError
+    }
+  )
 }

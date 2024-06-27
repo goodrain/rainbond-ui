@@ -52,6 +52,9 @@ export default class ClusterLink extends PureComponent {
         title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
       },
       {
+        title: formatMessage({id : 'enterpriseColony.addCluster.clusterInit'})
+      },
+      {
         title: formatMessage({id:'enterpriseColony.addCluster.docking'})
       }
     ];
@@ -71,7 +74,7 @@ export default class ClusterLink extends PureComponent {
       titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
       >
         <Row style={{ marginBottom: '16px' }}>
-          <Steps current={3}>
+          <Steps current={4}>
             {this.loadSteps().map(item => (
               <Step key={item.title} title={item.title} />
             ))}

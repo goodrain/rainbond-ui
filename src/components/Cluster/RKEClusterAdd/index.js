@@ -40,7 +40,8 @@ import styles from './index.less';
 
 const { Paragraph } = Typography;
 const { TabPane } = Tabs;
-const ipRegs = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
+// const ipRegs = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}((25[0-5]|2[0-4]\d|[01]?\d\d?):){1}([1-9]\d*)$/;
+const ipRegs = /^(((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?))\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
 const portRegs = /^[1-9]\d*$/;
 
 const EditableContext = React.createContext();
@@ -106,7 +107,7 @@ class EditableCell extends React.Component {
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.Required' }, { title: title })
       },
     ];
-    const ips = dataIndex === 'ip' || dataIndex === 'internalIP';
+    const ips = dataIndex === 'ip';
     if (ips) {
       rules.push({
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.correct_IP' }),
@@ -119,13 +120,10 @@ class EditableCell extends React.Component {
     if (sshPort) {
       rules.push({
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.Correct_port' }),
-        min: 1,
-        max: 65536,
-        pattern: new RegExp(portRegs, 'g')
       });
     }
     const initialValues = record[dataIndex];
-    return editing || (ips && !initialValues) ? (
+    return editing || ('roles' && !initialValues) ? (
       <Form.Item style={{ margin: 0 }}>
         {form.getFieldDecorator(dataIndex, {
           rules,
@@ -140,21 +138,11 @@ class EditableCell extends React.Component {
                 this.save(false, dataIndex);
               }}
               allowClear
-              mode="multiple"
             >
-              <Select.Option value="controlplane"><FormattedMessage id='enterpriseColony.addCluster.host.Administration' /></Select.Option>
-              <Select.Option value="etcd">ETCD</Select.Option>
-              <Select.Option value="worker"><FormattedMessage id='enterpriseColony.addCluster.host.calculation' /></Select.Option>
+              <Select.Option value="server">server</Select.Option>
+              <Select.Option value="agent">agent</Select.Option>
+              {/* <Select.Option value="worker"><FormattedMessage id='enterpriseColony.addCluster.host.calculation' /></Select.Option> */}
             </Select>
-          ) : sshPort ? (
-            <InputNumber
-              style={{ width: '100%' }}
-              ref={node => (this.input = node)}
-              onPressEnter={this.save}
-              onBlur={this.save}
-              min={1}
-              max={65536}
-            />
           ) : (
             <Input
               placeholder={formatMessage({ id: 'enterpriseColony.addCluster.host.placese_input' }, { title: title })}
@@ -324,7 +312,7 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
   };
-  fetchRkeconfig = (obj = {}, isNext) => {
+  fetchRkeconfig = (obj = {}, isNext, fieldsValue = {}) => {
     const { form, eid } = this.props;
     const { activeKey } = this.state;
     const { setFieldsValue } = form;
@@ -380,7 +368,7 @@ export default class RKEClusterConfig extends PureComponent {
             notification.warning({ message: helpError });
           }
           if (isNext && !helpError) {
-            this.handleStartCheck(isNext);
+            this.handleStartCheck(isNext, fieldsValue, val)
           }
         }
       })
@@ -437,29 +425,27 @@ export default class RKEClusterConfig extends PureComponent {
 
   createCluster = () => {
     const { form, dispatch, eid, clusterID } = this.props;
+    const { dataSource, yamlVal } = this.state;
     if (clusterID) {
       this.updateCluster();
       return null;
     }
     form.validateFields((err, fieldsValue) => {
       if (!err) {
-        this.setState({ loading: true });
 
-        dispatch({
-          type: 'cloud/createKubernetesCluster',
-          payload: {
-            enterprise_id: eid,
-            provider_name: 'rke',
-            encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls),
-            ...fieldsValue
-          },
-          callback: data => {
-            this.handleOk(data);
-          },
-          handleError: res => {
-            this.handleError(res);
-          }
-        });
+        const etcdCount = dataSource.reduce((acc, curr) => {
+          return acc + (curr.roles.includes("etcd") ? 1 : 0);
+        }, 0);
+        // 判断 "etcd" 出现的总次数是否为奇数
+        const isOdd = etcdCount % 2 === 1;
+        if(isOdd){
+          this.setState({ loading: true });
+          this.handleCheckSsh(fieldsValue)
+        } else {
+          notification.warning({
+            message: 'etcd节点数量必须为奇数'
+          });
+        }
       }
     });
   };
@@ -507,12 +493,12 @@ export default class RKEClusterConfig extends PureComponent {
       key: Math.random(),
       ip: '',
       internalIP: '',
-      sshPort: 22,
-      roles: ['etcd', 'controlplane', 'worker']
+      sshPort: '',
+      roles: 'server'
     };
-    if (count > 2) {
-      newData.roles = ['worker'];
-    }
+    // if (count > 2) {
+    //   newData.roles = ['worker'];
+    // }
     const updata = () => {
       this.setState({
         dataSource: [...dataSource, newData],
@@ -559,9 +545,11 @@ export default class RKEClusterConfig extends PureComponent {
         return `${formatMessage({ id: 'enterpriseColony.addCluster.host.unkonw' })}`;
     }
   };
-  handleStartCheck = isNext => {
+  handleStartCheck = (isNext, fieldsValue = {}, yamls) => {
     let next = false;
+    const { eid, dispatch } = this.props;
     const { activeKey } = this.state;
+    fieldsValue.yamls = yamls || ''
     if (activeKey === '1') {
       this.handleEnvGroup(
         () => {
@@ -593,7 +581,21 @@ export default class RKEClusterConfig extends PureComponent {
       }
     });
     if (next && isNext) {
-      this.createCluster();
+      dispatch({
+        type: 'cloud/createKubernetesCluster',
+        payload: {
+          enterprise_id: eid,
+          provider_name: 'rke',
+          encodedRKEConfig: this.encodeBase64Content(fieldsValue.yamls),
+          ...fieldsValue
+        },
+        callback: data => {
+          this.handleOk(data);
+        },
+        handleError: res => {
+          this.handleError(res);
+        }
+      });
     }
   };
   handleCheck = isCheck => {
@@ -618,7 +620,7 @@ export default class RKEClusterConfig extends PureComponent {
       activeKey
     });
   };
-  handleTabs = (key, isNext = false) => {
+  handleTabs = (key, isNext = false, fieldsValue = false) => {
     const { dataSource, yamlVal } = this.state;
     const { form } = this.props;
     const { getFieldValue } = form;
@@ -630,9 +632,6 @@ export default class RKEClusterConfig extends PureComponent {
         internalIP: item.internalIP,
       }
     });
-    const jsonString = JSON.stringify(ipArr);
-    // 使用localStorage存储JSON字符串
-    window.localStorage.setItem("ipAddresses", jsonString);
     if (yamls || (dataSource && dataSource.length > 0)) {
       if (key === '2') {
         info.nodes = dataSource;
@@ -641,7 +640,7 @@ export default class RKEClusterConfig extends PureComponent {
         info.encodedRKEConfig = yamls && this.encodeBase64Content(yamls);
       }
     }
-    this.fetchRkeconfig(info, isNext);
+    this.fetchRkeconfig(info, isNext, fieldsValue);
     if (!isNext) {
       this.handleActiveKey(`${key}`);
     }
@@ -666,86 +665,145 @@ export default class RKEClusterConfig extends PureComponent {
     }, 1000);
   };
   // 检查ssh
-  handleCheckSsh = () => {
+  handleCheckSsh = (fieldsValue) => {
     const { dataSource, isCheckSsh, activeKey } = this.state;
-    const { dispatch } = this.props;
-    this.handleCheck(false)
-    dataSource.forEach(item => {
-      delete item.code;
-    });
-    this.setState({
-      isCheckStatus: true,
-      dataSource
-    })
-    let arr = []
-    for (let i = 0, l = dataSource.length; i < l; i++) {
-      let data = {
-        id: i,
-        ip: dataSource[i].ip,
-        sshPort: dataSource[i].sshPort
-      }
-      arr.push(this.getCode(data))
-    }
-    Promise.all(arr).then(values => {
-      values.map((item, index) => {
-        dataSource[index].code = item.code;
-        dataSource[index].msg = item.msg;
-        setTimeout(() => {
-          this.setState({ dataSource, isCheckSsh: !isCheckSsh }, () => {
-            if (dataSource.length === values.length) {
-              const filterArr = dataSource.filter(v => v.code != 200)
-              if (filterArr.length > 0) {
-                this.setState({
-                  isCheckStatus: false,
-                })
-              } else {
-                this.setState(
-                  {
-                    loading: true
-                  },
-                  () => {
-                    this.handleTabs(activeKey === '1' ? '2' : '1', true);
-                  }
-                );
-              }
+    const { dispatch, form, eid } = this.props;
+    let name
+    let nodeList = []
+    form.validateFields((err, values) => {
+      if (!err) {
+        name = values.name
+        this.handleCheck(false)
+        dataSource.forEach(item => {
+          delete item.code;
+        });
+        this.setState({
+          isCheckStatus: true,
+          dataSource
+        })
+        let arr = []
+        let port
+        let host
+        for (let i = 0, l = dataSource.length; i < l; i++) {
+          if (dataSource[i].ip.indexOf(':') !== -1) {
+            host = dataSource[i].ip.split(':')[0]
+            port = Number(dataSource[i].ip.split(':')[1])
+          } else {
+            host = dataSource[i].ip
+            port = 22
+          }
+          let data = {
+            id: i,
+            host: host,
+            pass: String(dataSource[i].sshPort),
+            port: port,
+            user: dataSource[i].internalIP,
+            role: dataSource[i].roles,
+          }
+          arr.push(this.getCode(data))
+        }
+        Promise.all(arr).then(values => {
+          values.map((item, index) => {
+            dataSource[index].code = item.codeNum;
+            dataSource[index].status = item.status;
+            let itemNode = {
+              host: item.host,
+              pass: item.pass,
+              port: item.port,
+              user: item.user,
+              role: item.role,
             }
+            nodeList.push(itemNode)
+            setTimeout(() => {
+              this.setState({ dataSource, isCheckSsh: !isCheckSsh }, () => {
+                if (dataSource.length === values.length) {
+                  const filterArr = dataSource.filter(v => v.status != true)
+                  if (filterArr.length > 0) {
+                    this.setState({
+                      isCheckStatus: false,
+                    })
+                  } else {
+                    this.setState(
+                      {
+                        loading: true
+                      },
+                      () => {
+                        if (index + 1 === dataSource.length) {
+                          // this.handleTabs(activeKey === '1' ? '2' : '1', true);
+                          this.handleCreate(name, nodeList)
+                        }
+                      }
+                    );
+                  }
+                }
+              })
+            }, 10)
           })
-        }, 10)
-      })
-    }, reason => {
-      console.log(reason)
-    }
-    );
+        }, reason => {
+          console.log(reason)
+        }
+        );
+      }
+    })
   }
 
   getCode(data) {
     const { dataSource, isCheckSsh } = this.state
     const { dispatch } = this.props;
+    let defaultData = data
+    delete defaultData.id
     return new Promise((resolve, reject) => {
       dispatch({
-        type: 'cloud/fetchCheckSsh',
+        type: 'cloud/fetchCheckSshPwd',
         payload: {
-          host: data.ip,
-          port: data.sshPort
+          data: JSON.stringify(defaultData)
         },
         callback: res => {
-          if (res && res.status_code === 200) {
-            // 将数据返回插入到dataSource中
-            dataSource[data.id].code = res.response_data.code;
-            dataSource[data.id].msg = res.response_data.msg;
+          if (res && res.response_data.code === 200) {
+            data.status = res.response_data.data.status;
+            data.codeNum = res.response_data.code;
             setTimeout(() => {
               this.setState({
                 dataSource,
                 isCheckSsh: data.id,
               })
             }, 10)
-            resolve(res.response_data)
+            resolve(data)
           }
         },
         handleError: err => {
           reject(err)
         }
       })
+    })
+  }
+  handleCreate = (name, nodeList) => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'cloud/AddClusterRke2',
+      payload: {
+        eid,
+        name: name,
+        nodes: nodeList
+      },
+      callback: res => {
+        this.setState({
+          loading: false,
+          isCheckStatus: false,
+        })
+        if (res && res.response_data && res.response_data.code === 200) {
+          notification.success({ message: res.response_data.msg });
+        } else {
+          notification.warning({ message: res.response_data.msg });
+        }
+      },
+      handleError: err => {
+        notification.error({ message: err.data.msg })
+        this.setState({
+          loading: false,
+          isCheckStatus: false
+        })
+      }
     })
   }
 
@@ -808,40 +866,31 @@ export default class RKEClusterConfig extends PureComponent {
       {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.Intranet_ip' }),
         dataIndex: 'internalIP',
-        width: 170,
+        width: 150,
         editable: true
       },
       {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.ssh' }),
         dataIndex: 'sshPort',
-        width: 80,
+        width: 150,
         editable: true,
-        align: 'center',
       },
       {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.Node_type' }),
         dataIndex: 'roles',
         width: 160,
         editable: true,
-        render: text =>
-          text &&
-          text.length > 0 &&
-          text.map(item => <Tag color="blue">{this.nodeRole(item)}</Tag>)
       },
       {
-        title: 
-        <div>
-          {formatMessage({ id: 'enterpriseColony.addCluster.host.connectivity' })}&nbsp;
-            <Icon onClick={this.onClickDocsLink} style={{ fontSize: '16px', color: '#1890ff' }} type="question-circle" />
-        </div>,
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.Detection_status' }),
         dataIndex: 'msg',
-        width: 160,
+        width: 80,
         render: (text, record) => {
-          const { code, msg } = record
+          const { code, status } = record
           return code ? (
             <div>
               <div>
-                {code == 200 ? <div style={{ color: global.getPublicColor('success-color') }}>success</div> : <div style={{ color: global.getPublicColor('error-color') }}>{msg}</div>}
+                { status ? <div style={{ color: global.getPublicColor('success-color') }}>success</div> : <div style={{ color: global.getPublicColor('error-color') }}>error</div>}
               </div>
             </div>
           ) : (
@@ -905,7 +954,6 @@ export default class RKEClusterConfig extends PureComponent {
       zIndex: 1000,
       background: '#fff'
     };
-
     return (
       <Modal
         visible
@@ -923,7 +971,7 @@ export default class RKEClusterConfig extends PureComponent {
               }) || {}}
               disabled={isCheckStatus}
               onClick={() => {
-                this.handleCheckSsh()
+                this.createCluster()
               }}
               loading={loading}
             >
@@ -941,7 +989,7 @@ export default class RKEClusterConfig extends PureComponent {
                   conPosition: { right: '110px', bottom: 0 },
                   svgPosition: { right: '50px', marginTop: '-11px' },
                   handleClick: () => {
-                    this.handleCheckSsh();
+                    this.createCluster();
                   }
                 })}
               </Fragment>
@@ -1108,7 +1156,7 @@ export default class RKEClusterConfig extends PureComponent {
                 </Row>
               </div>
             </TabPane>
-            <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration' />} key="2" />
+            {/* <TabPane tab={<FormattedMessage id='enterpriseColony.addCluster.host.Custom_configuration' />} key="2" /> */}
           </Tabs>
           {guideStep && guideStep === 5 && handleNewbieGuiding && clusters && clusters.length === 0 && (
             <Fragment>
@@ -1147,7 +1195,7 @@ export default class RKEClusterConfig extends PureComponent {
           </div>
         </Form>
 
-        <Row style={{ padding: '0 16px', marginBottom: 60 }}>
+        {/* <Row style={{ padding: '0 16px', marginBottom: 60 }}>
           <span style={{ fontWeight: 600, color: global.getPublicColor('error-color') }}>
             <FormattedMessage id='enterpriseColony.addCluster.host.start_at' />{clusterID ? <FormattedMessage id='enterpriseColony.addCluster.host.before_configuration' /> : <FormattedMessage id='enterpriseColony.addCluster.host.All_before_installation' />}
             <FormattedMessage id='enterpriseColony.addCluster.host.soud' />
@@ -1186,7 +1234,7 @@ export default class RKEClusterConfig extends PureComponent {
               {initNodeCmd}
             </span>
           </Col>
-        </Row>
+        </Row> */}
       </Modal>
     );
   }

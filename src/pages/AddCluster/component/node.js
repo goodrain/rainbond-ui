@@ -12,7 +12,7 @@ class DAinput extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values:[{ externalIP: '', internalIP: '', name: '' }]
+      values: props.valueArr ? props.valueArr : [{ externalIP: '', internalIP: '', name: '' }]
     };
   }
   handleExternalIP = (value, index) => {
@@ -91,7 +91,7 @@ class DAinput extends Component {
           const first = index === 0;
           return (
             <Row key={index} style={{ width: '100%', display: 'flex' }}>
-              <Col span={24} style={{ marginRight: '10px' }}>
+              <Col span={8} style={{ marginRight: '4px' }}>
                 <Input
                   name="externalIP"
                   onChange={e => {
@@ -102,7 +102,7 @@ class DAinput extends Component {
                   style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
-              <Col span={24} style={{ marginRight: '10px' }}>
+              <Col span={8} style={{ marginRight: '4px' }}>
                 <Input
                   name="internalIP"
                   onChange={e => {
@@ -113,7 +113,7 @@ class DAinput extends Component {
                   style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
               </Col>
-              <Col span={24}>
+              <Col span={8}>
                 <Input
                   name="name"
                   onChange={e => {

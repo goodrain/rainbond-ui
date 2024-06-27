@@ -133,14 +133,36 @@
 }
 
 .basics{
+	:global{
+		.ant-form-item{
+			margin-bottom: 8px;
+		}
+	}
 	.row{
 		padding: 12px 24px;
 		border-bottom: 1px dashed #e8e8e8;
 		.title_name{
 			font-weight: bold;
-			font-size: 16px;
-			margin-bottom: 12px;
+			font-size: 14px;
+			display: flex;
+			align-items: center;
+			> div {
+				display: flex;
+				align-items: center;
+				margin-left: 4px;
+			}
 		}
 	}
-		
+	.row_flex{
+		display: flex;
+		align-items: center;
+		.title_name{
+			margin-right: 24px;
+		}
+		:global{
+			.ant-form-item{
+				margin-bottom: 0px;
+			}
+		}
+	}
 }

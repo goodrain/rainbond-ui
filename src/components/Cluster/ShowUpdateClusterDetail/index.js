@@ -76,6 +76,7 @@ class UpdateClusterDetail extends PureComponent {
 
     return (
       <ClusterProgressQuery
+        isK8sProgress={true}
         title={title || <FormattedMessage id="enterpriseColony.ShowUpdateClusterDetail.title"/>}
         msg={<FormattedMessage id="enterpriseColony.ShowUpdateClusterDetail.msg"/>}
         {...this.state}

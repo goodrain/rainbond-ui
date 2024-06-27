@@ -29,12 +29,11 @@ import OauthTable from './oauthTable';
   monitoringLongin: loading.effects['global/editImageHub'],
   objectStorageLongin: loading.effects['global/editCloudBackup'],
   overviewInfo: index.overviewInfo,
-  isAlarm: global.isAlarm,
 }))
 class Infrastructure extends PureComponent {
   constructor(props) {
     super(props);
-    const { enterprise } = this.props;
+    const { enterprise, rainbondInfo } = this.props;
     this.state = {
       enterpriseAdminLoading: false,
       showDeleteDomain: false,
@@ -56,11 +55,11 @@ class Infrastructure extends PureComponent {
       MonitoringValue: rainbondUtil.fetchMonitoring(enterprise),
       isEnableMonitoring: rainbondUtil.isEnableMonitoring(enterprise),
       ObjectStorageValue: rainbondUtil.fetchObjectStorage(enterprise),
-
       providers: [
         { key: 'alioss', name: '阿里云对象存储' },
         { key: 's3', name: 'S3' }
-      ]
+      ],
+      isSwitch: rainbondInfo.is_alarm.enable || false
     };
   }
   componentDidMount() {
@@ -321,24 +320,28 @@ class Infrastructure extends PureComponent {
         this.handelCloseBasicInformation();
         this.fetchEnterpriseInfo();
         // 初始化 获取RainbondInfo信息
-        dispatch({
-          type: 'global/fetchRainbondInfo',
-          callback: info => {
-            if (info) {
-              const fetchFavicon = rainbondUtil.fetchFavicon(info);
-              const link =
-                document.querySelector("link[rel*='icon']") ||
-                document.createElement('link');
-              link.type = 'image/x-icon';
-              link.rel = 'shortcut icon';
-              link.href = fetchFavicon;
-              document.getElementsByTagName('head')[0].appendChild(link);
-            }
-          }
-        });
+        this.handleRainbondInfo()
       }
     });
   };
+  handleRainbondInfo = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/fetchRainbondInfo',
+      callback: info => {
+        if (info) {
+          const fetchFavicon = rainbondUtil.fetchFavicon(info);
+          const link =
+            document.querySelector("link[rel*='icon']") ||
+            document.createElement('link');
+          link.type = 'image/x-icon';
+          link.rel = 'shortcut icon';
+          link.href = fetchFavicon;
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+      }
+    });
+  }
   createClusters = values => {
     const {
       dispatch,
@@ -408,12 +411,21 @@ class Infrastructure extends PureComponent {
       type: 'global/updateAlarmSwitch',
       payload: {
         is_alarm: checked
+      },
+      callback: (res) => {
+        this.fetchAlarmSwitch()
+        this.handleRainbondInfo()
       }
     });
   }
   fetchAlarmSwitch = () => {
     this.props.dispatch({
       type: 'global/fetchAlarmSwitch',
+      callback: (res) => {
+        this.setState({
+          isSwitch: res.bean.is_alarm
+        })
+      }
     }
     );
   }
@@ -476,7 +488,8 @@ class Infrastructure extends PureComponent {
       openCloudBackup,
       closeCloudBackup,
       providers,
-      openBasicInformation
+      openBasicInformation,
+      isSwitch
     } = this.state;
     const UserRegistered = (
       <Card
@@ -757,7 +770,7 @@ class Infrastructure extends PureComponent {
             <Switch
               onChange={this.isAlarmChange}
               // className={styles.automaTictelescopingSwitch}
-              checked={this.props.isAlarm}
+              checked={isSwitch}
             />
           </Col>
         </Row>

@@ -27,11 +27,10 @@ import {
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import styles from '../ACKBuyConfig/index.less';
-import ClusterComponents from '../ClusterComponents';
 import ClusterCreationLog from '../ClusterCreationLog';
 import RKEClusterUpdate from '../RKEClusterAdd';
-import styless from '../RKEClusterAdd/index.less';
 import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
+import styless from '../RKEClusterAdd/index.less';
 import istyles from './index.less';
 
 const { Paragraph } = Typography;
@@ -78,7 +77,6 @@ export default class KubernetesClusterShow extends PureComponent {
       type: 'cloud/deleteKubernetesCluster',
       payload: {
         enterprise_id: eid,
-        providerName: selectProvider,
         clusterID
       },
       callback: () => {
@@ -230,11 +228,11 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   };
-  handleIsComponents = isComponents => {
-    this.setState({
-      isComponents
-    });
-  };
+  // handleIsComponents = isComponents => {
+  //   this.setState({
+  //     isComponents
+  //   });
+  // };
   render() {
     const { selectProvider, linkedClusters, eid, selectCluster } = this.props;
     const { selectClusterName, initCmd } = this.state;
@@ -278,6 +276,14 @@ export default class KubernetesClusterShow extends PureComponent {
               </Radio>
             </Tooltip>
           );
+        }
+      },
+      {
+        title: formatMessage({id:'enterpriseColony.addCluster.host.state'}),
+        width: 150,
+        dataIndex: 'state',
+        render: (text, row) => {
+          return cloud.getAliyunClusterStatus(text, row, linkedClusters);
         }
       },
       {
@@ -330,14 +336,6 @@ export default class KubernetesClusterShow extends PureComponent {
       title: formatMessage({id:'enterpriseColony.addCluster.host.current_version'}),
       width: 250,
       dataIndex: 'current_version'
-    });
-    columns.push({
-      title: formatMessage({id:'enterpriseColony.addCluster.host.state'}),
-      width: 150,
-      dataIndex: 'state',
-      render: (text, row) => {
-        return cloud.getAliyunClusterStatus(text, row, linkedClusters);
-      }
     });
     columns.push({
       title: formatMessage({id:'enterpriseColony.addCluster.host.cluster_id'}),
@@ -411,13 +409,7 @@ export default class KubernetesClusterShow extends PureComponent {
                 <FormattedMessage id='enterpriseColony.addCluster.host.Cluster_configuration'/>
               </a>
             )}
-            {row.state === 'running' &&
-              (selectProvider === 'rke' || selectProvider === 'custom') && (
-                <a onClick={() => this.handleIsComponents(row.cluster_id)}>
-                  <FormattedMessage id='enterpriseColony.addCluster.host.look'/>
-                </a>
-                
-              )}
+
             {row.rainbond_init === true && (
               <Popconfirm
                 placement="top"
@@ -640,16 +632,6 @@ export default class KubernetesClusterShow extends PureComponent {
             task={updateTask}
             selectProvider={selectProvider}
             onCancel={this.cancelShowUpdateKubernetes}
-          />
-        )}
-        {isComponents && (
-          <ClusterComponents
-            eid={eid}
-            clusterID={isComponents}
-            providerName={selectProvider}
-            onCancel={() => {
-              this.handleIsComponents(false);
-            }}
           />
         )}
       </div>
