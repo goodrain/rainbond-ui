@@ -5,6 +5,7 @@ import {
   Button,
   Icon,
   Spin,
+  notification,
 } from 'antd'
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -29,7 +30,13 @@ export default class ShowNodeComponent extends PureComponent {
     };
   }
   componentDidMount () {
-    this.fetchClusterStatus()
+    this.fetchClusterStatus();
+    this.timerClick = setInterval(() => {
+      this.fetchClusterStatus();
+    }, 5000);
+  }
+  componentWillUnmount () {
+    this.timerClick && clearInterval(this.timerClick);
   }
   // 获取集群组件和node节点
   fetchClusterStatus = () => {
@@ -50,14 +57,6 @@ export default class ShowNodeComponent extends PureComponent {
           })
         } 
       }
-    })
-  }
-  // 点击刷新
-  handleReload = () => {
-    this.setState({
-      isShowContainer: true,
-    }, () => {
-      this.fetchClusterStatus()
     })
   }
   handleStateName = str => {
@@ -103,12 +102,6 @@ export default class ShowNodeComponent extends PureComponent {
   render() {
     const { isShowContainer, clusterStateEle, nodeList, podsList } = this.state;
     const { cluster_id } = this.props
-    // 刷新按钮
-    const reloadBtn = (
-      <Button style={{ float: 'right' }} onClick={this.handleReload}>
-        <Icon type="reload" />
-      </Button>
-    );
     const slash = (
       <span style={{ color: 'rgba(0, 0, 0, 0.35)' }}>&nbsp;/&nbsp;</span>
     );
@@ -153,7 +146,7 @@ export default class ShowNodeComponent extends PureComponent {
                       <Col span={3}><FormattedMessage id='enterpriseColony.ShowNodeComponent.external_iP' /></Col>
                       <Col span={3}><FormattedMessage id='enterpriseColony.ShowNodeComponent.internal_iP' /></Col>
                       <Col span={3}><FormattedMessage id='enterpriseColony.ShowNodeComponent.arch' /></Col>
-                      <Col span={3}><FormattedMessage id='enterpriseColony.ShowNodeComponent.container_version' />{reloadBtn}</Col>
+                      <Col span={3}><FormattedMessage id='enterpriseColony.ShowNodeComponent.container_version' /></Col>
                     </Row>
                     <div className={styles.boxs}>
                       {nodeList && nodeList.length ? (
@@ -226,7 +219,7 @@ export default class ShowNodeComponent extends PureComponent {
                     <Row className={styles.customTablesTit}>
                       <Col span={3}><FormattedMessage id='enterpriseColony.ClusterComponents.state' /></Col>
                       <Col span={7}><FormattedMessage id='enterpriseColony.ClusterComponents.name' /></Col>
-                      <Col span={14}><FormattedMessage id='enterpriseColony.ClusterComponents.image' />{reloadBtn}</Col>
+                      <Col span={14}><FormattedMessage id='enterpriseColony.ClusterComponents.image' /></Col>
                     </Row>
                     <div className={styles.boxs}>
                       {podsList && podsList.length ? (

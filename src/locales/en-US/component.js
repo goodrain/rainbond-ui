@@ -928,6 +928,7 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.key':'Enter the corresponding key and value',
     'componentOverview.body.Kubernetes.content':'Please edit the content',
     'componentOverview.body.Kubernetes.input':'Enter the serviceAccountName attribute',
+    'componentOverview.body.Kubernetes.input_cmd':'Enter the cmd attribute',
     'componentOverview.body.Kubernetes.privileged':'Whether to turn on the {type} attribute',
     'componentOverview.body.Kubernetes.Cancel':'Cancel',
     'componentOverview.body.Kubernetes.Confirm':'Confirm',

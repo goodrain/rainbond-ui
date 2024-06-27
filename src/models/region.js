@@ -31,6 +31,9 @@ import {
   addClusterNode,
   deleteClusterNode,
   fetchClusterStatus,
+  fetchHelmEvents,
+  createHelmEvents,
+  deleteHelmEvents,
 } from '../services/region';
 
 export default {
@@ -247,14 +250,32 @@ export default {
         callback(response);
       }
     },
+    *fetchHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *deleteClusterNode({ payload, callback, handleError }, { call }) {
       const response = yield call(deleteClusterNode, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
+    *createHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(createHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchClusterStatus({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchClusterStatus, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *deleteHelmEvents({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteHelmEvents, payload, handleError);
       if (response && callback) {
         callback(response);
       }

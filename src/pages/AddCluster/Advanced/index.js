@@ -734,7 +734,7 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input type="password" placeholder={formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
+                      })(<Input.Password type="password" placeholder={formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                     {/* 数据库名称 */}
                     <FormItem
@@ -865,7 +865,7 @@ export default class ClusterLink extends PureComponent {
                             message: formatMessage({id:'placeholder.no_spaces'})
                           }
                         ]
-                      })(<Input type="password" placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
+                      })(<Input.Password type="password" placeholder= {formatMessage({id:'enterpriseColony.Advanced.input_password'})} style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}/>)}
                     </FormItem>
                   </div>
                 ) : (

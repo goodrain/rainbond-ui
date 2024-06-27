@@ -148,7 +148,8 @@ export async function fetchHelmJoinStatus(param) {
     method: 'get',
     params: {
       eid: param.eid,
-      token: param.token
+      token: param.token,
+      api_host: param.api_host
     }
   });
 }
@@ -324,6 +325,26 @@ export async function deleteClusterNode(params, handleError) {
     handleError
   });
 }
+
+// 获取 helm 对接集群事件
+export async function fetchHelmEvents(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.eid}/tasks/helm_region_install`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 生成 helm 对接集群事件
+export async function createHelmEvents(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.eid}/tasks/helm_region_install`, {
+    method: 'post',
+    data: {
+      token: params.token,
+      api_host: params.api_host
+    },
+    handleError
+  });
+}
 // 获取k8s集群状态
 export async function fetchClusterStatus(params, handleError) {
   return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
@@ -331,6 +352,14 @@ export async function fetchClusterStatus(params, handleError) {
     params: {
       cluster_id : params.clusterID
     },
+    handleError
+  });
+}
+
+// 删除 helm 对接集群事件
+export async function deleteHelmEvents(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.eid}/tasks/helm_region_install`, {
+    method: 'delete',
     handleError
   });
 }
