@@ -13,7 +13,9 @@ import {
   Menu,
   notification,
   Popconfirm,
-  Spin
+  Spin,
+  Tooltip,
+  Modal,
 } from 'antd';
 import { connect } from 'dva';
 import { setLocale, getLocale, } from 'umi/locale'
@@ -22,11 +24,12 @@ import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
-import { setNewbieGuide } from '../../services/api';
+import { setNewbieGuide, fetchAllVersion } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
 import { Link } from 'umi';
+import globalUtil from '../../utils/global';
 const { Header } = Layout;
 
 @connect(({ user, global, appControl }) => ({
@@ -44,10 +47,13 @@ export default class GlobalHeader extends PureComponent {
       isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      treeData: []
+      treeData: [],
+      isVersionUpdate: false,
     };
   }
   componentDidMount() {
+    const { is_enterprise } = this.props
+    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
     if (Language == null) {
@@ -76,6 +82,10 @@ export default class GlobalHeader extends PureComponent {
           language: true,
         })
       }
+    }
+    // 判断sessionStorage存储内是否有isShowUpdateVersion字段, 没有表示未显示过更新弹窗
+    if (isShowUpdateVersion === null && is_enterprise) {
+      this.fetchAllVersion()
     }
   }
   handleMenuClick = ({ key }) => {
@@ -165,10 +175,42 @@ export default class GlobalHeader extends PureComponent {
       });
     });
   };
+  // 获取所有主机版本
+  fetchAllVersion = () => {
+    const {dispatch, rainbondInfo} = this.props
+    const currentVersion = rainbondInfo.version.value.split('-')[0]
+    fetchAllVersion().then(res => {
+      if (res) {
+        res.forEach((item, index) => {
+          if (item.split('-')[0] === currentVersion && index !== 0) {
+            window.sessionStorage.setItem('isShowUpdateVersion', currentVersion)
+            this.setState({
+              isVersionUpdate: true,
+            })
+          }
+        })
+      }
+    }).catch(e => {console.log(e)})
+  }
+  // 跳转到版本更新页面
+  handleRouteupdate = () => {
+    const { dispatch, eid } = this.props
+    this.setState({
+      isVersionUpdate: false
+    }, () => {
+      dispatch(routerRedux.push(`/enterprise/${eid}/setting?showupdate=true`));
+    })
+  }
+  handleShowUpdate = () => {
+    this.setState({
+      isVersionUpdate: true,
+    })
+  };
 
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg } = this.props;
-    const { language, treeData } = this.state
+    const { language, treeData, isVersionUpdate } = this.state
+    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     if (!currentUser) {
       return null;
     }
@@ -212,6 +254,7 @@ export default class GlobalHeader extends PureComponent {
         <path d="M160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96zM482.176 262.272h59.616v94.4h196v239.072h-196v184.416h-59.616v-184.416H286.72v-239.04h195.456V262.24z m-137.504 277.152h137.504v-126.4H344.64v126.4z m197.12 0h138.048v-126.4H541.76v126.4z" />
       </svg>
     )
+    const update_Svg = globalUtil.fetchSvg('updateIcon')
     const MenuItems = (key, component, text) => {
       return (
         <Menu.Item key={key}>
@@ -283,6 +326,18 @@ export default class GlobalHeader extends PureComponent {
               {handleHandBookSvg}
             </a>
           )}
+          {is_enterprise && isShowUpdateVersion && (
+            <Tooltip title='点击版本更新'>
+              <a
+                className={styles.action}
+                style={{ verticalAlign: '-7px', color: '#fff', padding: 0, margin: '0 12px' }}
+                rel="noopener noreferrer"
+                onClick={this.handleShowUpdate}
+              >
+                {update_Svg}
+              </a>
+            </Tooltip>
+          )}
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>
@@ -305,6 +360,21 @@ export default class GlobalHeader extends PureComponent {
             onOk={this.handleChangePass}
             onCancel={this.cancelChangePass}
           />
+        )}
+        {/* 版本更新弹窗 */}
+        {isVersionUpdate && (
+          <Modal
+            title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
+            visible
+            onOk={this.handleRouteupdate}
+            onCancel={() => {
+              this.setState({
+                isVersionUpdate: false
+              })
+            }}
+          >
+            <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
+          </Modal>
         )}
       </Header>
     );

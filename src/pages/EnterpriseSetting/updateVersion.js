@@ -138,6 +138,8 @@ export default class UpdateVersion extends PureComponent {
           isShowComplete: 'complete',
           isShowModalClose: true,
           isShowModalFooter: true,
+        }, () => {
+          window.sessionStorage.removeItem('isShowUpdateVersion')
         })
       }
     }).catch(e => {console.log(e)})

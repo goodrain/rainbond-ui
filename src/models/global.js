@@ -155,7 +155,6 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
-    isAlarm: true,
   },
 
   effects: {
@@ -605,26 +604,14 @@ export default {
     },
     *fetchAlarmSwitch({ payload, callback }, { put, call }) {
       const response = yield call(fetchAlarmSwitch, payload);
-      if (response) {
-        yield put({
-          type: 'saveIsAlarm',
-          payload: response.bean && response.bean.is_alarm
-        });
-        if (callback) {
-          callback(response);
-        }
+      if (response && callback) {
+        callback(response);
       }
     },
     *updateAlarmSwitch({ payload, callback }, { put, call }) {
       const response = yield call(updateAlarmSwitch, payload);
-      if (response) {
-        yield put({
-          type: 'saveIsAlarm',
-          payload: payload.is_alarm
-        });
-        if (callback) {
-          callback(response);
-        }
+      if (response && callback) {
+        callback(response);
       }
     },
     *putCertificateType({ payload, callback }, { call }) {
@@ -1144,12 +1131,6 @@ export default {
       return {
         ...state,
         isRegist: payload
-      };
-    },
-    saveIsAlarm(state, { payload }) {
-      return {
-        ...state,
-        isAlarm: payload
       };
     },
     saveIsisNouse(state, { payload }) {
