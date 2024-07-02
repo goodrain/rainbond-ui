@@ -1,13 +1,14 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
 import globalUtil from '../../utils/global';
+import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
@@ -31,10 +32,11 @@ const en_formItemLayout = {
 };
 
 @connect(
-  ({ user, global, loading, }) => ({
+  ({ user, global, loading, teamControl }) => ({
     currUser: user.currentUser,
     groups: global.groups,
     createAppByCodeLoading: loading.effects['createApp/createAppByCode'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -53,13 +55,20 @@ export default class Index extends PureComponent {
       checkedList: [],
       visibleKey: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      comNames: []
+      comNames: [],
+      creatComPermission: {}
     };
   }
-  componentDidMount(){
+  componentDidMount() {
     const { handleType, groupId } = this.props;
-    if(handleType && handleType === 'Service'){
+    if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
+    }
+    const isService = handleType && handleType === 'Service';
+    if (!!isService) {
+      this.setState({
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID()}`)
+      })
     }
   }
   onAddGroup = () => {
@@ -110,6 +119,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   hideShowKey = () => {
@@ -143,7 +154,7 @@ export default class Index extends PureComponent {
         fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
       }
       if (onSubmit) {
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
         onSubmit(fieldsValue);
@@ -204,6 +215,9 @@ export default class Index extends PureComponent {
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+    })
     dispatch({
       type: 'appControl/getComponentNames',
       payload: {
@@ -211,24 +225,24 @@ export default class Index extends PureComponent {
         group_id
       },
       callback: res => {
-        if (res && res.bean ) {
+        if (res && res.bean) {
           this.setState({
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
           })
+        }
       }
-    }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if(name != undefined){
+    if (name != undefined) {
       const { comNames } = this.state;
-      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
       if (comNames && comNames.length > 0) {
         const isExist = comNames.some(item => item === cleanedPinyinName);
         if (isExist) {
-          const random = Math.floor(Math.random() * 10000);          
+          const random = Math.floor(Math.random() * 10000);
           return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
@@ -259,13 +273,16 @@ export default class Index extends PureComponent {
       serverType,
       visibleKey,
       addGroup,
-      language
+      language,
+      creatComPermission: {
+        isCreate
+      }
     } = this.state;
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     const is_language = language ? formItemLayout : en_formItemLayout;
@@ -330,7 +347,7 @@ export default class Index extends PureComponent {
                   marginRight: 15
                 }}
                 showSearch
-                filterOption={(input, option) => 
+                filterOption={(input, option) =>
                   option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 disabled={!!isService}
@@ -437,18 +454,18 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
 
-          {archLegnth == 2 && 
-          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+          {archLegnth == 2 &&
+            <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+              {getFieldDecorator('arch', {
+                initialValue: arch,
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              })(
+                <Radio.Group>
+                  <Radio value='amd64'>amd64</Radio>
+                  <Radio value='arm64'>arm64</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>}
 
           {showSubmitBtn ? (
             <Form.Item
@@ -473,13 +490,16 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByCodeLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
+                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                      disabled={!isCreate}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

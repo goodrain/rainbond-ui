@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
-import roleUtil from '../../utils/role'
+import role from '@/utils/newRole';
 import globalUtil from '../../utils/global'
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
@@ -45,6 +45,7 @@ export default class Index extends PureComponent {
       percents: false,
       existFileList: [],
       groupName: '',
+      creatComPermission: {}
     };
   }
   componentWillMount() {
@@ -66,7 +67,7 @@ export default class Index extends PureComponent {
     const { form, dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
-    const { event_id, existFileList,groupName } = this.state
+    const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
       if (existFileList.length > 0) {
@@ -79,7 +80,7 @@ export default class Index extends PureComponent {
         this.loop = true
         this.handleJarWarUploadStatus()
         notification.error({
-          message: formatMessage({id:'notification.error.notDetected'})
+          message: formatMessage({ id: 'notification.error.notDetected' })
         })
       }
     });
@@ -87,6 +88,9 @@ export default class Index extends PureComponent {
 
   handleChange = (values) => {
     const { dispatch, groups } = this.props;
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${values}`)
+    })
     for (let index = 0; index < groups.length; index++) {
       if (groups[index].group_id === values) {
         this.setState({
@@ -107,6 +111,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   handleJarWarUpload = () => {
@@ -188,7 +194,7 @@ export default class Index extends PureComponent {
               existFileList: data.bean.package_name
             });
             notification.success({
-              message: formatMessage({id:'notification.success.upload_file'})
+              message: formatMessage({ id: 'notification.success.upload_file' })
             })
             this.loop = false
           }
@@ -218,7 +224,7 @@ export default class Index extends PureComponent {
             existFileList: []
           });
           notification.success({
-            message: formatMessage({id:'notification.success.delete_file'})
+            message: formatMessage({ id: 'notification.success.delete_file' })
           })
           this.handleJarWarUpload()
         }
@@ -258,115 +264,119 @@ export default class Index extends PureComponent {
       groups
     } = this.props;
     const myheaders = {};
-    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList } = this.state;
+    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, creatComPermission: {
+      isCreate
+    } } = this.state;
 
     const formItemLayout = {
       labelCol: {
-        span:9
+        span: 9
       },
       wrapperCol: {
-        span:15
+        span: 15
       }
     };
 
     return (
       <>
-          <div className={styles.yaml_container}>
-            <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <Form.Item label={formatMessage({id: 'teamAdd.create.form.appName'})} style={{ display: 'flex' }}>
-                {getFieldDecorator('group_id', {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id: 'placeholder.group_name'})
-                    }
-                  ]
-                })(
-                  <Select
-                    onChange={this.handleChange}
-                    showSearch
-                    filterOption={(input, option) => 
-                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder={formatMessage({id: 'placeholder.appName'})}
-                    style={{
-                      display: 'inline-block',
-                      width: 276,
-                      marginRight: 10
-                    }}
-                  >
-                    {(groups || []).map(group => (
-                      <Option value={group.group_id}>{group.group_name}</Option>
-                    ))}
-                  </Select>
-                )}
-                <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamApply.createApp'})}</Button>
-              </Form.Item>     
-                <Form.Item
-                  label={formatMessage({id: 'teamAdd.create.upload.uploadFiles'})}
-                  extra={formatMessage({id: 'teamAdd.create.upload.uploadYaml'})}
-                >
-                  {getFieldDecorator('packageTarFile', {
-                  
-                  })(
-                    <Dragger
-                      fileList={fileList}
-                      accept=".yaml,.yml"
-                      name="packageTarFile"
-                      onChange={this.onChangeUpload}
-                      onRemove={this.onRemove}
-                      action={record.upload_url}
-                      headers={myheaders}
-                      multiple={true}
-                    >
-                      <p className="ant-upload-drag-icon">
-                        <Icon type="inbox" />
-                      </p>
-                    </Dragger>
-                  )}
-                </Form.Item>
-              <Form.Item label={formatMessage({id:'teamAdd.create.fileList'})}>
-                {existFileList.length > 0  ? 
-                  (<div className={styles.update}>
-                    <div className={styles.delete}>
-                      <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="close" />
-                    </div>
-                    {existFileList.map((item) => {
-                      return (
-                        <div className={styles.fileName}>
-                          <Icon style={{ marginRight: '6px' }} type="inbox" />
-                          {item}
-                        </div>
-                      )
-                    })}
-                  </div>
-                  ):(
-                    <div className={styles.empty}>
-                      {formatMessage({id:'teamAdd.create.null_data'})}
-                    </div>
-                  )
-                }
-
-              </Form.Item>
-              <Form.Item
-                wrapperCol={{
-                  xs: {
-                    span: 7,
-                    offset: 7
-                  },
-                  sm: {
-                    span: 9,
-                    offset: 9
+        <div className={styles.yaml_container}>
+          <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+            <Form.Item label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
+              {getFieldDecorator('group_id', {
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.group_name' })
                   }
-                }}
-              >
-                <Button type="primary" htmlType="submit">
-                {formatMessage({id: 'teamAdd.create.btn.create'})}
+                ]
+              })(
+                <Select
+                  onChange={this.handleChange}
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder={formatMessage({ id: 'placeholder.appName' })}
+                  style={{
+                    display: 'inline-block',
+                    width: 276,
+                    marginRight: 10
+                  }}
+                >
+                  {(groups || []).map(group => (
+                    <Option value={group.group_id}>{group.group_name}</Option>
+                  ))}
+                </Select>
+              )}
+              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
+            </Form.Item>
+            <Form.Item
+              label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+              extra={formatMessage({ id: 'teamAdd.create.upload.uploadYaml' })}
+            >
+              {getFieldDecorator('packageTarFile', {
+
+              })(
+                <Dragger
+                  fileList={fileList}
+                  accept=".yaml,.yml"
+                  name="packageTarFile"
+                  onChange={this.onChangeUpload}
+                  onRemove={this.onRemove}
+                  action={record.upload_url}
+                  headers={myheaders}
+                  multiple={true}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <Icon type="inbox" />
+                  </p>
+                </Dragger>
+              )}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'teamAdd.create.fileList' })}>
+              {existFileList.length > 0 ?
+                (<div className={styles.update}>
+                  <div className={styles.delete}>
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ marginLeft: '12px', color: 'red', cursor: 'pointer' }} type="close" />
+                  </div>
+                  {existFileList.map((item) => {
+                    return (
+                      <div className={styles.fileName}>
+                        <Icon style={{ marginRight: '6px' }} type="inbox" />
+                        {item}
+                      </div>
+                    )
+                  })}
+                </div>
+                ) : (
+                  <div className={styles.empty}>
+                    {formatMessage({ id: 'teamAdd.create.null_data' })}
+                  </div>
+                )
+              }
+
+            </Form.Item>
+            <Form.Item
+              wrapperCol={{
+                xs: {
+                  span: 7,
+                  offset: 7
+                },
+                sm: {
+                  span: 9,
+                  offset: 9
+                }
+              }}
+            >
+              <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                <Button type="primary" htmlType="submit" disabled={!isCreate}>
+                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
                 </Button>
-              </Form.Item>
-            </Form>
-          </div>
+              </Tooltip>
+            </Form.Item>
+          </Form>
+        </div>
         {addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}

@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
+import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -29,10 +30,11 @@ const en_formItemLayout = {
 };
 
 @connect(
-  ({ user, global, loading, }) => ({
+  ({ user, global, loading, teamControl }) => ({
     currUser: user.currentUser,
     groups: global.groups,
     createAppByCodeLoading: loading.effects['createApp/createAppByCode'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -50,7 +52,8 @@ export default class Index extends PureComponent {
       subdirectories: false,
       checkedList: [],
       visibleKey: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      creatComPermission: {}
     };
   }
   onAddGroup = () => {
@@ -101,6 +104,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   hideShowKey = () => {
@@ -181,6 +186,11 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
+  handleChange = (values) => {
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${values}`)
+    })
+  }
   render() {
     const {
       groups,
@@ -203,13 +213,16 @@ export default class Index extends PureComponent {
       serverType,
       visibleKey,
       addGroup,
-      language
+      language,
+      creatComPermission: {
+        isCreate
+      }
     } = this.state;
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     const is_language = language ? formItemLayout : en_formItemLayout;
@@ -235,6 +248,7 @@ export default class Index extends PureComponent {
                   marginRight: 15
                 }}
                 disabled={!!isService}
+                onChange={this.handleChange}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -248,12 +262,12 @@ export default class Index extends PureComponent {
                 <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamOverview.createApp' })}</Button>
               ) : null}
           </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.docker_cmd'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
             {getFieldDecorator('command', {
               initialValue: data.docker_cmd || '',
               rules: [{ required: true, message: '请填写命令' }]
             })(
-              <TextArea style={{minHeight:'200px'}} placeholder='请填写命令' />
+              <TextArea style={{ minHeight: '200px' }} placeholder='请填写命令1' />
             )}
           </Form.Item>
 
@@ -280,13 +294,16 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByCodeLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
+                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                      disabled={!isCreate}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

@@ -8,6 +8,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import AddImage from '../../components/AddImage';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
+import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 const { Option } = Select;
@@ -30,10 +31,12 @@ const formItemLayouts = {
 };
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, teamControl }) => ({
     groups: global.groups,
     createAppByDockerrunLoading:
-      loading.effects['createApp/createAppByDockerrun']
+      loading.effects['createApp/createAppByDockerrun'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+
   }),
   null,
   null,
@@ -64,6 +67,7 @@ export default class Index extends PureComponent {
       warehouseImageTags: [],
       checkedValues: '',
       domain: '',
+      creatComPermission: {}
     };
   }
   componentWillMount() {
@@ -102,6 +106,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   handleSubmit = e => {
@@ -169,6 +175,9 @@ export default class Index extends PureComponent {
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+    })
     dispatch({
       type: 'appControl/getComponentNames',
       payload: {
@@ -486,7 +495,9 @@ export default class Index extends PureComponent {
       archInfo
     } = this.props;
 
-    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues } = this.state;
+    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
+      isCreate
+    } } = this.state;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -880,13 +891,16 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
+                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
                   <Button
                     onClick={this.handleSubmit}
                     type="primary"
                     loading={createAppByDockerrunLoading}
+                    disabled={!isCreate}
                   >
                     {formatMessage({ id: 'teamAdd.create.btn.create' })}
                   </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}
