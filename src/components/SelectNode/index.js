@@ -1,29 +1,26 @@
 /* eslint-disable react/sort-comp */
-import { Col, Icon, Input, Row } from 'antd';
+import { Col, Icon, Select, Row } from 'antd';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
+const { Option } = Select;
 class DAinput extends Component {
   constructor(props) {
     super(props);
-    const { valueArr } = this.props;
-    const setArr = valueArr && valueArr.map((item) => {
-      return { ip: item };
-    });
     this.state = {
-      values: props.valueArr ? setArr : [{ ip: '' }]
+      values: [{ name: '' }]
     };
   }
   handleNodes = (value, index) => {
     const { values } = this.state;
-    values[index].ip = value;
+    values[index].name = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push('');
+      setArr.push({ name: '' });
     }
     this.setState({ values: setArr });
   }
@@ -39,7 +36,7 @@ class DAinput extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ ip: '' })
+      values: values.concat({ name: '' })
     });
   };
 
@@ -53,7 +50,7 @@ class DAinput extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        ip: values[i].ip
+        name: values[i].name
       });
     }
     const { onChange } = this.props;
@@ -62,24 +59,28 @@ class DAinput extends Component {
     }
   }
   render() {
-    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.end'})}`;
+    const namePlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.master'})}`;
     const { values } = this.state;
+    const { keys, ipArr } = this.props;
     return (
-      <div>
+      <div key={keys}>
         {values.map((item, index) => {
           const first = index === 0;
           return (
             <Row key={index} style={{ width: '100%', display: 'flex' }}>
               <Col span={24} style={{ marginRight: '10px' }}>
-                <Input
-                  name="ip"
-                  onChange={e => {
-                    this.handleNodes(e.target.value, index);
+                <Select
+                  name="name"
+                  onChange={valueOption => {
+                    this.handleNodes(valueOption, index);
                   }}
-                  value={item.ip}
-                  placeholder={regexPlaceholder}
-                  style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
-                />
+                  value={item.name}
+                  placeholder={namePlaceholder}
+                >
+                    {ipArr.map((item, index) => {
+                        return <Option value={item.ip} key={index}>{item.ip}</Option>;
+                    })}
+                </Select>
               </Col>
               <Col span={4} style={{ textAlign: 'center' }}>
                 <Icon

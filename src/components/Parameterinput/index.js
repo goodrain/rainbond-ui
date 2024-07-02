@@ -63,11 +63,12 @@ class Parameterinput extends Component {
       keyPlaceholder = formatMessage({id:'placeholder.contiguration.msg.key'}),
       valuePlaceholder = formatMessage({id:'placeholder.contiguration.msg.value'}),
       isHalf = false,
-      disableds = false
+      disableds = false,
+      keys
     } = this.props;
     const { values } = this.state;
     return (
-      <div>
+      <div key={keys}>
         {values &&
           values.length > 0 &&
           values.map((item, index) => {

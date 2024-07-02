@@ -192,6 +192,7 @@
         'button.fold':'Fold',
         'button.config':'Config',
         'button.change':'Change',
+        'button.app':'App',
     }
     const status = {
         'status.component.running':'Running',

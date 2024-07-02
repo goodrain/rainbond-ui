@@ -290,6 +290,7 @@ class Index extends Component {
             active={this.editClusterNodeActive}
             showInfo={showListInfo}
             updateCluster={this.updateCluster}
+            handleLoadClusters={() => {this.loadClusters()}}
           />
         </Row>
         <Row className={styles.titleStyle}>

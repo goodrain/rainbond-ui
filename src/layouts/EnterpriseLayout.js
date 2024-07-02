@@ -427,7 +427,8 @@ class EnterpriseLayout extends PureComponent {
       )
     }
     const layout = () => {
-      const { isAlarm } = this.props
+      const { rainbondInfo } = this.props
+      const isAlarm = rainbondInfo && rainbondInfo.is_alarm && rainbondInfo.is_alarm.enable
       const { showMenu } = this.state
       const urlParams = new URL(window.location.href)
       const includesAdd = urlParams.href.includes('/addCluster')
@@ -599,6 +600,6 @@ export default connect(({ user, global, index, loading, region }) => ({
   nouse: global.nouse,
   enterprise: global.enterprise,
   terminalStatus: region.terminal_status,
-  isAlarm: global.isAlarm,
+  rainbondInfo: global.rainbondInfo
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);

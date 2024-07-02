@@ -28,6 +28,7 @@ import {
 } from '../../services/cloud';
 import { connect } from 'dva';
 import RKEClusterUpdate from '../Cluster/RKEClusterAdd';
+import ClusterMgtAddNode from '../ClusterMgtAddNode/index'
 import { Link, routerRedux } from 'dva/router';
 import global from '../../utils/global'
 import SVG from '../../utils/pageHeaderSvg'
@@ -47,7 +48,8 @@ class Index extends Component {
       modalVisible: false,
       initNodeCmd: '',
       showUpdateKubernetes: false,
-      showUpdateKubernetesTasks: false
+      showUpdateKubernetesTasks: false,
+      isShowAddNodeModal: false,
     }
   }
   //节点状态
@@ -101,8 +103,20 @@ class Index extends Component {
     };
   }
   clusterNodeAdd = () => {
-    const { rowClusterInfo } = this.props
-    this.props.updateCluster(rowClusterInfo.provider_cluster_id)
+    // const { rowClusterInfo } = this.props
+    // this.props.updateCluster()
+    this.setState({
+      isShowAddNodeModal: true
+    })
+  }
+  handleAddNodeClose = (type) => {
+    this.setState({
+      isShowAddNodeModal: false,
+    }, () => {
+      if (Number(type) === 1) {
+        this.props.handleLoadClusters()
+      }
+    })
   }
   menuMouseEnter = () => {
     this.setState({
@@ -116,6 +130,10 @@ class Index extends Component {
   }
   editNodeStatus = (active, name, row) => {
     const { rowClusterInfo } = this.props
+    if (active === 'delete') {
+      console.log('删除')
+      return
+    }
     if (active == 'evict') {
       if (row.unschedulable == true) {
         this.props.active(active, name, rowClusterInfo.region_name)
@@ -131,7 +149,7 @@ class Index extends Component {
   }
   render() {
     const { nodeList, rowClusterInfo, showInfo, form, } = this.props
-    const { selectArr, } = this.state
+    const { selectArr, isShowAddNodeModal } = this.state
     const eid = global.getCurrEnterpriseId()
     const { getFieldDecorator } = form;
     const moreSvg = () => (
@@ -233,14 +251,15 @@ class Index extends Component {
             <span onClick={() => this.editNodeStatus('unschedulable', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.banDispatch'})}</span>,
           ]
           const list = [<span onClick={() => this.editNodeStatus('evict', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.evacuation'})}</span>]
+          const deleteList = [<span onClick={() => this.editNodeStatus('delete', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.delete_node'})}</span>]
           const arr = []
           if (roed.unschedulable == false) {
             arr.push(...endList)
-            arr.push(...list)
           } else {
             arr.push(...startList)
-            arr.push(...list)
           }
+          arr.push(...list)
+          arr.push(...deleteList)
           const MenuList = (
             <Menu
               onMouseEnter={this.menuMouseEnter}
@@ -264,26 +283,18 @@ class Index extends Component {
     ];
     const formItemLayout = {
       labelCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 6
-        }
+        xs: { span: 24 },
+        sm: { span: 6 }
       },
       wrapperCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 16
-        }
+        xs: { span: 24 },
+        sm: { span: 16 }
       }
     };
     return (
       <>
         <Card
-          extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="form" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.editNode'})}</Button>}
+          extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="plus" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.addNode'})}</Button>}
           style={
             { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
           }
@@ -301,7 +312,12 @@ class Index extends Component {
             <Skeleton active />
           }
         </Card>
-
+        {isShowAddNodeModal && (
+          <ClusterMgtAddNode
+            rowClusterInfo={rowClusterInfo}
+            onAddNodeClose={this.handleAddNodeClose}
+          />
+        )}
       </>
     );
   }

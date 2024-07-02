@@ -6,24 +6,20 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 class DAinput extends Component {
   constructor(props) {
     super(props);
-    const { valueArr } = this.props;
-    const setArr = valueArr && valueArr.map((item) => {
-      return { ip: item };
-    });
     this.state = {
-      values: props.valueArr ? setArr : [{ ip: '' }]
+      values: props.valueArr ? props.valueArr : [{ name: '' }]
     };
   }
   handleNodes = (value, index) => {
     const { values } = this.state;
-    values[index].ip = value;
+    values[index].name = value;
     this.triggerChange(values);
     this.setValues(values);
   };
   setValues(arr) {
     const setArr = arr || [];
     if (!setArr.length) {
-      setArr.push('');
+      setArr.push({ name: '' });
     }
     this.setState({ values: setArr });
   }
@@ -39,7 +35,7 @@ class DAinput extends Component {
       return null;
     }
     this.setState({
-      values: values.concat({ ip: '' })
+      values: values.concat({ name: '' })
     });
   };
 
@@ -53,7 +49,7 @@ class DAinput extends Component {
     const res = [];
     for (let i = 0; i < values.length; i++) {
       res.push({
-        ip: values[i].ip
+        name: values[i].name
       });
     }
     const { onChange } = this.props;
@@ -62,21 +58,22 @@ class DAinput extends Component {
     }
   }
   render() {
-    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.end'})}`;
+    const regexPlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.master'})}`;
     const { values } = this.state;
+    const { keys } = this.props
     return (
-      <div>
+      <div key={keys}>
         {values.map((item, index) => {
           const first = index === 0;
           return (
             <Row key={index} style={{ width: '100%', display: 'flex' }}>
               <Col span={24} style={{ marginRight: '10px' }}>
                 <Input
-                  name="ip"
+                  name="name"
                   onChange={e => {
                     this.handleNodes(e.target.value, index);
                   }}
-                  value={item.ip}
+                  value={item.name}
                   placeholder={regexPlaceholder}
                   style={{textOverflow: 'ellipsis',overflow: 'hidden',whiteSpace: 'nowrap'}}
                 />
