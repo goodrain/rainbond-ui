@@ -445,14 +445,16 @@ export default class AppPublishList extends PureComponent {
                             >
                               {formatMessage({ id: 'appPublish.table.btn.continue' })}
                             </a>
-                            <a
-                              style={{ marginRight: '5px' }}
-                              onClick={() => {
-                                this.cancelPublish(data.record_id);
-                              }}
-                            >
-                              {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
-                            </a>
+                            {isDelete &&
+                              <a
+                                style={{ marginRight: '5px' }}
+                                onClick={() => {
+                                  this.cancelPublish(data.record_id);
+                                }}
+                              >
+                                {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
+                              </a>
+                            }
                           </div>
                         ) : (
                           <div>

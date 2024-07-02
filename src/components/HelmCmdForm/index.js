@@ -8,6 +8,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
+import role from '@/utils/newRole';
 import styles from './index.less';
 
 const { Option } = Select;
@@ -31,10 +32,11 @@ const formItemLayouts = {
 };
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, teamControl }) => ({
     groups: global.groups,
     createAppByDockerrunLoading:
-      loading.effects['createApp/createAppByDockerrun']
+      loading.effects['createApp/createAppByDockerrun'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -55,8 +57,8 @@ export default class Index extends PureComponent {
       event_id: '',
       fileList: [],
       existFileList: [],
-      record: {}
-
+      record: {},
+      creatComPermission: {}
     };
   }
   componentDidMount() {
@@ -88,6 +90,8 @@ export default class Index extends PureComponent {
   };
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
@@ -98,7 +102,7 @@ export default class Index extends PureComponent {
     const isService = handleType && handleType === 'Service' ? 'service' : 'team';
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if(fieldsValue.imagefrom == 'upload'){
+        if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.event_id = event_id
         }
         onSubmit(fieldsValue, isService);
@@ -264,6 +268,11 @@ export default class Index extends PureComponent {
   onRemove = () => {
     this.setState({ fileList: [] });
   };
+  handleChange = (values) => {
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${values}`)
+    })
+  }
   render() {
     const {
       groups,
@@ -282,7 +291,9 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const myheaders = {};
     const isService = handleType && handleType === 'Service';
-    const { language, addStoreVisible, HelmwaRehouseList, radioKey, fileList, existFileList } = this.state;
+    const { language, addStoreVisible, HelmwaRehouseList, radioKey, fileList, existFileList, creatComPermission: {
+      isCreate
+    } } = this.state;
     const is_language = language ? formItemLayout : formItemLayout;
     const columns = [
       {
@@ -306,7 +317,7 @@ export default class Index extends PureComponent {
             })(
               <Select
                 showSearch
-                filterOption={(input, option) => 
+                filterOption={(input, option) =>
                   option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -321,6 +332,7 @@ export default class Index extends PureComponent {
                   marginRight: 10
                 }}
                 disabled={!!isService}
+                onChange={this.handleChange}
               >
                 {(groups || []).map(group => {
                   return (
@@ -356,7 +368,7 @@ export default class Index extends PureComponent {
               <Popover
                 content={
                   <>
-                    <Table rowKey={(record,index) => index} dataSource={HelmwaRehouseList} columns={columns} pagination={false} />
+                    <Table rowKey={(record, index) => index} dataSource={HelmwaRehouseList} columns={columns} pagination={false} />
                     <Button type="link" onClick={this.showStoreMoudle}>{formatMessage({ id: 'teamAdd.create.helm.Add' })}</Button>
                   </>
                 }
@@ -375,7 +387,7 @@ export default class Index extends PureComponent {
               <Form.Item
                 {...is_language}
                 label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
-                extra={formatMessage({ id: 'teamAdd.create.image.extra_helm_chart'})}
+                extra={formatMessage({ id: 'teamAdd.create.image.extra_helm_chart' })}
               >
                 {getFieldDecorator('packageTarFile', {
                   rules: [
@@ -476,13 +488,16 @@ export default class Index extends PureComponent {
 
 
                 : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={BtnLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
+                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={BtnLoading}
+                      disabled={!isCreate}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

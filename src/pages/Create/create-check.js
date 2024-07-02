@@ -20,7 +20,7 @@ import {
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
 import regionUtil from '../../utils/region';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import userUtil from '../../utils/user';
 import ModifyImageCmd from './modify-image-cmd';
 import ModifyImageName from './modify-image-name';
@@ -88,6 +88,7 @@ export default class CreateCheck extends React.Component {
     this.mount = true;
     this.getDetail();
     this.bindEvent();
+    roleUtil.refreshPermissionsInfo('',true)
   }
   componentWillUnmount() {
     this.mount = false;

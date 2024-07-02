@@ -12,6 +12,7 @@ import deepinOS from '../../../public/images/deepin.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
 import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
+import role from '@/utils/newRole';
 import styles from './index.less';
 
 
@@ -36,12 +37,13 @@ const formItemLayouts = {
 };
 
 @connect(
-  ({ global, loading, user }) => ({
+  ({ global, loading, user, teamControl }) => ({
     currUser: user.currentUser,
     groups: global.groups,
     rainbondInfo: global.rainbondInfo,
     createAppByDockerrunLoading:
-    loading.effects['createApp/createAppByDockerrun']
+    loading.effects['createApp/createAppByDockerrun'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -68,7 +70,8 @@ export default class Index extends PureComponent {
       ],
       selectName: 'centos7.9',
       selectUrl: 'https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso',
-      comNames: []
+      comNames: [],
+      creatComPermission: {}
     };
   }
   componentWillMount() {
@@ -180,6 +183,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   handleSubmit = e => {
@@ -280,6 +285,9 @@ export default class Index extends PureComponent {
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+    })
     dispatch({
       type: 'appControl/getComponentNames',
       payload: {
@@ -332,7 +340,9 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
     const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
-    const { language, radioKey, fileList, vmShow, existFileList, PublicVm, selectName } = this.state;
+    const { language, radioKey, fileList, vmShow, existFileList, PublicVm, selectName, creatComPermission: {
+      isCreate
+    } } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
     let archLegnth = archInfo.length
@@ -578,13 +588,16 @@ export default class Index extends PureComponent {
             >
               {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
+                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
                   <Button
                     onClick={this.handleSubmit}
                     type="primary"
                     loading={createAppByDockerrunLoading}
+                    disabled={!isCreate}
                   >
                     {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
                   </Button>
+                  </Tooltip>
                   , false
                 )
                 : !handleType && (

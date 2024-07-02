@@ -1,5 +1,6 @@
 import globalUtil from '../utils/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import userUtil from '../utils/user';
 import Exception from '../components/Exception'
 
 const actionMaps = {
@@ -32,7 +33,7 @@ const AccessText = {
     app_gateway_manage: '应用网关',
     app_upgrade: '应用升级',
     app_resources: '应用资源',
-    app_config_group: '应用管理',
+    app_config_group: '应用配置',
     route_manage: '路由管理',
     target_services: '目标服务',
     certificate: '证书管理',
@@ -144,7 +145,7 @@ export default {
             'install',
             'uninstall'
         ];
-        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct','copy'];
+        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct', 'copy'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -198,7 +199,7 @@ export default {
             'isInstall',
             'isUninstall'
         ];
-        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct','isCopy'];
+        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct', 'isCopy'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -434,8 +435,35 @@ export default {
         return this.queryMenuPermissionsInfo(type == 'team' ? teamMenuPermissionsMap : appMenuPermissionsMap, data, appid);
     },
     // 没有权限
-    noPermission(){
-        return <Exception type={403} style={{ minHeight: 600, height: '80%' }} actions/>
+    noPermission() {
+        return <Exception type={403} style={{ minHeight: 600, height: '80%' }} actions />
+    },
+    // 刷新权限信息
+    refreshPermissionsInfo(appid = '', onlyRefresh = true) {
+        const { dispatch } = window.g_app._store;
+        let info
+        dispatch({
+            type: 'user/fetchCurrent',
+            callback: res => {
+                console.log(res.bean, 'res');
+                if (res && res.bean) {
+                    const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+                    dispatch({
+                        type: 'teamControl/fetchCurrentTeamPermissions',
+                        payload: team && team.tenant_actions
+                    });
+                    if (appid != '') {
+                        info = this.queryPermissionsInfo(team?.tenant_actions?.team, 'app_overview', `app_${appid}`)
+                    } else {
+                        info = team?.tenant_actions?.team
+                    }
+                }
+            },
+        });
+        console.log(info);
+        if (!onlyRefresh) {
+            return info || {};
+        }
     }
 };
 
