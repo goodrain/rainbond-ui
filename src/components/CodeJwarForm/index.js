@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
-import roleUtil from '../../utils/role'
+import roleUtil from '../../utils/newRole'
 import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
 import styles from './index.less';
@@ -47,14 +47,13 @@ export default class Index extends PureComponent {
       existFileList: [],
       groupName: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      comNames: []
+      comNames: [],
+      creatComPermission: {}
     };
   }
   componentWillMount() {
     this.loop = false;
     this.statusloop = false;
-    const { currentTeamPermissionsInfo, dispatch } = this.props;
-    // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
     this.handleJarWarUploadRecord('jwar')
@@ -72,7 +71,7 @@ export default class Index extends PureComponent {
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
-      if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+      if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
         value.arch = archInfo[0]
       }
       if (existFileList.length > 0) {
@@ -125,6 +124,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = roleUtil.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   handleJarWarUpload = () => {
@@ -270,34 +271,37 @@ export default class Index extends PureComponent {
   onRemove = () => {
     this.setState({ fileList: [] });
   };
-    // 获取当前选取的app的所有组件的英文名称
-    fetchComponentNames = (group_id) => {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'appControl/getComponentNames',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          group_id
-        },
-        callback: res => {
-          if (res && res.bean ) {
-            this.setState({
-              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-            })
+  // 获取当前选取的app的所有组件的英文名称
+  fetchComponentNames = (group_id) => {
+    const { dispatch } = this.props;
+    this.setState({
+      creatComPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+    })
+    dispatch({
+      type: 'appControl/getComponentNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+          })
         }
       }
-      });
-    }; 
-      // 生成英文名
+    });
+  };
+  // 生成英文名
   generateEnglishName = (name) => {
-    if(name != undefined){
+    if (name != undefined) {
       const { comNames } = this.state;
-      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
       if (comNames && comNames.length > 0) {
         const isExist = comNames.some(item => item === cleanedPinyinName);
         if (isExist) {
-          const random = Math.floor(Math.random() * 10000);          
+          const random = Math.floor(Math.random() * 10000);
           return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
@@ -314,7 +318,7 @@ export default class Index extends PureComponent {
       archInfo
     } = this.props;
     const myheaders = {};
-    const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language } = this.state;
+    const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language, creatComPermission: { isCreate } } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -335,9 +339,9 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -356,7 +360,7 @@ export default class Index extends PureComponent {
                 <Select
                   onChange={this.handleChange}
                   showSearch
-                  filterOption={(input, option) => 
+                  filterOption={(input, option) =>
                     option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -463,18 +467,18 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
-           {archLegnth == 2 &&
-            <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+            {archLegnth == 2 &&
+              <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                {getFieldDecorator('arch', {
+                  initialValue: arch,
+                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                })(
+                  <Radio.Group>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </Radio.Group>
+                )}
+              </Form.Item>}
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -484,9 +488,11 @@ export default class Index extends PureComponent {
                 }
               }}
             >
-              <Button type="primary" htmlType="submit">
-                {formatMessage({ id: 'teamAdd.create.btn.create' })}
-              </Button>
+              <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                <Button type="primary" htmlType="submit" disabled={!isCreate}>
+                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                </Button>
+              </Tooltip>
             </Form.Item>
           </Form>
         </div>

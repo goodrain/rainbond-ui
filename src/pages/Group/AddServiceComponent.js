@@ -450,7 +450,7 @@ export default class AddServiceComponent extends PureComponent {
                         false
                       );
                       this.handleScopeMax(scopeMax);
-                      isComponents
+                       
                     }}
                   />
                 </Row>
@@ -568,12 +568,12 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
               </div>
               <div className={styles.ServiceBox} style={{ marginBottom: '60px' }}>
-                <ThirdParty content={this.getValue.bind(this)} groupId={groupId} isComponents/>
+                <ThirdParty content={this.getValue.bind(this)} groupId={groupId}  />
               </div>
             </div>
           )}
           {ServiceComponentTwoPage === 'custom' && (
-            <Custom archInfo={archInfo} {...PublicParameter} isComponents/>
+            <Custom archInfo={archInfo} {...PublicParameter}  />
           )}
           {ServiceComponentTwoPage === 'gitrepostory' && (
             <CodeGitRepostory
@@ -581,7 +581,7 @@ export default class AddServiceComponent extends PureComponent {
               type={gitServiceID}
               archInfo={archInfo}
               gitType={gitType}
-              isComponents
+               
             />
           )}
           {ServiceComponentThreePage === 'check' && ServiceGetData && (
@@ -608,28 +608,28 @@ export default class AddServiceComponent extends PureComponent {
             />
           )}
           {ServiceComponentTwoPage === 'imageName' && (
-            <ImageName archInfo={archInfo} {...PublicParameter} isComponents/>
+            <ImageName archInfo={archInfo} {...PublicParameter}  />
           )}
           {ServiceComponentTwoPage === 'imageCmd' && (
-            <ImageCmd archInfo={archInfo} {...PublicParameter} isComponents/>
+            <ImageCmd archInfo={archInfo} {...PublicParameter}  />
           )}
           {ServiceComponentTwoPage === 'jwar' && (
-            <Jwar archInfo={archInfo} {...PublicParameter} setPare={this.setJwar} isComponents/>
+            <Jwar archInfo={archInfo} {...PublicParameter} setPare={this.setJwar}  />
           )}
           {ServiceComponentTwoPage === 'codeDemo' && (
-            <CodeDemo archInfo={archInfo} {...PublicParameter} isComponents/>
+            <CodeDemo archInfo={archInfo} {...PublicParameter}  />
           )}
           {ServiceComponentTwoPage === 'yaml' && (
-            <Yaml {...PublicParameter} setPare={this.setYaml} isComponents/>
+            <Yaml {...PublicParameter} setPare={this.setYaml}  />
           )}
           {ServiceComponentTwoPage === 'helm' && (
-            <HelmCmd {...PublicParameter} onClose={this.cancelAddService} isComponents/>
+            <HelmCmd {...PublicParameter} onClose={this.cancelAddService}  />
           )}
           {ServiceComponentTwoPage === 'ImageNameDemo' && (
-            <DockerDemo archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} isComponents/>
+            <DockerDemo archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService}  />
           )}
           {ServiceComponentTwoPage === 'VirtualMachine' && (
-            <VirtualMachine archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService} isComponents/>
+            <VirtualMachine archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService}  />
           )}
           {ServiceComponentTwoPage === 'market' && (
             <Market

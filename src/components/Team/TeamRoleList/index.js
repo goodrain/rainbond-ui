@@ -157,7 +157,7 @@ export default class RoleList extends PureComponent {
                     {roleList.map(item => {
                       const { ID, name } = item;
                       return (
-                        <Item key={ID} className={styles.roleName}>
+                        <Item key={ID} className={styles.roleName} disabled={showAddRole}>
                           <div> {roleUtil.actionMap(name, language)}</div>
                           {isDelete && (
                             <Icon

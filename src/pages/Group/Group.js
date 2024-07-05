@@ -951,7 +951,7 @@ export default class Index extends PureComponent {
               <div>{formatMessage({ id: 'appOverview.k8s' })}</div>
               <div
                 onClick={() => {
-                  isAppResources && this.handleJump('resource');
+                  isAppResources && this.handleJump('asset');
                 }}
               >
                 <a>{currApp.resources_num || 0}</a>

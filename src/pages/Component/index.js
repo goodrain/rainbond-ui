@@ -1780,9 +1780,6 @@ export default class Index extends PureComponent {
         isAccess
       }
      } = this.state;
-     if(!isAccess){
-      return roleUtil.noPermission()
-     }
     if (this.id !== this.getAlias()) {
       this.id = this.getAlias();
       this.flash();

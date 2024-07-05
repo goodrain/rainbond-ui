@@ -11,6 +11,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import role from '../../utils/newRole'
 import {
   getComposeByComposeId,
   getComposeCheckuuid,
@@ -133,6 +134,7 @@ export default class CreateCheck extends PureComponent {
     this.getCheckuuid();
     this.mount = true;
     this.bindEvent();
+    role.refreshPermissionsInfo('', true)
   }
   componentWillUnmount() {
     this.mount = false;

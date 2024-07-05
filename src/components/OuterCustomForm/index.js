@@ -24,6 +24,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import rainbondUtil from '../../utils/rainbond';
 
@@ -52,10 +53,11 @@ const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z
 const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 @connect(
-  ({ user, global }) => ({
+  ({ user, global, teamControl }) => ({
     currUser: user.currentUser,
     groups: global.groups,
-    rainbondInfo: global.rainbondInfo
+    rainbondInfo: global.rainbondInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -71,12 +73,13 @@ export default class Index extends PureComponent {
       visible: false,
       staticList: [''],
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      comNames: []
+      comNames: [],
+      creatComPermission: {}
     };
   }
   componentDidMount() {
     const { handleType, groupId } = this.props;
-    if(handleType && handleType === 'Service'){
+    if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
   }
@@ -90,6 +93,8 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    const info = role.refreshPermissionsInfo(groupId, false)
+    this.setState({ creatComPermission: info })
     this.cancelAddGroup();
   };
   handleChange = () => {
@@ -190,13 +195,13 @@ export default class Index extends PureComponent {
 
   validAttrName = (rule, value, callback) => {
     if (!value) {
-      callback(formatMessage({id: 'placeholder.componentAddress'}));
+      callback(formatMessage({ id: 'placeholder.componentAddress' }));
       return;
     }
     if (typeof value === 'object') {
       value.map(item => {
         if (item == '') {
-          callback(formatMessage({id: 'placeholder.componentAddress'}));
+          callback(formatMessage({ id: 'placeholder.componentAddress' }));
           return null;
         }
 
@@ -206,79 +211,82 @@ export default class Index extends PureComponent {
           !rega.test(item || '') &&
           !rege.test(item || '')
         ) {
-          callback(formatMessage({id: 'placeholder.attrName'}));
+          callback(formatMessage({ id: 'placeholder.attrName' }));
         }
         if (this.handleIsRepeat(value)) {
-          callback(formatMessage({id: 'placeholder.notAttrName'}));
+          callback(formatMessage({ id: 'placeholder.notAttrName' }));
         }
       });
     }
     if (
       value && typeof value === 'object'
         ? value.join().search('127.0.0.1') !== -1 ||
-          value.join().search('1.1.1.1') !== -1 ||
-          value.join().search('localhost') !== -1
+        value.join().search('1.1.1.1') !== -1 ||
+        value.join().search('localhost') !== -1
         : value.search('127.0.0.1') !== -1 ||
-          value.search('1.1.1.1') !== -1 ||
-          value.search('localhost') !== -1
+        value.search('1.1.1.1') !== -1 ||
+        value.search('localhost') !== -1
     ) {
-      callback(formatMessage({id: 'placeholder.nonsupport'},{ nonsupport: value })`${value == '1.1.1.1' ? formatMessage({id: 'placeholder.nonsupport.regAddress'}) : formatMessage({id: 'placeholder.nonsupport.regLoopBack'})}`);
+      callback(formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })`${value == '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
     }
     callback();
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(formatMessage({id: 'placeholder.k8s_component_name'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error(formatMessage({id: 'placeholder.nameSpaceReg'}))
+          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
-    // 获取当前选取的app的所有组件的英文名称
-    fetchComponentNames = (group_id) => {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'appControl/getComponentNames',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          group_id
-        },
-        callback: res => {
-          if (res && res.bean ) {
-            this.setState({
-              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-            })
+  // 获取当前选取的app的所有组件的英文名称
+  fetchComponentNames = (group_id) => {
+    const { dispatch } = this.props;
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+    })
+    dispatch({
+      type: 'appControl/getComponentNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+          })
         }
       }
-      });
-    };
-    // 生成英文名
-    generateEnglishName = (name) => {
-      if(name != undefined){
-        const { comNames } = this.state;
-        const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-        const cleanedPinyinName = pinyinName.toLowerCase();
-        if (comNames && comNames.length > 0) {
-          const isExist = comNames.some(item => item === cleanedPinyinName);
-          if (isExist) {
-            const random = Math.floor(Math.random() * 10000);          
-            return `${cleanedPinyinName}${random}`;
-          }
-          return cleanedPinyinName;
+    });
+  };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
       }
-      return ''
+      return cleanedPinyinName;
     }
+    return ''
+  }
   render() {
     const {
       groups,
@@ -291,36 +299,38 @@ export default class Index extends PureComponent {
       showCreateGroup = true
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const { endpointsType, staticList, addGroup, language, } = this.state;
+    const { endpointsType, staticList, addGroup, language, creatComPermission: {
+      isCreate
+    }} = this.state;
     const data = this.props.data || {};
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts
     const apiMessage = (
       <Alert
-        message={formatMessage({id: 'teamAdd.create.third.Alert.warning'})}
+        message={formatMessage({ id: 'teamAdd.create.third.Alert.warning' })}
         type="warning"
         showIcon
-        style={language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' } }
+        style={language ? { width: '350px', marginBottom: '20px' } : { width: '250px', marginBottom: '20px' }}
       />
     );
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.service_cname'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
               rules: [
-                { required: true, message: formatMessage({id: 'placeholder.component_cname'}) },
+                { required: true, message: formatMessage({ id: 'placeholder.component_cname' }) },
                 {
                   max: 24,
-                  message: formatMessage({id: 'placeholder.max24'})
+                  message: formatMessage({ id: 'placeholder.max24' })
                 }
               ]
             })(
               <Input
-                placeholder={formatMessage({id: 'placeholder.component_cname'})}
-                style={((language == false) && (isService==true)) ? {
+                placeholder={formatMessage({ id: 'placeholder.component_cname' })}
+                style={((language == false) && (isService == true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -338,22 +348,22 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.k8s_component_name'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
-              initialValue: this.generateEnglishName(form.getFieldValue('service_cname')) ,
+              initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
             })(
               <Input
-                style={((language == false) && (isService==true)) ? {
+                style={((language == false) && (isService == true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
-                }  : {
+                } : {
                   display: 'inline-block',
                   width: 350,
                   marginRight: 15,
@@ -361,24 +371,24 @@ export default class Index extends PureComponent {
                   overflow: 'hidden',
                   whiteSpace: 'nowrap'
                 }}
-                placeholder={formatMessage({id: 'placeholder.k8s_component_name'})}
+                placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
               />
             )}
           </Form.Item>
 
-          <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
+          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
               initialValue: isService ? Number(groupId) : data.group_id,
-              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
                 showSearch
-                filterOption={(input, option) => 
+                filterOption={(input, option) =>
                   option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={((language == false) && (isService==true)) ? {
+                placeholder={formatMessage({ id: 'placeholder.appName' })}
+                style={((language == false) && (isService == true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -403,21 +413,21 @@ export default class Index extends PureComponent {
               </Select>
             )}
             {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({id: 'teamAdd.create.third.createNewApp'})}</Button>
+              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamAdd.create.third.createNewApp' })}</Button>
             ) : null}
           </Form.Item>
 
-          <FormItem {...is_language} label={formatMessage({id: 'teamAdd.create.third.componentRegister'})}>
+          <FormItem {...is_language} label={formatMessage({ id: 'teamAdd.create.third.componentRegister' })}>
             {getFieldDecorator('endpoints_type', {
-              rules: [{ required: true, message: formatMessage({id: 'placeholder.endpoints'}) }],
+              rules: [{ required: true, message: formatMessage({ id: 'placeholder.endpoints' }) }],
               initialValue: this.state.endpointsType
             })(
               <RadioGroup
                 onChange={this.handleChangeEndpointsType}
                 value={endpointsType}
               >
-                <Radio value="static">{formatMessage({id: 'teamAdd.create.third.staticRegister'})}</Radio>
-                <Radio value="api">{formatMessage({id: 'teamAdd.create.third.apiRegister'})}</Radio>
+                <Radio value="static">{formatMessage({ id: 'teamAdd.create.third.staticRegister' })}</Radio>
+                <Radio value="api">{formatMessage({ id: 'teamAdd.create.third.apiRegister' })}</Radio>
                 <Radio value="kubernetes">Kubernetes</Radio>
               </RadioGroup>
             )}
@@ -428,9 +438,9 @@ export default class Index extends PureComponent {
               {...is_language}
               label={
                 <span>
-                  {formatMessage({id: 'teamAdd.create.third.componentAddress'})}
+                  {formatMessage({ id: 'teamAdd.create.third.componentAddress' })}
                   {platform_url && (
-                    <Tooltip title={formatMessage({id: "teamAdd.create.third.href"})}>
+                    <Tooltip title={formatMessage({ id: "teamAdd.create.third.href" })}>
                       <a
                         target="_blank"
                         href={`${platform_url}docs/use-manual/component-create/thirdparty-service/thirdparty-create`}
@@ -449,7 +459,7 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={language&&isService ? { width: 370 } :  { width: 280 } } key={index}>
+                      <Row style={language && isService ? { width: 370 } : { width: 280 }} key={index}>
                         <Col span={18}>
                           <Input
                             onChange={this.onKeyChange.bind(
@@ -458,7 +468,7 @@ export default class Index extends PureComponent {
                               'static'
                             )}
                             value={item}
-                            placeholder={formatMessage({id: "placeholder.componentAddress"})}
+                            placeholder={formatMessage({ id: "placeholder.componentAddress" })}
                           />
                         </Col>
                         <Col span={4} style={{ textAlign: 'center' }}>
@@ -490,11 +500,11 @@ export default class Index extends PureComponent {
             <div>
               <FormItem {...is_language} label="Namespace">
                 {getFieldDecorator('namespace', {
-                  rules: [{ required: false, message: formatMessage({id: "placeholder.nameSpaceMsg"}) }],
+                  rules: [{ required: false, message: formatMessage({ id: "placeholder.nameSpaceMsg" }) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService==true))? {
+                    style={((language == false) && (isService == true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -509,18 +519,18 @@ export default class Index extends PureComponent {
                       overflow: 'hidden',
                       whiteSpace: 'nowrap'
                     }
-                  }
-                    placeholder={formatMessage({id: "placeholder.nameSpace"})}
+                    }
+                    placeholder={formatMessage({ id: "placeholder.nameSpace" })}
                   />
                 )}
               </FormItem>
               <FormItem {...is_language} label="Service">
                 {getFieldDecorator('serviceName', {
-                  rules: [{ required: true, message: formatMessage({id: "placeholder.serviceName"}) }],
+                  rules: [{ required: true, message: formatMessage({ id: "placeholder.serviceName" }) }],
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService==true))? {
+                    style={((language == false) && (isService == true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -535,7 +545,7 @@ export default class Index extends PureComponent {
                       overflow: 'hidden',
                       whiteSpace: 'nowrap'
                     }}
-                    placeholder={formatMessage({id: "placeholder.serviceName"})}
+                    placeholder={formatMessage({ id: "placeholder.serviceName" })}
                   />
                 )}
               </FormItem>
@@ -555,19 +565,21 @@ export default class Index extends PureComponent {
             >
               {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
-                    <Button onClick={this.handleSubmit} type="primary">
-                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
-                    </Button>,
-                    false
-                  )
+                  <Button onClick={this.handleSubmit} type="primary">
+                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                  </Button>,
+                  false
+                )
                 : !handleType && (
-                    <div>
-                      {endpointsType == 'api' && apiMessage}
-                      <Button onClick={this.handleSubmit} type="primary">
-                      {formatMessage({id: 'teamAdd.create.btn.create'})}
+                  <div>
+                    {endpointsType == 'api' && apiMessage}
+                    <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                      <Button onClick={this.handleSubmit} type="primary" disabled={!isCreate}>
+                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
                       </Button>
-                    </div>
-                  )}
+                    </Tooltip>
+                  </div>
+                )}
               {isService && endpointsType == 'api' && apiMessage}
             </Form.Item>
           ) : null}
