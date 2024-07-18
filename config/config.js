@@ -17,7 +17,7 @@ export default {
       {
         antd: true,
         dva: {
-          hmr: true
+          hmr: false
         },
         dynamicImport: {
           loadingComponent: './components/PageLoading/index',

@@ -324,7 +324,7 @@ export default class RKEClusterConfig extends PureComponent {
     });
   };
   fetchRkeconfig = (obj = {}, isNext, fieldsValue = {}) => {
-    const { form, eid } = this.props;
+    const { form, eid, clusterID } = this.props;
     const { activeKey } = this.state;
     const { setFieldsValue } = form;
     const info = Object.assign({}, obj, { enterprise_id: eid });
@@ -379,7 +379,11 @@ export default class RKEClusterConfig extends PureComponent {
             notification.warning({ message: helpError });
           }
           if (isNext && !helpError) {
-            this.handleStartCheck(isNext, fieldsValue, val)
+            if(clusterID){
+              this.updateCluster(val);
+            } else {
+              this.handleStartCheck(isNext, fieldsValue, val)
+            }
           }
         }
       })
@@ -406,7 +410,7 @@ export default class RKEClusterConfig extends PureComponent {
       });
   };
 
-  updateCluster = () => {
+  updateCluster = (val) => {
     const { dispatch, eid, clusterID, form } = this.props;
     const { dataSource, yamlVal } = this.state;
     if (dataSource && dataSource.length === 0) {
@@ -421,7 +425,7 @@ export default class RKEClusterConfig extends PureComponent {
             enterprise_id: eid,
             clusterID,
             provider: 'rke',
-            encodedRKEConfig: this.encodeBase64Content(values.yamls || yamlVal)
+            encodedRKEConfig: this.encodeBase64Content(val)
           },
           callback: data => {
             this.handleOk(data && data.response_data);
@@ -437,10 +441,6 @@ export default class RKEClusterConfig extends PureComponent {
   createCluster = () => {
     const { form, dispatch, eid, clusterID } = this.props;
     const { dataSource, yamlVal } = this.state;
-    if (clusterID) {
-      this.updateCluster();
-      return null;
-    }
     form.validateFields((err, fieldsValue) => {
       if (!err) {
 
