@@ -23,6 +23,8 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import copy from 'copy-to-clipboard';
+import CodeMirror from 'react-codemirror';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import ConfirmModal from '../../components/ConfirmModal';
 import InstallStep from '../../components/Introduced/InstallStep';
@@ -32,6 +34,8 @@ import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import cloud from '../../utils/cloud';
+import { getKubeConfig } from '../../services/cloud';
 import styles from "./index.less"
 
 const { confirm } = Modal;
@@ -75,7 +79,9 @@ export default class EnterpriseClusters extends PureComponent {
       ),
       setTenantLimitShow: false,
       guideStep: 1,
-      jumpSwitch: true
+      jumpSwitch: true,
+      kubeConfig: '',
+      handleType: '',
     };
   }
   componentWillMount() {
@@ -104,36 +110,57 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
   handleDelete = (force = false) => {
-    const { regionInfo } = this.state;
+    const { regionInfo, handleType } = this.state;
     const {
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    dispatch({
-      type: 'region/deleteEnterpriseCluster',
-      payload: {
-        region_id: regionInfo.region_id,
-        enterprise_id: eid,
-        force
-      },
-      callback: res => {
-        if (res && res._condition === 200) {
-          this.loadClusters();
-          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+    if (handleType === 'delete') {
+      dispatch({
+        type: 'region/deleteEnterpriseCluster',
+        payload: {
+          region_id: regionInfo.region_id,
+          enterprise_id: eid,
+          force
+        },
+        callback: res => {
+          if (res && res._condition === 200) {
+            this.loadClusters();
+            notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+          }
+          this.cancelClusters();
+        },
+        handleError: res => {
+          if (res && res.data && res.data.code === 10050) {
+            this.setState({
+              delVisible: false
+            });
+            this.handleMandatoryDelete();
+          }
         }
-        this.cancelClusters();
-      },
-      handleError: res => {
-        if (res && res.data && res.data.code === 10050) {
-          this.setState({
-            delVisible: false
-          });
-          this.handleMandatoryDelete();
+      });
+    } else {
+      dispatch({
+        type: 'cloud/deleteKubernetesCluster',
+        payload: {
+          enterprise_id: eid,
+          clusterID: regionInfo.provider_cluster_id,
+        },
+        callback: (res) => {
+          if (res && res.response_data && res.response_data.code && res.response_data.code === 200) {
+            this.loadClusters();
+            notification.success({message: res.response_data.msg})
+          }
+          this.cancelClusters();
+        },
+        handleError: res => {
+          cloud.handleCloudAPIError(res);
+          this.cancelClusters();
         }
-      }
-    });
+      });
+    }
   };
 
   loadClusters = () => {
@@ -185,16 +212,33 @@ export default class EnterpriseClusters extends PureComponent {
     this.loadPutCluster(item.region_id);
   };
 
-  delUser = regionInfo => {
+  delUser = (regionInfo, type) => {
     this.setState({
       delVisible: true,
-      regionInfo
+      regionInfo,
+      handleType: type,
     });
   };
   cancelClusters = () => {
     this.setState({
       delVisible: false,
       regionInfo: false
+    });
+  };
+  getKubeConfig = item => {
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    getKubeConfig({
+      clusterID: item.provider_cluster_id,
+      enterprise_id: eid,
+      providerName: item.provider,
+    }).then(res => {
+      if (res && res.status_code && res.status_code === 200) {
+        this.setState({ kubeConfig: res.config });
+      }
     });
   };
 
@@ -563,7 +607,9 @@ export default class EnterpriseClusters extends PureComponent {
       initLimitValue,
       guideStep,
       isNewbieGuide,
-      showClusterIntroduced
+      showClusterIntroduced,
+      kubeConfig,
+      handleType,
     } = this.state;
     const { getFieldDecorator } = form;
     const pagination = {
@@ -601,7 +647,6 @@ export default class EnterpriseClusters extends PureComponent {
     );
     const colorbj = (color, bg) => {
       return {
-        // width: '100px',
         color,
         background: bg,
         borderRadius: '15px',
@@ -813,16 +858,24 @@ export default class EnterpriseClusters extends PureComponent {
           ];
           if (item.region_name != 'dind-region') {
             mlist.push(
-              <a
-              onClick={() => {
-                this.delUser(item);
-              }}
-            >
-              <FormattedMessage id='enterpriseColony.table.handle.delete' />
-              {/* 删除 */}
-            </a>
+              <a onClick={() => {this.delUser(item, 'delete');}}>
+                <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                {/* 删除 */}
+              </a>
             );
           }
+          mlist.push(
+            <a onClick={() => {this.delUser(item, 'unload');}}>
+              <FormattedMessage id='button.uninstall'/>
+              {/* 卸载 */}
+            </a>
+          );
+          mlist.push(
+            <a onClick={() => {this.getKubeConfig(item);}}>
+              KubeConfig
+              {/* KubeConfig */}
+            </a>
+          );
           if (item.provider === 'rke') {
             mlist.push(
               <Link
@@ -971,9 +1024,9 @@ export default class EnterpriseClusters extends PureComponent {
           {delVisible && (
             <ConfirmModal
               loading={delclusterLongin}
-              title={formatMessage({ id: 'confirmModal.cluster.delete.title' })}
+              title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
               subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={formatMessage({ id: 'confirmModal.delete.cluster.desc' })}
+              desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
               onOk={() => this.handleDelete(false)}
               onCancel={this.cancelClusters}
             />
@@ -994,7 +1047,6 @@ export default class EnterpriseClusters extends PureComponent {
             message={<FormattedMessage id='enterpriseColony.alert.message' />}
           />
           <Table
-            // scroll={{ x: window.innerWidth > 1500 ? false : 1500 }}
             rowKey={(record,index) => index}
             loading={clusterLoading}
             dataSource={clusters}
@@ -1004,6 +1056,40 @@ export default class EnterpriseClusters extends PureComponent {
             rowClassName={styles.rowStyle}
           />
         </Card>
+        {kubeConfig && (
+          <Modal
+            visible
+            width={1000}
+            maskClosable={false}
+            onCancel={() => {
+              this.setState({ kubeConfig: '' });
+            }}
+            title="KubeConfig"
+            bodyStyle={{ background: '#000' }}
+            onOk={() => {
+              copy(kubeConfig);
+              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
+            }}
+            okText={<FormattedMessage id='button.copy'/>}
+          >
+            <div className={styles.cmd}>
+              <CodeMirror
+                value={kubeConfig}
+                options={{
+                  mode: { name: 'javascript', json: true },
+                  lineNumbers: true,
+                  theme: 'seti',
+                  lineWrapping: true,
+                  smartIndent: true,
+                  matchBrackets: true,
+                  scrollbarStyle: null,
+                  showCursorWhenSelecting: true,
+                  height: 500
+                }}
+              />
+            </div>
+          </Modal>
+        )}
       </PageHeaderLayout>
     );
   }

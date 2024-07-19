@@ -29,7 +29,6 @@ import {
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import CodeMirrorForm from '../../CodeMirrorForm';
-import ClusterComponents from '../ClusterComponents';
 import yaml from 'js-yaml'
 import SelectNode from '../../SelectNode';
 import Etcd from '../../../pages/AddCluster/component/etcd';
@@ -56,7 +55,6 @@ export default class RainbondClusterInit extends PureComponent {
       guideStep: 10,
       ipArray: [],
       isStorage: 'default',
-      isEtcd: 'default',
       isImage: 'default',
       isDatabase: 'default',
       isMirror: 'default',
@@ -78,24 +76,38 @@ export default class RainbondClusterInit extends PureComponent {
       enterprise,
       nextStep
     } = this.props;
-    getUpdateKubernetesTask(
-      {
+    // getUpdateKubernetesTask(
+    //   {
+    //     clusterID,
+    //     providerName: selectProvider,
+    //     enterprise_id: eid
+    //   },
+    //   err => {
+    //     cloud.handleCloudAPIError(err);
+    //   }
+    // )
+    //   .then(res => {
+    //     this.setState({
+    //       ipArray: res.nodeList
+    //     })
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
+    dispatch({
+      type: 'region/fetchClusterNodeList',
+      payload: {
+        enterprise_id: eid,
         clusterID,
-        providerName: selectProvider,
-        enterprise_id: eid
       },
-      err => {
-        cloud.handleCloudAPIError(err);
+      callback: res => {
+        if (res && res.response_data && res.response_data.code === 200) {
+          this.setState({
+            ipArray: res.response_data.data.List
+          })
+        }
       }
-    )
-      .then(res => {
-        this.setState({
-          ipArray: res.nodeList
-        })
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    })
   };
 
   initRainbondCluster = () => {
@@ -221,62 +233,60 @@ export default class RainbondClusterInit extends PureComponent {
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
-        apiVersion: 'rainbond.io/v1alpha1',
-        kind: 'RainbondCluster',
-        metadata: {
-          name: 'rainbondcluster',
-          namespace: 'rbd-system'
+        useK3sContainerd: true,
+        operator: {
+          env: [
+            {
+              name: 'CONTAINER_RUNTIME',
+              value: 'containerd'
+            }
+          ],
+          image: {
+            name: 'registry.cn-hangzhou.aliyuncs.com/goodrain/rainbond-operator',
+            tag: 'v6.0.0-release'
+          }
         },
-        spec: {}
+        Cluster: {
+          installVersion: 'v6.0.0-release',
+          rainbondImageRepository: 'registry.cn-hangzhou.aliyuncs.com/goodrain'
+        }
       };
       if (!err) {
         if (values.gatewayIngressIPs) {
-          dataObj.spec.gatewayIngressIPs = [values.gatewayIngressIPs]
+          dataObj.Cluster.gatewayIngressIPs = values.gatewayIngressIPs
         }
 
         if (values.nodesForGateway) {
           const gatewayArr = [];
           for (let i = 0; i < values.nodesForGateway.length; i++) {
             for (let j = 0; j < ipArray.length; j++) {
-              if (values.nodesForGateway[i].name === ipArray[j].ip) {
+              if (values.nodesForGateway[i].name === ipArray[j].node_name) {
                 // 合并两个对象
                 let mergedObject = {
                   name: values.nodesForGateway[i].name,
-                  internalIP: ipArray[j].internalIP,
-                  externalIP: ipArray[j].ip
+                  externalIP: ipArray[j].host,
+                  internalIP: ipArray[j].host,
                 };
                 gatewayArr.push(mergedObject);
               }
             }
           }
-          dataObj.spec.nodesForGateway = gatewayArr
+          dataObj.Cluster.nodesForGateway = gatewayArr
         }
         if (values.nodesForChaos) {
           const forChaos = [];
           for (let i = 0; i < values.nodesForChaos.length; i++) {
-            for (let j = 0; j < ipArray.length; j++) {
-              if (values.nodesForChaos[i].name === ipArray[j].ip) {
-                // 合并两个对象
-                let nodesChaos = {
-                  name: values.nodesForChaos[i].name,
-                  internalIP: ipArray[j].internalIP,
-                  externalIP: ipArray[j].ip
-                };
-                forChaos.push(nodesChaos);
-              }
-            }
+            let nodesChaos = {
+              name: values.nodesForChaos[i].name,
+            };
+            forChaos.push(nodesChaos);
           }
-          dataObj.spec.nodesForChaos = forChaos
-        }
-        if (values.isEtcd == 'custom') {
-          dataObj.spec.etcdConfig = {
-            endpoints: values.endpoints.map(item => item.ip),
-            secretName: values.secretName
-          }
+          dataObj.Cluster.nodesForChaos = forChaos
         }
 
         if (values.image == 'custom') {
-          dataObj.spec.imageHub = {
+          dataObj.Cluster.imageHub = {
+            enable: true,
             domain: values.domain,
             namespace: values.namespace,
             username: values.username,
@@ -284,12 +294,16 @@ export default class RainbondClusterInit extends PureComponent {
           }
         }
         if (values.isStorage == 'custom') {
-          dataObj.spec.rainbondVolumeSpecRWX = {
-            storageClassName: values.storageClassName1
+          dataObj.Cluster.RWX = {
+            enable: true,
+            config: {
+              storageClassName: values.storageClassName1
+            }
           }
         }
         if (values.database == 'custom') {
-          dataObj.spec.regionDatabase = {
+          dataObj.Cluster.regionDatabase = {
+            enable: true,
             host: values.regionDatabase_host,
             port: Number(values.regionDatabase_port),
             username: values.regionDatabase_username,
@@ -298,7 +312,7 @@ export default class RainbondClusterInit extends PureComponent {
           }
         }
         if (values.mirror == 'custom') {
-          dataObj.spec.rainbondImageRepository = values.mirror_address
+          dataObj.Cluster.rainbondImageRepository = values.mirror_address
         }
         const yamls = yaml.dump(dataObj)
         setRainbondClusterConfig({
@@ -372,9 +386,6 @@ export default class RainbondClusterInit extends PureComponent {
   hanldeStorageChange = (e) => {
     this.setState({ isStorage: e.target.value });
   }
-  hanldeEtcdChange = (e) => {
-    this.setState({ isEtcd: e.target.value });
-  }
   hanldeImageChange = (e) => {
     this.setState({ isImage: e.target.value });
   }
@@ -400,7 +411,6 @@ export default class RainbondClusterInit extends PureComponent {
       checked,
       ipArray,
       isStorage,
-      isEtcd,
       isImage,
       isDatabase,
       isMirror,
@@ -487,8 +497,8 @@ export default class RainbondClusterInit extends PureComponent {
                           {(ipArray && ipArray.length > 0)
                             ? ipArray.map((item) => {
                               const res = (
-                                <AutoComplete.Option value={item.ip}>
-                                  {item.ip}
+                                <AutoComplete.Option value={item.host}>
+                                  {item.host}
                                 </AutoComplete.Option>
                               );
                               return res;
@@ -525,7 +535,7 @@ export default class RainbondClusterInit extends PureComponent {
                             validator: this.handleValidatorsNodes
                           }
                         ]
-                      })(<SelectNode keys='gateway' ipArr={ipArray} />)}
+                      })(<SelectNode type='1' keys='gateway' ipArr={ipArray} />)}
                     </Form.Item>
                   </Row>
                   <Row className={styles.row}>
@@ -556,7 +566,7 @@ export default class RainbondClusterInit extends PureComponent {
                             validator: this.handleValidatorsNodes
                           }
                         ]
-                      })(<SelectNode keys='chaos' ipArr={ipArray} />)}
+                      })(<SelectNode type='1' keys='chaos' ipArr={ipArray} />)}
                     </Form.Item>
                   </Row>
                   <Row className={styles.row}>
@@ -604,70 +614,6 @@ export default class RainbondClusterInit extends PureComponent {
                             }
                           ]
                         })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
-                      </Form.Item>}
-                  </Row>
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
-                      <div className={styles.title_name}>
-                        Etcd
-                        <Tooltip
-                          placement="right"
-                          title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.etcd' })}
-                          </div>}
-                        >
-                          <div>
-                            {globalUtil.fetchSvg('tip')}
-                          </div>
-                        </Tooltip>
-                      </div>
-                      <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('isEtcd', {
-                          initialValue: isEtcd
-                        })(
-                          <Radio.Group onChange={this.hanldeEtcdChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isEtcd == 'custom' &&
-                      <Form.Item
-                        {...is_formItemLayout}
-                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.secretName' })}
-                      >
-                        {getFieldDecorator('secretName', {
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.inpiut_name' })
-                            },
-                            {
-                              pattern: /^[^\s]*$/,
-                              message: formatMessage({ id: 'placeholder.no_spaces' })
-                            }
-                          ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.inpiut_Name' })} />)}
-                      </Form.Item>}
-                    {isEtcd == 'custom' &&
-                      <Form.Item
-                        {...is_formItemLayout}
-                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.endpoints' })}
-                      >
-                        {getFieldDecorator('endpoints', {
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_node' })
-                            },
-                            {
-                              validator: this.handleValidatorsNodes
-                            }
-                          ]
-                        })(<Etcd />)}
                       </Form.Item>}
                   </Row>
                 </Panel>

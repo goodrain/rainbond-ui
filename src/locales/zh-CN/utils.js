@@ -146,6 +146,7 @@ const utils ={
 'utils.getAliyunClusterStatus.operation_Docked':'运行中(已对接)',
 'utils.getAliyunClusterStatus.operation_Initialized':'运行中(已初始化)',
 'utils.getAliyunClusterStatus.operation':'运行中',
+'utils.getAliyunClusterStatus.operation_error': '连接失败',
 'utils.getAliyunClusterStatus.Initializing':'初始化中',
 'utils.getAliyunClusterStatus.Deleting':'删除中',
 'utils.getAliyunClusterStatus.Offline':'已离线',

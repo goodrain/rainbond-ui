@@ -61,7 +61,7 @@ class DAinput extends Component {
   render() {
     const namePlaceholder = `${formatMessage({id:'enterpriseColony.Advanced.master'})}`;
     const { values } = this.state;
-    const { keys, ipArr } = this.props;
+    const { keys, type, ipArr } = this.props;
     return (
       <div key={keys}>
         {values.map((item, index) => {
@@ -77,8 +77,8 @@ class DAinput extends Component {
                   value={item.name}
                   placeholder={namePlaceholder}
                 >
-                    {ipArr.map((item, index) => {
-                        return <Option value={item.ip} key={index}>{item.ip}</Option>;
+                    {ipArr && ipArr.length>0 && ipArr.map((item, index) => {
+                        return <Option value={type === '1' ? item.node_name : item.host} key={index}>{type === '1' ? item.node_name : item.host}</Option>;
                     })}
                 </Select>
               </Col>

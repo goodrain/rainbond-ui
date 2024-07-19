@@ -171,7 +171,7 @@ export async function updateInitTaskStatus(body, handleError) {
 
 export async function deleteKubernetesCluster(body, handleError) {
   return request(
-    `${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${body.enterprise_id}/rke2/${body.clusterID}`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/rke2/${body.clusterID}`,
     {
       method: 'delete',
       handleError
@@ -293,7 +293,7 @@ export async function getRainbondClusterConfig(body, handleError) {
 
 export async function setRainbondClusterConfig(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/rainbondcluster`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/rke2/install/rainbond/${body.clusterID}`,
     {
       method: 'put',
       data: {
@@ -332,7 +332,7 @@ export async function fetchCheckSsh(body, handleError) {
 // 新建k8s集群
 export async function AddClusterRke2(body, handleError) {
   return request(
-    `${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${body.eid}/rke2`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.eid}/rke2`,
     {
       method: 'post',
       data: {
@@ -346,7 +346,7 @@ export async function AddClusterRke2(body, handleError) {
 // 检测节点账户密码是否正确
 export async function fetchCheckSshPwd(body, handleError) {
   return request(
-    `${apiconfig.baseUrl}/enterprise-server/api/v1/check_ssh_pwd`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/check_ssh_pwd`,
     {
       method: 'post',
       data: body.data,

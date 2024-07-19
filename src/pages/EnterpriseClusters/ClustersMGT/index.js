@@ -14,7 +14,6 @@ import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
 import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
-import ShowUpdateClusterDetail from '../../../components/Cluster/ShowUpdateClusterDetail';
 import SVG from '../../../utils/pageHeaderSvg'
 import global from '@/utils/global';
 import styles from "./index.less";
@@ -313,34 +312,6 @@ class Index extends Component {
             dashboardShow={dashboardShow}
           />
         </Row>
-        {showUpdateKubernetes && (
-          <RKEClusterUpdate
-            eid={eid}
-            onOK={task => {
-              this.setState({
-                clusterID: task.clusterID,
-                showUpdateKubernetes: false,
-                updateTask: task,
-                showUpdateKubernetesTasks: true
-              });
-            }}
-            onCancel={() => {
-              this.setState({ showUpdateKubernetes: false });
-            }}
-            clusterID={updateClusterID}
-            nodeList={nodeListArr}
-            rkeConfig={rkeConfig}
-          />
-        )}
-        {showUpdateKubernetesTasks && (
-          <ShowUpdateClusterDetail
-            eid={eid}
-            clusterID={clusterID}
-            task={updateTask}
-            selectProvider={"rke"}
-            onCancel={this.cancelShowUpdateKubernetes}
-          />
-        )}
       </>
     );
   }

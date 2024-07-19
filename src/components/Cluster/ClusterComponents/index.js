@@ -35,7 +35,7 @@ class ClusterComponents extends PureComponent {
     this.refresh = false;
   }
   fetchRainbondComponents = () => {
-    const { eid, clusterID, providerName } = this.props;
+    const { eid, clusterID, providerName, completeInit } = this.props;
     const { componentInfo } = this.state;
     getRainbondComponents({
       clusterID,
@@ -45,6 +45,7 @@ class ClusterComponents extends PureComponent {
       .then(res => {
         const list = (res && res.response_data) || [];
         let info = false;
+        let flag = true
         list.map(item => {
           if (
             componentInfo.app === item.app &&
@@ -54,6 +55,23 @@ class ClusterComponents extends PureComponent {
             info = Object.assign({}, item.pods[0], { app: item.app });
           }
         });
+        for (let i = 0; i < list.length; i++) {
+          let pods = list[i].pods;
+          if (pods == null || pods.length === 0) {
+            flag = false
+            break;
+          } else {
+            for (let j = 0; j < pods.length; j++) {
+              if (pods[j].status.phase !== "Running") {
+                flag = false
+                break;
+              }
+            }
+          }
+        }
+        if (flag) {
+          completeInit()
+        }
         this.handleComponentDetails(info);
 
         if (this.refresh) {
@@ -131,17 +149,6 @@ class ClusterComponents extends PureComponent {
     };
     return stateMap[phase] || styless.successState;
   };
-  handleReload = () => {
-    this.setState(
-      {
-        componentsLoading: true,
-        eventLoading: true
-      },
-      () => {
-        this.fetchRainbondComponents();
-      }
-    );
-  };
   render() {
     const { onCancel, openInitInfo } = this.props;
     const {
@@ -173,11 +180,6 @@ class ClusterComponents extends PureComponent {
     });
     const slash = (
       <span style={{ color: 'rgba(0, 0, 0, 0.35)' }}>&nbsp;/&nbsp;</span>
-    );
-    const reloadBtn = (
-      <Button style={{ float: 'right' }} onClick={this.handleReload}>
-        <Icon type="reload" />
-      </Button>
     );
     return (
       <div>
