@@ -236,6 +236,7 @@ export async function fetchHistoryLogs(param) {
 export async function fetClusterNodeList(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes`, {
     method: 'get',
+    timeout: 8000,
     handleError
   });
 }
@@ -294,6 +295,7 @@ export async function updataClusterNodeTaint(param, handleError) {
 export async function fetDashboardList(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/rbd-components`, {
     method: 'get',
+    timeout: 8000,
     handleError
   });
 }
@@ -309,15 +311,25 @@ export async function fetClusterNodeContainer(param, handleError) {
 }
 // 添加集群节点
 export async function addClusterNode(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes?cluster_id=${params.clusterID}`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes?cluster_id=${params.clusterID}`, {
     method: 'put',
     data: params.data,
     handleError
   });
 }
+// 获取集群节点列表
+export async function fetchClusterNodeList(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes`, {
+    method: 'get',
+    params: {
+      cluster_id: params.clusterID,
+    },
+    handleError
+  });
+}
 // 删除集群节点
 export async function deleteClusterNode(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
     method: 'put',
     data: {
       cluster_id : params.clusterID
@@ -347,7 +359,7 @@ export async function createHelmEvents(params, handleError) {
 }
 // 获取k8s集群状态
 export async function fetchClusterStatus(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
     method: 'get',
     params: {
       cluster_id : params.clusterID

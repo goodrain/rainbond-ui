@@ -27,7 +27,6 @@ import {
   uninstallRegion
 } from '../../services/cloud';
 import { connect } from 'dva';
-import RKEClusterUpdate from '../Cluster/RKEClusterAdd';
 import ClusterMgtAddNode from '../ClusterMgtAddNode/index'
 import { Link, routerRedux } from 'dva/router';
 import global from '../../utils/global'
@@ -103,8 +102,6 @@ class Index extends Component {
     };
   }
   clusterNodeAdd = () => {
-    // const { rowClusterInfo } = this.props
-    // this.props.updateCluster()
     this.setState({
       isShowAddNodeModal: true
     })

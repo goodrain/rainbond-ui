@@ -168,7 +168,7 @@ export default class RainbondInit extends PureComponent {
           </Steps>
         </Row>
         <div className={styles.clusterInit}>
-          <div className={styles.initRainbond}>
+          {/* <div className={styles.initRainbond}>
             {task && <InitRainbondDetail
               onCancel={this.cancelShowInitDetail}
               eid={eid}
@@ -178,12 +178,13 @@ export default class RainbondInit extends PureComponent {
               taskID={task && task.taskID}
               completeInit={this.completeInit}
             />}
-          </div>
+          </div> */}
           <div className={styles.clusterComponent}>
             <ClusterComponents
               eid={eid}
               clusterID={clusterID}
               providerName={provider}
+              completeInit={this.completeInit}
             />
           </div>
         </div>

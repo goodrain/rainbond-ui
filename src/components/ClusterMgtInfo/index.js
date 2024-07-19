@@ -21,6 +21,10 @@ import {
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
+import copy from 'copy-to-clipboard';
+import CodeMirror from 'react-codemirror';
+import cloud from '../../utils/cloud';
+import { getKubeConfig } from '../../services/cloud';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import Rke from '../../../public/images/rke.svg'
@@ -47,6 +51,8 @@ class Index extends Component {
       tenantPageSize: 5,
       tenantTotal: 0,
       loadTenants: false,
+      handleType: '',
+      kubeConfig: '',
     }
   }
   //安装方式
@@ -250,31 +256,54 @@ class Index extends Component {
       dispatch,
       rowClusterInfo
     } = this.props;
+    const { handleType } = this.state
     const eid = globalUtil.getCurrEnterpriseId()
-    dispatch({
-      type: 'region/deleteEnterpriseCluster',
-      payload: {
-        region_id: rowClusterInfo.region_id,
-        enterprise_id: eid,
-        force
-      },
-      callback: res => {
-        if (res && res._condition === 200) {
-          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
-          dispatch(
-            routerRedux.replace(`/enterprise/${eid}/clusters`)
-          )
+    if (handleType === 'delete') {
+      dispatch({
+        type: 'region/deleteEnterpriseCluster',
+        payload: {
+          region_id: rowClusterInfo.region_id,
+          enterprise_id: eid,
+          force
+        },
+        callback: res => {
+          if (res && res._condition === 200) {
+            notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+            dispatch(
+              routerRedux.replace(`/enterprise/${eid}/clusters`)
+            )
+          }
+        },
+        handleError: res => {
+          if (res && res.data && res.data.code === 10050) {
+            this.setState({
+              delVisible: false
+            });
+            this.handleMandatoryDelete();
+          }
         }
-      },
-      handleError: res => {
-        if (res && res.data && res.data.code === 10050) {
-          this.setState({
-            delVisible: false
-          });
-          this.handleMandatoryDelete();
+      });
+    } else {
+      dispatch({
+        type: 'cloud/deleteKubernetesCluster',
+        payload: {
+          enterprise_id: eid,
+          clusterID: rowClusterInfo.provider_cluster_id,
+        },
+        callback: (res) => {
+          if (res && res.response_data && res.response_data.code && res.response_data.code === 200) {
+            notification.success({message: res.response_data.msg})
+            dispatch(
+              routerRedux.replace(`/enterprise/${eid}/clusters`)
+            )
+          }
+        },
+        handleError: res => {
+          cloud.handleCloudAPIError(res);
+          this.cancelClusters()
         }
-      }
-    });
+      });
+    }
   };
   cancelClusters = () => {
     this.setState({
@@ -296,9 +325,10 @@ class Index extends Component {
       }
     });
   };
-  delEven = () => {
+  delEven = (type) => {
     this.setState({
-      delVisible: true
+      delVisible: true,
+      handleType: type,
     })
   }
   // 导入
@@ -316,6 +346,20 @@ class Index extends Component {
   handleEdit = item => {
     const { rowClusterInfo } = this.props;
     this.loadPutCluster(rowClusterInfo.region_id);
+  };
+  // kubeconfig
+  getKubeConfig = () => {
+    const { rowClusterInfo } = this.props;
+    const eid = globalUtil.getCurrEnterpriseId()
+    getKubeConfig({
+      clusterID: rowClusterInfo.provider_cluster_id,
+      enterprise_id: eid,
+      providerName: rowClusterInfo.provider,
+    }).then(res => {
+      if (res && res.status_code && res.status_code === 200) {
+        this.setState({ kubeConfig: res.config });
+      }
+    });
   };
 
   loadPutCluster = regionID => {
@@ -494,7 +538,9 @@ class Index extends Component {
       tenantPageSize,
       tenantPage,
       limitTeamName,
-      regionAlias
+      regionAlias,
+      handleType,
+      kubeConfig,
     } = this.state;
     const {
       rowClusterInfo,
@@ -629,7 +675,7 @@ class Index extends Component {
                   </Button>
                  {region_name != 'dind-region' &&
                   <Button
-                    onClick={this.delEven}
+                    onClick={() => this.delEven('delete')}
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.delete' />
                   </Button>
@@ -650,6 +696,10 @@ class Index extends Component {
                       >
                         {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
                       </Button>
+                      <Button onClick={() => this.delEven('unload')}>
+                        <FormattedMessage id='button.uninstall' />
+                      </Button>
+                      <Button onClick={this.getKubeConfig}>kubeConfig</Button>
                     </>
                   }
                 </Col>
@@ -689,10 +739,9 @@ class Index extends Component {
         {/* 删除弹框 */}
         {delVisible && (
           <ConfirmModal
-            // loading={delclusterLongin}
-            title={formatMessage({ id: 'confirmModal.cluster.delete.title' })}
+            title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
             subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            desc={formatMessage({ id: 'confirmModal.delete.cluster.desc' })}
+            desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
             onOk={() => this.handleDelete(false)}
             onCancel={this.cancelClusters}
           />
@@ -706,6 +755,41 @@ class Index extends Component {
             onOk={this.cancelEditClusters}
             onCancel={this.cancelEditClusters}
           />
+        )}
+        {/* kubeConfig */}
+        {kubeConfig && (
+          <Modal
+            visible
+            width={1000}
+            maskClosable={false}
+            onCancel={() => {
+              this.setState({ kubeConfig: '' });
+            }}
+            title="KubeConfig"
+            bodyStyle={{ background: '#000' }}
+            onOk={() => {
+              copy(kubeConfig);
+              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
+            }}
+            okText={<FormattedMessage id='button.copy'/>}
+          >
+            <div className={styles.cmd}>
+              <CodeMirror
+                value={kubeConfig}
+                options={{
+                  mode: { name: 'javascript', json: true },
+                  lineNumbers: true,
+                  theme: 'seti',
+                  lineWrapping: true,
+                  smartIndent: true,
+                  matchBrackets: true,
+                  scrollbarStyle: null,
+                  showCursorWhenSelecting: true,
+                  height: 500
+                }}
+              />
+            </div>
+          </Modal>
         )}
       </>
     );

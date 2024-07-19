@@ -739,8 +739,8 @@ const cloud = {
         if (cluster.parameters && cluster.parameters.Message) {
           return (
             <Tooltip title={cluster.parameters.Message}>
-              <span style={{ color: 'green' }}>
-                <span style={{ color: 'red', fontSize: '16px' }}>*</span>{formatMessage({id:'utils.getAliyunClusterStatus.operation'})}
+              <span style={{ color: 'red' }}>
+                <span style={{fontSize: '16px' }}>*</span>{formatMessage({id:'utils.getAliyunClusterStatus.operation_error'})}
               </span>
             </Tooltip>
           );

@@ -3,6 +3,7 @@ import {
   Col,
   Form,
   Input,
+  InputNumber,
   message,
   Modal,
   notification,
@@ -18,7 +19,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import global from '@/utils/global';
 
-const ipRegs = /^(((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?))\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
+const ipRegs = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
 const portRegs = /^[1-9]\d*$/;
 
 const EditableContext = React.createContext();
@@ -92,14 +93,17 @@ class EditableCell extends React.Component {
         validator: this.validateIP 
       });
     }
-    const sshPort = dataIndex === 'sshPort';
-    if (sshPort) {
+    const port = dataIndex === 'port';
+    if (port) {
       rules.push({
         message: formatMessage({ id: 'enterpriseColony.addCluster.host.Correct_port' }),
+        min: 1,
+        max: 65536,
+        pattern: new RegExp(portRegs, 'g')
       });
     }
     const initialValues = record[dataIndex];
-    return editing || ('roles' && !initialValues) ? (
+    return editing || ('ips' && !initialValues) ? (
       <Form.Item style={{ margin: 0 }}>
         {form.getFieldDecorator(dataIndex, {
           rules,
@@ -118,6 +122,15 @@ class EditableCell extends React.Component {
               <Select.Option value="server">server</Select.Option>
               <Select.Option value="agent">agent</Select.Option>
             </Select>
+          ) : port ? (
+            <InputNumber
+              style={{ width: '100%' }}
+              ref={node => (this.input = node)}
+              onPressEnter={this.save}
+              onBlur={this.save}
+              min={1}
+              max={65536}
+            />
           ) : (
             <Input
               placeholder={formatMessage({ id: 'enterpriseColony.addCluster.host.placese_input' }, { title: title })}
@@ -213,6 +226,11 @@ export default class RKEClusterConfig extends PureComponent {
     this.setState({ loading: false });
   };
   handleDelete = key => {
+    const { loading } = this.state
+    if (loading) {
+      notification.warning({message: '检测中请勿操作'})
+      return
+    }
     const dataSource = [...this.state.dataSource];
     this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
   };
@@ -244,9 +262,11 @@ export default class RKEClusterConfig extends PureComponent {
     const newData = {
       key: Math.random(),
       ip: '',
-      internalIP: '',
-      sshPort: '',
-      roles: 'server'
+      user: '',
+      password: '',
+      port: 22,
+      roles: 'server',
+      node_name: '',
     };
     const updata = () => {
       this.setState({
@@ -356,23 +376,15 @@ export default class RKEClusterConfig extends PureComponent {
       loading: true,
     })
     let arr = []
-    let port
-    let host
     for (let i = 0, l = dataSource.length; i < l; i++) {
-      if (dataSource[i].ip.indexOf(':') !== -1) {
-        host = dataSource[i].ip.split(':')[0]
-        port = Number(dataSource[i].ip.split(':')[1])
-      } else {
-        host = dataSource[i].ip
-        port = 22
-      }
       let data = {
         id: i,
-        host: host,
-        pass: String(dataSource[i].sshPort),
-        port: port,
-        user: dataSource[i].internalIP,
+        host: dataSource[i].ip,
+        pass: String(dataSource[i].password),
+        port: Number(dataSource[i].port),
+        user: dataSource[i].user,
         role: dataSource[i].roles,
+        node_name: dataSource[i].node_name,
       }
       arr.push(this.getCode(data))
     }
@@ -386,6 +398,7 @@ export default class RKEClusterConfig extends PureComponent {
           port: item.port,
           user: item.user,
           role: item.role,
+          node_name: item.node_name
         }
         nodeList.push(itemNode)
         setTimeout(() => {
@@ -480,27 +493,39 @@ export default class RKEClusterConfig extends PureComponent {
     };
     const columns = [
       {
+        title: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForChaos' }),
+        dataIndex: 'node_name',
+        width: 120,
+        editable: true
+      },
+      {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.ip' }),
         dataIndex: 'ip',
-        width: 150,
+        width: 120,
         editable: true
       },
       {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.host.Intranet_ip' }),
-        dataIndex: 'internalIP',
-        width: 150,
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.ssh_port' }),
+        dataIndex: 'port',
+        width: 80,
         editable: true
       },
       {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.host.ssh' }),
-        dataIndex: 'sshPort',
-        width: 150,
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.user' }),
+        dataIndex: 'user',
+        width: 120,
+        editable: true
+      },
+      {
+        title: formatMessage({ id: 'enterpriseColony.addCluster.host.password' }),
+        dataIndex: 'password',
+        width: 120,
         editable: true,
       },
       {
         title: formatMessage({ id: 'enterpriseColony.addCluster.host.Node_type' }),
         dataIndex: 'roles',
-        width: 160,
+        width: 80,
         editable: true,
       },
       {
@@ -619,6 +644,7 @@ export default class RKEClusterConfig extends PureComponent {
                 <Button
                   onClick={this.handleAdd}
                   style={{ marginBottom: 16 }}
+                  disabled={loading}
                 >
                   <FormattedMessage id='enterpriseColony.addCluster.host.add_node' />
                 </Button>

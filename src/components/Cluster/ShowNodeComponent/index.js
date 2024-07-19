@@ -16,9 +16,7 @@ import styles from '../ClusterComponents/index.less'
 
 const { Panel } = Collapse;
 
-@connect(({ global }) => ({
-  enterprise: global.enterprise
-}))
+@connect()
 export default class ShowNodeComponent extends PureComponent {
   constructor(props) {
     super(props);
@@ -40,7 +38,7 @@ export default class ShowNodeComponent extends PureComponent {
   }
   // 获取集群组件和node节点
   fetchClusterStatus = () => {
-    const { dispatch, cluster_id, enterprise: { enterprise_id }} = this.props
+    const { dispatch, cluster_id, enterprise_id} = this.props
     dispatch({
       type: 'region/fetchClusterStatus',
       payload: {
@@ -56,6 +54,10 @@ export default class ShowNodeComponent extends PureComponent {
             podsList: res.response_data.pods,
           })
         } 
+      },
+      handleError: err => {
+        notification.warning({message: '请稍后重试'})
+        this.timerClick && clearInterval(this.timerClick);
       }
     })
   }
@@ -226,63 +228,59 @@ export default class ShowNodeComponent extends PureComponent {
                         podsList.map(item => {
                           const { metadata, spec, status } = item
                           return (
-                            <Row>
-                              <Row className={styles.customTableMinTit}>{metadata && metadata.namespace}</Row>
-                              <Row className={styles.customTableCon}>
-                                <Col span={3}>
-                                  <div
-                                    className={this.handleStateName(
-                                      status && status.phase
-                                    )}
-                                  >
-                                    {status && status.phase}
-                                  </div>
-                                </Col>
-                                <Col span={7}>
+                            <Row className={styles.customTableCon}>
+                              <Col span={3}>
+                                <div
+                                  className={this.handleStateName(
+                                    status && status.phase
+                                  )}
+                                >
+                                  {status && status.phase}
+                                </div>
+                              </Col>
+                              <Col span={7}>
+                                <span>
+                                  {metadata && metadata.name}
+                                </span>
+                              </Col>
+                              <Col span={14}>
+                                <div>
+                                  {spec &&
+                                    spec.containers &&
+                                    spec.containers.length > 0 &&
+                                    spec.containers[0].image}
+                                </div>
+                                <div>
                                   <span>
-                                    {metadata && metadata.name}
+                                    {status && status.hostIP}
+                                    {slash}
                                   </span>
-                                </Col>
-                                <Col span={14}>
-                                  <div>
-                                    {spec &&
-                                      spec.containers &&
-                                      spec.containers.length > 0 &&
-                                      spec.containers[0].image}
-                                  </div>
-                                  <div>
-                                    <span style={{ color: '#4d73b1' }}>
-                                      {status && status.hostIP}
-                                      {slash}
-                                    </span>
-
-                                    <span style={{ color: '#4d73b1' }}>
-                                      {status && status.podIP}
-                                      {slash}
-                                    </span>
-                                    <span
-                                      style={{ color: 'rgba(0, 0, 0, 0.35)' }}
-                                    >
-                                      <FormattedMessage id='enterpriseColony.ClusterComponents.Time' />
-                                      {metadata &&
-                                        metadata.creationTimestamp &&
-                                        moment(
-                                          metadata.creationTimestamp
-                                        ).format('YYYY-MM-DD HH:mm:ss')}
-                                    </span>
-                                    <span
-                                      style={{ color: 'rgba(0, 0, 0, 0.35)' }}
-                                    >
-                                      &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
-                                      {status &&
-                                        status.containerStatuses &&
-                                        status.containerStatuses.length &&
-                                        status.containerStatuses[0].restartCount
-                                      }
-                                    </span>
-                                  </div>
-                                </Col>
-                              </Row>
+                                  <span>
+                                    {status && status.podIP}
+                                    {slash}
+                                  </span>
+                                  <span
+                                    style={{ color: 'rgba(0, 0, 0, 0.35)' }}
+                                  >
+                                    <FormattedMessage id='enterpriseColony.ClusterComponents.Time' />
+                                    {metadata &&
+                                      metadata.creationTimestamp &&
+                                      moment(
+                                        metadata.creationTimestamp
+                                      ).format('YYYY-MM-DD HH:mm:ss')}
+                                  </span>
+                                  <span
+                                    style={{ color: 'rgba(0, 0, 0, 0.35)' }}
+                                  >
+                                    &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
+                                    {status &&
+                                      status.containerStatuses &&
+                                      status.containerStatuses.length &&
+                                      status.containerStatuses[0].restartCount
+                                    }
+                                  </span>
+                                </div>
+                              </Col>
                             </Row>
                           );
                         })

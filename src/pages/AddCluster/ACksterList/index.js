@@ -509,7 +509,7 @@ export default class RainbondClusterInit extends PureComponent {
           content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
           titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
         >
-          <Col span={24} style={{ padding: '0px 24px' }}>
+          <Col span={24} style={{ padding: '0px' }}>
             <Form style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Col span={16}>
                 <Card className={styles.cardBox}>
