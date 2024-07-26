@@ -382,11 +382,11 @@ export default class index extends Component {
         const formItemLayouts = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 8 }
+                sm: { span: 9 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 16 }
+                sm: { span: 15 }
             }
         };
         const MethodOptions = [

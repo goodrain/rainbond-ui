@@ -120,7 +120,7 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     if (isTeamGatewayMonitor || isTeamRouteManage || isTeamTargetServices || isTeamCertificate) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.gateway' }),
-        icon: 'gateway',
+        icon: getMenuSvg.getSvg('gateway'),
         path: `team/${teamName}/region/${regionName}/gateway`,
         authority: ['admin', 'user'],
         // children

@@ -2,6 +2,7 @@ import {
     Col,
     Icon,
     Input,
+    InputNumber,
     notification,
     Row,
     Select,
@@ -9,6 +10,7 @@ import {
 } from 'antd';
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import styles from '../RouteDrawerHttp/index.less'
 
 const { Option } = Select;
 class Headers extends Component {
@@ -167,11 +169,12 @@ class Headers extends Component {
                                     
                                 </Select>
                             </Col>
-                            <Col span={3}>
-                                <Input
+                            <Col span={3} className={styles.inputNumberStyle}>
+                                <InputNumber
                                     name="value"
-                                    onChange={e => {
-                                        this.onValueChange(e.target.value, index);
+                                    min={1}
+                                    onChange={val => {
+                                        this.onValueChange(val, index);
                                     }}
                                     value={item.weight || ''}
                                     placeholder={'权重'}

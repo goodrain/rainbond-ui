@@ -9,7 +9,7 @@ import GatewayApi from '../../components/GatewayApi'
 // import TcpTable from '../../components/TcpTable';
 import GatewayCertificate from './GatewayCertificate';
 import GatewayRoute from './GatewayRoute';
-import GatewayMonitor from './GatewayMonitor';
+// import GatewayMonitor from './GatewayMonitor';
 import GatewayService from './GatewayService';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import roleUtil from '../../utils/newRole';
@@ -28,7 +28,7 @@ class Control extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tabKey: 'monitor',
+            tabKey: 'route',
             open:
                 this.props.match &&
                     this.props.match.params &&
@@ -41,16 +41,15 @@ class Control extends Component {
             batchGateway: false,
             batchGatewayLoading: false,
             gatewayLoading: false,
-            monitorPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_gateway_monitor'),
             routePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_route_manage'),
             argetServicesPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_target_services'),
             certificatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_certificate'),
         };
     }
     componentDidMount() {
-        const {monitorPermission, routePermission, argetServicesPermission, certificatePermission} = this.state
+        const {routePermission, argetServicesPermission, certificatePermission} = this.state
         this.setState({
-            tabKey: monitorPermission.isAccess ? 'monitor' : routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'monitor'
+            tabKey: routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'route'
         })
         this.handleBatchGateWay();
     }
@@ -133,7 +132,6 @@ class Control extends Component {
             tabKeys, 
             batchGateway, 
             gatewayShow,
-            monitorPermission, 
             routePermission, 
             argetServicesPermission, 
             certificatePermission 
@@ -160,23 +158,13 @@ class Control extends Component {
                 return (
                     <GatewayService  open={open} permission={argetServicesPermission}/>
                 );
-            } else if (tabKey === 'monitor') {
-                return (
-                    <GatewayMonitor/>
-                );
             }
 
         };
     }
     handleTabList = (isGateway) => {
-        const { monitorPermission, routePermission, argetServicesPermission, certificatePermission } = this.state
+        const { routePermission, argetServicesPermission, certificatePermission } = this.state
         let arr = []
-        if (monitorPermission.isAccess) {
-            arr.push({
-                key: 'monitor',
-                tab: '网关监测',
-            })
-        }
         if (routePermission.isAccess) {
             arr.push({
                 key: 'route',
@@ -223,12 +211,11 @@ class Control extends Component {
             gatewayShow,
             gatewayLoading,
             batchGatewayLoading,
-            monitorPermission,
             routePermission,
             argetServicesPermission,
             certificatePermission
         } = this.state;
-        if(!monitorPermission.isAccess && !routePermission.isAccess && !argetServicesPermission.isAccess && !certificatePermission.isAccess){
+        if(!routePermission.isAccess && !argetServicesPermission.isAccess && !certificatePermission.isAccess){
             return roleUtil.noPermission()
         }
         let breadcrumbList = [];

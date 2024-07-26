@@ -2,6 +2,7 @@ import {
     Col,
     Icon,
     Input,
+    InputNumber,
     notification,
     Row,
     Select,
@@ -213,10 +214,11 @@ class Headers extends Component {
                                 </Spin>
                             </Col>
                             <Col span={3}>
-                                <Input
+                                <InputNumber
                                     name="value"
-                                    onChange={e => {
-                                        this.onWeightChange(e.target.value, indexs);
+                                    min={1}
+                                    onChange={val => {
+                                        this.onWeightChange(val, indexs);
                                     }}
                                     value={item.weight || ''}
                                     placeholder={'权重'}

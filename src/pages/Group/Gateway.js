@@ -7,7 +7,7 @@ import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'
 // import HttpTable from '../../components/HttpTable';
 // import TcpTable from '../../components/TcpTable';
-import GatewayMonitor from '../NewGateway/GatewayMonitor';
+// import GatewayMonitor from '../NewGateway/GatewayMonitor';
 import GatewayCertificate from '../NewGateway/GatewayCertificate';
 import GatewayRoute from '../NewGateway/GatewayRoute';
 import GatewayService from '../NewGateway/GatewayService';
@@ -35,7 +35,7 @@ export default class AppGatewayList extends PureComponent {
     super(props);
     this.state = {
       appDetail: {},
-      tabKey:'monitor',
+      tabKey:'route',
       open:
         this.props.match &&
           this.props.match.params &&
@@ -48,7 +48,6 @@ export default class AppGatewayList extends PureComponent {
       batchGateway: false,
       batchGatewayLoading: false,
       gatewayLoading: false,
-      monitorPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_gateway_monitor',`app_${this.getGroupId()}`),
       routePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_route_manage',`app_${this.getGroupId()}`),
       argetServicesPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_target_services',`app_${this.getGroupId()}`),
       certificatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_certificate',`app_${this.getGroupId()}`),
@@ -57,9 +56,9 @@ export default class AppGatewayList extends PureComponent {
   componentWillMount() {
     this.fetchPipePipeline();
     this.handleBatchGateWay();
-    const {monitorPermission, routePermission, argetServicesPermission, certificatePermission} = this.state
+    const {routePermission, argetServicesPermission, certificatePermission} = this.state
     this.setState({
-        tabKey: monitorPermission.isAccess ? 'monitor' : routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'monitor'
+        tabKey: routePermission.isAccess ? 'route' : argetServicesPermission.isAccess ? 'service' : certificatePermission.isAccess ? 'certificate' : 'route'
     })
   }
 
@@ -190,7 +189,6 @@ export default class AppGatewayList extends PureComponent {
       tabKeys, 
       batchGateway, 
       gatewayShow,
-      monitorPermission, 
       routePermission, 
       argetServicesPermission, 
       certificatePermission 
@@ -215,22 +213,12 @@ export default class AppGatewayList extends PureComponent {
         return (
           <GatewayService  open={open} appID={appID} permission={argetServicesPermission}/>
         );
-      } else if (tabKey === 'monitor'){
-        return (
-          <GatewayMonitor  open={open} appID={appID}/>
-        )
       }
     }
   };
   handleTabList = (isGateway) => {
-    const { monitorPermission, routePermission, argetServicesPermission, certificatePermission } = this.state
+    const { routePermission, argetServicesPermission, certificatePermission } = this.state
     let arr = []
-    if (monitorPermission.isAccess) {
-        arr.push({
-            key: 'monitor',
-            tab: '网关监测',
-        })
-    }
     if (routePermission.isAccess) {
         arr.push({
             key: 'route',
