@@ -20,6 +20,8 @@ import {
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import PluginSystem from './Plugins'
+import DApvcinput from '../../components/DApvcinput';
+import DAHosts from '../../components/DAHosts'
 import styles from './index.less'
 
 @Form.create()
@@ -98,6 +100,24 @@ export default class index extends Component {
                         })(type == 'integer' ? <InputNumber placeholder={placeholder} /> : <Input placeholder={placeholder} />)}
                     </Form.Item>
                 )
+            case 'input_arr':
+                return (
+                    <Form.Item label=
+                        {
+                            <span>
+                                {name}
+                                <Tooltip placement="top" title={describe}>
+                                    <Icon type="question-circle" style={{ marginLeft: 4 }} />
+                                </Tooltip>
+                            </span>
+                        }
+                        {...formItemLayout}>
+                        {getFieldDecorator(name, {
+                            initialValue: value || defaultValue,
+                            rules: [...rules]
+                        })(type === 'object' ? <DApvcinput sourcedata='object' setspan={11} setright={true}/> : <DAHosts setspan={22} setSvgSpan={1} hostPlaceholder={placeholder}/>)}
+                    </Form.Item>
+                )
             case 'select':
                 return (
                     <Form.Item label=
@@ -120,9 +140,9 @@ export default class index extends Component {
                                 placeholder={placeholder}
                             >
                                 {selectArr && selectArr.map(item => (
-                                    <Option key={item} value={item}>
+                                    <Select.Option key={item} value={item}>
                                         {item}
-                                    </Option>
+                                    </Select.Option>
                                 ))}
                             </Select>
                         )}

@@ -690,6 +690,7 @@ const gatewayplugin = {
   'gatewayplugin.list.limit-req':'limit-req 插件使用漏桶算法限制单个客户端对服务的请求速率。',
   'gatewayplugin.list.limit-conn':'limit-conn 插件用于限制客户端对单个服务的并发请求数。当客户端对路由的并发请求数达到限制时，可以返回自定义的状态码和响应信息。',
   'gatewayplugin.list.limit-count':'limit-count 插件使用固定时间窗口算法，主要用于限制单个客户端在指定的时间范围内对服务的总请求数，并且会在 HTTP 响应头中返回剩余可以请求的个数。该插件原理与 GitHub API 的速率限制类似.',
+  'gatewayplugin.list.proxy-rewrite':'proxy-rewrite 是处理上游代理信息重写的插件，支持对 scheme、uri、host 等信息进行重写。',
 
   // limit-req
   'gatewayplugin.limit-req.null': '无',
@@ -743,5 +744,19 @@ const gatewayplugin = {
   'gatewayplugin.limit-count.policy': '用于检索和增加限制计数的策略。当设置为 local 时，计数器被以内存方式保存在节点本地。',
   'gatewayplugin.limit-count.inputpolicy': '请填写 policy',
   'gatewayplugin.limit-count.show_limit_quota_header': '当设置为 true 时，在响应头中显示 X-RateLimit-Limit（限制的总请求数）和 X-RateLimit-Remaining（剩余还可以发送的请求数）字段。 默认值为true',
+  // proxy-rewrite
+  'gatewayplugin.proxy-rewrite.uri': '转发到上游的新 uri 地址。支持 NGINX variables 变量。',
+  'gatewayplugin.proxy-rewrite.uri_input': '请输入uri',
+  'gatewayplugin.proxy-rewrite.method': '将路由的请求方法代理为该请求方法。',
+  'gatewayplugin.proxy-rewrite.method_select': '请选择method',
+  'gatewayplugin.proxy-rewrite.regex_uri': '使用正则表达式匹配来自客户端的 uri，如果匹配成功，则使用模板替换转发到上游的 uri，如果没有匹配成功，则将客户端请求的 uri 转发至上游。当同时配置 uri 和 regex_uri 属性时，优先使用 uri。当前支持多组正则表达式进行模式匹配，插件将逐一尝试匹配直至成功或全部失败。例如：["^/iresty/(.*)/(.*)/(.*)", "/$1-$2-$3", ^/theothers/(.*)/(.*)", "/theothers/$1-$2"]，奇数索引的元素代表匹配来自客户端请求的 uri 正则表达式，偶数索引的元素代表匹配成功后转发到上游的 uri 模板。请注意该值的长度必须为偶数值。',
+  'gatewayplugin.proxy-rewrite.regex_uri_input': '请输入正则表达式',
+  'gatewayplugin.proxy-rewrite.host': '	转发到上游的新 host 地址，例如：iresty.com。',
+  'gatewayplugin.proxy-rewrite.host_input': '请输入host',
+  'gatewayplugin.proxy-rewrite.headers.add': '添加新的请求头，如果头已经存在，会追加到末尾。格式为 {"name": "value", ...}。这个值能够以 $var 的格式包含 NGINX 变量，比如 $remote_addr $balancer_ip。也支持以变量的形式引用 regex_uri 的匹配结果，比如 $1-$2-$3。',
+  'gatewayplugin.proxy-rewrite.headers.set': '改写请求头，如果请求头不存在，则会添加这个请求头。格式为 {"name": "value", ...}。这个值能够以 $var 的格式包含 NGINX 变量。比如 $remote_addr $balancer_ip。也支持以变量的形式引用 regex_uri 的匹配结果，比如 $1-$2-$3。请注意，若想设置 Host 请求头，应使用 host 属性。',
+  'gatewayplugin.proxy-rewrite.headers.remove': '移除请求头。格式为 ["name", ...]。',
+  'gatewayplugin.proxy-rewrite.headers.remove_input': '请输入要移除的请求头',
+  'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe': '使用 real_request_uri（nginx 中的原始 $request_uri）绕过 URI 规范化。启用它被认为是不安全的，因为它会绕过所有 URI 规范化步骤。',
 }
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);
