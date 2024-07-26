@@ -18,7 +18,6 @@ class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            monitorPermission: {},
             routePermission: {},
             argetServicesPermission: {},
             certificatePermission: {},
@@ -27,7 +26,6 @@ class Index extends Component {
     componentDidMount() {
         const { currentTeamPermissionsInfo,appID } = this.props
         this.setState({
-            monitorPermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ? 'app_gateway_monitor' : 'team_gateway_monitor', appID ?`app_${appID}`:''),
             routePermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_route_manage' : 'team_route_manage', appID ?`app_${appID}`:''),
             argetServicesPermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_target_services':'team_target_services', appID ?`app_${appID}`:''),
             certificatePermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_certificate':'team_certificate', appID ?`app_${appID}`:''),
@@ -39,7 +37,6 @@ class Index extends Component {
     render() {
         const {
             appID,
-            monitorPermission,
             routePermission,
             argetServicesPermission,
             certificatePermission
@@ -52,11 +49,6 @@ class Index extends Component {
                     onChange={this.callback}
                     type="card"
                 >
-                    {monitorPermission.isAccess &&
-                        <TabPane tab={'网关监测'} key="monitor">
-                            <GatewayMonitor permission={monitorPermission} open={open} appID={appID} />
-                        </TabPane>
-                    }
                     {routePermission.isAccess &&
                         <TabPane tab={formatMessage({ id: 'teamNewGateway.NewGateway.index.management' })} key="route">
                             <GatewayRoute permission={routePermission} open={open} appID={appID} onTabChange={this.callback} />

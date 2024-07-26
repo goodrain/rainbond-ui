@@ -150,6 +150,7 @@ const utils ={
 'utils.getAliyunClusterStatus.Initializing':'初始化中',
 'utils.getAliyunClusterStatus.Deleting':'删除中',
 'utils.getAliyunClusterStatus.Offline':'已离线',
+'utils.getAliyunClusterStatus.Being_installed':'安装中',
 'utils.getAliyunClusterStatus.Installation_failed':'安装失败',
 
 'utils.getTaskStatus.start':'进行中',

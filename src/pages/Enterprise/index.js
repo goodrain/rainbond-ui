@@ -119,7 +119,7 @@ export default class Enterprise extends PureComponent {
   // 组件销毁停止计时器
   componentWillUnmount() {
     // 组件销毁  清除定时器
-    clearTimeout(this.interval)
+    clearInterval(this.interval)
   }
   // 获取新手引导的配置
   handleLoadNewGuideConfig = () => {

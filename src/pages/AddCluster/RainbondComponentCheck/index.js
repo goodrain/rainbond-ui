@@ -35,7 +35,9 @@ export default class RainbondInit extends PureComponent {
       adminer,
       showInitDetail: false,
       guideStep: 10,
-      task: null
+      task: null,
+      eventStatus: false,
+      podsStatus: false,
     };
   }
   componentWillMount() {
@@ -129,18 +131,35 @@ export default class RainbondInit extends PureComponent {
     ];
     return steps;
   };
+  completeEvents = (status) => {
+    this.setState({
+      eventStatus: status
+    }, () => {
+      this.completeInit()
+    })
+  }
+  completePods = (status) => {
+    this.setState({
+      podsStatus: status
+    }, () => {
+      this.completeInit()
+    })
+  }
   completeInit = () => {
-    const { dispatch } = this.props;
+    const { eventStatus, podsStatus } = this.state
     const {
+      dispatch,
       match: {
         params: { eid, provider, clusterID }
       }
     } = this.props;
-    dispatch(
-      routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/link`
-      )
-    );
+    if (eventStatus && podsStatus) {
+      dispatch(
+        routerRedux.push(
+          `/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/link`
+        )
+      );
+    }
   };
 
   cancelShowInitDetail = () => {
@@ -168,7 +187,7 @@ export default class RainbondInit extends PureComponent {
           </Steps>
         </Row>
         <div className={styles.clusterInit}>
-          {/* <div className={styles.initRainbond}>
+          <div className={styles.initRainbond}>
             {task && <InitRainbondDetail
               onCancel={this.cancelShowInitDetail}
               eid={eid}
@@ -176,15 +195,15 @@ export default class RainbondInit extends PureComponent {
               providerName={provider}
               clusterID={clusterID}
               taskID={task && task.taskID}
-              completeInit={this.completeInit}
+              completeEvents={this.completeEvents}
             />}
-          </div> */}
+          </div>
           <div className={styles.clusterComponent}>
             <ClusterComponents
               eid={eid}
               clusterID={clusterID}
               providerName={provider}
-              completeInit={this.completeInit}
+              completePods={this.completePods}
             />
           </div>
         </div>
