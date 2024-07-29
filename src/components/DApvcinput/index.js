@@ -58,12 +58,19 @@ class DAinputs extends Component {
     this.triggerChange(values);
   };
   triggerChange(values) {
-    const res = [];
+    const {sourcedata = 'array'} = this.props
+    const res = sourcedata === 'array' ? [] : {};
     for (let i = 0; i < values.length; i++) {
-      res.push({
-        key: values[i].key,
-        value: values[i].value
-      });
+      if (sourcedata === 'array') {
+        res.push({
+          key: values[i].key,
+          value: values[i].value
+        });
+      } else {
+        const key = values[i].key
+        const value = values[i].value
+        res[key] = value;
+      }
     }
     const { onChange } = this.props;
     if (onChange) {
@@ -72,7 +79,7 @@ class DAinputs extends Component {
   }
 
   render() {
-    const { setspan = false} = this.props
+    const { setspan = false, setright = false } = this.props
     const keyPlaceholder = this.props.keyPlaceholder || 'key';
     const repPlaceholder = this.props.repPlaceholder || 'value';
     const { values } = this.state;
@@ -86,7 +93,7 @@ class DAinputs extends Component {
                 span={setspan || 4}
                 style={{
                   textAlign: 'center',
-                  marginRight: '27px'
+                  marginRight: setright ? '4px' : '27px'
                 }}
               >
                 <Input
@@ -102,7 +109,7 @@ class DAinputs extends Component {
                 span={setspan || 4}
                 style={{
                   textAlign: 'center',
-                  marginRight: '27px'
+                  marginRight: setright ? '4px' : '27px'
                 }}
               >
                 <Input

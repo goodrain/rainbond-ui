@@ -75,7 +75,7 @@ function menuData(eid, currentUser, enterprise) {
 
       menuArr.push({
         name: formatMessage({ id: 'menu.enterprise.monitoring' }),
-        icon: monitoringSvg,
+        icon: getMenuSvg.getSvg('monitoring'),
         path: `/enterprise/${eid}/monitoring`,
         authority: ['admin', 'user'],
         children: seChildren

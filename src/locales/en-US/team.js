@@ -687,6 +687,7 @@ const gatewayplugin = {
   'gatewayplugin.list.limit-req':'The limit req plugin uses the leaky bucket algorithm to limit the request rate of a single client to a service.',
   'gatewayplugin.list.limit-conn':'The limit conn plugin is used to limit the number of concurrent requests from clients to a single service. When the number of concurrent requests from the client to the router reaches the limit, custom status codes and response information can be returned.',
   'gatewayplugin.list.limit-count':'The limit count plugin uses a fixed time window algorithm, mainly used to limit the total number of requests from a single client to a service within a specified time range, and will return the remaining number of requests in the HTTP response header. The principle of this plugin is similar to the rate limit of the GitHub API',
+  'gatewayplugin.list.proxy-rewrite':'Proxy-rewrite is a plug-in for rewriting upstream proxy information, which supports rewriting scheme, uri, host and other information.',
   
   // limit-req
   'gatewayplugin.limit-req.null': 'Null',
@@ -740,6 +741,20 @@ const gatewayplugin = {
   'gatewayplugin.limit-count.policy': 'A strategy for retrieving and increasing limit counts. When set to local, the counter is saved in memory locally on the node.',
   'gatewayplugin.limit-count.inputpolicy': 'Please fill in policy',
   'gatewayplugin.limit-count.show_limit_quota_header': 'When set to true, the X-RateLimit-Limit (the total number of requests restricted) and X-RateLimit-Remaining (the number of requests remaining to be sent) fields are displayed in the response header. The default value is true',
+  // proxy-rewrite 
+  'gatewayplugin.proxy-rewrite.uri':' Forwards to the new uri address upstream. Support for NGINX variables. ',
+  'gatewayplugin.proxy-rewrite.uri_input':' Please enter a uri',
+  'gatewayplugin.proxy-rewrite.method':' Proxies the request method of the route to this request method. ',
+  'gatewayplugin.proxy-rewrite.method_select':' Please select method',
+  'gatewayplugin.proxy-rewrite.regex_uri':' Uses a regular expression to match the uri from the client. If the match is successful, the template is used to replace the uri forwarded upstream. If no match is successful, the uri requested by the client is forwarded upstream. When both the uri and regex_uri properties are configured, the uri is preferred. Currently, multiple groups of regular expressions are supported for pattern matching. The plug-in will try to match one by one until it succeeds or fails. For example: [" ^ / iresty/(. *)/(. *)/(. *) ", "/ $1 - $2 - $3", ^ / theothers/(. *)/(. *) ", "/ theothers / $1 - $2"], an odd number of index of element represents a regular expression match from a client request uri, Even indexed elements represent uri templates that are forwarded upstream after a successful match. Note that the length of the value must be an even value. ',
+  'gatewayplugin.proxy-rewrite.regex_uri_input':' Please enter a regular expression ',
+  'gatewayplugin.proxy-rewrite.host':' Forwards to a new host address upstream, for example, iresty.com. ',
+  'gatewayplugin.proxy-rewrite.host_input':' Please enter host',
+  'gatewayplugin.proxy-rewrite.headers.add': 'Adds a new request header, appended to the end if it already exists. The format is {"name": "value",... }. This value can contain NGINX variables in the $var format, such as $remote_addr $balancer_ip. It also supports references to regex_uri matching results as variables, such as $1-$2-$3. ',
+  'gatewayplugin.proxy-rewrite.headers.set': 'Overwrites the request header, adding it if it does not exist. The format is {"name": "value",... }. This value can contain the NGINX variable in the format of $var. For example, $remote_addr $balancer_ip. It also supports references to regex_uri matching results as variables, such as $1-$2-$3. Note that to set the Host request header, you should use the host attribute. ',
+  'gatewayplugin.proxy-rewrite.headers.remove':' Removes the request header. The format is ["name",... . ',
+  'gatewayplugin.proxy-rewrite.headers.remove_input':' Please enter request headers to remove ',
+  'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe': 'Uses real_request_uri (the original $request_uri in nginx) to bypass URI normalization. Enabling it is considered unsafe because it bypasses all URI normalization steps. ',
 }
 
 
