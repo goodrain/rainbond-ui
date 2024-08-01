@@ -40,9 +40,9 @@ class Infrastructure extends PureComponent {
       openCertificate: false,
       closeCertificate: false,
       closeImageHub: false,
-      closeMonitoring: false,
+      closeCloudStorage: false,
       openImageHub: false,
-      openEnableMonitoring: false,
+      openEnableStorage: false,
       openCloudBackup: false,
       closeCloudBackup: false,
       openBasicInformation: false,
@@ -52,8 +52,8 @@ class Infrastructure extends PureComponent {
       ),
       AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(enterprise),
       isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(enterprise),
-      MonitoringValue: rainbondUtil.fetchMonitoring(enterprise),
-      isEnableMonitoring: rainbondUtil.isEnableMonitoring(enterprise),
+      storageValue: {},
+      isEnableStorage: false,
       ObjectStorageValue: rainbondUtil.fetchObjectStorage(enterprise),
       providers: [
         { key: 'alioss', name: '阿里云对象存储' },
@@ -68,6 +68,7 @@ class Infrastructure extends PureComponent {
       type: 'global/getIsRegist'
     });
     this.fetchAlarmSwitch();
+    this.fetchCloudStorage()
   }
 
   onRegistChange = checked => {
@@ -143,35 +144,48 @@ class Infrastructure extends PureComponent {
       }
     });
   };
-
-  handelIsOpenMonitorin = (enable, value) => {
+  // 获取云端对象存储信息
+  fetchCloudStorage = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/fetchCloudStorage',
+      payload: {},
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            storageValue: res.bean.value,
+            isEnableStorage: res.bean.enable,
+          })
+        }
+      }
+    })
+  }
+  handleEditCloudStorage = (enable, value) => {
     const {
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    const { MonitoringValue, isEnableMonitoring } = this.state;
-    const params = value || MonitoringValue || {};
+    const { storageValue, isEnableStorage } = this.state;
+    const params = value || storageValue || {};
     dispatch({
-      type: 'global/editMonitorin',
+      type: 'global/editCloudStorage',
       payload: {
-        enterprise_id: eid,
         enable,
         ...params
       },
-
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: !isEnableMonitoring
+            message: !isEnableStorage
               ? formatMessage({id:'notification.success.opened_successfully'})
               : enable && value
               ? formatMessage({id:'notification.success.change'})
               : formatMessage({id:'notification.success.close'})
           });
-          this.fetchEnterpriseInfo();
-          this.handelCloseMonitoring();
+          this.fetchCloudStorage();
+          this.handelCloseStorage();
         }
       }
     });
@@ -234,14 +248,12 @@ class Infrastructure extends PureComponent {
             isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
               info.bean
             ),
-            isEnableMonitoring: rainbondUtil.isEnableMonitoring(info.bean),
             isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(
               info.bean
             ),
             AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(
               info.bean
             ),
-            MonitoringValue: rainbondUtil.fetchMonitoring(info.bean),
             ObjectStorageValue: rainbondUtil.fetchObjectStorage(info.bean)
           });
         }
@@ -285,14 +297,14 @@ class Infrastructure extends PureComponent {
   handelOpenCloseCloudBackup = () => {
     this.setState({ closeCloudBackup: true });
   };
-  handelOpenCloseCloudMonitoring = () => {
-    this.setState({ closeMonitoring: true });
+  handelOpenCloseStorage = () => {
+    this.setState({ closeCloudStorage: true });
   };
-  handelOpenisEnableMonitoring = () => {
-    this.setState({ openEnableMonitoring: true });
+  handelOpenisEnableStorage = () => {
+    this.setState({ openEnableStorage: true });
   };
-  handelCloseMonitoring = () => {
-    this.setState({ closeMonitoring: false, openEnableMonitoring: false });
+  handelCloseStorage = () => {
+    this.setState({ closeCloudStorage: false, openEnableStorage: false });
   };
   handelCloseCloudBackup = () => {
     this.setState({ closeCloudBackup: false, openCloudBackup: false });
@@ -474,17 +486,17 @@ class Infrastructure extends PureComponent {
       israinbondTird,
       isEnableAppstoreImageHub,
       AppstoreImageHubValue,
-      MonitoringValue,
+      storageValue,
       isEnableObjectStorage,
-      isEnableMonitoring,
+      isEnableStorage,
       ObjectStorageValue,
       openCertificate,
       closeCertificate,
       openOauthTable,
       openImageHub,
-      openEnableMonitoring,
+      openEnableStorage,
       closeImageHub,
-      closeMonitoring,
+      closeCloudStorage,
       openCloudBackup,
       closeCloudBackup,
       providers,
@@ -644,6 +656,7 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+    // 老对象存储
     const CloudBackup = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc',borderRadius:0 }} className={styles.infrastructureCard}>
         <Row type="flex" align="middle">
@@ -681,23 +694,24 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
-    const Monitoring = (
+    // 新对象存储
+    const CloudStorage = (
       <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' , borderRadius:0}} className={styles.infrastructureCard} >
         <Row type="flex" align="middle">
           <Col span={3}>
-            {/* 监控 */}
-            <FormattedMessage id='enterpriseSetting.basicsSetting.monitoring.title'/>
+            {/* 对象存储 */}
+            <FormattedMessage id='enterpriseSetting.basicsSetting.storage.title'/>
           </Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              {/* 用于监控：集群、节点、组件、服务数据。 */}
-              <FormattedMessage id='enterpriseSetting.basicsSetting.monitoring.content'/>
+              {/* 对象存储用于云端备份功能，存储应用的备份文件。 */}
+              <FormattedMessage id='enterpriseSetting.basicsSetting.storage.content'/>
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
-            {isEnableMonitoring && (
+            {isEnableStorage && (
               <a
-                onClick={this.handelOpenisEnableMonitoring}
+                onClick={this.handelOpenisEnableStorage}
                 style={{ marginRight: '10px' }}
               >
                 {/* 查看配置 */}
@@ -707,11 +721,11 @@ class Infrastructure extends PureComponent {
 
             <Switch
               onChange={() => {
-                isEnableMonitoring
-                  ? this.handelOpenCloseCloudMonitoring()
-                  : this.handelOpenisEnableMonitoring();
+                isEnableStorage
+                  ? this.handelOpenCloseStorage()
+                  : this.handelOpenisEnableStorage();
               }}
-              checked={isEnableMonitoring}
+              checked={isEnableStorage}
               // className={styles.automaTictelescopingSwitch}
             />
           </Col>
@@ -806,15 +820,14 @@ class Infrastructure extends PureComponent {
             }}
           />
         )}
-        {openEnableMonitoring && (
+        {openEnableStorage && (
           <MonitoringForm
-            eid={eid}
-            title={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.modal.title'})}
+            title={ !isEnableStorage ? formatMessage({id:'enterpriseSetting.basicsSetting.storage.modal.title'}) : formatMessage({id:'enterpriseSetting.basicsSetting.storage.title'}) }
             loading={monitoringLongin}
-            onCancel={this.handelCloseMonitoring}
-            data={MonitoringValue}
+            onCancel={this.handelCloseStorage}
+            data={storageValue}
             onOk={values => {
-              this.handelIsOpenMonitorin(true, values);
+              this.handleEditCloudStorage(true, values);
             }}
           />
         )}
@@ -842,14 +855,14 @@ class Infrastructure extends PureComponent {
           />
         )}
 
-        {(closeMonitoring ||
+        {(closeCloudStorage ||
           closeImageHub ||
           closeCertificate ||
           showDeleteDomain ||
           closeCloudBackup) && (
           <ConfirmModal
             loading={
-              closeMonitoring
+              closeCloudStorage
                 ? monitoringLongin
                 : closeImageHub
                 ? imageHubLongin
@@ -863,8 +876,8 @@ class Infrastructure extends PureComponent {
             }
             title={formatMessage({ id: 'confirmModal.close.delete.title' })}
             desc={
-              closeMonitoring
-                ? formatMessage({ id: 'confirmModal.delete.monitor.desc' })
+              closeCloudStorage
+                ? formatMessage({ id: 'confirmModal.delete.object_storage.desc' })
                 : closeImageHub
                 ? formatMessage({ id: 'confirmModal.delete.component_ibrary_mirror.desc' })
                 : closeCertificate
@@ -876,8 +889,8 @@ class Infrastructure extends PureComponent {
                 : ''
             }
             onOk={() => {
-              closeMonitoring
-                ? this.handelIsOpenMonitorin(false)
+              closeCloudStorage
+                ? this.handleEditCloudStorage(false)
                 : closeImageHub
                 ? this.handelIsOpenImageHub(false)
                 : closeCertificate
@@ -889,8 +902,8 @@ class Infrastructure extends PureComponent {
                 : '';
             }}
             onCancel={() => {
-              closeMonitoring
-                ? this.handelCloseMonitoring()
+              closeCloudStorage
+                ? this.handelCloseStorage()
                 : closeImageHub
                 ? this.handelCloseImageHub()
                 : closeCertificate
@@ -925,7 +938,7 @@ class Infrastructure extends PureComponent {
             {AutomaticIssueCertificate}
             {Oauth}
             {MirrorWarehouseInformation}
-            {Monitoring}
+            {CloudStorage}
             {WarningFeature}
           </div>
         )}
