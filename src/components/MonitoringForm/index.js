@@ -11,7 +11,6 @@ export default class MonitoringForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      advancedConfiguration: false,
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
@@ -22,12 +21,6 @@ export default class MonitoringForm extends PureComponent {
       if (!err && onOk) {
         onOk(values);
       }
-    });
-  };
-
-  handleAdvancedConfiguration = () => {
-    this.setState({
-      advancedConfiguration: !this.state.advancedConfiguration
     });
   };
 
@@ -56,8 +49,6 @@ export default class MonitoringForm extends PureComponent {
       }
     };
     const is_language = language ? formItemLayout : formItemLayouts;
-    const { advancedConfiguration } = this.state;
-    const monitoringObj = { display: advancedConfiguration ? 'block' : 'none' };
     return (
       <Modal
         title={title}
@@ -68,82 +59,66 @@ export default class MonitoringForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.home_url'})}>
-            <Input.Group compact>
-              {getFieldDecorator('home_url', {
-                initialValue: data.home_url || '',
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({id:'placeholder.oauth.home_url'})
-                  },
-                  {
-                    max: 255,
-                    message: formatMessage({id:'placeholder.max255'})
-                  }
-                ]
-              })(<Input placeholder={formatMessage({id:'placeholder.oauth.home_url'})} />)}
-            </Input.Group>
-          </FormItem>
-          {!advancedConfiguration && (
-            <div>
-              <p style={{ textAlign: 'center' }}>
-                {formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.more'})}
-                <br />
-                <Icon type="down" onClick={this.handleAdvancedConfiguration} />
-              </p>
-            </div>
-          )}
-
-          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix'})}>
-            {getFieldDecorator('cluster_monitor_suffix', {
-              initialValue: data.cluster_monitor_suffix || '',
+          <FormItem {...is_language} label='endpoint'>
+            {getFieldDecorator('oss_endpoint', {
+              initialValue: data?.oss_endpoint || '',
               rules: [
+                {
+                  required: true,
+                  message: formatMessage({id:'placeholder.oauth.endpoint'})
+                },
                 {
                   max: 255,
                   message: formatMessage({id:'placeholder.max255'})
                 }
               ]
-            })(<Input placeholder={formatMessage({id:'placeholder.oauth.cluster_monitor_suffix'})} />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.endpoint'})} />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.node_monitor_suffix'})}>
-            {getFieldDecorator('node_monitor_suffix', {
-              initialValue: data.node_monitor_suffix || '',
+          <FormItem {...is_language} label='bucket_name'>
+            {getFieldDecorator('oss_bucket', {
+              initialValue: data?.oss_bucket || '',
               rules: [
+                {
+                  required: true,
+                  message: formatMessage({id:'placeholder.oauth.bucket_name'})
+                },
                 {
                   max: 255,
                   message: formatMessage({id:'placeholder.max255'})
                 }
               ]
-            })(<Input placeholder={formatMessage({id:'placeholder.oauth.node_monitor_suffix'})} />)}
+            })(<Input placeholder={formatMessage({id:'placeholder.oauth.bucket_name'})} />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.component_monitor_suffix'})}>
-            {getFieldDecorator('component_monitor_suffix', {
-              initialValue: data.component_monitor_suffix || '',
+          <FormItem {...is_language} label='Access Key'>
+            {getFieldDecorator('oss_access_key', {
+              initialValue: data?.oss_access_key || '',
               rules: [
                 {
-                  max: 255,
-                  message: formatMessage({id:'placeholder.max255'})
+                  required: true,
+                  message: formatMessage({id:'placeholder.oauth.access_key'})
+                },
+                {
+                  max: 1024,
+                  message: formatMessage({id:'placeholder.max1024'})
                 }
               ]
-            })(<Input placeholder={formatMessage({id:'placeholder.oauth.component_monitor_suffix'})} />)}
+            })(<Input placeholder="Access Key" />)}
           </FormItem>
-          <FormItem style={monitoringObj} {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.monitoring.form.label.slo_monitor_suffix'})}>
-            {getFieldDecorator('slo_monitor_suffix', {
-              initialValue: data.slo_monitor_suffix || '',
+          <FormItem {...is_language} label='Secret Key'>
+            {getFieldDecorator('oss_access_key_secret', {
+              initialValue: data?.oss_access_key_secret || '',
               rules: [
                 {
-                  max: 255,
-                  message: formatMessage({id:'placeholder.max255'})
+                  required: true,
+                  message: formatMessage({id:'placeholder.oauth.secret_key'})
+                },
+                {
+                  max: 1024,
+                  message: formatMessage({id:'placeholder.max1024'})
                 }
               ]
-            })(<Input placeholder={formatMessage({id:'placeholder.oauth.slo_monitor_suffix'})}/>)}
+            })(<Input type="password" placeholder="Secret Key" />)}
           </FormItem>
-          {advancedConfiguration && (
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <Icon type="up" onClick={this.handleAdvancedConfiguration} />
-            </div>
-          )}
         </Form>
       </Modal>
     );

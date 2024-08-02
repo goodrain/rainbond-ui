@@ -95,7 +95,8 @@ import {
   toCreatUser,
   toEditCloudBackup,
   toEditImageHub,
-  toEditMonitorin,
+  editCloudStorage,
+  fetchCloudStorage,
   toEditOauth,
   toQueryLinks,
   toQueryTopology,
@@ -852,8 +853,14 @@ export default {
         callback(response);
       }
     },
-    *editMonitorin({ payload, callback }, { call }) {
-      const response = yield call(toEditMonitorin, payload);
+    *editCloudStorage({ payload, callback }, { call }) {
+      const response = yield call(editCloudStorage, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchCloudStorage({ payload, callback }, { call }) {
+      const response = yield call(fetchCloudStorage, payload);
       if (callback) {
         callback(response);
       }
