@@ -221,6 +221,17 @@ export default class AutoDeploy extends PureComponent {
       }
     })
   }
+  openNewTab = (type, platform_url) => {
+    let url
+    if (type === 'Git-Webhook') {
+      url = `${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于源代码操作流程`
+    } else if (type === 'custom') {
+      url = `${platform_url}docs/use-manual/component-manage/build-source/auto_build/#api-触发自动构建`
+    } else if (type === 'Webhook') {
+      url = `${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于镜像仓库操作流程`
+    }
+    window.open(url, '_blank')
+}
   render() {
     if (!this.state.display) return null;
     const { getFieldDecorator } = this.props.form;
@@ -318,7 +329,7 @@ export default class AutoDeploy extends PureComponent {
                     }
                   >
                     {' '}
-                    <Icon type="question-circle-o" />
+                    <Icon type="question-circle-o" onClick={() => this.openNewTab('Git-Webhook', platform_url)}/>
                   </Tooltip>
                 </span>
               }
@@ -443,7 +454,8 @@ export default class AutoDeploy extends PureComponent {
                     ''
                   }
                 >
-                  <Icon type="question-circle-o" />
+                  {' '}
+                  <Icon type="question-circle-o" onClick={() => this.openNewTab('custom', platform_url)}/>
                 </Tooltip>
               </span>
             }
@@ -517,19 +529,22 @@ export default class AutoDeploy extends PureComponent {
             <TabPane
               tab={
                 <span>
-                  {' '}
                   <Icon component={dockerSvg} />
                   <FormattedMessage id='componentOverview.body.AutoDeploy.Webhook'/>
-                  {platform_url && (
-                    <Tooltip  title={<FormattedMessage id='componentOverview.body.AutoDeploy.read'/>}>
+                  <Tooltip title={
+                    (platform_url && (
                       <a
                         href={`${platform_url}docs/use-manual/component-manage/build-source/auto_build/#基于镜像仓库操作流程`}
                         target="_blank"
+                        style={{ color: '#fff' }}
                       >
-                        <Icon type="question-circle-o" />
+                        <FormattedMessage id='componentOverview.body.AutoDeploy.read' />
                       </a>
-                    </Tooltip>
-                  )}
+                    ))
+                  }>
+                    {' '}
+                    <Icon type="question-circle-o" onClick={() => this.openNewTab('Webhook', platform_url)} />
+                  </Tooltip>
                 </span>
               }
               key="2"

@@ -699,7 +699,7 @@ class Index extends Component {
                       <Button onClick={() => this.delEven('unload')}>
                         <FormattedMessage id='button.uninstall' />
                       </Button>
-                      <Button onClick={this.getKubeConfig}>kubeConfig</Button>
+                      {rowClusterInfo.provider_cluster_id && <Button onClick={this.getKubeConfig}>kubeConfig</Button>}
                     </>
                   }
                 </Col>
