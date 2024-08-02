@@ -870,12 +870,14 @@ export default class EnterpriseClusters extends PureComponent {
               {/* 卸载 */}
             </a>
           );
-          mlist.push(
-            <a onClick={() => {this.getKubeConfig(item);}}>
-              KubeConfig
-              {/* KubeConfig */}
-            </a>
-          );
+          if (item.provider_cluster_id) {
+            mlist.push(
+              <a onClick={() => {this.getKubeConfig(item);}}>
+                KubeConfig
+                {/* KubeConfig */}
+              </a>
+            );
+          }
           if (item.provider === 'rke') {
             mlist.push(
               <Link

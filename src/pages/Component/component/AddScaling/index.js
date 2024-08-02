@@ -55,7 +55,7 @@ class AddScaling extends PureComponent {
     const num = Number(value);
     if (num || num === 0) {
       if (num < min) {
-        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_min' values={{num:num}}/>);
+        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_min' values={{num:min}}/>);
         return;
       }
       if (num > 65535) {

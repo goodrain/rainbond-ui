@@ -740,10 +740,6 @@ export default class EnterpriseTeams extends PureComponent {
             <FormattedMessage id='enterpriseTeamManagement.table.CUP'/>
           </Col>
           <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* 租户限额(MB) */}
-            <FormattedMessage id='enterpriseTeamManagement.table.quota'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
             {/* 运行应用数 */}
             <FormattedMessage id='enterpriseTeamManagement.table.operation'/>
           </Col>
@@ -794,7 +790,6 @@ export default class EnterpriseTeams extends PureComponent {
                 </Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{memory} </Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{cpu_request}</Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{set_limit}</Col>
                 <Col style={{width:'9%',textAlign:'center'}}>{running_apps}</Col>
                 </Row>
                 <Col className={styles.bor}>
