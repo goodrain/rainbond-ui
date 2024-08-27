@@ -131,6 +131,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'EnterpriseSetting',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/logs',
             component: './LogManagement',
             name: 'LogManagement',

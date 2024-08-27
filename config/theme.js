@@ -1,6 +1,6 @@
 // 全局更改 antd 主题色
 module.exports = {
-'primary-color': '#4D73B1' , // 全局主色
+'primary-color': '#FC481B' , // 全局主色
 'success-color': '#18B633', // 成功色
 'warning-color': '#FF8D3C', // 警告色
 'error-color': '#FC481B', // 错误色

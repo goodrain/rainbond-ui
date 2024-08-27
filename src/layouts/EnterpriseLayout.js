@@ -533,7 +533,6 @@ class EnterpriseLayout extends PureComponent {
                     >
                       <Authorized
                         logined
-                        // authority={children.props.route.authority}
                         authority={['admin', 'user']}
                         noMatch={<Redirect to="/user/login" />}
                       >

@@ -99,6 +99,12 @@ function menuData(eid, currentUser, enterprise) {
       path: `/enterprise/${eid}/setting`,
       authority: ['admin', 'user']
     });
+    menuArr.push({
+      name: '插件DEMO',
+      icon: getMenuSvg.getSvg('plugin'),
+      path: `/enterprise/${eid}/plugins/pluginsDemo`,
+      authority: ['admin', 'user']
+    });
   }
 
   return menuArr;
