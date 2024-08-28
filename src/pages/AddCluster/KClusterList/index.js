@@ -1,22 +1,22 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import NewbieGuiding from '@/components/NewbieGuiding';
-import { Button, Card, Col, Form, Row, Steps, Tooltip } from 'antd';
+import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Checkbox, notification, Icon } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import CustomClusterAdd from '../../../components/Cluster/CustomClusterAdd';
-import KubernetesTableShow from '../../../components/Cluster/KubernetesTableShow';
-import ShowKubernetesCreateDetail from '../../../components/Cluster/ShowKubernetesCreateDetail';
-import RKEClusterConfig from '../../../components/Cluster/RKEClusterAdd';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import RKEClusterCmd from '../../../components/RKEClusterCmd'
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
 
 const { Step } = Steps;
+const CheckboxGroup = Checkbox.Group;
+
+const plainOptions = ['ETCD', 'Controlplane', 'Worker'];
+const defaultCheckedList = ['ETCD', 'Controlplane'];
 
 @Form.create()
 @connect(({ user, list, loading, global, index }) => ({
@@ -36,15 +36,11 @@ export default class EnterpriseClusters extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      showBuyClusterConfig: false,
-      k8sClusters: [],
-      loading: true,
-      rainbondInit: false,
-      selectClusterID: '',
-      showCreateDetail: false,
-      linkedClusters: new Map(),
-      guideStep: 3,
-      currentClusterID: ''
+      visible: true,
+      confirmLoading: false,
+      checkedList: defaultCheckedList,
+      registrationCmd: '',
+      copyText: ''
     };
   }
   componentWillMount() {
@@ -55,123 +51,57 @@ export default class EnterpriseClusters extends PureComponent {
     }
   }
   componentDidMount() {
-    this.loadKubernetesCluster();
-  }
-
-  startInit = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid, provider }
-      }
-    } = this.props;
-    const { selectClusterID, rainbondInit } = this.state;
-    dispatch(
-      routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${selectClusterID}/${
-          rainbondInit ? 'link' : 'init'
-        }`
-      )
-    );
-  };
-  selectCluster = row => {
+    const { checkedList } = this.state;
     this.setState({
-      selectClusterID: row.clusterID,
-      rainbondInit: row.rainbond_init
+      copyText: this.initializeCmd('http://127.0.0.1:7070', checkedList)
+    })
+  }
+  initializeCmd(ip, node) {
+    let cmd = `CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" curl -fL ${ip}/system-agent-install.sh | sudo CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" sh -s - --server ${ip} --label 'cattle.io/os=linux' --token jfklsbsz4zkwxts4m8lfz5ddvkmh25bjh7b2dwrs6cvmjhv4qk4jjp --ca-checksum b63362daf75923d1b674268fc4d4f701473ce2e9ff54937906809245a99d1028${this.getNodeInfo(node)}`
+    console.log(cmd, "cmd");
+    return cmd
+  }
+  getNodeInfo = (list) => {
+    let result = '';
+    if (list && list.length > 0) {
+      result = list.map(e => `  --${e.toLowerCase()}`).join(' ');
+    }
+    return result;
+  }
+  onChange = checkedList => {
+    this.setState({
+      checkedList
+    }, () => {
+      const { checkedList } = this.state;
+      this.setState({
+        copyText: this.initializeCmd('http://127.0.0.1:7070', checkedList)
+      })
     });
   };
-  loadKubernetesCluster = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid, provider }
-      }
-    } = this.props;
-    this.setState({ loading: true });
-    dispatch({
-      type: 'cloud/loadKubereneteClusters',
-      payload: {
-        enterprise_id: eid,
-        provider_name: provider
-      },
-      callback: data => {
-        if (data && data.clusters && data.clusters.length > 0) {
-          const next = data.clusters[0].state === 'running';
-          this.setState({
-            k8sClusters: data.clusters,
-            loading: false
-          });
-          if (next) {
-            document.getElementById('initializeBtn').scrollIntoView();
-          }
-          this.loadRainbondClusters();
-        } else {
-          if (provider === 'custom' || provider === 'rke') {
-            this.showBuyClusterConfig();
-          }
-          this.setState({ loading: false, k8sClusters: [] });
-        }
-      },
-      handleError: res => {
-        cloud.handleCloudAPIError(res);
-        this.setState({ loading: false });
-      }
+  showModal = () => {
+    this.setState({
+      visible: true,
     });
-  };
-  handleStartLog = (taskID, status, isCustomClusterType) => {
-    const {
-      match: {
-        params: { eid, provider }
-      },
-      rainbondInfo,
-      enterprise
-    } = this.props;
-    globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
-      eid,
-      taskID,
-      status: isCustomClusterType ? status : 'start',
-      install_step: 'createK8s',
-      provider
-    });
-  };
-  loadRainbondClusters = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'region/fetchEnterpriseClusters',
-      payload: {
-        enterprise_id: eid,
-        check_status: 'no'
-      },
-      callback: res => {
-        if (res && res.list) {
-          const linkedClusters = new Map();
-          res.list.map(item => {
-            if (item.provider_cluster_id !== '') {
-              linkedClusters.set(item.provider_cluster_id, true);
-            }
-            return item;
-          });
-          this.setState({ linkedClusters });
-        }
-      }
-    });
-  };
-  showBuyClusterConfig = () => {
-    this.setState({ showBuyClusterConfig: true });
   };
 
-  cancelAddCluster = () => {
-    this.setState({ showBuyClusterConfig: false });
+  handleOk = () => {
+    this.setState({
+      confirmLoading: true,
+    });
+    setTimeout(() => {
+      this.setState({
+        visible: false,
+        confirmLoading: false,
+      });
+    }, 2000);
   };
-  cancelShowCreateDetail = () => {
-    this.setState({ showCreateDetail: false });
-    this.loadKubernetesCluster();
+
+  handleCancel = () => {
+    this.setState({
+      visible: false,
+    });
   };
+
   addClusterOK = () => {
     const { dispatch } = this.props;
     const {
@@ -193,110 +123,24 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.supplier'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.supplier' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.cluster'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.cluster' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.Initialize' })
       },
       {
-        title: formatMessage({id : 'enterpriseColony.addCluster.clusterInit'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.clusterInit' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.docking'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.docking' })
       }
     ];
     return steps;
   };
 
-  handleOk = (task, isCustomClusterType) => {
-    if (task && task.taskID) {
-      this.handleStartLog(task.taskID, task.status, isCustomClusterType);
-    }
-    this.cancelAddCluster();
-    this.loadKubernetesCluster();
-  };
-  handleGuideStep = guideStep => {
-    this.setState({
-      guideStep
-    });
-  };
-  handleNewbieGuiding = info => {
-    const {
-      prevStep,
-      nextStep,
-      handleClick = () => {},
-      handleClosed = () => {}
-    } = info;
-    return (
-      <NewbieGuiding
-        {...info}
-        totals={14}
-        handleClose={() => {
-          this.handleGuideStep('close');
-          this.selectCluster({
-            clusterID: '',
-            rainbond_init: false
-          });
-          handleClosed();
-        }}
-        handlePrev={() => {
-          if (prevStep) {
-            this.handleGuideStep(prevStep);
-          }
-        }}
-        handleNext={() => {
-          if (nextStep) {
-            handleClick();
-            this.handleGuideStep(nextStep);
-          }
-        }}
-      />
-    );
-  };
-  renderCreateClusterShow = () => {
-    const {
-      match: {
-        params: { eid, provider }
-      }
-    } = this.props;
-    const { guideStep } = this.state;
-    switch (provider) {
-      case 'custom':
-        return (
-          <CustomClusterAdd
-            eid={eid}
-            onCancel={() => {
-              this.cancelAddCluster();
-            }}
-            onOK={task => {
-              this.handleOk(task, true);
-            }}
-          />
-        );
-      case 'rke':
-        return (
-          <RKEClusterConfig
-            eid={eid}
-            guideStep={guideStep}
-            handleNewbieGuiding={this.handleNewbieGuiding}
-            onCancel={() => {
-              this.cancelAddCluster();
-            }}
-            onOK={clusterID => {
-              // this.setState({
-              //   currentClusterID: clusterID,
-              //   showCreateDetail: true,
-              // })
-              this.handleOk(clusterID);
-            }}
-          />
-        );
-      default:
-    }
-  };
   render() {
     const {
       match: {
@@ -307,64 +151,53 @@ export default class EnterpriseClusters extends PureComponent {
       }
     } = this.props;
     const {
-      k8sClusters,
-      showBuyClusterConfig,
-      loading,
-      selectClusterID,
-      showCreateDetail,
-      linkedClusters,
-      currentClusterID,
-      guideStep
-    } = this.state;
-    const nextDisable = selectClusterID === '';
+      visible,
+      confirmLoading,
+      copyText
+    } = this.state
+    const columns = [
+      {
+        title: '状态',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '名称',
+        dataIndex: 'address',
+        key: 'address',
+      },
+      {
+        title: '节点',
+        dataIndex: 'age',
+        key: 'age',
+      },
+      {
+        title: '外网/内网 IP',
+        dataIndex: 'age',
+        key: 'age',
+      },
+      {
+        title: '操作系统',
+        dataIndex: 'age',
+        key: 'age',
+      },
+      {
+        title: '角色',
+        dataIndex: 'age',
+        key: 'age',
+      },
+      {
+        title: '存活时间',
+        dataIndex: 'age',
+        key: 'age',
+      },
+    ];
 
-    let title = `${formatMessage({id:'enterpriseColony.addCluster.host.Cluster_list'})}`;
-    switch (provider) {
-      case 'ack':
-        title += `${formatMessage({id:'enterpriseColony.addCluster.host.al'})}`;
-        break;
-      case 'tke':
-        title += `${formatMessage({id:'enterpriseColony.addCluster.host.tx'})}`;
-        break;
-      case 'custom':
-        title += `${formatMessage({id:'enterpriseColony.addCluster.host.zdy'})}`;
-        break;
-      case 'rke':
-        title += `${formatMessage({id:'enterpriseColony.addCluster.host.host_oneself'})}`;
-        break;
-      default:
-        title += `${formatMessage({id:'enterpriseColony.addCluster.host.provider'},{provider:provider})}`;
-    }
-    const nextStepBtn = (
-      <Button
-        style={{ marginLeft: '16px' }}
-        type="primary"
-        onClick={this.startInit}
-        disabled={nextDisable}
-        id="initializeBtn"
-      >
-        <FormattedMessage id='button.next'/>
-      </Button>
-    );
-    let next = false;
-    let selectedClusterID = '';
-    let rainbondInit = false;
-
-    if (k8sClusters && k8sClusters.length) {
-      k8sClusters.map(item => {
-        const { state } = item;
-        if (state === 'running') {
-          rainbondInit = item.rainbond_init;
-          selectedClusterID = item.cluster_id;
-          next = true;
-        }
-      });
-    }
     return (
       <PageHeaderLayout
-      title={<FormattedMessage id='enterpriseColony.button.text'/>}
-      content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
-      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
+        title={<FormattedMessage id='enterpriseColony.button.text' />}
+        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
+        titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={1}>
@@ -373,72 +206,22 @@ export default class EnterpriseClusters extends PureComponent {
             ))}
           </Steps>
         </Row>
-        <Card title={title}>
-          <KubernetesTableShow
-            eid={eid}
-            loading={loading}
-            loadKubernetesCluster={this.loadKubernetesCluster}
-            selectCluster={this.selectCluster}
-            selectProvider={provider}
-            data={k8sClusters}
-            guideStep={guideStep}
-            handleNewbieGuiding={this.handleNewbieGuiding}
-            linkedClusters={linkedClusters}
-            showBuyClusterConfig={this.showBuyClusterConfig}
-            updateKubernetes={updateKubernetes}
-            updateKubernetesClusterID={clusterID}
+        <Card
+          title="主机列表"
+          extra={<Button type="primary" onClick={this.showModal}>添加节点</Button>}
+        >
+          <Alert
+            message="注意"
+            description="请至少等待一个管理节点、一个ETCD节点和一个计算节点各自完成注册。"
+            type="info"
+            showIcon
+            style={{ marginBottom: 24 }}
           />
-          {next && (guideStep === 3 || guideStep === 8)
-            ? this.handleNewbieGuiding({
-                tit: formatMessage({id:'enterpriseColony.addCluster.host.select_the_cluster'}),
-                desc: formatMessage({id:'enterpriseColony.addCluster.host.cluster'}),
-                send: false,
-                configName: 'kclustersInitializationCluster',
-                nextStep: 9,
-                svgPosition: { left: '44px', marginTop: '-35px' },
-                handleClick: () => {
-                  this.selectCluster({
-                    clusterID: selectedClusterID,
-                    rainbond_init: rainbondInit
-                  });
-                }
-              })
-            : ''}
-          {showBuyClusterConfig && this.renderCreateClusterShow()}
-          <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-            <Button onClick={this.preStep}><FormattedMessage id='button.previous'/></Button>
-            {nextDisable ? (
-              <Tooltip title={formatMessage({id:'enterpriseColony.addCluster.host.select_the_cluster'})}>{nextStepBtn}</Tooltip>
-            ) : (
-              nextStepBtn
-            )}
-            {next && guideStep === 9
-              ? this.handleNewbieGuiding({
-                  tit: formatMessage({id:'enterpriseColony.addCluster.host.Rainbond'}),
-                  desc: formatMessage({id:'enterpriseColony.addCluster.host.install'}),
-                  send: true,
-                  configName: 'kclustersInitializationCluster',
-                  nextStep: 10,
-                  conPosition: { left: '60%', bottom: '-24px' },
-                  svgPosition: { left: '54%', marginTop: '-11px' },
-                  handleClick: () => {
-                    if (!nextDisable) {
-                      this.startInit();
-                    }
-                  }
-                })
-              : ''}
-          </Col>
-          {showCreateDetail && (
-            <ShowKubernetesCreateDetail
-              onCancel={this.cancelShowCreateDetail}
-              eid={eid}
-              isShowNodeComponent='showNode'
-              clusterList={k8sClusters}
-              clusterID={currentClusterID}
-            />
-          )}
+          <Table dataSource={[]} columns={columns} />
         </Card>
+        {visible && 
+        <RKEClusterCmd onCancel={this.handleCancel}/>
+        }
       </PageHeaderLayout>
     );
   }

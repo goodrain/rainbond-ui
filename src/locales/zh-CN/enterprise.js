@@ -524,7 +524,7 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.element': '元',
     'enterpriseColony.addCluster.access': '请提供具有足够权限的Access Key',
     'enterpriseColony.addCluster.adopt': '通过 Kubeconfig 安装平台',
-    'enterpriseColony.addCluster.cluster': '接入已安装平台集群',
+    'enterpriseColony.addCluster.cluster': '安装Kubernetes集群',
     'enterpriseColony.addCluster.infrastructure': '自建基础设施',
     'enterpriseColony.addCluster.host': '从主机开始安装',
     'enterpriseColony.addCluster.install': '主机安装',
