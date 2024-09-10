@@ -6,6 +6,7 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getPodEvent, getRainbondComponents } from '../../../services/cloud';
+import {installClusterAllPodinfo} from '../../../services/region'
 import handleAPIError from '../../../utils/error';
 import styles from '../../CreateTeam/index.less';
 import styless from './index.less';
@@ -39,13 +40,9 @@ class ClusterComponents extends PureComponent {
   fetchRainbondComponents = () => {
     const { eid, clusterID, providerName, completePods } = this.props;
     const { componentInfo } = this.state;
-    getRainbondComponents({
-      clusterID,
-      providerName,
-      enterprise_id: eid
-    })
+    installClusterAllPodinfo()
       .then(res => {
-        const list = (res && res.response_data) || [];
+        const list = (res && res.list) || [];
         let info = false;
         list.map(item => {
           if (

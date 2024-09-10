@@ -14,10 +14,12 @@ import {
   Checkbox,
   notification,
   Icon,
-  Divider
+  Divider,
+  Input
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import Cookies from '../../utils/cookie'
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -25,6 +27,7 @@ import styles from './index.less'
 
 
 const { Step } = Steps;
+const { TextArea } = Input;
 const CheckboxGroup = Checkbox.Group;
 
 const plainOptions = ['ETCD', 'Controlplane', 'Worker'];
@@ -39,65 +42,85 @@ export default class EnterpriseClusters extends PureComponent {
       confirmLoading: false,
       checkedList: defaultCheckedList,
       registrationCmd: '',
-      copyText: ''
+      copyText: '',
+      hostInputShow: false,
+      ipInputShow: false,
+      Localhost: window.location.host,
+      internalIP: '',
+      externalIP: '',
+      token: '',
     };
   }
   componentWillMount() {
-  }
-  componentDidMount() {
-    const { checkedList } = this.state;
+    const { eventId } = this.props
     this.setState({
-      copyText: this.initializeCmd('http://127.0.0.1:7071', checkedList)
+      token: eventId
     })
   }
-  initializeCmd(ip, node) {
-    let cmd = `CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" curl -fL ${ip}/system-agent-install.sh | sudo CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" sh -s - --server ${ip} --label 'cattle.io/os=linux' --token jfklsbsz4zkwxts4m8lfz5ddvkmh25bjh7b2dwrs6cvmjhv4qk4jjp --ca-checksum b63362daf75923d1b674268fc4d4f701473ce2e9ff54937906809245a99d1028${this.getNodeInfo(node)}`
-    console.log(cmd, "cmd");
-    return cmd
+  componentDidMount() {
+    this.updateCommand()
   }
-  getNodeInfo = (list) => {
-    let result = '';
-    if (list && list.length > 0) {
-      result = list.map(e => `  --${e.toLowerCase()}`).join(' ');
-    }
-    return result;
+  updateCommand = (bool = false) => {
+    const { checkedList, token, internalIP, externalIP, Localhost } = this.state;
+    this.setState({
+      copyText: this.initializeCmd(Localhost, checkedList, token, { internalIP: internalIP, externalIP: externalIP })
+    }, () => {
+      bool && notification.success({ message: '命令更新成功' })
+    })
   }
   onChange = checkedList => {
     this.setState({
       checkedList
     }, () => {
-      const { checkedList } = this.state;
-      this.setState({
-        copyText: this.initializeCmd('http://127.0.0.1:7070', checkedList)
-      })
+      this.updateCommand(true)
     });
   };
-
   handleOk = () => {
-    this.setState({
-      confirmLoading: true,
-    });
-    setTimeout(() => {
-      this.setState({
-        confirmLoading: false,
-      }, () => {
-        this.props.onCancel()
-      });
-    }, 2000);
+    this.props.onCancel()
   };
-
   handleCancel = () => {
     this.props.onCancel()
   };
-
-
+  ipInputShowFun = () => {
+    const { ipInputShow } = this.state
+    if (ipInputShow) {
+      this.setState({
+        externalIP: '',
+        internalIP: '',
+        Localhost: window.location.host,
+        ipInputShow: !ipInputShow
+      }, () => {
+        this.updateCommand()
+      })
+    } else {
+      this.setState({
+        ipInputShow: !ipInputShow
+      })
+    }
+  }
+  initializeCmd(ip, node, token, ipobj = {}) {
+    let cmd = ''
+    if (Object.keys(ipobj).length == 0) {
+      cmd = `curl -sfL ${ip}/rke2-install.sh | sh -s -${ip}${this.getNodeInfo(node)}` + `  --token  ${token}`
+    } else {
+      cmd = `curl -sfL ${ip}/rke2-install.sh | sh -s -${ip}${this.getNodeInfo(node)}` + `${ipobj.externalIP != '' ? `  --external-ip ${ipobj.externalIP}` : ''}` + `${ipobj.internalIP != '' ? `  --internal-ip ${ipobj.internalIP}` : ''}` + `  --token  ${token}`
+    }
+    return cmd
+  }
+  getNodeInfo(list) {
+    return list.map(e => `  --${e.toLowerCase()}`).join(' ');
+  }
   render() {
     const {
       visible,
       confirmLoading,
-      copyText
+      copyText,
+      ipInputShow,
+      hostInputShow,
+      internalIP,
+      externalIP,
+      Localhost
     } = this.state
-
     return (
       <>
         <Modal
@@ -107,7 +130,11 @@ export default class EnterpriseClusters extends PureComponent {
           onOk={this.handleOk}
           confirmLoading={confirmLoading}
           onCancel={this.handleCancel}
+          style={{ position: "relative" }}
         >
+          <div className={styles.moreConfig}>
+              <Button type="link" onClick={this.ipInputShowFun}>{!ipInputShow ? '高级设置':'取消'}</Button>
+          </div>
           <div className={styles.hostInfo}>
             <h1>节点角色</h1>
             <p>选择节点在集群中的角色。在集群中，每个角色都需要至少一个节点。</p>
@@ -118,6 +145,53 @@ export default class EnterpriseClusters extends PureComponent {
             />
           </div>
           <Divider />
+          {ipInputShow &&
+            <>
+              <div className={styles.hostInfo}>
+                <h1>高级选项</h1>
+                <p>填写需要注册节点的公网IP和内网IP。</p>
+                <Input
+                  placeholder='节点内网IP'
+                  style={{ marginBottom: 12, width: 350,height:40,marginRight:24 }}
+                  value={internalIP}
+                  onChange={(e) => {
+                    this.setState({
+                      internalIP: e.target.value
+                    }, () => {
+                      this.updateCommand()
+                    })
+                  }} />
+                <Input
+                  placeholder='节点公网IP'
+                  style={{ marginBottom: 12, width: 350,height:40 }}
+                  value={externalIP}
+                  onChange={(e) => {
+                    this.setState({
+                      externalIP: e.target.value
+                    }, () => {
+                      this.updateCommand()
+                    })
+                  }} />
+              </div>
+              <div className={styles.hostInfo}>
+                {/* <h1>控制台地址调整</h1> */}
+                <p>请填写控制台的访问地址，用于替换下方注册命令中的地址。</p>
+                <Input
+                  placeholder='控制台访问地址'
+                  style={{ marginBottom: 12, width: 350,height:40 }}
+                  value={Localhost}
+                  onChange={(e) => {
+                    this.setState({
+                      Localhost: e.target.value
+                    }, () => {
+                      this.updateCommand()
+                    })
+                  }} />
+              </div>
+              <Divider />
+            </>
+          }
+
           <div className={styles.hostInfo}>
             <h1>注册命令</h1>
             <p>在需要注册的 Linux 主机上运行此命令。</p>
@@ -128,7 +202,7 @@ export default class EnterpriseClusters extends PureComponent {
                   notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
                 }}
               >
-                <Icon type="copy"  style={{fontSize:16}}/>
+                <Icon type="copy" style={{ fontSize: 16 }} />
               </CopyToClipboard>
               <span>{copyText}</span>
             </div>

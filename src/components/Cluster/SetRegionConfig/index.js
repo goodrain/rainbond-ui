@@ -66,34 +66,34 @@ export default class SetRegionConfig extends PureComponent {
           token: configsYaml,
           region_type: ['custom'],
           provider: selectProvider,
-          providerClusterID: selectClusterID
+          providerClusterID: window.localStorage.getItem('event_id')
         },
         callback: res => {
           if (res && res._condition === 200) {
             notification.success({ message: formatMessage({id:'notification.success.add'}) });
-            if (task) {
-              dispatch({
-                type: 'cloud/updateInitTaskStatus',
-                payload: {
-                  enterprise_id: eid,
-                  taskID: task.taskID,
-                  status: 'complete'
-                },
-                callback: () => {
-                  dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-                },
-                handleError: herr => {
-                  if(herr.data.code == 404){
-                    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-                  }else{
-                    cloud.handleCloudAPIError(herr);
-                  }  
-                  this.setState({ commitloading: false });
-                }
-              });
-            } else {
-              dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-            }
+            // if (task) {
+            //   dispatch({
+            //     type: 'cloud/updateInitTaskStatus',
+            //     payload: {
+            //       enterprise_id: eid,
+            //       taskID: task.taskID,
+            //       status: 'complete'
+            //     },
+            //     callback: () => {
+            //       dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+            //     },
+            //     handleError: herr => {
+            //       if(herr.data.code == 404){
+            //         dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+            //       }else{
+            //         cloud.handleCloudAPIError(herr);
+            //       }  
+            //       this.setState({ commitloading: false });
+            //     }
+            //   });
+            // } else {
+            //   dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+            // }
           }
         },
         handleError: errs => {
@@ -103,48 +103,21 @@ export default class SetRegionConfig extends PureComponent {
       });
     });
   };
-  loadRegionConfig = () => {
+  loadTask = () => {
     const { dispatch, eid, selectClusterID, selectProvider } = this.props;
     dispatch({
-      type: 'cloud/loadRegionConfig',
-      payload: {
-        enterprise_id: eid,
-        clusterID: selectClusterID,
-        providerName: selectProvider
-      },
+      type: 'region/getReginConfig',
       callback: data => {
         if (data) {
           this.setState({
-            configs: data.configs,
-            configsYaml: data.configs_yaml,
+            configs: data.bean.configs,
+            configsYaml: data.bean.configs_yaml,
             loading: false
           });
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res);
-        this.setState({ loading: false });
-      }
-    });
-  };
-  loadTask = () => {
-    const { dispatch, eid, selectClusterID, selectProvider } = this.props;
-    dispatch({
-      type: 'cloud/loadInitRainbondTask',
-      payload: {
-        enterprise_id: eid,
-        clusterID: selectClusterID,
-        providerName: selectProvider
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ task: data });
-          this.loadRegionConfig();
-        }
-      },
-      handleError: res => {
         if (res.data && res.data.code === 404) {
-          this.loadRegionConfig();
           return;
         }
         cloud.handleCloudAPIError(res);
@@ -219,18 +192,10 @@ export default class SetRegionConfig extends PureComponent {
               />
             )}
             {configs.apiAddress && (
-              <Descriptions className={styles.descLabel}>
-                <Descriptions.Item  label={<FormattedMessage id='enterpriseColony.SetRegionConfig.api'/>}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {configs.apiAddress}
                     <Alert
-                      style={{ marginLeft: '20px' }}
-                      message={<FormattedMessage id='enterpriseColony.SetRegionConfig.ip'/>}
-                      type="warning"
-                    />
-                  </div>
-                </Descriptions.Item>
-              </Descriptions>
+                    message={<><FormattedMessage id='enterpriseColony.SetRegionConfig.api'/>{ configs.apiAddress} <FormattedMessage id='enterpriseColony.SetRegionConfig.ip'/></>}
+                    type="warning"
+                  />
             )}
           </Row>
           <Row style={{ marginTop: '32px' }}>

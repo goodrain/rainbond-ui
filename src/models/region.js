@@ -35,6 +35,14 @@ import {
   fetchHelmEvents,
   createHelmEvents,
   deleteHelmEvents,
+  fetchClusterInfoList,
+  fetchClusterInfo,
+  fetchClusterNodeInfo,
+  installCluster,
+  installClusterPodinfo,
+  installClusterAllPodinfo,
+  unInstallCluster,
+  getReginConfig
 } from '../services/region';
 
 export default {
@@ -283,6 +291,54 @@ export default {
     },
     *deleteHelmEvents({ payload, callback, handleError }, { call }) {
       const response = yield call(deleteHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterInfoList({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterInfoList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterNodeInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterNodeInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installCluster({ payload, callback, handleError }, { call }) {
+      const response = yield call(installCluster, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installClusterPodinfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(installClusterPodinfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installClusterAllPodinfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(installClusterAllPodinfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *unInstallCluster({ payload, callback, handleError }, { call }) {
+      const response = yield call(unInstallCluster, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getReginConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(getReginConfig, payload, handleError);
       if (response && callback) {
         callback(response);
       }

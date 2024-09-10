@@ -15,8 +15,8 @@ import userUtil from '../../../utils/user';
 const { Step } = Steps;
 const CheckboxGroup = Checkbox.Group;
 
-const plainOptions = ['ETCD', 'Controlplane', 'Worker'];
-const defaultCheckedList = ['ETCD', 'Controlplane'];
+const plainOptions = ['ETCD', 'control-plane', 'Worker'];
+const defaultCheckedList = ['ETCD', 'control-plane'];
 
 @Form.create()
 @connect(({ user, list, loading, global, index }) => ({
@@ -36,46 +36,70 @@ export default class EnterpriseClusters extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      visible: true,
+      visible: false,
       confirmLoading: false,
       checkedList: defaultCheckedList,
       registrationCmd: '',
-      copyText: ''
+      copyText: '',
+      clusterInfoList: [],
+      nextBtnstatus: {}
     };
   }
   componentWillMount() {
     const { adminer } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, location: {
+      query: { event_id }
+    } } = this.props;
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
+    }else{
+      this.setState({
+        eventId:event_id == undefined ? window.localStorage.getItem('event_id') : event_id
+      })
     }
   }
   componentDidMount() {
     const { checkedList } = this.state;
-    this.setState({
-      copyText: this.initializeCmd('http://127.0.0.1:7070', checkedList)
-    })
+    this.fetchClusterInfoList()
   }
-  initializeCmd(ip, node) {
-    let cmd = `CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" curl -fL ${ip}/system-agent-install.sh | sudo CATTLE_AGENT_FALLBACK_PATH="/opt/rke2/bin" sh -s - --server ${ip} --label 'cattle.io/os=linux' --token jfklsbsz4zkwxts4m8lfz5ddvkmh25bjh7b2dwrs6cvmjhv4qk4jjp --ca-checksum b63362daf75923d1b674268fc4d4f701473ce2e9ff54937906809245a99d1028${this.getNodeInfo(node)}`
-    console.log(cmd, "cmd");
-    return cmd
+  componentWillUnmount() {
+    this.closeTimer()
   }
-  getNodeInfo = (list) => {
-    let result = '';
-    if (list && list.length > 0) {
-      result = list.map(e => `  --${e.toLowerCase()}`).join(' ');
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
     }
-    return result;
-  }
-  onChange = checkedList => {
-    this.setState({
-      checkedList
-    }, () => {
-      const { checkedList } = this.state;
-      this.setState({
-        copyText: this.initializeCmd('http://127.0.0.1:7070', checkedList)
-      })
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+  // 请求所有日志
+  fetchClusterInfoList = () => {
+    const { dispatch } = this.props;
+    const {eventId} = this.state
+    dispatch({
+      type: 'region/fetchClusterInfoList',
+      payload: {
+        event_id: eventId
+      },
+      callback: res => {
+        if (res && res.status_code == 200) {
+          this.setState({
+            clusterInfoList: res.response_data.data.bean,
+            nextBtnstatus: this.countRoles(res.response_data.data.bean),
+          },()=>{
+            this.handleTimers(
+              'timer',
+              () => {
+                this.fetchClusterInfoList();
+              },
+              3000
+            );
+          })
+        }
+      }
     });
   };
   showModal = () => {
@@ -140,36 +164,72 @@ export default class EnterpriseClusters extends PureComponent {
     ];
     return steps;
   };
+  lastOrNextSteps = (type) => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid, provider }
+      }
+    } = this.props;
+    if (type == 'last') {
+      dispatch(routerRedux.push(`/enterprise/${eid}/addCluster`));
+    } else {
+      dispatch(routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/init`));
+    }
+  }
+
+  countRoles = (clusterInfoList) => {
+    if (clusterInfoList && clusterInfoList.length > 0) {
+      const allRoles = clusterInfoList.flatMap(info => info.roles.split(', ').filter(role => role.trim() !== '')).map(role => role.trim());
+      // 使用 reduce 来统计每个角色的数量
+      const countObj = allRoles.reduce((acc, role) => {
+        if (role in acc) {
+          acc[role]++;
+        } else {
+          acc[role] = 1;
+        }
+        return acc;
+      }, {});
+      const requiredRoles = ['etcd'];
+      for (let role of requiredRoles) {
+        if (!(role in countObj)) {
+          return { disabled: true, msg: "缺少etcd节点" };
+        }
+      }
+      if (countObj['etcd'] % 2 === 1) {
+        return { disabled: false, msg: '' };
+      } else {
+        return { disabled: true, msg: "etcd节点个数应为单数" };
+      }
+    } else {
+      return { disabled: true, msg: "暂无任何节点信息" };
+    }
+  }
 
   render() {
     const {
       match: {
         params: { eid, provider }
       },
-      location: {
-        query: { clusterID, updateKubernetes }
-      }
     } = this.props;
     const {
       visible,
       confirmLoading,
-      copyText
+      copyText,
+      clusterInfoList,
+      nextBtnstatus,
+      eventId
     } = this.state
     const columns = [
       {
         title: '状态',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'status',
+        key: 'status',
       },
       {
         title: '名称',
-        dataIndex: 'address',
-        key: 'address',
-      },
-      {
-        title: '节点',
-        dataIndex: 'age',
-        key: 'age',
+        dataIndex: 'name',
+        key: 'name',
       },
       {
         title: '外网/内网 IP',
@@ -178,21 +238,20 @@ export default class EnterpriseClusters extends PureComponent {
       },
       {
         title: '操作系统',
-        dataIndex: 'age',
-        key: 'age',
+        dataIndex: 'os_image',
+        key: 'os_image',
       },
       {
         title: '角色',
-        dataIndex: 'age',
-        key: 'age',
+        dataIndex: 'roles',
+        key: 'roles',
       },
       {
         title: '存活时间',
-        dataIndex: 'age',
-        key: 'age',
+        dataIndex: 'uptime',
+        key: 'uptime',
       },
     ];
-
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.button.text' />}
@@ -212,16 +271,23 @@ export default class EnterpriseClusters extends PureComponent {
         >
           <Alert
             message="注意"
-            description="请至少等待一个管理节点、一个ETCD节点和一个计算节点各自完成注册。"
+            description="请至少等待一个ETCD节点完成注册，且ETCD节点数量为单数，方可进行下一步。"
             type="info"
             showIcon
             style={{ marginBottom: 24 }}
           />
-          <Table dataSource={[]} columns={columns} />
+          <Table dataSource={clusterInfoList} columns={columns} />
         </Card>
-        {visible && 
-        <RKEClusterCmd onCancel={this.handleCancel}/>
+        {visible &&
+          <RKEClusterCmd onCancel={this.handleCancel} eventId={eventId}/>
         }
+        <div style={{display:'flex',justifyContent:'center',marginTop:24}}>
+        <Button onClick={() => this.lastOrNextSteps('last')} style={{marginRight:24}}>上一步</Button>
+        <Tooltip title={nextBtnstatus.msg}>
+          <Button onClick={() => this.lastOrNextSteps('next')} type="primary" disabled={nextBtnstatus.disabled}>下一步</Button>
+        </Tooltip>
+        </div>
+
       </PageHeaderLayout>
     );
   }
