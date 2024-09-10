@@ -240,20 +240,20 @@ export default class RainbondClusterInit extends PureComponent {
           },
           callback: res => {
             if (res && res.status_code === 200) {
-              notification.success({ message: '集群初始化成功' })
+              notification.success({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeSuccess'}) })
               completeInit && completeInit()
             } else {
               this.setState({
                 installLoading: false
               })
-              notification.error({ message: '集群初始化失败' })
+              notification.error({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeLose'}) })
             }
           },
           handleError: err => {
             this.setState({
               installLoading: false
             })
-            notification.error({ message: '集群初始化失败' })
+            notification.error({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeLose'}) })
           }
         })
       }
@@ -874,16 +874,16 @@ export default class RainbondClusterInit extends PureComponent {
           <Card>
             <Result
               type="ing"
-              title="正在初始化集群配置"
-              description="此过程可能需要几分钟时间，请耐心等待..."
+              title={ formatMessage({id:'enterpriseColony.newHostInstall.node.initialize'})}
+              description={ formatMessage({id:'enterpriseColony.newHostInstall.node.await'})}
               style={{ padding: '48px' }}
             />
           </Card>}
         {showhandleSubmitModal && (
           <ConfirmModal
             onOk={this.handleSubmit}
-            title={'初始化集群配置'}
-            desc={'请仔细检查初始化集群的配置，一旦初始化开始将无法修改配置，您确定要开始初始化吗？'}
+            title={ formatMessage({id:'enterpriseColony.newHostInstall.node.initializeCluster'})}
+            desc={ formatMessage({id:'enterpriseColony.newHostInstall.node.verifyCluster'})}
             onCancel={this.onCancelSubmit}
           />
         )}

@@ -45,7 +45,7 @@ export default class EnterpriseClusters extends PureComponent {
       copyText: '',
       hostInputShow: false,
       ipInputShow: false,
-      Localhost: window.location.host,
+      Localhost: window.location.origin,
       internalIP: '',
       externalIP: '',
       token: '',
@@ -87,7 +87,7 @@ export default class EnterpriseClusters extends PureComponent {
       this.setState({
         externalIP: '',
         internalIP: '',
-        Localhost: window.location.host,
+        Localhost: window.location.origin,
         ipInputShow: !ipInputShow
       }, () => {
         this.updateCommand()
@@ -174,7 +174,6 @@ export default class EnterpriseClusters extends PureComponent {
                   }} />
               </div>
               <div className={styles.hostInfo}>
-                {/* <h1>控制台地址调整</h1> */}
                 <p>请填写控制台的访问地址，用于替换下方注册命令中的地址。</p>
                 <Input
                   placeholder='控制台访问地址'
