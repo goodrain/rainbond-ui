@@ -14,30 +14,31 @@
     &>p {
       width: 100%;
       padding: 12px;
-      background-color: @primary-4;
-      color: #fff;
+      border-radius: 5px;
+      background-color: @rbd-background-color;
+      color: #000 !important;
       font-weight: 500;
       margin-bottom: 0;
     }
-    .details:hover{
+
+    .details:hover {
       background-color: @primary-1;
     }
-    .details{
-    cursor: pointer;
-    
-      :global{
-        .ant-col{
-          display: flex;
-          align-items: center;
-        }
-        .ant-col-14{
-          p:nth-of-type(1){
+
+    .details {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      :global {
+        .ant-col-14 {
+          p:nth-of-type(1) {
             font-size: @rbd-auxiliary-size;
             color: @rbd-auxiliary-color;
             line-height: @rbd-auxiliary-line-height;
             margin: 0;
           }
-          p:nth-of-type(2){
+
+          p:nth-of-type(2) {
             font-size: @rbd-auxiliary-size;
             line-height: @rbd-auxiliary-line-height;
             color: @rbd-auxiliary-color-secondary;
@@ -51,21 +52,26 @@
 
 .podInfo {
   :global {
-    .ant-descriptions{
+    .ant-descriptions {
       margin: 12px 0 24px;
     }
+
     .ant-descriptions.bordered .ant-descriptions-item-label {
-      background-color: @primary-1;
+      background-color: #fafafa;
       font-weight: 500;
     }
 
     .ant-descriptions.bordered .ant-descriptions-row {
-      border-bottom: 1px solid @primary-1;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     .ant-descriptions.bordered .ant-descriptions-view {
-      border: 1px solid @primary-1;
+      border-bottom: 1px solid #e8e8e8;
       ;
+    }
+
+    .ant-collapse>.ant-collapse-item:last-child>.ant-collapse-header {
+      border-radius: 4px;
     }
   }
 
@@ -95,6 +101,7 @@
 .warningState {
   padding: 4px 12px;
   font-size: 14px;
+  border-radius: 5px;
   color: #fff;
   background-color: @rbd-success-status;
 }
@@ -112,53 +119,68 @@
 .customCollapse {
   background-color: #fff !important;
   border: none !important;
+  border-radius: 4px;
+  overflow: hidden;
   :global {
     .ant-collapse-header {
       background: #fafafa !important;
       padding: 5px 16px 5px 40px !important;
     }
+
     .ant-collapse-item {
       margin-bottom: 20px;
       border: 1px solid #d9d9d9;
     }
+    .ant-collapse > .ant-collapse-item:last-child,{
+      border-radius: 4px;
+    }
   }
 }
+
 .panelBox {
   div {
     line-height: 1;
   }
+
   div:nth-of-type(1) {
     font-size: 16px;
     margin-bottom: 2px;
   }
+
   div:nth-of-type(2) {
     font-size: 12px;
     color: rgba(0, 0, 0, 0.35);
   }
 }
-.customCollapseTable{
+
+.customCollapseTable {
   color: @primary-color;
   border-bottom: 2px solid @primary-color;
   font-weight: 500;
 }
-.customCollapseDetails{
+
+.customCollapseDetails {
   padding: 12px 0;
   border-bottom: 1px solid @primary-1;
-  .podname{
-  color: @primary-color;
+
+  .podname {
+    color: @primary-color;
   }
-  :global{
+
+  :global {
     display: flex;
     align-items: center;
   }
 }
-.ButtonBox{
+
+.ButtonBox {
   padding-top: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  :global{
-    .ant-btn-danger{
+
+  :global {
+    .ant-btn-danger {
       background-color: @rbd-error-status;
       border-color: @rbd-error-status;
       color: #fff;

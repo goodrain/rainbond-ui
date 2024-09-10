@@ -31,7 +31,7 @@ const { TextArea } = Input;
 const CheckboxGroup = Checkbox.Group;
 
 const plainOptions = ['ETCD', 'Controlplane', 'Worker'];
-const defaultCheckedList = ['ETCD', 'Controlplane'];
+const defaultCheckedList = ['ETCD', 'Controlplane','Worker'];
 
 @Form.create()
 @connect()
@@ -60,19 +60,17 @@ export default class EnterpriseClusters extends PureComponent {
   componentDidMount() {
     this.updateCommand()
   }
-  updateCommand = (bool = false) => {
+  updateCommand = () => {
     const { checkedList, token, internalIP, externalIP, Localhost } = this.state;
     this.setState({
       copyText: this.initializeCmd(Localhost, checkedList, token, { internalIP: internalIP, externalIP: externalIP })
-    }, () => {
-      bool && notification.success({ message: '命令更新成功' })
     })
   }
   onChange = checkedList => {
     this.setState({
       checkedList
     }, () => {
-      this.updateCommand(true)
+      this.updateCommand()
     });
   };
   handleOk = () => {
@@ -101,9 +99,9 @@ export default class EnterpriseClusters extends PureComponent {
   initializeCmd(ip, node, token, ipobj = {}) {
     let cmd = ''
     if (Object.keys(ipobj).length == 0) {
-      cmd = `curl -sfL ${ip}/rke2-install.sh | sh -s -${ip}${this.getNodeInfo(node)}` + `  --token  ${token}`
+      cmd = `curl -sfL ${ip}/install-cluster.sh | sh -s - --rbd-url ${ip}${this.getNodeInfo(node)}` + `  --token  ${token} --mirror cn`
     } else {
-      cmd = `curl -sfL ${ip}/rke2-install.sh | sh -s -${ip}${this.getNodeInfo(node)}` + `${ipobj.externalIP != '' ? `  --external-ip ${ipobj.externalIP}` : ''}` + `${ipobj.internalIP != '' ? `  --internal-ip ${ipobj.internalIP}` : ''}` + `  --token  ${token}`
+      cmd = `curl -sfL ${ip}/install-cluster.sh | sh -s - --rbd-url ${ip}${this.getNodeInfo(node)}` + `${ipobj.externalIP != '' ? `  --external-ip ${ipobj.externalIP}` : ''}` + `${ipobj.internalIP != '' ? `  --internal-ip ${ipobj.internalIP}` : ''}` + `  --token  ${token} --mirror cn`
     }
     return cmd
   }
@@ -125,19 +123,18 @@ export default class EnterpriseClusters extends PureComponent {
       <>
         <Modal
           width={1024}
-          title="添加节点"
+          title={formatMessage({id:'enterpriseColony.newHostInstall.node.addnode'})}
           visible
-          onOk={this.handleOk}
-          confirmLoading={confirmLoading}
+          footer={<Button onClick={this.handleCancel}>{formatMessage({id:'enterpriseColony.newHostInstall.node.Cancel'})}</Button>}
           onCancel={this.handleCancel}
           style={{ position: "relative" }}
         >
           <div className={styles.moreConfig}>
-              <Button type="link" onClick={this.ipInputShowFun}>{!ipInputShow ? '高级设置':'取消'}</Button>
+              <Button type="link" onClick={this.ipInputShowFun}>{!ipInputShow ? formatMessage({id:'enterpriseColony.newHostInstall.node.advanced'}):formatMessage({id:'enterpriseColony.newHostInstall.node.Cancel'})}</Button>
           </div>
           <div className={styles.hostInfo}>
-            <h1>节点角色</h1>
-            <p>选择节点在集群中的角色。在集群中，每个角色都需要至少一个节点。</p>
+            <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.nodeRole'})}</h1>
+            <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.select'})}</p>
             <CheckboxGroup
               options={plainOptions}
               value={this.state.checkedList}
@@ -148,10 +145,10 @@ export default class EnterpriseClusters extends PureComponent {
           {ipInputShow &&
             <>
               <div className={styles.hostInfo}>
-                <h1>高级选项</h1>
-                <p>填写需要注册节点的公网IP和内网IP。</p>
+                <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.advancedopt'})}</h1>
+                <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.ipMsg'})}</p>
                 <Input
-                  placeholder='节点内网IP'
+                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.internalIP'})}
                   style={{ marginBottom: 12, width: 350,height:40,marginRight:24 }}
                   value={internalIP}
                   onChange={(e) => {
@@ -162,7 +159,7 @@ export default class EnterpriseClusters extends PureComponent {
                     })
                   }} />
                 <Input
-                  placeholder='节点公网IP'
+                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.externalIP'})}
                   style={{ marginBottom: 12, width: 350,height:40 }}
                   value={externalIP}
                   onChange={(e) => {
@@ -174,9 +171,9 @@ export default class EnterpriseClusters extends PureComponent {
                   }} />
               </div>
               <div className={styles.hostInfo}>
-                <p>请填写控制台的访问地址，用于替换下方注册命令中的地址。</p>
+                <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.inputConsole'})}</p>
                 <Input
-                  placeholder='控制台访问地址'
+                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.consoleAdd'})}
                   style={{ marginBottom: 12, width: 350,height:40 }}
                   value={Localhost}
                   onChange={(e) => {
@@ -192,8 +189,8 @@ export default class EnterpriseClusters extends PureComponent {
           }
 
           <div className={styles.hostInfo}>
-            <h1>注册命令</h1>
-            <p>在需要注册的 Linux 主机上运行此命令。</p>
+            <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.cmd'})}</h1>
+            <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.Linux'})}</p>
             <div className={styles.copyBox}>
               <CopyToClipboard
                 text={copyText}

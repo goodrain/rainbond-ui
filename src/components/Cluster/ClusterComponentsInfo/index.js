@@ -133,7 +133,7 @@ class ClusterComponentsInfo extends PureComponent {
         this.setState({
           unInstallLoading: false
         })
-        notification.success({ message: '卸载成功' })
+        notification.success({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallSuccess'}) })
         preStep && preStep()
       }
     })
@@ -154,10 +154,10 @@ class ClusterComponentsInfo extends PureComponent {
       <>
         {
           showDetails ?
-            <Card title='组件详情' className={styles.podInfo}>
+            <Card title={formatMessage({id:'enterpriseColony.newHostInstall.node.comInfo'})} className={styles.podInfo}>
               <Row>
                 <Button type="dashed" icon="arrow-left" onClick={this.back}>
-                  返回
+                  {formatMessage({id:'enterpriseColony.newHostInstall.node.back'})}
                 </Button>
               </Row>
               <div className={styles.podStatus}>
@@ -167,11 +167,11 @@ class ClusterComponentsInfo extends PureComponent {
                 )}>{componentInfo?.pod_status?.status}</span>
               </div>
               <Descriptions bordered >
-                <Descriptions.Item label="命名空间">{componentInfo?.pod_status?.namespace} </Descriptions.Item>
+                <Descriptions.Item label={formatMessage({id:'enterpriseColony.newHostInstall.node.namespace'})}>{componentInfo?.pod_status?.namespace} </Descriptions.Item>
                 <Descriptions.Item label="PodIP">{componentInfo?.pod_status?.pod_ip}</Descriptions.Item>
                 <Descriptions.Item label="Node">{componentInfo?.pod_status?.node_name}</Descriptions.Item>
                 <Descriptions.Item label="HostIP">{componentInfo?.pod_status?.host_ip}</Descriptions.Item>
-                <Descriptions.Item label="创建时间">
+                <Descriptions.Item label={formatMessage({id:'enterpriseColony.newHostInstall.node.greatTime'})}>
                   {moment(componentInfo?.pod_status?.start_time).format(
                     'YYYY-MM-DD HH:mm:ss'
                   )}
@@ -193,10 +193,10 @@ class ClusterComponentsInfo extends PureComponent {
                     key="1"
                   >
                     <Row className={styles.customCollapseTable}>
-                      <Col span={3}>状态</Col>
-                      <Col span={3}>名称</Col>
-                      <Col span={14}>镜像</Col>
-                      <Col span={4}>容器重启次数 </Col>
+                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.status'})}</Col>
+                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.bame'})}</Col>
+                      <Col span={14}>{formatMessage({id:'enterpriseColony.newHostInstall.node.img'})}</Col>
+                      <Col span={4}>{formatMessage({id:'enterpriseColony.newHostInstall.node.RestartNum'})}</Col>
                     </Row>
 
                     {componentInfo?.pod_status?.containers.map((item, index) => {
@@ -228,10 +228,10 @@ class ClusterComponentsInfo extends PureComponent {
                     key="2"
                   >
                     <Row className={styles.customCollapseTable}>
-                      <Col span={3}>类型</Col>
-                      <Col span={3}>事件原因</Col>
-                      <Col span={14}>事件信息</Col>
-                      <Col span={4}>最后更新</Col>
+                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.type'})}</Col>
+                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.reason'})}</Col>
+                      <Col span={14}>{formatMessage({id:'enterpriseColony.newHostInstall.node.info'})}</Col>
+                      <Col span={4}>{formatMessage({id:'enterpriseColony.newHostInstall.node.lastUpdata'})}</Col>
                     </Row>
                     {componentInfo?.events.map((item, index) => {
                       return <Row className={styles.customCollapseDetails} key={index + 'events'}>
@@ -258,16 +258,16 @@ class ClusterComponentsInfo extends PureComponent {
               </Collapse>
             </Card>
             :
-            <Card title={`Rainbond集群组件(${runningPodNum + "/" + Object.keys(componentList).length})`} className={styles.tableInfo}>
+            <Card title={`集群组件(${runningPodNum + "/" + Object.keys(componentList).length})`} className={styles.tableInfo}>
               <Row>
                 <Col span={4}>
-                  状态
+                  {formatMessage({id:'enterpriseColony.newHostInstall.node.status'})}
                 </Col>
                 <Col span={6}>
-                  名称
+                  {formatMessage({id:'enterpriseColony.newHostInstall.node.bame'})}
                 </Col>
                 <Col span={14}>
-                  镜像
+                  {formatMessage({id:'enterpriseColony.newHostInstall.node.img'})}
                 </Col>
               </Row>
               {componentsListLoading ?
@@ -294,18 +294,18 @@ class ClusterComponentsInfo extends PureComponent {
                             </span>
                           </Col>
                           <Col span={6}>
-                            {val.pod_name || '暂无名称'}
+                            {val.pod_name || formatMessage({id:'enterpriseColony.newHostInstall.node.noName'})}
                           </Col>
                           <Col span={14}>
                             <div>
                               {val.image == '' ?
-                                <p>{val.image_status || '暂无镜像信息'}</p>
+                                <p>{val.image_status || formatMessage({id:'enterpriseColony.newHostInstall.node.noImg'})}</p>
                                 :
                                 <p>{val.image}</p>
                               }
-                              <p>创建时间：{moment(val?.start_time).format(
+                              <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.greatTimeText'})}{moment(val?.start_time).format(
                                 'YYYY-MM-DD HH:mm:ss'
-                              ) || '-'} 重启次数：{val.restarts || 0}</p>
+                              ) || '-'} {formatMessage({id:'enterpriseColony.newHostInstall.node.RestartNumText'})}{val.restarts || 0}</p>
                             </div>
                           </Col>
                         </Row>
@@ -316,15 +316,15 @@ class ClusterComponentsInfo extends PureComponent {
                 </>
               }
               <div className={styles.ButtonBox}>
-                <Button type="danger" onClick={() => { this.setState({ showUnInstallModal: true }) }} style={{ marginRight: 24 }}>卸载</Button>
-                <Tooltip title={runningPodNum !== Object.keys(componentList).length && '需要所有的pod节点都为Running状态下才可进行下一步，请耐心等待...'}>
-                  <Button disabled={runningPodNum !== Object.keys(componentList).length} onClick={() => completeInit && completeInit()} type="primary">下一步</Button>
+                <Button type="danger" onClick={() => { this.setState({ showUnInstallModal: true }) }} style={{ marginRight: 24 }}>{formatMessage({id:'enterpriseColony.newHostInstall.node.unInstall'})}</Button>
+                <Tooltip title={runningPodNum !== Object.keys(componentList).length && formatMessage({id:'enterpriseColony.newHostInstall.node.podRunning'})}>
+                  <Button disabled={runningPodNum !== Object.keys(componentList).length} onClick={() => completeInit && completeInit()} type="primary">{formatMessage({id:'enterpriseColony.newHostInstall.node.next'})}</Button>
                 </Tooltip>
                 {showUnInstallModal && (
                   <ConfirmModal
                     onOk={this.unInstallCluster}
-                    title={'卸载集群'}
-                    desc={'您正在卸载集群，一旦确定卸载就无法阻止卸载进程，并且卸载集群内的所有配置信息都将丢失，您确定要卸载吗？'}
+                    title={formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallCluster'})}
+                    desc={formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallIng'})}
                     onCancel={() => { this.setState({ showUnInstallModal: false }) }}
                     loading={unInstallLoading}
                   />

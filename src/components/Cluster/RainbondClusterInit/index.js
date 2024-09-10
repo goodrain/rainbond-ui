@@ -146,14 +146,14 @@ export default class RainbondClusterInit extends PureComponent {
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
-        // useK3sContainerd: true,
+        useK3sContainerd: true,
         operator: {
-          // env: [
-          //   {
-          //     name: 'CONTAINER_RUNTIME',
-          //     value: 'containerd'
-          //   }
-          // ],
+          env: [
+            {
+              name: 'CONTAINER_RUNTIME',
+              value: 'containerd'
+            }
+          ],
           image: {
             name: 'registry.cn-hangzhou.aliyuncs.com/goodrain/rainbond-operator',
             tag: 'v6.0.0-release'

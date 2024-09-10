@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Checkbox, notification, Icon } from 'antd';
+import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Checkbox, notification, Icon, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -15,8 +15,8 @@ import userUtil from '../../../utils/user';
 const { Step } = Steps;
 const CheckboxGroup = Checkbox.Group;
 
-const plainOptions = ['ETCD', 'control-plane', 'Worker'];
-const defaultCheckedList = ['ETCD', 'control-plane'];
+const plainOptions = ['ETCD', 'Master', 'Worker'];
+const defaultCheckedList = ['ETCD', 'Master'];
 
 @Form.create()
 @connect(({ user, list, loading, global, index }) => ({
@@ -190,7 +190,7 @@ export default class EnterpriseClusters extends PureComponent {
         }
         return acc;
       }, {});
-      const requiredRoles = ['etcd'];
+      const requiredRoles = ['etcd','master','worker'];
       for (let role of requiredRoles) {
         if (!(role in countObj)) {
           return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.etcd' }) };
@@ -225,6 +225,13 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.status' }),
         dataIndex: 'status',
         key: 'status',
+        render: (text, record) => {
+          return (
+            <span>
+              <Tag color={globalUtil.getPublicColor(text === 'Ready'?'rbd-success-status':'rbd-warning-status')}>{text}</Tag>
+            </span>
+          );
+        },
       },
       {
         title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.bame' }),
