@@ -375,3 +375,72 @@ export async function deleteHelmEvents(params, handleError) {
     handleError
   });
 }
+
+// 主机安装节点列表
+export async function fetchClusterInfoList(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_node`, {
+    method: 'get',
+    params:{
+      event_id: params.event_id
+    },
+    handleError
+  });
+}
+
+// 主机安装集群信息
+export async function fetchClusterInfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 主机安装节点ip
+export async function fetchClusterNodeInfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_node_ip`, {
+    method: 'get',
+    handleError
+  });
+}
+// 集群安装
+export async function installCluster(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_install`, {
+    method: 'post',
+    data:{
+      value_yaml: params.value_yaml
+    },
+    handleError
+  });
+}
+// 获取集群安装所有pod信息
+export async function installClusterAllPodinfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/rb_components_status`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 获取集群安装单个pod信息
+export async function installClusterPodinfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/rb_component_event`, {
+    method: 'get',
+    params:{
+      pod_name:params.pod_name
+    },
+    handleError
+  });
+}
+// 卸载主机安装的集群
+export async function unInstallCluster(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_uninstall`, {
+    method: 'post',
+    handleError
+  });
+}
+//  获取对接集群数据
+export async function getReginConfig(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/region_config`, {
+    method: 'get',
+    handleError
+  });
+}

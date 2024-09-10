@@ -227,22 +227,20 @@ export default [
             authority: ['admin', 'user']
           },
           {
-            path:
-              '/enterprise/:eid/provider/:provider/kclusters/:clusterID/init',
+            path:'/enterprise/:eid/provider/:provider/kclusters/init',
             component: './AddCluster/RainbondInit',
             name: 'RainbondInit',
             authority: ['admin', 'user']
           },
           {
-            path:
-              '/enterprise/:eid/provider/:provider/kclusters/:clusterID/check',
+            path:'/enterprise/:eid/provider/:provider/kclusters/check',
             component: './AddCluster/RainbondComponentCheck',
             name: 'RainbondComponentCheck',
             authority: ['admin', 'user']
           },
           {
             path:
-              '/enterprise/:eid/provider/:provider/kclusters/:clusterID/link',
+              '/enterprise/:eid/provider/:provider/kclusters/link',
             component: './AddCluster/ClusterLink',
             name: 'ClusterLink',
             authority: ['admin', 'user']

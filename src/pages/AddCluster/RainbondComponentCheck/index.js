@@ -7,7 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
-import ClusterComponents from '../../../components/Cluster/ClusterComponents';
+import ClusterComponents from '../../../components/Cluster/ClusterComponentsInfo';
 import InitRainbondDetail from '../../../components/Cluster/ShowInitRainbondDetail';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -35,9 +35,7 @@ export default class RainbondInit extends PureComponent {
       adminer,
       showInitDetail: false,
       guideStep: 10,
-      task: null,
-      eventStatus: false,
-      podsStatus: false,
+      task: null
     };
   }
   componentWillMount() {
@@ -53,7 +51,7 @@ export default class RainbondInit extends PureComponent {
   }
 
   componentDidMount() {
-    this.loadTask();
+    // this.loadTask();
   }
 
 
@@ -108,7 +106,7 @@ export default class RainbondInit extends PureComponent {
       }
     } = this.props;
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
+      routerRedux.push(`/enterprise/${eid}/addCluster`)
     );
   };
   loadSteps = () => {
@@ -131,35 +129,18 @@ export default class RainbondInit extends PureComponent {
     ];
     return steps;
   };
-  completeEvents = (status) => {
-    this.setState({
-      eventStatus: status
-    }, () => {
-      this.completeInit()
-    })
-  }
-  completePods = (status) => {
-    this.setState({
-      podsStatus: status
-    }, () => {
-      this.completeInit()
-    })
-  }
   completeInit = () => {
-    const { eventStatus, podsStatus } = this.state
+    const { dispatch } = this.props;
     const {
-      dispatch,
       match: {
         params: { eid, provider, clusterID }
       }
     } = this.props;
-    if (eventStatus && podsStatus) {
-      dispatch(
-        routerRedux.push(
-          `/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/link`
-        )
-      );
-    }
+    dispatch(
+      routerRedux.push(
+        `/enterprise/${eid}/provider/${provider}/kclusters/link`
+      )
+    );
   };
 
   cancelShowInitDetail = () => {
@@ -187,23 +168,13 @@ export default class RainbondInit extends PureComponent {
           </Steps>
         </Row>
         <div className={styles.clusterInit}>
-          <div className={styles.initRainbond}>
-            {task && <InitRainbondDetail
-              onCancel={this.cancelShowInitDetail}
-              eid={eid}
-              guideStep={guideStep}
-              providerName={provider}
-              clusterID={clusterID}
-              taskID={task && task.taskID}
-              completeEvents={this.completeEvents}
-            />}
-          </div>
           <div className={styles.clusterComponent}>
             <ClusterComponents
               eid={eid}
               clusterID={clusterID}
               providerName={provider}
-              completePods={this.completePods}
+              completeInit={this.completeInit}
+              preStep={this.preStep}
             />
           </div>
         </div>
