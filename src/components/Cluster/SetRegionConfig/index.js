@@ -71,29 +71,7 @@ export default class SetRegionConfig extends PureComponent {
         callback: res => {
           if (res && res._condition === 200) {
             notification.success({ message: formatMessage({id:'notification.success.add'}) });
-            // if (task) {
-            //   dispatch({
-            //     type: 'cloud/updateInitTaskStatus',
-            //     payload: {
-            //       enterprise_id: eid,
-            //       taskID: task.taskID,
-            //       status: 'complete'
-            //     },
-            //     callback: () => {
-            //       dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-            //     },
-            //     handleError: herr => {
-            //       if(herr.data.code == 404){
-            //         dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-            //       }else{
-            //         cloud.handleCloudAPIError(herr);
-            //       }  
-            //       this.setState({ commitloading: false });
-            //     }
-            //   });
-            // } else {
-            //   dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-            // }
+            dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
           }
         },
         handleError: errs => {
