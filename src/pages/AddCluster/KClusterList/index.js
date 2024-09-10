@@ -286,7 +286,7 @@ export default class EnterpriseClusters extends PureComponent {
           <Alert
             message={formatMessage({ id: 'enterpriseColony.newHostInstall.node.lookOut' })}
             description={formatMessage({ id: 'enterpriseColony.newHostInstall.node.msg' })}
-            type="info"
+            type="warning"
             showIcon
             style={{ marginBottom: 24 }}
           />
