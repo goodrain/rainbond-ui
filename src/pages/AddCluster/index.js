@@ -186,8 +186,7 @@ export default class EnterpriseClusters extends PureComponent {
         if (res && res.status_code === 200) {
           console.log(res.bean.event_id,"res.bean.event_id");
           window.localStorage.setItem('event_id',res.bean.event_id)
-          // const status = res.bean.create_status;
-          const status = 'initialized'
+          const status = res.bean.create_status;
           let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initialized;
           path = path.replace('{eid}', eid).replace('{provider}', provider);
           if (path.includes('{eventId}')) {
