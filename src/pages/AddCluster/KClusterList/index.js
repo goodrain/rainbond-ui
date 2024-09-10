@@ -52,9 +52,9 @@ export default class EnterpriseClusters extends PureComponent {
     } } = this.props;
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
-    }else{
+    } else {
       this.setState({
-        eventId:event_id == undefined ? window.localStorage.getItem('event_id') : event_id
+        eventId: event_id == undefined ? window.localStorage.getItem('event_id') : event_id
       })
     }
   }
@@ -78,7 +78,7 @@ export default class EnterpriseClusters extends PureComponent {
   // 请求所有日志
   fetchClusterInfoList = () => {
     const { dispatch } = this.props;
-    const {eventId} = this.state
+    const { eventId } = this.state
     dispatch({
       type: 'region/fetchClusterInfoList',
       payload: {
@@ -87,9 +87,9 @@ export default class EnterpriseClusters extends PureComponent {
       callback: res => {
         if (res && res.status_code == 200) {
           this.setState({
-            clusterInfoList: res.response_data.data.bean,
-            nextBtnstatus: this.countRoles(res.response_data.data.bean),
-          },()=>{
+            clusterInfoList: res.list || [],
+            nextBtnstatus: this.countRoles(res.list || []),
+          }, () => {
             this.handleTimers(
               'timer',
               () => {
@@ -193,16 +193,16 @@ export default class EnterpriseClusters extends PureComponent {
       const requiredRoles = ['etcd'];
       for (let role of requiredRoles) {
         if (!(role in countObj)) {
-          return { disabled: true, msg: "缺少etcd节点" };
+          return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.etcd' }) };
         }
       }
       if (countObj['etcd'] % 2 === 1) {
         return { disabled: false, msg: '' };
       } else {
-        return { disabled: true, msg: "etcd节点个数应为单数" };
+        return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.etcdNum' }) };
       }
     } else {
-      return { disabled: true, msg: "暂无任何节点信息" };
+      return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.nodeinfo' }) };
     }
   }
 
@@ -222,32 +222,39 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.state
     const columns = [
       {
-        title: '状态',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.status' }),
         dataIndex: 'status',
         key: 'status',
       },
       {
-        title: '名称',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.bame' }),
         dataIndex: 'name',
         key: 'name',
       },
       {
-        title: '外网/内网 IP',
-        dataIndex: 'age',
-        key: 'age',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.ip' }),
+        dataIndex: 'external_ip',
+        key: 'external_ip',
+        render: (text, record) => {
+          return (
+            <span>
+              {record.external_ip || '-'}/{record.internal_ip || '-'}
+            </span>
+          );
+        },
       },
       {
-        title: '操作系统',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.system' }),
         dataIndex: 'os_image',
         key: 'os_image',
       },
       {
-        title: '角色',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.role' }),
         dataIndex: 'roles',
         key: 'roles',
       },
       {
-        title: '存活时间',
+        title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.live' }),
         dataIndex: 'uptime',
         key: 'uptime',
       },
@@ -266,12 +273,12 @@ export default class EnterpriseClusters extends PureComponent {
           </Steps>
         </Row>
         <Card
-          title="主机列表"
-          extra={<Button type="primary" onClick={this.showModal}>添加节点</Button>}
+          title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.hostList' })}
+          extra={<Button type="primary" onClick={this.showModal}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.addnode' })}</Button>}
         >
           <Alert
-            message="注意"
-            description="请至少等待一个ETCD节点完成注册，且ETCD节点数量为单数，方可进行下一步。"
+            message={formatMessage({ id: 'enterpriseColony.newHostInstall.node.lookOut' })}
+            description={formatMessage({ id: 'enterpriseColony.newHostInstall.node.msg' })}
             type="info"
             showIcon
             style={{ marginBottom: 24 }}
@@ -279,13 +286,13 @@ export default class EnterpriseClusters extends PureComponent {
           <Table dataSource={clusterInfoList} columns={columns} />
         </Card>
         {visible &&
-          <RKEClusterCmd onCancel={this.handleCancel} eventId={eventId}/>
+          <RKEClusterCmd onCancel={this.handleCancel} eventId={eventId} />
         }
-        <div style={{display:'flex',justifyContent:'center',marginTop:24}}>
-        <Button onClick={() => this.lastOrNextSteps('last')} style={{marginRight:24}}>上一步</Button>
-        <Tooltip title={nextBtnstatus.msg}>
-          <Button onClick={() => this.lastOrNextSteps('next')} type="primary" disabled={nextBtnstatus.disabled}>下一步</Button>
-        </Tooltip>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+          <Button onClick={() => this.lastOrNextSteps('last')} style={{ marginRight: 24 }}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.last' })}</Button>
+          <Tooltip title={nextBtnstatus.msg}>
+            <Button onClick={() => this.lastOrNextSteps('next')} type="primary" disabled={nextBtnstatus.disabled}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.next' })}</Button>
+          </Tooltip>
         </div>
 
       </PageHeaderLayout>
