@@ -136,7 +136,10 @@ export default class EnterpriseClusters extends PureComponent {
             <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.nodeRole'})}</h1>
             <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.select'})}</p>
             <CheckboxGroup
-              options={plainOptions}
+              options={plainOptions.map(option => ({
+                label: formatMessage({id: `enterpriseColony.newHostInstall.node.select.${option}`}),
+                value: option
+              }))}
               value={this.state.checkedList}
               onChange={this.onChange}
             />
@@ -148,23 +151,23 @@ export default class EnterpriseClusters extends PureComponent {
                 <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.advancedopt'})}</h1>
                 <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.ipMsg'})}</p>
                 <Input
-                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.internalIP'})}
-                  style={{ marginBottom: 12, width: 350,height:40,marginRight:24 }}
-                  value={internalIP}
-                  onChange={(e) => {
-                    this.setState({
-                      internalIP: e.target.value
-                    }, () => {
-                      this.updateCommand()
-                    })
-                  }} />
-                <Input
                   placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.externalIP'})}
                   style={{ marginBottom: 12, width: 350,height:40 }}
                   value={externalIP}
                   onChange={(e) => {
                     this.setState({
                       externalIP: e.target.value
+                    }, () => {
+                      this.updateCommand()
+                    })
+                  }} />
+                <Input
+                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.internalIP'})}
+                  style={{ marginBottom: 12, width: 350,height:40,marginRight:24 }}
+                  value={internalIP}
+                  onChange={(e) => {
+                    this.setState({
+                      internalIP: e.target.value
                     }, () => {
                       this.updateCommand()
                     })

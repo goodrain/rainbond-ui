@@ -517,7 +517,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.live':'Survival time',
     'enterpriseColony.newHostInstall.node.hostList':'Host list',
     'enterpriseColony.newHostInstall.node.addnode':'Add node',
-    'enterpriseColony.newHostInstall.node.lookOut':'Look out',
+    'enterpriseColony.newHostInstall.node.lookOut':'Warning',
     'enterpriseColony.newHostInstall.node.msg':'Before proceeding, ensure that at least the Controlplane, Worker, and ETCD nodes are registered and the number of ETCD nodes is odd.',
     'enterpriseColony.newHostInstall.node.last':'Last step',
     'enterpriseColony.newHostInstall.node.next':'Next step',
@@ -550,6 +550,12 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.Cancel':'Cancel',
     'enterpriseColony.newHostInstall.node.nodeRole':'Node role',
     'enterpriseColony.newHostInstall.node.select':'Select the role of the node in the cluster. In a cluster, each role needs at least one node.',
+<<<<<<< HEAD
+=======
+    'enterpriseColony.newHostInstall.node.select.ETCD': 'ETCD',
+    'enterpriseColony.newHostInstall.node.select.Controlplane': 'Controlplane',
+    'enterpriseColony.newHostInstall.node.select.Worker': 'Worker',
+>>>>>>> 17c7d287e409622644434a81bfb87b1121946c2c
     'enterpriseColony.newHostInstall.node.advancedopt':'Advanced options',
     'enterpriseColony.newHostInstall.node.ipMsg':'Enter the public IP address and internal IP address of the node to be registered.',
     'enterpriseColony.newHostInstall.node.internalIP':'Node internal IP address',
@@ -561,8 +567,8 @@ const enterpriseColony = {
     // 添加集群
     'enterpriseColony.addCluster.supplier': 'Select supplier',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
-    'enterpriseColony.addCluster.Initialize': 'Initialize platform cluster',
-    'enterpriseColony.addCluster.clusterInit': 'Cluster initialization',
+    'enterpriseColony.addCluster.Initialize': 'Initialization Platform',
+    'enterpriseColony.addCluster.clusterInit': 'Install platform',
     'enterpriseColony.addCluster.docking': 'Complete',
     'enterpriseColony.addCluster.description': 'Account description:',
     'enterpriseColony.addCluster.starting': 'Before starting this process, you must determine whether your alicloud account supports the purchase of resources on demand. For example, the account balance is more than 100 yuan and has passed the real name authentication',
@@ -576,7 +582,7 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.element': 'element',
     'enterpriseColony.addCluster.access': 'Please provide an Access Key with sufficient permissions',
     'enterpriseColony.addCluster.adopt': 'Installation platform via Kubeconfig',
-    'enterpriseColony.addCluster.cluster': 'Access to kubernetes cluster',
+    'enterpriseColony.addCluster.cluster': 'Install kubernetes cluster',
     'enterpriseColony.addCluster.infrastructure': 'Self built infrastructure',
     'enterpriseColony.addCluster.host': 'Start installation from host',
     'enterpriseColony.addCluster.install': 'Host installation',
