@@ -42,7 +42,8 @@ import {
   installClusterPodinfo,
   installClusterAllPodinfo,
   unInstallCluster,
-  getReginConfig
+  getReginConfig,
+  addReginConfig
 } from '../services/region';
 
 export default {
@@ -339,6 +340,12 @@ export default {
     },
     *getReginConfig({ payload, callback, handleError }, { call }) {
       const response = yield call(getReginConfig, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addReginConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(addReginConfig, payload, handleError);
       if (response && callback) {
         callback(response);
       }

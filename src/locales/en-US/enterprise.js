@@ -550,12 +550,9 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.Cancel':'Cancel',
     'enterpriseColony.newHostInstall.node.nodeRole':'Node role',
     'enterpriseColony.newHostInstall.node.select':'Select the role of the node in the cluster. In a cluster, each role needs at least one node.',
-<<<<<<< HEAD
-=======
     'enterpriseColony.newHostInstall.node.select.ETCD': 'ETCD',
     'enterpriseColony.newHostInstall.node.select.Controlplane': 'Controlplane',
     'enterpriseColony.newHostInstall.node.select.Worker': 'Worker',
->>>>>>> 17c7d287e409622644434a81bfb87b1121946c2c
     'enterpriseColony.newHostInstall.node.advancedopt':'Advanced options',
     'enterpriseColony.newHostInstall.node.ipMsg':'Enter the public IP address and internal IP address of the node to be registered.',
     'enterpriseColony.newHostInstall.node.internalIP':'Node internal IP address',
@@ -565,7 +562,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.cmd':'Registration command',
     'enterpriseColony.newHostInstall.node.Linux':'Run this command on the Linux host that you want to register.',
     // 添加集群
-    'enterpriseColony.addCluster.supplier': 'Select supplier',
+    'enterpriseColony.addCluster.supplier': 'Cluster information',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
     'enterpriseColony.addCluster.Initialize': 'Initialization Platform',
     'enterpriseColony.addCluster.clusterInit': 'Install platform',
