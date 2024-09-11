@@ -176,10 +176,10 @@ export default class EnterpriseClusters extends PureComponent {
     const TOCLUSTERLIST_PATHS = {
       initializing: '/enterprise/{eid}/provider/{provider}/kclusters/append?event_id={eventId}',
       initialized: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
-      installing: '/enterprise/{eid}/provider/{provider}/kclusters/init?type=installing&event_id={eventId}',
-      installed: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
-      integrating: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
-      integrated: '/enterprise/{eid}/provider/{provider}/kclusters/link?event_id={eventId}',
+      installing: '/enterprise/{eid}/provider/{provider}/kclusters?type=installing&event_id={eventId}',
+      installed: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      integrating: '/enterprise/{eid}/provider/{provider}/kclusters/init?event_id={eventId}',
+      integrated: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
     };
     dispatch({
       type: 'region/fetchClusterInfo',
@@ -187,7 +187,6 @@ export default class EnterpriseClusters extends PureComponent {
         if (res && res.status_code === 200) {
           window.localStorage.setItem('event_id',res.bean.event_id)
           const status = res.bean.create_status;
-          // const status = 'installed';
           let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;
           path = path.replace('{eid}', eid).replace('{provider}', provider);
           if (path.includes('{eventId}')) {
