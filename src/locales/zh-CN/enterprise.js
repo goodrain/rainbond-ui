@@ -563,7 +563,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.cmd': '注册命令',
     'enterpriseColony.newHostInstall.node.Linux': '在需要注册的 Linux 主机上运行此命令。',
     // 添加集群
-    'enterpriseColony.addCluster.supplier': '选择供应商',
+    'enterpriseColony.addCluster.supplier': '集群信息',
     'enterpriseColony.addCluster.cluster': '选择(创建)平台集群',
     'enterpriseColony.addCluster.Initialize': '初始化平台',
     'enterpriseColony.addCluster.clusterInit': '安装平台',

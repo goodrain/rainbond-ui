@@ -133,7 +133,7 @@ class ClusterComponentsInfo extends PureComponent {
         this.setState({
           unInstallLoading: false
         })
-        notification.success({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallSuccess'}) })
+        notification.success({ message: formatMessage({ id: 'enterpriseColony.newHostInstall.node.unInstallSuccess' }) })
         preStep && preStep()
       }
     })
@@ -154,10 +154,10 @@ class ClusterComponentsInfo extends PureComponent {
       <>
         {
           showDetails ?
-            <Card title={formatMessage({id:'enterpriseColony.newHostInstall.node.comInfo'})} className={styles.podInfo}>
+            <Card title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.comInfo' })} className={styles.podInfo}>
               <Row>
                 <Button type="dashed" icon="arrow-left" onClick={this.back}>
-                  {formatMessage({id:'enterpriseColony.newHostInstall.node.back'})}
+                  {formatMessage({ id: 'enterpriseColony.newHostInstall.node.back' })}
                 </Button>
               </Row>
               <div className={styles.podStatus}>
@@ -167,11 +167,11 @@ class ClusterComponentsInfo extends PureComponent {
                 )}>{componentInfo?.pod_status?.status}</span>
               </div>
               <Descriptions bordered >
-                <Descriptions.Item label={formatMessage({id:'enterpriseColony.newHostInstall.node.namespace'})}>{componentInfo?.pod_status?.namespace} </Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.newHostInstall.node.namespace' })}>{componentInfo?.pod_status?.namespace} </Descriptions.Item>
                 <Descriptions.Item label="PodIP">{componentInfo?.pod_status?.pod_ip}</Descriptions.Item>
                 <Descriptions.Item label="Node">{componentInfo?.pod_status?.node_name}</Descriptions.Item>
                 <Descriptions.Item label="HostIP">{componentInfo?.pod_status?.host_ip}</Descriptions.Item>
-                <Descriptions.Item label={formatMessage({id:'enterpriseColony.newHostInstall.node.greatTime'})}>
+                <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTime' })}>
                   {moment(componentInfo?.pod_status?.start_time).format(
                     'YYYY-MM-DD HH:mm:ss'
                   )}
@@ -193,10 +193,10 @@ class ClusterComponentsInfo extends PureComponent {
                     key="1"
                   >
                     <Row className={styles.customCollapseTable}>
-                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.status'})}</Col>
-                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.bame'})}</Col>
-                      <Col span={14}>{formatMessage({id:'enterpriseColony.newHostInstall.node.img'})}</Col>
-                      <Col span={4}>{formatMessage({id:'enterpriseColony.newHostInstall.node.RestartNum'})}</Col>
+                      <Col span={3}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.status' })}</Col>
+                      <Col span={3}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.bame' })}</Col>
+                      <Col span={14}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.img' })}</Col>
+                      <Col span={4}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNum' })}</Col>
                     </Row>
 
                     {componentInfo?.pod_status?.containers.map((item, index) => {
@@ -228,10 +228,10 @@ class ClusterComponentsInfo extends PureComponent {
                     key="2"
                   >
                     <Row className={styles.customCollapseTable}>
-                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.type'})}</Col>
-                      <Col span={3}>{formatMessage({id:'enterpriseColony.newHostInstall.node.reason'})}</Col>
-                      <Col span={14}>{formatMessage({id:'enterpriseColony.newHostInstall.node.info'})}</Col>
-                      <Col span={4}>{formatMessage({id:'enterpriseColony.newHostInstall.node.lastUpdata'})}</Col>
+                      <Col span={3}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.type' })}</Col>
+                      <Col span={3}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.reason' })}</Col>
+                      <Col span={14}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.info' })}</Col>
+                      <Col span={4}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.lastUpdata' })}</Col>
                     </Row>
                     {componentInfo?.events.map((item, index) => {
                       return <Row className={styles.customCollapseDetails} key={index + 'events'}>
@@ -261,13 +261,13 @@ class ClusterComponentsInfo extends PureComponent {
             <Card title={`集群组件(${runningPodNum + "/" + Object.keys(componentList).length})`} className={styles.tableInfo}>
               <Row>
                 <Col span={4}>
-                  {formatMessage({id:'enterpriseColony.newHostInstall.node.status'})}
+                  {formatMessage({ id: 'enterpriseColony.newHostInstall.node.status' })}
                 </Col>
                 <Col span={6}>
-                  {formatMessage({id:'enterpriseColony.newHostInstall.node.bame'})}
+                  {formatMessage({ id: 'enterpriseColony.newHostInstall.node.bame' })}
                 </Col>
                 <Col span={14}>
-                  {formatMessage({id:'enterpriseColony.newHostInstall.node.img'})}
+                  {formatMessage({ id: 'enterpriseColony.newHostInstall.node.img' })}
                 </Col>
               </Row>
               {componentsListLoading ?
@@ -294,18 +294,18 @@ class ClusterComponentsInfo extends PureComponent {
                             </span>
                           </Col>
                           <Col span={6}>
-                            {val.pod_name || formatMessage({id:'enterpriseColony.newHostInstall.node.noName'})}
+                            {val.pod_name || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noName' })}
                           </Col>
                           <Col span={14}>
                             <div>
                               {val.image == '' ?
-                                <p>{val.image_status || formatMessage({id:'enterpriseColony.newHostInstall.node.noImg'})}</p>
+                                <p>{val.image_status || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noImg' })}</p>
                                 :
                                 <p>{val.image}</p>
                               }
-                              <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.greatTimeText'})}{moment(val?.start_time).format(
+                              <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTimeText' })}{moment(val?.start_time).format(
                                 'YYYY-MM-DD HH:mm:ss'
-                              ) || '-'} {formatMessage({id:'enterpriseColony.newHostInstall.node.RestartNumText'})}{val.restarts || 0}</p>
+                              ) || '-'} {formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNumText' })}{val.restarts || 0}</p>
                             </div>
                           </Col>
                         </Row>
@@ -315,21 +315,35 @@ class ClusterComponentsInfo extends PureComponent {
                   })}
                 </>
               }
-              <div className={styles.ButtonBox}>
-                <Button type="danger" onClick={() => { this.setState({ showUnInstallModal: true }) }} style={{ marginRight: 24 }}>{formatMessage({id:'enterpriseColony.newHostInstall.node.unInstall'})}</Button>
-                <Tooltip title={runningPodNum !== Object.keys(componentList).length && formatMessage({id:'enterpriseColony.newHostInstall.node.podRunning'})}>
-                  <Button disabled={runningPodNum !== Object.keys(componentList).length} onClick={() => completeInit && completeInit()} type="primary">{formatMessage({id:'enterpriseColony.newHostInstall.node.next'})}</Button>
-                </Tooltip>
-                {showUnInstallModal && (
-                  <ConfirmModal
-                    onOk={this.unInstallCluster}
-                    title={formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallCluster'})}
-                    desc={formatMessage({id:'enterpriseColony.newHostInstall.node.unInstallIng'})}
-                    onCancel={() => { this.setState({ showUnInstallModal: false }) }}
-                    loading={unInstallLoading}
-                  />
-                )}
+              <div
+                style={{
+                  background: '#fff',
+                  padding: '20px',
+                  textAlign: 'right',
+                  position: 'fixed',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 2,
+                  borderTop: '1px solid #e8e8e8'
+                }}>
+                <div className={styles.ButtonBox}>
+                  <Button type="danger" onClick={() => { this.setState({ showUnInstallModal: true }) }} style={{ marginRight: 24 }}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.unInstall' })}</Button>
+                  <Tooltip title={runningPodNum !== Object.keys(componentList).length && formatMessage({ id: 'enterpriseColony.newHostInstall.node.podRunning' })}>
+                    <Button disabled={runningPodNum !== Object.keys(componentList).length} onClick={() => completeInit && completeInit()} type="primary">{formatMessage({ id: 'enterpriseColony.newHostInstall.node.next' })}</Button>
+                  </Tooltip>
+                  {showUnInstallModal && (
+                    <ConfirmModal
+                      onOk={this.unInstallCluster}
+                      title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.unInstallCluster' })}
+                      desc={formatMessage({ id: 'enterpriseColony.newHostInstall.node.unInstallIng' })}
+                      onCancel={() => { this.setState({ showUnInstallModal: false }) }}
+                      loading={unInstallLoading}
+                    />
+                  )}
+                </div>
               </div>
+
             </Card>
         }
       </>

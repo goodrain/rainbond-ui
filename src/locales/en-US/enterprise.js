@@ -562,7 +562,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.cmd':'Registration command',
     'enterpriseColony.newHostInstall.node.Linux':'Run this command on the Linux host that you want to register.',
     // 添加集群
-    'enterpriseColony.addCluster.supplier': 'Select supplier',
+    'enterpriseColony.addCluster.supplier': 'Cluster information',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
     'enterpriseColony.addCluster.Initialize': 'Initialization Platform',
     'enterpriseColony.addCluster.clusterInit': 'Install platform',

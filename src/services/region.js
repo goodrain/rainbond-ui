@@ -3,7 +3,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
 /*
-	获取集群下的协议
+  获取集群下的协议
 */
 export async function getProtocols(body = {}) {
   return request(
@@ -136,7 +136,7 @@ export async function fetchHelmCommand(param) {
       imageHub: param.data.imageHub,
       nodesForChaos: param.data.nodesForChaos,
       nodesForGateway: param.data.nodesForGateway,
-      DockingType:param.data.type,
+      DockingType: param.data.type,
       appui: false,
       cloudserver: param.cloudserver ? param.cloudserver : ''
     }
@@ -162,7 +162,7 @@ export async function fetchImportMessage(param) {
     }
   });
 }
-/* 获取NameSpace下的资源 */ 
+/* 获取NameSpace下的资源 */
 export async function fetchNameSpaceResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/resource`, {
     method: 'get',
@@ -172,7 +172,7 @@ export async function fetchNameSpaceResource(param) {
     }
   });
 }
-/* 获取NameSpace下的高级资源 */ 
+/* 获取NameSpace下的高级资源 */
 export async function fetchNameSpaceAdvancedResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
     method: 'get',
@@ -182,7 +182,7 @@ export async function fetchNameSpaceAdvancedResource(param) {
     }
   });
 }
-/*高级资源页面确认导入*/ 
+/*高级资源页面确认导入*/
 export async function backNameSpaceAdvancedResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
     method: 'post',
@@ -204,7 +204,7 @@ export async function fetchClusterLogInfoSingle(param) {
     method: 'get',
     params: {
       lines: param.lines,
-      rbd_name : param.rbd_name
+      rbd_name: param.rbd_name
     }
   });
 }
@@ -213,7 +213,7 @@ export async function fetchNodeInfo(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-logs`, {
     method: 'get',
     params: {
-      pod_name : param.pod_name
+      pod_name: param.pod_name
     }
   });
 }
@@ -228,7 +228,7 @@ export async function fetchHistoryLogs(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-log-files`, {
     method: 'get',
     params: {
-      rbd_name : param.rbd_name
+      rbd_name: param.rbd_name
     }
   });
 }
@@ -286,7 +286,7 @@ export async function updataClusterNodeTaint(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/taints`, {
     method: 'put',
     data: {
-      taints : param.taints
+      taints: param.taints
     },
     handleError
   });
@@ -304,7 +304,7 @@ export async function fetClusterNodeContainer(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/container`, {
     method: 'get',
     params: {
-      container_runtime : param.container_runtime
+      container_runtime: param.container_runtime
     },
     handleError
   });
@@ -332,7 +332,7 @@ export async function deleteClusterNode(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
     method: 'put',
     data: {
-      cluster_id : params.clusterID
+      cluster_id: params.clusterID
     },
     handleError
   });
@@ -362,7 +362,7 @@ export async function fetchClusterStatus(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
     method: 'get',
     params: {
-      cluster_id : params.clusterID
+      cluster_id: params.clusterID
     },
     handleError
   });
@@ -380,7 +380,7 @@ export async function deleteHelmEvents(params, handleError) {
 export async function fetchClusterInfoList(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/cluster_node`, {
     method: 'get',
-    params:{
+    params: {
       event_id: params.event_id
     },
     handleError
@@ -406,7 +406,7 @@ export async function fetchClusterNodeInfo(params, handleError) {
 export async function installCluster(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/cluster_install`, {
     method: 'post',
-    data:{
+    data: {
       value_yaml: params.value_yaml
     },
     handleError
@@ -424,8 +424,8 @@ export async function installClusterAllPodinfo(params, handleError) {
 export async function installClusterPodinfo(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/rb_component_event`, {
     method: 'get',
-    params:{
-      pod_name:params.pod_name
+    params: {
+      pod_name: params.pod_name
     },
     handleError
   });
@@ -441,6 +441,18 @@ export async function unInstallCluster(params, handleError) {
 export async function getReginConfig(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/region_config`, {
     method: 'get',
+    handleError
+  });
+}
+
+//  添加集群名称与id
+export async function addReginConfig(data, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster`, {
+    method: 'post',
+    data: {
+      cluster_name: data.cluster_name,
+      cluster_id: data.cluster_id
+    },
     handleError
   });
 }

@@ -296,7 +296,7 @@ export default class EnterpriseClusters extends PureComponent {
           <RKEClusterCmd onCancel={this.handleCancel} eventId={eventId} />
         }
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
-          <Button onClick={() => this.lastOrNextSteps('last')} style={{ marginRight: 24 }}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.last' })}</Button>
+          <Button onClick={() => this.lastOrNextSteps('last')} style={{ marginRight: 24 }}>取消</Button>
           <Tooltip title={nextBtnstatus.msg}>
             <Button onClick={() => this.lastOrNextSteps('next')} type="primary" disabled={nextBtnstatus.disabled}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.next' })}</Button>
           </Tooltip>

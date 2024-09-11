@@ -239,6 +239,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path:'/enterprise/:eid/provider/:provider/kclusters/append',
+            component: './AddCluster/ClusterAppend',
+            name: 'ClusterAppend',
+            authority: ['admin', 'user']
+          },
+          {
             path:
               '/enterprise/:eid/provider/:provider/kclusters/link',
             component: './AddCluster/ClusterLink',
