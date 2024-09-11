@@ -11,6 +11,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
+import styles from './index.less'
 
 const { Step } = Steps;
 const CheckboxGroup = Checkbox.Group;
@@ -190,7 +191,7 @@ export default class EnterpriseClusters extends PureComponent {
         }
         return acc;
       }, {});
-      const requiredRoles = ['etcd','master','worker'];
+      const requiredRoles = ['etcd', 'master', 'worker'];
       for (let role of requiredRoles) {
         if (!(role in countObj)) {
           return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.etcd' }) };
@@ -227,9 +228,14 @@ export default class EnterpriseClusters extends PureComponent {
         key: 'status',
         render: (text, record) => {
           return (
-            <span>
-              <Tag color={globalUtil.getPublicColor(text === 'Ready'?'rbd-success-status':'rbd-warning-status')}>{text}</Tag>
-            </span>
+            <p className={styles.status}>
+              <Tag color={globalUtil.getPublicColor(text === 'Ready' ? 'rbd-success-status' : 'rbd-warning-status')}>{text}</Tag>
+              {text !== 'Ready' &&
+                <Tooltip title={`日志：${record?.installation_status || '暂无日志'}`}>
+                  <p className={styles.log}>日志：{record?.installation_status || '暂无日志'}</p>
+                </Tooltip>
+              }
+            </p>
           );
         },
       },
