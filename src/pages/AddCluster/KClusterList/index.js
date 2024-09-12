@@ -181,8 +181,11 @@ export default class EnterpriseClusters extends PureComponent {
 
   countRoles = (clusterInfoList) => {
     if (clusterInfoList && clusterInfoList.length > 0) {
+      const bool = clusterInfoList.every(cluster => cluster.status === 'Ready');
+      if(!bool){
+        return { disabled: true, msg: formatMessage({id:'enterpriseColony.newHostInstall.node.nodeNotReady'}) };
+      }
       const allRoles = clusterInfoList.flatMap(info => info.roles.split(', ').filter(role => role.trim() !== '')).map(role => role.trim());
-      // 使用 reduce 来统计每个角色的数量
       const countObj = allRoles.reduce((acc, role) => {
         if (role in acc) {
           acc[role]++;
