@@ -27,7 +27,7 @@ import {
   uninstallRegion
 } from '../../services/cloud';
 import { connect } from 'dva';
-import ClusterMgtAddNode from '../ClusterMgtAddNode/index'
+import RKEClusterCmd from '../RKEClusterCmd'
 import { Link, routerRedux } from 'dva/router';
 import global from '../../utils/global'
 import SVG from '../../utils/pageHeaderSvg'
@@ -145,7 +145,7 @@ class Index extends Component {
 
   }
   render() {
-    const { nodeList, rowClusterInfo, showInfo, form, } = this.props
+    const { nodeList, rowClusterInfo, showInfo, form, eventId } = this.props
     const { selectArr, isShowAddNodeModal } = this.state
     const eid = global.getCurrEnterpriseId()
     const { getFieldDecorator } = form;
@@ -269,7 +269,7 @@ class Index extends Component {
               })}
             </Menu>
           )
-          return <Dropdown
+          return roed.status == 'Ready' && <Dropdown
             overlay={MenuList}
             placement="bottomLeft"
           >
@@ -310,10 +310,7 @@ class Index extends Component {
           }
         </Card>
         {isShowAddNodeModal && (
-          <ClusterMgtAddNode
-            rowClusterInfo={rowClusterInfo}
-            onAddNodeClose={this.handleAddNodeClose}
-          />
+          <RKEClusterCmd onCancel={this.handleAddNodeClose} eventId={eventId}/>
         )}
       </>
     );

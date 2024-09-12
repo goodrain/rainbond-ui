@@ -507,7 +507,7 @@ const enterpriseColony = {
     'enterpriseColony.edit.form.label.key_file': 'API-Client证书密钥',
     'enterpriseColony.edit.form.label.desc': 'API-备注',
     // 新主机安装
-    'enterpriseColony.newHostInstall.node.etcd': '缺少etcd节点',
+    'enterpriseColony.newHostInstall.node.etcd': '缺少某个关键节点，请确保至少有管理节点、计算节点、ETCD 节点注册完毕。',
     'enterpriseColony.newHostInstall.node.etcdNum': 'etcd节点个数应为单数',
     'enterpriseColony.newHostInstall.node.nodeinfo': '暂无任何节点信息',
     'enterpriseColony.newHostInstall.node.status': '状态',
@@ -562,6 +562,12 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.consoleAdd': '控制台访问地址',
     'enterpriseColony.newHostInstall.node.cmd': '注册命令',
     'enterpriseColony.newHostInstall.node.Linux': '在需要注册的 Linux 主机上运行此命令。',
+    'enterpriseColony.newHostInstall.node.ing': '集群检测中...',
+    'enterpriseColony.newHostInstall.node.Notpass': '集群检测未通过',
+    'enterpriseColony.newHostInstall.node.Api': '无法与API地址',
+    'enterpriseColony.newHostInstall.node.check': '建立通信，请检查服务器网络或端口',
+    'enterpriseColony.newHostInstall.node.pass': '集群检测通过',
+    'enterpriseColony.newHostInstall.node.nodeNotReady': '节点未就绪',
     // 添加集群
     'enterpriseColony.addCluster.supplier': '集群信息',
     'enterpriseColony.addCluster.cluster': '选择(创建)平台集群',

@@ -391,6 +391,9 @@ export async function fetchClusterInfoList(params, handleError) {
 export async function fetchClusterInfo(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/cluster`, {
     method: 'get',
+    params:{
+      cluster_id: params.cluster_id || ''
+    },
     handleError
   });
 }

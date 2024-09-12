@@ -156,22 +156,22 @@ export default class SetRegionConfig extends PureComponent {
           {loading ? (
             <Result
               type="ing"
-              title={'集群检测中...'}
+              title={formatMessage({id:'enterpriseColony.newHostInstall.node.ing'})}
               style={{ padding: '48px' }}
             />
           ) : (
             !configs?.apiAddress ? (
               <Result
                 type="error"
-                title={'集群检测未通过'}
-                description={`无法与API地址 ${configs?.apiAddress} 建立通信，请检查服务器网络或端口`}
+                title={formatMessage({id:'enterpriseColony.newHostInstall.node.Notpass'})}
+                description={`${formatMessage({id:'enterpriseColony.newHostInstall.node.Api'})} ${configs?.apiAddress} ${formatMessage({id:'enterpriseColony.newHostInstall.node.check'})}`}
                 style={{ padding: '48px' }}
               />
             ) : (
               <>
                 <Result
                   type="success"
-                  title={'集群检测通过'}
+                  title={formatMessage({id:'enterpriseColony.newHostInstall.node.pass'})}
                   style={{ padding: '48px' }}
                 />
                 <Row>

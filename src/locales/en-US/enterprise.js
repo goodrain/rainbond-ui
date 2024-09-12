@@ -506,7 +506,7 @@ const enterpriseColony = {
     'enterpriseColony.edit.form.label.key_file': 'Client Secret',
     'enterpriseColony.edit.form.label.desc': 'Notes',
     // 新主机安装
-    'enterpriseColony.newHostInstall.node.etcd':'The etcd node is missing',
+    'enterpriseColony.newHostInstall.node.etcd':'If a key node is missing, ensure that at least one management node, compute node, and ETCD node are registered.',
     'enterpriseColony.newHostInstall.node.etcdNum':'The number of etcd nodes should be singular',
     'enterpriseColony.newHostInstall.node.nodeinfo':'No node information is available',
     'enterpriseColony.newHostInstall.node.status':'status',
@@ -561,6 +561,12 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.consoleAdd':'Console access address',
     'enterpriseColony.newHostInstall.node.cmd':'Registration command',
     'enterpriseColony.newHostInstall.node.Linux':'Run this command on the Linux host that you want to register.',
+    'enterpriseColony.newHostInstall.node.ing': 'Cluster detection...',
+    'enterpriseColony.newHostInstall.node.Notpass': 'The cluster detection fails. Procedure',
+    'enterpriseColony.newHostInstall.node.Api': 'Unable to address with API',
+    'enterpriseColony.newHostInstall.node.check': 'To establish communication, check the server network or port',
+    'enterpriseColony.newHostInstall.node.pass': 'Cluster detection passed',
+    'enterpriseColony.newHostInstall.node.nodeNotReady': 'Node not ready',
     // 添加集群
     'enterpriseColony.addCluster.supplier': 'Cluster information',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
