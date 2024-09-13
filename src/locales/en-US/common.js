@@ -180,7 +180,7 @@
         'button.uninstall':'Uninstall',
         'button.copy':'Copy',
         'button.operation':'Operation',
-        'button.Docking':'Docking',
+        'button.Completed':'Completed',
         'button.return':'Return',
         'button.configuration':'Advanced configuration',
         'button.determine':'Confirm',

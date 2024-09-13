@@ -182,7 +182,7 @@ export default class SetRegionConfig extends PureComponent {
                       disabled={!configs.apiAddress}
                       type="primary"
                     >
-                      <FormattedMessage id='button.Docking' />
+                      <FormattedMessage id='button.Completed' />
                     </Button>
                   </Col>
                 </Row>
