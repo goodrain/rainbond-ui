@@ -234,8 +234,8 @@ export default class EnterpriseClusters extends PureComponent {
             <p className={styles.status}>
               <Tag color={globalUtil.getPublicColor(text === 'Ready' ? 'rbd-success-status' : 'rbd-warning-status')}>{text}</Tag>
               {text !== 'Ready' &&
-                <Tooltip title={`日志：${record?.installation_status || '暂无日志'}`}>
-                  <p className={styles.log}>日志：{record?.installation_status || '暂无日志'}</p>
+                <Tooltip title={`${record?.installation_status}`}>
+                  <p className={styles.log}>{record?.installation_status}</p>
                 </Tooltip>
               }
             </p>
