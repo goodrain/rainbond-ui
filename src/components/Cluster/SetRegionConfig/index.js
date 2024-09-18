@@ -40,6 +40,9 @@ export default class SetRegionConfig extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: ''
+      },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
