@@ -568,7 +568,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.pass': 'Congratulations! Platform installation completed',
     'enterpriseColony.newHostInstall.node.nodeNotReady': 'Node not ready',
     // 添加集群
-    'enterpriseColony.addCluster.supplier': 'Cluster information',
+    'enterpriseColony.addCluster.supplier': 'Cluster Name',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
     'enterpriseColony.addCluster.Initialize': 'Initialization Platform',
     'enterpriseColony.addCluster.clusterInit': 'Install platform',

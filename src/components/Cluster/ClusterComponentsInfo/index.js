@@ -96,6 +96,7 @@ class ClusterComponentsInfo extends PureComponent {
       running: styles.successState,
       pending: styles.failedState,
       warning: styles.warningState,
+      error: styles.failedState,
       crashloopbackoff: styles.failedState,
       imagepullbackoff: styles.failedState,
       containercreating: styles.warningState,

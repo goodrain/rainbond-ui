@@ -268,6 +268,46 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.role' }),
         dataIndex: 'roles',
         key: 'roles',
+        render: (text, record) => {
+          if (!text || typeof text !== 'string') {
+            return <span>-</span>;
+          }
+          let arr = text.split(',').map((str) => str.trim());
+          return (
+            <span>
+              {arr && arr.length > 0 ? (
+                <>
+                  {arr.map((item, index) => {
+                    switch (item) {
+                      case "control-plane":
+                        return (
+                          <Tag color={globalUtil.getPublicColor()} key={index}>
+                            {formatMessage({ id: 'enterpriseColony.newHostInstall.node.select.Controlplane' })}
+                          </Tag>
+                        );
+                      case "etcd":
+                        return (
+                          <Tag color={globalUtil.getPublicColor()} key={index}>
+                            {formatMessage({ id: 'enterpriseColony.newHostInstall.node.select.ETCD' })}
+                          </Tag>
+                        );
+                      case "worker":
+                        return (
+                          <Tag color={globalUtil.getPublicColor()} key={index}>
+                            {formatMessage({ id: 'enterpriseColony.newHostInstall.node.select.Worker' })}
+                          </Tag>
+                        );
+                      default:
+                        return null; 
+                    }
+                  })}
+                </>
+              ) : (
+                "-"
+              )}
+            </span>
+          );
+        },
       },
       {
         title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.live' }),
