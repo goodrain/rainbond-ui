@@ -163,7 +163,7 @@ export default class EnterpriseClusters extends PureComponent {
                   }} />
                 <Input
                   placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.internalIP'})}
-                  style={{ marginBottom: 12, width: 350,height:40,marginRight:24 }}
+                  style={{ marginBottom: 12, width: 350,height:40,marginLeft:24 }}
                   value={internalIP}
                   onChange={(e) => {
                     this.setState({

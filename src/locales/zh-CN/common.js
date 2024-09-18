@@ -178,7 +178,7 @@
         'button.uninstall':'卸载',
         'button.copy':'复制',
         'button.operation':'操作',
-        'button.Docking':'对接',
+        'button.Completed':'完成',
         'button.return':'返回',
         'button.configuration':'高级配置',
         'button.determine':'确认',

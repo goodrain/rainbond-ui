@@ -106,7 +106,7 @@ export default class RainbondInit extends PureComponent {
       }
     } = this.props;
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/addCluster`)
+      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters?event_id=${window.localStorage.getItem('event_id')}`)
     );
   };
   loadSteps = () => {
