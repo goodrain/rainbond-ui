@@ -3,9 +3,10 @@ import { formatMessage } from 'umi-plugin-locale';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';
-import  getMenuSvg  from './getMenuSvg';
+import getMenuSvg from './getMenuSvg';
+import PluginUtil from '../utils/pulginUtils'
 
-function menuData(eid, currentUser, enterprise) {
+function menuData(eid, currentUser, enterprise, pluginList) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const menuArr = [
     {
@@ -16,7 +17,7 @@ function menuData(eid, currentUser, enterprise) {
     },
     {
       name: formatMessage({ id: 'menu.enterprise.share' }),
-      icon:  getMenuSvg.getSvg('shareAlt'),
+      icon: getMenuSvg.getSvg('shareAlt'),
       path: `/enterprise/${eid}/shared/local`,
       authority: ['admin', 'user']
     }
@@ -99,14 +100,26 @@ function menuData(eid, currentUser, enterprise) {
       path: `/enterprise/${eid}/setting`,
       authority: ['admin', 'user']
     });
+  }
+  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Platform')
+  if (pluginArr && pluginArr.length > 0) {
+    const pluginChildren = []
+    pluginArr.forEach(item => {
+      pluginChildren.push({
+        name: item.name,
+        icon: getMenuSvg.getSvg('plugin'),
+        path: `${item.name}`,
+        authority: ['admin', 'user']
+      });
+    })
     menuArr.push({
       name: '插件DEMO',
       icon: getMenuSvg.getSvg('plugin'),
-      path: `/enterprise/${eid}/plugins/pluginsDemo`,
-      authority: ['admin', 'user']
+      path: `/enterprise/${eid}/plugins`,
+      authority: ['admin', 'user'],
+      children: pluginChildren
     });
   }
-
   return menuArr;
 }
 
@@ -132,7 +145,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getMenuData = (eid, currentUser, enterprise) => {
-  const menus = formatter(menuData(eid, currentUser, enterprise));
+export const getMenuData = (eid, currentUser, enterprise, pluginList) => {
+  const menus = formatter(menuData(eid, currentUser, enterprise, pluginList));
   return menus;
 };

@@ -133,7 +133,7 @@ export default [
           {
             path: '/enterprise/:eid/plugins/:pluginId',
             component: './RbdPlugins',
-            name: 'EnterpriseSetting',
+            name: 'EnterprisePlugins',
             authority: ['admin', 'user']
           },
           {
@@ -289,6 +289,12 @@ export default [
             name: 'Message',
             authority: ['admin', 'user']
           },
+          {
+            path: '/team/:teamName/region/:regionName/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'teamPlugins',
+            authority: ['admin', 'user']
+          },
 
           {
             path: '/team/:teamName/region/:regionName/allbackup',
@@ -321,6 +327,13 @@ export default [
             path: '/team/:teamName/region/:regionName/apps/:appID/upgrade',
             component: './Upgrade',
             name: 'Upgrade',
+            authority: ['admin', 'user'],
+            title: '云市应用升级'
+          },
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'appPlugins',
             authority: ['admin', 'user'],
             title: '云市应用升级'
           },

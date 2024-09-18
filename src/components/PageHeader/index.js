@@ -158,7 +158,8 @@ export default class PageHeader extends PureComponent {
       className,
       tabActiveKey,
       isSvg,
-      titleSvg
+      titleSvg,
+      pluginSVg
     } = this.props;
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -182,7 +183,8 @@ export default class PageHeader extends PureComponent {
           <div className={styles.detail}>
             {logo && <div className={styles.logo}>{logo}</div>}
             <div className={styles.main}>
-              <div className={styles.row} style={{marginBottom:'4px'}}>
+              <div className={styles.row} style={{ marginBottom: '4px' }}>
+                {pluginSVg && <div className={styles.Plugin_Icon}><img src={pluginSVg} alt=""/></div>}
                 {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}
                 {title && <h1 className={styles.title}>{title}</h1>}
                 {action && <div className={styles.action}>{action}</div>}
@@ -197,7 +199,7 @@ export default class PageHeader extends PureComponent {
           </div>
         </div>
         {tabList && tabList.length && (
-        <div className={styles.tabsStyle}>
+          <div className={styles.tabsStyle}>
             <Tabs
               className={styles.tabs}
               {...activeKeyProps}
@@ -226,7 +228,7 @@ export default class PageHeader extends PureComponent {
                 );
               })}
             </Tabs>
-        </div>
+          </div>
         )}
       </>
     );

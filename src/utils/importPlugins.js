@@ -4,7 +4,7 @@ import moment from 'moment';
 import react from 'react';
 import * as ReactDom from 'react-dom';
 import * as RbdData from 'xu-demo-data';
-import { AppPagePlugin } from 'xu-demo-data'
+import { RainbondRootPagePlugin } from 'xu-demo-data'
 
 
 
@@ -34,9 +34,7 @@ SystemJS.config({
 
 
 export function exposeToPlugin(name, component) {
-  console.log(name,"name");
   SystemJS.registerDynamic(name, [], true, function (require, exports, module) {
-    console.log(component,"component");
     module.exports = component;
   });
 }
@@ -47,14 +45,16 @@ exposeToPlugin('react-dom', ReactDom);
 exposeToPlugin('xu-demo-data', RbdData);
 
 
-export async function importPluginModule(path) {
-  const module = await SystemJS.import('/plugins/rainbod-demo/main.js');
+export async function importPluginModule(meta,regionName) {
+  const path = `/console/regions/${regionName}/static/plugins/${meta.name}/${meta.fronted_relative_path}`
+  // const path = '/plugins/rainbod-demo/main.js'
+  const module = await SystemJS.import(path);
   return module
 }
 
-export async function importAppPagePlugin(meta) {
-  const xu = await importPluginModule(meta.module).then(function (pluginExports) {
-    const plugin = pluginExports.plugin ? (pluginExports.plugin) : new AppPagePlugin();
+export async function importAppPagePlugin(meta,regionName) {
+  const xu = await importPluginModule(meta,regionName).then(function (pluginExports) {
+    const plugin = pluginExports.plugin ? (pluginExports.plugin) : new RainbondRootPagePlugin();
     plugin.init(meta);
     plugin.meta = meta;
     return plugin;

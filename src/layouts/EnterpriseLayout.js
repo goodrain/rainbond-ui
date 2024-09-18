@@ -47,7 +47,6 @@ const getBreadcrumbNameMap = memoizeOne(meun => {
       if (meunItem.children) {
         mergeMeunAndRouter(meunItem.children);
       }
-      // Reduce memory usage
       routerMap[meunItem.path] = meunItem;
     });
   };
@@ -108,12 +107,14 @@ class EnterpriseLayout extends PureComponent {
         { key: 'applicationInfo', value: true },
         { key: 'installApp', value: true }
       ],
-      showMenu:true
+      showMenu:true,
+      pluginList:[]
     };
   }
 
   componentDidMount() {
     this.getEnterpriseList();
+    this.handleLoadEnterpriseClusters();
     const urlParams = new URL(window.location.href);
     if(urlParams){
       const bool = urlParams.href.includes("/shell")
@@ -124,7 +125,48 @@ class EnterpriseLayout extends PureComponent {
       }
     }
   }
-  // 获取执行的步骤
+  handleLoadEnterpriseClusters = () => {
+    const { dispatch } = this.props;
+    const eid = globalUtil.getCurrEnterpriseId();
+    dispatch({
+        type: 'region/fetchEnterpriseClusters',
+        payload: {
+            enterprise_id: eid
+        },
+        callback: res => {
+            if (res.status_code == 200) {
+              if(res?.list[0]?.region_name){
+                this.handlePluginList(res.list[0].region_name)
+              }
+            }
+        }
+    });
+};
+  handlePluginList = (regionName) => {
+    const { dispatch } = this.props
+    const eid = globalUtil.getCurrEnterpriseId();
+    dispatch({
+        type: 'global/getPluginList',
+        payload: {
+            enterprise_id: eid,
+            region_name: regionName,
+        },
+        callback: res => {
+            if (res && res.list) {
+                this.setState({
+                    pluginList: res.list,
+                })
+            }
+        },
+        handleError: err => {
+            if(err){
+                this.setState({
+                    pluginList: [],
+                })
+            }
+        }
+    })
+}
 
   // 获取平台公共信息(判断用户是否是离线)
   handleGetEnterpeiseMsg = (data, eid) => {
@@ -396,7 +438,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, alertInfo } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList } = this.state;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
@@ -476,7 +518,7 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid, currentUser, enterprise)}
+                menuData={getMenuData(eid, currentUser, enterprise, pluginList)}
                 showMenu= {showMenu}
                 pathname={pathname}
                 location={location}

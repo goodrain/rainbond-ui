@@ -3,8 +3,10 @@ import { formatMessage } from 'umi-plugin-locale';
 import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
+import PluginUtil from '../utils/pulginUtils'
 
-function menuData(teamName, regionName, appID, permissionsInfo) {
+function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
+  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Application')
   const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team, 'app', `app_${appID}`);
   const {
     isAppRelease,
@@ -71,6 +73,24 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
+  if (pluginArr && pluginArr.length > 0) {
+    const pluginChildren = []
+    pluginArr.forEach(item => {
+      pluginChildren.push({
+        name: item.name,
+        icon: getMenuSvg.getSvg('plugin'),
+        path: `${item.name}`,
+        authority: ['admin', 'user']
+      });
+    })
+    menuArr.push({
+      name: '插件DEMO',
+      icon: getMenuSvg.getSvg('plugin'),
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/plugins`,
+      authority: ['admin', 'user'],
+      children: pluginChildren
+    });
+  }
   return menuArr;
 }
 
@@ -100,10 +120,11 @@ export const getAppMenuData = (
   teamName,
   regionName,
   appID,
-  permissionsInfo
+  permissionsInfo,
+  pluginList
 ) => {
   const menus = formatter(
-    menuData(teamName, regionName, appID, permissionsInfo)
+    menuData(teamName, regionName, appID, permissionsInfo, pluginList)
   );
   return menus;
 };

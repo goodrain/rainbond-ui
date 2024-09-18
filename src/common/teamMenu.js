@@ -3,6 +3,7 @@ import cookie from '../utils/cookie';
 import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
+import PluginUtil from '../utils/pulginUtils'
 
 const newbieGuide = cookie.get('newbie_guide');
 function setTeamMenu(pluginMenu, menuName) {
@@ -14,7 +15,7 @@ function setTeamMenu(pluginMenu, menuName) {
   }
 }
 
-function menuData(teamName, regionName, permissionsInfo, showPipeline) {
+function menuData(teamName, regionName, permissionsInfo, pluginList) {
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.team.dashboard' }),
@@ -32,6 +33,8 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
   function addMenuArr(obj) {
     menuArr.push(obj);
   }
+  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Team')
+
   if (permissionsInfo) {
     const {
       isTeamOverview,
@@ -100,16 +103,9 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
           }
         ]
       }
-      // if (setTeamMenu(showPipeline,'rainbond-vm')) {
-      //   item.children.push({
-      //     name: formatMessage({id:'Vm.createVm.titleVm'}),
-      //     path: `vm`,
-      //     authority: ['admin', 'user']
-      //   },);
-      // }
       addMenuArr(item);
     }
-    if (setTeamMenu(showPipeline, 'pipeline')) {
+    if (setTeamMenu(pluginList, 'pipeline')) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.pipeline' }),
         icon: getMenuSvg.getSvg('Pipeline'),
@@ -123,7 +119,6 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
         icon: 'gateway',
         path: `team/${teamName}/region/${regionName}/gateway`,
         authority: ['admin', 'user'],
-        // children
       });
     }
     if (isTeamPluginManage) {
@@ -146,14 +141,24 @@ function menuData(teamName, regionName, permissionsInfo, showPipeline) {
     if (newbieGuide === 'false') {
       return menuArr;
     }
-    // else if (newbieGuide !== undefined) {
-    //   addMenuArr({
-    //     name: '任务',
-    //     icon: 'exclamation-circle',
-    //     path: `team/${teamName}/region/${regionName}/guide`,
-    //     authority: ['admin', 'user']
-    //   });
-    // }
+    if (pluginArr && pluginArr.length > 0) {
+      const pluginChildren = []
+      pluginArr.forEach(item => {
+        pluginChildren.push({
+          name: item.name,
+          icon: getMenuSvg.getSvg('plugin'),
+          path: `${item.name}`,
+          authority: ['admin', 'user']
+        });
+      })
+      menuArr.push({
+        name: '插件DEMO',
+        icon: getMenuSvg.getSvg('plugin'),
+        path: `team/${teamName}/region/${regionName}/plugins`,
+        authority: ['admin', 'user'],
+        children: pluginChildren
+      });
+    }
   }
   return menuArr;
 }
@@ -179,7 +184,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     return result;
   });
 }
-export const getMenuData = (teamName, regionName, permissionsInfo, showPipeline) => {
-  const menus = formatter(menuData(teamName, regionName, permissionsInfo, showPipeline));
+export const getMenuData = (teamName, regionName, permissionsInfo, pluginList) => {
+  const menus = formatter(menuData(teamName, regionName, permissionsInfo, pluginList));
   return menus;
 };
