@@ -209,7 +209,7 @@ export default class RegisterComponent extends Component {
             size="large"
             loading={type === 'register' ? submitting : thirdsubmitting}
             className={styles.submit}
-            style={{ width: type === 'register' ? '100%' : '100%', marginTop: 24 }}
+            style={{ width: '100%' }}
             type="primary"
             htmlType="submit"
           >
