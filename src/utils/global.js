@@ -210,6 +210,15 @@ const global = {
     }
     return '';
   },
+  getComponentPluginType() {
+    const reg = /[^/]+$/;
+    const hash = window.location.hash || window.location.pathname || '';
+    const match = hash.match(reg);
+    if (match && match[0]) {
+      return match[0]; 
+    }
+    return ''; 
+  },
   getAppID(url) {
     const reg = /apps\/([^\/]+)/;
     const hash = url || window.location.hash || window.location.pathname || '';

@@ -1,8 +1,0 @@
-{
-  "type": "page-app",
-  "name": "rainbod-demo",
-  "id": "rainbod-demo",
-  "version": "1.0.0",
-  "updated": "2024-09-18",
-  "to": "/plugins/rainbod-demo"
-}

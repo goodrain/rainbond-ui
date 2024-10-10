@@ -82,7 +82,7 @@
     "xterm-addon-search": "0.6.0",
     "xterm-addon-unicode11": "0.1.1",
     "xterm-addon-web-links": "0.3.0",
-    "xu-demo-data": "2.0.0",
+    "xu-demo-data": "3.0.1",
     "yarn": "^1.19.2"
   },
   "devDependencies": {

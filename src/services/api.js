@@ -1602,3 +1602,48 @@ export async function updateVersion(body_data) {
     return data.json()
   } catch {}
 }
+
+// 获取集群下的语言版本信息
+export async function fetchLanguageVersion(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}/lang_version`,
+    {
+      method: 'get',
+      params: params.data,
+      handleError
+    }
+  );
+}
+// 设为默认
+export async function editLanguageDefault(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
+    {
+      method: 'put',
+      data: body.data,
+      handleError
+    },
+  );
+}
+// 上传语言包版本
+export async function uploadLanguageFile(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
+    {
+      method: 'post',
+      data: body.data,
+      handleError
+    }
+  );
+}
+// 删除语言包版本
+export async function deleteLanguageFile(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_id}/lang_version`,
+    {
+      method: 'delete',
+      data: body.data,
+      handleError
+    }
+  );
+}

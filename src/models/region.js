@@ -47,7 +47,7 @@ export default {
     advance_configuration: JSON.parse(window.sessionStorage.getItem('advance_config')) || {},
     //shell终端状态 
     terminal_status: JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
-
+    cluster_info: JSON.parse(window.sessionStorage.getItem('cluster_info')) || {},
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -108,9 +108,10 @@ export default {
         callback(response);
       }
     },
-    *fetchEnterpriseClusters({ payload, callback }, { call }) {
+    *fetchEnterpriseClusters({ payload, callback }, { call, put }) {
       const response = yield call(fetchEnterpriseClusters, payload);
       if (response && callback) {
+        yield put({ type: 'saveClusterInfo', payload: response.list });
         callback(response);
       }
     },
@@ -149,7 +150,7 @@ export default {
         callback(response);
       }
     },
-    
+
     *deleteEnterpriseCluster({ payload, callback, handleError }, { call }) {
       const response = yield call(
         deleteEnterpriseCluster,
@@ -341,6 +342,20 @@ export default {
       return {
         ...state,
         terminal_status: !payload
+      };
+    },
+    // 保存集群信息
+    saveClusterInfo(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'cluster_info',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        cluster_info: payload
       };
     },
   }

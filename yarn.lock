@@ -21092,10 +21092,10 @@ xterm@4.5.0:
   resolved "https://registry.yarnpkg.com/xterm/-/xterm-4.5.0.tgz#c7fd145c6cf91c9f2ef07011a9b35026cf4bfecc"
   integrity sha512-4t12tsvtYnv13FBJwewddxdI/j4kSonmbQQv50j34R/rPIFbUNGtptbprmuUlTDAKvHLMDZ/Np2XcpNimga/HQ==
 
-xu-demo-data@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/xu-demo-data/-/xu-demo-data-2.0.0.tgz#132be89d23d76a6ef3728573e70a9826a1c2d38c"
-  integrity sha512-EmpiE+5K5gjZinUIxtctf1hpswARpEtGaFk544mOYv8BT6TtHuNj7D7kbTOWVlYC78DuvBtdahJrKOzzuc3ETw==
+xu-demo-data@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/xu-demo-data/-/xu-demo-data-3.0.1.tgz#49c13efc8e9b53fb2a930720b83468086f17fef8"
+  integrity sha512-aR9OwtaVyd5IQk8bD28LGZrrXAXwH1CBawPd9FIqpCuXBZnCcdEF0vkK1QPlayRX6o+KB6aV62GF8v5QiJpzVQ==
 
 "y18n@^3.2.1 || ^4.0.0", y18n@^4.0.0:
   version "4.0.1"

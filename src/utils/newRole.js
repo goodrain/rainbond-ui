@@ -445,7 +445,6 @@ export default {
         dispatch({
             type: 'user/fetchCurrent',
             callback: res => {
-                console.log(res.bean, 'res');
                 if (res && res.bean) {
                     const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
                     dispatch({
@@ -460,7 +459,6 @@ export default {
                 }
             },
         });
-        console.log(info);
         if (!onlyRefresh) {
             return info || {};
         }

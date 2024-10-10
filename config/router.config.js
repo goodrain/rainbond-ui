@@ -296,12 +296,6 @@ export default [
             authority: ['admin', 'user']
           },
 
-          {
-            path: '/team/:teamName/region/:regionName/allbackup',
-            component: './Group/AllBackup',
-            name: 'AllBackup',
-            authority: ['admin', 'user']
-          },
 
           {
             path: '/team/:teamName/region/:regionName/team',
@@ -350,6 +344,14 @@ export default [
             name: 'Configuration',
             authority: ['admin', 'user'],
             title: '应用配置组管理'
+          },
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/backup',
+            component: './Group/Backup',
+            name: 'Backup',
+            menu: 'app.backup',
+            authority: ['admin', 'user'],
+            title: '备份管理'
           },
           {
             path: '/team/:teamName/region/:regionName/apps/:appID/asset',

@@ -57,6 +57,14 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
       authority: ['admin', 'user']
     });
   }
+  if (PluginUtil.isInstallEnterprisePlugin(pluginList)) {
+    addMenuArr({
+      name: formatMessage({ id: 'menu.app.backup' }),
+      icon: getMenuSvg.getSvg('backup'),
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/backup`,
+      authority: ['admin', 'user']
+    });
+  }
   if (isAppResources) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.k8s' }),
