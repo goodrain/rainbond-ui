@@ -2,6 +2,7 @@ import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import globalUtil from '../../utils/global'
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -49,7 +50,8 @@ class CodeBuildConfig extends PureComponent {
       NODE_MODULES_CACHE: false,
       NODE_VERBOSE: false,
       arr: [],
-      setObj: props.runtimeInfo ? props.runtimeInfo : ''
+      setObj: props.runtimeInfo ? props.runtimeInfo : '',
+      buildSourceArr:[]
     };
   }
 
@@ -60,18 +62,89 @@ class CodeBuildConfig extends PureComponent {
     if(!isBtn && onRef){
       this.props.onRef(this)
     }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.runtimeInfo !== this.props.runtimeInfo ||
-      nextProps.languageType !== this.state.languageType
-    ) {
-      this.handleRuntimeInfo(nextProps);
-      this.setArr(nextProps);
+    const arr = globalUtil.getBuildSource(this.state.languageType)
+    if (arr && arr.length > 0) {
+      const promises = arr.map(item => {
+        return this.getBuildSource(item);
+      });
+      Promise.all(promises)
+        .then(() => {
+          this.setState({ buildSourceLoading: false })
+        })
+        .catch(error => {
+          this.setState({ buildSourceLoading: false })
+        });
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    const arr = globalUtil.getBuildSource(nextProps.language)
+    if (
+      nextProps.runtimeInfo !== this.props.runtimeInfo ||
+      nextProps.language !== this.state.languageType
+    ) {
+      this.setState({
+        buildSourceLoading: true
+      }, () => {
+        if (arr && arr.length > 0) {
+          const promises = arr.map(item => {
+            return this.getBuildSource(item);
+          });
+          Promise.all(promises)
+            .then(() => {
+              this.setState({ buildSourceLoading: false })
+            })
+            .catch(error => {
+              this.setState({ buildSourceLoading: false })
+            });
+        }
+        this.handleRuntimeInfo(nextProps);
+        this.setArr(nextProps);
+      })
+    }
+  }
+    /**
+   * getBuildSource 函数：
+   * 
+   * 功能：
+   *   获取构建源的语言版本信息。
+   *   使用 dispatch 方法发送 'teamControl/getComponentLangVersion' 类型的 action，携带当前团队、应用和语言信息。
+   *   在请求成功后，如果返回的数据状态码为 200，则将数据存入 buildSourceArr 中，并更新组件的 buildSourceArr 状态。
+   *   若请求失败，则清空 buildSourceArr 并抛出错误。
+   * 
+   * 参数：
+   *   @param {string} item - 构建源的语言类型。
+   * 
+   * 返回值：
+   *   返回一个 Promise，resolve 表示请求成功，reject 表示请求失败。
+   */
+    getBuildSource = (item) => {
+      return new Promise((resolve, reject) => {
+        const { dispatch, appDetail } = this.props;
+        const { buildSourceArr } = this.state;
+        dispatch({
+          type: 'teamControl/getComponentLangVersion',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: appDetail.service.service_alias,
+            lang: item
+          },
+          callback: data => {
+            if (data && data.status_code == 200) {
+              buildSourceArr[item] = data.list
+              this.setState({ buildSourceArr })
+              resolve();
+            }
+          },
+          handleError: res => {
+            buildSourceArr[item] = []
+            this.setState({ buildSourceArr })
+            this.setState({ buildSourceArr })
+            reject(new Error("Failed to get component language version"));
+          }
+        });
+      })
+    };
   onSetObj = value => {
     const obj = {};
     value.map(item => {
@@ -192,43 +265,44 @@ class CodeBuildConfig extends PureComponent {
     };
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
-    const { languageType, arr } = this.state;
+    const { languageType, arr, buildSourceArr } = this.state;
+    console.log(buildSourceArr,"buildSourceArr");
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
         {(languageType === 'java-maven' || languageType === 'Java-maven') && (
-          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} />
+          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'java-jar' || languageType === 'Java-jar') && (
           <div>
-            <JavaJarConfig envs={runtimeInfo} form={this.props.form} />
+            <JavaJarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
         {(languageType === 'java-war' || languageType === 'Java-war') && (
           <div>
-            <JavaWarConfig envs={runtimeInfo} form={this.props.form} />
+            <JavaWarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
         {(languageType === 'Golang' ||
           languageType === 'go' ||
           languageType === 'Go' ||
           languageType === 'golang') && (
-          <GoConfig envs={runtimeInfo} form={this.props.form} />
+          <GoConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'Gradle' ||
           languageType === 'gradle' ||
           languageType === 'java-gradle' ||
           languageType === 'Java-gradle' ||
           languageType === 'JAVAGradle') && (
-          <JavaJDKConfig envs={runtimeInfo} form={this.props.form} />
+          <JavaJDKConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'python' || languageType === 'Python') && (
-          <PythonConfig envs={runtimeInfo} form={this.props.form} />
+          <PythonConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'php' || languageType === 'PHP') && (
-          <PHPConfig envs={runtimeInfo} form={this.props.form} />
+          <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} />
+          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {(languageType === 'nodejsstatic' ||
           languageType === 'NodeJSStatic' ||
@@ -240,6 +314,7 @@ class CodeBuildConfig extends PureComponent {
             languageType={languageType}
             envs={runtimeInfo}
             form={this.props.form}
+            buildSourceArr={buildSourceArr}
           />
         )}
         {(languageType === '.NetCore' ||
@@ -249,6 +324,7 @@ class CodeBuildConfig extends PureComponent {
             languageType={languageType}
             envs={runtimeInfo}
             form={this.props.form}
+            buildSourceArr={buildSourceArr}
           />
         )}
         {languageType === 'dockerfile' && (

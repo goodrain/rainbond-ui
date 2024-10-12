@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import EnterprisePluginsCom from '../../components/EnterprisePluginsCom'
+import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 
 export default class Backup extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class Backup extends Component {
           </p>
         }
       >
-        <EnterprisePluginsCom type='AppBackUp'/>
+        <EnterprisePluginsPage type='AppBackUp'/>
       </PageHeaderLayout >
     )
   }

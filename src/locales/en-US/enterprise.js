@@ -1290,6 +1290,8 @@ const extensionEnterprise = {
     'extensionEnterprise.capacity.table.name': 'Name',
     'extensionEnterprise.capacity.table.operate': 'Operate',
     'extensionEnterprise.capacity.table.btn.edit': 'Edit',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu': 'CPU limit(m)',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu_core': 'CPU limit(Core)',
 }
 
 export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise);

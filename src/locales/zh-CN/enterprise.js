@@ -1297,6 +1297,8 @@ const extensionEnterprise = {
     'extensionEnterprise.capacity.table.name': '名称',
     'extensionEnterprise.capacity.table.operate': '操作',
     'extensionEnterprise.capacity.table.btn.edit': '编辑',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu': 'CPU限额(m)',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu_core': 'CPU限额(Core)',
 }
 
 

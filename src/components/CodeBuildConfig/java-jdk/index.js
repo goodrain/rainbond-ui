@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Form, Radio, Switch, Input } from 'antd';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import GlobalUtils from '@/utils/global';
 
 const RadioGroup = Radio.Group;
 
@@ -42,7 +43,7 @@ class Index extends PureComponent {
         },
       },
     };
-    const { envs, form } = this.props;
+    const { envs, form, buildSourceArr } = this.props;
     const { getFieldDecorator } = form;
     const { JDKType } = this.state;
     let initialJDKType = 'OpenJDK';
@@ -78,19 +79,17 @@ class Index extends PureComponent {
         {JDKType === 'OpenJDK' && (
           <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.edition"/>}>
             {getFieldDecorator('BUILD_RUNTIMES', {
-              initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
+              initialValue: (envs && envs.BUILD_RUNTIMES) || GlobalUtils.getDefaultVsersion(buildSourceArr.openJDK || []),
             })(
               <RadioGroup>          
-                <Radio value="17">17</Radio>
-                <Radio value="16">16</Radio>
-                <Radio value="15">15</Radio>
-                <Radio value="14">14</Radio>
-                <Radio value="13">13</Radio>
-                <Radio value="12">12</Radio>
-                <Radio value="11">11</Radio>
-                <Radio value="10">10</Radio>
-                <Radio value="1.9">1.9</Radio>
-                <Radio value="1.8">1.8<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
+                {buildSourceArr && buildSourceArr.openJDK?.map((item, index) => {
+                  return (
+                    <Radio key={index} value={item.version}>
+                      {item.version}
+                    </Radio>
+                  );
+                }
+                )}
               </RadioGroup>
             )}
           </Form.Item>

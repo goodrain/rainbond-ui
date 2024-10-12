@@ -83,7 +83,7 @@ export default class Index extends Component {
           const plugin = res.list.find((item) => item.name === pluginId) || {};
           this.setState({ plugins: plugin, loading: false }, () => {
             if (plugin.plugin_type === 'JSInject') {
-              this.importPlugin(plugin, regionName);
+              this.importPlugin(plugin, currentRegionName);
             }
           });
         }

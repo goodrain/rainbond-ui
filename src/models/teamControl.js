@@ -40,6 +40,7 @@ import {
   editAuthorizationMessage,
   delAuthorizationMessage,
   fetchImageTags,
+  getComponentLangVersion,
 } from '../services/team';
 
 export default {
@@ -356,6 +357,12 @@ export default {
     },
     *fetchImageTags({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchImageTags, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getComponentLangVersion({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentLangVersion, payload, handleError);
       if (response && callback) {
         callback(response);
       }

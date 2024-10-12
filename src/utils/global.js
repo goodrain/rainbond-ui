@@ -2543,7 +2543,53 @@ const global = {
 
     const formattedTime = hours + ':' + minutes;
     return formattedTime
-  }
+  },
+  getBuildSource(type) {
+    if (!type) return ''
+    const languageType = type.toLowerCase();
+    switch (languageType) {
+      case 'java-jar':
+      case 'gradle':
+      case 'javagradle':
+      case 'java-gradle':
+        return ['openJDK'];
+      case 'java-war':
+        return ['openJDK', 'java_server'];
+      case 'java-maven':
+        return ['openJDK', 'maven', 'java_server'];
+      case 'python':
+        return ['python'];
+      case 'php':
+        return ['web_runtime', 'php'];
+      case 'golang':
+      case 'go':
+        return ['golang'];
+      case 'nodejs':
+      case 'node.js':
+      case 'nodejsstatic':
+      case 'node':
+        return ['node'];
+      case 'static':
+        return ['web_runtime'];
+      case 'netcore':
+      case '.netcore':
+        return ['net_sdk', 'net_runtime'];
+      case 'dockerfile':
+        return ['dockerfile'];
+      default:
+        return '';
+    }
+  },
+  // 获取默认版本
+  getDefaultVsersion(arr) {
+    if (!arr || !arr.length) return null
+    const newArr = arr.filter(item => item.first_choice == true)
+    if (newArr.length) {
+      return newArr[0].version
+    }else{
+      return null
+    }
+  },
 };
 
 export default global;

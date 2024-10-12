@@ -14,6 +14,7 @@ import pluginUtile from '../../utils/pulginUtils'
 import ImageWarehouse from './imageWarehouse';
 import UpdateVersion from './updateVersion';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
+import defaultLogo from '../../../public/logo.png';
 import styles from "./index.less"
 
 
@@ -68,10 +69,11 @@ export default class EnterpriseSetting extends PureComponent {
     } = this.props
     let infos = {};
     if (rainbondInfo) {
-      const fetchLogo = (rainbondInfo.disable_logo
-        ? rainbondInfo.logo.value
-        : rainbondUtil.fetchLogo(rainbondInfo, enterprise)) || (rainbondInfo.diy_customer == 'rainbond' ? defaultLogo : defaultLogoMK);
-      const fetchFavicon = rainbondInfo.disable_logo
+      console.log(rainbondInfo,"rainbondInfo");
+      const fetchLogo = (rainbondInfo?.disable_logo
+        ? rainbondInfo.logo.value 
+        : rainbondUtil.fetchLogo(rainbondInfo, enterprise)) || defaultLogo;
+      const fetchFavicon = rainbondInfo?.disable_logo
         ? rainbondInfo.favicon.value
         : rainbondUtil.fetchFavicon(rainbondInfo);
 
