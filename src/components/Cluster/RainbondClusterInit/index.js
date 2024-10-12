@@ -147,6 +147,7 @@ export default class RainbondClusterInit extends PureComponent {
     form.validateFields((err, values) => {
       let dataObj = {
         useK3sContainerd: true,
+        Component:{rbd_app_ui:{enable: true}},
         operator: {
           env: [
             {
