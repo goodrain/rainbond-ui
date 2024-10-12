@@ -40,6 +40,7 @@ import {
   editAuthorizationMessage,
   delAuthorizationMessage,
   fetchImageTags,
+  getComponentLangVersion,
 } from '../services/team';
 
 export default {
@@ -61,7 +62,10 @@ export default {
     codeLanguage: JSON.parse(window.sessionStorage.getItem('codeLanguage')) || '',
     // 包管理器
     packageNpmOrYarn: JSON.parse(window.sessionStorage.getItem('packageNpmOrYarn')) || 'npm',
+    // 所有app名称数组
     allAppNames: [],
+    // 插件列表
+    pluginsList: []
   },
   effects: {
     *fetchTeamUserPermissions(
@@ -291,10 +295,16 @@ export default {
         callback(response);
       }
     },
-    *fetchPluginUrl({ payload, callback, handleError }, { call }) {
+    *fetchPluginUrl({ payload, callback, handleError }, { call, put }) {
       const response = yield call(fetchPluginUrl, payload, handleError);
       if (response && callback) {
-        callback(response);
+        yield put({
+          type: 'savePluginList',
+          payload: response
+        });
+        if(callback){
+          callback(response);
+        }
       }
     },
     *fetchServiceID({ payload, callback, handleError }, { call }) {
@@ -351,6 +361,12 @@ export default {
         callback(response);
       }
     },
+    *getComponentLangVersion({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentLangVersion, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   
   reducers: {
@@ -395,6 +411,12 @@ export default {
       return {
         ...state,
         allAppNames:  payload.bean && payload.bean.app_names && payload.bean.app_names.length > 0 ? payload.bean.app_names : []
+      };
+    },
+    savePluginList(state, { payload }) {
+      return {
+        ...state,
+        pluginsList:  payload.bean && payload.list && payload.list.length > 0 ? payload.list : []
       };
     },
     // 源码构建选择语言

@@ -81,7 +81,9 @@ export async function sethEnterpriseClusterTenantLimit(param, handleError) {
     {
       method: 'post',
       data: {
-        limit_memory: param.limit_memory
+        limit_memory: param.limit_memory,
+        limit_cpu: param.limit_cpu,
+        limit_storage: param.limit_storage
       },
       handleError
     }

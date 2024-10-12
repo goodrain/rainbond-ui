@@ -7,10 +7,14 @@ import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Management from './management';
+import rainbondUtil from '../../utils/rainbond';
+import pluginUtile from '../../utils/pulginUtils'
 import ImageWarehouse from './imageWarehouse';
 import UpdateVersion from './updateVersion';
+import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
+import defaultLogo from '../../../public/logo.png';
 import styles from "./index.less"
 
 
@@ -25,7 +29,9 @@ const { TabPane } = Tabs;
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   certificateLongin: loading.effects['global/putCertificateType'],
-  overviewInfo: index.overviewInfo
+  objectStorageLongin: loading.effects['global/editCloudBackup'],
+  overviewInfo: index.overviewInfo,
+  pluginsList: global.pluginsList
 }))
 export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
@@ -45,82 +51,152 @@ export default class EnterpriseSetting extends PureComponent {
     }
     // 判断地址栏是否有showupdate, 存在显示版本更新列表
     if (location.query.showupdate) {
-      this.setState({activeKey: 'updateversion'})
+      this.setState({ activeKey: 'updateversion' })
     }
   }
   onChange = key => {
     this.setState({ activeKey: key });
   };
 
+  handlePlatformBasicInfo = () => {
+    const {
+      match: {
+        params: { eid }
+      },
+      rainbondInfo,
+      enterprise,
+      objectStorageLongin
+    } = this.props
+    let infos = {};
+    if (rainbondInfo) {
+      const fetchLogo = (rainbondInfo?.disable_logo
+        ? rainbondInfo.logo.value
+        : rainbondUtil.fetchLogo(rainbondInfo, enterprise)) || defaultLogo;
+      const fetchFavicon = rainbondInfo?.disable_logo
+        ? rainbondInfo.favicon.value
+        : rainbondUtil.fetchFavicon(rainbondInfo);
+
+      const title =
+        (rainbondInfo && rainbondInfo.title && rainbondInfo.title.value) || (rainbondInfo.diy_customer == 'rainbond' ? '云原生应用管理平台' : '煤科云PaaS平台');
+      const enterpriseTitle =
+        (enterprise && enterprise.enterprise_alias) ||
+        (rainbondInfo && rainbondInfo.enterprise_alias);
+      const doc_url = rainbondUtil.documentPlatform_url(enterprise);
+      const officialDemo = rainbondUtil.officialDemoEnable(enterprise);
+      const footer = rainbondInfo.footer && rainbondInfo.footer.value || '';
+      // eslint-disable-next-line no-const-assign
+      infos = {
+        logo: fetchLogo,
+        title,
+        doc_url,
+        officialDemo,
+        enterprise_alias: enterpriseTitle,
+        favicon: fetchFavicon,
+        footer,
+      };
+    }
+    return infos
+  }
+
   render() {
-    const { adminer, activeKey } = this.state;
+    const { adminer, activeKey, } = this.state;
+    const {
+      match: {
+        params: { eid }
+      },
+      rainbondInfo,
+      enterprise,
+      objectStorageLongin,
+      pluginsList
+    } = this.props
+    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList)
+
     return (
       <PageHeaderLayout
-        // title="企业设置"
-        title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title'/>}
-        // content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
-        content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content'/>}
-        titleSvg={pageheaderSvg.getSvg("settingSvg",18)}
-        isContent={true} 
+        title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title' />}
+        content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content' />}
+        titleSvg={pageheaderSvg.getSvg("settingSvg", 18)}
+        isContent={true}
       >
-        <Tabs 
-          onChange={this.onChange} 
+        <Tabs
+          onChange={this.onChange}
           activeKey={activeKey}
           type="card"
           className={styles.tabBarStyle}
-          >
-          <TabPane 
-          tab={
-               <div>
-                {/* 基础设置 */}
-                <FormattedMessage id='enterpriseSetting.TabPane.basicsSetting'/>
-               </div>
-          }
-          key="infrastructure"
+        >
+          <TabPane
+            tab={
+              <div>
+                <FormattedMessage id='enterpriseSetting.TabPane.basicsSetting' />
+              </div>
+            }
+            key="infrastructure"
           >
             <Infrastructure {...this.props} />
           </TabPane>
           {adminer && (
-            <TabPane 
-            tab={
-                 <div>
-                  {/* 企业管理员管理 */}
-                  <FormattedMessage id='enterpriseSetting.TabPane.enterpriseAdmin'/>
-                 </div>
-            } 
-            key="management">
+            <TabPane
+              tab={
+                <div>
+                  <FormattedMessage id='enterpriseSetting.TabPane.enterpriseAdmin' />
+                </div>
+              }
+              key="management">
               <Management {...this.props} />
             </TabPane>
           )}
+          {showEnterprisePlugin &&
+            <TabPane
+              tab={<div>
+                <FormattedMessage id='enterpriseSetting.TabPane.individuation' />
+              </div>}
+              key="individuation"
+            >
+              <EnterprisePluginsPage
+                key="PackageUpload"
+                type="Customization"
+                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
+                }
+              />
+            </TabPane>
+          }
           {adminer && (
-            <TabPane 
+            <TabPane
               tab={
                 <div>
-                  {/* 数据备份 */}
-                  <FormattedMessage id='enterpriseSetting.TabPane.dataBackups'/>
-                 </div>
-                } 
+                  <FormattedMessage id='enterpriseSetting.TabPane.dataBackups' />
+                </div>
+              }
               key="backup"
             >
               <BackupManage {...this.props} />
             </TabPane>
           )}
-          <TabPane 
+          <TabPane
             tab={
               <div>
-              {/* 镜像仓库 */}
-                <FormattedMessage id='enterpriseSetting.TabPane.mirrorWarehouse'/>
+                <FormattedMessage id='enterpriseSetting.TabPane.mirrorWarehouse' />
               </div>
-            } 
+            }
             key="image"
           >
             <ImageWarehouse {...this.props} />
           </TabPane>
+          {showEnterprisePlugin && (
+            <TabPane
+              tab={
+                <div>
+                  组件语言版本
+                </div>
+              }
+              key="upload">
+              <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" />
+            </TabPane>
+          )}
           <TabPane
             tab={
               <div>
-                {/* 版本更新 */}
-                <FormattedMessage id='enterpriseSetting.TabPane.updateVersion'/>
+                <FormattedMessage id='enterpriseSetting.TabPane.updateVersion' />
               </div>
             }
             key="updateversion"

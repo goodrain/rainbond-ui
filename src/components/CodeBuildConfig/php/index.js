@@ -25,7 +25,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs } = this.props;
+    const { envs, buildSourceArr } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
@@ -44,11 +44,17 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.PHPConfig.web"/>}>
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'apache'
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.web_runtime || []),
           })(
             <RadioGroup>
-              <Radio value="apache">apache<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="nginx">nginx</Radio>
+              {buildSourceArr && buildSourceArr.web_runtime?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                );
+
+              })}
             </RadioGroup>
           )}
         </Form.Item>
@@ -59,13 +65,17 @@ class Index extends PureComponent {
           help={<FormattedMessage id="componentOverview.body.PHPConfig.definition"/>}
         >
           {getFieldDecorator('BUILD_RUNTIMES', {
-            initialValue: (envs && envs.BUILD_RUNTIMES) || '8.2.5'
+            initialValue: (envs && envs.BUILD_RUNTIMES) || GlobalUtils.getDefaultVsersion(buildSourceArr.php || []),
           })(
             <RadioGroup>
-              <Radio value="8.2.5" selected="selected">
-              8.2.5<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="8.1.18">8.1.18</Radio>
+              {buildSourceArr && buildSourceArr.php?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                );
+
+              })}
             </RadioGroup>
           )}
         </Form.Item>

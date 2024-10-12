@@ -60,7 +60,9 @@ import Port from './port';
 import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
+import ComponentPlugin from './componentPlugin'
 import ThirdPartyServices from './ThirdPartyServices';
+import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 
@@ -251,7 +253,8 @@ class EditName extends PureComponent {
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
     deployLoading:
       loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
-    buildInformationLoading: loading.effects['appControl/getBuildInformation']
+    buildInformationLoading: loading.effects['appControl/getBuildInformation'],
+    pluginList: teamControl.pluginsList
   }),
   null,
   null,
@@ -1174,7 +1177,6 @@ class Main extends PureComponent {
         isSource,
         isOtherSetting,
       },
-      // appPermissions,
       componentPermissions,
       groups = [],
       form,
@@ -1187,7 +1189,9 @@ class Main extends PureComponent {
       updateRollingLoading,
       deployLoading,
       buildInformationLoading,
+      pluginList
     } = this.props;
+    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList,"Component")
     const {
       BuildList,
       componentTimer,
@@ -1232,7 +1236,6 @@ class Main extends PureComponent {
         app_alias={appAlias}
       />
     );
-
     const action = (
       status && status.status &&
       <div>
@@ -1425,6 +1428,14 @@ class Main extends PureComponent {
         tab: formatMessage({id:'componentOverview.body.tab.bar.setting'})
       });
     }
+    if(CompluginList && CompluginList.length>0){
+      CompluginList.forEach( item =>{
+        tabs.push({
+          key: item.name,
+          tab: item.name
+        });
+      })
+    }
     const tabList = isShowThirdParty
       ? [
           {
@@ -1486,8 +1497,13 @@ class Main extends PureComponent {
       port: Port,
       plugin: Plugin,
       resource: Resource,
-      setting: Setting
+      setting: Setting,
     };
+    if(CompluginList && CompluginList.length>0){
+      CompluginList.forEach( item =>{
+        map[item.name] = ComponentPlugin
+      })
+    }
     let { type } = this.props.match.params;
 
     if (!type) {

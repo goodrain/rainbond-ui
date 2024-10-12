@@ -622,6 +622,8 @@ const enterpriseColony = {
     'enterpriseColony.addCluster.host.checking': '检测中...',
     'enterpriseColony.addCluster.host.await_check': '等待检测',
     'enterpriseColony.addCluster.host.ip': 'IP 地址',
+    'enterpriseColony.addCluster.host.Intranet_ip': '账号',
+    'enterpriseColony.addCluster.host.ssh': '账号密码',
     'enterpriseColony.addCluster.host.ssh_port': '端口',
     'enterpriseColony.addCluster.host.user': '账号',
     'enterpriseColony.addCluster.host.password': '账号密码',
@@ -1163,6 +1165,7 @@ const enterpriseSetting = {
     'enterpriseSetting.TabPane.dataBackups': '数据备份',
     'enterpriseSetting.TabPane.mirrorWarehouse': '镜像仓库',
     'enterpriseSetting.TabPane.updateVersion': '版本更新',
+    'enterpriseSetting.TabPane.individuation': '个性化配置',
     // tabs>TabPane>basicsSetting
     'enterpriseSetting.basicsSetting.login.title': '用户注册',
     'enterpriseSetting.basicsSetting.login.content': '控制用户是否可以注册功能。',
@@ -1264,6 +1267,20 @@ const enterpriseSetting = {
     'enterpriseSetting.updateVersion.result.update_title': '更新中请勿操作...',
     'enterpriseSetting.updateVersion.result.update_success': '更新成功',
     'enterpriseSetting.updateVersion.tooltip.title': '版本号',
+    // tabs>TabPane>individuation
+    'enterpriseSetting.individuation.title1': '基础信息配置',
+    'enterpriseSetting.individuation.title2': '主题配置',
+    'enterpriseSetting.individuation.header.bg': '头部颜色',
+    'enterpriseSetting.individuation.header.writ': '头部文字颜色',
+    'enterpriseSetting.individuation.sidebar.bg': '侧边栏颜色',
+    'enterpriseSetting.individuation.sidebar.writ': '侧边栏文字颜色',
+    'enterpriseSetting.individuation.btn.submit': '保存',
+    'enterpriseSetting.individuation.btn.restoreDefault': '恢复默认',
+    'enterpriseSetting.individuation.save.success': '保存成功',
+    'enterpriseSetting.individuation.input.color.placeholder': '请填写颜色，以#开头，如：#f0f0f0',
+    'enterpriseSetting.individuation.loginImage': '登陆页图片',
+    'enterpriseSetting.individuation.loginImage.extra': '请上传460 ✖️ 460的图片',
+    'enterpriseSetting.individuation.footer.placeholder': '自定义 Footer',
 }
 //个人中心
 const otherEnterprise = {
@@ -1345,6 +1362,8 @@ const extensionEnterprise = {
     'extensionEnterprise.capacity.table.name': '名称',
     'extensionEnterprise.capacity.table.operate': '操作',
     'extensionEnterprise.capacity.table.btn.edit': '编辑',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu': 'CPU限额(m)',
+    'enterpriseColony.table.handle.quota.form.label.limit_cpu_core': 'CPU限额(Core)',
 }
 
 

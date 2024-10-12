@@ -18,7 +18,11 @@ import {
   Pagination,
   Tooltip,
   Row,
-  Spin
+  Spin,
+  Modal,
+  Alert,
+  Form,
+  InputNumber
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -35,13 +39,18 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import publicColor from '../../../config/theme'
+import pluginUtile from '../../utils/pulginUtils'
 
 const { Search } = Input;
+const FormItem = Form.Item;
 
-@connect(({ user }) => ({
-  user: user.currentUser
+@Form.create()
+
+@connect(({ user, global }) => ({
+  user: user.currentUser,
+  pluginsList: global.pluginsList
 }))
 export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
@@ -311,7 +320,7 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         this.setState({ closeTeamComponentLoading: false });
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.operate_successfully_close'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.operate_successfully_close' }) });
         }
         this.hideCloseAllComponent();
       },
@@ -322,7 +331,7 @@ export default class EnterpriseTeams extends PureComponent {
           });
         }
         notification.warning({
-          message: formatMessage({id:'notification.warn.malfunction'})
+          message: formatMessage({ id: 'notification.warn.malfunction' })
         });
         this.setState({ closeTeamComponentLoading: false });
       }
@@ -352,7 +361,7 @@ export default class EnterpriseTeams extends PureComponent {
           );
 
           this.hideDelTeam();
-          notification.success({ message: formatMessage({id:'notification.success.project_team_delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.project_team_delete' }) });
         }
       },
       handleError: err => {
@@ -374,7 +383,7 @@ export default class EnterpriseTeams extends PureComponent {
         team_name: ApplyInfo.team_name
       },
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.withdraw_claim'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.withdraw_claim' }) });
         this.getOverviewTeam();
         this.hideDelApply();
       }
@@ -386,7 +395,7 @@ export default class EnterpriseTeams extends PureComponent {
       type: 'global/joinTeam',
       payload: values,
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.wait_review'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.wait_review' }) });
         this.getOverviewTeam();
         this.cancelJoinTeam();
       }
@@ -407,20 +416,20 @@ export default class EnterpriseTeams extends PureComponent {
       regions.map(item => {
         return (
           <Tooltip placement="top" title={item.region_alias}>
-          <Button
-            key={`${item.region_name}region`}
-            className={styles.regionShow}
-            onClick={() => {
-              if (ismanagement) {
-                this.handleJoinTeams(team_name, item.region_name);
-              } else {
-                this.onJumpTeam(team_name, item.region_name);
-              }
-            }}
-          >
-            {item.region_alias}
-            <Icon type="right" />
-          </Button>
+            <Button
+              key={`${item.region_name}region`}
+              className={styles.regionShow}
+              onClick={() => {
+                if (ismanagement) {
+                  this.handleJoinTeams(team_name, item.region_name);
+                } else {
+                  this.onJumpTeam(team_name, item.region_name);
+                }
+              }}
+            >
+              {item.region_alias}
+              <Icon type="right" />
+            </Button>
           </Tooltip>
         );
       })
@@ -504,13 +513,113 @@ export default class EnterpriseTeams extends PureComponent {
       guideStep
     });
   };
+  /**
+ * 设置团队限制。
+ * @param {string} name - 团队名称。
+ * @param {Array} teamList - 团队列表。
+ * 该函数用于设置团队的资源限制，并显示相应的对话框。
+ */
+  setTenantLimit = (name, teamList) => {
+    let info = {}
+    teamList && teamList.length > 0 &&
+      teamList.map(item => {
+        if (item.team_name == name) {
+          info = item
+        }
+      })
+    const { region_list } = info
+    this.setState({
+      setTenantLimitShow: true,
+      limitTenantName: info.team_name,
+      limitTeamName: info.team_alias,
+      initLimitValue: info.set_limit_memory,
+      initCupLimitValue: info.set_limit_cpu || 0,
+      showTenantListRegion: region_list[0].region_id,
+      regionAlias: region_list[0].region_alias,
+      initLimitStorageValue: info.set_limit_storage || 0
+    });
+  };
+  /**
+* 提交资源限制设置。
+* @param {Object} e - 事件对象。
+* 该函数验证表单字段，如果验证通过，则发送设置企业租户限制的请求，并在请求成功后显示操作成功的通知。
+*/
+  submitLimit = e => {
+    e.preventDefault();
+    const {
+      form,
+      dispatch
+    } = this.props;
+    const eid = globalUtil.getCurrEnterpriseId()
+    const { limitTenantName, showTenantListRegion } = this.state;
+    form.validateFields(
+      {
+        force: true
+      },
+      (err, values) => {
+        if (!err) {
+          this.setState({ limitSummitLoading: true });
+          dispatch({
+            type: 'region/setEnterpriseTenantLimit',
+            payload: {
+              enterprise_id: eid,
+              region_id: showTenantListRegion,
+              tenant_name: limitTenantName,
+              limit_memory: values.limit_memory,
+              limit_cpu: values.limit_cpu,
+              limit_storage: values.limit_storage
+            },
+            callback: () => {
+              this.getEnterpriseTeams()
+              notification.success({
+                message: formatMessage({ id: 'notification.success.setting_successfully' })
+              });
+              this.setState({
+                limitSummitLoading: false,
+                setTenantLimitShow: false
+              });
+
+            },
+            handleError: () => {
+              notification.warning({
+                message: formatMessage({ id: 'notification.error.setting_failed' })
+              });
+              this.setState({ limitSummitLoading: false });
+            }
+          });
+        }
+      }
+    );
+  };
+  /**
+ * 隐藏设置团队限制的对话框。
+ * 该函数将组件状态中的setTenantLimitShow设置为false，从而隐藏设置团队限制的对话框。
+ */
+  hideTenantListShow = () => {
+    this.setState({
+      setTenantLimitShow: false,
+    });
+  };
 
   render() {
     const {
       match: {
         params: { eid }
-      }
+      },
+      form,
+      pluginsList
     } = this.props;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 }
+      },
+      wrapperCol: {
+        xs: { span: 20 },
+        sm: { span: 12 }
+      }
+    };
+    const { getFieldDecorator } = form;
     const {
       teamList,
       overviewTeamInfo,
@@ -524,9 +633,18 @@ export default class EnterpriseTeams extends PureComponent {
       closeTeamComponentLoading,
       initShow,
       guideStep,
-      language
+      language,
+      setTenantLimitShow,
+      limitTenantName,
+      limitTeamName,
+      initLimitValue,
+      initCupLimitValue,
+      regionAlias,
+      limitSummitLoading,
+      initLimitStorageValue,
+      teamNameTitle
     } = this.state;
-
+    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList)
     const request_join_team =
       overviewTeamInfo &&
       overviewTeamInfo.request_join_team.filter(item => {
@@ -574,7 +692,7 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               {/* 退出项目/团队 */}
-              <FormattedMessage id='enterpriseTeamManagement.handle.quit'/>
+              <FormattedMessage id='enterpriseTeamManagement.handle.quit' />
             </a>
           </Menu.Item>
         </Menu>
@@ -591,7 +709,7 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               {/* 撤销申请 */}
-              <FormattedMessage id='enterpriseTeamManagement.handle.backout'/>
+              <FormattedMessage id='enterpriseTeamManagement.handle.backout' />
             </a>
           </Menu.Item>
         </Menu>
@@ -608,7 +726,7 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               {/* 关闭所有组件 */}
-              <FormattedMessage id='enterpriseTeamManagement.admin.handle.turnoff'/>
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.turnoff' />
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -621,9 +739,20 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               {/* 开通集群 */}
-              <FormattedMessage id='enterpriseTeamManagement.admin.handle.open'/>
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.open' />
             </a>
           </Menu.Item>
+          {showEnterprisePlugin &&
+            <Menu.Item>
+              <a
+                onClick={() => {
+                  this.setTenantLimit(exitTeamName, teamList)
+                }}
+              >
+                <FormattedMessage id='enterpriseColony.table.handle.quota' />
+              </a>
+            </Menu.Item>
+          }
           <Menu.Item>
             <a
               onClick={() => {
@@ -631,7 +760,7 @@ export default class EnterpriseTeams extends PureComponent {
               }}
             >
               {/* 删除项目/团队 */}
-              <FormattedMessage id='enterpriseTeamManagement.admin.handle.delete'/>
+              <FormattedMessage id='enterpriseTeamManagement.admin.handle.delete' />
             </a>
           </Menu.Item>
         </Menu>
@@ -646,12 +775,12 @@ export default class EnterpriseTeams extends PureComponent {
             style={{ marginRight: '5px' }}
           >
             {/* 创建 项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup'/>
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup' />
           </Button>
         ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
             {/* 加入 项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join'/>
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join' />
           </Button>
         )}
       </Col>
@@ -665,12 +794,12 @@ export default class EnterpriseTeams extends PureComponent {
             style={{ marginRight: '5px' }}
           >
             {/* 创建 项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup'/>
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup' />
           </Button>
         ) : (
           <Button type="primary" onClick={this.onJoinTeam}>
             {/* 加入 项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join'/>
+            <FormattedMessage id='enterpriseTeamManagement.allProject.button.join' />
           </Button>
         )}
       </Col>
@@ -684,9 +813,9 @@ export default class EnterpriseTeams extends PureComponent {
             alignItems: 'center',
             marginBottom: '20px',
             backgroundColor: "#fafbfc",
-            padding:' 10px 20px',
-            borderRadius:5,
-            boxShadow:'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
+            padding: ' 10px 20px',
+            borderRadius: 5,
+            boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
           }}
         >
           <Col
@@ -695,118 +824,123 @@ export default class EnterpriseTeams extends PureComponent {
             style={{ marginBottom: '0' }}
           >
             {/* 全部项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.lable'/>
+            <FormattedMessage id='enterpriseTeamManagement.allProject.lable' />
           </Col>
           <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder={formatMessage({id:'enterpriseTeamManagement.allProject.search'})}
+              placeholder={formatMessage({ id: 'enterpriseTeamManagement.allProject.search' })}
               onSearch={this.handleSearchTeam}
             />
           </Col>
           {operation}
         </Row>
         <div style={{
-          background:'#fff',
+          background: '#fff',
           borderRadius: 5,
-          boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-          fontSize:14,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          fontSize: 14,
           fontWeight: 600
         }}>
-        <Row style={{ width:'100%' }} className={styles.rowTitle}>
-        <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={4} style={{width:'16%',textAlign:'center'}}>
-            {/* 项目/团队名称 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* 管理员 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* 人数 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.number'/>
-          </Col>
-          <Col span={7} style={{width:'30%',textAlign:'center'}}>
-            {/* 集群 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.colony'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* 内存使用量(MB) */}
-            <FormattedMessage id='enterpriseTeamManagement.table.memory'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* CPU使用量 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.CUP'/>
-          </Col>
-          <Col span={2} style={{width:'9%',textAlign:'center'}}>
-            {/* 运行应用数 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.operation'/>
-          </Col>
-        </Row>
-          <Col className={styles.borTitle}>
-            {/* 操作 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.handle'/>
-          </Col>
-        </Row>
-        {teamList.map(item => {
-          const {
-            team_id,
-            team_alias,
-            region_list,
-            owner_name,
-            team_name,
-            running_apps,
-            user_number,
-            cpu_request,
-            memory_request,
-            set_limit_memory
-          } = item;
-          const memory = (memory_request == 0) ?  formatMessage({id:'componentOverview.body.tab.overview.unlimited'}) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1) 
-          const set_limit = (set_limit_memory == 0) ?  formatMessage({id:'componentOverview.body.tab.overview.unlimited'}) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1) 
-          return (
-            <Card
-              key={team_id}
-              style={{ border:0, borderBottom: '1px solid #f4f4f4'}}
-              hoverable
-              bodyStyle={{ padding: 0 }}
-            >
-              <Row 
-               type="flex" 
-               align="middle" 
-               className={styles.pl24}
+          <Row style={{ width: '100%' }} className={styles.rowTitle}>
+            <Row className={styles.teamMinTit} type="flex" align="middle">
+              <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
+                {/* 项目/团队名称 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* 管理员 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.Administrator' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* 人数 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.number' />
+              </Col>
+              <Col span={7} style={{ width: '30%', textAlign: 'center' }}>
+                {/* 集群 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.colony' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* 内存使用量(MB) */}
+                <FormattedMessage id='enterpriseTeamManagement.table.memory' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* CPU使用量 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.CUP' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* 租户限额(MB) */}
+                <FormattedMessage id='enterpriseTeamManagement.table.quota' />
+              </Col>
+              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                {/* 运行应用数 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.operation' />
+              </Col>
+            </Row>
+            <Col className={styles.borTitle}>
+              {/* 操作 */}
+              <FormattedMessage id='enterpriseTeamManagement.table.handle' />
+            </Col>
+          </Row>
+          {teamList.map(item => {
+            const {
+              team_id,
+              team_alias,
+              region_list,
+              owner_name,
+              team_name,
+              running_apps,
+              user_number,
+              cpu_request,
+              memory_request,
+              set_limit_memory
+            } = item;
+            const memory = (memory_request == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
+            const set_limit = (set_limit_memory == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1)
+            return (
+              <Card
+                key={team_id}
+                style={{ border: 0, borderBottom: '1px solid #f4f4f4' }}
+                hoverable
+                bodyStyle={{ padding: 0 }}
               >
-                <Row 
-                  type="flex" 
-                  align="middle" 
-                  className={styles.pl23}
-                  onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                <Row
+                  type="flex"
+                  align="middle"
+                  className={styles.pl24}
                 >
-                <Col style={{color: globalUtil.getPublicColor(), fontWeight:'600',width:'13%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{owner_name}</Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{user_number}</Col>
-                <Col style={{width:'30%',display:'flex',justifyContent:'center'}} >
-                  {this.showRegions(team_name, region_list, true)}
-                </Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{memory} </Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{cpu_request}</Col>
-                <Col style={{width:'9%',textAlign:'center'}}>{running_apps}</Col>
-                </Row>
-                <Col className={styles.bor}>
-                  <Dropdown
-                    overlay={managementMenu(team_name)}
-                    placement="bottomLeft"
+                  <Row
+                    type="flex"
+                    align="middle"
+                    className={styles.pl23}
+                    onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name) }}
                   >
-                    <Icon component={moreSvg} style={{ width: '100%' }} />
-                  </Dropdown>
-                </Col>
-              </Row>
-            </Card>
-          );
-        })}
+                    <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{user_number}</Col>
+                    <Col style={{ width: '30%', display: 'flex', justifyContent: 'center' }} >
+                      {this.showRegions(team_name, region_list, true)}
+                    </Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{memory} </Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{cpu_request}</Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{set_limit}</Col>
+                    <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
+                  </Row>
+                  <Col className={styles.bor}>
+                    <Dropdown
+                      overlay={managementMenu(team_name)}
+                      placement="bottomLeft"
+                    >
+                      <Icon component={moreSvg} style={{ width: '100%' }} />
+                    </Dropdown>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })}
         </div>
         <div style={{ textAlign: 'right', margin: '15px' }}>
-          {Number(this.state.total) > 10  &&  this.handlePaginations()}
+          {Number(this.state.total) > 10 && this.handlePaginations()}
         </div>
       </div>
     );
@@ -816,26 +950,26 @@ export default class EnterpriseTeams extends PureComponent {
         <Row>
           <Col span={17} className={styles.teamsTit}>
             {/* {haveNewJoinTeam && '最新加入项目/团队'} */}
-            {haveNewJoinTeam && <FormattedMessage id='enterpriseTeamManagement.other.haveNewJoinTeam'/>}
+            {haveNewJoinTeam && <FormattedMessage id='enterpriseTeamManagement.other.haveNewJoinTeam' />}
           </Col>
         </Row>
         {haveNewJoinTeam && (
           <Row className={styles.teamMinTits} type="flex" align="middle">
             <Col span={6}>
               {/* 项目/团队名称 */}
-              <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
+              <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
             </Col>
             <Col span={3}>
               {/* 管理员 */}
-              <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
+              <FormattedMessage id='enterpriseTeamManagement.table.Administrator' />
             </Col>
             <Col span={3}>
               {/* 角色 */}
-              <FormattedMessage id='enterpriseTeamManagement.table.td.role'/>
+              <FormattedMessage id='enterpriseTeamManagement.table.td.role' />
             </Col>
             <Col span={12}>
               {/* 状态 */}
-              <FormattedMessage id='enterpriseTeamManagement.table.td.status'/>
+              <FormattedMessage id='enterpriseTeamManagement.table.td.status' />
             </Col>
           </Row>
         )}
@@ -856,7 +990,7 @@ export default class EnterpriseTeams extends PureComponent {
                 style={{
                   // marginTop: '10px',
                   borderLeft: is_pass === 0 && '6px solid #4D73B1',
-                  border:0
+                  border: 0
                 }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
@@ -866,9 +1000,9 @@ export default class EnterpriseTeams extends PureComponent {
                   className={styles.pls24}
                   align="middle"
                   key={team_id}
-                  // onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                // onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
                 >
-                  <Col span={6} style={{color: globalUtil.getPublicColor(), fontWeight:'600', fontSize:'16px'}}>{team_alias}</Col>
+                  <Col span={6} style={{ color: globalUtil.getPublicColor(), fontWeight: '600', fontSize: '16px' }}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col
@@ -882,7 +1016,7 @@ export default class EnterpriseTeams extends PureComponent {
                         <img src={WarningImg} alt="" />
                         &nbsp;
                         {/* 申请加入项目/团队审批中 */}
-                          <FormattedMessage id='enterpriseTeamManagement.other.examine'/>
+                        <FormattedMessage id='enterpriseTeamManagement.other.examine' />
                       </span>
                     )}
                   </Col>
@@ -909,52 +1043,52 @@ export default class EnterpriseTeams extends PureComponent {
           }}
         >
           <Col
-            span={ language ? 2 : 3}
+            span={language ? 2 : 3}
             className={styles.teamsTit}
             style={{ marginBottom: '0' }}
           >
             {/* 我的项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title'/>
+            <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title' />
           </Col>
 
           <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
-              placeholder={formatMessage({id:'enterpriseTeamManagement.allProject.search'})}
+              placeholder={formatMessage({ id: 'enterpriseTeamManagement.allProject.search' })}
               onSearch={this.handleSearchUserTeam}
             />
           </Col>
           {en_operation}
         </Row>
         {userTeam && (
-          <Row style={{ width:'100%' }} className={styles.rowTitle}>
-          <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6} style={{width:'16%',textAlign:'center'}}>
-              {/* 项目/团队名称 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.teamName'/>
-            </Col>
-            <Col span={3} style={{width:'10%',textAlign:'center'}}>
-              {/* 管理员 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.Administrator'/>
-            </Col>
-            <Col span={3} style={{width:'26%',textAlign:'center'}}>
-              {/* 角色 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.td.role'/>
-            </Col>
-            <Col span={12} style={{width:'48%',textAlign:'left'}}>
-              {/* 集群 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.colony'/>
-            </Col>
-          </Row>
+          <Row style={{ width: '100%' }} className={styles.rowTitle}>
+            <Row className={styles.teamMinTit} type="flex" align="middle">
+              <Col span={6} style={{ width: '16%', textAlign: 'center' }}>
+                {/* 项目/团队名称 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
+              </Col>
+              <Col span={3} style={{ width: '10%', textAlign: 'center' }}>
+                {/* 管理员 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.Administrator' />
+              </Col>
+              <Col span={3} style={{ width: '26%', textAlign: 'center' }}>
+                {/* 角色 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.td.role' />
+              </Col>
+              <Col span={12} style={{ width: '48%', textAlign: 'left' }}>
+                {/* 集群 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.colony' />
+              </Col>
+            </Row>
             <Col className={styles.borTitle}>
               {/* 操作 */}
-            <FormattedMessage id='enterpriseTeamManagement.table.handle'/>
+              <FormattedMessage id='enterpriseTeamManagement.table.handle' />
             </Col>
           </Row>
         )}
         {!userTeam && (
           <Empty
-            description={ <FormattedMessage id='enterpriseTeamManagement.other.description'/>}
+            description={<FormattedMessage id='enterpriseTeamManagement.other.description' />}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
@@ -975,36 +1109,36 @@ export default class EnterpriseTeams extends PureComponent {
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
-                <Row 
-                  type="flex" 
-                  align="middle" 
+                <Row
+                  type="flex"
+                  align="middle"
                   className={styles.pl24}
                 >
-                  <Row 
-                    type="flex" 
-                    align="middle" 
+                  <Row
+                    type="flex"
+                    align="middle"
                     className={styles.pl23}
-                    onClick={()=>{this.onJumpTeam(team_name, region_list[0].region_name)}}
+                    onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name) }}
                   >
-                  <Col span={6} style={{color:'#4D73B1', fontWeight:'600', width:'16%',textAlign:'center', fontSize:'16px'}}>{team_alias}</Col>
-                  <Col span={3} style={{width:'10%',textAlign:'center'}}>{owner_name}</Col>
-                  <Col span={3} style={{width:'26%',textAlign:'center'}}>
-                    {roles &&
-                      roles.length > 0 &&
-                      roles.map(role => {
-                        return (
-                          <span
-                            style={{ marginRight: '8px' }}
-                            key={`role${role}`}
-                          >
-                            {roleUtil.actionMap(role)}
-                          </span>
-                        );
-                      })}
-                  </Col>
-                  <Col span={11} style={{width:'48%',textAlign:'left'}}>
-                    {this.showRegions(team_name, region_list)}
-                  </Col>
+                    <Col span={6} style={{ color: '#4D73B1', fontWeight: '600', width: '16%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
+                    <Col span={3} style={{ width: '10%', textAlign: 'center' }}>{owner_name}</Col>
+                    <Col span={3} style={{ width: '26%', textAlign: 'center' }}>
+                      {roles &&
+                        roles.length > 0 &&
+                        roles.map(role => {
+                          return (
+                            <span
+                              style={{ marginRight: '8px' }}
+                              key={`role${role}`}
+                            >
+                              {roleUtil.actionMap(role)}
+                            </span>
+                          );
+                        })}
+                    </Col>
+                    <Col span={11} style={{ width: '48%', textAlign: 'left' }}>
+                      {this.showRegions(team_name, region_list)}
+                    </Col>
                   </Row>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
@@ -1018,16 +1152,16 @@ export default class EnterpriseTeams extends PureComponent {
       </div>
     );
     // let title = '我的项目/团队';
-    let title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title'/>;
+    let title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title' />;
     // const content =
     //   '项目/团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于项目/团队进行隔离。一个项目/团队可以开通多个集群。';
-    const content = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.context'/>;
+    const content = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.context' />;
     if (adminer) {
       // title = '项目/团队管理';
-      title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin'/>;
+      title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin' />;
     }
     return (
-      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getSvg('temaSvg',20)}>
+      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getSvg('temaSvg', 20)}>
         {showCloseAllComponent && (
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}
@@ -1055,13 +1189,13 @@ export default class EnterpriseTeams extends PureComponent {
         )}
         {initShow && (
           <CreateTeam
-            title={<FormattedMessage id='enterpriseTeamManagement.allProject.title'/>}
+            title={<FormattedMessage id='enterpriseTeamManagement.allProject.title' />}
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-            // guideStep={guideStep}
-            // handleNewbieGuiding={this.handleNewbieGuiding}
-            // handleGuideStep={this.handleGuideStep}
+          // guideStep={guideStep}
+          // handleNewbieGuiding={this.handleNewbieGuiding}
+          // handleGuideStep={this.handleGuideStep}
           />
         )}
         {this.state.showExitTeam && (
@@ -1107,6 +1241,112 @@ export default class EnterpriseTeams extends PureComponent {
         ) : (
           <div>{adminer ? managementTemas : teamInfo}</div>
         )}
+        <Modal
+          centered
+          maskClosable={false}
+          title="编辑资源限额"
+          width={800}
+          visible={setTenantLimitShow}
+          footer={null}
+          onOk={this.hideTenantListShow}
+          onCancel={this.hideTenantListShow}
+        >
+          {setTenantLimitShow && (
+            <div>
+              <Alert
+                style={{ margin: '0px 0 16px 0' }}
+                message={formatMessage({ id: 'enterpriseColony.table.handle.quota.alert' }, { name: limitTeamName }) + formatMessage({ id: 'enterpriseColony.table.handle.quota.alert1' }, { region: regionAlias })}
+              />
+              <Form onSubmit={this.submitLimit}>
+                <Form.Item
+                  {...formItemLayout}
+                  name="limit_memory"
+                  label={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.limit_memory' })}
+                >
+                  {getFieldDecorator('limit_memory', {
+                    initialValue: initLimitValue,
+                    rules: [
+                      {
+                        required: true,
+                        message: '内存限额必填'
+                      }
+                    ]
+                  })(
+                    <InputNumber
+                      style={{ width: '200px' }}
+                      min={0}
+                      precision={0}
+                      max={2147483647}
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item
+                  {...formItemLayout}
+                  name="limit_cpu"
+                  label={formatMessage({ id: 'enterpriseColony.table.handle.quota.form.label.limit_cpu' })}
+                >
+                  {getFieldDecorator('limit_cpu', {
+                    initialValue: initCupLimitValue,
+                    rules: [
+                      {
+                        required: true,
+                        message: 'CPU限额必填'
+                      }
+                    ]
+                  })(
+                    <InputNumber
+                      style={{ width: '200px' }}
+                      min={0}
+                      precision={0}
+                      max={2147483647}
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item
+                  {...formItemLayout}
+                  name="limit_storage"
+                  label="存储限额(GB)"
+                >
+                  {getFieldDecorator('limit_storage', {
+                    initialValue: initLimitStorageValue,
+                    rules: [
+                      {
+                        required: true,
+                        message: '请填写存储限额'
+                      }
+                    ]
+                  })(
+                    <InputNumber
+                      style={{ width: '200px' }}
+                      min={0}
+                      precision={0}
+                      max={2147483647}
+                    />
+                  )}
+                </Form.Item>
+                <div style={{ textAlign: "right" }}>
+                  <Button
+                    onClick={() => {
+                      this.setState({
+                        setTenantLimitShow: false,
+                      });
+                    }}
+                  >
+                    {formatMessage({ id: 'button.cancel' })}
+                  </Button>
+                  <Button
+                    style={{ marginLeft: '16px' }}
+                    loading={limitSummitLoading}
+                    type="primary"
+                    htmlType="submit"
+                  >
+                    {formatMessage({ id: 'button.confirm' })}
+                  </Button>
+                </div>
+              </Form>
+            </div>
+          )}
+        </Modal>
       </PageHeaderLayout>
     );
   }

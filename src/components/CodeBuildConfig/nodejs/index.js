@@ -56,7 +56,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs, languageType, soundCodeLanguage, packageType } = this.props;
+    const { envs, languageType, soundCodeLanguage, packageType,buildSourceArr } = this.props;
     const { webType, nodeType, nodeBuildType } = this.state;
     const { getFieldDecorator } = this.props.form;
     // 从高级设置进入
@@ -87,22 +87,16 @@ class Index extends PureComponent {
         
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.NodeJSConfig.node"/>}>
           {getFieldDecorator('BUILD_RUNTIMES', {
-            initialValue: (envs && envs.BUILD_RUNTIMES) || '20.0.0'
+            initialValue: (envs && envs.BUILD_RUNTIMES) || GlobalUtils.getDefaultVsersion(buildSourceArr.node || []),
           })(
             <RadioGroup onChange={this.onRadioNodeTypeChange}>
-              <Radio value="20.0.0" selected="selected">20.0.0<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="19.9.0">19.9.0</Radio>
-              <Radio value="18.16.0">18.16.0</Radio>
-              <Radio value="17.9.1">17.9.1</Radio>
-              <Radio value="16.20.0">16.20.0</Radio>
-              <Radio value="16.15.0">16.15.0</Radio>
-              <Radio value="15.14.0">15.14.0</Radio>
-              <Radio value="14.21.3">14.21.3</Radio>
-              <Radio value="13.14.0">13.14.0</Radio>
-              <Radio value="12.22.12">12.22.12</Radio>
-              <Radio value="11.15.0">11.15.0</Radio>
-              <Radio value="10.24.1">10.24.1</Radio>
-              <Radio value="8.17.0">8.17.0</Radio>
+              {buildSourceArr && buildSourceArr.node?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                )
+              })}
             </RadioGroup>
           )}
         </Form.Item>

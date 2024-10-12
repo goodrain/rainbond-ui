@@ -319,7 +319,6 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
-    if(isAccess){
       dispatch({
         type: 'global/getTeamOverview',
         payload: {
@@ -359,7 +358,6 @@ class TeamLayout extends PureComponent {
           }
         }
       });
-    }
   };
 
   load = () => {
@@ -705,7 +703,8 @@ class TeamLayout extends PureComponent {
         teamName,
         regionName,
         appID,
-        currentTeam.tenant_actions
+        currentTeam.tenant_actions,
+        showPipeline
       );
     } else if (mode === 'helm') {
       menuData = getAppMenuData(

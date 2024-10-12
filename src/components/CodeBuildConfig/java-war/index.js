@@ -35,11 +35,11 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs } = this.props;
+    const { envs, buildSourceArr } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        <JavaJDK form={this.props.form} envs={this.props.envs} />
+        <JavaJDK form={this.props.form} envs={this.props.envs} buildSourceArr={buildSourceArr}/>
 
         <Form.Item
           {...formItemLayout}
@@ -48,15 +48,16 @@ class Index extends PureComponent {
 
         >
           {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || "tomcat85"
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || GlobalUtils.getDefaultVsersion(buildSourceArr.java_server || []),
           })(
             <RadioGroup>
-              <Radio value="tomcat85">tomcat85<FormattedMessage id='componentOverview.body.GoConfig.default'/></Radio>
-              <Radio value="tomcat7">tomcat7</Radio>
-              <Radio value="tomcat8">tomcat8</Radio>
-              <Radio value="tomcat9">tomcat9</Radio>
-              <Radio value="jetty7">jetty7</Radio>
-              <Radio value="jetty9">jetty9</Radio>
+              {buildSourceArr && buildSourceArr.java_server?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                );
+              })}
             </RadioGroup>
           )}
         </Form.Item>

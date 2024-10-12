@@ -125,6 +125,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'EnterprisePlugins',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/logs',
             component: './LogManagement',
             name: 'LogManagement',
@@ -281,13 +287,13 @@ export default [
             name: 'Message',
             authority: ['admin', 'user']
           },
-
           {
-            path: '/team/:teamName/region/:regionName/allbackup',
-            component: './Group/AllBackup',
-            name: 'AllBackup',
+            path: '/team/:teamName/region/:regionName/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'teamPlugins',
             authority: ['admin', 'user']
           },
+
 
           {
             path: '/team/:teamName/region/:regionName/team',
@@ -317,6 +323,13 @@ export default [
             title: '云市应用升级'
           },
           {
+            path: '/team/:teamName/region/:regionName/apps/:appID/plugins/:pluginId',
+            component: './RbdPlugins',
+            name: 'appPlugins',
+            authority: ['admin', 'user'],
+            title: '云市应用升级'
+          },
+          {
             path:
               '/team/:teamName/region/:regionName/apps/:appID/upgrade/:upgradeGroupID/record/:recordID',
             component: './Upgrade/UpgradeInfo',
@@ -329,6 +342,14 @@ export default [
             name: 'Configuration',
             authority: ['admin', 'user'],
             title: '应用配置组管理'
+          },
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/backup',
+            component: './Group/Backup',
+            name: 'Backup',
+            menu: 'app.backup',
+            authority: ['admin', 'user'],
+            title: '备份管理'
           },
           {
             path: '/team/:teamName/region/:regionName/apps/:appID/asset',

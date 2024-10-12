@@ -383,7 +383,7 @@ export default {
      * 找到匹配项时，将该权限的详细信息推入results数组中。
      */
     queryPermissionsChildren(data, moduleName, targets, results) {
-        return data.map((item) => {
+        return (data || []).map((item) => {
             const keys = Object.keys(item)[0];
             if (keys === moduleName) {
                 item[keys].perms.map((item2) => {
@@ -445,7 +445,6 @@ export default {
         dispatch({
             type: 'user/fetchCurrent',
             callback: res => {
-                console.log(res.bean, 'res');
                 if (res && res.bean) {
                     const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
                     dispatch({
@@ -460,7 +459,6 @@ export default {
                 }
             },
         });
-        console.log(info);
         if (!onlyRefresh) {
             return info || {};
         }

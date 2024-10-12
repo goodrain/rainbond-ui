@@ -31,7 +31,7 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs } = this.props;
+    const { envs, buildSourceArr } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
@@ -51,30 +51,32 @@ class Index extends PureComponent {
         <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.NetCoreConfig.compile"/>}>
           {getFieldDecorator("BUILD_DOTNET_SDK_VERSION", {
             initialValue:
-              (envs && envs.BUILD_DOTNET_SDK_VERSION) ||
-              "2.2-sdk-alpine"
+            (envs && envs.BUILD_DOTNET_SDK_VERSION) || GlobalUtils.getDefaultVsersion(buildSourceArr.net_sdk || []),
           })(
             <RadioGroup>
-              <Radio value="2.2-sdk-alpine" selected="selected">
-                2.2-sdk-alpine<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="2.1-sdk-alpine">2.1-sdk-alpine</Radio>
+              {buildSourceArr && buildSourceArr.net_sdk?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                )
+              })}
             </RadioGroup>
           )}
         </Form.Item>
         <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.NetCoreConfig.function"/>}>
           {getFieldDecorator("BUILD_DOTNET_RUNTIME_VERSION", {
             initialValue:
-              (envs && envs.BUILD_DOTNET_RUNTIME_VERSION) ||
-              "2.2-aspnetcore-runtime"
+            (envs && envs.BUILD_DOTNET_RUNTIME_VERSION) || GlobalUtils.getDefaultVsersion(buildSourceArr.net_runtime || []),
           })(
             <RadioGroup>
-              <Radio value="2.2-aspnetcore-runtime" selected="selected">
-                2.2-aspnetcore-runtime<FormattedMessage id='componentOverview.body.GoConfig.default'/>
-              </Radio>
-              <Radio value="2.1-aspnetcore-runtime">
-                2.1-aspnetcore-runtime
-              </Radio>
+              {buildSourceArr && buildSourceArr.net_runtime?.map((item, index) => {
+                return (
+                  <Radio key={index} value={item.version}>
+                    {item.version}
+                  </Radio>
+                )
+              })}
             </RadioGroup>
           )}
         </Form.Item>

@@ -119,6 +119,10 @@ import {
   updatePlatformImageHub,
   deletePlatformImageHub,
   checkHubLink,
+  fetchLanguageVersion,
+  editLanguageDefault,
+  uploadLanguageFile,
+  deleteLanguageFile,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -156,6 +160,7 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
+    pluginsList: []
   },
 
   effects: {
@@ -926,9 +931,13 @@ export default {
         callback(response);
       }
     },
-    *getPluginList({ payload, callback, handleError }, { call }) {
+    *getPluginList({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getPluginList, payload, handleError);
       if (callback) {
+        yield put({
+          type: 'savePluginList',
+          payload: response
+        });
         callback(response);
       }
     },
@@ -988,6 +997,30 @@ export default {
     },
     *checkHubLink({ payload, callback, handleError }, { put, call }) {
       const response = yield call(checkHubLink, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchLanguageVersion({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchLanguageVersion, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editLanguageDefault({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(editLanguageDefault, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *uploadLanguageFile({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(uploadLanguageFile, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteLanguageFile({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(deleteLanguageFile, payload, handleError);
       if (callback) {
         callback(response);
       }
@@ -1160,6 +1193,12 @@ export default {
       return {
         ...state,
         teamOverview: payload
+      };
+    },
+    savePluginList(state, { payload }) {
+      return {
+        ...state,
+        pluginsList:  payload && payload.list && payload.list.length > 0 ? payload.list : []
       };
     },
   },

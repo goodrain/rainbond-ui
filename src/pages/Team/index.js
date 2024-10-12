@@ -9,11 +9,12 @@ import ConfirmModal from '../../components/ConfirmModal';
 import TeamDataCenterList from '../../components/Team/TeamDataCenterList';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
-import TeamRoleList from '../../components/Team/TeamRoleList';
 import TeamImageList from '../../components/Team/TeamImageList'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import pluginUtile from '../../utils/pulginUtils'
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import styles from './index.less';
@@ -27,7 +28,8 @@ import MoveTeam from './move_team';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  pluginsList: teamControl.pluginsList
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -44,18 +46,18 @@ export default class Index extends PureComponent {
       memberPermissions: this.handlePermissions('team_member'),
       datecenterPermissions: this.handlePermissions('team_region'),
       rolePermissions: this.handlePermissions('team_role'),
-      registryPermissions: this.handlePermissions('team_registry_auth') 
+      registryPermissions: this.handlePermissions('team_registry_auth')
     };
   }
 
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      eventPermissions:{  isAccess: dynamicAccess},
+      eventPermissions: { isAccess: dynamicAccess },
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
-      registryPermissions:{ isAccess: registryAccess}
+      registryPermissions: { isAccess: registryAccess }
     } = this.state;
     if (
       !dynamicAccess &&
@@ -101,9 +103,9 @@ export default class Index extends PureComponent {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if(res){
+        if (res) {
           this.setState({
-            logoInfo:res.bean.logo
+            logoInfo: res.bean.logo
           })
         }
       },
@@ -116,7 +118,7 @@ export default class Index extends PureComponent {
   }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
-    return  roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, type);
+    return roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, type);
   };
 
   showEditName = () => {
@@ -197,7 +199,8 @@ export default class Index extends PureComponent {
       currUser,
       currentEnterprise,
       currentTeam,
-      currentRegionName
+      currentRegionName,
+      pluginsList
     } = this.props;
     const {
       scope,
@@ -213,37 +216,38 @@ export default class Index extends PureComponent {
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
       rolePermissions: { isAccess: roleAccess },
-      registryPermissions: { isAccess: registryAccess},
+      registryPermissions: { isAccess: registryAccess },
       tabActiveKey,
       logoInfo = false
     } = this.state;
+    const sheowEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList)
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          {logoInfo ? 
-          (
-          <Avatar size="large" src={logoInfo} />
-          ):(
-          <Avatar
-            style=
-            {{
-              backgroundColor: '#00a2ae',
-              verticalAlign: 'middle'
-            }}
-            size={60}
-            shape="square">
-            <span
-              style=
-              {{
-                color: '#fff',
-                fontSize: 35,
-                textTransform: 'uppercase'
-              }}
-            >
-              {currentTeam.team_alias.substr(0, 1)}
-            </span>
-          </Avatar>
-          )}
+          {logoInfo ?
+            (
+              <Avatar size="large" src={logoInfo} />
+            ) : (
+              <Avatar
+                style=
+                {{
+                  backgroundColor: '#00a2ae',
+                  verticalAlign: 'middle'
+                }}
+                size={60}
+                shape="square">
+                <span
+                  style=
+                  {{
+                    color: '#fff',
+                    fontSize: 35,
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {currentTeam.team_alias.substr(0, 1)}
+                </span>
+              </Avatar>
+            )}
 
 
         </div>
@@ -255,7 +259,7 @@ export default class Index extends PureComponent {
             )}
           </div>
           <div>
-            {formatMessage({id: 'teamManage.create.time'})}
+            {formatMessage({ id: 'teamManage.create.time' })}
             {moment(currentTeam.create_time)
               .locale('zh-cn')
               .format('YYYY-MM-DD')}
@@ -269,7 +273,7 @@ export default class Index extends PureComponent {
         <div className={styles.extraBtns}>
           {!isEnterpriseAdmin && (
             <Button onClick={this.showExitTeam} type="dashed">
-              {formatMessage({id: 'teamManage.tabs.exitTeam'})}
+              {formatMessage({ id: 'teamManage.tabs.exitTeam' })}
             </Button>
           )}
           <Button
@@ -277,7 +281,7 @@ export default class Index extends PureComponent {
             onClick={this.showDelTeam}
             type="dashed"
           >
-            {formatMessage({id: 'teamManage.tabs.deleteTeam'})}
+            {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
           </Button>
         </div>
       </div>
@@ -287,31 +291,31 @@ export default class Index extends PureComponent {
     if (dynamicAccess) {
       tabList.push({
         key: 'event',
-        tab: formatMessage({id: 'teamManage.tabs.dynamic'})
+        tab: formatMessage({ id: 'teamManage.tabs.dynamic' })
       });
     }
     if (memberAccess) {
       tabList.push({
         key: 'member',
-        tab: formatMessage({id: 'teamManage.tabs.member'})
+        tab: formatMessage({ id: 'teamManage.tabs.member' })
       });
     }
     if (datecenterAccess) {
       tabList.push({
         key: 'datecenter',
-        tab: formatMessage({id: 'teamManage.tabs.cluster'})
+        tab: formatMessage({ id: 'teamManage.tabs.cluster' })
       });
     }
-    if (roleAccess) {
+    if (roleAccess && sheowEnterprisePlugin) {
       tabList.push({
         key: 'role',
-        tab: formatMessage({id: 'teamManage.tabs.role'})
+        tab: formatMessage({ id: 'teamManage.tabs.role' })
       });
     }
     if (registryAccess) {
       tabList.push({
         key: 'image',
-        tab: formatMessage({id: 'teamManage.tabs.image'})
+        tab: formatMessage({ id: 'teamManage.tabs.image' })
       });
     }
 
@@ -321,7 +325,7 @@ export default class Index extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: formatMessage({id: 'teamManage.tabs.setting'}) });
+    breadcrumbList.push({ title: formatMessage({ id: 'teamManage.tabs.setting' }) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -337,7 +341,9 @@ export default class Index extends PureComponent {
         {scope === 'member' && (
           <TeamMemberList memberPermissions={memberPermissions} />
         )}
-        {scope === 'role' && <TeamRoleList rolePermissions={rolePermissions} />}
+
+        {scope === 'role' && <EnterprisePluginsPage type="Permission" componentData={{ rolePermissions: rolePermissions }} key='Permission' />}
+
         {scope === 'event' && dynamicAccess && (
           <TeamEventList memberPermissions={memberPermissions} />
         )}
@@ -355,18 +361,18 @@ export default class Index extends PureComponent {
         {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelTeam}
-            title={formatMessage({id:'confirmModal.quit.team.title'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.return.team.desc'})}
+            title={formatMessage({ id: 'confirmModal.quit.team.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.return.team.desc' })}
             onCancel={this.hideDelTeam}
           />
         )}
         {showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
-            title={formatMessage({id:'confirmModal.project_team_quit.delete.title'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.project_team_quit.desc'})}
+            title={formatMessage({ id: 'confirmModal.project_team_quit.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.project_team_quit.desc' })}
             onCancel={this.hideExitTeam}
           />
         )}

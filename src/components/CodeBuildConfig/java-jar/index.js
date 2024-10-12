@@ -35,11 +35,11 @@ class Index extends PureComponent {
         }
       }
     };
-    const { envs } = this.props;
+    const { envs, buildSourceArr } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        <JavaJDK form={this.props.form} envs={this.props.envs} />
+        <JavaJDK form={this.props.form} envs={this.props.envs} buildSourceArr={buildSourceArr}/>
         <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.Start"/>}>
           {getFieldDecorator("BUILD_PROCFILE", {
             initialValue: (envs && envs.BUILD_PROCFILE) || "web: java $JAVA_OPTS -jar ./*.jar"
