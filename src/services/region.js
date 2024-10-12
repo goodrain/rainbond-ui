@@ -459,3 +459,22 @@ export async function addReginConfig(data, handleError) {
     handleError
   });
 }
+
+// 获取企业版授权信息
+export async function getEnterpriseLicense(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 更新授权码
+export async function uploadEnterpriseLicense(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
+    method: 'post',
+    data: {
+      authz_code: params.authz_code
+    },
+    handleError
+  });
+}

@@ -8,7 +8,7 @@ const enterpriseOverview = {
     'enterpriseOverview.information.dataScreen': 'Data screening',
     'enterpriseOverview.information.colonyInfo': 'Cluster information',
     'enterpriseOverview.information.appAlert': 'App alarm',
-    'enterpriseOverview.information.name': 'Name: ',
+    'enterpriseOverview.information.name': 'Name',
     'enterpriseOverview.information.serve': 'Enterprise Edition',
     'enterpriseOverview.information.unite': 'ID',
     'enterpriseOverview.information.versions': 'Version',
