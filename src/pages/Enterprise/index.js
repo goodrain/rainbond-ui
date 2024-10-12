@@ -799,15 +799,33 @@ export default class Enterprise extends PureComponent {
       }
     });
   };
-  downloadClusterInfo = (info) => {
+  downloadClusterInfo = () => {
     const { 
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    this.download(`/console/enterprise/${eid}/regions/${info.region_name}/download`) 
+    this.download(`/console/enterprise/${eid}/platform-info`) 
   }
+
+  download = downloadPath => {
+    let aEle = document.querySelector('#down-a-element');
+    if (!aEle) {
+      aEle = document.createElement('a');
+      aEle.setAttribute('download', '');
+      document.body.appendChild(aEle);
+    }
+    aEle.href = downloadPath;
+    if (document.all) {
+      aEle.click();
+    } else {
+      const e = document.createEvent('MouseEvents');
+      e.initEvent('click', true, true);
+      aEle.dispatchEvent(e);
+    }
+  };
+
   renderContent = () => {
     const { rainbondInfo, navigation_status, form } = this.props;
     const {
