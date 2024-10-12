@@ -12,35 +12,40 @@ import React, { PureComponent } from 'react';
 import moment from 'moment';
 import globalUtil from '../../../utils/global';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import Result from '@/components/Result';
 import styles from '../ClusterComponents/index.less'
 
 const { Panel } = Collapse;
 
-@connect(({ global }) => ({
-  enterprise: global.enterprise
-}))
+@connect()
 export default class ShowNodeComponent extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isShowContainer: true,
+      isShowContainer: false,
       nodeList: [],
       podsList: [],
       clusterStateEle: null,
     };
+    // 定时器
+    this.timerClick = null
+    // 判断组件是否已经卸载
+    this.is_mounted = false
   }
   componentDidMount () {
+    this.is_mounted = true
     this.fetchClusterStatus();
-    this.timerClick = setInterval(() => {
-      this.fetchClusterStatus();
-    }, 5000);
   }
   componentWillUnmount () {
+    this.is_mounted = false
     this.timerClick && clearInterval(this.timerClick);
   }
-  // 获取集群组件和node节点
+  /**
+   * 获取集群组件和node节点进行页面展示
+   * 并设置定时器5000毫秒请求一次刷新数据
+   */
   fetchClusterStatus = () => {
-    const { dispatch, cluster_id, enterprise: { enterprise_id }} = this.props
+    const { dispatch, cluster_id, enterprise_id} = this.props
     dispatch({
       type: 'region/fetchClusterStatus',
       payload: {
@@ -48,17 +53,40 @@ export default class ShowNodeComponent extends PureComponent {
         clusterID: cluster_id,
       },
       callback: res => {
-        if (res && res.response_data && res.response_data.code === 200) {
-          this.setState({
-            clusterStateEle: this.handleClusterState(),
-            isShowContainer: false,
-            nodeList: res.response_data.nodes,
-            podsList: res.response_data.pods,
-          })
-        } 
+        if (this.is_mounted) {
+          if (res && res.response_data && res.response_data.code === 200) {
+            this.setState({
+              clusterStateEle: this.handleClusterState(),
+              isShowContainer: true,
+              nodeList: res.response_data.nodes,
+              podsList: res.response_data.pods,
+            })
+          }
+          this.timerClick = setInterval(() => {
+            clearInterval(this.timerClick)
+            this.fetchClusterStatus();
+          }, 5000);
+        } else {
+          clearInterval(this.timerClick)
+        }
+      },
+      handleError: () => {
+        if (this.is_mounted) {
+          this.timerClick = setInterval(() => {
+            clearInterval(this.timerClick)
+            this.fetchClusterStatus();
+          }, 5000);
+        } else {
+          clearInterval(this.timerClick)
+        }
       }
     })
   }
+  /**
+   * 根据传入的集群组件状态来展示不同的颜色
+   * @param {string} str - 集群组件状态
+   * @returns css类名
+   */
   handleStateName = str => {
     const phase = str && str.toLowerCase();
     const stateMap = {
@@ -69,7 +97,22 @@ export default class ShowNodeComponent extends PureComponent {
     };
     return stateMap[phase] || styles.successState;
   };
-  // 集群状态
+  /**
+   * 根据节点状态信息来返回元素的背景色
+   * 
+   * @param {Object} status - 节点状态信息
+   * @returns css类名
+   */
+  handleShowColor = status => {
+    return status.conditions && status.conditions.length > 0 &&
+      status.conditions.some(ele => {
+        return ele.type === 'Ready' && ele.status === 'True'
+      }) ? styles.successState : styles.failedState
+  }
+  /**
+   * 根据props传入的集群状态与集群组件状态对比来判断集群的状态
+   * @returns {ReactDOM} - 集群状态元素
+   */
   handleClusterState = () => {
     const { clusterList, cluster_id } = this.props
     let clusterStateEle
@@ -79,19 +122,34 @@ export default class ShowNodeComponent extends PureComponent {
     })
     switch(clusterState.length > 0 && clusterState[0].state) {
       case 'running':
-        clusterStateEle = <><Icon style={{ margin: '0 5px',color: globalUtil.getPublicColor('rbd-success-status') }} type="check-circle" /><span style={{color: globalUtil.getPublicColor('rbd-success-status')}}>{clusterState[0].state}</span></>
+        clusterStateEle = <>
+          <Icon style={{ margin: '0 5px', color: globalUtil.getPublicColor('rbd-success-status') }} type="check-circle" />
+          <span style={{ color: globalUtil.getPublicColor('rbd-success-status') }}>{formatMessage({ id: 'utils.getAliyunClusterStatus.operation' })}</span>
+        </>
         break;
       case 'offline':
-        clusterStateEle = <><Icon style={{ margin: '0 5px',color: globalUtil.getPublicColor('rbd-down-status') }} type="warning" /><span style={{color: globalUtil.getPublicColor('rbd-down-status') }}>{clusterState[0].state}</span></>
+        clusterStateEle = <>
+          <Icon style={{ margin: '0 5px', color: globalUtil.getPublicColor('rbd-down-status') }} type="warning" />
+          <span style={{ color: globalUtil.getPublicColor('rbd-down-status') }}>{formatMessage({ id: 'utils.getAliyunClusterStatus.Offline' })}</span>
+        </>
         break;
       case 'installing':
-        clusterStateEle = <><Icon style={{ margin: '0 5px',color: globalUtil.getPublicColor('rbd-processing-status') }} type="sync" spin/><span style={{color: globalUtil.getPublicColor('rbd-processing-status')}}>{clusterState[0].state}</span></>
+        clusterStateEle = <>
+          <Icon style={{ margin: '0 5px', color: globalUtil.getPublicColor('rbd-processing-status') }} type="sync" spin />
+          <span style={{ color: globalUtil.getPublicColor('rbd-processing-status') }}>{formatMessage({ id: 'utils.getAliyunClusterStatus.Being_installed' })}</span>
+        </>
         break;
       case 'initial':
-        clusterStateEle = <><Icon style={{ margin: '0 5px',color: globalUtil.getPublicColor('rbd-processing-status') }} type="sync" spin/><span style={{color: globalUtil.getPublicColor('rbd-processing-status')}}>{clusterState[0].state}</span></>
+        clusterStateEle = <>
+          <Icon style={{ margin: '0 5px', color: globalUtil.getPublicColor('rbd-processing-status') }} type="sync" spin />
+          <span style={{ color: globalUtil.getPublicColor('rbd-processing-status') }}>{formatMessage({ id: 'utils.getAliyunClusterStatus.Initializing' })}</span>
+        </>
         break;
       case 'failed':
-        clusterStateEle = <><Icon style={{ margin: '0 5px',color: globalUtil.getPublicColor('rbd-error-status') }} type="close-circle" /><span style={{color: globalUtil.getPublicColor('rbd-error-status')}}>{clusterState[0].state}</span></>
+        clusterStateEle = <>
+          <Icon style={{ margin: '0 5px', color: globalUtil.getPublicColor('rbd-error-status') }} type="close-circle" />
+          <span style={{ color: globalUtil.getPublicColor('rbd-error-status') }}>{formatMessage({ id: 'utils.getAliyunClusterStatus.Installation_failed' })}</span>
+        </>
         break;
       default:
         break;
@@ -118,7 +176,7 @@ export default class ShowNodeComponent extends PureComponent {
 
     return (
       <div className={styles.container_style}>
-        <Spin spinning={isShowContainer}>
+        { isShowContainer ? (
           <Row>
             <Row className={styles.componentState_style}>
               <Col span={8}><FormattedMessage id='enterpriseColony.ShowNodeComponent.node_com' />(<span style={{ color: globalUtil.getPublicColor('rbd-success-status') }}>{nodesReady.length || 0}</span>/{nodeList.length || 0})</Col>
@@ -155,7 +213,7 @@ export default class ShowNodeComponent extends PureComponent {
                           return (
                             <Row className={styles.customTableCon}>
                               <Col span={3}>
-                                <div>
+                                <div style={{width: 100, textAlign: 'center'}} className={this.handleShowColor(status)}>
                                   {
                                     status.conditions && status.conditions.length > 0 &&
                                       status.conditions.some(ele => {
@@ -226,63 +284,59 @@ export default class ShowNodeComponent extends PureComponent {
                         podsList.map(item => {
                           const { metadata, spec, status } = item
                           return (
-                            <Row>
-                              <Row className={styles.customTableMinTit}>{metadata && metadata.namespace}</Row>
-                              <Row className={styles.customTableCon}>
-                                <Col span={3}>
-                                  <div
-                                    className={this.handleStateName(
-                                      status && status.phase
-                                    )}
-                                  >
-                                    {status && status.phase}
-                                  </div>
-                                </Col>
-                                <Col span={7}>
+                            <Row className={styles.customTableCon}>
+                              <Col span={3}>
+                                <div
+                                  className={this.handleStateName(
+                                    status && status.phase
+                                  )}
+                                >
+                                  {status && status.phase}
+                                </div>
+                              </Col>
+                              <Col span={7}>
+                                <span>
+                                  {metadata && metadata.name}
+                                </span>
+                              </Col>
+                              <Col span={14}>
+                                <div>
+                                  {spec &&
+                                    spec.containers &&
+                                    spec.containers.length > 0 &&
+                                    spec.containers[0].image}
+                                </div>
+                                <div>
                                   <span>
-                                    {metadata && metadata.name}
+                                    {status && status.hostIP}
+                                    {slash}
                                   </span>
-                                </Col>
-                                <Col span={14}>
-                                  <div>
-                                    {spec &&
-                                      spec.containers &&
-                                      spec.containers.length > 0 &&
-                                      spec.containers[0].image}
-                                  </div>
-                                  <div>
-                                    <span style={{ color: '#4d73b1' }}>
-                                      {status && status.hostIP}
-                                      {slash}
-                                    </span>
-
-                                    <span style={{ color: '#4d73b1' }}>
-                                      {status && status.podIP}
-                                      {slash}
-                                    </span>
-                                    <span
-                                      style={{ color: 'rgba(0, 0, 0, 0.35)' }}
-                                    >
-                                      <FormattedMessage id='enterpriseColony.ClusterComponents.Time' />
-                                      {metadata &&
-                                        metadata.creationTimestamp &&
-                                        moment(
-                                          metadata.creationTimestamp
-                                        ).format('YYYY-MM-DD HH:mm:ss')}
-                                    </span>
-                                    <span
-                                      style={{ color: 'rgba(0, 0, 0, 0.35)' }}
-                                    >
-                                      &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
-                                      {status &&
-                                        status.containerStatuses &&
-                                        status.containerStatuses.length &&
-                                        status.containerStatuses[0].restartCount
-                                      }
-                                    </span>
-                                  </div>
-                                </Col>
-                              </Row>
+                                  <span>
+                                    {status && status.podIP}
+                                    {slash}
+                                  </span>
+                                  <span
+                                    style={{ color: 'rgba(0, 0, 0, 0.35)' }}
+                                  >
+                                    <FormattedMessage id='enterpriseColony.ClusterComponents.Time' />
+                                    {metadata &&
+                                      metadata.creationTimestamp &&
+                                      moment(
+                                        metadata.creationTimestamp
+                                      ).format('YYYY-MM-DD HH:mm:ss')}
+                                  </span>
+                                  <span
+                                    style={{ color: 'rgba(0, 0, 0, 0.35)' }}
+                                  >
+                                    &nbsp;/&nbsp; <FormattedMessage id='enterpriseColony.ClusterComponents.number' />
+                                    {status &&
+                                      status.containerStatuses &&
+                                      status.containerStatuses.length &&
+                                      status.containerStatuses[0].restartCount
+                                    }
+                                  </span>
+                                </div>
+                              </Col>
                             </Row>
                           );
                         })
@@ -303,7 +357,14 @@ export default class ShowNodeComponent extends PureComponent {
               </Collapse>
             </Col>
           </Row>
-        </Spin>
+        ) : (
+          <Result
+            style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
+            type='ing'
+            title='获取集群安装进度中'
+            description='正在获取集群安装状态信息，请耐心等待1～3分钟'
+          />
+        )}
       </div>
     )
   }

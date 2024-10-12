@@ -124,13 +124,13 @@ export default class RangeChart extends PureComponent {
       const parameter = isState ? serviceAlias : serviceId;
       switch (T) {
         case 'containerMem':
-          return `sum(container_memory_rss{name=~".*${groupName}-${serviceCname}.*"}/1024/1024) by (pod, namespace)`;
+          return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*"}/1024/1024) by (pod, namespace)`;
         case 'containerCpu':
-          return `sum(irate(container_cpu_usage_seconds_total{name=~".*${groupName}-${serviceCname}.*"}[5m])*100)by(pod,namespace)`;
+          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*"}[5m])*100)by(pod,namespace)`;
         case 'containerNetR':
-          return `rate(container_network_receive_bytes_total{name=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
+          return `rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
         case 'containerNetT':
-          return `rate(container_network_transmit_bytes_total{name=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
+          return `rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
 
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;

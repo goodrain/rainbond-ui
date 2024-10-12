@@ -23,7 +23,7 @@ export default class Backup extends Component {
           </p>
         }
       >
-        <EnterprisePluginsPage type='AppBackUp'/>
+        <EnterprisePluginsPage type='AppBackUp' key='AppBackUp'/>
       </PageHeaderLayout >
     )
   }

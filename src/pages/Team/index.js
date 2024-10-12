@@ -342,7 +342,7 @@ export default class Index extends PureComponent {
           <TeamMemberList memberPermissions={memberPermissions} />
         )}
 
-        {scope === 'role' && <EnterprisePluginsPage type="Permission" componentData={{ rolePermissions: rolePermissions }} />}
+        {scope === 'role' && <EnterprisePluginsPage type="Permission" componentData={{ rolePermissions: rolePermissions }} key='Permission' />}
 
         {scope === 'event' && dynamicAccess && (
           <TeamEventList memberPermissions={memberPermissions} />

@@ -49,6 +49,7 @@
         align-items: center;
         justify-content: center; 
         font-weight: 600;
+				color: @rbd-sub-title-color;
       }
       .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
         background: transparent;
@@ -67,7 +68,7 @@
   color: #fff;
   flex: 1;
   height: 74vh;
-  min-width: 420px;
+  max-width: 420px;
   overflow: hidden;
   padding: 16px 0;
   position: relative;
@@ -238,7 +239,7 @@
 
 .basics{
   padding: 6px 24px;
-  height: 74vh;
+  height: calc(74vh - 56px);
   overflow: auto;
 
   :global{

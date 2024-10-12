@@ -15,7 +15,11 @@ const pluginSystem = {
             {
                 name: 'limit-count',
                 message: formatMessage({id:'gatewayplugin.list.limit-count'}),
-            }
+            },
+            {
+                name: 'proxy-rewrite',
+                message: formatMessage({id:'gatewayplugin.list.proxy-rewrite'}),
+            },
         ]
     },
     getFromOptins(type, value) {
@@ -311,6 +315,101 @@ const pluginSystem = {
                             value: value.show_limit_quota_header || undefined,
                             rules: [],
                         }
+                    ]
+                }
+            ),
+            "proxy-rewrite": (
+                {
+                    name: 'proxy-rewrite',
+                    config: [
+                        {
+                            name: 'uri',
+                            type: 'string',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.uri'}),
+                            placeholder: formatMessage({id:'gatewayplugin.proxy-rewrite.uri_input'}),
+                            FromType: 'input',
+                            value: value.uri || undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'method',
+                            type: 'string',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.method'}),
+                            placeholder: formatMessage({id:'gatewayplugin.proxy-rewrite.method_select'}),
+                            FromType: 'select',
+                            value: value.method || undefined,
+                            defaultValue: undefined,
+                            selectArr: ["GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS","MKCOL", "COPY", "MOVE", "PROPFIND","LOCK", "UNLOCK", "PATCH", "TRACE"],
+                            rules: []
+                        },
+                        {
+                            name: 'regex_uri',
+                            type: 'array',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.regex_uri'}),
+                            placeholder: formatMessage({id:'gatewayplugin.proxy-rewrite.regex_uri_input'}),
+                            FromType: 'input_arr',
+                            value: value.regex_uri || undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'host',
+                            type: 'string',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.host'}),
+                            placeholder: formatMessage({id:'gatewayplugin.proxy-rewrite.host_input'}),
+                            FromType: 'input',
+                            value: value.host || undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'headers.add',
+                            type: 'object',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.headers.add'}),
+                            placeholder: '',
+                            FromType: 'input_arr',
+                            value: undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'headers.set',
+                            type: 'object',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.headers.set'}),
+                            placeholder: '',
+                            FromType: 'input_arr',
+                            value: undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'headers.remove',
+                            type: 'array',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.headers.remove'}),
+                            placeholder: formatMessage({id:'gatewayplugin.proxy-rewrite.headers.remove_input'}),
+                            FromType: 'input_arr',
+                            value: undefined,
+                            defaultValue: undefined,
+                            rules: []
+                        },
+                        {
+                            name: 'use_real_request_uri_unsafe',
+                            type: 'boolean',
+                            effective: '',
+                            describe: formatMessage({id:'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe'}),
+                            FromType: 'switch',
+                            value: value.use_real_request_uri_unsafe || undefined,
+                            defaultValue: false,
+                            rules: []
+                        },
                     ]
                 }
             )

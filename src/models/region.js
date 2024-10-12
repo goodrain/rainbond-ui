@@ -28,12 +28,24 @@ import {
   updataClusterNodeTaint,
   fetDashboardList,
   fetClusterNodeContainer,
+  fetchClusterNodeList,
   addClusterNode,
   deleteClusterNode,
   fetchClusterStatus,
   fetchHelmEvents,
   createHelmEvents,
   deleteHelmEvents,
+  fetchClusterInfoList,
+  fetchClusterInfo,
+  fetchClusterNodeInfo,
+  installCluster,
+  installClusterPodinfo,
+  installClusterAllPodinfo,
+  unInstallCluster,
+  getReginConfig,
+  addReginConfig,
+  getEnterpriseLicense,
+  uploadEnterpriseLicense
 } from '../services/region';
 
 export default {
@@ -245,6 +257,12 @@ export default {
         callback(response);
       }
     },
+    *fetchClusterNodeList({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterNodeList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *addClusterNode({ payload, callback, handleError }, { call }) {
       const response = yield call(addClusterNode, payload, handleError);
       if (response && callback) {
@@ -277,6 +295,72 @@ export default {
     },
     *deleteHelmEvents({ payload, callback, handleError }, { call }) {
       const response = yield call(deleteHelmEvents, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterInfoList({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterInfoList, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterNodeInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchClusterNodeInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installCluster({ payload, callback, handleError }, { call }) {
+      const response = yield call(installCluster, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installClusterPodinfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(installClusterPodinfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *installClusterAllPodinfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(installClusterAllPodinfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *unInstallCluster({ payload, callback, handleError }, { call }) {
+      const response = yield call(unInstallCluster, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getReginConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(getReginConfig, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addReginConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(addReginConfig, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getEnterpriseLicense({ payload, callback, handleError }, { call }) {
+      const response = yield call(getEnterpriseLicense, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *uploadEnterpriseLicense({ payload, callback, handleError }, { call }) {
+      const response = yield call(uploadEnterpriseLicense, payload, handleError);
       if (response && callback) {
         callback(response);
       }

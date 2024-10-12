@@ -146,6 +146,7 @@ const utils ={
 'utils.getAliyunClusterStatus.operation_Docked':'Running (docked)',
 'utils.getAliyunClusterStatus.operation_Initialized':'Running (initialized)',
 'utils.getAliyunClusterStatus.operation':'Running',
+'utils.getAliyunClusterStatus.operation_error': 'Connection Failure',
 'utils.getAliyunClusterStatus.Initializing':'Initializing',
 'utils.getAliyunClusterStatus.Deleting':'Deleting',
 'utils.getAliyunClusterStatus.Offline':'Offline',

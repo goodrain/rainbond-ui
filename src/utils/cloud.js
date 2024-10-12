@@ -683,8 +683,8 @@ const cloud = {
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
-        item.status === 'failure' ||
-        (item.type === 'InitRainbondRegion' && item.status === 'success')
+        // item.status === 'failure' ||
+        (item.type === 'InitRainbondCluster' && item.status === 'success')
       ) {
         complete = true;
       }
@@ -739,8 +739,8 @@ const cloud = {
         if (cluster.parameters && cluster.parameters.Message) {
           return (
             <Tooltip title={cluster.parameters.Message}>
-              <span style={{ color: 'green' }}>
-                <span style={{ color: 'red', fontSize: '16px' }}>*</span>{formatMessage({id:'utils.getAliyunClusterStatus.operation'})}
+              <span style={{ color: 'red' }}>
+                <span style={{fontSize: '16px' }}>*</span>{formatMessage({id:'utils.getAliyunClusterStatus.operation_error'})}
               </span>
             </Tooltip>
           );
@@ -755,6 +755,8 @@ const cloud = {
         return <span style={{ color: 'red' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Offline'})}</span>;
       case 'failed':
         return <span style={{ color: 'red' }}>{formatMessage({id:'utils.getAliyunClusterStatus.Installation_failed'})}</span>;
+      case 'installing':
+        return <span style={{ color: '#F69D4A'}}>{formatMessage({id:'utils.getAliyunClusterStatus.Being_installed'})}</span>
       default:
         return status;
     }

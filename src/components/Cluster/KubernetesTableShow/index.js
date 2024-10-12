@@ -18,18 +18,13 @@ import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import CodeMirror from 'react-codemirror';
 import { Link } from 'umi';
 import {
-  getKubeConfig,
-  getUpdateKubernetesTask,
   uninstallRegion
 } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
-import styles from '../ACKBuyConfig/index.less';
 import ClusterCreationLog from '../ClusterCreationLog';
-import RKEClusterUpdate from '../RKEClusterAdd';
-import ShowUpdateClusterDetail from '../ShowUpdateClusterDetail';
+import ShowKubernetesCreateDetail from '../ShowKubernetesCreateDetail'
 import styless from '../RKEClusterAdd/index.less';
 import istyles from './index.less';
 
@@ -42,7 +37,7 @@ export default class KubernetesClusterShow extends PureComponent {
     this.state = {
       selectClusterName: '',
       clusterID: '',
-      showCreateLog: false,
+      showCreateProgress: false,
       isInstallRemind: false,
       installLoading: false,
       isComponents: false,
@@ -50,7 +45,6 @@ export default class KubernetesClusterShow extends PureComponent {
     };
   }
   componentDidMount() {
-    this.autoPage();
     this.handleLoadInitNodeCmd();
   }
 
@@ -65,12 +59,6 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   };
-  autoPage = () => {
-    const { updateKubernetes, updateKubernetesClusterID } = this.props;
-    if (updateKubernetes && updateKubernetesClusterID) {
-      this.updateCluster(updateKubernetesClusterID);
-    }
-  };
   deleteCluster(clusterID) {
     const { dispatch, eid, selectProvider, loadKubernetesCluster } = this.props;
     dispatch({
@@ -79,7 +67,8 @@ export default class KubernetesClusterShow extends PureComponent {
         enterprise_id: eid,
         clusterID
       },
-      callback: () => {
+      callback: (res) => {
+        notification.success({message: res.response_data.msg})
         if (loadKubernetesCluster) {
           loadKubernetesCluster();
         }
@@ -89,8 +78,8 @@ export default class KubernetesClusterShow extends PureComponent {
       }
     });
   }
-  queryCreateLog = row => {
-    this.setState({ showCreateLog: true, clusterID: row.cluster_id });
+  handleCreateProgress = row => {
+    this.setState({ showCreateProgress: true, clusterID: row.cluster_id });
   };
 
   reInstallCluster = clusterID => {
@@ -99,7 +88,6 @@ export default class KubernetesClusterShow extends PureComponent {
       eid,
       selectProvider,
       loadKubernetesCluster,
-      loadLastTask
     } = this.props;
     if (selectProvider !== 'rke') {
       message.warning('该提供商不支持集群重装');
@@ -119,9 +107,6 @@ export default class KubernetesClusterShow extends PureComponent {
           if (loadKubernetesCluster) {
             loadKubernetesCluster();
           }
-          if (loadLastTask) {
-            loadLastTask();
-          }
         }
       },
       handleError: res => {
@@ -129,37 +114,6 @@ export default class KubernetesClusterShow extends PureComponent {
         cloud.handleCloudAPIError(res);
       }
     });
-  };
-  updateCluster = clusterID => {
-    const { eid, selectProvider } = this.props;
-    getUpdateKubernetesTask(
-      {
-        clusterID,
-        providerName: selectProvider,
-        enterprise_id: eid
-      },
-      err => {
-        cloud.handleCloudAPIError(err);
-      }
-    )
-      .then(re => {
-        if (re.task && re.task.status !== 'complete') {
-          this.setState({
-            showUpdateKubernetesTasks: true,
-            updateTask: re.task
-          });
-          return;
-        }
-        this.setState({
-          showUpdateKubernetes: true,
-          nodeList: re.nodeList,
-          rkeConfig: re.rkeConfig,
-          updateClusterID: clusterID
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
   };
   uninstallCluster = clusterID => {
     const { eid, selectProvider } = this.props;
@@ -206,33 +160,6 @@ export default class KubernetesClusterShow extends PureComponent {
     );
   };
 
-  cancelShowUpdateKubernetes = () => {
-    const { loadKubernetesCluster } = this.props;
-    this.setState({
-      showUpdateKubernetesTasks: false,
-      updateTask: null
-    });
-    if (loadKubernetesCluster) {
-      loadKubernetesCluster();
-    }
-  };
-  getKubeConfig = clusterID => {
-    const { eid, selectProvider } = this.props;
-    getKubeConfig({
-      clusterID,
-      enterprise_id: eid,
-      providerName: selectProvider
-    }).then(res => {
-      if (res.status_code === 200) {
-        this.setState({ kubeConfig: res.config });
-      }
-    });
-  };
-  // handleIsComponents = isComponents => {
-  //   this.setState({
-  //     isComponents
-  //   });
-  // };
   render() {
     const { selectProvider, linkedClusters, eid, selectCluster } = this.props;
     const { selectClusterName, initCmd } = this.state;
@@ -343,11 +270,6 @@ export default class KubernetesClusterShow extends PureComponent {
       render: (_, row) => {
         return (
           <div>
-            {row.state === 'running' && (
-              <a onClick={() => this.getKubeConfig(row.cluster_id || row.name)}>
-                KubeConfig
-              </a>
-            )}
             {row.state === 'failed' && selectProvider === 'rke' && (
               <a
                 onClick={() => {
@@ -365,64 +287,15 @@ export default class KubernetesClusterShow extends PureComponent {
                   <FormattedMessage id='enterpriseColony.addCluster.host.Docking'/>
                 </Link>
               )}
-            {selectProvider !== 'rke' &&
-              row.create_log_path &&
-              row.create_log_path.startsWith('http') && (
-                <Button
-                  type="link"
-                  style={{ padding: 0 }}
-                  onClick={() => {
-                    window.open(row.create_log_path, '_blank');
-                  }}
-                >
-                  <FormattedMessage id='enterpriseColony.addCluster.host.view_log'/>
-                </Button>
-              )}
-            {selectProvider === 'rke' && (
-              <Button
-                type="link"
-                style={{ padding: 0 }}
-                onClick={() => {
-                  this.queryCreateLog(row);
-                }}
-              >
-                <FormattedMessage id='enterpriseColony.addCluster.host.view_log'/>
-              </Button>
-            )}
-            {!row.rainbond_init &&
-              (selectProvider === 'rke' || selectProvider === 'custom') && (
-                <Popconfirm
-                  placement="top"
-                  title={<FormattedMessage id='enterpriseColony.addCluster.host.current_cluster'/>}
-                  onConfirm={() => {
-                    this.deleteCluster(row.cluster_id || row.name);
-                  }}
-                  okText={<FormattedMessage id='button.confirm'/>}
-                  cancelText={<FormattedMessage id='button.cancel'/>}
-                >
-                  <a><FormattedMessage id='button.delete'/></a>
-                </Popconfirm>
-              )}
-
-            {selectProvider === 'rke' && (
-              <a onClick={() => this.updateCluster(row.cluster_id || row.name)}>
-                <FormattedMessage id='enterpriseColony.addCluster.host.Cluster_configuration'/>
-              </a>
-            )}
-
-            {row.rainbond_init === true && (
-              <Popconfirm
-                placement="top"
-                title={<FormattedMessage id='enterpriseColony.addCluster.host.After_uninstallation'/>}
-                onConfirm={() => {
-                  this.uninstallCluster(row.cluster_id || row.name);
-                }}
-                okText={<FormattedMessage id='button.confirm'/>}
-                cancelText={<FormattedMessage id='button.cancel'/>}
-              >
-                <a><FormattedMessage id='button.uninstall'/></a>
-              </Popconfirm>
-            )}
+            <Button
+              type="link"
+              style={{ padding: 0 }}
+              onClick={() => {
+                this.handleCreateProgress(row);
+              }}
+            >
+              <FormattedMessage id='enterpriseColony.addCluster.host.view_log' />
+            </Button>
           </div>
         );
       }
@@ -434,18 +307,14 @@ export default class KubernetesClusterShow extends PureComponent {
       loadKubernetesCluster,
       loading,
       lastTask,
-      showLastTaskDetail
     } = this.props;
     const {
       clusterID,
-      kubeConfig,
-      showUpdateKubernetes,
       nodeList,
       rkeConfig,
       updateClusterID,
-      showUpdateKubernetesTasks,
       updateTask,
-      showCreateLog,
+      showCreateProgress,
       installLoading,
       isComponents,
       isInstallRemind
@@ -456,7 +325,7 @@ export default class KubernetesClusterShow extends PureComponent {
         <Row style={{ marginBottom: '20px' }}>
           {selectProvider === 'ack' && (
             <Col span={24} style={{ padding: '16px' }}>
-              <Paragraph className={styles.describe}>
+              <Paragraph className={istyles.describe}>
                 <ul>
                   <li>
                     <span><FormattedMessage id='enterpriseColony.addCluster.host.managed'/></span>
@@ -503,17 +372,6 @@ export default class KubernetesClusterShow extends PureComponent {
                 <FormattedMessage id='enterpriseColony.addCluster.host.cluster_complies'/>
               </span>
             )}
-            {!selectClusterName &&
-              lastTask &&
-              lastTask.name &&
-              showLastTaskDetail && (
-                <span>
-                   <FormattedMessage id='enterpriseColony.addCluster.host.Last_created'/>{lastTask.name},
-                  <Button onClick={showLastTaskDetail} type="link">
-                    <FormattedMessage id='enterpriseColony.addCluster.host.creation_progress'/>
-                  </Button>
-                </span>
-              )}
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
             <Button type="primary" onClick={showBuyClusterConfig}>
@@ -562,76 +420,15 @@ export default class KubernetesClusterShow extends PureComponent {
             </Row>
           </Modal>
         )}
-        {showCreateLog && (
-          <ClusterCreationLog
+        {showCreateProgress && (
+          <ShowKubernetesCreateDetail
+            onCancel={() => {
+              this.setState({ clusterID: '', showCreateProgress: false });
+            }}
             eid={eid}
+            clusterList={data}
+            isShowNodeComponent='showNode'
             clusterID={clusterID}
-            selectProvider={selectProvider}
-            onCancel={() => {
-              this.setState({ clusterID: '', showCreateLog: false });
-            }}
-          />
-        )}
-        {kubeConfig && (
-          <Modal
-            visible
-            width={1000}
-            maskClosable={false}
-            onCancel={() => {
-              this.setState({ kubeConfig: '' });
-            }}
-            title="KubeConfig"
-            bodyStyle={{ background: '#000' }}
-            onOk={() => {
-              copy(kubeConfig);
-              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
-            }}
-            okText={<FormattedMessage id='button.copy'/>}
-          >
-            <div className={istyles.cmd}>
-              <CodeMirror
-                value={kubeConfig}
-                options={{
-                  mode: { name: 'javascript', json: true },
-                  lineNumbers: true,
-                  theme: 'seti',
-                  lineWrapping: true,
-                  smartIndent: true,
-                  matchBrackets: true,
-                  scrollbarStyle: null,
-                  showCursorWhenSelecting: true,
-                  height: 500
-                }}
-              />
-            </div>
-          </Modal>
-        )}
-        {showUpdateKubernetes && (
-          <RKEClusterUpdate
-            eid={eid}
-            onOK={task => {
-              this.setState({
-                clusterID: task.clusterID,
-                showUpdateKubernetes: false,
-                updateTask: task,
-                showUpdateKubernetesTasks: true
-              });
-            }}
-            onCancel={() => {
-              this.setState({ showUpdateKubernetes: false });
-            }}
-            clusterID={updateClusterID}
-            nodeList={nodeList}
-            rkeConfig={rkeConfig}
-          />
-        )}
-        {showUpdateKubernetesTasks && (
-          <ShowUpdateClusterDetail
-            eid={eid}
-            clusterID={clusterID}
-            task={updateTask}
-            selectProvider={selectProvider}
-            onCancel={this.cancelShowUpdateKubernetes}
           />
         )}
       </div>

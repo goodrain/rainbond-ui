@@ -51,13 +51,8 @@ export default class Register extends Component {
     }
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     return (
-      <div className={styles.main} style={{ padding: '24px'}}>
-        <div className={styles.logo}>
-        <h2>Rainbond-{formatMessage({id:'login.system'})}</h2> 
-        </div>
-        <div style={{ marginTop: '10%' }}>
+      <div className={styles.main}>
         <RegisterComponent onSubmit={this.handleSubmit} type="register" />
-        </div>
       </div>
     );
   }

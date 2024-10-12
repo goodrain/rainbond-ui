@@ -16,23 +16,18 @@ import {
   AutoComplete,
   Radio,
   Switch,
-  Tooltip
+  Tooltip,
+  Card
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import {
-  getRainbondClusterConfig,
-  setRainbondClusterConfig,
-  getUpdateKubernetesTask,
-} from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
-import CodeMirrorForm from '../../CodeMirrorForm';
-import ClusterComponents from '../ClusterComponents';
 import yaml from 'js-yaml'
 import SelectNode from '../../SelectNode';
-import Etcd from '../../../pages/AddCluster/component/etcd';
+import Result from '../../../components/Result';
+import ConfirmModal from '../../../components/ConfirmModal';
 import styles from './index.less';
 
 
@@ -47,27 +42,81 @@ const { Paragraph } = Typography;
 export default class RainbondClusterInit extends PureComponent {
   constructor(props) {
     super(props);
+    this.timer = null;
     this.state = {
       checked: false,
       loading: false,
-      showInitDetail: false,
       task: null,
       isComponents: false,
       guideStep: 10,
       ipArray: [],
       isStorage: 'default',
-      isEtcd: 'default',
       isImage: 'default',
       isDatabase: 'default',
       isMirror: 'default',
-      isEctype: 'default'
+      isEctype: 'default',
+      installLoading: false,
+      showhandleSubmitModal: false
     };
   }
   componentDidMount() {
     this.handelClusterInfo();
-    this.loadTask();
-  }
+    const {type} = this.props
+    if(type == 'installing'){
+      this.setState({
+        installLoading: true
+      })
+      this.toClusterList()
+    }
 
+  }
+  componentWillUnmount() {
+    this.closeTimer()
+  }
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+  toClusterList = () => {
+    const {
+      dispatch,
+      completeInit
+    } = this.props;
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      callback: res => {
+        if (res && res.status_code === 200) {
+          const status = res.bean.create_status;
+          if(status == 'installing'){
+            this.setState({
+              installLoading: true
+            },()=>{
+              this.handleTimers(
+                'timer',
+                () => {
+                  this.toClusterList();
+                },
+                2000
+              );
+            })
+          }else{
+            if (this.timer) {
+              clearInterval(this.timer);
+            }
+            completeInit && completeInit()
+          }
+         
+      }
+      }
+    });
+
+  };
   handelClusterInfo = () => {
     const {
       dispatch,
@@ -78,205 +127,83 @@ export default class RainbondClusterInit extends PureComponent {
       enterprise,
       nextStep
     } = this.props;
-    getUpdateKubernetesTask(
-      {
-        clusterID,
-        providerName: selectProvider,
-        enterprise_id: eid
-      },
-      err => {
-        cloud.handleCloudAPIError(err);
-      }
-    )
-      .then(res => {
-        this.setState({
-          ipArray: res.nodeList
-        })
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
-  initRainbondCluster = () => {
-    const {
-      dispatch,
-      clusterID,
-      selectProvider,
-      eid,
-      rainbondInfo,
-      enterprise,
-      nextStep
-    } = this.props;
-    const { task } = this.state;
-    this.setState({ loading: true });
     dispatch({
-      type: 'cloud/initRainbondRegion',
-      payload: {
-        enterprise_id: eid,
-        providerName: selectProvider,
-        clusterID,
-        retry: task && task.status === 'complete'
-      },
-      callback: data => {
-        if (data) {
-          globalUtil.putInstallClusterLog(enterprise, rainbondInfo, {
-            eid,
-            taskID: data.taskID,
-            status: 'start',
-            install_step: 'createRainbond',
-            provider: selectProvider
-          });
-          this.setState({
-            loading: false,
-            task: data,
-            showInitDetail: true
-          });
-          nextStep()
-        }
-      },
-      handleError: res => {
-        if (res && res.data && res.data.code === 7005) {
-          this.setState({
-            loading: false,
-            showInitDetail: true,
-            task: res.data.data
-          });
-          return;
-        }
-        cloud.handleCloudAPIError(res);
-      }
-    });
-
-  };
-
-  loadTask = noopen => {
-    const {
-      dispatch,
-      eid,
-      clusterID,
-      selectProvider,
-      completeInit,
-      nextStep
-    } = this.props;
-    dispatch({
-      type: 'cloud/loadInitRainbondTask',
-      payload: {
-        enterprise_id: eid,
-        clusterID,
-        providerName: selectProvider
-      },
+      type: 'region/fetchClusterNodeInfo',
       callback: res => {
-        if (
-          res &&
-          res.status_code === 200 &&
-          res.response_data &&
-          res.response_data.data
-        ) {
-          const { data } = res.response_data;
-          this.setState({ task: data });
-          nextStep()
-          if (data.status === 'inited') {
-            if (completeInit) {
-              completeInit(data);
-            }
-          } else if (data.status === 'complete') {
-            // init failure
-          } else if (!noopen) {
-            this.setState({ showInitDetail: true });
-          }
+        if (res && res.status_code === 200) {
+          const arr = res.response_data.data.list.map(item => {
+            return { node_name: item, host: item }
+          })
+          this.setState({
+            ipArray: arr
+          })
         }
-      },
-      handleError: res => {
-        if (res && res.data && res.data.code === 404) {
-          return;
-        }
-        cloud.handleCloudAPIError(res);
-        this.setState({ loading: false });
       }
-    });
-  };
-
-  cancelShowInitDetail = () => {
-    this.setState({ showInitDetail: false });
-    this.loadTask(true);
-  };
-
-  setChecked = val => {
-    this.setState({ checked: val.target.checked });
-  };
-  showSetRainbondCluster = () => {
-    const { eid, clusterID } = this.props;
-    getRainbondClusterConfig({ enterprise_id: eid, clusterID }, res => {
-      if (res && res.data && res.data.code === 404) {
-        return;
-      }
-      cloud.handleCloudAPIError(res);
-    }).then(re => {
-      this.setState({ showClusterInitConfig: true, initconfig: re.config });
-    });
+    })
   };
   handleSubmit = () => {
-    const { form, eid, clusterID } = this.props;
+    const { form, eid, clusterID, nextStep, dispatch, completeInit } = this.props;
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
-        apiVersion: 'rainbond.io/v1alpha1',
-        kind: 'RainbondCluster',
-        metadata: {
-          name: 'rainbondcluster',
-          namespace: 'rbd-system'
+        useK3sContainerd: true,
+        operator: {
+          env: [
+            {
+              name: 'CONTAINER_RUNTIME',
+              value: 'containerd'
+            }
+          ],
+          image: {
+            name: 'registry.cn-hangzhou.aliyuncs.com/goodrain/rainbond-operator',
+            tag: 'v6.0.0-release'
+          }
         },
-        spec: {}
+        Cluster: {
+          installVersion: 'v6.0.0-release',
+          rainbondImageRepository: 'registry.cn-hangzhou.aliyuncs.com/goodrain'
+        }
       };
       if (!err) {
+        this.setState({
+          installLoading: true,
+          showhandleSubmitModal: false
+        })
         if (values.gatewayIngressIPs) {
-          dataObj.spec.gatewayIngressIPs = [values.gatewayIngressIPs]
+          dataObj.Cluster.gatewayIngressIPs = values.gatewayIngressIPs
         }
 
         if (values.nodesForGateway) {
           const gatewayArr = [];
           for (let i = 0; i < values.nodesForGateway.length; i++) {
             for (let j = 0; j < ipArray.length; j++) {
-              if (values.nodesForGateway[i].name === ipArray[j].ip) {
+              if (values.nodesForGateway[i].name === ipArray[j].node_name) {
                 // 合并两个对象
                 let mergedObject = {
                   name: values.nodesForGateway[i].name,
-                  internalIP: ipArray[j].internalIP,
-                  externalIP: ipArray[j].ip
+                  externalIP: ipArray[j].host,
+                  internalIP: ipArray[j].host,
                 };
                 gatewayArr.push(mergedObject);
               }
             }
           }
-          dataObj.spec.nodesForGateway = gatewayArr
+          dataObj.Cluster.nodesForGateway = gatewayArr
         }
         if (values.nodesForChaos) {
           const forChaos = [];
           for (let i = 0; i < values.nodesForChaos.length; i++) {
-            for (let j = 0; j < ipArray.length; j++) {
-              if (values.nodesForChaos[i].name === ipArray[j].ip) {
-                // 合并两个对象
-                let nodesChaos = {
-                  name: values.nodesForChaos[i].name,
-                  internalIP: ipArray[j].internalIP,
-                  externalIP: ipArray[j].ip
-                };
-                forChaos.push(nodesChaos);
-              }
-            }
+            let nodesChaos = {
+              name: values.nodesForChaos[i].name,
+            };
+            forChaos.push(nodesChaos);
           }
-          dataObj.spec.nodesForChaos = forChaos
-        }
-        if (values.isEtcd == 'custom') {
-          dataObj.spec.etcdConfig = {
-            endpoints: values.endpoints.map(item => item.ip),
-            secretName: values.secretName
-          }
+          dataObj.Cluster.nodesForChaos = forChaos
         }
 
         if (values.image == 'custom') {
-          dataObj.spec.imageHub = {
+          dataObj.Cluster.imageHub = {
+            enable: true,
             domain: values.domain,
             namespace: values.namespace,
             username: values.username,
@@ -284,12 +211,16 @@ export default class RainbondClusterInit extends PureComponent {
           }
         }
         if (values.isStorage == 'custom') {
-          dataObj.spec.rainbondVolumeSpecRWX = {
-            storageClassName: values.storageClassName1
+          dataObj.Cluster.RWX = {
+            enable: true,
+            config: {
+              storageClassName: values.storageClassName1
+            }
           }
         }
         if (values.database == 'custom') {
-          dataObj.spec.regionDatabase = {
+          dataObj.Cluster.regionDatabase = {
+            enable: true,
             host: values.regionDatabase_host,
             port: Number(values.regionDatabase_port),
             username: values.regionDatabase_username,
@@ -298,27 +229,35 @@ export default class RainbondClusterInit extends PureComponent {
           }
         }
         if (values.mirror == 'custom') {
-          dataObj.spec.rainbondImageRepository = values.mirror_address
+          dataObj.Cluster.rainbondImageRepository = values.mirror_address
         }
+        dataObj.Cluster.enableEnvCheck = false
         const yamls = yaml.dump(dataObj)
-        setRainbondClusterConfig({
-          enterprise_id: eid,
-          clusterID,
-          config: yamls
-        }).then(res => {
-          if (res && res.status_code === 200) {
-            this.initRainbondCluster()
+        dispatch({
+          type: 'region/installCluster',
+          payload: {
+            value_yaml: yamls
+          },
+          callback: res => {
+            if (res && res.status_code === 200) {
+              notification.success({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeSuccess'}) })
+              completeInit && completeInit()
+            } else {
+              this.setState({
+                installLoading: false
+              })
+              notification.error({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeLose'}) })
+            }
+          },
+          handleError: err => {
+            this.setState({
+              installLoading: false
+            })
+            notification.error({ message: formatMessage({id:'enterpriseColony.newHostInstall.node.initializeLose'}) })
           }
-        });
+        })
       }
     });
-  };
-  handleIsComponents = isComponents => {
-    // this.setState({
-    //   isComponents
-    // });
-    const { dispatch, nextStep } = this.props;
-    nextStep()
   };
   handleNewbieGuiding = info => {
     const { prevStep, nextStep, handleClick = () => { } } = info;
@@ -372,9 +311,6 @@ export default class RainbondClusterInit extends PureComponent {
   hanldeStorageChange = (e) => {
     this.setState({ isStorage: e.target.value });
   }
-  hanldeEtcdChange = (e) => {
-    this.setState({ isEtcd: e.target.value });
-  }
   hanldeImageChange = (e) => {
     this.setState({ isImage: e.target.value });
   }
@@ -387,24 +323,27 @@ export default class RainbondClusterInit extends PureComponent {
   hanldeEctypeChange = (e) => {
     this.setState({ isEctype: e.target.value });
   }
+  onCancelSubmit = () => {
+    this.setState({
+      showhandleSubmitModal: false
+    })
+  }
   render() {
     const { preStep, eid, selectProvider, form, clusterID } = this.props;
     const {
-      showInitDetail,
-      loading,
       task,
-      showClusterInitConfig,
       initconfig,
       isComponents,
       guideStep,
       checked,
       ipArray,
       isStorage,
-      isEtcd,
       isImage,
       isDatabase,
       isMirror,
-      isEctype
+      isEctype,
+      installLoading,
+      showhandleSubmitModal
     } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -437,136 +376,26 @@ export default class RainbondClusterInit extends PureComponent {
         : {};
     return (
       <div>
-        {!task && <Form>
-          <Col span={24}>
-            <Form onSubmit={this.handleSubmit}>
-              {/* 基础配置说明 */}
-              <Collapse className={styles.basics} expandIconPosition='right' defaultActiveKey={['basics']}>
-                <Panel
-                  header={
-                    <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.basics' })}</span>
-                    </span>}
-                  key="basics"
-                >
-                  <Row className={styles.row}>
-                    <div className={styles.title_name}>
-                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.gatewayIngressIPs' })}
-                      <Tooltip
-                        placement="right"
-                        title={<div>
-                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.gatewayIngressIPs' })}
-                        </div>}
-                      >
-                        <div>
-                          {globalUtil.fetchSvg('tip')}
-                        </div>
-                      </Tooltip>
-                    </div>
-                    <Form.Item
-                      {...is_formItemLayout}
-                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.gatewayIngressIPs' })}
-                    >
-                      {getFieldDecorator('gatewayIngressIPs', {
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
-                          },
-                          {
-                            pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
-                            message: formatMessage({ id: 'enterpriseColony.ACksterList.input_correct_ip' })
-                          },
-                          {
-                            pattern: /^[^\s]*$/,
-                            message: formatMessage({ id: 'placeholder.no_spaces' })
-                          }
-                        ]
-                      })(
-                        <AutoComplete>
-                          {(ipArray && ipArray.length > 0)
-                            ? ipArray.map((item) => {
-                              const res = (
-                                <AutoComplete.Option value={item.ip}>
-                                  {item.ip}
-                                </AutoComplete.Option>
-                              );
-                              return res;
-                            })
-                            : null}
-                        </AutoComplete>)}
-                    </Form.Item>
-                  </Row>
-                  <Row className={styles.row}>
-                    <div className={styles.title_name}>
-                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForGateway' })}
-                      <Tooltip
-                        placement="right"
-                        title={<div>
-                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForGateway' })}
-                        </div>}
-                      >
-                        <div>
-                          {globalUtil.fetchSvg('tip')}
-                        </div>
-                      </Tooltip>
-                    </div>
-                    <Form.Item
-                      {...is_formItemLayout}
-                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForGateway' })}
-                    >
-                      {getFieldDecorator('nodesForGateway', {
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
-                          },
-                          {
-                            validator: this.handleValidatorsNodes
-                          }
-                        ]
-                      })(<SelectNode keys='gateway' ipArr={ipArray} />)}
-                    </Form.Item>
-                  </Row>
-                  <Row className={styles.row}>
-                    <div className={styles.title_name}>
-                      {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForChaos' })}
-                      <Tooltip
-                        placement="right"
-                        title={<div>
-                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForChaos' })}
-                        </div>}
-                      >
-                        <div>
-                          {globalUtil.fetchSvg('tip')}
-                        </div>
-                      </Tooltip>
-                    </div>
-                    <Form.Item
-                      {...is_formItemLayout}
-                      label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForChaos' })}
-                    >
-                      {getFieldDecorator('nodesForChaos', {
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
-                          },
-                          {
-                            validator: this.handleValidatorsNodes
-                          }
-                        ]
-                      })(<SelectNode keys='chaos' ipArr={ipArray} />)}
-                    </Form.Item>
-                  </Row>
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
+        {!installLoading ?
+          <Form>
+            <Col span={24}>
+              <Form onSubmit={this.handleSubmit}>
+                {/* 基础配置说明 */}
+                <Collapse className={styles.basics} expandIconPosition='right' defaultActiveKey={['basics']}>
+                  <Panel
+                    header={
+                      <span className={styles.spanBox}>
+                        <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.basics' })}</span>
+                      </span>}
+                    key="basics"
+                  >
+                    <Row className={styles.row}>
                       <div className={styles.title_name}>
-                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.storageClassName' })}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.gatewayIngressIPs' })}
                         <Tooltip
                           placement="right"
                           title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.storage' })}
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.gatewayIngressIPs' })}
                           </div>}
                         >
                           <div>
@@ -575,45 +404,46 @@ export default class RainbondClusterInit extends PureComponent {
                         </Tooltip>
                       </div>
                       <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('isStorage', {
-                          initialValue: isStorage
-                        })(
-                          <Radio.Group onChange={this.hanldeStorageChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isStorage == 'custom' &&
-                      <Form.Item
                         {...is_formItemLayout}
-                        label="RWX"
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.gatewayIngressIPs' })}
                       >
-                        {getFieldDecorator('storageClassName1', {
+                        {getFieldDecorator('gatewayIngressIPs', {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })
+                              message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
+                            },
+                            {
+                              pattern: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g,
+                              message: formatMessage({ id: 'enterpriseColony.ACksterList.input_correct_ip' })
                             },
                             {
                               pattern: /^[^\s]*$/,
                               message: formatMessage({ id: 'placeholder.no_spaces' })
                             }
                           ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
-                      </Form.Item>}
-                  </Row>
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
+                        })(
+                          <AutoComplete>
+                            {(ipArray && ipArray.length > 0)
+                              ? ipArray.map((item) => {
+                                const res = (
+                                  <AutoComplete.Option value={item.host}>
+                                    {item.host}
+                                  </AutoComplete.Option>
+                                );
+                                return res;
+                              })
+                              : null}
+                          </AutoComplete>)}
+                      </Form.Item>
+                    </Row>
+                    <Row className={styles.row}>
                       <div className={styles.title_name}>
-                        Etcd
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForGateway' })}
                         <Tooltip
                           placement="right"
                           title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.etcd' })}
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForGateway' })}
                           </div>}
                         >
                           <div>
@@ -622,75 +452,29 @@ export default class RainbondClusterInit extends PureComponent {
                         </Tooltip>
                       </div>
                       <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('isEtcd', {
-                          initialValue: isEtcd
-                        })(
-                          <Radio.Group onChange={this.hanldeEtcdChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isEtcd == 'custom' &&
-                      <Form.Item
                         {...is_formItemLayout}
-                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.secretName' })}
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForGateway' })}
                       >
-                        {getFieldDecorator('secretName', {
+                        {getFieldDecorator('nodesForGateway', {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.inpiut_name' })
-                            },
-                            {
-                              pattern: /^[^\s]*$/,
-                              message: formatMessage({ id: 'placeholder.no_spaces' })
-                            }
-                          ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.inpiut_Name' })} />)}
-                      </Form.Item>}
-                    {isEtcd == 'custom' &&
-                      <Form.Item
-                        {...is_formItemLayout}
-                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.endpoints' })}
-                      >
-                        {getFieldDecorator('endpoints', {
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'enterpriseColony.Advanced.input_node' })
+                              message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
                             },
                             {
                               validator: this.handleValidatorsNodes
                             }
                           ]
-                        })(<Etcd />)}
-                      </Form.Item>}
-                  </Row>
-                </Panel>
-              </Collapse>
-
-              {/* 高级配置说明 */}
-              <Collapse className={styles.basics} style={{ marginTop: '24px' }} expandIconPosition='right'>
-                <Panel
-                  header={
-                    <span className={styles.spanBox}>
-                      <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.advanced' })}</span>
-                    </span>}
-                  key="advanced"
-                >
-                  {/* 镜像仓库 */}
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
+                        })(<SelectNode type='1' keys='gateway' ipArr={ipArray} />)}
+                      </Form.Item>
+                    </Row>
+                    <Row className={styles.row}>
                       <div className={styles.title_name}>
-                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.image' })}
+                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.nodesForChaos' })}
                         <Tooltip
                           placement="right"
                           title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.image' })}
+                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.nodesForChaos' })}
                           </div>}
                         >
                           <div>
@@ -698,321 +482,411 @@ export default class RainbondClusterInit extends PureComponent {
                           </div>
                         </Tooltip>
                       </div>
-                      <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('image', {
-                          initialValue: isImage
-                        })(
-                          <Radio.Group onChange={this.hanldeImageChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isImage == 'custom' &&
-                      <>
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.mirror_name' />}
-                        >
-                          {getFieldDecorator('domain', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.add_mirror' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_mirror' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.namespace' />}
-                        >
-                          {getFieldDecorator('namespace', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(
-                            <Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
-                          )}
-                        </Form.Item>
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.user_name' />}
-                        >
-                          {getFieldDecorator('username', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.password' />}
-                        >
-                          {getFieldDecorator('password', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_password' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                      </>}
-                  </Row>
-                  {/* 数据库 */}
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
-                      <div className={styles.title_name}>
-                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.database' })}
-                        <Tooltip
-                          placement="right"
-                          title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.database' })}
-                          </div>}
-                        >
-                          <div>
-                            {globalUtil.fetchSvg('tip')}
-                          </div>
-                        </Tooltip>
-                      </div>
-                      <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('database', {
-                          initialValue: isDatabase
-                        })(
-                          <Radio.Group onChange={this.hanldeDatabaseChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isDatabase == 'custom' &&
-                      <>
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.address' />}
-                        >
-                          {/* 控制台数据库 */}
-                          {getFieldDecorator('regionDatabase_host', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_address' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_address' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        {/* 连接端口 */}
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.port' />}
-                        >
-                          {/* 控制台数据库 */}
-                          {getFieldDecorator('regionDatabase_port', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_port' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_Port' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        {/* 用户名 */}
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.user_name' />}
-                        >
-                          {/* 控制台数据库 */}
-                          {getFieldDecorator('regionDatabase_username', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        {/* 密码 */}
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.password' />}
-                        >
-                          {/* 控制台数据库 */}
-                          {getFieldDecorator('regionDatabase_password', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_password' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                        </Form.Item>
-                        {/* 数据库名称 */}
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label={<FormattedMessage id='enterpriseColony.Advanced.access_name' />}
-                        >
-                          {/* 控制台数据库 */}
-                          {getFieldDecorator('regionDatabase_dbname', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_access_name' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(
-                            <Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_access_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
-                          )}
-                        </Form.Item>
-                      </>}
-                  </Row>
-                  {/* 组件镜像源 */}
-                  <Row className={styles.row}>
-                    <div className={styles.row_flex}>
-                      <div className={styles.title_name}>
-                        {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.mirror' })}
-                        <Tooltip
-                          placement="right"
-                          title={<div>
-                            {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.mirror' })}
-                          </div>}
-                        >
-                          <div>
-                            {globalUtil.fetchSvg('tip')}
-                          </div>
-                        </Tooltip>
-                      </div>
-                      <Form.Item
-                        {...formItemLayout}
-                      >
-                        {getFieldDecorator('mirror', {
-                          initialValue: isMirror
-                        })(
-                          <Radio.Group onChange={this.hanldeMirrorChange}>
-                            <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                            <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                          </Radio.Group>
-                        )}
-                      </Form.Item>
-                    </div>
-                    {isMirror == 'custom' &&
                       <Form.Item
                         {...is_formItemLayout}
-                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.mirror_address' })}
+                        label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.nodesForChaos' })}
                       >
-                        {/* 仓库地址 */}
-                        {getFieldDecorator('mirror_address', {
+                        {getFieldDecorator('nodesForChaos', {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })
+                              message: formatMessage({ id: 'enterpriseColony.ACksterList.input_ip' })
                             },
                             {
-                              pattern: /^[^\s]*$/,
-                              message: formatMessage({ id: 'placeholder.no_spaces' })
+                              validator: this.handleValidatorsNodes
                             }
                           ]
-                        })(<Input placeholder={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-                      </Form.Item>}
-                  </Row>
-                </Panel>
-              </Collapse>
-            </Form>
-          </Col>
-          <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
-            {task && task.status !== 'complete' ? (
+                        })(<SelectNode type='1' keys='chaos' ipArr={ipArray} />)}
+                      </Form.Item>
+                    </Row>
+                    <Row className={styles.row}>
+                      <div className={styles.row_flex}>
+                        <div className={styles.title_name}>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.storageClassName' })}
+                          <Tooltip
+                            placement="right"
+                            title={<div>
+                              {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.storage' })}
+                            </div>}
+                          >
+                            <div>
+                              {globalUtil.fetchSvg('tip')}
+                            </div>
+                          </Tooltip>
+                        </div>
+                        <Form.Item
+                          {...formItemLayout}
+                        >
+                          {getFieldDecorator('isStorage', {
+                            initialValue: isStorage
+                          })(
+                            <Radio.Group onChange={this.hanldeStorageChange}>
+                              <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                              <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
+                            </Radio.Group>
+                          )}
+                        </Form.Item>
+                      </div>
+                      {isStorage == 'custom' &&
+                        <Form.Item
+                          {...is_formItemLayout}
+                          label="RWX"
+                        >
+                          {getFieldDecorator('storageClassName1', {
+                            rules: [
+                              {
+                                required: true,
+                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })
+                              },
+                              {
+                                pattern: /^[^\s]*$/,
+                                message: formatMessage({ id: 'placeholder.no_spaces' })
+                              }
+                            ]
+                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
+                        </Form.Item>}
+                    </Row>
+                  </Panel>
+                </Collapse>
+
+                {/* 高级配置说明 */}
+                <Collapse className={styles.basics} style={{ marginTop: '24px' }} expandIconPosition='right'>
+                  <Panel
+                    header={
+                      <span className={styles.spanBox}>
+                        <span className={styles.panelTitle} style={{ color: '#000' }}>{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.collapse.advanced' })}</span>
+                      </span>}
+                    key="advanced"
+                  >
+                    {/* 镜像仓库 */}
+                    <Row className={styles.row}>
+                      <div className={styles.row_flex}>
+                        <div className={styles.title_name}>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.image' })}
+                          <Tooltip
+                            placement="right"
+                            title={<div>
+                              {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.image' })}
+                            </div>}
+                          >
+                            <div>
+                              {globalUtil.fetchSvg('tip')}
+                            </div>
+                          </Tooltip>
+                        </div>
+                        <Form.Item
+                          {...formItemLayout}
+                        >
+                          {getFieldDecorator('image', {
+                            initialValue: isImage
+                          })(
+                            <Radio.Group onChange={this.hanldeImageChange}>
+                              <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                              <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
+                            </Radio.Group>
+                          )}
+                        </Form.Item>
+                      </div>
+                      {isImage == 'custom' &&
+                        <>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.mirror_name' />}
+                          >
+                            {getFieldDecorator('domain', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.add_mirror' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_mirror' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.namespace' />}
+                          >
+                            {getFieldDecorator('namespace', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(
+                              <Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_namespace' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
+                            )}
+                          </Form.Item>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.user_name' />}
+                          >
+                            {getFieldDecorator('username', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.password' />}
+                          >
+                            {getFieldDecorator('password', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_password' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                        </>}
+                    </Row>
+                    {/* 数据库 */}
+                    <Row className={styles.row}>
+                      <div className={styles.row_flex}>
+                        <div className={styles.title_name}>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.database' })}
+                          <Tooltip
+                            placement="right"
+                            title={<div>
+                              {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.database' })}
+                            </div>}
+                          >
+                            <div>
+                              {globalUtil.fetchSvg('tip')}
+                            </div>
+                          </Tooltip>
+                        </div>
+                        <Form.Item
+                          {...formItemLayout}
+                        >
+                          {getFieldDecorator('database', {
+                            initialValue: isDatabase
+                          })(
+                            <Radio.Group onChange={this.hanldeDatabaseChange}>
+                              <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                              <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
+                            </Radio.Group>
+                          )}
+                        </Form.Item>
+                      </div>
+                      {isDatabase == 'custom' &&
+                        <>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.address' />}
+                          >
+                            {/* 控制台数据库 */}
+                            {getFieldDecorator('regionDatabase_host', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_address' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_address' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          {/* 连接端口 */}
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.port' />}
+                          >
+                            {/* 控制台数据库 */}
+                            {getFieldDecorator('regionDatabase_port', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_port' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_Port' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          {/* 用户名 */}
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.user_name' />}
+                          >
+                            {/* 控制台数据库 */}
+                            {getFieldDecorator('regionDatabase_username', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_user_name' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_user_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          {/* 密码 */}
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.password' />}
+                          >
+                            {/* 控制台数据库 */}
+                            {getFieldDecorator('regionDatabase_password', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_password' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(<Input.Password type="password" placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_password' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                          </Form.Item>
+                          {/* 数据库名称 */}
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={<FormattedMessage id='enterpriseColony.Advanced.access_name' />}
+                          >
+                            {/* 控制台数据库 */}
+                            {getFieldDecorator('regionDatabase_dbname', {
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'enterpriseColony.Advanced.input_access_name' })
+                                },
+                                {
+                                  pattern: /^[^\s]*$/,
+                                  message: formatMessage({ id: 'placeholder.no_spaces' })
+                                }
+                              ]
+                            })(
+                              <Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_access_Name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />
+                            )}
+                          </Form.Item>
+                        </>}
+                    </Row>
+                    {/* 组件镜像源 */}
+                    <Row className={styles.row}>
+                      <div className={styles.row_flex}>
+                        <div className={styles.title_name}>
+                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.mirror' })}
+                          <Tooltip
+                            placement="right"
+                            title={<div>
+                              {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.mirror' })}
+                            </div>}
+                          >
+                            <div>
+                              {globalUtil.fetchSvg('tip')}
+                            </div>
+                          </Tooltip>
+                        </div>
+                        <Form.Item
+                          {...formItemLayout}
+                        >
+                          {getFieldDecorator('mirror', {
+                            initialValue: isMirror
+                          })(
+                            <Radio.Group onChange={this.hanldeMirrorChange}>
+                              <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
+                              <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
+                            </Radio.Group>
+                          )}
+                        </Form.Item>
+                      </div>
+                      {isMirror == 'custom' &&
+                        <Form.Item
+                          {...is_formItemLayout}
+                          label={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.form.label.mirror_address' })}
+                        >
+                          {/* 仓库地址 */}
+                          {getFieldDecorator('mirror_address', {
+                            rules: [
+                              {
+                                required: true,
+                                message: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })
+                              },
+                              {
+                                pattern: /^[^\s]*$/,
+                                message: formatMessage({ id: 'placeholder.no_spaces' })
+                              }
+                            ]
+                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.RainbondClusterInit.input.mirror_address.desc' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+                        </Form.Item>}
+                    </Row>
+                  </Panel>
+                </Collapse>
+              </Form>
+            </Col>
+            <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
               <Fragment>
                 <Button onClick={preStep} style={{ marginRight: '16px' }}>
                   <FormattedMessage id='button.previous' />
                 </Button>
                 <Button
-                  onClick={() => {
-                    this.setState({ showInitDetail: true });
-                  }}
+                  onClick={() => { this.setState({ showhandleSubmitModal: true }) }}
                   type="primary"
                 >
-                  <FormattedMessage id='enterpriseColony.RainbondClusterInit.Initializing' />
-                </Button>
-
-              </Fragment>
-            ) : (
-              <Fragment>
-                <Button onClick={preStep} style={{ marginRight: '16px' }}>
-                  <FormattedMessage id='button.previous' />
-                </Button>
-                <Button
-                  loading={loading}
-                  onClick={this.handleSubmit}
-                  type="primary"
-                >
-                  {task ? <FormattedMessage id='enterpriseColony.RainbondClusterInit.Reinitialize' /> : <FormattedMessage id='enterpriseColony.RainbondClusterInit.start' />}
+                  <FormattedMessage id='enterpriseColony.RainbondClusterInit.start' />
                 </Button>
               </Fragment>
-            )}
-            {guideStep === 11 &&
-              this.handleNewbieGuiding({
-                tit: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.start' }),
-                desc: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.configuration' }),
-                send: true,
-                configName: 'kclustersAttentionAttention',
-                nextStep: 12,
-                conPosition: { left: '63%', bottom: '-39px' },
-                svgPosition: { left: '58%', marginTop: '-13px' },
-                handleClick: () => {
-                  this.handleSubmit();
-                }
-              })}
-          </Col>
-        </Form>}
-
+              {guideStep === 11 &&
+                this.handleNewbieGuiding({
+                  tit: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.start' }),
+                  desc: formatMessage({ id: 'enterpriseColony.RainbondClusterInit.configuration' }),
+                  send: true,
+                  configName: 'kclustersAttentionAttention',
+                  nextStep: 12,
+                  conPosition: { left: '63%', bottom: '-39px' },
+                  svgPosition: { left: '58%', marginTop: '-13px' },
+                  handleClick: () => {
+                    this.handleSubmit();
+                  }
+                })}
+            </Col>
+          </Form>
+          :
+          <Card>
+            <Result
+              type="ing"
+              title={ formatMessage({id:'enterpriseColony.newHostInstall.node.initialize'})}
+              description={ formatMessage({id:'enterpriseColony.newHostInstall.node.await'})}
+              style={{ padding: '48px' }}
+            />
+          </Card>}
+        {showhandleSubmitModal && (
+          <ConfirmModal
+            onOk={this.handleSubmit}
+            title={ formatMessage({id:'enterpriseColony.newHostInstall.node.initializeCluster'})}
+            desc={ formatMessage({id:'enterpriseColony.newHostInstall.node.verifyCluster'})}
+            onCancel={this.onCancelSubmit}
+          />
+        )}
       </div>
     );
   }

@@ -9,12 +9,11 @@ import { Link, routerRedux } from 'dva/router';
 import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
 import cloud from '../../../utils/cloud';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
 import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
-import ShowUpdateClusterDetail from '../../../components/Cluster/ShowUpdateClusterDetail';
 import SVG from '../../../utils/pageHeaderSvg'
 import global from '@/utils/global';
 import styles from "./index.less";
@@ -34,7 +33,8 @@ class Index extends Component {
       installLoading: false,
       isComponents: false,
       showUpdateKubernetes: false,
-      dashboardShow: false
+      dashboardShow: false,
+      eventId:''
     }
   }
   componentDidMount() {
@@ -118,6 +118,24 @@ class Index extends Component {
         console.log(err);
       });
   };
+    // 获取添加节点的参数event_id
+    getNodeEventID = (region_name) => {
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'region/fetchClusterInfo',
+        payload: {
+          cluster_id: region_name
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            console.log(res?.bean?.event_id,"res?.bean?.event_id");
+            this.setState({
+              eventId: res?.bean?.event_id || ''
+            })
+          }
+        }
+      });
+    };
   // 获取节点列表
   fetClusterNodeList = (item) => {
     const {
@@ -129,6 +147,9 @@ class Index extends Component {
     this.setState({
       showListInfo: false
     })
+    if(item.provider == 'rke'){
+      this.getNodeEventID(item.region_name)
+    }
     dispatch({
       type: 'region/fetClusterNodeList',
       payload: {
@@ -140,7 +161,7 @@ class Index extends Component {
           this.setState({
             nodeList: res.list,
             showListInfo: true,
-            nodeType : res.bean
+            nodeType: res.bean
           })
         }
       },
@@ -150,7 +171,7 @@ class Index extends Component {
           showListInfo: true
         }, () => {
           notification.error({
-            message: formatMessage({id:'enterpriseColony.mgt.cluster.errorList'})
+            message: formatMessage({ id: 'enterpriseColony.mgt.cluster.errorList' })
           });
         })
       }
@@ -177,14 +198,14 @@ class Index extends Component {
       callback: res => {
         if (res && res.status_code == 200) {
           notification.success({
-            message: formatMessage({id:'enterpriseColony.mgt.cluster.editSuccess'})
+            message: formatMessage({ id: 'enterpriseColony.mgt.cluster.editSuccess' })
           });
           this.fetClusterNodeList(rowCluster)
         }
       },
       handleError: () => {
         notification.error({
-          message: formatMessage({id:'enterpriseColony.mgt.cluster.editDefeated'})
+          message: formatMessage({ id: 'enterpriseColony.mgt.cluster.editDefeated' })
         });
         this.fetClusterNodeList(rowCluster)
       }
@@ -235,7 +256,7 @@ class Index extends Component {
           dashboardShow: true
         }, () => {
           notification.error({
-            message: formatMessage({id:'enterpriseColony.mgt.cluster.getRainbondList'})
+            message: formatMessage({ id: 'enterpriseColony.mgt.cluster.getRainbondList' })
           });
         })
       }
@@ -258,18 +279,19 @@ class Index extends Component {
       clusterID,
       dashboardList,
       dashboardShow,
-      nodeType
+      nodeType,
+      eventId
     } = this.state
     return (
       <>
         <Row className={styles.breadStyle}>
           <span>{SVG.getSvg("ClusterSvg", 18)}</span>
-          <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterMgt'})} / </Link></span>
+          <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterMgt' })} / </Link></span>
           <span>{rowCluster && rowCluster.region_alias}</span>
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("infoSvg", 20)}</span>
-          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterInfo'})}</span>
+          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
         </Row>
         <Row>
           <DetectionInfo
@@ -281,21 +303,22 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("listSvg", 20)}</span>
-          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.clusterList'})}</span>
+          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
         </Row>
         <Row>
           <ClusterList
+            eventId={eventId}
             rowClusterInfo={rowCluster}
             nodeList={nodeList}
             active={this.editClusterNodeActive}
             showInfo={showListInfo}
             updateCluster={this.updateCluster}
-            handleLoadClusters={() => {this.loadClusters()}}
+            handleLoadClusters={() => { this.loadClusters() }}
           />
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("userSvg", 20)}</span>
-          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.user'})}</span>
+          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
         </Row>
         <Row>
           <DetectionResources
@@ -305,7 +328,7 @@ class Index extends Component {
         </Row>
         <Row className={styles.titleStyle}>
           <span>{SVG.getSvg("examineSvg", 20)}</span>
-          <span>{formatMessage({id:'enterpriseColony.mgt.cluster.rainbondList'})}</span>
+          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
         </Row>
         <Row>
           <ClusterDetection
@@ -313,34 +336,6 @@ class Index extends Component {
             dashboardShow={dashboardShow}
           />
         </Row>
-        {showUpdateKubernetes && (
-          <RKEClusterUpdate
-            eid={eid}
-            onOK={task => {
-              this.setState({
-                clusterID: task.clusterID,
-                showUpdateKubernetes: false,
-                updateTask: task,
-                showUpdateKubernetesTasks: true
-              });
-            }}
-            onCancel={() => {
-              this.setState({ showUpdateKubernetes: false });
-            }}
-            clusterID={updateClusterID}
-            nodeList={nodeListArr}
-            rkeConfig={rkeConfig}
-          />
-        )}
-        {showUpdateKubernetesTasks && (
-          <ShowUpdateClusterDetail
-            eid={eid}
-            clusterID={clusterID}
-            task={updateTask}
-            selectProvider={"rke"}
-            onCancel={this.cancelShowUpdateKubernetes}
-          />
-        )}
       </>
     );
   }

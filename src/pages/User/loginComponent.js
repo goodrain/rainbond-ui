@@ -25,7 +25,7 @@ export default class LoginComponent extends Component {
   render() {
     const { thirdLogin, userLogin, type } = this.props;
     return (
-      <div className={styles.main}>
+      <div>
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
           <UserName name="nick_name" placeholder={formatMessage({id:'login.loginComponent.name'})} />
           <Password name="password" placeholder={formatMessage({id:'login.loginComponent.pass'})}/>

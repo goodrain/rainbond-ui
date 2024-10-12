@@ -56,7 +56,7 @@ export default class Backup extends Component {
           const plugin = res.list.find((item) => item.name === 'rainbond-enterprise-base') || {};
           this.setState({ plugins: plugin, loading: false }, () => {
             if (plugin.plugin_type === 'JSInject') {
-              this.importPlugin(plugin, regionName);
+              this.importPlugin(plugin, currentRegionName);
             }
           });
         }
@@ -83,6 +83,7 @@ export default class Backup extends Component {
     return (<>
       {!loading ? (
         <EnterprisePluginsCom
+          key={type}
           {...this.state}
           dispatch={this.props.dispatch}
           appKey={type}

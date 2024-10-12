@@ -3,7 +3,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
 /*
-	获取集群下的协议
+  获取集群下的协议
 */
 export async function getProtocols(body = {}) {
   return request(
@@ -138,7 +138,7 @@ export async function fetchHelmCommand(param) {
       imageHub: param.data.imageHub,
       nodesForChaos: param.data.nodesForChaos,
       nodesForGateway: param.data.nodesForGateway,
-      DockingType:param.data.type,
+      DockingType: param.data.type,
       appui: false,
       cloudserver: param.cloudserver ? param.cloudserver : ''
     }
@@ -164,7 +164,7 @@ export async function fetchImportMessage(param) {
     }
   });
 }
-/* 获取NameSpace下的资源 */ 
+/* 获取NameSpace下的资源 */
 export async function fetchNameSpaceResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/resource`, {
     method: 'get',
@@ -174,7 +174,7 @@ export async function fetchNameSpaceResource(param) {
     }
   });
 }
-/* 获取NameSpace下的高级资源 */ 
+/* 获取NameSpace下的高级资源 */
 export async function fetchNameSpaceAdvancedResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
     method: 'get',
@@ -184,7 +184,7 @@ export async function fetchNameSpaceAdvancedResource(param) {
     }
   });
 }
-/*高级资源页面确认导入*/ 
+/*高级资源页面确认导入*/
 export async function backNameSpaceAdvancedResource(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/convert-resource`, {
     method: 'post',
@@ -206,7 +206,7 @@ export async function fetchClusterLogInfoSingle(param) {
     method: 'get',
     params: {
       lines: param.lines,
-      rbd_name : param.rbd_name
+      rbd_name: param.rbd_name
     }
   });
 }
@@ -215,7 +215,7 @@ export async function fetchNodeInfo(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-logs`, {
     method: 'get',
     params: {
-      pod_name : param.pod_name
+      pod_name: param.pod_name
     }
   });
 }
@@ -230,7 +230,7 @@ export async function fetchHistoryLogs(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/region_name/${param.region_name}/rbd-log-files`, {
     method: 'get',
     params: {
-      rbd_name : param.rbd_name
+      rbd_name: param.rbd_name
     }
   });
 }
@@ -238,6 +238,7 @@ export async function fetchHistoryLogs(param) {
 export async function fetClusterNodeList(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes`, {
     method: 'get',
+    timeout: 8000,
     handleError
   });
 }
@@ -287,7 +288,7 @@ export async function updataClusterNodeTaint(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/taints`, {
     method: 'put',
     data: {
-      taints : param.taints
+      taints: param.taints
     },
     handleError
   });
@@ -296,6 +297,7 @@ export async function updataClusterNodeTaint(param, handleError) {
 export async function fetDashboardList(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/rbd-components`, {
     method: 'get',
+    timeout: 8000,
     handleError
   });
 }
@@ -304,25 +306,35 @@ export async function fetClusterNodeContainer(param, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_name}/nodes/${param.node_name}/container`, {
     method: 'get',
     params: {
-      container_runtime : param.container_runtime
+      container_runtime: param.container_runtime
     },
     handleError
   });
 }
 // 添加集群节点
 export async function addClusterNode(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes?cluster_id=${params.clusterID}`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes?cluster_id=${params.clusterID}`, {
     method: 'put',
     data: params.data,
     handleError
   });
 }
+// 获取集群节点列表
+export async function fetchClusterNodeList(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes`, {
+    method: 'get',
+    params: {
+      cluster_id: params.clusterID,
+    },
+    handleError
+  });
+}
 // 删除集群节点
 export async function deleteClusterNode(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
     method: 'put',
     data: {
-      cluster_id : params.clusterID
+      cluster_id: params.clusterID
     },
     handleError
   });
@@ -349,10 +361,10 @@ export async function createHelmEvents(params, handleError) {
 }
 // 获取k8s集群状态
 export async function fetchClusterStatus(params, handleError) {
-  return request(`${apiconfig.baseUrl}/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
+  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/node/status`, {
     method: 'get',
     params: {
-      cluster_id : params.clusterID
+      cluster_id: params.clusterID
     },
     handleError
   });
@@ -362,6 +374,109 @@ export async function fetchClusterStatus(params, handleError) {
 export async function deleteHelmEvents(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.eid}/tasks/helm_region_install`, {
     method: 'delete',
+    handleError
+  });
+}
+
+// 主机安装节点列表
+export async function fetchClusterInfoList(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_node`, {
+    method: 'get',
+    params: {
+      event_id: params.event_id
+    },
+    handleError
+  });
+}
+
+// 主机安装集群信息
+export async function fetchClusterInfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster`, {
+    method: 'get',
+    params:{
+      cluster_id: params.cluster_id || ''
+    },
+    handleError
+  });
+}
+
+// 主机安装节点ip
+export async function fetchClusterNodeInfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_node_ip`, {
+    method: 'get',
+    handleError
+  });
+}
+// 集群安装
+export async function installCluster(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_install`, {
+    method: 'post',
+    data: {
+      value_yaml: params.value_yaml
+    },
+    handleError
+  });
+}
+// 获取集群安装所有pod信息
+export async function installClusterAllPodinfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/rb_components_status`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 获取集群安装单个pod信息
+export async function installClusterPodinfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/rb_component_event`, {
+    method: 'get',
+    params: {
+      pod_name: params.pod_name
+    },
+    handleError
+  });
+}
+// 卸载主机安装的集群
+export async function unInstallCluster(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_uninstall`, {
+    method: 'post',
+    handleError
+  });
+}
+//  获取对接集群数据
+export async function getReginConfig(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/region_config`, {
+    method: 'get',
+    handleError
+  });
+}
+
+//  添加集群名称与id
+export async function addReginConfig(data, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster`, {
+    method: 'post',
+    data: {
+      cluster_name: data.cluster_name,
+      cluster_id: data.cluster_id
+    },
+    handleError
+  });
+}
+
+// 获取企业版授权信息
+export async function getEnterpriseLicense(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 更新授权码
+export async function uploadEnterpriseLicense(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
+    method: 'post',
+    data: {
+      authz_code: params.authz_code
+    },
     handleError
   });
 }

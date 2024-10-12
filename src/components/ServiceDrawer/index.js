@@ -188,9 +188,9 @@ export default class index extends Component {
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.name'})} disabled={editInfo && Object.keys(editInfo).length > 0} />)}
                     </Form.Item>
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.Upstream'})}>
-                        {getFieldDecorator('type'), {
-                            initialValue: upstreamType,
-                        }, (<Radio.Group onChange={this.upstreamTypeChange} defaultValue={upstreamType}>
+                        {getFieldDecorator('type', {
+                            initialValue: upstreamType
+                        })(<Radio.Group onChange={this.upstreamTypeChange} defaultValue={upstreamType}>
                             <Radio.Button value="node">{formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.node'})}</Radio.Button>
                         </Radio.Group>)}
                     </Form.Item>

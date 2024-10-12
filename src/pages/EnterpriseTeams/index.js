@@ -844,7 +844,7 @@ export default class EnterpriseTeams extends PureComponent {
         }}>
           <Row style={{ width: '100%' }} className={styles.rowTitle}>
             <Row className={styles.teamMinTit} type="flex" align="middle">
-              <Col span={4} style={{ width: '16%', textAlign: 'center' }}>
+              <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
                 {/* 项目/团队名称 */}
                 <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
               </Col>

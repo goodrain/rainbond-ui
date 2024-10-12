@@ -1129,20 +1129,29 @@ export async function toEditImageHub(params) {
     }
   );
 }
-/** 修改监控信息 */
-export async function toEditMonitorin(params) {
+/** 修改云端对象存储信息 */
+export async function editCloudStorage(params) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/visualmonitor`,
+    `${apiconfig.baseUrl}/console/config/oss`,
     {
       method: 'put',
       data: {
-        enable: params.enable,
-        home_url: params.home_url,
-        cluster_monitor_suffix: params.cluster_monitor_suffix,
-        component_monitor_suffix: params.component_monitor_suffix,
-        slo_monitor_suffix: params.slo_monitor_suffix,
-        node_monitor_suffix: params.node_monitor_suffix
+        oss_access_key: params.oss_access_key,
+        oss_access_key_secret: params.oss_access_key_secret,
+        oss_endpoint: params.oss_endpoint,
+        oss_bucket: params.oss_bucket,
+        enable: params.enable
       }
+    }
+  );
+}
+/** 获取云端对象存储信息 */
+export async function fetchCloudStorage() {
+  return request(
+    `${apiconfig.baseUrl}/console/config/oss`,
+    {
+      method: 'get',
+      params: {}
     }
   );
 }

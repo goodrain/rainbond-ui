@@ -2,6 +2,7 @@ import {
     Col,
     Icon,
     Input,
+    InputNumber,
     notification,
     Row,
     Select,
@@ -131,12 +132,11 @@ class Headers extends Component {
                             <Col
                                 span={4}
                             >
-                                <Input
+                                <InputNumber
                                     name="value"
-                                    type='number'
                                     min={1}
-                                    onChange={e => {
-                                        this.onValueChange(e.target.value, index);
+                                    onChange={val => {
+                                        this.onValueChange(val, index);
                                     }}
                                     value={item.value||''}
                                     placeholder={'权重'}

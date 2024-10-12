@@ -3,7 +3,7 @@ import { Link } from 'dva/router';
 import React from 'react';
 import cloud from '../../public/cloud.png';
 import logo from '../../public/logoLogin.png';
-import topLogo from '../../public/topLogo.png';
+import topLogo from '../../public/topLogo1.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
@@ -73,6 +73,7 @@ class UserLayout extends React.PureComponent {
     const { rainbondInfo, children } = this.props;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const { isRender } = this.state;
+    const login_image = rainbondInfo && rainbondInfo.login_image && rainbondInfo.login_image.value || topLogo ;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo) || logo;
     const isEnterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     if (!rainbondInfo || !isRender) {
@@ -80,15 +81,14 @@ class UserLayout extends React.PureComponent {
     }
     return (
       <div className={styles.container}>
-        <div className={firstRegist ? styles.isAdminHeaders : styles.headers}>
+        <div className={styles.headers}>
         </div>
-        <div className={firstRegist ? styles.isAdminContent : styles.content}>
+        <div className={styles.content}>
+          <div className={styles.left}>
+            <img src={login_image}></img>
+          </div>
           <div className={styles.right}>
-            <div className={styles.login}>
-              <div className={styles.contentBox}>
-                <div className={styles.contentBoxRight}>{children}</div>
-              </div>
-            </div>
+            {children}
           </div>
         </div>
         < div style={{ bottom: 0, width: '100%', position: 'fixed', zIndex:'1' }} className={styles.CustomFooterStyle}>

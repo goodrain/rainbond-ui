@@ -69,9 +69,8 @@ export default class EnterpriseSetting extends PureComponent {
     } = this.props
     let infos = {};
     if (rainbondInfo) {
-      console.log(rainbondInfo,"rainbondInfo");
       const fetchLogo = (rainbondInfo?.disable_logo
-        ? rainbondInfo.logo.value 
+        ? rainbondInfo.logo.value
         : rainbondUtil.fetchLogo(rainbondInfo, enterprise)) || defaultLogo;
       const fetchFavicon = rainbondInfo?.disable_logo
         ? rainbondInfo.favicon.value
@@ -154,8 +153,10 @@ export default class EnterpriseSetting extends PureComponent {
               key="individuation"
             >
               <EnterprisePluginsPage
+                key="PackageUpload"
                 type="Customization"
-                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }}
+                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
+                }
               />
             </TabPane>
           }
@@ -189,7 +190,7 @@ export default class EnterpriseSetting extends PureComponent {
                 </div>
               }
               key="upload">
-              <EnterprisePluginsPage type="PackageUpload" />
+              <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" />
             </TabPane>
           )}
           <TabPane

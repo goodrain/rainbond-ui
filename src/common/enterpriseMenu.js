@@ -51,37 +51,6 @@ function menuData(eid, currentUser, enterprise, pluginList) {
         authority: ['admin', 'user']
       }
     );
-    if (
-      enterprise &&
-      rainbondUtil.isEnableMonitoring(enterprise) &&
-      rainbondUtil.fetchMonitoring(enterprise)
-    ) {
-      const menuMap = {
-        slo_monitor_suffix: '服务监控',
-        cluster_monitor_suffix: '集群监控',
-        node_monitor_suffix: '节点监控',
-        component_monitor_suffix: '组件监控'
-      };
-      const monitoringObj = rainbondUtil.fetchMonitoring(enterprise);
-      const seChildren = [];
-      Object.keys(monitoringObj).map(item => {
-        if (item !== 'home_url') {
-          seChildren.push({
-            name: menuMap[item],
-            path: `/${item}/dashboard`,
-            authority: ['admin', 'user']
-          });
-        }
-      });
-
-      menuArr.push({
-        name: formatMessage({ id: 'menu.enterprise.monitoring' }),
-        icon: monitoringSvg,
-        path: `/enterprise/${eid}/monitoring`,
-        authority: ['admin', 'user'],
-        children: seChildren
-      });
-    }
     menuArr.push({
       name: formatMessage({ id: 'menu.enterprise.log' }),
       icon: getMenuSvg.getSvg('logs'),

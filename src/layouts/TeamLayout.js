@@ -36,10 +36,12 @@ import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
+import Overdue from '../pages/Overdue';
 import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
 import "animate.css"
+import error from '@/models/error';
 const { Content } = Layout;
 Modal.defaultProps.width = 480;
 
@@ -95,11 +97,18 @@ class TeamLayout extends PureComponent {
       marginShow: true,
       vm_url:"",
       teamOverviewPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_overview'),
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
+      isAuthorizationLoading: true,
+      licenseInfo: null,
+      isLicense: false,
+      isMemory: false,
+      isNode: false,
+      isTime: false,
     };
   }
 
   componentWillMount() {
+    this.fetchLicenses();
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.fetchUserInfo();
@@ -164,6 +173,50 @@ class TeamLayout extends PureComponent {
       );
     }
   }
+
+  fetchLicenses = () => {
+    const { dispatch, currentUser } = this.props;
+    const { regionName } = this.props.match.params;
+    if (dispatch) {
+      dispatch({
+        type: 'region/getEnterpriseLicense',
+        payload:{
+          enterprise_id: currentUser && currentUser.enterprise_id
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            const info = res.bean
+            const isLicense = info.expect_cluster != -1 ? (info.actual_cluster > info.expect_cluster ? true : false) : false;
+            const memory = info.expect_memory != -1 ? (info.actual_memory > info.expect_memory ? true : false) : false;
+            const node = info.expect_node != -1 ? (info.actual_node > info.expect_node ? true : false) : false;
+            const end = new Date(info.end_time).getTime();
+            const current = new Date().getTime();
+            const time = end ? (end < current ? true : false) : false
+
+            this.setState({
+              isAuthorizationLoading: false,
+              licenseInfo: res.bean,
+              isLicense,
+              isMemory: memory,
+              isNode: node,
+              isTime: time,
+            });
+          }
+          
+
+          
+        },
+        handleError:(error) => {
+          if (error && error.data && error.data.code === 400) {
+            this.setState({
+              licenseInfo: null,
+              isAuthorizationLoading: false,
+            });
+          }
+        }
+      });
+    }
+  };
   // 获取当前团队下的所有应用名称
   getAppNames = () => {
     const { dispatch } = this.props;
@@ -519,7 +572,13 @@ class TeamLayout extends PureComponent {
       currentApp,
       showMenu,
       showPipeline,
-      marginShow
+      marginShow,
+      isAuthorizationLoading,
+      licenseInfo,
+      isLicense,
+      isMemory,
+      isNode,
+      isTime,
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -534,12 +593,29 @@ class TeamLayout extends PureComponent {
     }
     if (
       !ready ||
+      isAuthorizationLoading ||
       !currentEnterprise ||
       !currentTeam ||
       !currentTeamPermissionsInfo
     ) {
       return <PageLoading />;
     }
+
+    if(!isAuthorizationLoading && licenseInfo){
+      if(isLicense){
+        return <Overdue title={'集群超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
+      }else if(isNode){
+        return <Overdue title={'节点超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
+      }else if(isTime){
+        return <Overdue title={'授权时间已过期'} desc={'联系企业管理员，更新授权码'}/>
+      }else if(isMemory){
+        return <Overdue title={'内存超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
+      }
+    } else {
+      return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />
+    }
+   
+
 
     if (
       teamName !== currentTeam.team_name ||
@@ -558,9 +634,7 @@ class TeamLayout extends PureComponent {
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
       // return <PageLoading />;
-    }
-    // currentComponent is exit and id is current componentID
-    else if (
+    } else if (
       currentComponent &&
       currentComponent.service_alias == componentID
     ) {
@@ -575,6 +649,7 @@ class TeamLayout extends PureComponent {
     } else {
       this.setState({ currentComponent: null });
     }
+
     const mode =
       groupDetail && groupDetail.app_type === 'helm'
         ? 'helm'

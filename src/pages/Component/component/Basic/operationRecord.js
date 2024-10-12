@@ -7,8 +7,8 @@ import { routerRedux } from 'dva/router';
 import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-
+// eslint-disable-next-line import/first
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 @connect()
 @Form.create()
@@ -30,22 +30,24 @@ class Index extends PureComponent {
     }
   };
 
-  showLogModal = (EventID, showSocket, OptType = '') => {
-    const { isopenLog, onLogPush, dispatch } = this.props;
-    if(OptType == 'AbnormalExited' || OptType == 'EventTypeAbnormalExited' || OptType =='CrashLoopBackOff'){
+  showLogModal = (event_id, showSocket, opt_type = '') => {
+    const { isopenLog, onLogPush } = this.props;
+    if (
+      opt_type === 'AbnormalExited' ||
+      opt_type === 'EventTypeAbnormalExited' ||
+      opt_type === 'CrashLoopBackOff'
+    ) {
       this.props.dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
         )
-      )
-    }else{
-      if (isopenLog && onLogPush) {
-        onLogPush(false);
-      }
+      );
+    } else if (isopenLog && onLogPush) {
+      onLogPush(false);
     }
     this.setState({
       logVisible: true,
-      selectEventID: EventID,
+      selectEventID: event_id,
       showSocket
     });
   };
@@ -58,48 +60,49 @@ class Index extends PureComponent {
 
   showUserName = UserName => {
     if (UserName === 'system') {
-      return <FormattedMessage id='componentOverview.body.tab.overview.handle.system'/>;
+      return (
+        <FormattedMessage id="componentOverview.body.tab.overview.handle.system" />
+      );
     }
     if (UserName) {
       return `@${UserName}`;
     }
     return '';
   };
-  jumpExpansion =(bool = false, serivce_alias)=>{
-    if(!bool){
+  jumpExpansion = (bool = false, serivce_alias) => {
+    if (!bool) {
       this.props.dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
         )
-      )
-    }else{
+      );
+    } else {
       this.props.dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
         )
-      )
+      );
     }
-    
-  }
-  jumpMessage = (val,bool) =>{
-    const regex = /\[([\s\S]*)\]/; 
+  };
+  jumpMessage = (val, bool) => {
+    const regex = /\[([\s\S]*)\]/;
     const match = val.match(regex);
-    const msgregex = /(.+)(?=\[)/; 
+    const msgregex = /(.+)(?=\[)/;
     const message = val.match(msgregex);
-    if(bool){
-      return message[1] || ''
+    if (bool) {
+      return message[1] || '';
     }
-    var arr = []
+    let arr = [];
     if (match && match.length > 1) {
       const arrayStr = match[0];
-       arr = JSON.parse(arrayStr);
+      arr = JSON.parse(arrayStr);
     }
     return <>
-              ({message[1]} 
+              ({message[1]}
               {arr && arr.length > 0 && arr.map((item,index) =>{
                 if(arr.length > 3){
                   return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.showJumpModal(arr)}}>{formatMessage({id:'componentOverview.body.tab.overview.handle.Dependent'})}</span>
-                }else{ 
+                }else{
                   return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.serivce_alias)}}>{item.service_cname}</span>
                 }
               })})
@@ -127,42 +130,42 @@ class Index extends PureComponent {
       failure: 'logfailed'
     };
     return (
-      <Card 
-      // bordered={false} 
-      title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>} 
+      <Card
+      // bordered={false}
+      title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>}
       loading={recordLoading}>
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
               logList.map(item => {
                 const {
-                  Status,
-                  FinalStatus,
-                  UserName,
-                  OptType,
-                  Reason,
-                  Message,
-                  EndTime,
-                  SynType,
-                  EventID,
+                  status,
+                  final_status,
+                  user_name,
+                  opt_type,
+                  reason,
+                  message,
+                  end_time,
+                  syn_type,
+                  event_id,
                   create_time
                 } = item;
                 if (
                   isopenLog &&
-                  FinalStatus === '' &&
-                  OptType &&
-                  OptType.indexOf('build') > -1 &&
+                  final_status === '' &&
+                  opt_type &&
+                  opt_type.indexOf('build') > -1 &&
                   showLogEvent === ''
                 ) {
-                  showLogEvent = EventID;
+                  showLogEvent = event_id;
                 }
-                const UserNames = this.showUserName(UserName);
-                const Messages = globalUtil.fetchMessageLange(Message,Status,OptType)
+                const UserNames = this.showUserName(user_name);
+                const Messages = globalUtil.fetchMessageLange(message,status,opt_type)
                 return (
                   <div
-                    key={EventID}
+                    key={event_id}
                     className={`${styles.loginfo} ${
-                      styles[statusMap[Status] || 'logfored']
+                      styles[statusMap[status] || 'logfored']
                     }`}
                   >
                     <Tooltip
@@ -178,33 +181,33 @@ class Index extends PureComponent {
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={ OptType == 'INITIATING' ? this.jumpMessage(Message,true): Messages}>
+                      <Tooltip title={ opt_type == 'INITIATING' ? this.jumpMessage(message,true): Messages}>
                         <span
                           style={{
-                            color: globalUtil.fetchAbnormalcolor(OptType)
+                            color: globalUtil.fetchAbnormalcolor(opt_type)
                           }}
                         >
-                          {globalUtil.fetchStateOptTypeText(OptType)}
+                          {globalUtil.fetchStateOptTypeText(opt_type)}
                           &nbsp;
                         </span>
-                        {globalUtil.fetchOperation(FinalStatus, Status)}
+                        {globalUtil.fetchOperation(final_status, status)}
                         &nbsp;
-                        {Status === 'failure' && globalUtil.fetchReason(Reason)}
-                        {OptType == 'Unschedulable' ? 
+                        {status === 'failure' && globalUtil.fetchReason(reason)}
+                        {opt_type == 'Unschedulable' ?
                         <span>
-                          ({Message}
-                          {(Message == "节点CPU不足" || Message =="节点内存不足") &&
+                          ({message}
+                          {(message == "节点CPU不足" || message =="节点内存不足") &&
                               <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>this.jumpExpansion(false)}>{formatMessage({id:'componentOverview.body.tab.overview.handle.stretch'})}
-                              </span> 
+                              </span>
                           })
                         </span>
                         :
-                        OptType == 'INITIATING' ?
-                        this.jumpMessage(Message,false)
+                        opt_type == 'INITIATING' ?
+                        this.jumpMessage(message,false)
                         :
                         Messages
                         }
-                        
+
                       </Tooltip>
                     </div>
                     <div className={styles.nowarpText}>
@@ -214,14 +217,14 @@ class Index extends PureComponent {
                     </div>
                     <div>
                       <span className={styles.alcen}>
-                        {EndTime &&
+                        {end_time &&
                           create_time &&
                           globalUtil.fetchSvg('runTime')}
                         <span>
-                          {EndTime && create_time
+                          {end_time && create_time
                             ? globalUtil.fetchTime(
-                                new Date(EndTime).getTime()
-                                  ? new Date(EndTime).getTime() -
+                                new Date(end_time).getTime()
+                                  ? new Date(end_time).getTime() -
                                       new Date(create_time).getTime()
                                   : ''
                               )
@@ -230,28 +233,30 @@ class Index extends PureComponent {
                       </span>
                     </div>
                       <div style={{ position: 'static' }} className="table-wrap">
-                      { OptType != 'Unschedulable' && OptType != 'INITIATING' &&
-                      SynType === 0 && (
+                      { opt_type != 'Unschedulable' && opt_type != 'INITIATING' &&
+                      syn_type === 0 && (
                         <Tooltip
-                          visible={FinalStatus === ''}
+                          visible={final_status === ''}
                           placement="top"
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
                           // title="查看日志"
-                          title={<FormattedMessage id='componentOverview.body.tab.overview.handle.lookLog'/>} 
-                          getPopupContainer={() =>
-                            document.querySelector('.table-wrap')
-                          }
-                        >
+                            title={
+                              <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
+                            }
+                            getPopupContainer={() =>
+                              document.querySelector('.table-wrap')
+                            }
+                          >
                           <div
                             style={{
                               width: '16px'
                             }}
                             onClick={() => {
-                              this.showLogModal(EventID, FinalStatus === '', OptType);
+                              this.showLogModal(event_id, final_status === '', opt_type);
                             }}
                           >
-                            {globalUtil.fetchSvg('logs', Status == 'failure' && OptType == 'build-service' ? '#CE0601':'#cccccc')}
+                            {globalUtil.fetchSvg('logs', status == 'failure' && opt_type == 'build-service' ? '#CE0601':'#cccccc')}
                           </div>
                         </Tooltip>
                       )
@@ -295,7 +300,7 @@ class Index extends PureComponent {
         {logVisible && (
           <LogShow
             // title="日志"
-            title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>} 
+            title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>}
             width="90%"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}

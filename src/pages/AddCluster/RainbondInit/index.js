@@ -69,7 +69,7 @@ export default class RainbondInit extends PureComponent {
       }
     } = this.props;
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/check`)
+      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/check`)
     );
   };
   loadSteps = () => {
@@ -96,12 +96,12 @@ export default class RainbondInit extends PureComponent {
     const { dispatch } = this.props;
     const {
       match: {
-        params: { eid, provider, clusterID }
+        params: { eid, provider }
       }
     } = this.props;
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/link`
+        `/enterprise/${eid}/provider/${provider}/kclusters/check`
       )
     );
   };
@@ -109,7 +109,7 @@ export default class RainbondInit extends PureComponent {
   render() {
     const {
       match: {
-        params: { eid, provider, clusterID, taskID }
+        params: { eid, provider, clusterID, taskID, type }
       }
     } = this.props;
     return (
@@ -132,8 +132,8 @@ export default class RainbondInit extends PureComponent {
             selectProvider={provider}
             taskID={taskID}
             clusterID={clusterID}
+            type={type}
             preStep={this.preStep}
-            nextStep={this.nextStep}
           />
         </Row>
       </PageHeaderLayout>

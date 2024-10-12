@@ -7,7 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
-import ClusterComponents from '../../../components/Cluster/ClusterComponents';
+import ClusterComponents from '../../../components/Cluster/ClusterComponentsInfo';
 import InitRainbondDetail from '../../../components/Cluster/ShowInitRainbondDetail';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -51,7 +51,7 @@ export default class RainbondInit extends PureComponent {
   }
 
   componentDidMount() {
-    this.loadTask();
+    // this.loadTask();
   }
 
 
@@ -106,7 +106,7 @@ export default class RainbondInit extends PureComponent {
       }
     } = this.props;
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
+      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters?event_id=${window.localStorage.getItem('event_id')}`)
     );
   };
   loadSteps = () => {
@@ -138,7 +138,7 @@ export default class RainbondInit extends PureComponent {
     } = this.props;
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/${clusterID}/link`
+        `/enterprise/${eid}/provider/${provider}/kclusters/link`
       )
     );
   };
@@ -168,22 +168,13 @@ export default class RainbondInit extends PureComponent {
           </Steps>
         </Row>
         <div className={styles.clusterInit}>
-          <div className={styles.initRainbond}>
-            {task && <InitRainbondDetail
-              onCancel={this.cancelShowInitDetail}
-              eid={eid}
-              guideStep={guideStep}
-              providerName={provider}
-              clusterID={clusterID}
-              taskID={task && task.taskID}
-              completeInit={this.completeInit}
-            />}
-          </div>
           <div className={styles.clusterComponent}>
             <ClusterComponents
               eid={eid}
               clusterID={clusterID}
               providerName={provider}
+              completeInit={this.completeInit}
+              preStep={this.preStep}
             />
           </div>
         </div>

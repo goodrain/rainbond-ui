@@ -17,7 +17,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import BaseAddCluster from '../../components/Cluster/BaseAddCluster';
 import CustomClusterAdd from '../../components/Cluster/CustomClusterAdd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -173,9 +173,35 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
-    );
+    const TOCLUSTERLIST_PATHS = {
+      initializing: '/enterprise/{eid}/provider/{provider}/kclusters/append?event_id={eventId}',
+      initialized: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      installing: '/enterprise/{eid}/provider/{provider}/kclusters?type=installing&event_id={eventId}',
+      installed: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      integrating: '/enterprise/{eid}/provider/{provider}/kclusters/init?event_id={eventId}',
+      integrated: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
+    };
+    console.log(11111,'res')
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: ''
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          console.log(res,'res');
+          window.localStorage.setItem('event_id',res.bean.event_id)
+          const status = res.bean.create_status;
+          let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;
+          path = path.replace('{eid}', eid).replace('{provider}', provider);
+          if (path.includes('{eventId}')) {
+            path = path.replace('{eventId}', res.bean.event_id);
+          }
+          dispatch(routerRedux.push(path));
+        }
+      }
+    });
+
   };
   handleInstallRegion = type => {
     const {
@@ -217,19 +243,19 @@ export default class EnterpriseClusters extends PureComponent {
   loadSteps = () => {
     const steps = [
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.supplier'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.supplier' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.cluster'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.cluster' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.Initialize'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.Initialize' })
       },
       {
-        title: formatMessage({id : 'enterpriseColony.addCluster.clusterInit'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.clusterInit' })
       },
       {
-        title: formatMessage({id:'enterpriseColony.addCluster.docking'})
+        title: formatMessage({ id: 'enterpriseColony.addCluster.docking' })
       }
     ];
     return steps;
@@ -307,7 +333,7 @@ export default class EnterpriseClusters extends PureComponent {
               this.addClusterShow();
             }}
           >
-            <FormattedMessage id='enterpriseColony.addCluster.cluster'/>
+            <FormattedMessage id='enterpriseColony.addCluster.cluster' />
           </a>
         </Menu.Item>
       </Menu>
@@ -321,18 +347,18 @@ export default class EnterpriseClusters extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        title={<FormattedMessage id='enterpriseColony.button.text'/>}
-        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
+        title={<FormattedMessage id='enterpriseColony.button.text' />}
+        content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
         extraContent={extraContent}
-        titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
+        titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
       >
-        <Card style={{ 
-            marginBottom: '16px',            
-            borderRadius: 5,
-            boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
-             }}>
+        <Card style={{
+          marginBottom: '16px',
+          borderRadius: 5,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+        }}>
           <Row>
-            <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure'/></h3>
+            <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure' /></h3>
             <Divider />
           </Row>
           <Row>
@@ -343,17 +369,17 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{globalUtil.fetchSvg('hostIcon')}</div>
                 <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.host'/></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.automatically'/></p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.host' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.automatically' /></p>
                 </div>
               </div>
               {guideStep === 2 &&
                 clusters &&
                 clusters.length === 0 &&
                 this.handleNewbieGuiding({
-                  tit: formatMessage({id:'enterpriseColony.addCluster.install'}),
+                  tit: formatMessage({ id: 'enterpriseColony.addCluster.install' }),
                   configName: 'hostInstall',
-                  desc: formatMessage({id:'enterpriseColony.addCluster.common'}),
+                  desc: formatMessage({ id: 'enterpriseColony.addCluster.common' }),
                   nextStep: 3,
                   svgPosition: { marginLeft: '58px' }
                 })}
@@ -367,19 +393,19 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{globalUtil.fetchSvg('kubernetesIcon')}</div>
                 <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.colony'/></h3>
-                  <p> <FormattedMessage id='enterpriseColony.addCluster.management'/></p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.colony' /></h3>
+                  <p> <FormattedMessage id='enterpriseColony.addCluster.management' /></p>
                 </div>
               </div>
             </Col>
           </Row>
         </Card>
         <Card style={{
-                      borderRadius: 5,
-                      boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+          borderRadius: 5,
+          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
         }}>
           <Row>
-            <h3><FormattedMessage id='enterpriseColony.addCluster.service'/></h3>
+            <h3><FormattedMessage id='enterpriseColony.addCluster.service' /></h3>
             <Divider />
           </Row>
           <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
@@ -392,8 +418,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{globalUtil.fetchSvg('aliIcon')}</div>
                 <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.ali'/></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.manage'/></p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.ali' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.manage' /></p>
                 </div>
               </div>
             </Col>
@@ -406,8 +432,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{globalUtil.fetchSvg('huaweiIcon')}</div>
                 <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.huawei'/></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.Docking'/></p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.huawei' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.Docking' /></p>
                 </div>
               </div>
             </Col>
@@ -420,8 +446,8 @@ export default class EnterpriseClusters extends PureComponent {
               >
                 <div className={styles.importicon}>{globalUtil.fetchSvg('tencentIcon')}</div>
                 <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun'/></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.clusters'/></p>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.clusters' /></p>
                 </div>
               </div>
             </Col>
