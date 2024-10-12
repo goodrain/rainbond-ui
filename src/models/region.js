@@ -43,7 +43,9 @@ import {
   installClusterAllPodinfo,
   unInstallCluster,
   getReginConfig,
-  addReginConfig
+  addReginConfig,
+  getEnterpriseLicense,
+  uploadEnterpriseLicense
 } from '../services/region';
 
 export default {
@@ -346,6 +348,18 @@ export default {
     },
     *addReginConfig({ payload, callback, handleError }, { call }) {
       const response = yield call(addReginConfig, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getEnterpriseLicense({ payload, callback, handleError }, { call }) {
+      const response = yield call(getEnterpriseLicense, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *uploadEnterpriseLicense({ payload, callback, handleError }, { call }) {
+      const response = yield call(uploadEnterpriseLicense, payload, handleError);
       if (response && callback) {
         callback(response);
       }

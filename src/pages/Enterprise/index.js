@@ -18,7 +18,8 @@ import {
   Badge,
   Tooltip,
   Modal,
-  Button
+  Button,
+  Form
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -54,10 +55,13 @@ import cookie from '../../utils/cookie';
 import Rke from '../../../public/images/rke.svg'
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 import styles from '../List/BasicList.less';
 import enterpriseStyles from './index.less'
 import styleSvg from './svg.less'
 
+
+@Form.create()
 @connect(({ user, global, index, region }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
@@ -102,7 +106,11 @@ export default class Enterprise extends PureComponent {
       appAlertList: [],
       appAlertLoding: true,
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      troubleshootVisible: false,
+      isAuthorizationCode: false,
+      enterpriseAuthorization: null,
+      isAuthorizationLoading: true,
+      isNeedAuthz: false,
+      authorizationCode: ''
     };
   }
   componentWillMount() {
@@ -114,12 +122,62 @@ export default class Enterprise extends PureComponent {
   }
   componentDidMount() {
     this.loading();
+    this.handleGetEnterpriseAuthorization();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
     // 组件销毁  清除定时器
     clearInterval(this.interval)
+  }
+  // 获取企业授权信息
+  handleGetEnterpriseAuthorization = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+    dispatch({
+      type: 'region/getEnterpriseLicense',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            isAuthorizationLoading: false,
+            enterpriseAuthorization: res.bean,
+            authorizationCode: res.bean.authz_code
+          });
+        }
+      },
+      handleError: error => {
+        console.log(error, 'error')
+        if (error && error.data && error.data.code === 400) {
+          this.setState({
+            authorizationCode: error.data.data.bean.authz_code,
+            enterpriseAuthorization: null,
+            isAuthorizationLoading: false,
+          });
+        }
+      }
+    });
+  };
+  // 更新企业授权码
+  handleUpdateEnterpriseAuthorization = (code) => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+    dispatch({
+      type: 'region/uploadEnterpriseLicense',
+      payload: {
+        enterprise_id: eid,
+        authz_code: code
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.handleGetEnterpriseAuthorization();
+          notification.success({ message: '授权码更新成功' });
+          this.handleCanceAuthorization();
+        }
+      }
+    });
   }
   // 获取新手引导的配置
   handleLoadNewGuideConfig = () => {
@@ -148,6 +206,27 @@ export default class Enterprise extends PureComponent {
       callback: res => {
         if (res && res.list) {
           const clusters = [];
+          res.list.map((item, indexs) => {
+            const { region_name, enterprise_id } = item
+            dispatch({
+              type: 'teamControl/fetchPluginUrl',
+              payload: {
+                enterprise_id: enterprise_id,
+                region_name: region_name
+              },
+              callback: data => {
+                if (data && data.bean) {
+                  console.log(data.bean.need_authz, 'data.bean.need_authz')
+                  this.setState({
+                    isNeedAuthz: data.bean.need_authz
+                  })
+                }
+              }
+            })
+            item.key = `cluster${indexs}`;
+            clusters.push(item);
+            return item;
+          });
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
             clusters.push(item);
@@ -701,16 +780,54 @@ export default class Enterprise extends PureComponent {
         );
     }
   }
-  // 端口异常排查弹窗
-  handleTroubleshoot = () => {
-    this.setState({ troubleshootVisible: true });
+  handleAuthorization = () => {
+    this.setState({
+      isAuthorizationCode: true
+    })
+  }
+  handleCanceAuthorization = () => {
+    this.setState({
+      isAuthorizationCode: false
+    })
+  }
+  handleSubmit = () => {
+    const { form } = this.props;
+    const { validateFields } = form;
+    validateFields((err, values) => {
+      if (!err) {
+        this.handleUpdateEnterpriseAuthorization(values.authorization_code)
+      }
+    });
   };
-  // 关闭端口异常排查弹窗
-  handleCancelTroubleshoot = () => {
-    this.setState({ troubleshootVisible: false });
+  downloadClusterInfo = () => {
+    const { 
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    this.download(`/console/enterprise/${eid}/platform-info`) 
+  }
+
+  download = downloadPath => {
+    let aEle = document.querySelector('#down-a-element');
+    if (!aEle) {
+      aEle = document.createElement('a');
+      aEle.setAttribute('download', '');
+      document.body.appendChild(aEle);
+    }
+    aEle.href = downloadPath;
+    if (document.all) {
+      aEle.click();
+    } else {
+      const e = document.createEvent('MouseEvents');
+      e.initEvent('click', true, true);
+      aEle.dispatchEvent(e);
+    }
   };
+
   renderContent = () => {
-    const { rainbondInfo, navigation_status } = this.props;
+    const { rainbondInfo, navigation_status, form } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -735,8 +852,17 @@ export default class Enterprise extends PureComponent {
       clusters,
       appAlertList,
       appAlertLoding,
-      troubleshootVisible
+      isAuthorizationCode,
+      enterpriseAuthorization,
+      isAuthorizationLoading,
+      isNeedAuthz,
+      authorizationCode
     } = this.state;
+    console.log(isNeedAuthz, 'isNeedAuthz')
+    console.log(enterpriseAuthorization, 'enterpriseAuthorization')
+    const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
+    const current = new Date().getTime();
+    const { getFieldDecorator, setFieldsValue } = form;
     const colors = { color: '#3D54C4', cursor: 'pointer' };
     const timestamp = Date.parse(new Date());
     const enterpriseVersion =
@@ -823,6 +949,54 @@ export default class Enterprise extends PureComponent {
         </path>
       </svg>
     )
+    const authorizationSvg = (
+      <svg
+        t="1728530192942"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="12692"
+        width="22"
+        height="22"
+      >
+        <path
+          d="M893.531011 131.215191L515.361232 2.361034A54.732548 54.732548 0 0 0 498.575845 0.006648c-6.093705 0-12.242807 0.803261-16.785386 2.354386L103.592981 131.215191c-9.223653 3.129948-16.813085 13.82163-16.813085 23.599257v536.85539c0 9.805325 6.370691 22.7129 14.043219 28.834304l383.626415 298.923917a22.989886 22.989886 0 0 0 13.987822 4.570279c5.124252 0 10.248503-1.578824 14.04322-4.570279l383.626414-298.923917c7.64483-6.010609 13.987822-18.918183 13.987822-28.806605V154.786749c0.221589-9.777626-7.340144-20.358514-16.563797-23.599257z m-63.319132 539.098982l-331.663732 258.42848-331.636033-258.42848V194.451227L498.575845 81.357606l331.663732 113.093621v475.862946z m-451.62662-223.694363a17.921032 17.921032 0 0 0-14.4587-7.340144h-61.435624c-7.22935 0-11.467244 8.226501-7.229349 14.126316l140.653785 193.641318a17.893333 17.893333 0 0 0 28.945098 0l236.601937-325.736219a8.946667 8.946667 0 0 0-7.229349-14.126315h-61.435624c-5.678225 0-11.134861 2.769866-14.4587 7.340144l-167.936963 231.256096-72.016511-99.161196z"
+          p-id="12693"
+          fill={globalUtil.getPublicColor()}
+        >
+        </path>
+      </svg>
+    )
+    const editCodeSvg = (
+      <svg
+        t="1728539678643"
+        class="icon"
+        viewBox="0 0 1117 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="14617"
+        width="28"
+        height="28"
+      >
+        <path
+          d="M965.694 933.837H142.041A44.757 44.757 0 0 1 97.016 889.5c0-20.134 13.96-36.473 32.638-41.88a55.994 55.994 0 0 1-30.299-22.053 53.962 53.962 0 0 1-4.64-51.852l82.189-191.186a33.06 33.06 0 0 1 8.169-11.89l448.721-442.047a133.773 133.773 0 0 1 94.385-38.468c35.514 0 68.996 13.654 94.231 38.43a129.86 129.86 0 0 1 39.005 93.004 129.63 129.63 0 0 1-39.005 92.812L373.46 756.611a36.013 36.013 0 0 1-12.004 7.862l-191.838 80.693h796.077c24.776 0 44.988 19.867 44.988 44.335 0 24.43-20.212 44.336-44.988 44.336zM786.283 221.559a56.378 56.378 0 0 0-17.105-40.462 58.104 58.104 0 0 0-75.363-5.523l80.924 79.735c7.363-9.742 11.544-21.401 11.544-33.75z m-64.164 86.752l-82.112-80.923-369.754 364.193 82.112 80.923L722.12 308.311zM288.51 714.538l-60.865-59.982-45.026 104.433 105.89-44.45z"
+          p-id="14618"
+          fill={globalUtil.getPublicColor()}
+        >
+        </path>
+      </svg>
+    )
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 24 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 24 }
+      }
+    };
     return (
       <div>
         {convenientVisible && (
@@ -864,26 +1038,27 @@ export default class Enterprise extends PureComponent {
                 <div className={enterpriseStyles.enterpriseInfo} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                   <div className={enterpriseStyles.enterpriseInfo_left} >
                     {enterpriseInfo && (
-                      <div className={enterpriseStyles.enterpriseName}>
+                      <div className={enterpriseStyles.enterpriseId}>
                         {/* 企业名称 */}
                         <p>
-                        <FormattedMessage id="enterpriseOverview.information.name" /> <span >{enterpriseInfo.enterprise_alias}</span>
-                        {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
+                          <FormattedMessage id="enterpriseOverview.information.name" />:&nbsp;
+                          <span style={{ color: '#444444' }}>{enterpriseInfo.enterprise_alias}</span>
+                          {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
+                            <a
+                              style={{ marginLeft: 24 }}
+                              href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
+                              target="_blank"
+                            >
+                              商业咨询
+                            </a>
+                          )}
                           <a
-                            style={{ marginLeft: 32 }}
-                            href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
-                            target="_blank"
-                          // onClick={this.handelConsulting}
+                            style={{ marginLeft: 12 }}
+                            onClick={() => {this.downloadClusterInfo()}}
                           >
-                            {/* 了解企业服务 */}
-                            <FormattedMessage id="enterpriseOverview.information.serve" />
+                            平台信息
                           </a>
-                        )}
                         </p>
-                      </div>
-                    )}
-                    {enterpriseInfo && (
-                      <div className={enterpriseStyles.enterpriseId}>
                         <p>
                           <Tooltip title={enterpriseInfo.enterprise_id}>
                             {/* 联合云id */}
@@ -956,6 +1131,88 @@ export default class Enterprise extends PureComponent {
             </Fragment>
           </Card>
         </div>
+        {/* 企业授权信息 */}
+        {isNeedAuthz && !isAuthorizationLoading &&
+          <div style={{ marginBottom: '24px' }}>
+            <div className={enterpriseStyles.title}>
+              <div>
+                <span>{authorizationSvg}</span>
+                <h2 className={enterpriseStyles.rbd_title}>企业版授权信息</h2>
+              </div>
+            </div>
+            <Card
+              style={{ marginBottom: '20px', background: 'transparent' }}
+              // loading={overviewAppInfoLoading}
+              bordered={false}
+              bodyStyle={{ padding: 0 }}
+            >
+              <div className={enterpriseStyles.authorization} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                <div className={enterpriseStyles.authorization_code}>
+                  <div className={enterpriseStyles.authorization_title}>授权码：</div>
+                  <div className={enterpriseStyles.authorization_code_content}>
+                    {authorizationCode || '-'}
+                  </div>
+                  <div onClick={() => { this.handleAuthorization() }} className={enterpriseStyles.authorization_svg}>
+                    {editCodeSvg}
+                  </div>
+                </div>
+                {enterpriseAuthorization ? (
+                  <div className={enterpriseStyles.authorization_info}>
+                    <div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>授权时间：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.end_time ? (end < current ? '授权已过期' : enterpriseAuthorization.end_time) : '不限制'}
+                        </div>
+                      </div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>集群授权：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.expect_cluster == '-1' ? '不限制' : `${enterpriseAuthorization.expect_cluster} 个`}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>授权企业：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.company}</div>
+                      </div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>节点授权：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.expect_node == '-1' ? '不限制' : `${enterpriseAuthorization.expect_node} 个`}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>联系方式：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.contact}</div>
+                      </div>
+                      <div className={enterpriseStyles.authorization_info_content}>
+                        <div className={enterpriseStyles.authorization_info_title}>授权内存：</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.expect_memory == '-1' ? '不限制' : `${enterpriseAuthorization.expect_memory} GB`}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={enterpriseStyles.authorization_error}>
+                    <div className={enterpriseStyles.authorization_invalid}>
+                      <div className={enterpriseStyles.authorization_svg}>
+                        {errorSvg}
+                      </div>
+                      <div>无效授权</div>
+                    </div>
+                    <p>请联系官方，获取有效授权码</p>
+                  </div>
+                )}
+
+              </div>
+
+            </Card>
+          </div>}
         {/* 集群信息 */}
         <div style={{ marginBottom: '24px' }}>
           <div className={enterpriseStyles.title}>
@@ -965,7 +1222,6 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
           <Card
-            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
             style={{ marginBottom: '20px', background: 'transparent' }}
             loading={overviewAppInfoLoading}
             bordered={false}
@@ -1077,7 +1333,7 @@ export default class Enterprise extends PureComponent {
                           <ul className={enterpriseStyles.ulStyle}>
                             <div>{formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title1' })}</div>
                             <li>
-                                {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li1' })}
+                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li1' })}
                             </li>
                             <li style={{ marginTop: '10px' }}>
                               {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li2' })}
@@ -1127,7 +1383,6 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
           <Card
-            // style={{ marginBottom: '20px', boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}
             style={{ marginBottom: '20px', background: 'transparent', }}
             loading={overviewAppInfoLoading}
             bordered={false}
@@ -1202,22 +1457,38 @@ export default class Enterprise extends PureComponent {
         </div>
 
 
-        {troubleshootVisible &&
+        {isAuthorizationCode &&
           <Modal
-            title={formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title' })}
+            title='更新授权码'
             visible
-            onCancel={this.handleCancelTroubleshoot}
+            onCancel={this.handleCanceAuthorization}
             footer={[
               <Button
-                size="small"
-                onClick={this.handleCancelTroubleshoot}
+                onClick={this.handleCanceAuthorization}
               >
-                {/* 关闭 */}
                 {formatMessage({ id: 'button.close' })}
+              </Button>,
+              <Button
+                type='primary'
+                onClick={this.handleSubmit}
+              >
+                更新
               </Button>
             ]}
           >
-
+            <Form onSubmit={this.handleSubmit} {...formItemLayout}>
+              <CodeMirrorForm
+                setFieldsValue={setFieldsValue}
+                Form={Form}
+                style={{ marginBottom: '20px' }}
+                getFieldDecorator={getFieldDecorator}
+                formItemLayout={formItemLayout}
+                name={"authorization_code"}
+                message={formatMessage({ id: 'notification.hint.confiuration.editContent' })}
+                data={authorizationCode}
+                mode={'yaml'}
+              />
+            </Form>
           </Modal>
         }
       </div>

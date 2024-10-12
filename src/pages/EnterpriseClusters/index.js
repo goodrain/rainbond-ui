@@ -82,6 +82,9 @@ export default class EnterpriseClusters extends PureComponent {
       jumpSwitch: true,
       kubeConfig: '',
       handleType: '',
+      isAddClusters: false,
+      clusterLoadings: true,
+      licenseInfo: null,
     };
   }
   componentWillMount() {
@@ -93,7 +96,36 @@ export default class EnterpriseClusters extends PureComponent {
   }
   componentDidMount() {
     this.loadClusters();
+    this.handleGetEnterpriseAuthorization();
   }
+  // 获取企业授权信息
+  handleGetEnterpriseAuthorization = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+    dispatch({
+      type: 'region/getEnterpriseLicense',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            isAuthorizationLoading: false,
+            licenseInfo: res.bean,
+          });
+        }
+      },
+      handleError: error => {
+        console.log(error, 'error')
+        if (error && error.data && error.data.code === 400) {
+          this.setState({
+            licenseInfo: null,
+            isAuthorizationLoading: false,
+          });
+        }
+      }
+    });
+  };
   handleMandatoryDelete = () => {
     const th = this;
     confirm({
@@ -151,7 +183,7 @@ export default class EnterpriseClusters extends PureComponent {
         callback: (res) => {
           if (res && res.response_data && res.response_data.code && res.response_data.code === 200) {
             this.loadClusters();
-            notification.success({message: res.response_data.msg})
+            notification.success({ message: res.response_data.msg })
           }
           this.cancelClusters();
         },
@@ -190,10 +222,10 @@ export default class EnterpriseClusters extends PureComponent {
             clusters.push(item);
             return item;
           });
-          this.setState({ clusters });
+          this.setState({ clusters, clusterLoadings: false });
           globalUtil.putClusterInfoLog(eid, res.list);
         } else {
-          this.setState({ clusters: [] });
+          this.setState({ clusters: [], clusterLoadings: false });
         }
       }
     });
@@ -328,7 +360,11 @@ export default class EnterpriseClusters extends PureComponent {
       initLimitValue: item.set_limit_memory
     });
   };
-
+  handleIsAddClusters = isAddClusters => {
+    this.setState({
+      isAddClusters
+    });
+  };
   submitLimit = e => {
     e.preventDefault();
     const {
@@ -610,7 +646,12 @@ export default class EnterpriseClusters extends PureComponent {
       showClusterIntroduced,
       kubeConfig,
       handleType,
+      isAddClusters,
+      licenseInfo,
+      clusterLoadings
     } = this.state;
+    const region_nums = (licenseInfo && licenseInfo.expect_cluster) || 0;
+    const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
     const { getFieldDecorator } = form;
     const pagination = {
       onChange: this.handleTenantPageChange,
@@ -858,21 +899,21 @@ export default class EnterpriseClusters extends PureComponent {
           ];
           if (item.region_name != 'dind-region') {
             mlist.push(
-              <a onClick={() => {this.delUser(item, 'delete');}}>
+              <a onClick={() => { this.delUser(item, 'delete'); }}>
                 <FormattedMessage id='enterpriseColony.table.handle.delete' />
                 {/* 删除 */}
               </a>
             );
           }
           mlist.push(
-            <a onClick={() => {this.delUser(item, 'unload');}}>
-              <FormattedMessage id='button.uninstall'/>
+            <a onClick={() => { this.delUser(item, 'unload'); }}>
+              <FormattedMessage id='button.uninstall' />
               {/* 卸载 */}
             </a>
           );
           if (item.provider_cluster_id) {
             mlist.push(
-              <a onClick={() => {this.getKubeConfig(item);}}>
+              <a onClick={() => { this.getKubeConfig(item); }}>
                 KubeConfig
                 {/* KubeConfig */}
               </a>
@@ -986,12 +1027,31 @@ export default class EnterpriseClusters extends PureComponent {
           style={{ boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px' }}
           extra={<Row>
             <Col span={24} style={{ textAlign: 'right' }}>
-              <Link to={`/enterprise/${eid}/addCluster`}>
-                <Button type="primary">
-                  {/* 添加集群 */}
-                  <FormattedMessage id='enterpriseColony.button.text' />
-                </Button>
-              </Link>
+              <div
+                style={{
+                  display: 'inline-block',
+                  height: '40px',
+                  width: '100px',
+                  textAlign: 'center'
+                }}
+                onMouseLeave={() => {
+                  this.handleIsAddClusters(false);
+                }}
+                onMouseEnter={() => {
+                  this.handleIsAddClusters(isAdd);
+                }}
+              >
+                <Tooltip
+                  title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
+                  visible={isAddClusters}
+                >
+                  <Link to={`/enterprise/${eid}/addCluster`}>
+                    <Button type="primary" disabled={isAdd || clusterLoadings}>
+                      <FormattedMessage id='enterpriseColony.button.text' />
+                    </Button>
+                  </Link>
+                </Tooltip>
+              </div>
               <Button onClick={this.terminalCallout} style={{ marginLeft: 15 }}>
                 {formatMessage({ id: 'otherEnterprise.shell.line' })}
               </Button>
@@ -1049,7 +1109,7 @@ export default class EnterpriseClusters extends PureComponent {
             message={<FormattedMessage id='enterpriseColony.alert.message' />}
           />
           <Table
-            rowKey={(record,index) => index}
+            rowKey={(record, index) => index}
             loading={clusterLoading}
             dataSource={clusters}
             columns={columns}
@@ -1070,9 +1130,9 @@ export default class EnterpriseClusters extends PureComponent {
             bodyStyle={{ background: '#000' }}
             onOk={() => {
               copy(kubeConfig);
-              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
+              notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
             }}
-            okText={<FormattedMessage id='button.copy'/>}
+            okText={<FormattedMessage id='button.copy' />}
           >
             <div className={styles.cmd}>
               <CodeMirror

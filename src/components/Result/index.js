@@ -1,4 +1,5 @@
 import { Icon } from "antd";
+import { Link } from 'dva/router';
 import classNames from "classnames";
 import React from "react";
 import styles from "./index.less";
@@ -8,6 +9,7 @@ export default function Result({
   type,
   title,
   description,
+  isGoBack,
   extra,
   actions,
   ...restProps
@@ -24,6 +26,7 @@ export default function Result({
       <div className={styles.icon}>{iconMap[type]}</div>
       <div className={styles.title}>{title}</div>
       {description && <div className={styles.description}>{description}</div>}
+      {isGoBack && <Link to='/'>返回首页</Link>}
       {extra && <div className={styles.extra}>{extra}</div>}
       {actions && <div className={styles.actions}>{actions}</div>}
     </div>

@@ -8,7 +8,7 @@ const enterpriseOverview = {
     'enterpriseOverview.information.dataScreen': '数据总览',
     'enterpriseOverview.information.colonyInfo': '集群信息',
     'enterpriseOverview.information.appAlert': '应用报警',
-    'enterpriseOverview.information.name': '企业名称:',
+    'enterpriseOverview.information.name': '企业名称',
     'enterpriseOverview.information.serve': '了解企业服务',
     'enterpriseOverview.information.unite': '联合云ID',
     'enterpriseOverview.information.versions': '平台版本',
