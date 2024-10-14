@@ -186,7 +186,7 @@ export default class EnterpriseSetting extends PureComponent {
             <TabPane
               tab={
                 <div>
-                  组件语言版本
+                <FormattedMessage id='enterpriseSetting.TabPane.upload' />
                 </div>
               }
               key="upload">

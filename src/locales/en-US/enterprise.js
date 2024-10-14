@@ -1159,6 +1159,7 @@ const enterpriseSetting = {
     'enterpriseSetting.TabPane.enterpriseAdmin': 'Enterprise administrator',
     'enterpriseSetting.TabPane.dataBackups': 'Data backup',
     'enterpriseSetting.TabPane.mirrorWarehouse': 'Mirror warehouse',
+    'enterpriseSetting.TabPane.upload': 'Version Uploaded',
     'enterpriseSetting.TabPane.updateVersion': 'Version update',
     'enterpriseSetting.TabPane.individuation': 'Individuation',
     // tabs>TabPane>basicsSetting

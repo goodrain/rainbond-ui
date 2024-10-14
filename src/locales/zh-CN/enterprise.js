@@ -1164,6 +1164,7 @@ const enterpriseSetting = {
     'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员管理',
     'enterpriseSetting.TabPane.dataBackups': '数据备份',
     'enterpriseSetting.TabPane.mirrorWarehouse': '镜像仓库',
+    'enterpriseSetting.TabPane.upload': '组件语言版本',
     'enterpriseSetting.TabPane.updateVersion': '版本更新',
     'enterpriseSetting.TabPane.individuation': '个性化配置',
     // tabs>TabPane>basicsSetting
