@@ -227,11 +227,6 @@ export default class Enterprise extends PureComponent {
             clusters.push(item);
             return item;
           });
-          res.list.map((item, index) => {
-            item.key = `cluster${index}`;
-            clusters.push(item);
-            return item;
-          });
           this.setState({ clusters });
           globalUtil.putClusterInfoLog(eid, res.list);
         }
@@ -858,7 +853,7 @@ export default class Enterprise extends PureComponent {
       isNeedAuthz,
       authorizationCode
     } = this.state;
-    console.log(isNeedAuthz, 'isNeedAuthz')
+    console.log(clusters, 'clusters')
     console.log(enterpriseAuthorization, 'enterpriseAuthorization')
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
