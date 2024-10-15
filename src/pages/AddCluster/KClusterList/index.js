@@ -134,7 +134,8 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
+    dispatch(routerRedux.push(`/enterprise/${enterpriseID}/clusters`));
   };
   preStep = () => {
     const { dispatch } = this.props;
@@ -143,7 +144,8 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/addCluster`));
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
+    dispatch(routerRedux.push(`/enterprise/${enterpriseID}/addCluster`));
   };
   loadSteps = () => {
     const steps = [
@@ -172,10 +174,11 @@ export default class EnterpriseClusters extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     if (type == 'last') {
-      dispatch(routerRedux.push(`/enterprise/${eid}/addCluster`));
+      dispatch(routerRedux.push(`/enterprise/${enterpriseID}/addCluster`));
     } else {
-      dispatch(routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/init`));
+      dispatch(routerRedux.push(`/enterprise/${enterpriseID}/provider/${provider}/kclusters/init`));
     }
   }
 

@@ -19,6 +19,7 @@ import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import Build from '../component/build';
 import Etcd from '../component/etcd';
+import globalUtil from '../../../utils/global'
 import cookie from '../../../utils/cookie';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
@@ -94,6 +95,7 @@ export default class ClusterLink extends PureComponent {
       location: { search },
       form
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     const { data, name, cloudserver } =
       search && Qs.parse(this.props.location.search.substr(1));
     const {
@@ -321,7 +323,7 @@ export default class ClusterLink extends PureComponent {
 
           // 路由跳转
           router.push({
-            pathname: `/enterprise/${eid}/provider/ACksterList/install`,
+            pathname: `/enterprise/${enterpriseID}/provider/ACksterList/install`,
             search: Qs.stringify({
               name,
               step: 'advanced',
@@ -336,22 +338,22 @@ export default class ClusterLink extends PureComponent {
       switch (name) {
         case 'helm':
           router.push({
-            pathname: `/enterprise/${eid}/provider/ACksterList`
+            pathname: `/enterprise/${enterpriseID}/provider/ACksterList`
           });
           break;
         case 'ack':
           router.push({
-            pathname: `/enterprise/${eid}/provider/Aliack`
+            pathname: `/enterprise/${enterpriseID}/provider/Aliack`
           });
           break;
         case 'huawei':
           router.push({
-            pathname: `/enterprise/${eid}/provider/HuaweiList`
+            pathname: `/enterprise/${enterpriseID}/provider/HuaweiList`
           });
           break;
         case 'tencent':
           router.push({
-            pathname: `/enterprise/${eid}/provider/TencentList`
+            pathname: `/enterprise/${enterpriseID}/provider/TencentList`
           });
           break;
         default:

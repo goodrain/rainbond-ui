@@ -63,13 +63,11 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider, clusterID }
       }
     } = this.props;
-    const {
-
-    } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch({
       type: 'cloud/loadInitRainbondTask',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: enterpriseID,
         clusterID,
         providerName: provider
       },
@@ -96,7 +94,8 @@ export default class RainbondInit extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
+    dispatch(routerRedux.push(`/enterprise/${enterpriseID}/clusters`));
   };
   preStep = () => {
     const { dispatch } = this.props;
@@ -105,8 +104,9 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters?event_id=${window.localStorage.getItem('event_id')}`)
+      routerRedux.push(`/enterprise/${enterpriseID}/provider/${provider}/kclusters?event_id=${window.localStorage.getItem('event_id')}`)
     );
   };
   loadSteps = () => {
@@ -136,9 +136,10 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider, clusterID }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/link`
+        `/enterprise/${enterpriseID}/provider/${provider}/kclusters/link`
       )
     );
   };

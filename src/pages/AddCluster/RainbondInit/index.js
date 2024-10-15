@@ -8,6 +8,7 @@ import React, { PureComponent } from 'react';
 import RainbondClusterInit from '../../../components/Cluster/RainbondClusterInit';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
 
 const { Step } = Steps;
@@ -48,7 +49,8 @@ export default class RainbondInit extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
+    dispatch(routerRedux.push(`/enterprise/${enterpriseID}/clusters`));
   };
   preStep = () => {
     const { dispatch } = this.props;
@@ -57,8 +59,9 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters`)
+      routerRedux.push(`/enterprise/${enterpriseID}/provider/${provider}/kclusters`)
     );
   };
   nextStep = () => {
@@ -68,8 +71,9 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider, clusterID }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch(
-      routerRedux.push(`/enterprise/${eid}/provider/${provider}/kclusters/check`)
+      routerRedux.push(`/enterprise/${enterpriseID}/provider/${provider}/kclusters/check`)
     );
   };
   loadSteps = () => {
@@ -99,9 +103,10 @@ export default class RainbondInit extends PureComponent {
         params: { eid, provider }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch(
       routerRedux.push(
-        `/enterprise/${eid}/provider/${provider}/kclusters/check`
+        `/enterprise/${enterpriseID}/provider/${provider}/kclusters/check`
       )
     );
   };
