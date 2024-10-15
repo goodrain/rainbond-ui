@@ -836,7 +836,8 @@ class TeamLayout extends PureComponent {
                   style={{
                     height: 'calc(100vh - 64px)',
                     overflow: 'auto',
-                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
+                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)',
+                    backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                   }}>
 
                   <CSSTransition

@@ -25,39 +25,20 @@
   display    : flex;
   align-items: center;
 }
-:global {
-
-  .ant-switch {
-    min-width    : 32px !important;
-    width        : 32px !important;
-    height       : 14px !important;
-    background   : rgba(234, 234, 234, 1) !important;
-    border-radius: 7px !important;
-  }
-
-  .ant-switch::after {
-    box-shadow: none !important;
-    background: #C8C8C8 !important;
-    width     : 20px !important;
-    height    : 20px !important;
-    top       : -5px !important;
-    left      : -5px !important;
-  }
-
-  .ant-input-disabled {
-    background: #E9E9E9 !important
-  }
-
-  .ant-switch-checked {
-    background-color: #A8F3B7 !important
-  }
-
-  .ant-switch-checked::after {
-    left             : 118% !important;
-    margin-left      : -1px !important;
-    -webkit-transform: translateX(-100%) !important;
-    transform        : translateX(-100%) !important;
-    background-color : #21B174 !important
-  }
-
+.cardHeader{
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e3e3e3;
+  background-color: #fafbfc;
 }
+.cardBody{
+  :global{
+    .ant-card-body{
+      padding: 0;
+    }
+  }
+}
+

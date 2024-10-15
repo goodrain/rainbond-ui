@@ -13,6 +13,7 @@ import router from 'umi/router';
 import Result from '../../../components/Result';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
+import globalUtil from '../../../utils/global';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -99,6 +100,7 @@ export default class ClusterLink extends PureComponent {
         params: { eid }
       }
     } = this.props;
+    const enterpriseID = eid || globalUtil.getCurrEnterpriseId()
     dispatch({
       type: 'region/deleteHelmEvents',
       payload: { 
@@ -106,9 +108,9 @@ export default class ClusterLink extends PureComponent {
       },
       callback: res => {
         if (value === 'install') {
-          dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList`));
+          dispatch(routerRedux.push(`/enterprise/${enterpriseID}/provider/ACksterList`));
         } else if (value === 'finish') {
-          dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+          dispatch(routerRedux.push(`/enterprise/${enterpriseID}/clusters`));
         }
       }
     });

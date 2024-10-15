@@ -1261,6 +1261,7 @@ const enterpriseSetting = {
     'enterpriseSetting.BackupManage.importBackups.form.label.password': '账号密码',
     // tabs>TabPane>updateVersion
     'enterpriseSetting.updateVersion.alert.title': '当前版本为{title}, 请仔细阅读版本详情确认是否更新',
+    'enterpriseSetting.updateVersion.alert.new': '当前的平台版本是{title},已是最新版本，无需升级更新。',
     'enterpriseSetting.updateVersion.collapse.panel.title': '查看更多',
     'enterpriseSetting.updateVersion.modal.title': '温馨提示',
     'enterpriseSetting.updateVersion.modal.content_title': '确定要更新{title}版本吗？',

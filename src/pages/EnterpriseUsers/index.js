@@ -11,6 +11,7 @@ import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import styles from './index.less'
 
 const FormItem = Form.Item;
 
@@ -333,55 +334,45 @@ export default class EnterpriseUsers extends PureComponent {
         titleSvg={pageheaderSvg.getSvg('userSvg', 18)}
       >
         <div>
-          <Row
-            style={{
-              marginBottom: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              background: '#fafbfc',
-              borderRadius: 5,
-              boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px',
-              padding: 10
-            }}
-          >
-            <Col span={12}>
-              <Form layout="inline" style={{ display: 'inline-block' }}>
-                <FormItem>
-                  <Input
-                    placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
-                    onChange={e => this.handelChange(e.target.value)}
-                    onPressEnter={this.handleSearch}
-                    style={{ width: 250 }}
-                  />
-                </FormItem>
-                <FormItem>
+          <Card style={{ borderRadius: 5, boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', }} className={styles.cardBody}>
+            <Row className={styles.cardHeader}>
+              <Col span={12}>
+                <Form layout="inline" style={{ display: 'inline-block' }}>
+                  <FormItem>
+                    <Input
+                      placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
+                      onChange={e => this.handelChange(e.target.value)}
+                      onPressEnter={this.handleSearch}
+                      style={{ width: 250 }}
+                    />
+                  </FormItem>
+                  <FormItem>
+                    <Button
+                      type="primary"
+                      onClick={this.handleSearch}
+                      icon="search"
+                    >
+                      {/* 搜索 */}
+                      <FormattedMessage id='button.search' />
+                    </Button>
+                  </FormItem>
+                </Form>
+              </Col>
+              <Col span={12} style={{ textAlign: 'right' }}>
+                {adminer && (
                   <Button
                     type="primary"
-                    onClick={this.handleSearch}
-                    icon="search"
+                    icon="plus"
+                    style={{ float: 'right' }}
+                    onClick={this.addUser}
                   >
-                    {/* 搜索 */}
-                    <FormattedMessage id='button.search' />
-                  </Button>
-                </FormItem>
-              </Form>
-            </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
-              {adminer && (
-                <Button
-                  type="primary"
-                  icon="plus"
-                  style={{ float: 'right' }}
-                  onClick={this.addUser}
-                >
-                  {/* 新增用户 */}
-                  <FormattedMessage id='enterpriseUser.button.adduser' />
+                    {/* 新增用户 */}
+                    <FormattedMessage id='enterpriseUser.button.adduser' />
 
-                </Button>
-              )}
-            </Col>
-          </Row>
-          <Card style={{ borderRadius: 5, boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', }}>
+                  </Button>
+                )}
+              </Col>
+            </Row>
             {delVisible && (
               <ConfirmModal
                 onOk={this.handleDelete}
@@ -411,6 +402,7 @@ export default class EnterpriseUsers extends PureComponent {
                 }}
               />
             )}
+            <div style={{padding:24}}>
             <Table
               pagination={total > 10 ? {
                 current: page,
@@ -421,6 +413,8 @@ export default class EnterpriseUsers extends PureComponent {
               dataSource={adminList}
               columns={columns}
             />
+            </div>
+
           </Card>
         </div>
       </PageHeaderLayout>

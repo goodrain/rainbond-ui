@@ -807,34 +807,6 @@ export default class EnterpriseTeams extends PureComponent {
 
     const managementTemas = (
       <div>
-        <Row
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '20px',
-            backgroundColor: "#fafbfc",
-            padding: ' 10px 20px',
-            borderRadius: 5,
-            boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px'
-          }}
-        >
-          <Col
-            span={language ? 2 : 3}
-            className={styles.teamsTit}
-            style={{ marginBottom: '0' }}
-          >
-            {/* 全部项目/团队 */}
-            <FormattedMessage id='enterpriseTeamManagement.allProject.lable' />
-          </Col>
-          <Col span={15} style={{ textAlign: 'left' }}>
-            <Search
-              style={{ width: '500px' }}
-              placeholder={formatMessage({ id: 'enterpriseTeamManagement.allProject.search' })}
-              onSearch={this.handleSearchTeam}
-            />
-          </Col>
-          {operation}
-        </Row>
         <div style={{
           background: '#fff',
           borderRadius: 5,
@@ -842,6 +814,27 @@ export default class EnterpriseTeams extends PureComponent {
           fontSize: 14,
           fontWeight: 600
         }}>
+          <Row
+            className={styles.managementTemas}
+          >
+            <Col
+              span={language ? 2 : 3}
+              className={styles.teamsTit}
+              style={{ marginBottom: '0' }}
+            >
+              {/* 全部项目/团队 */}
+              <FormattedMessage id='enterpriseTeamManagement.allProject.lable' />
+            </Col>
+            <Col span={15} style={{ textAlign: 'left' }}>
+              <Search
+                style={{ width: '500px' }}
+                placeholder={formatMessage({ id: 'enterpriseTeamManagement.allProject.search' })}
+                onSearch={this.handleSearchTeam}
+              />
+            </Col>
+            {operation}
+          </Row>
+          <div style={{padding:24}}>
           <Row style={{ width: '100%' }} className={styles.rowTitle}>
             <Row className={styles.teamMinTit} type="flex" align="middle">
               <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
@@ -941,6 +934,7 @@ export default class EnterpriseTeams extends PureComponent {
         </div>
         <div style={{ textAlign: 'right', margin: '15px' }}>
           {Number(this.state.total) > 10 && this.handlePaginations()}
+        </div>
         </div>
       </div>
     );
@@ -1151,13 +1145,9 @@ export default class EnterpriseTeams extends PureComponent {
           })}
       </div>
     );
-    // let title = '我的项目/团队';
     let title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title' />;
-    // const content =
-    //   '项目/团队是企业下多租户资源划分的一个层级，应用、插件、权限划分等都基于项目/团队进行隔离。一个项目/团队可以开通多个集群。';
     const content = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.context' />;
     if (adminer) {
-      // title = '项目/团队管理';
       title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin' />;
     }
     return (
@@ -1193,9 +1183,6 @@ export default class EnterpriseTeams extends PureComponent {
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-          // guideStep={guideStep}
-          // handleNewbieGuiding={this.handleNewbieGuiding}
-          // handleGuideStep={this.handleGuideStep}
           />
         )}
         {this.state.showExitTeam && (

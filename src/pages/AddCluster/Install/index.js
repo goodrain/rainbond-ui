@@ -25,6 +25,7 @@ import Qs from 'qs';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import globalUtile from "@/utils/global"
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
@@ -106,29 +107,30 @@ export default class ClusterLink extends PureComponent {
       },
       location: { search }
     } = this.props;
+    const enterpriseID = eid || globalUtile.getCurrEnterpriseId()
     const { helmToken, resCommand, copyCommand } = this.state;
     const { data, name, step } = Qs.parse(search.substr(1)) || {};
     // 返回上一步
     if (value === 'goback') {
       switch (name) {
         case 'helm':
-            router.push(`/enterprise/${eid}/provider/ACksterList`);
+            router.push(`/enterprise/${enterpriseID}/provider/ACksterList`);
           break;
         case 'ack':
-            router.push(`/enterprise/${eid}/provider/Aliack`);
+            router.push(`/enterprise/${enterpriseID}/provider/Aliack`);
           break;
         case 'huawei':
-            router.push(`/enterprise/${eid}/provider/HuaweiList`);
+            router.push(`/enterprise/${enterpriseID}/provider/HuaweiList`);
           break;
         case 'tencent':
-            router.push(`/enterprise/${eid}/provider/tencentList`);
+            router.push(`/enterprise/${enterpriseID}/provider/tencentList`);
           break;
         default:
           break;
       }
     } else {
       router.push({
-        pathname: `/enterprise/${eid}/provider/ACksterList/result`,
+        pathname: `/enterprise/${enterpriseID}/provider/ACksterList/result`,
         search: Qs.stringify({
           token: helmToken,
           data: resCommand,

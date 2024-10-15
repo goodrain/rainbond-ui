@@ -1256,6 +1256,7 @@ const enterpriseSetting = {
     'enterpriseSetting.BackupManage.importBackups.form.label.password': 'Account password',
     // tabs>TabPane>updateVersion
     'enterpriseSetting.updateVersion.alert.title': 'The current version is {title}. Please read the version details carefully to check whether it is updated',
+    'enterpriseSetting.updateVersion.alert.new': 'The current platform version is {title}, which is the latest version and does not need to be updated.',
     'enterpriseSetting.updateVersion.collapse.panel.title': 'View more',
     'enterpriseSetting.updateVersion.modal.title': 'Warm reminder',
     'enterpriseSetting.updateVersion.modal.content_title': 'Are you sure you want to update {title}',

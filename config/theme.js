@@ -1,19 +1,15 @@
 // 全局更改 antd 主题色
 module.exports = {
-'primary-color': '#4D73B1' , // 全局主色
+'primary-color': '#195ca3' , // 全局主色
 'success-color': '#18B633', // 成功色
 'warning-color': '#FF8D3C', // 警告色
 'error-color': '#FC481B', // 错误色
-
-
 'heading-color': '#161616', // 标题色
 'text-color': '#444444', // 主文本色
 'text-color-secondary' : '#A8A8A8', // 次文本色
 'border-color-base': '#E2E2E2', // 边框色
 'label-color':'#444444', // 表单 label 文本色
-
-
-'rbd-background-color': '#f0f2f5', // rainbond 背景色
+'rbd-background-color': '#f0f5ff', // rainbond 背景色
 'rbd-label-color': '#8d9bad', // rainbond 标签色
 // 特大号醒目文字
 'rbd-display-size': '36px',

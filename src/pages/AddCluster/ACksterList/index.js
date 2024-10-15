@@ -101,7 +101,7 @@ export default class RainbondClusterInit extends PureComponent {
       },
       callback: res => {
         if (res.create_status) {
-          dispatch(routerRedux.push(`/enterprise/${eid}/provider/ACksterList/result?token=${res.token}&host=${res.api_host}`))
+          dispatch(routerRedux.push(`/enterprise/${eid || globalUtil.getCurrEnterpriseId()}/provider/ACksterList/result?token=${res.token}&host=${res.api_host}`))
         } else {
           this.helmToken()
         }
@@ -465,7 +465,7 @@ export default class RainbondClusterInit extends PureComponent {
         params: { eid }
       },
     } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/addCluster`))
+    dispatch(routerRedux.push(`/enterprise/${eid || globalUtil.getCurrEnterpriseId()}/addCluster`))
   }
 
   render() {
