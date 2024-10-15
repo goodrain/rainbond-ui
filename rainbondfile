@@ -1,4 +1,0 @@
-ports:
- - port: 4000
-   protocol: http
-language: NodeJSStatic
