@@ -51,7 +51,8 @@ class CodeBuildConfig extends PureComponent {
       NODE_VERBOSE: false,
       arr: [],
       setObj: props.runtimeInfo ? props.runtimeInfo : '',
-      buildSourceArr:[]
+      buildSourceArr:[],
+      buildSourceLoading: true
     };
   }
 
@@ -265,12 +266,12 @@ class CodeBuildConfig extends PureComponent {
     };
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
-    const { languageType, arr, buildSourceArr } = this.state;
-    console.log(buildSourceArr,"buildSourceArr");
+    const { languageType, arr, buildSourceArr, buildSourceLoading } = this.state;
+    if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
         {(languageType === 'java-maven' || languageType === 'Java-maven') && (
-          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
+          <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} />
         )}
         {(languageType === 'java-jar' || languageType === 'Java-jar') && (
           <div>
@@ -302,7 +303,7 @@ class CodeBuildConfig extends PureComponent {
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
+          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} key={buildSourceArr}/>
         )}
         {(languageType === 'nodejsstatic' ||
           languageType === 'NodeJSStatic' ||
