@@ -216,7 +216,6 @@ export default class Enterprise extends PureComponent {
               },
               callback: data => {
                 if (data && data.bean) {
-                  console.log(data.bean.need_authz, 'data.bean.need_authz')
                   this.setState({
                     isNeedAuthz: data.bean.need_authz
                   })
