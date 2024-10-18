@@ -1,4 +1,4 @@
-import { Tabs, Card, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Empty } from 'antd';
+import { Tabs, Card, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Empty, Switch } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -38,7 +38,7 @@ class Index extends PureComponent {
                 }
             },
             handleError: err => {
-                if(err){
+                if (err) {
                     this.setState({
                         pluginList: [],
                         loading: false
@@ -49,11 +49,11 @@ class Index extends PureComponent {
     }
     onJumpApp = (value) => {
         const { dispatch, regionName } = this.props
-        if(value.team_name == ''){
-            notification.warning({message: formatMessage({id:'notification.warn.not_app'})})
-        }else if(value.app_id == '-1'){
-            notification.warning({message: formatMessage({id:'notification.warn.not_team'})})
-        }else{
+        if (value.team_name == '') {
+            notification.warning({ message: formatMessage({ id: 'notification.warn.not_app' }) })
+        } else if (value.app_id == '-1') {
+            notification.warning({ message: formatMessage({ id: 'notification.warn.not_team' }) })
+        } else {
             dispatch(routerRedux.push(`/team/${value.team_name}/region/${regionName}/apps/${value.app_id}`))
         }
     }
@@ -141,6 +141,27 @@ class Index extends PureComponent {
             </Tooltip>
         );
     }
+    changePluginStatus = (val) => {
+        const { dispatch, regionName } = this.props
+        dispatch({
+            type: 'global/editPluginsStatus',
+            payload: {
+                region_name: regionName,
+                plugin_name: val.name,
+                action: val.enable_status == 'true' ? 'disable' : 'enable'
+            },
+            callback: res => {
+                this.handlePluginList()
+                notification.success({message: formatMessage({id:'notification.success.succeeded'})})
+            },
+            handleError: err => {
+                this.handlePluginList()
+                notification.error({message: formatMessage({id:'enterpriseColony.mgt.cluster.editDefeated'})})
+
+            }
+        })
+
+    }
     render() {
         const { pluginList, loading } = this.state
         const pluginSvg = (
@@ -194,7 +215,8 @@ class Index extends PureComponent {
                                 team_name,
                                 version,
                                 urls,
-                                alias
+                                alias,
+                                enable_status
                             } = item
                             return (
                                 <div className={styles.boxs}>
@@ -203,7 +225,7 @@ class Index extends PureComponent {
                                             {icon ? <img src={icon} alt="" /> : pluginSvg}
                                         </div>
                                     </Col>
-                                    <Col span={10}>
+                                    <Col span={8}>
                                         <p className={styles.pluginName} onClick={() => this.onJumpApp(item)}>{alias == '' ? name : alias}</p>
                                         <p className={styles.pluginDesc}>{description}</p>
                                     </Col>
@@ -223,12 +245,14 @@ class Index extends PureComponent {
                                             null
                                         ) : (
                                             <a onClick={() => this.onJumpApp(item)} target="_blank" >
-                                                {formatMessage({id:'extensionEnterprise.plugin.btn.manage'})}
+                                                {formatMessage({ id: 'extensionEnterprise.plugin.btn.manage' })}
                                             </a>
                                         )}
                                         {/* 访问 */}
                                         {urls.length > 0 && this.renderVisitBtn(urls, 'link')}
-
+                                    </Col>
+                                    <Col span={2} className={styles.author}>
+                                        <Switch checkedChildren="启用" unCheckedChildren="禁用" checked={enable_status == 'true'} onChange={() => this.changePluginStatus(item)} />
                                     </Col>
                                 </div>
                             )
@@ -245,7 +269,7 @@ class Index extends PureComponent {
                         <Spin />
                     </div>
                 )}
-                
+
             </div>
         );
     }

@@ -1656,3 +1656,16 @@ export async function deleteLanguageFile(body, handleError) {
     }
   );
 }
+// 插件启用与禁用
+export async function editPluginsStatus(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/regions/${body.region_name}/plugins/${body.plugin_name}/status`,
+    {
+      method: 'post',
+      data: {
+        action: body.action
+      },
+      handleError
+    }
+  );
+}
