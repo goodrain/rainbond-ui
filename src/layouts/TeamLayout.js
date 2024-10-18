@@ -104,6 +104,7 @@ class TeamLayout extends PureComponent {
       isMemory: false,
       isNode: false,
       isTime: false,
+      isNeedAuthz: false,
     };
   }
 
@@ -202,9 +203,6 @@ class TeamLayout extends PureComponent {
               isTime: time,
             });
           }
-          
-
-          
         },
         handleError:(error) => {
           if (error && error.data && error.data.code === 400) {
@@ -248,6 +246,11 @@ class TeamLayout extends PureComponent {
                   vm_url:item.urls[0]
                 })
               }
+            })
+          }
+          if (res && res.bean) {
+            this.setState({
+              isNeedAuthz: res.bean.need_authz
             })
           }
           this.setState({
@@ -579,6 +582,7 @@ class TeamLayout extends PureComponent {
       isMemory,
       isNode,
       isTime,
+      isNeedAuthz
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -601,22 +605,29 @@ class TeamLayout extends PureComponent {
       return <PageLoading />;
     }
 
-    if(!isAuthorizationLoading && licenseInfo){
-      if(isLicense){
-        return <Overdue title={'集群超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
-      }else if(isNode){
-        return <Overdue title={'节点超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
-      }else if(isTime){
-        return <Overdue title={'授权时间已过期'} desc={'联系企业管理员，更新授权码'}/>
-      }else if(isMemory){
-        return <Overdue title={'内存超出授权限制'} desc={'联系企业管理员，更新授权码'}/>
+    if (isNeedAuthz) {
+      if (!isAuthorizationLoading && !licenseInfo) {
+        return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
-    } else {
-      return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />
+    
+      const overdueTitle = '';
+      const overdueDesc = '联系企业管理员，更新授权码';
+    
+      if (isLicense) {
+        overdueTitle = '集群超出授权限制';
+      } else if (isNode) {
+        overdueTitle = '节点超出授权限制';
+      } else if (isTime) {
+        overdueTitle = '授权时间已过期';
+      } else if (isMemory) {
+        overdueTitle = '内存超出授权限制';
+      }
+    
+      if (overdueTitle) {
+        return <Overdue title={overdueTitle} desc={overdueDesc} />;
+      }
     }
-   
-
-
+    
     if (
       teamName !== currentTeam.team_name ||
       regionName !== (currentRegion && currentRegion.team_region_name)
