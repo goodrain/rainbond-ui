@@ -85,6 +85,7 @@ export default class EnterpriseClusters extends PureComponent {
       isAddClusters: false,
       clusterLoadings: true,
       licenseInfo: null,
+      isNeedAuthz: false,
     };
   }
   componentWillMount() {
@@ -208,10 +209,25 @@ export default class EnterpriseClusters extends PureComponent {
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res.list) {
+        if (res && res.list && res.list.length > 0) {
           const clusters = [];
           res.list.map((item, index) => {
+            const { region_name, enterprise_id } = item
             item.key = `cluster${index}`;
+            dispatch({
+              type: 'teamControl/fetchPluginUrl',
+              payload: {
+                enterprise_id: enterprise_id,
+                region_name: region_name
+              },
+              callback: data => {
+                if (data && data.bean) {
+                  this.setState({
+                    isNeedAuthz: data.bean.need_authz
+                  })
+                }
+              }
+            })
             if (!item.resource_proxy_status) {
               notification.warning({
                 message: formatMessage({ id: 'utils.request.warning' }),
@@ -648,7 +664,8 @@ export default class EnterpriseClusters extends PureComponent {
       handleType,
       isAddClusters,
       licenseInfo,
-      clusterLoadings
+      clusterLoadings,
+      isNeedAuthz
     } = this.state;
     const region_nums = (licenseInfo && licenseInfo.expect_cluster) || 0;
     const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
@@ -1038,7 +1055,7 @@ export default class EnterpriseClusters extends PureComponent {
                   this.handleIsAddClusters(false);
                 }}
                 onMouseEnter={() => {
-                  this.handleIsAddClusters(isAdd);
+                  this.handleIsAddClusters(isNeedAuthz && isAdd);
                 }}
               >
                 <Tooltip
@@ -1046,7 +1063,7 @@ export default class EnterpriseClusters extends PureComponent {
                   visible={isAddClusters}
                 >
                   <Link to={`/enterprise/${eid}/addCluster`}>
-                    <Button type="primary" disabled={isAdd || clusterLoadings}>
+                    <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)}>
                       <FormattedMessage id='enterpriseColony.button.text' />
                     </Button>
                   </Link>
