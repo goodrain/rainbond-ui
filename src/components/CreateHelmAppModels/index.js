@@ -531,7 +531,7 @@ class CreateHelmAppModels extends PureComponent {
               )}
               <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.select_version_app'/></div>
             </FormItem>
-            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>}>
+            <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>} style={{display:'none'}}>
               {getFieldDecorator('note', {
                 initialValue: appInfo.versions
                   ? appInfo.versions[0].description || appInfo.describe

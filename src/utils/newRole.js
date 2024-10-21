@@ -145,7 +145,7 @@ export default {
             'install',
             'uninstall'
         ];
-        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct', 'copy'];
+        const defaultTargetOperationArr = ['start', 'stop', 'update', 'construct', 'copy', 'restart'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -199,7 +199,7 @@ export default {
             'isInstall',
             'isUninstall'
         ];
-        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct', 'isCopy'];
+        const defaultOperationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct', 'isCopy', 'isRestart'];
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
@@ -439,7 +439,7 @@ export default {
         return <Exception type={403} style={{ minHeight: 600, height: '80%' }} actions />
     },
     // 刷新权限信息
-    refreshPermissionsInfo(appid = '', onlyRefresh = true) {
+    refreshPermissionsInfo(appid = '', onlyRefresh = true, callback) {
         const { dispatch } = window.g_app._store;
         let info
         dispatch({
@@ -453,6 +453,7 @@ export default {
                     });
                     if (appid != '') {
                         info = this.queryPermissionsInfo(team?.tenant_actions?.team, 'app_overview', `app_${appid}`)
+                        callback && callback(info)
                     } else {
                         info = team?.tenant_actions?.team
                     }
@@ -462,7 +463,9 @@ export default {
         if (!onlyRefresh) {
             return info || {};
         }
-    }
+    },
+    // 新建应用后刷新信息
+
 };
 
 

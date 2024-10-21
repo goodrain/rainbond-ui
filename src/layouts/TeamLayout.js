@@ -169,6 +169,7 @@ class TeamLayout extends PureComponent {
           currentApp: false
         },
         () => {
+          this.fetchGroup();
           this.fetchAppDetail(appID);
         }
       );
@@ -214,6 +215,24 @@ class TeamLayout extends PureComponent {
         }
       });
     }
+  };
+  fetchGroup = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/fetchCurrent',
+      callback: res => {
+        if (res && res.bean) {
+          const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          this.setState({
+            currentTeam: team,
+          });
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
+        }
+      },
+    });
   };
   // 获取当前团队下的所有应用名称
   getAppNames = () => {

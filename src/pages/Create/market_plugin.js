@@ -37,7 +37,7 @@ import PageHeaderMarket from '../../layouts/PageHeaderMarket';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
+import roleUtil from '../../utils/newRole';
 import sourceUtil from '../../utils/source-unit';
 import PluginStyles from '../Plugin/Index.less';
 
@@ -126,7 +126,7 @@ export default class Main extends PureComponent {
   }
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
-    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
+    // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
     this.mount = true;

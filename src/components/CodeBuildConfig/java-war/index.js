@@ -3,6 +3,7 @@ import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";
+import GlobalUtils from "@/utils/global"
 const RadioGroup = Radio.Group;
 
 @connect(

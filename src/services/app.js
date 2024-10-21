@@ -1597,16 +1597,10 @@ export async function editorVolume(
 /*
   删除应用的某个持久化目录
 */
-export async function deleteVolume(
-  body = {
-    team_name,
-    app_alias,
-    volume_id
-  }
-) {
+export async function deleteVolume(body,handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.volume_id}?force=${body.force}`,
-    { method: 'delete' }
+    { method: 'delete',handleError }
   );
 }
 export function getPerformanceAnalysis(body = {}) {

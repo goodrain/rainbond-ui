@@ -983,7 +983,7 @@ export default class Main extends PureComponent {
             </Select>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})}>
+        <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})} style={{display:'none'}}>
             {getFieldDecorator('note', {
               initialValue: (versionList[0] && versionList[0].description) ? versionList[0].description : '',
               rules: [

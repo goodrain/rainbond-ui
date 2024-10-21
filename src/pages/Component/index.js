@@ -1022,7 +1022,7 @@ class Main extends PureComponent {
     const {
       appDetail,
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
-      // appPermissions: { isEdit: isAppEdit }
+      componentPermissions
     } = this.props;
     const { status, groupDetail, loadingDetail } = this.state;
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';

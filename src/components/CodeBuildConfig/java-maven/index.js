@@ -7,7 +7,7 @@ import { Button, Form, Input, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import JavaJDK from '../java-jdk';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -71,7 +71,7 @@ class Index extends PureComponent {
     });
   };
 
-  handleSubmit = () => {};
+  handleSubmit = () => { };
 
   handleEventPermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -127,7 +127,7 @@ class Index extends PureComponent {
 
     return (
       <div>
-        <JavaJDK form={form} envs={envs} buildSourceArr={buildSourceArr}/>
+        <JavaJDK form={form} envs={envs} buildSourceArr={buildSourceArr} />
         {mavenVisible && (
           <MavenConfiguration
             activeMaven={activeMaven}
@@ -135,7 +135,7 @@ class Index extends PureComponent {
             onOk={this.handleSubmit}
           />
         )}
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Maven'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Maven' />}>
           {getFieldDecorator('BUILD_RUNTIMES_MAVEN', {
             initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || globalUtil.getDefaultVsersion(buildSourceArr.maven || []),
           })(
@@ -152,8 +152,8 @@ class Index extends PureComponent {
         </Form.Item>
         <Form.Item
           {...formItemLayout}
-          label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Web'/>}
-          help={<FormattedMessage id='componentOverview.body.JavaMavenConfig.War'/>}
+          label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Web' />}
+          help={<FormattedMessage id='componentOverview.body.JavaMavenConfig.War' />}
         >
           {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
             initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || globalUtil.getDefaultVsersion(buildSourceArr.java_server
@@ -171,19 +171,19 @@ class Index extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configure'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configure' />}>
           {getFieldDecorator('BUILD_MAVEN_SETTING_NAME', {
             initialValue: Default_BUILD_MAVEN_SETTING_NAME,
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.choice'})
+                message: formatMessage({ id: 'componentOverview.body.JavaMavenConfig.choice' })
               }
             ]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
-              placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.choice'})}
+              placeholder={formatMessage({ id: 'componentOverview.body.JavaMavenConfig.choice' })}
               style={{ width: '300px', marginRight: '20px' }}
             >
               {MavenList.map(item => {
@@ -196,11 +196,9 @@ class Index extends PureComponent {
               })}
             </Select>
           )}
-          {mavenPermissions && (
-            <Button onClick={this.handleMavenConfiguration} type="primary">
-              <FormattedMessage id='componentOverview.body.JavaMavenConfig.Administration'/>
-            </Button>
-          )}
+          <Button onClick={this.handleMavenConfiguration} type="primary">
+            <FormattedMessage id='componentOverview.body.JavaMavenConfig.Administration' />
+          </Button>
         </Form.Item>
         {/* <Form.Item
           {...formItemLayout}
@@ -228,19 +226,19 @@ class Index extends PureComponent {
               (envs && envs.BUILD_MAVEN_MIRROR_URL) || "maven.goodrain.me"
           })(<Input placeholder="" />)}
         </Form.Item> */}
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.parameter'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.parameter' />}>
           {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
             initialValue:
               (envs && envs.BUILD_MAVEN_CUSTOM_OPTS) || '-DskipTests',
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.parameters'})
+                message: formatMessage({ id: 'componentOverview.body.JavaMavenConfig.parameters' })
               }
             ]
-          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.parameters'})} />)}
+          })(<Input placeholder={formatMessage({ id: 'componentOverview.body.JavaMavenConfig.parameters' })} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Build_command'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Build_command' />}>
           {getFieldDecorator('BUILD_MAVEN_CUSTOM_GOALS', {
             initialValue:
               (envs && envs.BUILD_MAVEN_CUSTOM_GOALS) ||
@@ -248,29 +246,29 @@ class Index extends PureComponent {
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input_parameters'})
+                message: formatMessage({ id: 'componentOverview.body.JavaMavenConfig.input_parameters' })
               }
             ]
-          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.input_parameters'})}/>)}
+          })(<Input placeholder={formatMessage({ id: 'componentOverview.body.JavaMavenConfig.input_parameters' })} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configuration'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.configuration' />}>
           {getFieldDecorator('BUILD_MAVEN_JAVA_OPTS', {
             initialValue: (envs && envs.BUILD_MAVEN_JAVA_OPTS) || '-Xmx1024m',
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input_configuration'})
+                message: formatMessage({ id: 'componentOverview.body.JavaMavenConfig.input_configuration' })
               }
             ]
-          })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaMavenConfig.input_configuration'})}/>)}
+          })(<Input placeholder={formatMessage({ id: 'componentOverview.body.JavaMavenConfig.input_configuration' })} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.start'/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.start' />}>
           {getFieldDecorator('BUILD_PROCFILE', {
             initialValue: (envs && envs.BUILD_PROCFILE) || 'web: java $JAVA_OPTS -jar target/*.jar',
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'componentOverview.body.JavaMavenConfig.input'})
+                message: formatMessage({ id: 'componentOverview.body.JavaMavenConfig.input' })
               }
             ]
           })(

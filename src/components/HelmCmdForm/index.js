@@ -90,11 +90,13 @@ export default class Index extends PureComponent {
   };
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    const info = role.refreshPermissionsInfo(groupId, false)
-    this.setState({ creatComPermission: info })
+    role.refreshPermissionsInfo(groupId, false, this.callbcak)
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
+  callbcak=(val)=>{
+    this.setState({ creatComPermission: val })
+  }
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, handleType } = this.props;
@@ -199,7 +201,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          if (data.bean.package_name.length > 0) {
+          if (data.bean.package_name && data.bean.package_name.length > 0) {
             this.setState({
               existFileList: data.bean.package_name
             });

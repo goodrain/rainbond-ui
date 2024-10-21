@@ -852,8 +852,6 @@ export default class Enterprise extends PureComponent {
       isNeedAuthz,
       authorizationCode
     } = this.state;
-    console.log(clusters, 'clusters')
-    console.log(enterpriseAuthorization, 'enterpriseAuthorization')
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
     const { getFieldDecorator, setFieldsValue } = form;
