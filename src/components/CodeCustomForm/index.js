@@ -119,10 +119,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    const info = role.refreshPermissionsInfo(groupId, false)
-    this.setState({ creatComPermission: info })
+    refreshPermissionsInfo(groupId, false,this.callbcak)
     this.cancelAddGroup();
   };
+  callbcak=(val)=>{
+    this.setState({ creatComPermission: val })
+  }
   hideShowKey = () => {
     this.handkeDeleteCheckedList('showKey');
     this.setState({ showKey: false, visibleKey: false });

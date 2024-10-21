@@ -153,8 +153,8 @@ class Infrastructure extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            storageValue: res.bean.value,
-            isEnableStorage: res.bean.enable,
+            storageValue: res?.bean?.value,
+            isEnableStorage: res?.bean?.enable,
           })
         }
       }

@@ -181,7 +181,6 @@ export default class EnterpriseClusters extends PureComponent {
       integrating: '/enterprise/{eid}/provider/{provider}/kclusters/init?event_id={eventId}',
       integrated: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
     };
-    console.log(11111,'res')
     dispatch({
       type: 'region/fetchClusterInfo',
       payload: {
@@ -189,7 +188,6 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          console.log(res,'res');
           window.localStorage.setItem('event_id',res.bean.event_id)
           const status = res.bean.create_status;
           let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;

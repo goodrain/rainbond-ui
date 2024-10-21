@@ -287,7 +287,7 @@ export default class EditGroupName extends PureComponent {
           </FormItem>
 
           <FormItem {...is_language
-          } label={formatMessage({id:'popover.newApp.appRemark'})}>
+          } label={formatMessage({id:'popover.newApp.appRemark'})} style={{display:'none'}}>
             {getFieldDecorator('note', {
               initialValue: note || '',
               rules: [

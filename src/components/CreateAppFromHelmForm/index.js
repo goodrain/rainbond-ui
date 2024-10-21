@@ -225,7 +225,7 @@ export default class Index extends PureComponent {
               </Select>
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})}>
+          <FormItem {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})} style={{display:'none'}}>
             {getFieldDecorator('note', {
               initialValue: versions ? versions[0].description : '',
               rules: [

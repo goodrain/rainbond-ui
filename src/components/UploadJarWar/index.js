@@ -78,8 +78,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    role.refreshPermissionsInfo(groupId, false, this.callbcak)
     this.cancelAddGroup();
   };
+  callbcak=(val)=>{
+    this.setState({ creatComPermission: val })
+  }
   handleJarWarUpload = () => {
     const { dispatch } = this.props
     const teamName = globalUtil.getCurrTeamName()
@@ -150,7 +154,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          if (data.bean.package_name.length > 0) {
+          if (data.bean.package_name && data.bean.package_name.length > 0) {
             this.setState({
               existFileList: data.bean.package_name
             });

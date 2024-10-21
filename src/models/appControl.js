@@ -893,8 +893,8 @@ export default {
         callback(response);
       }
     },
-    *deleteVolume({ payload, callback }, { call }) {
-      const response = yield call(deleteVolume, payload);
+    *deleteVolume({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteVolume, payload, handleError);
       if (response && callback) {
         callback(response);
       }

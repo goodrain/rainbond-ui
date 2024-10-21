@@ -41,11 +41,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    const info = role.refreshPermissionsInfo(groupId, false)
-    this.setState({ creatComPermission: info })
+    role.refreshPermissionsInfo(groupId, false, this.callbcak)
     this.cancelAddGroup();
   };
-
+  callbcak=(val)=>{
+    this.setState({ creatComPermission: val })
+  }
   handleChangeVersion = () => { };
 
   fetchGroup = () => {

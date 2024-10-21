@@ -160,9 +160,6 @@ export default class Index extends PureComponent {
           <Card
             title={<>
               <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information' /></span>
-              <span style={{ color: 'red' }}>
-                {showText && formatMessage({ id: 'componentOverview.body.Relation.EnvironmentVariable.conflict' })}
-              </span>
               <span className={styles.desc}>表格列出了当前组件所依赖的其他外部组件，它们是当前组件的依赖项。</span>
             </>}
             extra={

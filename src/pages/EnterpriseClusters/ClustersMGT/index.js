@@ -128,7 +128,6 @@ class Index extends Component {
         },
         callback: res => {
           if (res && res.status_code === 200) {
-            console.log(res?.bean?.event_id,"res?.bean?.event_id");
             this.setState({
               eventId: res?.bean?.event_id || ''
             })
