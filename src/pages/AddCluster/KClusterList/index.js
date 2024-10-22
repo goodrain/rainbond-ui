@@ -285,7 +285,7 @@ export default class EnterpriseClusters extends PureComponent {
                       case "control-plane":
                         return (
                           <Tag color={globalUtil.getPublicColor()} key={index}>
-                            {formatMessage({ id: 'enterpriseColony.newHostInstall.node.select.Controlplane' })}
+                            {formatMessage({ id: 'enterpriseColony.newHostInstall.node.select.Control-plane' })}
                           </Tag>
                         );
                       case "etcd":

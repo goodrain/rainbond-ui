@@ -546,7 +546,7 @@ export default class RKEClusterConfig extends PureComponent {
   };
   nodeRole = role => {
     switch (role) {
-      case 'controlplane':
+      case 'control-plane':
         return `${formatMessage({ id: 'enterpriseColony.addCluster.host.Administration' })}`;
       case 'worker':
         return `${formatMessage({ id: 'enterpriseColony.addCluster.host.calculation' })}`;

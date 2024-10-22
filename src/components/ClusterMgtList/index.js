@@ -43,7 +43,7 @@ class Index extends Component {
     this.state = {
       eid: global.getCurrEnterpriseId(),
       jumpSwitch: true,
-      selectArr: ['controlplane', 'etcd', 'worker'],
+      selectArr: ['control-plane', 'etcd', 'worker'],
       modalVisible: false,
       initNodeCmd: '',
       showUpdateKubernetes: false,
