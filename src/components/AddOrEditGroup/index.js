@@ -273,7 +273,6 @@ export default class EditGroupName extends PureComponent {
           <FormItem
             {...is_language}
             label={formatMessage({id:'popover.newApp.appEngName'})}
-            extra={formatMessage({id:'popover.newApp.appEngName.extra'})}
           >
             {getFieldDecorator('k8s_app', {
               initialValue: isDisabled ? this.generateEnglishName(k8sApp || form.getFieldValue('group_name')) : k8sApp,

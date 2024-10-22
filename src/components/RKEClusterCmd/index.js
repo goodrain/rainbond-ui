@@ -30,8 +30,8 @@ const { Step } = Steps;
 const { TextArea } = Input;
 const CheckboxGroup = Checkbox.Group;
 
-const plainOptions = ['ETCD', 'Controlplane', 'Worker'];
-const defaultCheckedList = ['ETCD', 'Controlplane','Worker'];
+const plainOptions = ['ETCD', 'Control-plane', 'Worker'];
+const defaultCheckedList = ['ETCD', 'Control-plane','Worker'];
 
 @Form.create()
 @connect()

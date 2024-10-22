@@ -319,7 +319,7 @@ export default class AddAdmin extends PureComponent {
       <Modal
         title={<FormattedMessage id='componentOverview.body.AddAdmin.title'/>}
         visible
-        width={800}
+        width={1024}
         className={styles.TelescopicModal}
         onCancel={() => {
           onCancel(mavenInfo && mavenInfo.name);
@@ -439,7 +439,7 @@ export default class AddAdmin extends PureComponent {
                     mode="application/xml"
                     label={<FormattedMessage id='componentOverview.body.AddAdmin.profile'/>}
                     message={<FormattedMessage id='componentOverview.body.AddAdmin.content'/>}
-                    width="529px"
+                    width="743px"
                     Form={Form}
                     setFieldsValue={setFieldsValue}
                     formItemLayout={formItemLayout}
