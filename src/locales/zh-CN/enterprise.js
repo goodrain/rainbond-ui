@@ -552,7 +552,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.nodeRole': '节点角色',
     'enterpriseColony.newHostInstall.node.select': '选择节点在集群中的角色。在集群中，每个角色都需要至少一个节点。',
     'enterpriseColony.newHostInstall.node.select.ETCD': 'ETCD',
-    'enterpriseColony.newHostInstall.node.select.Controlplane': '管理节点',
+    'enterpriseColony.newHostInstall.node.select.Control-plane': '管理节点',
     'enterpriseColony.newHostInstall.node.select.Worker': '计算节点',
     'enterpriseColony.newHostInstall.node.advancedopt': '高级选项',
     'enterpriseColony.newHostInstall.node.ipMsg': '填写需要注册节点的公网IP和内网IP。',

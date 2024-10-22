@@ -444,13 +444,6 @@ class Index extends React.Component {
                 actions={[
                   <div>
                     <a
-                      onClick={() => {
-                        this.handleOpenDetection(item);
-                      }}
-                    >
-                      检测语言
-                    </a>
-                    <a
                       style={{ marginLeft: '16px' }}
                       onClick={() => {
                         this.showModal(item);

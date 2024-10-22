@@ -163,15 +163,15 @@ export default class EventList extends PureComponent {
     }
 
     return list.map(item => {
+      console.log(item,'item');
       const {
-        UserName,
-        OptType,
-        FinalStatus,
-        Status,
+        user_name,
+        opt_type,
+        final_status,
+        status,
         create_time,
-        Target
+        target
       } = item;
-
       const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
         item.service_alias
       }/overview`;
@@ -180,13 +180,13 @@ export default class EventList extends PureComponent {
           <List.Item.Meta
             title={
               <span>
-                <a className={styles.username}>{UserName}</a>
+                <a className={styles.username}>{user_name}</a>
                 <span className={styles.event}>
                   {' '}
-                  {globalUtil.fetchStateOptTypeText(OptType)}
+                  {globalUtil.fetchStateOptTypeText(opt_type)}
                 </span>
                 &nbsp;
-                {Target && Target === 'service' && (
+                {target && target === 'service' && (
                   <Link to={linkTo} className={styles.event}>
                     {item.service_name}
                   </Link>
@@ -196,10 +196,10 @@ export default class EventList extends PureComponent {
                 </span>
                 <span
                   style={{
-                    color: globalUtil.fetchAbnormalcolor(OptType)
+                    color: globalUtil.fetchAbnormalcolor(opt_type)
                   }}
                 >
-                  {globalUtil.fetchOperation(FinalStatus, Status)}
+                  {globalUtil.fetchOperation(final_status, status)}
                 </span>
               </span>
             }

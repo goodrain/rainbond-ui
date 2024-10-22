@@ -551,7 +551,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.nodeRole':'Node role',
     'enterpriseColony.newHostInstall.node.select':'Select the role of the node in the cluster. In a cluster, each role needs at least one node.',
     'enterpriseColony.newHostInstall.node.select.ETCD': 'ETCD',
-    'enterpriseColony.newHostInstall.node.select.Controlplane': 'Controlplane',
+    'enterpriseColony.newHostInstall.node.select.Control-plane': 'Controlplane',
     'enterpriseColony.newHostInstall.node.select.Worker': 'Worker',
     'enterpriseColony.newHostInstall.node.advancedopt':'Advanced options',
     'enterpriseColony.newHostInstall.node.ipMsg':'Enter the public IP address and internal IP address of the node to be registered.',

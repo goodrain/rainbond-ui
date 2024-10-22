@@ -673,3 +673,15 @@ export async function installHelmUploadApp(body = {}, handleError) {
     }
   )
 }
+// 用户自定义语言
+export async function updateCustomLanguage(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_id}/lang-update`,
+    {
+      method: 'put',
+      params: {
+        lang: body.lang
+      }
+    }
+  )
+}

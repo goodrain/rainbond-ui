@@ -40,7 +40,7 @@ export default class Index extends PureComponent {
       showExitTeam: false,
       scope: '',
       teamsUrl: this.props.currentEnterprise
-        ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/teams`
+        ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/personal`
         : '/',
       eventPermissions: this.handlePermissions('team_dynamic'),
       memberPermissions: this.handlePermissions('team_member'),
@@ -273,7 +273,7 @@ export default class Index extends PureComponent {
         <div className={styles.extraBtns}>
           {!isEnterpriseAdmin && (
             <Button onClick={this.showExitTeam} type="dashed">
-              {formatMessage({ id: 'teamManage.tabs.exitTeam' })}
+              {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
             </Button>
           )}
           {isEnterpriseAdmin &&
@@ -281,7 +281,7 @@ export default class Index extends PureComponent {
               onClick={this.showDelTeam}
               type="dashed"
             >
-              {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
+              {formatMessage({ id: 'teamManage.tabs.exitTeam' })}
             </Button>
           }
         </div>

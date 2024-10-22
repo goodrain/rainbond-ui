@@ -30,7 +30,8 @@ import {
   getHelmUploadChartInfo,
   checkHelmChartApp,
   getHelmChartYaml,
-  installHelmUploadApp
+  installHelmUploadApp,
+  updateCustomLanguage
 } from '../services/createApp';
 
 export default {
@@ -258,6 +259,12 @@ export default {
     },
     *installHelmUploadApp({ payload, callback, handleError }, { call }) {
       const data = yield call(installHelmUploadApp, payload, handleError);
+      if(data && callback) {
+        callback(data);
+      }
+    },
+    *updateCustomLanguage({ payload, callback, handleError }, { call }) {
+      const data = yield call(updateCustomLanguage, payload, handleError);
       if(data && callback) {
         callback(data);
       }

@@ -240,7 +240,8 @@ export default class EnterpriseUsers extends PureComponent {
     const {
       match: {
         params: { eid }
-      }
+      },
+      user
     } = this.props;
 
     const columns = [
@@ -305,24 +306,38 @@ export default class EnterpriseUsers extends PureComponent {
         align: 'center',
         rowKey: 'user_id',
         render: (val, item) => {
-          return [
-            <a
-              onClick={() => {
-                this.delUser(item);
-              }}
-            >
-              {/* 删除 */}
-              <FormattedMessage id='button.delete' />
-            </a>,
-            <a
-              onClick={() => {
-                this.handleEdit(item);
-              }}
-            >
-              {/* 编辑 */}
-              <FormattedMessage id='button.edit' />
-            </a>
-          ];
+          if(item.nick_name == user.user_name){
+            return [
+              <a
+                onClick={() => {
+                  this.handleEdit(item);
+                }}
+              >
+                {/* 编辑 */}
+                <FormattedMessage id='button.edit' />
+              </a>
+            ];
+          }else{
+            return [
+              <a
+                onClick={() => {
+                  this.delUser(item);
+                }}
+              >
+                {/* 删除 */}
+                <FormattedMessage id='button.delete' />
+              </a>,
+              <a
+                onClick={() => {
+                  this.handleEdit(item);
+                }}
+              >
+                {/* 编辑 */}
+                <FormattedMessage id='button.edit' />
+              </a>
+            ];
+          }
+
         }
       }
     ];

@@ -935,10 +935,10 @@ class Infrastructure extends PureComponent {
           <div style={{borderTop:'1px solid #ccc',borderBottom:'1px solid #ccc'}}>
             {/* {enterpriseEdition && BasicInformation} */}
             {UserRegistered}
-            {AutomaticIssueCertificate}
+            {/* {AutomaticIssueCertificate} */}
             {Oauth}
             {MirrorWarehouseInformation}
-            {CloudStorage}
+            {/* {CloudStorage} */}
             {WarningFeature}
           </div>
         )}

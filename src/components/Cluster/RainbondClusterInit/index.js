@@ -211,14 +211,14 @@ export default class RainbondClusterInit extends PureComponent {
             password: values.password
           }
         }
-        if (values.isStorage == 'custom') {
-          dataObj.Cluster.RWX = {
-            enable: true,
-            config: {
-              storageClassName: values.storageClassName1
-            }
-          }
-        }
+        // if (values.isStorage == 'custom') {
+        //   dataObj.Cluster.RWX = {
+        //     enable: true,
+        //     config: {
+        //       storageClassName: values.storageClassName1
+        //     }
+        //   }
+        // }
         if (values.database == 'custom') {
           dataObj.Cluster.regionDatabase = {
             enable: true,
@@ -515,7 +515,7 @@ export default class RainbondClusterInit extends PureComponent {
                             </div>
                           </Tooltip>
                         </div>
-                        <Form.Item
+                        {/* <Form.Item
                           {...formItemLayout}
                         >
                           {getFieldDecorator('isStorage', {
@@ -526,9 +526,9 @@ export default class RainbondClusterInit extends PureComponent {
                               <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
                             </Radio.Group>
                           )}
-                        </Form.Item>
+                        </Form.Item> */}
                       </div>
-                      {isStorage == 'custom' &&
+                      {/* {isStorage == 'custom' &&
                         <Form.Item
                           {...is_formItemLayout}
                           label="RWX"
@@ -545,7 +545,7 @@ export default class RainbondClusterInit extends PureComponent {
                               }
                             ]
                           })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
-                        </Form.Item>}
+                        </Form.Item>} */}
                     </Row>
                   </Panel>
                 </Collapse>

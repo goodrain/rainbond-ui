@@ -57,7 +57,7 @@ export default class RegisterComponent extends Component {
       (err, values) => {
         if (!err) {
           userUtil.removeCookie();
-          if(values.password){
+          if (values.password) {
             values.password_repeat = values.password
           }
           const info = Object.assign({}, values);
@@ -139,7 +139,7 @@ export default class RegisterComponent extends Component {
     };
     return (
       <Form onSubmit={this.handleSubmit}>
-        {firstRegist && 
+        {firstRegist &&
           <Divider >平台信息</Divider>
         }
         {firstRegist && (
@@ -190,6 +190,33 @@ export default class RegisterComponent extends Component {
           )}
         </FormItem>
         <FormItem {...formItemLayout}>
+          {getFieldDecorator('confirmPassword', {
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'login.registerComponent.confirmPassword' }),
+              },
+              {
+                validator: (rule, value, callback) => {
+                  const { getFieldValue } = this.props.form;
+                  if (value && value !== getFieldValue('password')) {
+                    callback(formatMessage({ id: 'login.registerComponent.passwordMismatch' }));
+                  } else {
+                    callback();
+                  }
+                },
+              },
+            ],
+          })(
+            <Input
+              size="large"
+              type="password"
+              placeholder={formatMessage({ id: 'login.registerComponent.confirmPassword' })}
+              autoComplete="new-password"
+            />
+          )}
+        </FormItem>
+        <FormItem {...formItemLayout}>
           {getFieldDecorator('email', {
             initialValue: userInfo ? userInfo.oauth_user_email : '',
             rules: [
@@ -203,7 +230,7 @@ export default class RegisterComponent extends Component {
               }
             ]
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
-         </FormItem>
+        </FormItem>
         <FormItem>
           <Button
             size="large"
