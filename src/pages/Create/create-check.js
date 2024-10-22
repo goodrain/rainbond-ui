@@ -148,19 +148,21 @@ export default class CreateCheck extends React.Component {
       dist: Directory || 'dist'
     };
   };
-  /**
-   * getDetail 函数：
-   * 
-   * 功能：
-   *   获取应用程序的详细信息，发送 'appControl/fetchDetail' 请求获取指定团队和应用别名的应用程序详情。
-   *   如果获取成功，更新 appDetail 状态，并调用 getCheckuuid 方法。
-   * 
-   * 参数：
-   *   无
-   * 
-   * 返回值：
-   *   无
-   */
+  handleCurrentTeamPermissions = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/fetchCurrent',
+      callback: res => {
+        if (res && res.bean) {
+          const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
+        }
+      },
+    });
+  };
   getDetail = () => {
     this.props.dispatch({
       type: 'appControl/fetchDetail',
