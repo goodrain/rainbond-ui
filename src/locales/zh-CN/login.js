@@ -64,8 +64,8 @@ const login = {
     'login.Verification':'验证码',
     'login.input_Verification':'请输入验证码！',
     'login.system':'云原生应用管理系统',
-    'login.registerComponent.confirmPassword':'请填写二次确认密码',
-    'login.registerComponent.passwordMismatch': '两次填写的密码不一致。',
+    'login.registerComponent.confirmPassword':'请确认密码',
+    'login.registerComponent.passwordMismatch': '两次输入的密码不一致，请重新输入',
     
 }
 

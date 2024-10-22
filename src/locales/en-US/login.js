@@ -65,6 +65,8 @@ const login = {
     'login.Verification':'Verification Code',
     'login.input_Verification':'Please enter the verification code!',
     'login.system':'Cloud native application management system',
+    'login.registerComponent.confirmPassword':'Please confirm the password',
+    'login.registerComponent.passwordMismatch': 'The two passwords are different. Please re-enter them',
 }
 
 export default Object.assign({}, login);
