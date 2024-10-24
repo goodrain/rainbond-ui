@@ -127,15 +127,15 @@ class Index extends Component {
       case '1':
         return (
           <div style={{ color: globalUtil.getPublicColor('rbd-success-status') }}>
-            <Badge color={ globalUtil.getPublicColor('rbd-success-status')} />
+            <Badge color={globalUtil.getPublicColor('rbd-success-status')} />
             {/* 运行中 */}
             <FormattedMessage id='enterpriseColony.table.state.run' />
           </div>
         );
       case '2':
         return (
-          <div style={{ color:  globalUtil.getPublicColor('rbd-down-status') }}>
-            <Badge color={ globalUtil.getPublicColor('rbd-down-status')} />
+          <div style={{ color: globalUtil.getPublicColor('rbd-down-status') }}>
+            <Badge color={globalUtil.getPublicColor('rbd-down-status')} />
             {/* 已下线 */}
             <FormattedMessage id='enterpriseColony.table.state.down' />
           </div>
@@ -169,6 +169,7 @@ class Index extends Component {
   }
   // 集群展示图标
   clusterIcon = (provider, region_type) => {
+    console.log(provider, 'provider')
     const styleK8s = {
       marginRight: '8px',
       display: 'inline-block',
@@ -292,7 +293,7 @@ class Index extends Component {
         },
         callback: (res) => {
           if (res && res.response_data && res.response_data.code && res.response_data.code === 200) {
-            notification.success({message: res.response_data.msg})
+            notification.success({ message: res.response_data.msg })
             dispatch(
               routerRedux.replace(`/enterprise/${eid}/clusters`)
             )
@@ -673,35 +674,6 @@ class Index extends Component {
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.import' />
                   </Button>
-                 {region_name != 'dind-region' &&
-                  <Button
-                    onClick={() => this.delEven('delete')}
-                  >
-                    <FormattedMessage id='enterpriseColony.table.handle.delete' />
-                  </Button>
-                  }
-                  {!buttonSwitch &&
-                    <Tooltip title={formatMessage({ id: 'enterpriseColony.mgt.cluster.click' })}>
-                      <Icon type="ellipsis" onClick={this.buttonShow} style={{ fontSize: 30 }} />
-                    </Tooltip>
-                  }
-                  {buttonSwitch &&
-                    <>
-                      <Button
-                        onClick={() => {
-                          this.props.dispatch(
-                            routerRedux.push(`/enterprise/${eid}/clusters/${region_id}/dashboard`)
-                          )
-                        }}
-                      >
-                        {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
-                      </Button>
-                      <Button onClick={() => this.delEven('unload')}>
-                        <FormattedMessage id='button.uninstall' />
-                      </Button>
-                      {rowClusterInfo.provider_cluster_id && <Button onClick={this.getKubeConfig}>kubeConfig</Button>}
-                    </>
-                  }
                 </Col>
               </Row>
               {/* 基本信息 */}
@@ -735,62 +707,68 @@ class Index extends Component {
               }
             </>
           }
-        </Card>
+        </Card >
         {/* 删除弹框 */}
-        {delVisible && (
-          <ConfirmModal
-            title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
-            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
-            onOk={() => this.handleDelete(false)}
-            onCancel={this.cancelClusters}
-          />
-        )}
+        {
+          delVisible && (
+            <ConfirmModal
+              title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
+              onOk={() => this.handleDelete(false)}
+              onCancel={this.cancelClusters}
+            />
+          )
+        }
         {/* 修改弹框 */}
-        {editClusterShow && (
-          <EditClusterInfo
-            regionInfo={editClusterInfo}
-            title={text}
-            eid={eid}
-            onOk={this.cancelEditClusters}
-            onCancel={this.cancelEditClusters}
-          />
-        )}
+        {
+          editClusterShow && (
+            <EditClusterInfo
+              regionInfo={editClusterInfo}
+              title={text}
+              eid={eid}
+              onOk={this.cancelEditClusters}
+              onCancel={this.cancelEditClusters}
+            />
+          )
+        }
         {/* kubeConfig */}
-        {kubeConfig && (
-          <Modal
-            visible
-            width={1000}
-            maskClosable={false}
-            onCancel={() => {
-              this.setState({ kubeConfig: '' });
-            }}
-            title="KubeConfig"
-            bodyStyle={{ background: '#000' }}
-            onOk={() => {
-              copy(kubeConfig);
-              notification.success({ message: formatMessage({id:'notification.success.copy'}) });
-            }}
-            okText={<FormattedMessage id='button.copy'/>}
-          >
-            <div className={styles.cmd}>
-              <CodeMirror
-                value={kubeConfig}
-                options={{
-                  mode: { name: 'javascript', json: true },
-                  lineNumbers: true,
-                  theme: 'seti',
-                  lineWrapping: true,
-                  smartIndent: true,
-                  matchBrackets: true,
-                  scrollbarStyle: null,
-                  showCursorWhenSelecting: true,
-                  height: 500
-                }}
-              />
-            </div>
-          </Modal>
-        )}
+        {
+          kubeConfig && (
+            <Modal
+              visible
+              width={1000}
+              maskClosable={false}
+              onCancel={() => {
+                this.setState({ kubeConfig: '' });
+              }}
+              title="KubeConfig"
+              bodyStyle={{ background: '#000' }}
+              onOk={() => {
+                copy(kubeConfig);
+                notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
+              }}
+              okText={<FormattedMessage id='button.copy' />}
+            >
+              <div className={styles.cmd}>
+                <CodeMirror
+                  value={kubeConfig}
+                  options={{
+                    mode: { name: 'javascript', json: true },
+                    lineNumbers: true,
+                    theme: 'seti',
+                    lineWrapping: true,
+                    smartIndent: true,
+                    matchBrackets: true,
+                    scrollbarStyle: null,
+                    showCursorWhenSelecting: true,
+                    height: 500
+                  }}
+                />
+              </div>
+            </Modal>
+          )
+        }
       </>
     );
   }
