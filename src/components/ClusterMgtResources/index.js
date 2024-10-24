@@ -85,13 +85,6 @@ class Index extends Component {
                                 </div>
                                 <div>
                                     <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalStore'})}
-                                        <span>{diskTotal}</span>
-                                        GB
-                                    </p>
-                                </div>
-                                <div>
-                                    <p>
                                         {formatMessage({id:'enterpriseColony.mgt.cluster.node'})}
                                     </p>
                                 </div>
@@ -109,9 +102,6 @@ class Index extends Component {
                                 </div>
                                 <div>
                                     <Charts keys={'upcpu' + `${2}`} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
-                                </div>
-                                <div>
-                                    <Charts keys={'upcpu' + `${3}`} svalue={Number(diskUsed) == 0 ? 0 : Number(diskUsed)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.store'})} swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
                                     <p>

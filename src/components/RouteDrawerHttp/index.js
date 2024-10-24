@@ -552,7 +552,7 @@ export default class index extends Component {
                                     </Form.Item>
                                     {(serviceComponentList && serviceComponentList.length>0) &&
                                     <Skeleton loading={componentLoading}>
-                                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
+                                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newComponent.componentName' })}>
                                             {getFieldDecorator('comListInfo', {
                                                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
                                                 initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
@@ -590,7 +590,7 @@ export default class index extends Component {
                             })
                         }}
                         style={{marginBottom:12}}
-                        type={showPlugin ? "danger" : "primary"}
+                        type={showPlugin ? "" : "primary"}
                     >
                         {showPlugin ? formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.Plugin'}) : formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.addPlugin'})}
                     </Button>

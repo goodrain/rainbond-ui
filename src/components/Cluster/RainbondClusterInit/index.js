@@ -211,14 +211,6 @@ export default class RainbondClusterInit extends PureComponent {
             password: values.password
           }
         }
-        // if (values.isStorage == 'custom') {
-        //   dataObj.Cluster.RWX = {
-        //     enable: true,
-        //     config: {
-        //       storageClassName: values.storageClassName1
-        //     }
-        //   }
-        // }
         if (values.database == 'custom') {
           dataObj.Cluster.regionDatabase = {
             enable: true,
@@ -499,53 +491,6 @@ export default class RainbondClusterInit extends PureComponent {
                           ]
                         })(<SelectNode type='1' keys='chaos' ipArr={ipArray} />)}
                       </Form.Item>
-                    </Row>
-                    <Row className={styles.row}>
-                      <div className={styles.row_flex}>
-                        <div className={styles.title_name}>
-                          {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.title.storageClassName' })}
-                          <Tooltip
-                            placement="right"
-                            title={<div>
-                              {formatMessage({ id: 'enterpriseColony.RainbondClusterInit.row.tip.storage' })}
-                            </div>}
-                          >
-                            <div>
-                              {globalUtil.fetchSvg('tip')}
-                            </div>
-                          </Tooltip>
-                        </div>
-                        {/* <Form.Item
-                          {...formItemLayout}
-                        >
-                          {getFieldDecorator('isStorage', {
-                            initialValue: isStorage
-                          })(
-                            <Radio.Group onChange={this.hanldeStorageChange}>
-                              <Radio value="default">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.default' })}</Radio>
-                              <Radio value="custom">{formatMessage({ id: 'enterpriseColony.RainbondClusterInit.radio.custom' })}</Radio>
-                            </Radio.Group>
-                          )}
-                        </Form.Item> */}
-                      </div>
-                      {/* {isStorage == 'custom' &&
-                        <Form.Item
-                          {...is_formItemLayout}
-                          label="RWX"
-                        >
-                          {getFieldDecorator('storageClassName1', {
-                            rules: [
-                              {
-                                required: true,
-                                message: formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })
-                              },
-                              {
-                                pattern: /^[^\s]*$/,
-                                message: formatMessage({ id: 'placeholder.no_spaces' })
-                              }
-                            ]
-                          })(<Input placeholder={formatMessage({ id: 'enterpriseColony.Advanced.input_StorageClass' })} />)}
-                        </Form.Item>} */}
                     </Row>
                   </Panel>
                 </Collapse>

@@ -909,43 +909,8 @@ export default class EnterpriseClusters extends PureComponent {
             >
               <FormattedMessage id='enterpriseColony.table.handle.import' />
               {/* 导入 */}
-            </Link>,
-            <Link to={`/enterprise/${eid}/clusters/${item.region_id}/dashboard`}>
-              {formatMessage({ id: 'enterpriseSetting.basicsSetting.monitoring.form.label.cluster_monitor_suffix' })}
             </Link>
           ];
-          if (item.region_name != 'dind-region') {
-            mlist.push(
-              <a onClick={() => { this.delUser(item, 'delete'); }}>
-                <FormattedMessage id='enterpriseColony.table.handle.delete' />
-                {/* 删除 */}
-              </a>
-            );
-          }
-          mlist.push(
-            <a onClick={() => { this.delUser(item, 'unload'); }}>
-              <FormattedMessage id='button.uninstall' />
-              {/* 卸载 */}
-            </a>
-          );
-          if (item.provider_cluster_id) {
-            mlist.push(
-              <a onClick={() => { this.getKubeConfig(item); }}>
-                KubeConfig
-                {/* KubeConfig */}
-              </a>
-            );
-          }
-          if (item.provider === 'rke') {
-            mlist.push(
-              <Link
-                to={`/enterprise/${eid}/provider/rke/kclusters?clusterID=${item.provider_cluster_id}&updateKubernetes=true`}
-              >
-                <FormattedMessage id='enterpriseColony.table.handle.deploy' />
-                {/* 节点配置 */}
-              </Link>
-            );
-          }
           const MenuList = (
             <Menu
               onMouseEnter={this.menuMouseEnter}
