@@ -79,6 +79,16 @@
             width: 160px;
             height: 114px;
             margin-top: -20px;
+            &>div{
+                cursor: pointer;
+            }
+            .jumpText{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 14px;
+            }
         }
 
     }
@@ -558,4 +568,46 @@
             margin-bottom: 5px;
         }
     }
+}
+
+
+.jump {
+  display: inline-block;
+  animation: jump 2s ease forwards;
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0);
+    color: #fff;
+  }
+  50% {
+    transform: translateY(-10px);
+    color:@rbd-success-status;
+  }
+  0%, 100% {
+    transform: translateY(0);
+    color: #444;
+  }
+}
+
+/* 延迟每个字符的动画开始时间 */
+.char1 {
+  animation-delay: 0s;
+}
+
+.char2 {
+  animation-delay: 0.1s;
+}
+
+.char3 {
+  animation-delay: 0.2s;
+}
+
+.char4 {
+  animation-delay: 0.3s;
+}
+
+.char5 {
+  animation-delay: 0.4s;
 }

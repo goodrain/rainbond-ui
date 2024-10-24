@@ -45,6 +45,7 @@ import Convenient from '../../components/Convenient';
 import CreateTeam from '../../components/CreateTeam';
 import CustomFooter from "../../layouts/CustomFooter";
 import InstallStep from '../../components/Introduced/InstallStep';
+import { fetchAllVersion } from '../../services/api'
 import JoinTeam from '../../components/JoinTeam';
 import Meiqia from '../../layouts/Meiqia';
 import globalUtil from '../../utils/global';
@@ -110,7 +111,8 @@ export default class Enterprise extends PureComponent {
       enterpriseAuthorization: null,
       isAuthorizationLoading: true,
       isNeedAuthz: false,
-      authorizationCode: ''
+      authorizationCode: '',
+      hasNewVs: false
     };
   }
   componentWillMount() {
@@ -119,6 +121,7 @@ export default class Enterprise extends PureComponent {
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
     }
+    this.fetchAllVersion()
   }
   componentDidMount() {
     this.loading();
@@ -129,6 +132,21 @@ export default class Enterprise extends PureComponent {
   componentWillUnmount() {
     // 组件销毁  清除定时器
     clearInterval(this.interval)
+  }
+  fetchAllVersion = () => {
+    const { rainbondInfo } = this.props
+    const currentVersion = rainbondInfo.version.value.split('-')[0]
+    fetchAllVersion().then(res => {
+      if (res) {
+        let list = res
+        const isNewVs = list[0].split('-')[0] === currentVersion
+        console.log(currentVersion,"currentVersion");
+        console.log(isNewVs,"isNewVs");
+        this.setState({
+          hasNewVs: isNewVs
+        })
+      }
+    })
   }
   // 获取企业授权信息
   handleGetEnterpriseAuthorization = () => {
@@ -794,13 +812,13 @@ export default class Enterprise extends PureComponent {
     });
   };
   downloadClusterInfo = () => {
-    const { 
+    const {
       dispatch,
       match: {
         params: { eid }
       }
     } = this.props;
-    this.download(`/console/enterprise/${eid}/platform-info`) 
+    this.download(`/console/enterprise/${eid}/platform-info`)
   }
 
   download = downloadPath => {
@@ -819,6 +837,11 @@ export default class Enterprise extends PureComponent {
       aEle.dispatchEvent(e);
     }
   };
+  handleRouteupdate = () => {
+    const { dispatch } = this.props
+    const { eid } = this.state;
+    dispatch(routerRedux.push(`/enterprise/${eid}/setting?type=updateVersion`));
+  }
 
   renderContent = () => {
     const { rainbondInfo, navigation_status, form } = this.props;
@@ -850,7 +873,8 @@ export default class Enterprise extends PureComponent {
       enterpriseAuthorization,
       isAuthorizationLoading,
       isNeedAuthz,
-      authorizationCode
+      authorizationCode,
+      hasNewVs
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -866,6 +890,11 @@ export default class Enterprise extends PureComponent {
       <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="160" height="144">
         <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35828"></path>
         <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M643.072 598.016c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h141.312c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-141.312zM928.256 598.016h-62.464c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.312-11.264-24.576-24.576-24.576zM510.464 740.352H448c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h62.464c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35829"></path>
+      </svg>
+    )
+    const updataSvg = (
+      <svg t="1729738917523" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="23508" width="160" height="100">
+        <path className={styleSvg.icon_updata} stroke={globalUtil.getPublicColor("rbd-success-status")} stroke-width="3" d="M512 536.96l181.056 181.056-60.416 60.352-77.952-78.016v238.336H469.312v-238.4l-77.952 78.08-60.416-60.352L512 536.96z m0-451.648a298.688 298.688 0 0 1 296.704 264.32 234.688 234.688 0 0 1-40.64 460.096v-85.952a149.312 149.312 0 1 0-47.488-294.784 213.312 213.312 0 1 0-417.152 0 149.312 149.312 0 0 0-55.104 293.504l7.68 1.28v85.952a234.688 234.688 0 0 1-40.704-460.16A298.688 298.688 0 0 1 512 85.376z" p-id="23509" fill={globalUtil.getPublicColor("rbd-success-status")}></path>
       </svg>
     )
     const errorSvg = (
@@ -1041,14 +1070,14 @@ export default class Enterprise extends PureComponent {
                               href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
                               target="_blank"
                             >
-                              商业咨询
+                              {formatMessage({id:'platformUpgrade.index.consulting'})}
                             </a>
                           )}
                           <a
                             style={{ marginLeft: 12 }}
-                            onClick={() => {this.downloadClusterInfo()}}
+                            onClick={() => { this.downloadClusterInfo() }}
                           >
-                            平台信息
+                            {formatMessage({id:'platformUpgrade.index.platforminfo'})}
                           </a>
                         </p>
                         <p>
@@ -1082,7 +1111,21 @@ export default class Enterprise extends PureComponent {
                     )}
                   </div>
                   <div className={enterpriseStyles.enterpriseInfo_right}>
-                    {cloudSvg}
+                    {!hasNewVs ? (<div onClick={this.handleRouteupdate}>
+                      <Tooltip placement="top" title={formatMessage({id:'platformUpgrade.index.clicktoupload'})}>
+                      {updataSvg}
+                      <div className={enterpriseStyles.jumpText}>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char5}`}>！</span>
+                      </div>
+                      </Tooltip>
+                    </div>) : (
+                      cloudSvg
+                    )}
+
                   </div>
                 </div>
                 <div className={enterpriseStyles.enterpriseData} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
@@ -1129,7 +1172,7 @@ export default class Enterprise extends PureComponent {
             <div className={enterpriseStyles.title}>
               <div>
                 <span>{authorizationSvg}</span>
-                <h2 className={enterpriseStyles.rbd_title}>企业版授权信息</h2>
+                <h2 className={enterpriseStyles.rbd_title}>{formatMessage({id:'platformUpgrade.index.info'})}</h2>
               </div>
             </div>
             <Card
@@ -1140,7 +1183,7 @@ export default class Enterprise extends PureComponent {
             >
               <div className={enterpriseStyles.authorization} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
                 <div className={enterpriseStyles.authorization_code}>
-                  <div className={enterpriseStyles.authorization_title}>授权码：</div>
+                  <div className={enterpriseStyles.authorization_title}>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</div>
                   <div className={enterpriseStyles.authorization_code_content}>
                     {authorizationCode || '-'}
                   </div>
@@ -1152,39 +1195,39 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.authorization_info}>
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>授权时间：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationtime'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.end_time ? (end < current ? '授权已过期' : enterpriseAuthorization.end_time) : '不限制'}
+                          {enterpriseAuthorization.end_time ? (end < current ? formatMessage({id:'platformUpgrade.index.Authorizationtimeover'}) : enterpriseAuthorization.end_time) : formatMessage({id:'platformUpgrade.index.nilimit'})}
                         </div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>集群授权：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.clusterAuthorization'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_cluster == '-1' ? '不限制' : `${enterpriseAuthorization.expect_cluster} 个`}
+                          {enterpriseAuthorization.expect_cluster == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_cluster} 个`}
                         </div>
                       </div>
                     </div>
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>授权企业：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.company}</div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>节点授权：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_node == '-1' ? '不限制' : `${enterpriseAuthorization.expect_node} 个`}
+                          {enterpriseAuthorization.expect_node == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_node} 个`}
                         </div>
                       </div>
                     </div>
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>联系方式：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.tel'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.contact}</div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>授权内存：</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_memory == '-1' ? '不限制' : `${enterpriseAuthorization.expect_memory} GB`}
+                          {enterpriseAuthorization.expect_memory == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_memory} GB`}
                         </div>
                       </div>
                     </div>
@@ -1195,9 +1238,9 @@ export default class Enterprise extends PureComponent {
                       <div className={enterpriseStyles.authorization_svg}>
                         {errorSvg}
                       </div>
-                      <div>无效授权</div>
+                      <div>{formatMessage({id:'platformUpgrade.index.noAuthorization'})}</div>
                     </div>
-                    <p>请联系官方，获取有效授权码</p>
+                    <p>{formatMessage({id:'platformUpgrade.index.connection'})}</p>
                   </div>
                 )}
 
@@ -1451,7 +1494,7 @@ export default class Enterprise extends PureComponent {
 
         {isAuthorizationCode &&
           <Modal
-            title='更新授权码'
+            title={formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
             visible
             onCancel={this.handleCanceAuthorization}
             footer={[
@@ -1464,7 +1507,7 @@ export default class Enterprise extends PureComponent {
                 type='primary'
                 onClick={this.handleSubmit}
               >
-                更新
+                {formatMessage({id:'platformUpgrade.EscalationState.updata'})}
               </Button>
             ]}
           >

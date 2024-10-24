@@ -1602,14 +1602,16 @@ export async function fetchVersionData(version) {
   } catch {}
 } 
 // 更新某个主机版本
-export async function updateVersion(body_data) {
-  try {
-    const data = await fetch(`https://update.goodrain.com/api/update`, {
-      method: 'POST',
-      body: JSON.stringify(body_data),
-    })
-    return data.json()
-  } catch {}
+export async function updateVersion(body, handleError) {
+  console.log(11111);
+  return request(
+    `${apiconfig.baseUrl}/console/update`,
+    {
+      method: 'post',
+      data: JSON.stringify(body),
+      handleError
+    }
+  );
 }
 
 // 获取集群下的语言版本信息
@@ -1665,6 +1667,16 @@ export async function editPluginsStatus(body, handleError) {
       data: {
         action: body.action
       },
+      handleError
+    }
+  );
+}
+// 平台更新状态查询
+export async function updatePlatform(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}console/update/regions/${params.region_name}/status`,
+    {
+      method: 'get',
       handleError
     }
   );

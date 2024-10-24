@@ -123,7 +123,8 @@ import {
   editLanguageDefault,
   uploadLanguageFile,
   deleteLanguageFile,
-  editPluginsStatus
+  editPluginsStatus,
+  updatePlatform
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1028,6 +1029,12 @@ export default {
     },
     *editPluginsStatus({ payload, callback, handleError }, { put, call }) {
       const response = yield call(editPluginsStatus, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updatePlatform({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updatePlatform, payload, handleError);
       if (callback) {
         callback(response);
       }

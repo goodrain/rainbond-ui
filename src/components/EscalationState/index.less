@@ -1,0 +1,56 @@
+.clusterBox {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .podBox {
+    width: 32%;
+    margin: 0 1% 1% 0;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    border: 1px solid #e3e3e3;
+    padding: 12px 20px;
+
+    &>div:nth-of-type(1) {
+      display: flex;
+      align-items: center;
+      height: 60px;
+      &>div:nth-of-type(1){
+        width: 80%;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-sub-title-color;
+        font-weight: 600;
+      }
+      &>div:nth-of-type(2){
+        width: 20%;
+        text-align: end;
+        color: @primary-color;
+        cursor: pointer;
+      }
+
+    }
+  }
+}
+.PanelHeader{
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  font-weight: 600;
+  display: flex;
+  p{
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
+    margin: 0 0 0 24px;
+    span{
+      font-size: @rbd-auxiliary-size;
+      line-height: @rbd-auxiliary-line-height;
+      color: @rbd-sub-title-color;
+      font-weight: 500;
+    }
+
+
+  }
+}

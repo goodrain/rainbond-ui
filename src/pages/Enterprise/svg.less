@@ -27,3 +27,32 @@
         fill:  @primary-color;
     }
 }
+.icon_updata {
+    animation: icon_updata-animation 6s ease-in infinite;
+    animation-iteration-count: 1;
+}
+@keyframes icon_updata-animation {
+    0% {
+        stroke-dasharray: 4917;
+        stroke-dashoffset: 4917;
+        fill: #fff;
+    }
+
+    40% {
+        stroke-dasharray: 4917;
+        stroke-dashoffset: 0;
+        fill: #fff;
+    }
+
+    60% {
+        stroke-dasharray: 4917;
+        stroke-dashoffset: 0;
+        fill: @rbd-success-status;
+    }
+
+    100% {
+        stroke-dasharray: 4917;
+        stroke-dashoffset: 0;
+        fill:  @rbd-success-status;
+    }
+}
