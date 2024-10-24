@@ -53,7 +53,6 @@ export default class GlobalHeader extends PureComponent {
   }
   componentDidMount() {
     const { is_enterprise } = this.props
-    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
     if (Language == null) {
@@ -82,10 +81,6 @@ export default class GlobalHeader extends PureComponent {
           language: true,
         })
       }
-    }
-    // 判断sessionStorage存储内是否有isShowUpdateVersion字段, 没有表示未显示过更新弹窗
-    if (isShowUpdateVersion === null && is_enterprise) {
-      this.fetchAllVersion()
     }
   }
   handleMenuClick = ({ key }) => {
@@ -210,7 +205,6 @@ export default class GlobalHeader extends PureComponent {
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg } = this.props;
     const { language, treeData, isVersionUpdate } = this.state
-    const isShowUpdateVersion = window.sessionStorage.getItem('isShowUpdateVersion')
     if (!currentUser) {
       return null;
     }
@@ -325,18 +319,6 @@ export default class GlobalHeader extends PureComponent {
             >
               {handleHandBookSvg}
             </a>
-          )}
-          {is_enterprise && isShowUpdateVersion && (
-            <Tooltip title='点击版本更新'>
-              <a
-                className={styles.action}
-                style={{ verticalAlign: '-7px', color: '#fff', padding: 0, margin: '0 12px' }}
-                rel="noopener noreferrer"
-                onClick={this.handleShowUpdate}
-              >
-                {update_Svg}
-              </a>
-            </Tooltip>
           )}
           {currentUser ? (
             <Dropdown overlay={menu}>

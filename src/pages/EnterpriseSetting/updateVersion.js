@@ -19,6 +19,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import ReactMarkdown from 'react-markdown';
 import { fetchAllVersion, fetchVersionDetails, fetchVersionData, updateVersion } from '../../services/api'
+import EscalationState from '../../components/EscalationState'
 import Result from '../../components/Result'
 import styles from './index.less'
 
@@ -49,7 +50,6 @@ export default class UpdateVersion extends PureComponent {
     const { rainbondInfo } = this.props
     const { activeKey, isShowComplete } = this.state
     const currentVersion = rainbondInfo.version.value.split('-')[0]
-    // const currentVersion = 'v5.17.3'
     fetchAllVersion().then(res => {
       if (res) {
         let list = res
@@ -204,10 +204,10 @@ export default class UpdateVersion extends PureComponent {
     const { isShowVersionList, activeKey, loading, versionList, details, isShowContent, isShowModal, isShowComplete, submit_version, isShowModalClose, isShowModalFooter, selsectValue, toUpdata } = this.state
     const { rainbondInfo } = this.props
     const currentVersion = rainbondInfo.version.value.split('-')[0]
-    const message = <p className={styles.noversion}>当前平台版本是：<span>{currentVersion}</span> 请仔细阅读版本详情确认是否更新。</p>
+    const message = <p className={styles.noversion}>{formatMessage({id:'platformUpgrade.EscalationState.nowVersionis'})}<span>{currentVersion}</span> {formatMessage({id:'platformUpgrade.EscalationState.read'})}</p>
     const version = selsectValue?.tag_name.split('-')[0]
-    const noversion = <p className={styles.noversion}>当前平台版本是：<span>{version}</span> 已经是最新版本，无需升级更新。</p>
-    const updataVs = <p className={styles.noversion}>当前平台版本是：<span>{currentVersion}</span> 您将要更新到版本：<span>{version}</span></p>
+    const noversion = <p className={styles.noversion}>{formatMessage({id:'platformUpgrade.EscalationState.nowVersionis'})}<span>{version}</span> {formatMessage({id:'platformUpgrade.EscalationState.newVersion'})}</p>
+    const updataVs = <p className={styles.noversion}>{formatMessage({id:'platformUpgrade.EscalationState.nowVersionis'})}<span>{currentVersion}</span> {formatMessage({id:'platformUpgrade.EscalationState.beUpdataVs'})}<span>{version}</span></p>
     const antIcon = <Icon type="check-circle" style={{ fontSize: 50 }} />
     const handleVersionSvg = (item) => (
       <div className={styles.svg_style}>
@@ -221,6 +221,7 @@ export default class UpdateVersion extends PureComponent {
     return (
       <div style={{ padding: '24px' }}>
 
+ 
         {!isShowModal &&
           <>
             {
@@ -244,7 +245,7 @@ export default class UpdateVersion extends PureComponent {
                                       display: 'flex',
                                       justifyContent: 'flex-end'
                                     }}>
-                                      <Button onClick={this.handleSumbit} type='primary'>去更新</Button>
+                                      <Button onClick={this.handleSumbit} type='primary'>{formatMessage({id:'platformUpgrade.EscalationState.goUpdata'})}</Button>
                                     </div>
                                   </>
                                 ) : (
@@ -262,14 +263,14 @@ export default class UpdateVersion extends PureComponent {
                 <>
                   <Alert className={styles.alert_style} message={noversion} type="success" />
                   <Descriptions bordered>
-                    <Descriptions.Item label="当前版本号">{selsectValue?.tag_name}</Descriptions.Item>
-                    <Descriptions.Item label="更新时间" span={2}>{selsectValue?.published_at}</Descriptions.Item>
-                    <Descriptions.Item label="GitHub地址" span={3}>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.nowVs'})}>{selsectValue?.tag_name}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.updatatime'})} span={2}>{selsectValue?.published_at}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.githubadd'})} span={3}>
                       <a href={selsectValue?.html_url} target="_blank">
                         {selsectValue?.html_url}
                       </a>
                     </Descriptions.Item>
-                    <Descriptions.Item label="版本更新信息">
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.updatainfo'})}>
                       <ReactMarkdown
                         source={details}
                         className={styles.markdown}
@@ -287,23 +288,23 @@ export default class UpdateVersion extends PureComponent {
           <>
             {isShowComplete === 'not_start' ? (
               <>
-                <Card title='更新详情' >
+                <Card title={formatMessage({id:'platformUpgrade.EscalationState.updatadetails'})} >
                   <Descriptions bordered title={
                     <div className={styles.DescriptionsTitle}>
-                      版本：
+                      {formatMessage({id:'platformUpgrade.EscalationState.vs'})}
                       <span>{currentVersion}</span>
-                      更新到版本：
+                      {formatMessage({id:'platformUpgrade.EscalationState.updatatovs'})}
                       <span>{version}</span>
                     </div>
                   }>
-                    <Descriptions.Item label="新版本号">{selsectValue?.tag_name}</Descriptions.Item>
-                    <Descriptions.Item label="新版本上传时间" span={2}>{selsectValue?.published_at}</Descriptions.Item>
-                    <Descriptions.Item label="GitHub地址" span={3}>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.newvs'})}>{selsectValue?.tag_name}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.newvsupload'})} span={2}>{selsectValue?.published_at}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.githubadd'})} span={3}>
                       <a href={selsectValue?.html_url} target="_blank">
                         {selsectValue?.html_url}
                       </a>
                     </Descriptions.Item>
-                    <Descriptions.Item label="新版本更新信息">
+                    <Descriptions.Item label={formatMessage({id:'platformUpgrade.EscalationState.newvsinfo'})}>
                       <ReactMarkdown
                         source={details}
                         className={styles.markdown}
@@ -312,21 +313,14 @@ export default class UpdateVersion extends PureComponent {
                   </Descriptions>
                 </Card>
                 <Row justify='center' type="flex" style={{ marginTop: 24 }}>
-                  <Button type='primary' onClick={() => this.showToUpdata(true)} style={{ marginRight: 16 }}>更新</Button>
-                  <Button onClick={this.handleCancel}>返回</Button>
+                  <Button type='primary' onClick={() => this.showToUpdata(true)} style={{ marginRight: 16 }}>{formatMessage({id:'platformUpgrade.EscalationState.updata'})}</Button>
+                  <Button onClick={this.handleCancel}>{formatMessage({id:'platformUpgrade.EscalationState.back'})}</Button>
                 </Row>
               </>
             ) : (
-              <Result
-                type={isShowComplete === 'pending' ? 'ing' : 'success'}
-                title={isShowComplete === 'pending' ? `平台升级进行中，请耐心等待...` : '平台升级成功'}
-                description={isShowComplete === 'pending' && '请勿进行其他操作，请耐心等待平台升级完成。'}
-                style={{
-                  marginTop: 48,
-                  marginBottom: 16
-                }}
-                actions={isShowComplete === 'pending' ? <></> : <Button type='primary' onClick={() => this.complete()} style={{ marginRight: 16 }}>返回</Button>}
-              />
+              <>
+                <EscalationState isShowComplete={isShowComplete}complete ={this.complete}/>
+              </>
             )}
 
           </>
@@ -334,9 +328,9 @@ export default class UpdateVersion extends PureComponent {
 
         {toUpdata &&
           <ConfirmModal
-            title='更新平台版本'
-            subDesc={`为保障数据安全，请您在开始升级前做好数据备份工作。`}
-            desc='请注意！点击确认按钮后，请勿做其他任何操作，一旦升级流程开始将不可取消。'
+            title={formatMessage({id:'platformUpgrade.EscalationState.updataplatform'})}
+            subDesc={formatMessage({id:'platformUpgrade.EscalationState.310'})}
+            desc={formatMessage({id:'platformUpgrade.EscalationState.info'})}
             onOk={this.handleSubmitUpdata}
             onCancel={() => this.showToUpdata(false)}
           />
