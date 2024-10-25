@@ -46,19 +46,19 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://47.237.128.122:7070/',
+      target: 'http://47.74.48.22:7072/',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://47.237.128.122:7070/',
+      target: 'http://47.74.48.22:7072/',
       changeOrigin: true
     },
     '/openapi/v1': {
-      target: 'http://47.237.128.122:7070/',
+      target: 'http://47.74.48.22:7072/',
       changeOrigin: true
     },
     '/enterprise-server':{
-      target:'http://47.237.128.122:7070/',
+      target:'http://47.74.48.22:7072/',
       changeOrigin: true
     },
   }

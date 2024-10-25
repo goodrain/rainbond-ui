@@ -89,7 +89,7 @@ export default class Index extends React.Component {
     this.setState({ deleteVar: data });
   };
   onCancelDeleteVolume = () => {
-    this.setState({ toDeleteVolume: null, showDeleteVolume: false });
+    this.setState({ toDeleteVolume: null });
   };
   onEditVolume = data => {
     this.setState({ showAddVars: data, editor: data });
@@ -99,7 +99,6 @@ export default class Index extends React.Component {
     this.setState({ toDeleteMnt: mnt });
   };
   onDeleteVolume = (data) => {
-    console.log(data,"data");
     this.props.dispatch({
       type: 'appControl/deleteVolume',
       payload: {
@@ -113,7 +112,7 @@ export default class Index extends React.Component {
           if (res.list?.length > 0) {
             this.setState({ errorDelete: true, toDeleteVolumeErr: data, errorList: res.list });
           } else {
-            this.setState({ toDeleteVolume: data, showDeleteVolume: true });
+            this.setState({ toDeleteVolume: data });
           }
         }
       }
@@ -412,15 +411,12 @@ export default class Index extends React.Component {
   };
 
   handleDeleteVolume = () => {
-    console.log(11111);
-    console.log(this.state.toDeleteVolume,"this.state.toDeleteVolume")
     this.props.dispatch({
       type: 'appControl/deleteVolume',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_id: this.state.toDeleteVolume.ID,
-        force: 1
+        volume_id: this.state.toDeleteVolume.ID
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -429,12 +425,6 @@ export default class Index extends React.Component {
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
         }
-      },
-      handleError: err =>{
-        notification.error({ message: formatMessage({ id: 'notification.error.delete' }) });
-        this.onCancelDeleteVolume();
-        this.fetchVolumes();
-        this.props.onshowRestartTips(true);
       }
     });
   };
@@ -721,7 +711,7 @@ export default class Index extends React.Component {
             onOk={this.handleDeleteMnt}
           />
         )}
-        {this.state.showDeleteVolume && (
+        {this.state.toDeleteVolume && (
           <ConfirmModal
             title={<FormattedMessage id='confirmModal.deldete.configurationFile.title' />}
             desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc' />}
