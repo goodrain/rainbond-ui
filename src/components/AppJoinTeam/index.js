@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Avatar, Button, Card, notification } from 'antd';
+import { Avatar, Button, Card, notification, Empty } from 'antd';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Result from '../Result'
@@ -53,8 +53,8 @@ export default class AppJoinTeam extends Component {
             },
             callback: data => {
                 if (data.list.length > 0) {
-                    data.list.map((item)=>{
-                        if(item.is_pass != '2'){
+                    data.list.map((item) => {
+                        if (item.is_pass != '2') {
                             this.setState({
                                 joinList: item,
                                 isPass: item.is_pass,
@@ -62,7 +62,7 @@ export default class AppJoinTeam extends Component {
                                 teamAlias: item.team_alias,
                                 teamName: item.team_name
                             })
-                        }else {
+                        } else {
                             this.setState({
                                 joinList: false,
                                 isPass: false
@@ -141,7 +141,7 @@ export default class AppJoinTeam extends Component {
                         <Result
                             type="ing"
                             title={`等待团队管理员审批`}
-                            extra={`如果长时间没有通过，可以联系 ${teamAlias} 团队负责人 ${teamOwnerName}进行审批`}
+                            extra={`如果长时间没有通过，可以联系 ${teamAlias} 团队负责人 ${teamOwnerName} 进行审批`}
                             description={`团队管理员审批通过之后会自动跳转到工作空间`}
                             actions={
                                 <>
@@ -160,7 +160,7 @@ export default class AppJoinTeam extends Component {
                             const { team_logo, team_alias, team_name, team_id, team_owner_name } = item
                             const colorIndex = teams && teams.length > 0 && teams.length - index - 1
                             return (
-                                <div onClick={() => this.handleOpenModal(team_name)}>
+                                <div className={styles.teamBox} onClick={() => this.handleOpenModal(team_name)}>
                                     <div className={styles.list_img}>
                                         {team_logo ?
                                             <img src={team_logo} alt="" />
@@ -193,10 +193,11 @@ export default class AppJoinTeam extends Component {
                                 </div>
                             )
                         })}
+                        {teams.length == 0 && <div className={styles.noData}><Empty description={'暂无可加入的团队'} /></div>}
                     </div>
                 )}
-    
-                {isModal && 
+
+                {isModal &&
                     <ConfirmModal
                         title={'申请加入团队'}
                         desc={'你确定要申请加入此团队吗？'}

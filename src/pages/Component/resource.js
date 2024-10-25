@@ -19,12 +19,13 @@ import {
   Select,
   Spin,
   Tabs,
-  Upload
+  Upload,
+  Radio
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
@@ -89,17 +90,18 @@ export default class Index extends PureComponent {
       showKey: false,
       modifyImageName: false,
       modifyImageCmd: false,
+      codeLang: ''
     };
   }
   static contextType = ResumeContext;
 
   componentDidMount() {
-    if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.setOauthService();
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
       this.bindEvent()
-    }else{
+    } else {
       this.time()
     }
   }
@@ -137,15 +139,15 @@ export default class Index extends PureComponent {
       parent = parent.parentNode;
     }
   };
-  time = () =>{
-    const time = setTimeout(()=>{
-      if(this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias){
+  time = () => {
+    const time = setTimeout(() => {
+      if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
         this.setOauthService();
         this.getRuntimeInfo();
         this.loadBuildSourceInfo();
         this.bindEvent()
       }
-    },2000)
+    }, 2000)
   }
   // 上传文件取消
   handleUploadCancel = () => {
@@ -153,22 +155,22 @@ export default class Index extends PureComponent {
   }
   //上传文件确认
   handleUploadOk = e => {
-    const { 
-      dispatch, 
-      appDetail 
+    const {
+      dispatch,
+      appDetail
     } = this.props;
     const { existFileList, event_id } = this.state
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
     const serviceId = appDetail && appDetail.service && appDetail.service.service_id
-   if (existFileList.length > 0) {
+    if (existFileList.length > 0) {
       dispatch({
         type: "createApp/createJarWarSubmit",
         payload: {
           team_name: teamName,
           event_id,
-          service_id:serviceId,
-          region_name:regionName
+          service_id: serviceId,
+          region_name: regionName
         },
         callback: (data) => {
           this.setState({ uploadFile: false })
@@ -179,7 +181,7 @@ export default class Index extends PureComponent {
       this.loop = true
       this.handleJarWarUploadStatus()
       notification.error({
-        message: formatMessage({id:'notification.error.notDetected'})
+        message: formatMessage({ id: 'notification.error.notDetected' })
       })
     }
   };
@@ -292,7 +294,7 @@ export default class Index extends PureComponent {
             existFileList: []
           });
           notification.success({
-            message: formatMessage({id:'notification.success.delete_file'})
+            message: formatMessage({ id: 'notification.success.delete_file' })
           })
           this.handleJarWarUpload()
         }
@@ -363,7 +365,7 @@ export default class Index extends PureComponent {
   onChangeBuildSource = () => {
     this.hideBuildSource();
     this.loadBuildSourceInfo();
-    const {  loadBuildState } = this.context;
+    const { loadBuildState } = this.context;
     loadBuildState(true);
   };
   getRuntimeInfo = () => {
@@ -390,7 +392,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.modified'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.modified' }) });
           this.getRuntimeInfo();
         }
       }
@@ -425,7 +427,7 @@ export default class Index extends PureComponent {
   hideEditOauth = () => {
     this.setState({ editOauth: false });
   };
-  
+
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -438,15 +440,15 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           const { bean } = data;
-          if(bean.service_source === 'package_build'){
+          if (bean.service_source === 'package_build') {
             const url = bean && bean.git_url
-            const str = url.lastIndexOf("\/");  
+            const str = url.lastIndexOf("\/");
             const eventId = url.substring(str + 1, url.length);
-            this.setState({ 
+            this.setState({
               event_id: eventId
             })
           }
-          
+
           this.setState({ buildSource: bean }, () => {
             if (
               bean &&
@@ -492,6 +494,22 @@ export default class Index extends PureComponent {
   handlelanguageBox = () => {
     this.setState({ languageBox: false, create_status: '' });
   };
+  handleUpdatelanguage = () => {
+    const { dispatch, appAlias } = this.props
+    const { codeLang } = this.state
+    dispatch({
+      type: 'createApp/updateCustomLanguage',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_id: appAlias,
+        lang: codeLang
+      },
+      callback: res => {
+        this.loadBuildSourceInfo();
+        this.setState({ languageBox: false, create_status: '' });
+      }
+    })
+  }
   handleDetectGetLanguage = () => {
     const { dispatch } = this.props;
     const _th = this;
@@ -514,6 +532,16 @@ export default class Index extends PureComponent {
                 _th.handleDetectGetLanguage();
               }, 3000);
             } else {
+              if(res.bean && res.bean.service_info){
+                res.bean.service_info.map((item)=>{
+                  if (item.type == 'language') {
+                    const parts = item.value.split(",");
+                    this.setState({
+                      codeLang: parts[0]
+                    })
+                  }
+                })
+              }
               this.loadBuildSourceInfo();
               this.setState({
                 create_status: res.bean && res.bean.check_status,
@@ -546,7 +574,7 @@ export default class Index extends PureComponent {
             },
             () => {
               if (this.state.create_status == 'failure') {
-                notification.warning({ message: formatMessage({id:'notification.warn.update_language'}) });
+                notification.warning({ message: formatMessage({ id: 'notification.warn.update_language' }) });
               } else {
                 this.handleDetectGetLanguage();
               }
@@ -710,7 +738,7 @@ export default class Index extends PureComponent {
           service_source: 'source_code'
         },
         callback: () => {
-          notification.success({ message: formatMessage({id:'notification.success.edit_deploy'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.edit_deploy' }) });
           this.loadBuildSourceInfo();
           this.hideEditOauth();
         }
@@ -753,6 +781,12 @@ export default class Index extends PureComponent {
       }
     });
   };
+  onChangeLange = (e) => {
+    const value = e.target.value
+    this.setState({
+      codeLang: value
+    })
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -775,6 +809,7 @@ export default class Index extends PureComponent {
       modifyImageName,
       modifyImageCmd,
       showKey,
+      codeLang
     } = this.state;
     const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
@@ -826,19 +861,19 @@ export default class Index extends PureComponent {
       <Fragment>
         {buildSource && (
           <Card
-            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan'/>}
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
             style={{
               marginBottom: 24
             }}
             className={styles.tabsCard}
-            extra={method != 'vm' &&[
+            extra={method != 'vm' && [
               appUtil.isOauthByBuildSource(buildSource) ? (
                 <a onClick={this.changeEditOauth} href="javascript:;">
-                  <FormattedMessage id='componentOverview.body.Resource.edit'/>
+                  <FormattedMessage id='componentOverview.body.Resource.edit' />
                 </a>
               ) : (
                 <a onClick={this.changeBuildSource} href="javascript:;">
-                  <FormattedMessage id='componentOverview.body.Resource.change'/>
+                  <FormattedMessage id='componentOverview.body.Resource.change' />
                 </a>
               )
             ]}
@@ -851,8 +886,8 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label={
                   appUtil.isOauthByBuildSource(buildSource) && thirdInfo
-                    ? <FormattedMessage id='componentOverview.body.Resource.oauth'/>
-                    : <FormattedMessage id='componentOverview.body.Resource.type'/>
+                    ? <FormattedMessage id='componentOverview.body.Resource.oauth' />
+                    : <FormattedMessage id='componentOverview.body.Resource.type' />
                 }
               >
                 <Link
@@ -869,17 +904,17 @@ export default class Index extends PureComponent {
               </FormItem>
             </div>
             {method == 'vm' &&
-             <div>
-              <FormItem
-                style={{
-                  marginBottom: 0
-                }}
-                {...formItemLayout}
-                label={formatMessage({id:'Vm.createVm.VmImg'})}
-              >
-               暂无
-              </FormItem>
-            </div>}
+              <div>
+                <FormItem
+                  style={{
+                    marginBottom: 0
+                  }}
+                  {...formItemLayout}
+                  label={formatMessage({ id: 'Vm.createVm.VmImg' })}
+                >
+                  暂无
+                </FormItem>
+              </div>}
 
             {appUtil.isImageAppByBuildSource(buildSource) ? (
               <div>
@@ -888,7 +923,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.name'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.name' />}
                 >
                   {buildSource.image}
                 </FormItem>
@@ -897,7 +932,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.edition'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.edition' />}
                 >
                   {buildSource.version}
                 </FormItem>
@@ -906,7 +941,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.command'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.command' />}
                 >
                   {buildSource.cmd || ''}
                 </FormItem>
@@ -921,7 +956,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.template'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.template' />}
                 >
                   {buildSource.group_key ? (
                     <a
@@ -940,7 +975,7 @@ export default class Index extends PureComponent {
                       {buildSource.rain_app_name}
                     </a>
                   ) : (
-                    <FormattedMessage id='componentOverview.body.Resource.notfind'/>
+                    <FormattedMessage id='componentOverview.body.Resource.notfind' />
                   )}
                 </FormItem>
                 <FormItem
@@ -948,7 +983,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.edition'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.edition' />}
                 >
                   {buildSource.version}
                 </FormItem>
@@ -963,7 +998,7 @@ export default class Index extends PureComponent {
                   marginBottom: 0
                 }}
                 {...formItemLayout}
-                label={<FormattedMessage id='componentOverview.body.Resource.entry_name'/>}
+                label={<FormattedMessage id='componentOverview.body.Resource.entry_name' />}
               >
                 <a href={buildSource.git_url} target="_blank">
                   {buildSource.full_name}
@@ -978,7 +1013,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.git_add'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.git_add' />}
                 >
                   <a href={buildSource.git_url} target="_blank">
                     {buildSource.git_url}
@@ -989,7 +1024,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition' />}
                 >
                   {buildSource.code_version}
                 </FormItem>
@@ -1000,7 +1035,7 @@ export default class Index extends PureComponent {
                   }}
                   {...formItemLayout}
                   className={styles.ant_form_item}
-                  label={<FormattedMessage id='componentOverview.body.Resource.language'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.language' />}
                 >
                   {languageType != 'static' ? (
                     <a target="blank" href={languageObj[`${languageType}`]}>
@@ -1014,7 +1049,7 @@ export default class Index extends PureComponent {
                     type="primary"
                     onClick={this.handleToDetect}
                   >
-                    <FormattedMessage id='componentOverview.body.Resource.Retest'/>
+                    <FormattedMessage id='componentOverview.body.Resource.Retest' />
                   </Button>
                 </FormItem>
               </Fragment>
@@ -1028,7 +1063,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0
                   }}
                   {...formItemLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.file_name'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.file_name' />}
                 >
                   {buildSource.package_name}
                   <Button
@@ -1036,7 +1071,7 @@ export default class Index extends PureComponent {
                     onClick={this.handleToUpload}
                     style={{ marginLeft: '6px' }}
                   >
-                    <FormattedMessage id='componentOverview.body.Resource.Re_upload_file'/>
+                    <FormattedMessage id='componentOverview.body.Resource.Re_upload_file' />
                   </Button>
                 </FormItem>
 
@@ -1046,7 +1081,7 @@ export default class Index extends PureComponent {
                   }}
                   {...formItemLayout}
                   className={styles.ant_form_item}
-                  label={<FormattedMessage id='componentOverview.body.Resource.language'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.language' />}
                 >
                   {languageType != 'static' ? (
                     <>
@@ -1063,7 +1098,7 @@ export default class Index extends PureComponent {
                     onClick={this.handleToDetect}
                     style={{ marginLeft: '6px' }}
                   >
-                    <FormattedMessage id='componentOverview.body.Resource.Retest'/>
+                    <FormattedMessage id='componentOverview.body.Resource.Retest' />
                   </Button>
                 </FormItem>
               </Fragment>
@@ -1089,39 +1124,36 @@ export default class Index extends PureComponent {
 
         {this.state.languageBox && (
           <Modal
+            centered
+            closable={false}
             visible={this.state.languageBox}
-            onCancel={this.handlelanguageBox}
-            title={<FormattedMessage id='componentOverview.body.Resource.Retest'/>}
+            title={<FormattedMessage id='componentOverview.body.Resource.Retest' />}
             footer={
               !this.state.create_status
                 ? [
                   <Button key="back" onClick={this.handlelanguageBox}>
-                    
-                    <FormattedMessage id='componentOverview.body.Resource.close'/>
+
+                    <FormattedMessage id='componentOverview.body.Resource.close' />
                   </Button>,
                   <Button
                     key="submit"
                     type="primary"
                     onClick={this.handleDetectPutLanguage}
                   >
-                    <FormattedMessage id='componentOverview.body.Resource.testing'/>
+                    <FormattedMessage id='componentOverview.body.Resource.testing' />
                   </Button>
                 ]
                 : this.state.create_status == 'success'
                   ? [
-                    <Button key="back" onClick={this.handlelanguageBox}>
-                      
-                      <FormattedMessage id='componentOverview.body.Resource.close'/>
-                    </Button>,
                     <Button
                       key="submit"
                       type="primary"
-                      onClick={this.handlelanguageBox}
+                      onClick={this.handleUpdatelanguage}
                     >
-                      <FormattedMessage id='componentOverview.body.Resource.confirm'/>
+                      <FormattedMessage id='componentOverview.body.Resource.confirm' />
                     </Button>
                   ]
-                  : [<Button  onClick={this.handlelanguageBox} key="back"><FormattedMessage id='componentOverview.body.Resource.close'/></Button>]
+                  : [<Button onClick={this.handlelanguageBox} key="back"><FormattedMessage id='componentOverview.body.Resource.close' /></Button>]
             }
           >
             <div>
@@ -1132,7 +1164,7 @@ export default class Index extends PureComponent {
                     <Spin />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    <FormattedMessage id='componentOverview.body.Resource.Testing'/>
+                    <FormattedMessage id='componentOverview.body.Resource.Testing' />
                   </p>
                 </div>
               ) : (
@@ -1167,7 +1199,6 @@ export default class Index extends PureComponent {
                           />
                         </div>
                       );
-                      // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
                     })}
                 </div>
               ) : (
@@ -1187,7 +1218,20 @@ export default class Index extends PureComponent {
 
                   {this.state.service_info &&
                     this.state.service_info.map(item => {
-                      return (
+                      let languageArr = []
+                      if (item.type == 'language') {
+                        languageArr = item.value.split(",");
+                      }
+                      return item.type == 'language' ? (
+                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:
+                          <Radio.Group onChange={this.onChangeLange} value={codeLang}>
+                            {languageArr.map((item) => {
+                              return <Radio value={item}>{item}</Radio>
+                            })}
+                          </Radio.Group>
+                        </p>
+                      ) : (
                         <p style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:{item.value}{' '}
                         </p>
@@ -1209,7 +1253,7 @@ export default class Index extends PureComponent {
                     <Icon type="close-circle-o" />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    <FormattedMessage id='componentOverview.body.Resource.fail'/>
+                    <FormattedMessage id='componentOverview.body.Resource.fail' />
                   </p>
                 </div>
               ) : (
@@ -1219,7 +1263,7 @@ export default class Index extends PureComponent {
               {!this.state.create_status && (
                 <div>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    <FormattedMessage id='componentOverview.body.Resource.testing_again'/>
+                    <FormattedMessage id='componentOverview.body.Resource.testing_again' />
                   </p>
                 </div>
               )}
@@ -1231,11 +1275,12 @@ export default class Index extends PureComponent {
             visible
             onCancel={this.handleUploadCancel}
             onOk={this.handleUploadOk}
-            title={<FormattedMessage id='componentOverview.body.Resource.upload'/>}
+            title={<FormattedMessage id='componentOverview.body.Resource.upload' />}
           >
             <Upload
               fileList={fileList}
               name="packageTarFile"
+              accept=".jar,.war,.zip,.tar"
               onChange={this.onChangeUpload}
               onRemove={this.onRemove}
               action={record.upload_url}
@@ -1243,44 +1288,44 @@ export default class Index extends PureComponent {
               multiple={true}
             >
               <Button>
-                <Icon type="upload" /> <FormattedMessage id='componentOverview.body.Resource.upload'/>
+                <Icon type="upload" /> <FormattedMessage id='componentOverview.body.Resource.upload' />
               </Button>
             </Upload>
-              <div
-                style={{
-                  display: 'flex',
-                  marginTop:'20px'
-                }}
-              >
-                <div>
-                  {existFileList.length > 0 ?
-                    (existFileList.map((item) => {
-                      return (
-                        <div style={{ padding:'12px 8px',border:'1px solid #d9d9d9'}}>
-                          <Icon style={{ marginRight: '6px' }} type="inbox" />
-                          <span className={styles.fileName}>
-                            {item}
-                          </span>
-                        </div>
-                      )
-                    })) : (
-                     null
-                    )}
-                </div>
-                {existFileList.length > 0 &&
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      background: '#ff7b7b',
-                      padding: '0px 12px',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
-                  </div>
-                }
+            <div
+              style={{
+                display: 'flex',
+                marginTop: '20px'
+              }}
+            >
+              <div>
+                {existFileList.length > 0 ?
+                  (existFileList.map((item) => {
+                    return (
+                      <div style={{ padding: '12px 8px', border: '1px solid #d9d9d9' }}>
+                        <Icon style={{ marginRight: '6px' }} type="inbox" />
+                        <span className={styles.fileName}>
+                          {item}
+                        </span>
+                      </div>
+                    )
+                  })) : (
+                    null
+                  )}
               </div>
+              {existFileList.length > 0 &&
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#ff7b7b',
+                    padding: '0px 12px',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                </div>
+              }
+            </div>
             {/* <div style={{marginTop:'20px'}}>
               {existFileList.length > 0 && existFileList.map((item) => {
                 return (
@@ -1309,7 +1354,7 @@ export default class Index extends PureComponent {
             buildSource={buildSource}
             appAlias={this.props.appDetail.service.service_alias}
             archInfo={this.props.appDetail.service.arch}
-            title={<FormattedMessage id='componentOverview.body.Resource.Change_component_build_source'/>}
+            title={<FormattedMessage id='componentOverview.body.Resource.Change_component_build_source' />}
             onCancel={this.hideBuildSource}
           />
         )}
@@ -1319,24 +1364,24 @@ export default class Index extends PureComponent {
             onCancel={this.hideEditOauth}
             onOk={this.handleSubmitOauth}
             loading={this.state.OauthLoading}
-            title={<FormattedMessage id='componentOverview.body.Resource.edit'/>}
+            title={<FormattedMessage id='componentOverview.body.Resource.edit' />}
           >
             <Spin spinning={this.state.OauthLoading}>
               <Form onSubmit={this.handleSubmitOauth}>
-                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.oauth'/>}>
+                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.oauth' />}>
                   {getFieldDecorator('oauth_service_id', {
                     initialValue: thirdInfo ? `${thirdInfo.service_id}` : '',
                     rules: [
                       {
                         required: true,
-                        message: formatMessage({id:'componentOverview.body.Resource.choice_oauth'}),
+                        message: formatMessage({ id: 'componentOverview.body.Resource.choice_oauth' }),
                       }
                     ]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
                       onChange={this.handleProvinceChange}
-                      placeholder={formatMessage({id:'componentOverview.body.Resource.choice_oauth'})}
+                      placeholder={formatMessage({ id: 'componentOverview.body.Resource.choice_oauth' })}
                     >
                       {tabList.length > 0 &&
                         tabList.map(
@@ -1351,12 +1396,12 @@ export default class Index extends PureComponent {
                   )}
                 </FormItem>
 
-                <FormItem {...formOauthLayout}  label={<FormattedMessage id='componentOverview.body.Resource.entry_name'/>}>
+                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.entry_name' />}>
                   {getFieldDecorator('full_name', {
                     initialValue: buildSource
                       ? buildSource.full_name
                       : fullList.length > 0 && fullList[0].project_full_name,
-                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.choice_entry'})}]
+                    rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.choice_entry' }) }]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -1375,7 +1420,7 @@ export default class Index extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPagePre}
                               >
-                                <FormattedMessage id='componentOverview.body.Resource.previous'/>
+                                <FormattedMessage id='componentOverview.body.Resource.previous' />
                               </div>
                             </div>
                           )}
@@ -1391,13 +1436,13 @@ export default class Index extends PureComponent {
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.onPageNext}
                               >
-                                <FormattedMessage id='componentOverview.body.Resource.next'/>
+                                <FormattedMessage id='componentOverview.body.Resource.next' />
                               </div>
                             </div>
                           )}
                         </div>
                       )}
-                      placeholder={formatMessage({id:'componentOverview.body.Resource.choice_entry'})}
+                      placeholder={formatMessage({ id: 'componentOverview.body.Resource.choice_entry' })}
                     >
                       {fullList.length > 0 &&
                         fullList.map(item => (
@@ -1412,27 +1457,27 @@ export default class Index extends PureComponent {
                   )}
                 </FormItem>
 
-                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.git_add'/>}>
+                <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.git_add' />}>
                   {getFieldDecorator('git_url', {
                     initialValue: buildSource
                       ? buildSource.git_url
                       : fullList.length > 0 && fullList[0].git_url,
-                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.placese_type'}),}]
-                  })(<Input placeholder={formatMessage({id:'componentOverview.body.Resource.input_name'})} disabled />)}
+                    rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.placese_type' }), }]
+                  })(<Input placeholder={formatMessage({ id: 'componentOverview.body.Resource.input_name' })} disabled />)}
                 </FormItem>
 
                 <Form.Item
                   className={styles.clearConform}
                   {...formOauthLayout}
-                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition'/>}
+                  label={<FormattedMessage id='componentOverview.body.Resource.code_edition' />}
                 >
                   {getFieldDecorator('code_version', {
                     initialValue: buildSource ? buildSource.code_version : '',
-                    rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.Resource.input_code'}),}]
+                    rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.input_code' }), }]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder={formatMessage({id:'componentOverview.body.Resource.input_code'})}
+                      placeholder={formatMessage({ id: 'componentOverview.body.Resource.input_code' })}
                     >
                       <OptGroup
                         label={
@@ -1441,7 +1486,7 @@ export default class Index extends PureComponent {
                             onChange={this.onTabChange}
                             className={styles.selectTabs}
                           >
-                            <TabPane tab={<FormattedMessage id='componentOverview.body.Resource.branch'/>} key="branches" />
+                            <TabPane tab={<FormattedMessage id='componentOverview.body.Resource.branch' />} key="branches" />
                             <TabPane tab="Tags" key="tags" />
                           </Tabs>
                         }
@@ -1467,7 +1512,7 @@ export default class Index extends PureComponent {
             </Spin>{' '}
           </Modal>
         )}
-        {modifyUserpass &&  
+        {modifyUserpass &&
           <ModifyUrl
             showUsernameAndPass
             isServiceCname={true}

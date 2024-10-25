@@ -41,6 +41,13 @@ class ChangeProtocol extends PureComponent {
       NotHttpConnectInfo: []
     };
   }
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchProtocols',
+      payload: { team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName() }
+    });
+  }
   onChange = value => {
     this.setState({ value });
   };

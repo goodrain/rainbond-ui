@@ -231,7 +231,8 @@ export default class Main extends PureComponent {
         page: v ? 1 : this.state.page,
         need_install: true,
         is_complete: 1,
-        arch: archInfo
+        arch: archInfo,
+        tenant_name: scopeMax == 'localApplication' ? globalUtil.getCurrTeamName() : ''
       },
       callback: data => {
         if (data) {
