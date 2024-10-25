@@ -6,60 +6,85 @@
 import { Button, Card, Cascader, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import moment from 'moment';
 import Ansi from '../../components/Ansi/index';
 import NoPermTip from '../../components/NoPermTip';
 import { getContainerLog, getServiceLog } from '../../services/app';
 import appUtil from '../../utils/app';
-import AppPubSubSocket from '../../utils/appPubSubSocket';
-import globalUtil from '../../utils/global';
-import regionUtil from '../../utils/region';
-import roleUtil from '../../utils/role';
-import teamUtil from '../../utils/team';
-import userUtil from '../../utils/user';
 import download from '@/utils/download';
-import HistoryLog from './history';
+import apiConfig from '../../../config/api.config'
 import History1000Log from './history1000';
 import styles from './Log.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import LoginPage from '@/pages/User/Login';
 
 const { Option } = Select;
 
-@connect(
-  ({ user }) => ({
-    currUser: user.currentUser
-  }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect()
+/*
+该组件用于展示应用或集群的日志信息，并提供筛选、搜索、实时刷新等功能。
+
+Props传参：
+- type: 类型，用于区分是应用日志还是集群日志
+- RbdName: 应用名称或集群名称
+- region: 区域名称
+- tcpUrl: TCP连接的URL
+
+State状态：
+- containerLog: 容器日志数组
+- logs: 日志数组
+- instances: 实例数组
+- started: 是否开始推送日志
+- showHistory1000Log: 是否显示最近1000条日志组件
+- showHighlighted: 高亮显示的日志
+- filter: 日志筛选条件
+- pod_name: Pod名称
+- container_name: 容器名称
+- refreshValue: 刷新频率
+- time: 定时器ID
+
+功能：
+1. componentDidMount生命周期方法中根据类型加载相应的日志信息。
+2. componentDidUpdate生命周期方法中当日志更新时，滚动到底部。
+3. componentWillUnmount生命周期方法中关闭Socket连接。
+4. fetchConsoleLogs方法用于获取控制台日志信息。
+5. setLogs方法用于设置日志并进行筛选和高亮显示。
+6. hanleTimer方法用于处理定时器。
+7. handleTimers方法用于处理定时器。
+8. closeTimer方法用于关闭定时器。
+9. fetchContainerLog方法用于获取容器日志信息。
+10. canView方法用于判断用户是否有权限查看日志。
+11. handleStop和handleStart方法用于暂停和开始推送日志。
+12. showDownHistory1000Log和hideDownHistory1000Log方法用于显示和隐藏最近1000条日志组件。
+13. onChangeCascader方法用于级联选择器的变化。
+14. handleChange方法用于切换刷新频率。
+15. downloadLogs方法用于下载日志。
+16. 渲染页面布局和日志内容。
+
+*/
+
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
+    const { instances } = this.props
     this.state = {
       containerLog: [],
       logs: [],
       instances: [],
       started: true,
-      showHistoryLog: false,
       showHistory1000Log: false,
       showHighlighted: '',
       filter: '',
-      pod_name: '',
+      pod_name: instances && instances.length > 0 && instances[0].pod_name,
       container_name: '',
       refreshValue: 5,
     };
-    this.socket = null;
-  }
-  componentWillMount() {
-    this.createSocket();
   }
   componentDidMount() {
     const { type } = this.props
     if (type) {
       this.fetchConsoleLogs()
     } else {
-      this.loadLog();
+      this.fetchContainerLog()
     }
   }
   componentDidUpdate(prevProps, prevState) {
@@ -72,63 +97,39 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
-    if (this.socket) {
-      this.socket.closeLogMessage();
-      this.socket.destroy();
-      this.socket = null;
+    this.closeTimer();
+    if (this.eventSourceLogs) {
+      this.eventSourceLogs.close();
     }
   }
+  /**
+   * 获取控制台日志
+   * 
+   * 从服务器获取控制台日志信息，并更新组件状态。
+   * 
+   * @returns {void}
+   */
   fetchConsoleLogs = () => {
     const { dispatch, region } = this.props;
     dispatch({
       type: 'region/fetchConsoleLogs',
       callback: res => {
         if (res) {
-          // if (this.refs.box) {
-          //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          // }
           this.setState({ logs: res.bean || [] }, () => {
             this.hanleConsoTimer()
           });
-          this.watchLog();
         }
       }
     });
   };
-  createSocket() {
-    const { RbdName, region, tcpUrl } = this.props
-    const url = `${tcpUrl}/services/${region}/pubsub`
-    if (tcpUrl) {
-      this.socket = new AppPubSubSocket({
-        url: url,
-        serviceId: RbdName,
-        isAutoConnect: true,
-        destroyed: false,
-        time: '',
-      });
-    }
-
-  }
-  onFinish = value => {
-    const { type ,ss} = this.props
-    this.setState({ filter: value }, () => {
-      const { logs, pod_name: podName } = this.state;
-      if (value === '') {
-        if ( type ){
-          this.fetchConsoleLogs(),
-          clearInterval(ss)
-        }else{
-          if (podName) {
-            this.fetchContainerLog();
-          } else {
-            this.fetchClusterLogInfoSingle();
-          }
-        }
-      } else {
-        this.setLogs(logs);
-      }
-    });
-  };
+  /**
+   * 设置日志显示
+   * 
+   * 根据过滤条件更新日志显示。
+   * 
+   * @param {Array} logs - 日志数组
+   * @returns {void}
+   */
   setLogs = logs => {
     const { filter, pod_name: podName } = this.state;
     let newlogs = logs;
@@ -151,57 +152,14 @@ export default class Index extends PureComponent {
     const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
     this.setState(upDataInfo);
   };
-  watchLog = () => {
-    if (this.socket) {
-      this.socket.setOnLogMessage(
-        messages => {
-          if (messages && messages.length > 0) {
-            const logs = this.state.logs || [];
-            const newlogs = logs.concat(messages);
-            this.setLogs(newlogs);
-          }
-        },
-        messages => {
-          if (this.state.started) {
-            let logs = this.state.logs || [];
-            logs = logs.concat(messages);
-            if (this.refs.box) {
-              this.refs.box.scrollTop = this.refs.box.scrollHeight;
-            }
-            this.setLogs(logs);
-          }
-        }
-      );
-    }
-  }
-  loadLog() {
-    const { logs } = this.state;
-    if (logs.length == 0) {
-      this.fetchClusterLogInfoSingle();
-    } else {
-      this.watchLog();
-    }
-  }
-  fetchClusterLogInfoSingle = () => {
-    const { dispatch, region, RbdName } = this.props;
-    dispatch({
-      type: 'region/fetchClusterLogInfoSingle',
-      payload: {
-        region_name: region,
-        rbd_name: RbdName,
-        lines: 100
-      },
-      callback: res => {
-        if (res) {
-          if (this.refs.box) {
-            this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          }
-          this.setState({ logs: res.bean || [] });
-          this.watchLog();
-        }
-      }
-    });
-  }
+  /**
+   * 处理定时器
+   * 
+   * 根据刷新时间设置定时器，用于自动获取日志。
+   * 
+   * @returns {void}
+   */
+
   hanleTimer = () => {
     const { refreshValue } = this.state;
     this.closeTimer();
@@ -215,6 +173,13 @@ export default class Index extends PureComponent {
       time: ss
     })
   };
+  /**
+   * 处理控制台日志定时器
+   * 
+   * 设置定时器以定时获取控制台日志。
+   * 
+   * @returns {void}
+   */
   hanleConsoTimer = () => {
     this.closeTimer();
     var ss = setTimeout(() => {
@@ -224,6 +189,16 @@ export default class Index extends PureComponent {
       time: ss
     })
   };
+  /**
+   * 处理定时器
+   * 
+   * 根据给定的定时器名称、回调函数和时间设置定时器。
+   * 
+   * @param {string} timerName - 定时器名称
+   * @param {Function} callback - 定时器回调函数
+   * @param {number} times - 定时器执行间隔时间
+   * @returns {void}
+   */
   handleTimers = (timerName, callback, times) => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
@@ -233,104 +208,150 @@ export default class Index extends PureComponent {
       callback();
     }, times);
   };
-
+  /**
+   * 关闭定时器
+   * 
+   * 关闭当前组件的定时器。
+   * 
+   * @returns {void}
+   */
   closeTimer = () => {
     const { time } = this.state
     if (time) {
       clearInterval(time);
     }
   };
-
+  /**
+   * 获取容器日志
+   * 
+   * 从服务器获取指定容器的日志信息，并更新组件状态。
+   * 
+   * @returns {void}
+   */
   fetchContainerLog = () => {
     const { pod_name, container_name } = this.state;
     const { region, dispatch } = this.props;
-    dispatch({
-      type: 'region/fetchNodeInfo',
-      payload: {
-        region_name: region,
-        pod_name: pod_name
-      },
-      callback: res => {
-        if (
-          res &&
-          res.status_code &&
-          res.status_code === 200 &&
-          res.response_data
-        ) {
-          const arr = res.response_data.split('\n');
-          this.setState(
-            {
-              containerLog: arr || []
-            },
-            () => {
-              this.hanleTimer();
-            }
-          );
-        }
+    const url = `/console/sse/v2/proxy-pass/system/logs?region_name=${region}&ns=${'rbd-system'}&name=${pod_name}&lines=${100}`;
+    this.eventSourceLogs = new EventSource(url, {withCredentials: true});
+    const messages = [];
+    this.eventSourceLogs.onmessage = (event) => {
+      const newMessage = event.data;
+      messages.push(newMessage);
+      if (messages.length >= 10) {  // 每收到10条消息更新一次
+        this.setState((prevState) => ({
+          loading: false,
+          containerLog: [...prevState.containerLog, ...messages],
+        }));
+        messages.length = 0;  // 清空数组
       }
-    });
+    };
+    this.eventSourceLogs.onerror = (error) => {
+      console.error('SSE error:', error);
+      this.eventSourceLogs.close();
+    };
   };
-
+  /**
+   * 是否能查看日志
+   * 
+   * 检查当前用户是否有权限查看应用程序日志。
+   * 
+   * @returns {boolean} - 是否能查看日志
+   */
   canView() {
     return appUtil.canManageAppLog(this.props.appDetail);
   }
+  /**
+   * 停止监听日志
+   * 
+   * 关闭 WebSocket 连接上的日志消息监听。
+   * 
+   * @returns {void}
+   */
   handleStop = () => {
     this.setState({ started: false });
-    if (this.socket) {
-      this.socket.closeLogMessage();
+    if (this.eventSourceLogs) {
+      this.eventSourceLogs.close();
     }
   };
+  /**
+   * 开始监听日志
+   * 
+   * 启动 WebSocket 连接上的日志消息监听。
+   * 
+   * @returns {void}
+   */
   handleStart = () => {
     this.setState({ started: true });
-    this.watchLog();
+    this.fetchContainerLog();
   };
-  showDownHistoryLog = () => {
-    this.setState({ showHistoryLog: true });
-  };
-  hideDownHistoryLog = () => {
-    this.setState({ showHistoryLog: false });
-  };
+  /**
+   * 显示下载历史1000行日志模态框
+   * 
+   * 显示下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
   showDownHistory1000Log = () => {
     this.setState({ showHistory1000Log: true });
   };
+  /**
+   * 隐藏下载历史1000行日志模态框
+   * 
+   * 隐藏下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
   hideDownHistory1000Log = () => {
     this.setState({ showHistory1000Log: false });
   };
+  /**
+   * Cascader 变化事件处理函数
+   * 
+   * 处理 Cascader 组件值变化事件，更新容器名称并获取对应容器的日志。
+   * 
+   * @param {Array} value - Cascader 组件的值
+   * @returns {void}
+   */
   onChangeCascader = value => {
-    if (value && value.length > 1) {
-      this.setState(
-        {
-          pod_name: value,
-          container_name: value[1].slice(3)
-        },
-        () => {
-          this.fetchContainerLog();
-        }
-      );
-    } else {
-      this.setState(
-        {
-          pod_name: '',
-          container_name: '',
-          containerLog: []
-        },
-        () => {
-          this.closeTimer();
-          this.fetchClusterLogInfoSingle();
-        }
-      );
-    }
+    this.setState(
+      {
+        pod_name: value,
+        container_name: value[1].slice(3)
+      },
+      () => {
+        this.fetchContainerLog();
+      }
+    );
   };
+  /**
+   * 刷新时间变化事件处理函数
+   * 
+   * 处理刷新时间变化事件，更新定时器的执行间隔。
+   * 
+   * @param {number} value - 刷新时间值
+   * @returns {void}
+   */
   handleChange = value => {
     this.setState({
       refreshValue: value
+    }, () => {
+      this.hanleTimer();
     });
     if (!value) {
       this.closeTimer();
     }
   };
+  /**
+   * 下载日志文件
+   * 
+   * 从服务器下载日志文件。
+   * 
+   * @returns {void}
+   */
   downloadLogs = () => {
-    download("/console/enterprise/download/goodrain_log", 'goodrain.log')
+    const time = Date.parse(new Date());
+    const timestamp = moment(time).locale('zh-cn').format('YYYY-MM-DD')
+    download(`${apiConfig.baseUrl}/console/enterprise/download/goodrain_log`, `${timestamp}`)
   }
 
   render() {
@@ -339,23 +360,21 @@ export default class Index extends PureComponent {
       pod_name,
       containerLog,
       showHighlighted,
-      // instances,
       started,
       refreshValue,
-      showHistoryLog,
       showHistory1000Log,
       time
     } = this.state;
     const { instances, type, RbdName, region } = this.props;
     return (
       <Card
-      style={{border:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+        style={{ border: 0, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
         title={
           <Fragment>
             {type ? (
               <><Button onClick={this.downloadLogs} >
-              {formatMessage({id:'LogEnterprise.download'})}
-            </Button></>
+                {formatMessage({ id: 'LogEnterprise.download' })}
+              </Button></>
             ) : (
               started ? (
                 <Button onClick={this.handleStop}>
@@ -368,86 +387,37 @@ export default class Index extends PureComponent {
                   <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
                 </Button>
               )
-
             )}
-
           </Fragment>
         }
         extra={
           <Fragment>
-            {!type && <>
-              <a onClick={this.showDownHistoryLog} style={{ marginRight: 10 }}>
-                {/* 历史日志下载 */}
-                <FormattedMessage id='componentOverview.body.tab.log.install' />
-              </a>
+            {!type &&
               <a onClick={this.showDownHistory1000Log}>
                 {/* 最近1000条日志 */}
                 <FormattedMessage id='componentOverview.body.tab.log.lately' />
               </a>
-            </>}
+            }
           </Fragment>
         }
-        bodyStyle={{borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+        bodyStyle={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
       >
-        <Form layout="inline" name="logFilter" style={{ marginBottom: '16px',display:type ?'flex':"block",justifyContent:"space-between" }}>
-          <Form.Item
-            name="filter"
-            label={<FormattedMessage id='componentOverview.body.tab.log.text' />}
-            style={{ marginRight: '10px' }}
-          >
-            <Input.Search
-              style={{ width: '300px' }}
-              // placeholder="请输入过滤文本"
-              placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
-              onSearch={this.onFinish}
-            />
-          </Form.Item>
+        <Form layout="inline" name="logFilter" style={{ marginBottom: '16px', display: type ? 'flex' : "block", justifyContent: "space-between" }}>
           {!type &&
             <Form.Item
               name="container"
-              label={formatMessage({id:'LogEnterprise.node'})}
+              label={formatMessage({ id: 'LogEnterprise.node' })}
               style={{ marginRight: '10px' }}
               className={styles.podCascader}
             >
-              <Select placeholder={formatMessage({id:'LogEnterprise.find'})} style={{ width: 240 }} onChange={this.onChangeCascader}>
+              <Select defaultValue={instances && instances.length > 0 && instances[0].pod_name} placeholder={formatMessage({ id: 'LogEnterprise.find' })} style={{ width: 340 }} onChange={this.onChangeCascader}>
                 {instances && instances.length > 0 && instances.map(item => {
                   const { node_name, pod_name } = item
-                  return <Option value={pod_name}>{node_name}</Option>
+                  return <Option value={pod_name}>{pod_name}（{node_name}）</Option>
                 })}
-                <Option value=''>{formatMessage({id:'LogEnterprise.all'})}</Option>
               </Select>
             </Form.Item>
           }
-          {pod_name && (
-            <Form.Item
-              name="refresh"
-              label={<FormattedMessage id='componentOverview.body.tab.log.refresh' />}
-              style={{ marginRight: '0' }}
-            >
-              <Select
-                value={refreshValue}
-                onChange={this.handleChange}
-                style={{ width: 130 }}
-              >
-                <Option value={5}>
-                  {/* 5秒 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.five' />
-                </Option>
-                <Option value={10}>
-                  {/* 10秒 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.ten' />
-                </Option>
-                <Option value={30}>
-                  {/* 30秒 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.thirty' />
-                </Option>
-                <Option value={0}>
-                  {/* 关闭 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.close' />
-                </Option>
-              </Select>
-            </Form.Item>
-          )}
         </Form>
         <div className={styles.logStyle} ref="box">
           {(containerLog &&
@@ -498,9 +468,7 @@ export default class Index extends PureComponent {
                             : '#FFF'
                       }}
                     >
-                      <Ansi>
-                        {log.substring(log.indexOf(':') + 1, log.length)}
-                      </Ansi>
+                      <Ansi>{ log }</Ansi>
                     </span>
 
                     {logs.length == 1 ? (
@@ -577,13 +545,10 @@ export default class Index extends PureComponent {
                 );
               }))}
         </div>
-        {showHistoryLog && (
-          <HistoryLog onCancel={this.hideDownHistoryLog} RbdName={RbdName} region={region} />
-        )}
         {showHistory1000Log && (
           <History1000Log
             onCancel={this.hideDownHistory1000Log}
-            RbdName={RbdName}
+            podName={pod_name}
             region={region}
           />
         )}

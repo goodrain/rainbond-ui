@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { Table } from 'antd';
+import { Button, Table } from 'antd';
 import teamUtil from '../../utils/team';
 import cookie from '@/utils/cookie';
 import roleUtil from '../../utils/role';
@@ -49,44 +49,52 @@ class TeamMemberTable extends PureComponent {
         title: formatMessage({id: 'teamManage.tabs.member.table.operate'}),
         dataIndex: 'action',
         render(_, data) {
+          console.log(data, 'data')
+          const isRoles = data.roles.some(role => role.role_id == 0);
           return (
             <div>
               {isDelete && (
-                <a
-                  href="javascript:;"
+                <Button
+                  type="link"
+                  size='small'
+                  disabled={isRoles}
                   onClick={() => {
                     onDelete(data);
                   }}
                 >
                   {formatMessage({id: 'teamManage.tabs.member.table.delete'})}
-                </a>
+                </Button>
               )}
               {isEdit && (
-                <a
+                <Button
+                  type="link"
+                  size='small'
+                  disabled={isRoles}
                   style={{
                     marginLeft: 6,
                   }}
                   onClick={() => {
                     onEditAction(data);
                   }}
-                  href="javascript:;"
                 >
                   {formatMessage({id: 'teamManage.tabs.member.table.editRole'})}
-                </a>
+                </Button>
               )}
               {teamUtil.canChangeOwner(team) && (
-                <a
+                <Button
+                  type="link"
+                  size='small'
+                  disabled={isRoles}
                   style={{
                     marginLeft: 6,
                   }}
                   onClick={() => {
                     onMoveTeam(data);
                   }}
-                  href="javascript:;"
                 >
                   
                   {formatMessage({id: 'teamManage.tabs.member.table.turnOver'})}
-                </a>
+                </Button>
               )}
             </div>
           );

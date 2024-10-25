@@ -74,9 +74,9 @@ export default class Index extends PureComponent {
   initializeEventSources(pods, lines) {
     const { appAlias, regionName, teamName } = this.props;
     pods.forEach(pod => {
-      if(pod.pod_name){
+      if (pod.pod_name) {
         const url = `/console/sse/v2/tenants/${teamName}/services/${appAlias}/pods/${pod.pod_name}/logs?region_name=${regionName}&lines=${lines}`;
-        this.eventSources[pod.pod_name] = new EventSource(url, {withCredentials: true});
+        this.eventSources[pod.pod_name] = new EventSource(url, { withCredentials: true });
         this.eventSources[pod.pod_name].onmessage = (event) => {
           const newMessage = event.data;
           this.setState((prevState) => ({
@@ -197,87 +197,6 @@ export default class Index extends PureComponent {
     }
   };
 
-  // onFinish = value => {
-  //   this.setState({ filter: value }, () => {
-  //     const { logs, pod_name: podName } = this.state;
-  //     if (value === '') {
-  //       if (podName) {
-  //         this.fetchContainerLog();
-  //       } else {
-  //         this.fetchServiceLog();
-  //       }
-  //     } else {
-  //       this.setLogs(logs);
-  //     }
-  //   });
-  // };
-  // setLogs = logs => {
-  //   const { filter, pod_name: podName } = this.state;
-  //   let newlogs = logs;
-  //   newlogs = logs.filter(item => {
-  //     if (filter == '' || item.indexOf(filter) != -1) {
-  //       return true;
-  //     }
-  //     return false;
-  //   });
-  //   newlogs = newlogs.map(item => {
-  //     if (item.indexOf(filter) != -1) {
-  //       const newitem = item.replace(filter, `\x1b[33m${filter}\x1b[0m`);
-  //       return newitem;
-  //     }
-  //     return item;
-  //   });
-  //   if (newlogs.length > 5000) {
-  //     newlogs = newlogs.slice(logs.length - 5000, logs.length);
-  //   }
-  //   const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
-  //   this.setState(upDataInfo);
-  // };
-  // watchLog() {
-  //   if (this.props.socket) {
-  //     this.props.socket.setOnLogMessage(
-  //       messages => {
-  //         if (messages && messages.length > 0) {
-  //           const logs = this.state.logs || [];
-  //           const newlogs = logs.concat(messages);
-  //           this.setLogs(newlogs);
-  //         }
-  //       },
-  //       messages => {
-  //         if (this.state.started) {
-  //           let logs = this.state.logs || [];
-  //           logs = logs.concat(messages);
-  //           if (this.refs.box) {
-  //             this.refs.box.scrollTop = this.refs.box.scrollHeight;
-  //           }
-  //           this.setLogs(logs);
-  //         }
-  //       }
-  //     );
-  //   }
-  // }
-  // loadLog() {
-  //   const { logs } = this.state;
-  //   if (logs.length == 0) {
-  //     this.fetchServiceLog();
-  //   } else {
-  //     this.watchLog();
-  //   }
-  // }
-  // fetchServiceLog = () => {
-  //   getServiceLog({
-  //     team_name: globalUtil.getCurrTeamName(),
-  //     app_alias: this.props.appAlias
-  //   }).then(data => {
-  //     if (data) {
-  //       if (this.refs.box) {
-  //         this.refs.box.scrollTop = this.refs.box.scrollHeight;
-  //       }
-  //       this.setState({ logs: data.list || [] });
-  //       this.watchLog();
-  //     }
-  //   });
-  // };
   hanleTimer = () => {
     const { refreshValue } = this.state;
     this.closeTimer();
@@ -321,32 +240,29 @@ export default class Index extends PureComponent {
       }
     });
   };
-
-  // showDownHistoryLog = () => {
-  //   this.setState({ showHistoryLog: true });
-  // };
-  // hideDownHistoryLog = () => {
-  //   this.setState({ showHistoryLog: false });
-  // };
-  // showDownHistory1000Log = () => {
-  //   this.setState({ showHistory1000Log: true });
-  // };
-  // hideDownHistory1000Log = () => {
-  //   this.setState({ showHistory1000Log: false });
-  // };
-
-  // handleChange = value => {
-  //   this.setState({
-  //     refreshValue: value
-  //   });
-  //   if (!value) {
-  //     this.closeTimer();
-  //   }
-  // };
-
+  /**
+   * 显示下载历史1000行日志模态框
+   * 
+   * 显示下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
+  showDownHistory1000Log = () => {
+    this.setState({ showHistory1000Log: true });
+  };
+  /**
+   * 隐藏下载历史1000行日志模态框
+   * 
+   * 隐藏下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
+  hideDownHistory1000Log = () => {
+    this.setState({ showHistory1000Log: false });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { appAlias } = this.props;
+    const { appAlias, regionName } = this.props;
     const {
       logs,
       pod_name,
@@ -376,32 +292,16 @@ export default class Index extends PureComponent {
             )}
           </Fragment>
         }
-      // extra={
-      //   <Fragment>
-      //     <a onClick={this.showDownHistoryLog} style={{ marginRight: 10 }}>
-      //       {/* 历史日志下载 */}
-      //       <FormattedMessage id='componentOverview.body.tab.log.install'/>
-      //     </a>
-      //     <a onClick={this.showDownHistory1000Log}>
-      //       {/* 最近1000条日志 */}
-      //       <FormattedMessage id='componentOverview.body.tab.log.lately'/>
-      //     </a>
-      //   </Fragment>
-      // }
+        extra={
+          <Fragment>
+            <a onClick={this.showDownHistory1000Log}>
+              {/* 最近1000条日志 */}
+              <FormattedMessage id='componentOverview.body.tab.log.lately' />
+            </a>
+          </Fragment>
+        }
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
-          <Form.Item
-            name="filter"
-            label={<FormattedMessage id='componentOverview.body.tab.log.text' />}
-            style={{ marginRight: '10px' }}
-          >
-            <Input.Search
-              style={{ width: '300px' }}
-              // placeholder="请输入过滤文本"
-              placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
-              onSearch={this.onFinish}
-            />
-          </Form.Item>
           <Form.Item
             name="container"
             label={<FormattedMessage id='componentOverview.body.tab.log.container' />}
@@ -559,7 +459,8 @@ export default class Index extends PureComponent {
         {showHistory1000Log && (
           <History1000Log
             onCancel={this.hideDownHistory1000Log}
-            appAlias={appAlias}
+            region={regionName}
+            podName={appAlias}
           />
         )}
       </Card>

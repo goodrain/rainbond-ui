@@ -352,6 +352,7 @@ export default class Space extends Component {
     const fetchLogo = rainbondInfo.disable_logo
       ? rainbondInfo.logo.value
       : rainbondUtil.fetchLogo(rainbondInfo, enterprise) || Logo;
+    const enterpriseAdmin = user.is_enterprise_admin
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
@@ -380,7 +381,7 @@ export default class Space extends Component {
           customHeader={customHeader}
           customHeaderImg={customHeaderImg}
         />
-        {userTeamList.length > 0 &&
+        {(enterpriseAdmin || userTeamList.length > 0) &&
           <div className={styles.teamBox}>
             <div className={styles.teamBox_left}>
               <div className={styles.title}>
@@ -789,7 +790,7 @@ export default class Space extends Component {
             </div>
           </div>
         }
-        {(isRegist && !teamListLoding && userTeamList.length == 0) && (
+        {(!enterpriseAdmin && isRegist && !teamListLoding && userTeamList.length == 0) && (
           <AppJoinTeam setTimer={this.handleTeamSetTimeOut} enterpriseID={eid} />
         )}
       </div >

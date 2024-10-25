@@ -293,8 +293,13 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
+    const { dispatch } = this.props;
     this.fetchPorts();
     this.fetchCertificates();
+    dispatch({
+      type: 'region/fetchProtocols',
+      payload: { team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName() }
+    });
   }
   onCloseInner = port => {
     this.props.dispatch({
