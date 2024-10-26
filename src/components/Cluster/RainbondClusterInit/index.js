@@ -146,17 +146,7 @@ export default class RainbondClusterInit extends PureComponent {
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
-        containerd: {
-          volumes: [
-            {
-              name: 'containerdsock',
-              hostPath: {
-                path: '/var/run/k3s/containerd',
-                type: 'Directory'
-              },
-            },
-          ],
-        },
+        useK3sContainerd: true,
         Component:{rbd_app_ui:{enable: false}},
         operator: {
           env: [
