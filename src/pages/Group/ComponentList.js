@@ -405,12 +405,9 @@ export default class ComponentList extends Component {
         dataIndex: 'service_cname',
         render: (val, data) => (
           <Link
-            to={
-              this.titleCase(data.status_cn)  != '创建中' && 
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               data.service_alias
-            }/overview`
-          }
+            }/overview`}
           >
             {' '}
             {data.service_source && data.service_source === 'third_party' ? (
