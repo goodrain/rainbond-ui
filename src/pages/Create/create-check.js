@@ -418,7 +418,6 @@ export default class CreateCheck extends React.Component {
    *   无
    */
   handleConfigFile = () => {
-    console.log(11111);
     const { appAlias, dist, teamName } = this.getParameter();
     const { dispatch } = this.props
     const { imageAddress, codeLanguage } = this.state

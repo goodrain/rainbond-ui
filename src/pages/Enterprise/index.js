@@ -140,8 +140,6 @@ export default class Enterprise extends PureComponent {
       if (res) {
         let list = res
         const isNewVs = list[0].split('-')[0] === currentVersion
-        console.log(currentVersion,"currentVersion");
-        console.log(isNewVs,"isNewVs");
         this.setState({
           hasNewVs: isNewVs
         })
@@ -167,7 +165,6 @@ export default class Enterprise extends PureComponent {
         }
       },
       handleError: error => {
-        console.log(error, 'error')
         if (error && error.data && error.data.code === 400) {
           this.setState({
             authorizationCode: error.data.data.bean.authz_code,

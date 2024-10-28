@@ -108,7 +108,7 @@ class BaseInfo extends PureComponent {
   handleChange = (value) => {
   }
   onChecks = (e) => {
-    const { appDetail, form, handleBuildSwitch } = this.props;
+    const { appDetail, form } = this.props;
     const { method, memory, cpu } = this.state;
     const {
       extend_method: extendMethod,
@@ -116,15 +116,11 @@ class BaseInfo extends PureComponent {
     if(e.target.value != extendMethod){
       this.setState({
         method: true
-      },()=>{
-        this.handleSwitch()
       })
       
     }else{
       this.setState({
         method: false
-      },()=>{
-        this.handleSwitch()
       })
     }
     if(e.target.value === 'cronjob'){
@@ -138,48 +134,36 @@ class BaseInfo extends PureComponent {
     }
   }
   RadioGroupChange = (e) =>{
-    const { appDetail, handleBuildSwitch } = this.props;
+    const { appDetail } = this.props;
     const {
       min_memory: minMemory,
     } = appDetail.service;
     if(e.target.value != minMemory){
       this.setState({
         memory: true
-      },()=>{
-        this.handleSwitch()
       })
     }else{
       this.setState({
         memory: false
-      },()=>{
-        this.handleSwitch()
       })
     }
   }
   inputChange =(e)=>{
-    const { appDetail, handleBuildSwitch } = this.props;
+    const { appDetail } = this.props;
     const {
       min_cpu: minCpu
     } = appDetail.service;
     if(e.target.value != minCpu){
       this.setState({
         cpu: true
-      },()=>{
-        this.handleSwitch()
       })
     }else{
       this.setState({
         cpu: false
-      },()=>{
-        this.handleSwitch()
       })
     }
   }
-  handleSwitch = ()=>{
-    const { handleBuildSwitch } = this.props
-    const { method, memory, cpu } = this.state;
-    handleBuildSwitch((method || memory || cpu))
-  }
+
   render() {
     const { appDetail, form } = this.props;
     const { is_flag } = this.state
@@ -343,7 +327,6 @@ class RenderDeploy extends PureComponent {
         if (data) {
           this.props.updateDetail();
           notification.success({ message: formatMessage({id:'notification.success.updates'}) });
-          this.props.handleBuildSwitch(false)
         }
       }
     });
@@ -352,8 +335,6 @@ class RenderDeploy extends PureComponent {
     const {
       visible,
       appDetail,
-      componentPermissions: { isDeploytype, isSource },
-      handleBuildSwitch
     } = this.props;
     const { runtimeInfo } = this.state;
     if (!runtimeInfo) return null;
@@ -364,10 +345,7 @@ class RenderDeploy extends PureComponent {
           display: visible ? 'block' : 'none'
         }}
       >
-        {!isDeploytype && !isSource && <NoPermTip />}
-        {isDeploytype && (
-          <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} handleBuildSwitch={handleBuildSwitch}/>
-        )}
+        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo}/>
       </div>
     );
   }
@@ -934,7 +912,6 @@ class RenderProperty extends PureComponent {
     const {
       appDetail,
       visible,
-      componentPermissions: { isEnv, isRely, isStorage, isPort }
     } = this.props;
     return (
       <div
@@ -942,26 +919,22 @@ class RenderProperty extends PureComponent {
           display: visible ? 'block' : 'none'
         }}
       >
-        {!isPort && !isEnv && !isStorage && !isRely && <NoPermTip />}
-
-        {isEnv && (
-          <EnvironmentVariable
-            title={formatMessage({id:'componentCheck.advanced.setup.environment_variable.title'})}
-            type="Inner"
-            appAlias={appDetail.service.service_alias}
-          />
-        )}
-        {isStorage && <Mnt appDetail={appDetail} />}
-        {isRely && <Relation appDetail={appDetail} />}
+        <EnvironmentVariable
+          title={formatMessage({id:'componentCheck.advanced.setup.environment_variable.title'})}
+          type="Inner"
+          appAlias={appDetail.service.service_alias}
+        />
+        <div style={{ marginTop: '12px' }}>
+        <Mnt appDetail={appDetail} />
+        </div>
+        <Relation appDetail={appDetail} />
       </div>
     );
   }
 }
 // eslint-disable-next-line react/no-multi-comp
 @connect(
-  ({ teamControl }) => ({
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
-  }),
+  ({ teamControl }) => ({}),
   null,
   null,
   {
@@ -972,7 +945,6 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      componentPermissions: this.handlePermissions('queryComponentInfo'),
       type: 'deploy',
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
@@ -985,16 +957,9 @@ export default class Index extends PureComponent {
       this.setState({ type });
     }
   };
-  handlePermissions = type => {
-    const { currentTeamPermissionsInfo } = this.props;
-    return roleUtil.querySpecifiedPermissionsInfo(
-      currentTeamPermissionsInfo,
-      type
-    );
-  };
   render() {
-    const { appDetail, handleBuildSwitch } = this.props;
-    const { type, componentPermissions, language } = this.state;
+    const { appDetail } = this.props;
+    const { type, language } = this.state;
 
     return (
       <div>
@@ -1047,14 +1012,11 @@ export default class Index extends PureComponent {
               updateDetail={this.props.updateDetail}
               appDetail={appDetail}
               visible={type === 'deploy'}
-              componentPermissions={componentPermissions}
-              handleBuildSwitch={handleBuildSwitch}
             />
             <RenderProperty
               key={appDetail.service.extend_method}
               appDetail={appDetail}
               visible={type !== 'deploy'}
-              componentPermissions={componentPermissions}
             />
           </div>
         </div>

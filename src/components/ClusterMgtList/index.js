@@ -128,7 +128,6 @@ class Index extends Component {
   editNodeStatus = (active, name, row) => {
     const { rowClusterInfo } = this.props
     if (active === 'delete') {
-      console.log('删除')
       return
     }
     if (active == 'evict') {

@@ -34,7 +34,8 @@ export default class Index extends PureComponent {
         this.state = {
             //property、deploy
             type: 'property',
-            apps: []
+            apps: [],
+            handleBuildSwitch: false
         }
     }
     componentDidMount() {

@@ -163,7 +163,6 @@ export default class EventList extends PureComponent {
     }
 
     return list.map(item => {
-      console.log(item,'item');
       const {
         user_name,
         opt_type,
