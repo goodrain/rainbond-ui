@@ -1603,7 +1603,6 @@ export async function fetchVersionData(version) {
 } 
 // 更新某个主机版本
 export async function updateVersion(body, handleError) {
-  console.log(11111);
   return request(
     `${apiconfig.baseUrl}/console/update`,
     {

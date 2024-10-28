@@ -77,7 +77,6 @@ export default class ClusterLink extends PureComponent {
           ...fieldsValue
         },
         callback: res => {
-          console.log(res,'res');
           if (res && res.status_code === 200) {
             dispatch(routerRedux.push(`/enterprise/${eid || GlobalUtile.getCurrEnterpriseId()}/provider/${provider}/kclusters?event_id=${res.bean.event_id}`));
           }

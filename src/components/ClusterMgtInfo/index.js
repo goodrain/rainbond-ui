@@ -169,7 +169,6 @@ class Index extends Component {
   }
   // 集群展示图标
   clusterIcon = (provider, region_type) => {
-    console.log(provider, 'provider')
     const styleK8s = {
       marginRight: '8px',
       display: 'inline-block',

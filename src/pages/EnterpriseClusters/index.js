@@ -117,7 +117,6 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       handleError: error => {
-        console.log(error, 'error')
         if (error && error.data && error.data.code === 400) {
           this.setState({
             licenseInfo: null,

@@ -15,6 +15,7 @@ class TeamMemberTable extends PureComponent {
       onMoveTeam,
       memberPermissions: { isEdit, isDelete },
       team,
+      users
     } = this.props;
     const columns = [
       {
@@ -49,22 +50,10 @@ class TeamMemberTable extends PureComponent {
         title: formatMessage({id: 'teamManage.tabs.member.table.operate'}),
         dataIndex: 'action',
         render(_, data) {
-          console.log(data, 'data')
           const isRoles = data.roles.some(role => role.role_id == 0);
+          const currUser = users.user_id === data.user_id;
           return (
             <div>
-              {isDelete && (
-                <Button
-                  type="link"
-                  size='small'
-                  disabled={isRoles}
-                  onClick={() => {
-                    onDelete(data);
-                  }}
-                >
-                  {formatMessage({id: 'teamManage.tabs.member.table.delete'})}
-                </Button>
-              )}
               {isEdit && (
                 <Button
                   type="link"
@@ -94,6 +83,18 @@ class TeamMemberTable extends PureComponent {
                 >
                   
                   {formatMessage({id: 'teamManage.tabs.member.table.turnOver'})}
+                </Button>
+              )}
+              {isDelete && (
+                <Button
+                  type="link"
+                  size='small'
+                  disabled={isRoles || currUser}
+                  onClick={() => {
+                    onDelete(data);
+                  }}
+                >
+                  {formatMessage({id: 'teamManage.tabs.member.table.delete'})}
                 </Button>
               )}
             </div>

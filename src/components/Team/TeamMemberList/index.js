@@ -8,7 +8,8 @@ import ConfirmModal from '../../ConfirmModal';
 import ScrollerX from '../../ScrollerX';
 import TeamMemberTable from '../../TeamMemberTable';
 
-@connect(({ teamControl, loading }) => ({
+@connect(({ teamControl, loading, user }) => ({
+  currUser: user.currentUser,
   regions: teamControl.regions,
   currentTeam: teamControl.currentTeam,
   toMoveTeamLoading: loading.effects['teamControl/moveTeam']
@@ -150,7 +151,8 @@ export default class MemberList extends PureComponent {
       currentTeam,
       memberPermissions,
       toMoveTeamLoading,
-      memberPermissions: { isCreate }
+      memberPermissions: { isCreate },
+      currUser
     } = this.props;
     const {
       page,
@@ -191,6 +193,7 @@ export default class MemberList extends PureComponent {
         >
           <ScrollerX sm={600}>
             <TeamMemberTable
+              users={currUser}
               memberPermissions={memberPermissions}
               pagination={total >8 ? pagination : false}
               team={currentTeam}

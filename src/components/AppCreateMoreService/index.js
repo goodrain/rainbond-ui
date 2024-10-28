@@ -259,10 +259,6 @@ class BaseInfo extends PureComponent {
 
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        // this.setState({
-        //     isShow:this.state.isShow[selectedRowKeys]
-        // })
         this.props.onSubmit(selectedRows);
       },
       getCheckboxProps: record => ({
