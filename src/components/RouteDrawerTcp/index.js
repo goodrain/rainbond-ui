@@ -99,7 +99,7 @@ export default class index extends Component {
     }
     // 获取当前团队的命名空间
     fetchGetServiceAddress = (token) => {
-        const { dispatch } = this.props
+        const { dispatch, appID } = this.props
         const teamName = globalUtil.getCurrTeamName()
         const regionName = globalUtil.getCurrRegionName()
         dispatch({
@@ -107,7 +107,8 @@ export default class index extends Component {
             payload: {
                 team_name: teamName,
                 region_name: regionName,
-                token: token
+                token: token,
+                appID
             },
             callback: res => {
                 this.setState({

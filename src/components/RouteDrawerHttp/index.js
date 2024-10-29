@@ -152,11 +152,14 @@ export default class index extends Component {
                     }
                 }
                 if (values.type === 'k8s') {
-                    data.backends = (values.comListInfo || []).map(item => ({
-                        serviceName: item.name,
-                        servicePort: item.port,
-                        weight: Number(item.weight),
-                    }));
+                    data.backends = (values.comListInfo || []).map(item => {
+                        const matchingPort = item.PortList.find(portItem => portItem.container_port === item.port);
+                        return {
+                            serviceName: matchingPort ? matchingPort.k8s_service_name : item.name,
+                            servicePort: item.port,
+                            weight: Number(item.weight),
+                        };
+                    });
                     data.upstreams = [];
                 } else {
                     data.upstreams = (values.upstreams || []).map(item => ({
@@ -166,9 +169,9 @@ export default class index extends Component {
                     data.backends = [];
                 }
                 if(values?.group_id?.key){
-                onOk(data, Number(values.group_id.key));
+                    onOk(data, Number(values.group_id.key));
                 }else{
-                onOk(data);
+                    onOk(data);
                 }
             }
         });
@@ -196,7 +199,7 @@ export default class index extends Component {
     }
     // 获取当前团队的命名空间
     fetchGetServiceAddress = (token) => {
-        const { dispatch } = this.props
+        const { dispatch, appID } = this.props
         const teamName = globalUtil.getCurrTeamName()
         const regionName = globalUtil.getCurrRegionName()
         dispatch({
@@ -204,7 +207,8 @@ export default class index extends Component {
             payload: {
                 team_name: teamName,
                 region_name: regionName,
-                token: token
+                token: token,
+                appID
             },
             callback: res => {
                 this.setState({

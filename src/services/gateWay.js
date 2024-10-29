@@ -646,6 +646,9 @@ export function fetchGetServiceAddress(params) {
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/regions/${params.region_name}/apps_port`,
     {
       method: 'get',
+      params: {
+        appID: params.appID
+      },
     },
   );
 }

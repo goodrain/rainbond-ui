@@ -100,6 +100,10 @@ export default class EnterpriseClusters extends PureComponent {
             );
           })
         }
+      },
+      handleError: res => {
+        this.closeTimer();
+        this.fetchClusterInfoList();
       }
     });
   };
