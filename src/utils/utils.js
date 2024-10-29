@@ -206,6 +206,7 @@ export const volumeTypeObj = {
   "share-file": "共享存储（文件）",
   "memoryfs": "内存文件存储",
   "local": "本地存储",
+  "local-path": '本地存储',
   "config-file": "配置文件"
 };
 
