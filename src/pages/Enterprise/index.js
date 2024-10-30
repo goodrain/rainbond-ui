@@ -134,15 +134,18 @@ export default class Enterprise extends PureComponent {
     clearInterval(this.interval)
   }
   fetchAllVersion = () => {
-    const { rainbondInfo } = this.props
+    const { rainbondInfo , dispatch} = this.props
     const currentVersion = rainbondInfo.version.value.split('-')[0]
-    fetchAllVersion().then(res => {
-      if (res) {
-        let list = res
-        const isNewVs = list[0].split('-')[0] === currentVersion
-        this.setState({
-          hasNewVs: isNewVs
-        })
+    dispatch({
+      type: 'global/fetchAllVersion',
+      callback: res => {
+        if (res) {
+          let list = res.response_data
+          const isNewVs = list[0].split('-')[0] === currentVersion
+          this.setState({
+            hasNewVs: isNewVs
+          })
+        }
       }
     })
   }

@@ -615,35 +615,6 @@ class CreateAppModels extends PureComponent {
                   )}
                 </FormItem>
               )}
-              <Form.Item {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.tag_ids'})}>
-                {getFieldDecorator('tag_ids', {
-                  initialValue: arr,
-                  rules: [
-                    {
-                      required: false,
-                      message: formatMessage({id:'placeholder.appShare.addTag_ids'})
-                    }
-                  ]
-                })(
-                  <Select
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                    mode="tags"
-                    style={{ width: '100%' }}
-                    onSelect={this.handleOnSelect}
-                    tokenSeparators={[',']}
-                    placeholder={formatMessage({id:'placeholder.appShare.kindTag'})}
-                  >
-                    {tagList.map(item => {
-                      const { tag_id, name } = item;
-                      return (
-                        <Option key={tag_id} value={name} label={name}>
-                          {name}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                )}
-              </Form.Item>
               <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.describe'})}>
                 {getFieldDecorator('describe', {
                   initialValue: appInfo

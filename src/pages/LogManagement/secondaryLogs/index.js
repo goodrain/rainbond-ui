@@ -87,7 +87,7 @@ class Index extends PureComponent {
                     <Tabs tabPosition='left' defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         {ClusterArr && ClusterArr.length > 0 && (wsurl != null) && ClusterArr.map((item, index) => {
                             return <TabPane tab={item} key={index} >
-                                        <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={wsurl}/>
+                                        <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={wsurl} key={instances && instances.length>0 && instances[0].pod_name}/>
                                     </TabPane>
                         })}
                     </Tabs>
