@@ -124,7 +124,10 @@ import {
   uploadLanguageFile,
   deleteLanguageFile,
   editPluginsStatus,
-  updatePlatform
+  updatePlatform,
+  fetchAllVersion,
+  fetchVersionDetails,
+  fetchVersionData
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1039,6 +1042,25 @@ export default {
         callback(response);
       }
     },
+    *fetchAllVersion({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchAllVersion, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchVersionDetails({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchVersionDetails, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchVersionData({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchVersionData, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    
   },
   reducers: {
     isUpDataHeader(state, action) {

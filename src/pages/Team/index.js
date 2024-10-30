@@ -276,14 +276,6 @@ export default class Index extends PureComponent {
               {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
             </Button>
           )}
-          {isEnterpriseAdmin &&
-            <Button
-              onClick={this.showDelTeam}
-              type="dashed"
-            >
-              {formatMessage({ id: 'teamManage.tabs.exitTeam' })}
-            </Button>
-          }
         </div>
       </div>
     );

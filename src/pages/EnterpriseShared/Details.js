@@ -667,40 +667,6 @@ export default class Main extends PureComponent {
                       </FormItem>
                     </Col>
                     <Col span="12">
-                      <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.label'/>}>
-                        {getFieldDecorator('tag_ids', {
-                          initialValue: arr,
-                          rules: [
-                            {
-                              required: false,
-                              message: formatMessage({id:'applicationMarket.appsetting.add_lable'})
-                            }
-                          ]
-                        })(
-                          <Select
-                            getPopupContainer={triggerNode =>
-                              triggerNode.parentNode
-                            }
-                            mode="tags"
-                            style={{ width: '100%' }}
-                            onSelect={this.handleOnSelect}
-                            tokenSeparators={[',']}
-                            placeholder={formatMessage({id:'applicationMarket.appsetting.type'})}
-                          >
-                            {tagList.map(item => {
-                              const { tag_id, name } = item;
-                              return (
-                                <Option key={tag_id} value={name} label={name}>
-                                  {name}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                        <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.appsetting.type'/></div>
-                      </Form.Item>
-                    </Col>
-                    <Col span="12">
                       <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.appsetting.introduction'/>}>
                         {getFieldDecorator('describe', {
                           initialValue: (appInfo && appInfo.describe) || '',

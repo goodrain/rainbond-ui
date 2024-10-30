@@ -1700,30 +1700,6 @@ export default class EnterpriseShared extends PureComponent {
                   <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
                 </Radio.Button>
               </Radio.Group>
-              {tagLists && <Divider type="vertical" />}
-              {tagLists && (
-                <Checkbox.Group
-                  className={styles.setCheckboxGroup}
-                  onChange={this.onChangeCheckbox}
-                  value={this.state.tags}
-                >
-                  {tagLists.map((item, index) => {
-                    const { name, tag_id: id } = item;
-                    if (index > 4) {
-                      return null;
-                    }
-                    return (
-                      <Checkbox key={id} value={name}>
-                        {name}
-                      </Checkbox>
-                    );
-                  })}
-                  <a onClick={this.handleOpenEditorMoreTags} style={rightStyle}>
-                  <FormattedMessage id="applicationMarket.localMarket.checkboxValue.more"/>
-                    {/* 更多标签 */}
-                  </a>
-                </Checkbox.Group>
-              )}
             </div>
           </Col>
           {operation}
