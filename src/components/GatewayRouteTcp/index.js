@@ -19,7 +19,9 @@ import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 
 @Form.create()
-@connect()
+@connect(({ global }) => ({
+    groups: global.groups,
+}))
 
 export default class index extends Component {
     constructor(props) {
@@ -28,11 +30,55 @@ export default class index extends Component {
             routeDrawer: false,
             dataSource: [],
             type: 'add',
-            tableLoading: true
+            tableLoading: true,
+            comList:[]
         };
+    }
+    componentWillMount(){
+        this.fetchInfo()
     }
     componentDidMount() {
         this.getTableData();
+    }
+    fetchInfo = () => {
+        const { dispatch } = this.props
+        const teamName = globalUtil.getCurrTeamName()
+        dispatch({
+            type: 'teamControl/fetchToken',
+            payload: {
+                team_name: teamName,
+                tokenNode: 'spring'
+            },
+            callback: res => {
+                if (res && res.status_code == 200) {
+                    this.setState({
+                        token: res.bean.access_key || false
+                    }, () => {
+                        this.fetchGetServiceAddress(res.bean.access_key)
+                    })
+                }
+            }
+        })
+    }
+    // 获取当前团队的命名空间
+    fetchGetServiceAddress = (token) => {
+        const { dispatch, appID } = this.props
+        const teamName = globalUtil.getCurrTeamName()
+        const regionName = globalUtil.getCurrRegionName()
+        dispatch({
+            type: 'gateWay/fetchGetServiceAddress',
+            payload: {
+                team_name: teamName,
+                region_name: regionName,
+                token: token,
+                appID
+            },
+            callback: res => {
+                this.setState({
+                    comList: res.bean.ports,
+                })
+            }
+        })
     }
     // 获取表格信息
     getTableData = () => {
@@ -132,6 +178,15 @@ export default class index extends Component {
         })
 
     }
+    handlename = ( val )=>{
+        const { comList } = this.state
+        const id = val.split('-')[0];
+        let arr = []
+        if(comList && comList.length >0 ){
+            arr = (comList||[]).filter(item => item.service_name == id)
+        }
+        return  (arr && arr.length>0 && arr[0].component_name) || ''
+    }
     render() {
         const {
             routeDrawer,
@@ -158,7 +213,7 @@ export default class index extends Component {
                         {(record.name && record.port) &&
                             <Row style={{ marginBottom: 4 }}>
                                 <Tag key={index} color="green">
-                                    {record.name}:{record.port}
+                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record.name)})</span>
                                 </Tag>
                             </Row>
                         }

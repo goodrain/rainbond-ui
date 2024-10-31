@@ -275,45 +275,47 @@ class ClusterComponentsInfo extends PureComponent {
                 <Skeleton active rows={10} />
                 :
                 <>
-                  {Object.keys(componentList).map((item, index) => {
-                    return <div className={styles.pod_Info}>
-                      <p>
-                        {item}
-                      </p>
-                      {componentList[item] && componentList[item].length > 0 && componentList[item].map((val, inex) => {
-                        return <Row
-                          key={inex}
-                          className={styles.details}
-                          style={{ borderBottom: inex == componentList[item].length - 1 ? '0' : '1px solid #e8e8e8' }}
-                          onClick={() => this.fetchPodDetails(val.pod_name)}
-                        >
-                          <Col span={4}>
-                            <span className={this.handleStateName(
-                              val.status
-                            )}>
-                              {val.status}
-                            </span>
-                          </Col>
-                          <Col span={6}>
-                            {val.pod_name || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noName' })}
-                          </Col>
-                          <Col span={14}>
-                            <div>
-                              {val.image == '' ?
-                                <p>{val.image_status || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noImg' })}</p>
-                                :
-                                <p>{val.image}</p>
-                              }
-                              <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTimeText' })}{moment(val?.start_time).format(
-                                'YYYY-MM-DD HH:mm:ss'
-                              ) || '-'} {formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNumText' })}{val.restarts || 0}</p>
-                            </div>
-                          </Col>
-                        </Row>
-                      })}
+                  <div style={{paddingBottom: 60}}>
+                    {Object.keys(componentList).map((item, index) => {
+                      return <div className={styles.pod_Info}>
+                        <p>
+                          {item}
+                        </p>
+                        {componentList[item] && componentList[item].length > 0 && componentList[item].map((val, inex) => {
+                          return <Row
+                            key={inex}
+                            className={styles.details}
+                            style={{ borderBottom: inex == componentList[item].length - 1 ? '0' : '1px solid #e8e8e8' }}
+                            onClick={() => this.fetchPodDetails(val.pod_name)}
+                          >
+                            <Col span={4}>
+                              <span className={this.handleStateName(
+                                val.status
+                              )}>
+                                {val.status}
+                              </span>
+                            </Col>
+                            <Col span={6}>
+                              {val.pod_name || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noName' })}
+                            </Col>
+                            <Col span={14}>
+                              <div>
+                                {val.image == '' ?
+                                  <p>{val.image_status || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noImg' })}</p>
+                                  :
+                                  <p>{val.image}</p>
+                                }
+                                <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTimeText' })}{moment(val?.start_time).format(
+                                  'YYYY-MM-DD HH:mm:ss'
+                                ) || '-'} {formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNumText' })}{val.restarts || 0}</p>
+                              </div>
+                            </Col>
+                          </Row>
+                        })}
 
-                    </div>
-                  })}
+                      </div>
+                    })}
+                  </div>
                 </>
               }
               <div

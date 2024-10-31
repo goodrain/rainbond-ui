@@ -53,7 +53,7 @@ import rainbondUtil from '../../utils/rainbond';
 import SVG from '../../utils/pageHeaderSvg'
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
-import Rke from '../../../public/images/rke.svg'
+import Rke from '../../../public/images/RKE2-logo.jpeg'
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
 import CodeMirrorForm from '../../components/CodeMirrorForm';

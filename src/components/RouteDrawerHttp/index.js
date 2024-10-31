@@ -153,7 +153,7 @@ export default class index extends Component {
                 }
                 if (values.type === 'k8s') {
                     data.backends = (values.comListInfo || []).map(item => {
-                        const matchingPort = item.PortList.find(portItem => portItem.container_port === item.port);
+                        const matchingPort = (item.PortList || []).find(portItem => portItem.container_port === item.port);
                         return {
                             serviceName: matchingPort ? matchingPort.k8s_service_name : item.name,
                             servicePort: item.port,

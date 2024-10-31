@@ -1,4 +1,26 @@
 @import "~antd/lib/style/themes/default.less";
+:global{
+  .ant-menu-submenu>.ant-menu-sub>.ant-menu-item:hover {
+    background: @primary-1 !important;
+  
+    a {
+      i {
+        color: @primary-color !important;
+        min-width: 16px;
+  
+        svg {
+          path {
+            fill: @primary-color !important;
+          }
+  
+          g>g {
+            stroke: @primary-color !important;
+          }
+        }
+      }
+    }
+  }
+}
 
 .menuStyle {
   position: absolute;

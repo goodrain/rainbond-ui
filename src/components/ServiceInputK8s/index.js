@@ -130,8 +130,11 @@ class Headers extends Component {
             },
             callback: data => {
                 const list = (data && data.list) || [];
-                this.setState({ portList: list },()=>{
-                    this.onPortChange(this.state.portList[0].container_port, index)
+                console.log(list,"list");
+                this.setState({ portList: list }, () => {
+                    if(this.state.portList[0].inner_url != ''){
+                        this.onPortChange(this.state.portList[0].container_port, index)
+                    }
                 });
                 this.onPortListChange(list, index)
                 this.handlePortLoading(false);
@@ -168,6 +171,7 @@ class Headers extends Component {
                 {values.map((item, indexs) => {
                     const first = indexs === 0;
                     const key = item.name && this.handleName(item.name)
+                    console.log(item,"item");
                     return (
                         <Row key={indexs} style={{ marginBottom: 10 }}>
                             <Col span={8}>
@@ -204,11 +208,13 @@ class Headers extends Component {
                                         value={item.port || undefined}
                                     >
                                         {(item.PortList || []).map((port, index) => {
-                                            return (
-                                                <Option value={port.container_port} key={index}>
-                                                    {port.container_port}
-                                                </Option>
-                                            );
+                                            if (port.inner_url != '') {
+                                                return (
+                                                    <Option value={port.container_port} key={index}>
+                                                        {port.container_port}
+                                                    </Option>
+                                                );
+                                            }
                                         })}
                                     </Select>
                                 </Spin>
