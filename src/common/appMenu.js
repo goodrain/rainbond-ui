@@ -85,14 +85,14 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
     const pluginChildren = []
     pluginArr.forEach(item => {
       pluginChildren.push({
-        name: item.name,
+        name: item.display_name,
         icon: getMenuSvg.getSvg('plugin'),
         path: `${item.name}`,
         authority: ['admin', 'user']
       });
     })
     menuArr.push({
-      name: '插件DEMO',
+      name: '插件列表',
       icon: getMenuSvg.getSvg('plugin'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/plugins`,
       authority: ['admin', 'user'],

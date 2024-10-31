@@ -143,7 +143,16 @@ export default class Main extends PureComponent {
       this.getMarketsTab();
       this.getHelmMarketsTab();
     }
+    this.fetchGroup()
   }
+  fetchGroup = () => {
+    this.props.dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      }
+    });
+  };
   componentWillUnmount() {
     this.mount = false;
     this.mountquery = false;

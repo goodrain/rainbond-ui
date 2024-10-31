@@ -910,6 +910,14 @@ export default class EnterpriseClusters extends PureComponent {
               {/* 导入 */}
             </Link>
           ];
+          if (item.region_name != 'dind-region') {
+            mlist.push(
+              <a onClick={() => { this.delUser(item, 'delete'); }}>
+                <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                {/* 删除 */}
+              </a>
+            );
+          }
           const MenuList = (
             <Menu
               onMouseEnter={this.menuMouseEnter}
