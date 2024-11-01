@@ -13,6 +13,7 @@ import {
     Tag,
     Tooltip
 } from 'antd';
+import { Link, routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
@@ -187,6 +188,13 @@ export default class index extends Component {
         }
         return  (arr && arr.length>0 && arr[0].component_name) || ''
     }
+    handleJumpComponent = (name) => {
+        const { dispatch } = this.props
+        const teamName = globalUtil.getCurrTeamName()
+        const regionName = globalUtil.getCurrRegionName()
+        const result = name.split('-')[0];
+        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${result}/overview`));
+    }
     render() {
         const {
             routeDrawer,
@@ -208,8 +216,9 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.service' }),
                 dataIndex: 'name',
                 key: 'name',
-                render: (text, record) => (
-                    <span>
+                render: (text, record) => {
+                    return (
+                        <span onClick={() => this.handleJumpComponent(text)}>
                         {(record.name && record.port) &&
                             <Row style={{ marginBottom: 4 }}>
                                 <Tag key={index} color="green">
@@ -217,8 +226,9 @@ export default class index extends Component {
                                 </Tag>
                             </Row>
                         }
-                    </span>
-                ),
+                        </span>
+                    )
+                },
             },
             {
                 title: '开放端口',
