@@ -218,15 +218,15 @@ export default class index extends Component {
                 key: 'name',
                 render: (text, record) => {
                     return (
-                        <span onClick={() => this.handleJumpComponent(text)}>
+                        <div onClick={() => this.handleJumpComponent(text)} >
                         {(record.name && record.port) &&
                             <Row style={{ marginBottom: 4 }}>
-                                <Tag key={index} color="green">
-                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record.name)})</span>
+                                <Tag key={index} color="green" style={{ "cursor": "pointer" }}>
+                                    {record.name}:{record.port}
                                 </Tag>
                             </Row>
                         }
-                        </span>
+                        </div>
                     )
                 },
             },
