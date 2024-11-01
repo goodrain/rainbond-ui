@@ -856,7 +856,7 @@
         'placeholder.certificate.private':'Please enter your private key',
         'placeholder.userName.search':'Please enter a user name to search',
         'placeholder.limit_memory':'Memory limit value required',
-        'placeholder.rewrites':'Complete Rewrites configuration',
+        'placeholder.rewrites':'Complete configuration',
         'placeholder.warehouse_name':'Please enter a warehouse name',
         'placeholder.warehouse_exist':'The warehouse name already exists',
         'placeholder.lowercase':'The warehouse name can only be lowercase letters',

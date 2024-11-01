@@ -1,6 +1,6 @@
 import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification } from 'antd';
 import globalUtil from '../../utils/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ServiceInput from '../ServiceInput';
@@ -49,7 +49,8 @@ export default class index extends Component {
                 secretRef: ""
             }],
             formRefs: [],
-            showPlugin: false
+            showPlugin: false,
+            serviceComponentList: [],
         };
     }
     componentWillMount() {
@@ -100,7 +101,7 @@ export default class index extends Component {
     }
     handleSubmit = e => {
         e.preventDefault();
-        const { formRefs } = this.state;
+        const { formRefs, serviceComponentList } = this.state;
         const plugins = []
         formRefs.forEach((formRef, index) => {
             if (!formRef) return
@@ -168,11 +169,19 @@ export default class index extends Component {
                     }));
                     data.backends = [];
                 }
-                if(values?.group_id?.key){
-                    onOk(data, Number(values.group_id.key));
-                }else{
-                    onOk(data);
+                if(serviceComponentList.length == 0){
+                    notification.warning({
+                        message: '当前应用下没有组件，请先创建组件'
+                    });
+                    return null;
+                } else {
+                    if(values?.group_id?.key){
+                        onOk(data, Number(values.group_id.key));
+                    }else{
+                        onOk(data);
+                    }
                 }
+                
             }
         });
     };
@@ -350,6 +359,55 @@ export default class index extends Component {
             formRefs: formRefs.filter((_, i) => i !== index)
         });
     };
+
+    handleValidators = (_, val, callback) => {
+        const ports = new Set(); // 使用 Set 存储 port
+    
+        if (val && val.length > 0) {
+            val.forEach(item => {
+                // 检查 item 是否有效
+                if ((item.weight && item.name && item.port) || (!item.weight && !item.name && !item.port)) {
+                    // 添加 port 到 Set 中
+                    ports.add(item.port);
+                } else {
+                    return callback(new Error(formatMessage({ id: 'placeholder.rewrites' })));
+                }
+            });
+    
+            // 检查 Set 的大小，如果大于 1，说明 port 不一致
+            if (ports.size > 1) {
+                return callback(new Error(`错误: 端口不一致！请确保所有端口都是相同的。`));
+            }
+    
+            // 所有 port 一致，验证通过
+            callback();
+        } else {
+            // val 为空时，直接通过
+            return callback();
+        }
+    };
+
+    handleValidatorsHosts = (_, val, callback) => {
+        let isPass = false;
+        let reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
+        if (val && val.length > 0) {
+        val.some(item => {
+            if (item != '' && reg.test(item)) {
+                isPass = true;
+            } else {
+                isPass = false;
+                return true;
+            }
+        });
+        if (isPass) {
+            callback();
+        } else {
+            callback(new Error('格式不满足要求'));
+        }
+        } else {
+        return callback();
+        }
+    };
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -439,9 +497,9 @@ export default class index extends Component {
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.host'})}>
                         {getFieldDecorator('hosts', {
-                            rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputHost'}) }],
+                            rules: [{ validator: this.handleValidatorsHosts }],
                             initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
-                        })(<DAHosts hostPlaceholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputHost'})} />)}
+                        })(<DAHosts hostPlaceholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputHost'})} isEdit={Object.keys(editInfo).length > 0} isHosts={true}/>)}
                     </Form.Item>
                     <Row>
                         <Col>
@@ -554,11 +612,11 @@ export default class index extends Component {
                                             </Select>
                                         )}
                                     </Form.Item>
-                                    {(serviceComponentList && serviceComponentList.length>0) &&
+                                    {(serviceComponentList && serviceComponentList.length > 0) &&
                                     <Skeleton loading={componentLoading}>
                                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newComponent.componentName' })}>
                                             {getFieldDecorator('comListInfo', {
-                                                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
+                                                rules: [{ validator: this.handleValidators }],
                                                 initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
                                             })(
                                                 <ServiceInputK8s comList={serviceComponentList} />
