@@ -627,7 +627,7 @@ class TeamLayout extends PureComponent {
         return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
     
-      const overdueTitle = '';
+      let overdueTitle = '';
       const overdueDesc = '联系企业管理员，更新授权码';
     
       if (isLicense) {
