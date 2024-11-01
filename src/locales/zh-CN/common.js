@@ -864,7 +864,7 @@
         'placeholder.certificate.private':'请输入私钥', 
         'placeholder.userName.search':'请输入用户名称进行搜索',
         'placeholder.limit_memory':'内存限制必填',
-        'placeholder.rewrites':'需填写完整Rewrites配置',
+        'placeholder.rewrites':'需填写完整配置',
         'placeholder.warehouse_name':'请输入仓库名称',
         'placeholder.warehouse_exist':'仓库名称已存在',
         'placeholder.lowercase':'仓库名称只能输入小写字母',

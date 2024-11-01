@@ -403,13 +403,11 @@ class TeamLayout extends PureComponent {
       type: 'teamControl/fetchCurrentRegionName',
       payload: { currentRegionName: regionName }
     });
-    if(isAccess){
-      dispatch({
-        type: 'region/fetchProtocols',
-        payload: { team_name: teamName, region_name: regionName }
-      });
-      this.fetchTeamApps();
-    }
+    dispatch({
+      type: 'region/fetchProtocols',
+      payload: { team_name: teamName, region_name: regionName }
+    });
+    this.fetchTeamApps();
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     this.setState({
       currentEnterprise: enterpriseList[0],
