@@ -146,10 +146,10 @@ export default class RainbondClusterInit extends PureComponent {
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
-        useK3sContainerd: true,
         Component:{rbd_app_ui:{enable: false}},
         Cluster: {
-          rainbondImageRepository: 'registry.cn-hangzhou.aliyuncs.com/goodrain'
+          rainbondImageRepository: 'registry.cn-hangzhou.aliyuncs.com/goodrain',
+          containerdRuntimePath: '/var/run/k3s/containerd',
         }
       };
       if (!err) {
