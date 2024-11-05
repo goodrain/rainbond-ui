@@ -53,7 +53,6 @@ import rainbondUtil from '../../utils/rainbond';
 import SVG from '../../utils/pageHeaderSvg'
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
-import Rke from '../../../public/images/RKE2-logo.jpeg'
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
@@ -727,15 +726,6 @@ export default class Enterprise extends PureComponent {
               {globalUtil.fetchSvg('Ack')}
             </div>
             <p>Aliyun   ACK</p>
-          </span>
-        );
-      case 'rke':
-        return (
-          <span style={{ marginRight: '8px' }} key={provider}>
-            <div className={enterpriseStyles.icons}>
-              <img src={Rke} alt=""></img>
-            </div>
-            <p>Rancher   RKE</p>
           </span>
         );
       case 'tke':
