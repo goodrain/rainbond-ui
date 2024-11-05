@@ -121,7 +121,7 @@ export default class RainbondInit extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
-      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
+      titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 18)}
       >
         <Row style={{ marginBottom: '16px' }}>
           <Steps current={2}>

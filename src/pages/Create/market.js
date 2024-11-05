@@ -107,6 +107,8 @@ export default class Main extends PureComponent {
           key: 'localApplication',
           tab: formatMessage({id:'popover.applicationMarket.local'})
         },
+      ],
+      commandTab:[
         {
           key: 'command',
           tab: formatMessage({id:'teamAdd.create.market.command'})
@@ -1059,6 +1061,7 @@ export default class Main extends PureComponent {
       helmCreate,
       addAppLoading,
       localAppTab,
+      commandTab,
       rainStoreTab,
       helmStoreTab,
       helmInfoSwitch,
@@ -1101,7 +1104,7 @@ export default class Main extends PureComponent {
     };
     let isInstall = true;
 
-    const marketTab = [...localAppTab, ...rainStoreTab, ...helmStoreTab];
+    const marketTab = [...localAppTab, ...rainStoreTab, ...helmStoreTab,...commandTab];
 
     if (marketTab && marketTab.length > 0) {
       const arr = marketTab.filter(item => {
@@ -1209,9 +1212,6 @@ export default class Main extends PureComponent {
     //搜索框
     const mainSearch = (
       <div
-        style={{
-          textAlign: 'center'
-        }}
       >
         {scopeMax != 'command' &&
         <span id="searchWrap" style={{ display: 'inline-block' }}>
@@ -1463,11 +1463,12 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderMarket
               title={formatMessage({id:'teamPlugin.btn.marketAdd'})}
-              titleSvg={pageheaderSvg.getSvg('appStoreSvg',18)}
+              titleSvg={pageheaderSvg.getPageHeaderSvg('market',18)}
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
-              content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              content="应用市场安装是部署应用的一种方式，支持通过本地组件库、开源应用商店和Helm应用商店等方式一键安装应用。"
               tabList={marketTab}
               helmInfoSwitch={helmInfoSwitch}
               marketInfoSwitch={marketInfoSwitch}

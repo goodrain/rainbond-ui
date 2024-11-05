@@ -478,7 +478,7 @@ export default class shareCheck extends PureComponent {
     const { shareEventList, showDelete } = this.state;
     if (!shareEventList.length) return null;
     return (
-      <PageHeaderLayout>
+      <Card>
         <Card bordered={false}>{this.renderBody()}</Card>
         {showDelete && (
           <ConfirmModal
@@ -489,7 +489,7 @@ export default class shareCheck extends PureComponent {
             desc={formatMessage({id:'confirmModal.component.abandon.publish.title'})}
           />
         )}
-      </PageHeaderLayout>
+      </Card>
     );
   }
 }

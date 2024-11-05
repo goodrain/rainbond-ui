@@ -1010,18 +1010,21 @@ export default class EnterpriseClusters extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title' />}
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
-        titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 20)}
       >
         <Card
-          style={{ boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px' }}
           extra={<Row>
             <Col span={24} style={{ textAlign: 'right' }}>
+              <Button onClick={this.terminalCallout}icon="code">
+                {formatMessage({ id: 'otherEnterprise.shell.line' })}
+              </Button>
               <div
                 style={{
                   display: 'inline-block',
                   height: '40px',
                   width: '100px',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  marginLeft:14
                 }}
                 onMouseLeave={() => {
                   this.handleIsAddClusters(false);
@@ -1035,18 +1038,14 @@ export default class EnterpriseClusters extends PureComponent {
                   visible={isAddClusters}
                 >
                   <Link to={`/enterprise/${eid}/addCluster`}>
-                    <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)}>
+                    <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
                       <FormattedMessage id='enterpriseColony.button.text' />
                     </Button>
                   </Link>
                 </Tooltip>
               </div>
-              <Button onClick={this.terminalCallout} style={{ marginLeft: 15 }}>
-                {formatMessage({ id: 'otherEnterprise.shell.line' })}
-              </Button>
-
               <Button
-                style={{ marginLeft: '16px' }}
+                style={{ marginLeft: '22px' }}
                 onClick={() => {
                   this.loadClusters();
                 }}

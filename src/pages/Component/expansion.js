@@ -831,8 +831,7 @@ export default class Index extends PureComponent {
           className={styles.InstancesCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.instance' />}
           extra={
-            <a
-              style={{ marginRight: '22px', color: '#1790FF' }}
+            <Button
               onClick={() => {
                 this.setState(
                   {
@@ -843,9 +842,10 @@ export default class Index extends PureComponent {
                   }
                 );
               }}
+              icon='reload'
             >
               <FormattedMessage id='componentOverview.body.Expansion.refresh' />
-            </a>
+            </Button>
           }
         >
           {loading ? (

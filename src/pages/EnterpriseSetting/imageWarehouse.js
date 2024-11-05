@@ -123,36 +123,36 @@ export default class ImageWarehouse extends PureComponent {
     };
     loadClusters = () => {
         const {
-          dispatch,
-          match: {
-            params: { eid }
-          }
+            dispatch,
+            match: {
+                params: { eid }
+            }
         } = this.props;
         dispatch({
-          type: 'region/fetchEnterpriseClusters',
-          payload: {
-            enterprise_id: eid
-          },
-          callback: res => {
-            if (res && res.list) {
-              const clusters = [];
-              res.list.map((item, index) => {
-                item.key = `cluster${index}`;
-                clusters.push(item);
-                return item;
-              });
-              this.setState({ clusters });
-            } else {
-              this.setState({ clusters: [] });
+            type: 'region/fetchEnterpriseClusters',
+            payload: {
+                enterprise_id: eid
+            },
+            callback: res => {
+                if (res && res.list) {
+                    const clusters = [];
+                    res.list.map((item, index) => {
+                        item.key = `cluster${index}`;
+                        clusters.push(item);
+                        return item;
+                    });
+                    this.setState({ clusters });
+                } else {
+                    this.setState({ clusters: [] });
+                }
             }
-          }
         });
-      };
-    
+    };
+
     onSubmite = (value) => {
         const { editData } = this.state
-        this.setState({ imageHubLoading: true  })
-        if(editData){
+        this.setState({ imageHubLoading: true })
+        if (editData) {
             this.handleEditImageHub(value)
         } else {
             this.handleAddImageHub(value)
@@ -173,7 +173,7 @@ export default class ImageWarehouse extends PureComponent {
     handleCancelDelImageHubModel = () => {
         this.setState({ toDeleteImageHub: null });
     };
-        
+
     render() {
         const {
             currentTeam,
@@ -240,7 +240,7 @@ export default class ImageWarehouse extends PureComponent {
                                 style={{
                                     marginLeft: 6,
                                 }}
-                                onClick={() => {this.handleEditModel(data)}}
+                                onClick={() => { this.handleEditModel(data) }}
                             >
                                 {formatMessage({ id: 'teamManage.tabs.image.table.btn.edit' })}
                             </a>
@@ -257,22 +257,23 @@ export default class ImageWarehouse extends PureComponent {
 
         return (
             <div>
-                <Row
-                    style={{
-                        padding: '10px 0',
-                        marginBottom: 10,
-                    }}
+                <Card
+                    extra={<Button
+                        type="primary"
+                        onClick={this.handleOpenModel}
+                        icon="plus"
+                    >
+                        {formatMessage({ id: 'confirmModal.add.common.image.title' })}
+                    </Button>}
                 >
-                    <Col span={4} offset={20} style={{ textAlign: 'right', marginRight: 10, }}>
-                        <Button
-                            type="primary"
-                            onClick={this.handleOpenModel}
-                        >
-                            {formatMessage({ id: 'confirmModal.add.common.image.title' })}
-                        </Button>
-                    </Col>
-                </Row>
-                <Table rowKey={(record,index) => index} pagination={imageList.length > 8 ? pagination : false} dataSource={imageList} columns={columns} />
+                    <Table
+                        rowKey={(record, index) => index}
+                        pagination={imageList.length > 8 ? pagination : false}
+                        dataSource={imageList}
+                        columns={columns}
+                    />
+
+                </Card>
                 {showAddMember && (
                     <AddOrEditImageRegistry
                         loading={imageHubLoading}

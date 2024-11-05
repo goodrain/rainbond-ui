@@ -432,13 +432,12 @@ class Index extends PureComponent {
       <PageHeaderLayout
         title={formatMessage({ id: 'addKubenetesResource.title' })}
         content={formatMessage({ id: 'addKubenetesResource.desc' })}
-        titleSvg={pageheaderSvg.getSvg('k8sSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('kubenetes', 18)}
       >
         <Card
           className={styles.CardStyle}
           style={{
-            borderRadius: 5,
-            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+            borderRadius: 5
           }}
           extra={
             <div
@@ -457,6 +456,7 @@ class Index extends PureComponent {
                       handelType: 'multiple'
                     })
                   }}
+                  icon='delete'
                 >
                   <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete' />
                 </Button>

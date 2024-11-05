@@ -781,7 +781,7 @@ export default class Index extends React.Component {
                 <FormattedMessage id='componentOverview.body.setting.health' />
                 {startProbe && (
                   <div>
-                    <a
+                    <Button
                       onClick={() => {
                         this.setState({ editStartHealth: startProbe });
                       }}
@@ -790,9 +790,10 @@ export default class Index extends React.Component {
                         fontSize: '14px',
                         fontWeight: 400
                       }}
+                      icon='form'
                     >
                       {JSON.stringify(startProbe) != '{}' ? <FormattedMessage id='componentOverview.body.setting.edit' /> : <FormattedMessage id='componentOverview.body.setting.set' />}
-                    </a>
+                    </Button>
 
                     {JSON.stringify(startProbe) != '{}' &&
                       appProbeUtil.isStartProbeStart(startProbe) ? (

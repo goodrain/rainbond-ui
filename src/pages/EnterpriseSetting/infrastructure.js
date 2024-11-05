@@ -509,6 +509,7 @@ class Infrastructure extends PureComponent {
         bordered={false}
         style={{borderRadius:0}}
         className={styles.infrastructureCard}
+        
       >
         <Row type="flex" align="middle">
           <Col span={3}>

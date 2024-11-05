@@ -69,7 +69,7 @@ export default class index extends PureComponent {
             <PageHeaderLayout
                 title={formatMessage({id: 'extensionEnterprise.title'})}
                 content={formatMessage({id: 'extensionEnterprise.desc'})}
-                titleSvg={pageheaderSvg.getSvg('extensionSvg',18)}
+                titleSvg={pageheaderSvg.getPageHeaderSvg('extension',18)}
                 isContent={true} 
             >   
                 {ClustersList.length > 0 ? (

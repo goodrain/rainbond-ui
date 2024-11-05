@@ -459,7 +459,7 @@ class PluginList extends PureComponent {
         title={formatMessage({id: 'teamPlugin.title'})}
         content={content}
         extraContent={extraContent}
-        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('api',18)}
       >
         <div className={styles.cardList}>
           <List

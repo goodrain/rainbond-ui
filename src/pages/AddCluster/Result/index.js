@@ -177,7 +177,7 @@ export default class ClusterLink extends PureComponent {
       <PageHeaderLayout
       title={<FormattedMessage id='enterpriseColony.button.text'/>}
       content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content'/>}
-      titleSvg={pageheaderSvg.getSvg('clusterSvg',18)}
+      titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 18)}
       >
         <Card style={{ padding: '24px' }}>
           {<Card bordered={false}>{this.renderBody()}</Card>}

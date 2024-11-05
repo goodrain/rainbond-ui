@@ -147,7 +147,7 @@ const teamAdd = {
 const teamGateway = {
 
   // strategy
-  'teamGateway.strategy.title':'访问控制',
+  'teamGateway.strategy.title':'网关管理',
   'teamGateway.strategy.manage':'网关管理',
   'teamGateway.strategy.btn.add':'添加策略',
   'teamGateway.strategy.placeholder.http':'搜索域名/应用/组件',
@@ -504,7 +504,7 @@ const teamManage = {
   'teamManage.tabs.image.table.user':'用户名',
   'teamManage.tabs.image.table.password':'密码',
   'teamManage.tabs.image.table.operate':'操作',
-  'teamManage.tabs.image.table.btn.add':'添加',
+  'teamManage.tabs.image.table.btn.add':'添加授权信息',
   'teamManage.tabs.image.table.btn.edit':'修改',
   'teamManage.tabs.image.table.btn.delete':'删除',
   

@@ -899,6 +899,7 @@ class TeamLayout extends PureComponent {
                   <Content
                     style={{
                       height: 'calc(100vh - 64px)',
+                      background: globalUtil.getPublicColor("rbd-background-color"),
                       overflow: 'auto',
                       width: '100%'
                     }}

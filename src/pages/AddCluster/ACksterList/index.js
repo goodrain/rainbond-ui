@@ -507,9 +507,10 @@ export default class RainbondClusterInit extends PureComponent {
         <PageHeaderLayout
           title={<FormattedMessage id='enterpriseColony.button.text' />}
           content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
-          titleSvg={pageheaderSvg.getSvg('clusterSvg', 18)}
+          titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 18)}
         >
-          <Col span={24} style={{ padding: '0px' }}>
+          
+          <Row style={{ padding: '0px' }}>
             <Form style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Col span={16}>
                 <Card className={styles.cardBox}>
@@ -1171,8 +1172,8 @@ export default class RainbondClusterInit extends PureComponent {
 
               </Col>
             </Form>
-          </Col>
-          <Col span={24} style={{ padding: '0px 24px' }}>
+          </Row>
+          <Row style={{ padding: '0px 24px' }}>
             <div className={styles.nextBtn}>
               <Button
                 onClick={() => {
@@ -1195,7 +1196,7 @@ export default class RainbondClusterInit extends PureComponent {
                 </Button>
               </Tooltip>
             </div>
-          </Col>
+          </Row>
         </PageHeaderLayout >
         {isModal &&
           <CommandModal

@@ -30,42 +30,61 @@
 }
 .tabBarStyle{
   overflow: visible !important;
-  :global{
-    .ant-tabs-nav-container{
+
+  :global {
+    .ant-tabs-nav-container {
       overflow: visible !important;
-      margin-left: 24px;
+      // margin-left: 24px;
+    }
+    .ant-tabs-nav-container {
+      height: 38px !important;
     }
     .ant-tabs-tab{
-      background-color: @rbd-background-color !important;
+      height: 38px !important;
+      background-color: #fff !important;
       margin-right: 0px !important;
-      border: 1px solid  transparent !important;
+      // border: 1px solid transparent !important;
+      border-radius: 0 !important;
+      border: 1px solid #E2E2E2 !important;
+      border-left: none !important;
+      box-sizing: border-box;
+    }
+    .ant-tabs-tab:first-child{
+      border-left: 1px solid #E2E2E2 !important;
     }
     .ant-tabs-bar{
-      border-bottom: 1px solid @primary-color !important;
+      // border-bottom: 1px solid @primary-color !important;
       margin: 0;
-      padding-bottom: 1px !important;
+      // padding-bottom: 1px !important;
     }
     .ant-tabs-tab-active{
-      height: 41px !important ;
-      border: 1px solid @primary-color !important;
-      border-bottom: 1px solid #fff !important;
-      background-color: #fff !important;
+      // height: 41px !important ;
+      // border: 1px solid @primary-color !important;
+      // border-bottom: 1px solid #fff !important;
+      color: @primary-color !important;
     }
-    .ant-tabs-top-content{
+    .ant-tabs-ink-bar {
+      bottom: -1px !important;
+    }
+
+    .ant-tabs-top-content {
       border-radius: 5px;
 
     }
-    .ant-tabs-card-content{
+
+    .ant-tabs-card-content {
       // padding-top: 26px;
       background-color: #fff;
-      box-shadow: #242e4229 2px 4px 10px 0px !important;
-      padding: 10px 24px;
+      // box-shadow: #242e4229 2px 4px 10px 0px !important;
+      padding: 24px 0;
       // z-index: 99;
     }
-    .ant-tabs-nav-scroll{
+
+    .ant-tabs-nav-scroll {
       overflow: visible !important;
     }
-    .ant-tabs-nav-container-scrolling{
+
+    .ant-tabs-nav-container-scrolling {
       overflow: visible !important;
     }
   }

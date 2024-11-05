@@ -26,7 +26,7 @@ class Index extends PureComponent {
     render() {
         return (
             <>
-                <Card style={{ border:'none', padding:'0px'}} className={styles.pluginCard}>
+                <Card style={{ border:'none', padding:'0px'}} className={styles.pluginCard} bodyStyle={{padding:'24px 0'}}>
                     <Tabs defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         <TabPane tab={formatMessage({id:'extensionEnterprise.tabs.plugin'})} key='0' >
                             <Plugin {...this.props}/>

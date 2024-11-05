@@ -452,6 +452,7 @@ export default class Index extends PureComponent {
                   isAccess &&
                   <Button
                     style={{ float: 'left' }}
+                    icon='plus'
                     type="primary"
                     onClick={() => {
                       // this.setState({ createAppVisible: true });

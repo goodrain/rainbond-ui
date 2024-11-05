@@ -77,7 +77,7 @@ export default class Main extends PureComponent {
             {formatMessage({id: 'teamAdd.create.third.desc'})}
           </p>
         }
-        titleSvg={pageheaderSvg.getSvg("thirdSvg",18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg("outer",18)}
       >
         {Com ? <Com {...this.props} /> : <>{formatMessage({id: 'teamAdd.create.error'})}</>}
       </PageHeaderLayout>

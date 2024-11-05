@@ -237,7 +237,7 @@ export default class UpdateVersion extends PureComponent {
     );
 
     return (
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: '0' }}>
         {!isShowModal &&
           <>
             {

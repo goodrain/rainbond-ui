@@ -3,7 +3,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Card, Form, notification } from 'antd';
+import { Card, Form, notification, Button } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -203,7 +203,7 @@ export default class Index extends React.Component {
                 <FormattedMessage id='componentOverview.body.setting.health'/>
                 <div>
                   {startProbe && (
-                    <a
+                    <Button
                       style={{
                         marginRight: '5px',
                         fontSize: '14px',
@@ -212,9 +212,10 @@ export default class Index extends React.Component {
                       onClick={() => {
                         this.openCancel();
                       }}
+                      icon='form'
                     >
                       {isStartProbe ? <FormattedMessage id='componentOverview.body.setting.edit'/> : <FormattedMessage id='componentOverview.body.setting.set'/>}
-                    </a>
+                    </Button>
                   )}
                   {isStartProbe &&
                   appProbeUtil.isStartProbeStart(startProbe) ? (

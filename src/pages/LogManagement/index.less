@@ -1,92 +1,112 @@
 .logInfoStyle{
-    :global{
-        .ant-card{
-            border:0
-        }
-    }
+  :global{
+      .ant-card{
+          border:0
+      }
+      .ant-tabs-ink-bar {
+        right: 0px !important;
+      }
+  }
 }
 .setTabs {
-    overflow: visible !important;
-    :global{
+  overflow: visible !important;
+  :global{
+    .ant-tabs-nav-container {
+      height: 38px !important;
+    }
+    .ant-tabs-tab{
+      height: 38px !important;
+      background-color: #fff !important;
+      margin-right: 0px !important;
+      border-radius: 0 !important;
+      border: 1px solid #E2E2E2 !important;
+      border-left: none !important;
+      box-sizing: border-box;
+    }
+    .ant-tabs-tab:first-child{
+      border-left: 1px solid #E2E2E2 !important;
+    }
+    .ant-tabs-bar{
+      margin: 0;
+    }
+    .ant-tabs-nav-container{
+      overflow: visible !important;
+    }
+    .ant-tabs-tab-active{
+      color: @primary-color !important;
+      // background-color: #f9f9f9 !important;
+    }
+    .ant-tabs-top-content{
+      border-radius: 5px;
+
+    }
+    .ant-tabs-card-content{
+      background-color: #fff;
+      padding: 0;
+    }
+    .ant-tabs-nav-scroll{
+      overflow: visible !important;
+    }
+    .ant-tabs-nav-container-scrolling{
+      overflow: visible !important;
+    }
+    .ant-pagination-item-link {
+      background-color: #efefef;
+    }
+    .ant-pagination-item-active {
+      background-color: @primary-color;
+      & > a {
+        color: #fff;
+      }
+    }
+  }
+}
+.tabsStyle{
+  overflow: hidden !important;
+  :global{
+      .ant-tabs-nav-container {
+        height: 100% !important;
+      }
       .ant-tabs-tab{
-        background-color: @rbd-background-color !important;
-        margin-right: 0px !important;
-        border: 1px solid  transparent !important;
+        background-color: #fff !important;
+        height: 41px !important ;
+        border: 0 !important;
       }
       .ant-tabs-bar{
-        border-bottom: 1px solid @primary-color !important;
-        margin: 0;
-        padding-bottom: 1px !important;
-      }
-      .ant-tabs-nav-container{
-        overflow: visible !important;
-        margin-left: 24px !important;
+        border: 1px solid #fff !important;
+        border-bottom: 1px solid transparent !important;
       }
       .ant-tabs-tab-active{
         height: 41px !important ;
-        border: 1px solid @primary-color !important;
-        border-bottom: 1px solid #fff !important;
+        border: 0px solid #4d73b1 !important;
+        border-bottom: 0px solid #fff !important;
         background-color: #fff !important;
       }
       .ant-tabs-top-content{
         border-radius: 5px;
-  
       }
       .ant-tabs-card-content{
-        // padding-top: 26px;
         background-color: #fff;
         box-shadow: #242e4229 2px 4px 10px 0px !important;
-        padding: 10px 24px;
-        // z-index: 99;
       }
       .ant-tabs-nav-scroll{
-        overflow: visible !important;
+        overflow: hidden !important;
+        .ant-tabs-tab:first-child{
+          border-left: none !important;
+        }
       }
       .ant-tabs-nav-container-scrolling{
-        overflow: visible !important;
+        overflow: hidden !important;
+      }
+      .ant-tabs-nav-wrap{
+        margin-right: 0 !important;
       }
     }
-  }
-  .tabsStyle{
-    overflow: hidden !important;
-    :global{
-        .ant-tabs-tab{
-          background-color: #fff !important;
-          height: 41px !important ;
-          border: 0 !important;
-        }
-        .ant-tabs-bar{
-          border: 1px solid #fff !important;
-          border-bottom: 1px solid transparent !important;
-        }
-        .ant-tabs-tab-active{
-          height: 41px !important ;
-          border: 0px solid #4d73b1 !important;
-          border-bottom: 0px solid #fff !important;
-          background-color: #fff !important;
-        }
-        .ant-tabs-top-content{
-          border-radius: 5px;
-        }
-        .ant-tabs-card-content{
-          background-color: #fff;
-          box-shadow: #242e4229 2px 4px 10px 0px !important;
-        }
-        .ant-tabs-nav-scroll{
-          overflow: hidden !important;
-        }
-        .ant-tabs-nav-container-scrolling{
-          overflow: hidden !important;
-        }
-        .ant-tabs-nav-wrap{
-          margin-right: 0 !important;
-        }
-      }
-  }
+}
 .setFrom{
-    :global{
-        .ant-form-item{
-            margin-bottom: 0 !important;
-        }
-    }
+  :global{
+      .ant-form-item{
+          margin-bottom: 0 !important;
+      }
+  }
 }

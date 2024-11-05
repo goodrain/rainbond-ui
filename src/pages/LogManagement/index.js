@@ -71,7 +71,7 @@ export default class EnterpriseSetting extends PureComponent {
             <PageHeaderLayout
                 title={formatMessage({id:'LogEnterprise.title'})}
                 content={formatMessage({ id: 'LogEnterprise.desc' })}
-                titleSvg={pageheaderSvg.getSvg('logSvg',18)}
+                titleSvg={pageheaderSvg.getPageHeaderSvg('logs',18)}
                 isContent={true} 
             >   
                 <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">

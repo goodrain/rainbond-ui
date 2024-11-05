@@ -22,6 +22,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
 const { confirm } = Modal;
@@ -420,6 +421,7 @@ export default class EnterpriseShared extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='applicationMarket.Offline.import' />}
         content={<FormattedMessage id='applicationMarket.Offline.mode' />}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('import', 20)}
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
           <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import' /></div>

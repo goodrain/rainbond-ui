@@ -24,7 +24,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromPlugin from '../../components/CreateAppFromPlugin';
@@ -37,6 +37,7 @@ import PageHeaderMarket from '../../layouts/PageHeaderMarket';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/newRole';
 import sourceUtil from '../../utils/source-unit';
 import PluginStyles from '../Plugin/Index.less';
@@ -99,12 +100,12 @@ export default class Main extends PureComponent {
       handleType: handleType || null,
       moreState: moreState || null,
       is_deploy: true,
-      btnStatus:'',
+      btnStatus: '',
       archInfo: [],
       localAppTab: [
         {
           key: 'localApplication',
-          tab: formatMessage({id:'popover.applicationMarket.local'})
+          tab: formatMessage({ id: 'popover.applicationMarket.local' })
         }
       ],
       rainStoreTab: [],
@@ -152,9 +153,9 @@ export default class Main extends PureComponent {
         if (res && res.bean) {
           this.setState({
             archInfo: res.list.length == 2 ? '' : res.list[0]
-          },()=>{
+          }, () => {
             this.getApps();
-          })  
+          })
         }
       }
     });
@@ -269,7 +270,7 @@ export default class Main extends PureComponent {
         }
         this.setState({
           rainStoreTab: rainStores,
-          marketInfoSwitch:true
+          marketInfoSwitch: true
         });
         if (scopeMax && scopeMax !== 'localApplication') {
           this.handleTabMaxChange(scopeMax);
@@ -301,7 +302,7 @@ export default class Main extends PureComponent {
             }
             this.setState({
               helmStoreTab: helmStores,
-              helmInfoSwitch:true
+              helmInfoSwitch: true
             });
           }
         }
@@ -555,7 +556,7 @@ export default class Main extends PureComponent {
       },
       callback: (res) => {
         this.setState({
-          btnStatus:res.bean.status
+          btnStatus: res.bean.status
         })
       }
     });
@@ -580,7 +581,7 @@ export default class Main extends PureComponent {
       },
       callback: (res) => {
         this.setState({
-          btnStatus:res.bean.status
+          btnStatus: res.bean.status
         })
       }
     });
@@ -648,8 +649,7 @@ export default class Main extends PureComponent {
               this.onCancelCreate();
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.bean.ID
+                  `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID
                   }`
                 )
               );
@@ -695,7 +695,7 @@ export default class Main extends PureComponent {
           },
           callback: () => {
             // 关闭弹框
-            notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.install_success' }) });
             this.onCancelCreate();
             this.setState({ is_deploy: true });
             this.props.dispatch(
@@ -772,10 +772,10 @@ export default class Main extends PureComponent {
     const title = item => (
       <div
         title={item.app_name || item.name || ''}
-        style={{display:'flex',alignItems:'center'}}
+        style={{ display: 'flex', alignItems: 'center' }}
       >
         <div
-          style={{ 
+          style={{
             maxWidth: '170px',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
@@ -786,19 +786,19 @@ export default class Main extends PureComponent {
             onClick={() => {
               this.showMarketAppDetail(item);
             }}
-            style={{ 
+            style={{
               marginRight: '12px',
             }}
           >
-            {item.app_name || item.name} 
+            {item.app_name || item.name}
           </a>
         </div>
         <div>
-        {item.arch && 
-          item.arch.length > 0 && 
-            item.arch.map((item)=>{
+          {item.arch &&
+            item.arch.length > 0 &&
+            item.arch.map((item) => {
               return <Tag>{item}</Tag>
-          })}
+            })}
         </div>
       </div>
     );
@@ -857,18 +857,18 @@ export default class Main extends PureComponent {
     ];
     const defaultActions = isInstall
       ? [
-          <span
-            onClick={() => {
-              if (type === 'helm') {
-                this.handleHelmIntall(item);
-              } else {
-                this.showCreate(item);
-              }
-            }}
-          >
-            {formatMessage({id:'button.install'})}
-          </span>
-        ]
+        <span
+          onClick={() => {
+            if (type === 'helm') {
+              this.handleHelmIntall(item);
+            } else {
+              this.showCreate(item);
+            }
+          }}
+        >
+          {formatMessage({ id: 'button.install' })}
+        </span>
+      ]
       : [];
     const appIcon = require('../../../public/images/app_icon.jpg');
     return (
@@ -1131,10 +1131,10 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              {formatMessage({id:'notification.market.hint.null_app1'})}
+              {formatMessage({ id: 'notification.market.hint.null_app1' })}
               <br />
               <br />
-              {formatMessage({id:'notification.market.hint.null_app2'})}
+              {formatMessage({ id: 'notification.market.hint.null_app2' })}
             </p>
           )
         }}
@@ -1197,16 +1197,13 @@ export default class Main extends PureComponent {
     //搜索框
     const mainSearch = (
       <div
-        style={{
-          textAlign: 'center'
-        }}
       >
         <span id="searchWrap" style={{ display: 'inline-block' }}>
           <Input.Search
             // eslint-disable-next-line react/no-string-refs
             ref="searchs"
-            placeholder={formatMessage({id:'placeholder.group_name'})}
-            enterButton={formatMessage({id:'button.search'})}
+            placeholder={formatMessage({ id: 'placeholder.group_name' })}
+            enterButton={formatMessage({ id: 'button.search' })}
             size="large"
             value={defaultValue}
             onChange={event => {
@@ -1228,17 +1225,17 @@ export default class Main extends PureComponent {
     const tabAllList = [
       {
         key: '',
-        tab: formatMessage({id:'popover.applicationMarket.all'})
+        tab: formatMessage({ id: 'popover.applicationMarket.all' })
       }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: formatMessage({id:'popover.applicationMarket.company'})
+        tab: formatMessage({ id: 'popover.applicationMarket.company' })
       },
       {
         key: 'team',
-        tab: formatMessage({id:'popover.applicationMarket.team'})
+        tab: formatMessage({ id: 'popover.applicationMarket.team' })
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
@@ -1291,16 +1288,16 @@ export default class Main extends PureComponent {
               handleType
                 ? this.onChangeSelect
                 : scopeMax == 'localApplication'
-                ? this.onChangeSelect
-                : this.onChangeSelectCloud
+                  ? this.onChangeSelect
+                  : this.onChangeSelectCloud
             }
             btnStatus={btnStatus}
             onSubmit={
               handleType
                 ? this.handleCreate
                 : scopeMax == 'localApplication'
-                ? this.handleCreate
-                : this.handleCloudCreate
+                  ? this.handleCreate
+                  : this.handleCloudCreate
             }
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
@@ -1317,7 +1314,7 @@ export default class Main extends PureComponent {
         )}
         {handleType && installBounced && (
           <Modal
-            title={formatMessage({id:'confirmModal.install.app.desc'})}
+            title={formatMessage({ id: 'confirmModal.install.app.desc' })}
             className={styles.TelescopicModal}
             visible={installBounced}
             onOk={this.handleInstallBounced}
@@ -1334,7 +1331,7 @@ export default class Main extends PureComponent {
                     });
                   }}
                 >
-                  {formatMessage({id:'button.cancel'})}
+                  {formatMessage({ id: 'button.cancel' })}
                 </Button>
                 <Button
                   onClick={this.handleInstallBounced}
@@ -1342,14 +1339,14 @@ export default class Main extends PureComponent {
                   style={{ marginRight: '5px' }}
                   loading={loading.effects['createApp/installAppPlugin']}
                 >
-                  {formatMessage({id:'button.install'})}
+                  {formatMessage({ id: 'button.install' })}
                 </Button>
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
                   checked={isDeploy}
                 >
-                  {formatMessage({id:'button.build_start'})}
+                  {formatMessage({ id: 'button.build_start' })}
                 </Radio>
               </div>
             }
@@ -1368,7 +1365,7 @@ export default class Main extends PureComponent {
           </Modal>
         )}
 
-        {marketTab && marketTab.length > 0 && isAddMarket ?(
+        {marketTab && marketTab.length > 0 && isAddMarket ? (
           <div>
             <PageHeaderComponent
               isAddMarket={this.props.isAddMarket}
@@ -1384,13 +1381,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      {formatMessage({id:'notification.market.hint.null_app5'})}
+                      {formatMessage({ id: 'notification.market.hint.null_app5' })}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        {formatMessage({id:'notification.market.hint.null_app6'})}
+                        {formatMessage({ id: 'notification.market.hint.null_app6' })}
                       </a>
                     </div>
                   }
@@ -1410,7 +1407,7 @@ export default class Main extends PureComponent {
                       '40px'
                   }}
                 >
-                  
+
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
@@ -1442,13 +1439,16 @@ export default class Main extends PureComponent {
               {mores}
             </PageHeaderComponent>
           </div>
-        ):(
+        ) : (
           <div>
             <PageHeaderMarket
+              title={formatMessage({ id: 'teamPlugin.install.title' })}
+              titleSvg={pageheaderSvg.getPageHeaderSvg('market', 18)}
+              content="应用市场安装是部署插件的一种方式，支持通过本地组件库、开源应用商店和Helm应用商店等方式一键安装插件。"
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
-              content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
               tabList={marketTab}
               keyword={false}
               helmInfoSwitch={helmInfoSwitch}
@@ -1461,13 +1461,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      {formatMessage({id:'notification.market.hint.null_app5'})}
+                      {formatMessage({ id: 'notification.market.hint.null_app5' })}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        {formatMessage({id:'notification.market.hint.null_app6'})}
+                        {formatMessage({ id: 'notification.market.hint.null_app6' })}
                       </a>
                     </div>
                   }
@@ -1487,7 +1487,7 @@ export default class Main extends PureComponent {
                       '40px'
                   }}
                 >
-                  
+
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : helmInfoSwitch && marketInfoSwitch ? (
@@ -1515,7 +1515,7 @@ export default class Main extends PureComponent {
                     </div>
                   )}
                 </div>
-              ): (<div>{SpinBox}</div>)}
+              ) : (<div>{SpinBox}</div>)}
               {mores}
             </PageHeaderMarket>
           </div>

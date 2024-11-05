@@ -169,7 +169,8 @@ export default class Main extends PureComponent {
         content={<p><FormattedMessage id="teamAdd.create.code.desc" /></p>}
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getSvg('addSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('code', 18)}
+        isContent
       >
         {Com ? (
           <Com

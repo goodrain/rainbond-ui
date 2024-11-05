@@ -29,7 +29,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import NoComponent from '../../../public/images/noComponent.png';
 import AuthCompany from '../../components/AuthCompany';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -363,7 +363,7 @@ export default class EnterpriseShared extends PureComponent {
               })
               this.setState({
                 tabsList: [...this.state.tabsList, ...arr,],
-                marketInfoSwitch:true
+                marketInfoSwitch: true
               })
               if (ID || init || (first && activeTabKey)) {
                 const marketID = init && list && list.length && list[0].ID;
@@ -375,10 +375,10 @@ export default class EnterpriseShared extends PureComponent {
           );
         }
       },
-      handleError:res=>{
-        if(res){
+      handleError: res => {
+        if (res) {
           this.setState({
-            marketInfoSwitch:true
+            marketInfoSwitch: true
           })
         }
       }
@@ -414,7 +414,7 @@ export default class EnterpriseShared extends PureComponent {
 
               this.setState({
                 tabsList: [...this.state.tabsList, ...arr],
-                helmInfoSwitch:true
+                helmInfoSwitch: true
               })
               if (ID || (first && activeTabKey)) {
                 this.onTabChange(ID || activeTabKey);
@@ -423,10 +423,10 @@ export default class EnterpriseShared extends PureComponent {
           );
         }
       },
-      handleError:res=>{
-        if(res){
+      handleError: res => {
+        if (res) {
           this.setState({
-            marketInfoSwitch:true
+            marketInfoSwitch: true
           })
         }
       }
@@ -572,14 +572,14 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200 && res.bean.remind) {
           Modal.confirm({
-            title: formatMessage({id:'applicationMarket.confirm.remind'}),
-            cancelText: formatMessage({id:'applicationMarket.confirm.understand'}),
-            okText: formatMessage({id:'applicationMarket.confirm.Deconfiguration'}),
-            onCancel: () => {},
+            title: formatMessage({ id: 'applicationMarket.confirm.remind' }),
+            cancelText: formatMessage({ id: 'applicationMarket.confirm.understand' }),
+            okText: formatMessage({ id: 'applicationMarket.confirm.Deconfiguration' }),
+            onCancel: () => { },
             onOk: () => {
               dispatch(routerRedux.push(`/enterprise/${eid}/setting`));
             },
-            content:formatMessage({id:'applicationMarket.confirm.Docking'})
+            content: formatMessage({ id: 'applicationMarket.confirm.Docking' })
           });
         }
       }
@@ -673,7 +673,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo,
       deleteApp: true,
-      bouncedText: formatMessage({id:'applicationMarket.confirm.delete'}),
+      bouncedText: formatMessage({ id: 'applicationMarket.confirm.delete' }),
       bouncedType: 'delete'
     });
   };
@@ -732,7 +732,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({
-            message: formatMessage({id:'notification.success.delete'})
+            message: formatMessage({ id: 'notification.success.delete' })
           });
           this.handleCancelDelete();
           this.getApps();
@@ -762,13 +762,13 @@ export default class EnterpriseShared extends PureComponent {
             marketInfo: false,
             deleteAppMarketLoading: false,
             tabsList: []
-          },()=>{
+          }, () => {
             this.handleCloseDeleteAppMarket();
             this.getMarketsTab();
             this.getHelmMarketsTab();
           });
           notification.success({
-            message: formatMessage({id:'notification.success.delete'})
+            message: formatMessage({ id: 'notification.success.delete' })
           });
         }
       }
@@ -796,13 +796,13 @@ export default class EnterpriseShared extends PureComponent {
             helmInfo: false,
             deleteHelmAppMarketLoading: false,
             tabsList: []
-          },()=>{
+          }, () => {
             this.handleCloseDeleteHelmAppMarket();
             this.getHelmMarketsTab();
             this.getMarketsTab();
           });
           notification.success({
-            message: formatMessage({id:'notification.success.delete'})
+            message: formatMessage({ id: 'notification.success.delete' })
           });
         }
       }
@@ -872,7 +872,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.handleCancelDelete();
-          notification.success({ message: formatMessage({id:'notification.success.updates'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.updates' }) });
           this.getApps();
         }
       }
@@ -880,31 +880,31 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   handleCreateAppModel = () => {
-    notification.success({ message: formatMessage({id:'notification.success.setUp'}) });
+    notification.success({ message: formatMessage({ id: 'notification.success.setUp' }) });
     this.getApps();
     this.handleCancelAppModel();
   };
 
   handleCreateAppMarket = ID => {
     const { upAppMarket } = this.state;
-    notification.success({ message: upAppMarket ? formatMessage({id:'notification.success.edit'}) : formatMessage({id:'notification.success.setUp'}) });
+    notification.success({ message: upAppMarket ? formatMessage({ id: 'notification.success.edit' }) : formatMessage({ id: 'notification.success.setUp' }) });
     this.setState({
       tabsList: []
-    },()=>{
+    }, () => {
       this.getMarketsTab(ID);
       this.getHelmMarketsTab()
-    }) 
+    })
     this.handleCancelAppMarket();
   };
   handleUpHelmAppMarket = ID => {
-    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
+    notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
     this.setState({
       tabsList: []
-    },()=>{
+    }, () => {
       this.getMarketsTab();
       this.getHelmMarketsTab(ID);
-    }) 
-    
+    })
+
     this.handleCancelHelmAppMarket();
   };
 
@@ -948,7 +948,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   handleupDataAppModel = () => {
-    notification.success({ message: formatMessage({id:'notification.success.edit'}) });
+    notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
     this.getApps();
     this.handleCancelupDataAppModel();
   };
@@ -1004,8 +1004,8 @@ export default class EnterpriseShared extends PureComponent {
       }
     } = this.props;
     this.setState({
-      goClusters:false
-    },()=>{
+      goClusters: false
+    }, () => {
       dispatch(
         routerRedux.push(`/enterprise/${eid}/clusters`)
       );
@@ -1045,10 +1045,10 @@ export default class EnterpriseShared extends PureComponent {
           guideStep === 1 &&
           indexs === 0 &&
           this.handleNewbieGuiding({
-            tit: formatMessage({id:'applicationMarket.localMarket.have.title'}),
+            tit: formatMessage({ id: 'applicationMarket.localMarket.have.title' }),
             send: true,
             configName: 'installApp',
-            desc: formatMessage({id:'applicationMarket.localMarket.have.desc'}),
+            desc: formatMessage({ id: 'applicationMarket.localMarket.have.desc' }),
             nextStep: 2,
             conPosition: { right: 0, marginTop: '60px' },
             svgPosition: { right: 30, marginTop: '27px' },
@@ -1066,7 +1066,7 @@ export default class EnterpriseShared extends PureComponent {
                 e.stopPropagation();
                 if (types === 'localsContent') {
                   this.handleAppModel(item);
-                }else if (types === 'marketContent'){
+                } else if (types === 'marketContent') {
                   this.showMarketAppDetail(item);
                 }
               }}
@@ -1079,8 +1079,8 @@ export default class EnterpriseShared extends PureComponent {
                       e.stopPropagation();
                     }}
                   >
-                    <Tooltip 
-                    title={<FormattedMessage id='applicationMarket.localMarket.have.installNumber'/>}
+                    <Tooltip
+                      title={<FormattedMessage id='applicationMarket.localMarket.have.installNumber' />}
                     >
                       <div title={installNumber}>
                         {globalUtil.nFormatter(installNumber)}
@@ -1123,12 +1123,12 @@ export default class EnterpriseShared extends PureComponent {
                     <p className={styles.dev_version}>
                       {isLocalsContent
                         ? versions[isHelmContent ? 0 : versions.length - 1]
-                            .version
+                          .version
                         : versions[0].app_version}
                     </p>
                   ) : (
                     <p className={styles.dev_version}>
-                      <FormattedMessage id='applicationMarket.localMarket.have.versions'/>
+                      <FormattedMessage id='applicationMarket.localMarket.have.versions' />
                     </p>
                   )}
                 </div>
@@ -1160,7 +1160,7 @@ export default class EnterpriseShared extends PureComponent {
                       this.handleOpenMoreTags(customTags);
                     }}
                   >
-                    <FormattedMessage id='enterpriseOverview.team.more'/>
+                    <FormattedMessage id='enterpriseOverview.team.more' />
                   </a>
                 )}
               </Col>
@@ -1180,15 +1180,15 @@ export default class EnterpriseShared extends PureComponent {
                     ) {
                       this.installHelmApp(item, types);
                     } else {
-                      if(!isClusters){
+                      if (!isClusters) {
                         this.setState({
                           goClusters: true
                         });
-                      }else{
+                      } else {
                         this.setState({
                           isInStallShow: true,
                           guideStep: 'Jump',
-                          showMarketCloudAuth: true 
+                          showMarketCloudAuth: true
                         });
                       }
                     }
@@ -1196,7 +1196,7 @@ export default class EnterpriseShared extends PureComponent {
                 >
                   {globalUtil.fetchSvg('InstallApp')}
                   <div style={{ background: '#fff' }}>
-                    <FormattedMessage id='applicationMarket.localMarket.have.install'/>
+                    <FormattedMessage id='applicationMarket.localMarket.have.install' />
                   </div>
                 </div>
               </Col>
@@ -1209,7 +1209,7 @@ export default class EnterpriseShared extends PureComponent {
   };
   handleNewbieGuiding = info => {
     const { isClusters, marketInfo } = this.state;
-    const { prevStep, nextStep, handleClick = () => {} } = info;
+    const { prevStep, nextStep, handleClick = () => { } } = info;
     const isReadInstall =
       marketInfo &&
       marketInfo.access_actions &&
@@ -1358,7 +1358,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: formatMessage({id:'notification.warn.create_team'})
+              message: formatMessage({ id: 'notification.warn.create_team' })
             });
           }
         }
@@ -1393,7 +1393,7 @@ export default class EnterpriseShared extends PureComponent {
             }
           } else {
             return notification.warn({
-              message: formatMessage({id:'notification.warn.app'})
+              message: formatMessage({ id: 'notification.warn.app' })
             });
           }
         }
@@ -1402,7 +1402,7 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   onCloseLogin = (ID) => {
-    this.setState({ isInStallShow: true, isAuthorize: true, tabsList: [] },()=>{
+    this.setState({ isInStallShow: true, isAuthorize: true, tabsList: [] }, () => {
       this.getMarketsTab(ID)
       this.getHelmMarketsTab()
     });
@@ -1431,6 +1431,16 @@ export default class EnterpriseShared extends PureComponent {
   };
   // 筛选应用列表类型
   handleChangeType = (key) => {
+  }
+  jump = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch(routerRedux.push(`/enterprise/${eid}/shared/import`));
+
   }
   render() {
     const {
@@ -1498,7 +1508,7 @@ export default class EnterpriseShared extends PureComponent {
       goClusters
     } = this.state;
     const local = [{ types: 'local' }]
-    const storeTabs = [...tabsList,...local].reverse()
+    const storeTabs = [...tabsList, ...local].reverse()
     const tagLists = tagList && tagList.length > 0 && tagList;
     const accessActions =
       marketInfo &&
@@ -1516,7 +1526,7 @@ export default class EnterpriseShared extends PureComponent {
             }}
           >
             {/* 删除应用模版 */}
-            <FormattedMessage id='applicationMarket.localMarket.delete.template'/>
+            <FormattedMessage id='applicationMarket.localMarket.delete.template' />
           </a>
         </Menu.Item>
       );
@@ -1528,7 +1538,7 @@ export default class EnterpriseShared extends PureComponent {
             }}
           >
             {/* 编辑应用模版 */}
-            <FormattedMessage id='applicationMarket.localMarket.edit.template'/>
+            <FormattedMessage id='applicationMarket.localMarket.edit.template' />
           </a>
         </Menu.Item>
       );
@@ -1556,7 +1566,7 @@ export default class EnterpriseShared extends PureComponent {
       display: 'flex',
       alignItems: 'center',
       padding: '10px 0',
-      margin: 10,
+      margin: "10px 0",
     };
     const contentLeftStyle = {
       textAlign: 'left',
@@ -1572,17 +1582,15 @@ export default class EnterpriseShared extends PureComponent {
     };
 
     const operation = (
-      <Col span={language ? 5 : 7 } style={rightStyle} className={styles.btns}>
+      <Col span={9} style={rightStyle} className={styles.btns}>
         {isImportApp && (
-          <Button style={{ margin: '0 14px 0 10px' }}>
-            <Link to={`/enterprise/${eid}/shared/import`}>
-              <FormattedMessage id='applicationMarket.localMarket.import'/>
-            </Link>
+          <Button style={{ margin: '0 14px 0 10px' }} icon='download' onClick={this.jump}>
+            <FormattedMessage id='applicationMarket.localMarket.import' />
           </Button>
         )}
         {isCreateApp && (
-          <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-            <FormattedMessage id='applicationMarket.localMarket.setup'/>
+          <Button type="primary" onClick={this.handleOpenCreateAppModel} icon='plus'>
+            <FormattedMessage id='applicationMarket.localMarket.setup' />
           </Button>
         )}
       </Col>
@@ -1594,13 +1602,17 @@ export default class EnterpriseShared extends PureComponent {
           <Button
             onClick={this.handleOpenDeleteAppMarket}
             style={{ marginRight: '22px' }}
+            icon='delete'
           >
-            <FormattedMessage id='button.delete'/>
+            <FormattedMessage id='button.delete' />
           </Button>
         )}
         {isEditAppStore && (
-          <Button type="primary" onClick={this.handleOpenUpAppMarket}>
-          <FormattedMessage id='button.edit'/>
+          <Button
+            type="primary"
+            onClick={this.handleOpenUpAppMarket}
+            icon='edit'>
+            <FormattedMessage id='button.edit' />
           </Button>
         )}
       </div>
@@ -1610,17 +1622,19 @@ export default class EnterpriseShared extends PureComponent {
         <Button
           onClick={this.handleOpenDeleteHelmAppMarket}
           style={{ marginRight: '22px' }}
+          icon='delete'
         >
           {/* 删除 */}
-          <FormattedMessage id='button.delete'/>
+          <FormattedMessage id='button.delete' />
         </Button>
         <Button
           style={{ marginRight: '22px' }}
           type="primary"
           onClick={this.handleOpenUpHelmAppMarket}
+          icon='edit'
         >
           {/* 编辑 */}
-          <FormattedMessage id='button.edit'/>
+          <FormattedMessage id='button.edit' />
         </Button>
         <Button
           onClick={() => {
@@ -1637,22 +1651,20 @@ export default class EnterpriseShared extends PureComponent {
         <img src={NoComponent} />
         <p>
           {/* 当前无应用模版，请选择方式添加 */}
-          <FormattedMessage id='applicationMarket.localMarket.nothing.msg'/>
+          <FormattedMessage id='applicationMarket.localMarket.nothing.msg' />
         </p>
         <div className={styles.btns}>
           {isCreateApp && (
-            <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+            <Button type="primary" onClick={this.handleOpenCreateAppModel} icon='plus' >
 
               {/* 创建应用模版 */}
-              <FormattedMessage id='applicationMarket.localMarket.setup'/>
+              <FormattedMessage id='applicationMarket.localMarket.setup' />
             </Button>
           )}
           {isImportApp && (
-            <Button type="primary">
-              <Link to={`/enterprise/${eid}/shared/import`}>
+            <Button type="primary" icon='download' onClick={this.jump}>
                 {/* 导入应用模版 */}
-              <FormattedMessage id='applicationMarket.localMarket.import.template'/>
-              </Link>
+                <FormattedMessage id='applicationMarket.localMarket.import.template' />
             </Button>
           )}
         </div>
@@ -1668,7 +1680,7 @@ export default class EnterpriseShared extends PureComponent {
         }}
         description={
           <span>
-            {!isHelm && !isMarket ? <FormattedMessage id='applicationMarket.confirm.connected'/> : <FormattedMessage id='applicationMarket.confirm.null'/>}
+            {!isHelm && !isMarket ? <FormattedMessage id='applicationMarket.confirm.connected' /> : <FormattedMessage id='applicationMarket.confirm.null' />}
           </span>
         }
       >
@@ -1677,12 +1689,12 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const localsContent = (
-      <div style={{padding:'0px 24px'}}>
+      <div style={{ padding: '0' }}>
         <Row style={contentStyle}>
-          <Col span={language ? 19 : 17} style={contentLeftStyle}>
+          <Col span={15} style={contentLeftStyle}>
             <Search
-              style={{ width: '250px'}}
-              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
+              style={{ width: '250px' }}
+              placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchLocal}
             />
             <div className={styles.serBox}>
@@ -1693,11 +1705,11 @@ export default class EnterpriseShared extends PureComponent {
               >
                 <Radio.Button value="enterprise">
                   {/* 企业 */}
-                  <FormattedMessage id="applicationMarket.localMarket.radioValue.enterprise"/>
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.enterprise" />
                 </Radio.Button>
                 <Radio.Button value="team">
                   {/* 团队 */}
-                  <FormattedMessage id="applicationMarket.localMarket.radioValue.team"/>
+                  <FormattedMessage id="applicationMarket.localMarket.radioValue.team" />
                 </Radio.Button>
               </Radio.Group>
             </div>
@@ -1724,25 +1736,25 @@ export default class EnterpriseShared extends PureComponent {
           noLocalMarket
         )}
         <div style={paginationStyle}>
-         {Number(this.state.total) > 10 && 
-          <Pagination
-          showQuickJumper
-          current={this.state.page}
-          pageSize={this.state.pageSize}
-          total={Number(this.state.total)}
-          onChange={this.onPageChangeApp}
-          />
+          {Number(this.state.total) > 10 &&
+            <Pagination
+              showQuickJumper
+              current={this.state.page}
+              pageSize={this.state.pageSize}
+              total={Number(this.state.total)}
+              onChange={this.onPageChangeApp}
+            />
           }
-      </div>
+        </div>
       </div>
     );
     const marketContent = (
-      <div style={{padding:'0px 24px'}}>
+      <div style={{ padding: '0px' }}>
         {isMarket && (
           <Row style={contentStyle}>
             <Col span={20} style={contentLeftStyle}>
               <div>
-                <FormattedMessage id='applicationMarket.cloudMarket.msg'/>
+                <FormattedMessage id='applicationMarket.cloudMarket.msg' />
                 {/* 市场已经正常连接，该平台具有 */}
                 &nbsp;
                 {accessActions &&
@@ -1761,11 +1773,11 @@ export default class EnterpriseShared extends PureComponent {
                   })}
                 &nbsp;
                 {/* 应用权限 */}
-                <FormattedMessage id='applicationMarket.cloudMarket.msgs'/>
+                <FormattedMessage id='applicationMarket.cloudMarket.msgs' />
               </div>
               <Search
                 style={{ width: '400px', marginLeft: '100px' }}
-                placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
+                placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
                 onSearch={this.handleSearchMarket}
               />
             </Col>
@@ -1794,26 +1806,26 @@ export default class EnterpriseShared extends PureComponent {
           noCloudMarket(false)
         )}
         <div style={paginationStyle}>
-        {Number(marketPag.total) > 10 && 
-          <Pagination
-            showQuickJumper
-            current={marketPag.page}
-            pageSize={marketPag.pageSize}
-            total={Number(marketPag.total)}
-            onChange={this.onPageChangeAppMarket}
-          />
-        }
+          {Number(marketPag.total) > 10 &&
+            <Pagination
+              showQuickJumper
+              current={marketPag.page}
+              pageSize={marketPag.pageSize}
+              total={Number(marketPag.total)}
+              onChange={this.onPageChangeAppMarket}
+            />
+          }
         </div>
 
       </div>
     );
     const helmContent = (
-      <div style={{padding:'0px 24px'}}>
+      <div style={{ padding: '0px 24px' }}>
         <Row style={contentStyle}>
           <Col span={19} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
-              placeholder={ formatMessage({id:'applicationMarket.localMarket.placeholder'})}
+              placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>
@@ -1843,23 +1855,23 @@ export default class EnterpriseShared extends PureComponent {
         )}
 
         <div style={paginationStyle}>
-        {Number(helmPag.total) > 10 && 
-          <Pagination
-            showQuickJumper
-            current={helmPag.page}
-            pageSize={helmPag.pageSize}
-            total={Number(helmPag.total)}
-            onChange={this.onPageChangeAppHelm}
-          />
-        }
+          {Number(helmPag.total) > 10 &&
+            <Pagination
+              showQuickJumper
+              current={helmPag.page}
+              pageSize={helmPag.pageSize}
+              total={Number(helmPag.total)}
+              onChange={this.onPageChangeAppHelm}
+            />
+          }
         </div>
       </div>
     );
     return (
       <PageHeaderLayout
-        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title"/>}
-        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content"/>}
-        titleSvg={pageheaderSvg.getSvg('storeSvg',20)} 
+        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}
+        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content" />}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
         isContent={true}
       >
 
@@ -1867,7 +1879,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title={<FormattedMessage id='applicationMarket.AuthCompany.title'/>}
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title' />}
             onCancel={() => {
               this.setState({ showMarketCloudAuth: false });
             }}
@@ -1886,7 +1898,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {moreTags && (
           <TagList
-            title={<FormattedMessage id='applicationMarket.TagList.label'/>}
+            title={<FormattedMessage id='applicationMarket.TagList.label' />}
             onOk={this.handleCloseMoreTags}
             onChangeCheckbox={this.onChangeCheckbox}
             onCancel={this.handleCloseMoreTags}
@@ -1900,16 +1912,16 @@ export default class EnterpriseShared extends PureComponent {
         {deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
-            desc={formatMessage({id:'confirmModal.delete.app_template.desc'})}
-            subDesc={formatMessage({id:'confirmModal.delete.app_template.subDesc'})}
-            title={formatMessage({id:'confirmModal.app_template.delete.title'})}
+            desc={formatMessage({ id: 'confirmModal.delete.app_template.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.app_template.subDesc' })}
+            title={formatMessage({ id: 'confirmModal.app_template.delete.title' })}
             onCancel={this.handleCancelDelete}
           />
         )}
 
         {installHelmApp && (
           <CreateHelmAppModels
-            title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install'/>}
+            title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install' />}
             eid={eid}
             appTypes={appTypes}
             appInfo={appInfo}
@@ -1922,9 +1934,9 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteAppMarket}
             loading={deleteAppMarketLoading}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
-            title={formatMessage({id:'confirmModal.app_store.delete.title'})}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
+            title={formatMessage({ id: 'confirmModal.app_store.delete.title' })}
             onCancel={this.handleCloseDeleteAppMarket}
           />
         )}
@@ -1932,16 +1944,16 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteHelmAppMarket}
             loading={deleteHelmAppMarketLoading}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.app_store.desc'})}
-            title={formatMessage({id:'confirmModal.helm_store.delete.title'})}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
+            title={formatMessage({ id: 'confirmModal.helm_store.delete.title' })}
             onCancel={this.handleCloseDeleteHelmAppMarket}
           />
         )}
 
         {createAppModel && (
           <CreateAppModels
-            title={<FormattedMessage id='applicationMarket.localMarket.setup'/>}
+            title={<FormattedMessage id='applicationMarket.localMarket.setup' />}
             eid={eid}
             onOk={this.handleCreateAppModel}
             onCancel={this.handleCancelAppModel}
@@ -1952,7 +1964,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             isHelm
             eid={eid}
-            title={<FormattedMessage id='applicationMarket.localMarket.add_app'/>}
+            title={<FormattedMessage id='applicationMarket.localMarket.add_app' />}
             onOk={this.getHelmMarketsTab}
             onOkMarketsTab={this.getMarketsTab}
             onCancel={this.handleCancelAppMarket}
@@ -1961,7 +1973,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {upAppMarket && (
           <CreateAppMarket
-            title={<FormattedMessage id="applicationMarket.CreateAppMarket.title"/>}
+            title={<FormattedMessage id="applicationMarket.CreateAppMarket.title" />}
             eid={eid}
             loading={upAppMarketLoading}
             marketInfo={marketInfo}
@@ -1971,7 +1983,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {upHelmAppMarket && (
           <HelmAppMarket
-            title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{name:helmInfo.name}}/>}
+            title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{ name: helmInfo.name }} />}
             eid={eid}
             data={helmInfo}
             onOk={this.handleUpHelmAppMarket}
@@ -1981,7 +1993,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {upDataAppModel && (
           <CreateAppModels
-            title={<FormattedMessage id='applicationMarket.localMarket.edit_app'/>}
+            title={<FormattedMessage id='applicationMarket.localMarket.edit_app' />}
             eid={eid}
             appInfo={appInfo}
             onOk={this.handleupDataAppModel}
@@ -2002,7 +2014,7 @@ export default class EnterpriseShared extends PureComponent {
           <AuthCompany
             eid={eid}
             marketName={marketInfo.name}
-            title={<FormattedMessage id='applicationMarket.AuthCompany.title_one'/>}
+            title={<FormattedMessage id='applicationMarket.AuthCompany.title_one' />}
             onCancel={() => {
               this.setState({ showCloudMarketAuth: false });
             }}
@@ -2011,98 +2023,98 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {goClusters &&
           <Modal
-          title={formatMessage({id:'topology.Topological.title'})}
-          visible={goClusters}
-          onOk={this.ModalhandleOk}
-          onCancel={()=>{
-            this.setState({ goClusters: false });
-          }}
-        >
-          <p>{formatMessage({id:'applicationMarket.localMarket.installclusters'})}</p>
-          <p>{formatMessage({id:'applicationMarket.localMarket.isInstallclusters'})}</p>
-        </Modal>
+            title={formatMessage({ id: 'topology.Topological.title' })}
+            visible={goClusters}
+            onOk={this.ModalhandleOk}
+            onCancel={() => {
+              this.setState({ goClusters: false });
+            }}
+          >
+            <p>{formatMessage({ id: 'applicationMarket.localMarket.installclusters' })}</p>
+            <p>{formatMessage({ id: 'applicationMarket.localMarket.isInstallclusters' })}</p>
+          </Modal>
         }
-        {helmInfoSwitch && marketInfoSwitch  ?
-       <Tabs
-          activeKey={activeTabKey}
-          className={styles.setTabs}
-          onChange={this.onTabChange}
-          type="card"
-          
-        >
-          {storeTabs && storeTabs.length > 0 &&
-            storeTabs.map(item => {
-              const { types } = item;
-              if (types == "local") {
-                return <TabPane
-                  tab={
-                    <span className={styles.verticalCen}>
-                      {/* {globalUtil.fetchSvg('localMarket')} */}
-                      {/* 本地组件库 */}
-                      <FormattedMessage id="applicationMarket.localMarket.title" />
-                    </span>
-                  }
-                  key="local"
-                >
-                  <div
-                    style={{
-                      display: 'block',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {localsContent}
-                  </div>
-                </TabPane>
-              }else if(types == "marketTab"){
-                const { ID, alias, name } = item;
-                return (
-                  <TabPane
+        {helmInfoSwitch && marketInfoSwitch ?
+          <Tabs
+            activeKey={activeTabKey}
+            className={styles.setTabs}
+            onChange={this.onTabChange}
+            type="card"
+
+          >
+            {storeTabs && storeTabs.length > 0 &&
+              storeTabs.map(item => {
+                const { types } = item;
+                if (types == "local") {
+                  return <TabPane
                     tab={
                       <span className={styles.verticalCen}>
-                        {alias || name}
+                        {/* {globalUtil.fetchSvg('localMarket')} */}
+                        {/* 本地组件库 */}
+                        <FormattedMessage id="applicationMarket.localMarket.title" />
                       </span>
                     }
-                    key={ID}
+                    key="local"
                   >
-                    {marketContent}
+                    <div
+                      style={{
+                        display: 'block',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {localsContent}
+                    </div>
                   </TabPane>
-                );
-              }else{
-                const { name } = item;
-                return (
-                  <TabPane
-                    tab={
-                      <span className={styles.verticalCen}>
-                        {name}
-                      </span>
-                    }
-                    key={name}
+                } else if (types == "marketTab") {
+                  const { ID, alias, name } = item;
+                  return (
+                    <TabPane
+                      tab={
+                        <span className={styles.verticalCen}>
+                          {alias || name}
+                        </span>
+                      }
+                      key={ID}
+                    >
+                      {marketContent}
+                    </TabPane>
+                  );
+                } else {
+                  const { name } = item;
+                  return (
+                    <TabPane
+                      tab={
+                        <span className={styles.verticalCen}>
+                          {name}
+                        </span>
+                      }
+                      key={name}
+                    >
+                      {helmContent}
+                    </TabPane>
+                  );
+                }
+              })
+            }
+            {isCreateAppStore && (
+              <TabPane
+                tab={
+                  <Tooltip
+                    placement="top"
+                    // title="添加应用市场"
+                    title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title' />}
                   >
-                    {helmContent}
-                  </TabPane>
-            );
-              }
-            })
-          }
-          {isCreateAppStore && (
-            <TabPane
-              tab={
-                <Tooltip
-                  placement="top"
-                  // title="添加应用市场"
-                  title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title' />}
-                >
-                  <Icon type="plus" className={styles.addSvg} />
-                </Tooltip>
-              }
-              key="add"
-            />
-          )}
-        </Tabs> : 
-            <Spin style={{height: 500,width: '100%',padding: '200px'}}/>
-        
-  }
+                    <Icon type="plus" className={styles.addSvg} />
+                  </Tooltip>
+                }
+                key="add"
+              />
+            )}
+          </Tabs> :
+          <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
+
+        }
       </PageHeaderLayout>
     );
   }
