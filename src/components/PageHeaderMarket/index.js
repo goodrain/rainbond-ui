@@ -185,7 +185,7 @@ export default class PageHeader extends PureComponent {
     if (tabActiveKey !== undefined) {
       activeKeyProps.activeKey = tabActiveKey;
     }
-
+    console.log(extraContent,"extraContent");
     return (
       <>
         <div className={clsString}>
@@ -194,21 +194,24 @@ export default class PageHeader extends PureComponent {
           <div className={styles.detail}>
             {logo && <div className={styles.logo}>{logo}</div>}
             <div className={styles.main}>
-              <div className={styles.row} style={{marginBottom:'4px'}}>
+              <div className={styles.row} style={{ marginBottom: '4px' }}>
                 {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}
                 {title && <h1 className={styles.title}>{title}</h1>}
                 {action && <div className={styles.action}>{action}</div>}
               </div>
               <div className={styles.row}>
                 {content && <div className={styles.content}>{content}</div>}
-                {extraContent && (
-                  <div className={styles.extraContent}>{extraContent}</div>
-                )}
               </div>
             </div>
           </div>
+          {extraContent?.props?.children && <div className={styles.row} style={{ marginTop: 24, textAlign: "left" }}>
+            {extraContent && (
+              <div className={styles.extraContent}>{extraContent}</div>
+            )}
+          </div>
+          }
         </div>
-        {tabList && tabList.length && helmInfoSwitch && marketInfoSwitch &&(
+        {tabList && tabList.length && helmInfoSwitch && marketInfoSwitch && (
           <div className={styles.tabsStyle}>
             <Tabs
               className={styles.tabs}

@@ -72,6 +72,7 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
       path: `team/${teamName}/region/${regionName}/apps/${appID}/asset`,
       authority: ['admin', 'user']
     });
+    
   }
   if (isAppConfigGroup) {
     addMenuArr({

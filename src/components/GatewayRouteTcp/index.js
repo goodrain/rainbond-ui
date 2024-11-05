@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+
 import {
     Table,
     Card,
@@ -13,7 +15,6 @@ import {
     Tag,
     Tooltip
 } from 'antd';
-import { Link, routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
@@ -188,12 +189,14 @@ export default class index extends Component {
         }
         return  (arr && arr.length>0 && arr[0].component_name) || ''
     }
-    handleJumpComponent = (name) => {
-        const { dispatch } = this.props
-        const teamName = globalUtil.getCurrTeamName()
-        const regionName = globalUtil.getCurrRegionName()
-        const result = name.split('-')[0];
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${result}/overview`));
+    jump = (val) =>{
+    const { dispatch } = this.props;
+    const componentsID = val.split('-')[0];
+    dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${componentsID}/overview`
+        )
+      );
     }
     render() {
         const {
@@ -216,19 +219,17 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.service' }),
                 dataIndex: 'name',
                 key: 'name',
-                render: (text, record) => {
-                    return (
-                        <div onClick={() => this.handleJumpComponent(text)} >
+                render: (text, record) => (
+                    <span>
                         {(record.name && record.port) &&
-                            <Row style={{ marginBottom: 4 }}>
-                                <Tag key={index} color="green" style={{ "cursor": "pointer" }}>
-                                    {record.name}:{record.port}
+                            <Row style={{ marginBottom: 4 }} onClick={()=>this.jump(record.name)}>
+                                <Tag key={index} color="green" style={{cursor:'pointer'}}>
+                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record.name)})</span>
                                 </Tag>
                             </Row>
                         }
-                        </div>
-                    )
-                },
+                    </span>
+                ),
             },
             {
                 title: '开放端口',
@@ -288,7 +289,7 @@ export default class index extends Component {
                     extra={
                         isCreate &&
                         <Button
-                            icon="form"
+                            icon="plus"
                             type="primary"
                             onClick={() => this.routeDrawerShow({}, 'add')}
                         >

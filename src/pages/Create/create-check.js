@@ -1950,7 +1950,7 @@ export default class CreateCheck extends React.Component {
     );
     return (
       <div>
-        {ServiceGetData ? box : <PageHeaderLayout>{box}</PageHeaderLayout>}
+        {ServiceGetData ? box : <Card>{box}</Card>}
 
         {modifyImageName && (
           <ModifyImageName

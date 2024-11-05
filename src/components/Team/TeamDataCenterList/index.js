@@ -1,4 +1,4 @@
-import { Card } from 'antd';
+import { Card, Button } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -91,9 +91,9 @@ export default class DatacenterList extends PureComponent {
             marginBottom: 24
           }}
           title={formatMessage({id: 'teamManage.tabs.cluster.openCluster'})}
-          extra={isInstall && <a onClick={this.onOpenRegion}>
+          extra={isInstall && <Button onClick={this.onOpenRegion} type="primary" icon='plus'>
             {formatMessage({id: 'teamManage.tabs.cluster.open'})}
-          </a>}
+          </Button>}
           loading={projectLoading}
           bodyStyle={{
             padding: 0

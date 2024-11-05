@@ -232,7 +232,7 @@ export default class Index extends PureComponent {
     const { pod_name, container_name } = this.state;
     const { region, dispatch } = this.props;
     const url = `/console/sse/v2/proxy-pass/system/logs?region_name=${region}&ns=${'rbd-system'}&name=${pod_name}&lines=${100}`;
-    this.eventSourceLogs = new EventSource(url, {withCredentials: true});
+    this.eventSourceLogs = new EventSource(url, { withCredentials: true });
     const messages = [];
     this.eventSourceLogs.onmessage = (event) => {
       const newMessage = event.data;
@@ -368,35 +368,35 @@ export default class Index extends PureComponent {
     const { instances, type, RbdName, region } = this.props;
     return (
       <Card
-        style={{ border: 0, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
+        style={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5, marginTop: 24 }}
         title={
+          !type &&(
           <Fragment>
-            {type ? (
-              <><Button onClick={this.downloadLogs} >
-                {formatMessage({ id: 'LogEnterprise.download' })}
-              </Button></>
+            {started ? (
+            <Button onClick={this.handleStop}>
+              {/* 暂停推送 */}
+              <FormattedMessage id='componentOverview.body.tab.log.push' />
+            </Button>
             ) : (
-              started ? (
-                <Button onClick={this.handleStop}>
-                  {/* 暂停推送 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.push' />
-                </Button>
-              ) : (
-                <Button onClick={this.handleStart}>
-                  {/* 开始推送 */}
-                  <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
-                </Button>
-              )
+            <Button onClick={this.handleStart}>
+              {/* 开始推送 */}
+              <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
+            </Button>
             )}
           </Fragment>
+          )
         }
         extra={
           <Fragment>
-            {!type &&
-              <a onClick={this.showDownHistory1000Log}>
-                {/* 最近1000条日志 */}
-                <FormattedMessage id='componentOverview.body.tab.log.lately' />
-              </a>
+            {!type ?
+            <a onClick={this.showDownHistory1000Log}>
+              {/* 最近1000条日志 */}
+              <FormattedMessage id='componentOverview.body.tab.log.lately' />
+            </a>
+            :
+            <Button onClick={this.downloadLogs} icon='download' type='primary' >
+              {formatMessage({ id: 'LogEnterprise.download' })}
+            </Button>
             }
           </Fragment>
         }
@@ -468,7 +468,7 @@ export default class Index extends PureComponent {
                             : '#FFF'
                       }}
                     >
-                      <Ansi>{ log }</Ansi>
+                      <Ansi>{log}</Ansi>
                     </span>
 
                     {logs.length == 1 ? (

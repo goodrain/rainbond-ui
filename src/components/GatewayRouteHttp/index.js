@@ -291,7 +291,7 @@ export default class index extends Component {
                     extra={
                         isCreate &&
                         <Button
-                            icon="form"
+                            icon="plus"
                             type="primary"
                             onClick={() => this.routeDrawerShow({}, 'add')}
                         >

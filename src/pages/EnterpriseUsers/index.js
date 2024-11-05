@@ -346,48 +346,53 @@ export default class EnterpriseUsers extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseUser.PageHeaderLayout.title' />}
         content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content' />}
-        titleSvg={pageheaderSvg.getSvg('userSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('users', 18)}
       >
         <div>
-          <Card style={{ borderRadius: 5, boxShadow: 'rgb(36 46 66 / 16%) 1px 2px 5px 0px', }} className={styles.cardBody}>
-            <Row className={styles.cardHeader}>
-              <Col span={12}>
-                <Form layout="inline" style={{ display: 'inline-block' }}>
-                  <FormItem>
-                    <Input
-                      placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
-                      onChange={e => this.handelChange(e.target.value)}
-                      onPressEnter={this.handleSearch}
-                      style={{ width: 250 }}
-                    />
-                  </FormItem>
-                  <FormItem>
-                    <Button
-                      type="primary"
-                      onClick={this.handleSearch}
-                      icon="search"
-                    >
-                      {/* 搜索 */}
-                      <FormattedMessage id='button.search' />
-                    </Button>
-                  </FormItem>
-                </Form>
-              </Col>
-              <Col span={12} style={{ textAlign: 'right' }}>
-                {adminer && (
+          <Card 
+          className={styles.cardBody}
+          title={
+            <Col>
+              <Form layout="inline" style={{ display: 'inline-block' }}>
+                <FormItem>
+                  <Input
+                    placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
+                    onChange={e => this.handelChange(e.target.value)}
+                    onPressEnter={this.handleSearch}
+                    style={{ width: 250 }}
+                  />
+                </FormItem>
+                <FormItem>
                   <Button
                     type="primary"
-                    icon="plus"
-                    style={{ float: 'right' }}
-                    onClick={this.addUser}
+                    onClick={this.handleSearch}
+                    icon="search"
                   >
-                    {/* 新增用户 */}
-                    <FormattedMessage id='enterpriseUser.button.adduser' />
-
+                    {/* 搜索 */}
+                    <FormattedMessage id='button.search' />
                   </Button>
-                )}
-              </Col>
-            </Row>
+                </FormItem>
+              </Form>
+            </Col>
+          }
+          extra={
+            <Col  style={{ textAlign: 'right' }}>
+              {adminer && (
+                <Button
+                  type="primary"
+                  icon="plus"
+                  style={{ float: 'right' }}
+                  onClick={this.addUser}
+                >
+                  {/* 新增用户 */}
+                  <FormattedMessage id='enterpriseUser.button.adduser' />
+
+                </Button>
+              )}
+            </Col>
+          }
+          >
+
             {delVisible && (
               <ConfirmModal
                 onOk={this.handleDelete}

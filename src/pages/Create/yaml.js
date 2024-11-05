@@ -101,7 +101,7 @@ export default class Main extends PureComponent {
         content={<p>{formatMessage({id: 'teamAdd.create.upload.desc'})}</p>}
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getSvg('yamlSvg',18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('yaml',18)}
       >
         {Com ? (
           <Com

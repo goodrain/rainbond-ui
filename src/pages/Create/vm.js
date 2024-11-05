@@ -98,7 +98,7 @@ export default class Main extends PureComponent {
         content={formatMessage({id: 'Vm.createVm.creatApp'})}
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('vm',18)}
       >
         {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>

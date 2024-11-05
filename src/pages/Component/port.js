@@ -721,7 +721,7 @@ export default class Index extends PureComponent {
                 textAlign: 'right'
               }}
             >
-              <Button onClick={this.showAddPort} type="primary">
+              <Button onClick={this.showAddPort}>
                 <Icon type="plus" />
                 <FormattedMessage id='componentOverview.body.Port.add'/>
               </Button>

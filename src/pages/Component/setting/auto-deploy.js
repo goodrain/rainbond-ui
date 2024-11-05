@@ -289,24 +289,24 @@ export default class AutoDeploy extends PureComponent {
           marginBottom: 24
         }}
         title={<FormattedMessage id='componentOverview.body.AutoDeploy.automatic'/>}
+        extra={
+          <div>
+          {status[tabActiveKey] === false ? (
+            <Button  onClick={this.handleOpen} icon='check-circle'>
+              <FormattedMessage id='componentOverview.body.AutoDeploy.open'/>
+            </Button>
+          ) : (
+            <Button  onClick={this.handleCancel} icon='close-circle'>
+              <FormattedMessage id='componentOverview.body.AutoDeploy.close'/>
+            </Button>
+          )}
+        </div>
+        }
       >
         <Tabs
           onChange={activeKey => {
             this.handleTabs(activeKey);
           }}
-          tabBarExtraContent={
-            <div>
-              {status[tabActiveKey] === false ? (
-                <Button type="primary" onClick={this.handleOpen}>
-                  <FormattedMessage id='componentOverview.body.AutoDeploy.open'/>
-                </Button>
-              ) : (
-                <Button type="primary" onClick={this.handleCancel}>
-                  <FormattedMessage id='componentOverview.body.AutoDeploy.close'/>
-                </Button>
-              )}
-            </div>
-          }
         >
           {support_type === 1 && service_source == `${formatMessage({id:'componentOverview.body.ChangeBuildSource.Source_code'})}` && (
             <TabPane

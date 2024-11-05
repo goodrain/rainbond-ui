@@ -51,7 +51,7 @@ import pluginUtil from '../../utils/plugin';
 import BatchEditPublishComponent from './components/BatchEditPublishComponent';
 import CodeMirrorForm from '../../components/CodeMirrorForm'
 import mytabcss from './mytab.less';
-import { T } from 'antd/lib/upload/utils';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -1163,7 +1163,11 @@ export default class Main extends PureComponent {
     };
     const app_arch = appDetail.app_arch || []
     return (
-      <PageHeaderLayout breadcrumbList={breadcrumbList}>
+      <PageHeaderLayout
+      title={'发布应用'}
+      content={'发布应用是指将当前运行的应用进行模型化，形成应用模版发布到当前平台的组件库或开源应用商店，供当前平台或开源应用商店的用户使用。'}
+      titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}
+      >
         <div>
           <Card
             style={{
@@ -1198,7 +1202,7 @@ export default class Main extends PureComponent {
                         }
                         style={{ width: '60%' }}
                         showSearch
-                        filterOption={(input, option) => 
+                        filterOption={(input, option) =>
                           option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
                         onChange={this.changeCurrentModel}
@@ -1297,15 +1301,15 @@ export default class Main extends PureComponent {
                     )}
                   </Form.Item>
 
-                  <Form.Item {...formItemLayout} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                     {getFieldDecorator('arch', {
                       initialValue: null
                     })(
                       <>
-                        {app_arch.length > 0 && 
-                          app_arch.map((item)=>{
+                        {app_arch.length > 0 &&
+                          app_arch.map((item) => {
                             return <Tag>{item}</Tag>
-                        })}
+                          })}
                       </>
                     )}
                   </Form.Item>
@@ -1433,7 +1437,7 @@ export default class Main extends PureComponent {
             >
               <Table
                 size="middle"
-                rowKey={(record,index) => index}
+                rowKey={(record, index) => index}
                 dataSource={plugins}
                 columns={[
                   {
@@ -1464,7 +1468,7 @@ export default class Main extends PureComponent {
           >
             <Table
               size="middle"
-              rowKey={(record,index) => index}
+              rowKey={(record, index) => index}
               dataSource={curPageData}
               columns={[
                 {

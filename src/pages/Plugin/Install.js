@@ -35,15 +35,9 @@ export default class Index extends PureComponent {
     const extraContent = <div className={styles.extraImg} />;
 
     return (
-      <PageHeaderLayout
-        title={formatMessage({id:'teamPlugin.install.title'})}
-        isFooter={true}
-        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
-        // content={content}
-        // extraContent={extraContent}
-      >
+
         <Market isAddMarket={false}></Market>
-      </PageHeaderLayout>
+
     );
   }
 }

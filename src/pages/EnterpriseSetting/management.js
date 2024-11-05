@@ -17,7 +17,7 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 @connect(({ user, loading, global }) => ({
   user: user.currentUser,
@@ -91,7 +91,7 @@ export default class Management extends PureComponent {
           ...values
         },
         callback: () => {
-          notification.success({ message: formatMessage({id:'notification.success.edit'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
           this.getEnterpriseAdmins();
           this.cancelCreateAdmin();
         }
@@ -104,7 +104,7 @@ export default class Management extends PureComponent {
           ...values
         },
         callback: () => {
-          notification.success({ message: formatMessage({id:'notification.success.add'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
           this.getEnterpriseAdmins();
           this.cancelCreateAdmin();
         }
@@ -132,7 +132,7 @@ export default class Management extends PureComponent {
         user_id: exitAdminNameID
       },
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
         this.getEnterpriseAdmins();
         this.hideDelAdmin();
       }
@@ -212,7 +212,7 @@ export default class Management extends PureComponent {
               }}
             >
               {/* 删除管理员 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete' />
             </a>
           </Menu.Item>
           <Menu.Item>
@@ -223,55 +223,50 @@ export default class Management extends PureComponent {
               }}
             >
               {/* 编辑管理员 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.edit'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.edit' />
             </a>
           </Menu.Item>
         </Menu>
       );
     };
     const operation = (
-      <Col span={4} offset={20} style={{ textAlign: 'right' ,marginRight:10,}}>
         <Button
           type="primary"
           onClick={this.onAddAdmin}
+          icon="plus"
         >
           {/* 添加管理员 */}
-          <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add'/>
+          <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add' />
         </Button>
-      </Col>
     );
     const managementAdmin = (
-      <div style={{ marginTop: '10px' }}>
-        <Row 
-        style={{
-              padding: '10px 0',
-              marginBottom:10,
-        }}
-        >
-          {adminer && operation}
-        </Row>
+      <Card
+        extra={
+          adminer && operation
+        }
+      >
         {adminLists && (
           <Row
             className={styles.teamMinTit}
             type="flex"
             align="middle"
-            style={{ padding: 16 ,background:'#FAFAFA'}}
+            style={{ padding: 16, background: '#FAFAFA' }}
           >
             <Col span={5}>
               {/* 名称 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.designation'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.designation' />
             </Col>
             <Col span={5}>
               {/* 姓名 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.name'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.name' />
             </Col>
             <Col span={6}>
               {/* 角色 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.role'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.role' />
             </Col>
             <Col span={5}>
               {/* 时间 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time'/>
+              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time' />
             </Col>
           </Row>
         )}
@@ -289,7 +284,7 @@ export default class Management extends PureComponent {
                 key={id}
                 style={{ marginBottom: '10px' }}
                 bodyStyle={{ padding: 0 }}
-                style={{border:0, borderBottom:'1px solid #F1F0F3'}}
+                style={{ border: 0, borderBottom: '1px solid #F1F0F3' }}
                 hoverable
               >
                 <Row
@@ -328,7 +323,7 @@ export default class Management extends PureComponent {
         ) : (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         )}
-      </div>
+      </Card>
     );
 
     return (

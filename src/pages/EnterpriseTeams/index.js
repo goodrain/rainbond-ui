@@ -773,12 +773,13 @@ export default class EnterpriseTeams extends PureComponent {
             type="primary"
             onClick={this.onAddTeam}
             style={{ marginRight: '5px' }}
+            icon="plus"
           >
             {/* 创建 项目/团队 */}
             <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup' />
           </Button>
         ) : (
-          <Button type="primary" onClick={this.onJoinTeam}>
+          <Button type="primary" onClick={this.onJoinTeam} icon="plus">
             {/* 加入 项目/团队 */}
             <FormattedMessage id='enterpriseTeamManagement.allProject.button.join' />
           </Button>
@@ -792,12 +793,13 @@ export default class EnterpriseTeams extends PureComponent {
             type="primary"
             onClick={this.onAddTeam}
             style={{ marginRight: '5px' }}
+            icon="plus"
           >
             {/* 创建 项目/团队 */}
             <FormattedMessage id='enterpriseTeamManagement.allProject.button.setup' />
           </Button>
         ) : (
-          <Button type="primary" onClick={this.onJoinTeam}>
+          <Button type="primary" onClick={this.onJoinTeam} icon="plus">
             {/* 加入 项目/团队 */}
             <FormattedMessage id='enterpriseTeamManagement.allProject.button.join' />
           </Button>
@@ -810,7 +812,6 @@ export default class EnterpriseTeams extends PureComponent {
         <div style={{
           background: '#fff',
           borderRadius: 5,
-          boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
           fontSize: 14,
           fontWeight: 600
         }}>
@@ -834,7 +835,7 @@ export default class EnterpriseTeams extends PureComponent {
             </Col>
             {operation}
           </Row>
-          <div style={{padding:24}}>
+          <div style={{padding:'24px 0 0 0',border: '1px solid #e3e3e3',borderTop:0 }}>
           <Row style={{ width: '100%' }} className={styles.rowTitle}>
             <Row className={styles.teamMinTit} type="flex" align="middle">
               <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
@@ -1151,7 +1152,7 @@ export default class EnterpriseTeams extends PureComponent {
       title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin' />;
     }
     return (
-      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getSvg('temaSvg', 20)}>
+      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getPageHeaderSvg('teams', 20)}>
         {showCloseAllComponent && (
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}

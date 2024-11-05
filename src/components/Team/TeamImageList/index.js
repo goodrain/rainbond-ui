@@ -1,4 +1,4 @@
-import { Card, notification } from 'antd';
+import { Card, notification,Button } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -170,9 +170,9 @@ export default class MemberList extends PureComponent {
           title={formatMessage({id: 'teamManage.tabs.image'})}
           extra={
             isCreate && (
-              <a href="javascript:;" onClick={this.showAddMember}>
+              <Button  onClick={this.showAddMember} type="primary" icon='plus'>
                 {formatMessage({id: 'teamManage.tabs.image.table.btn.add'})}
-              </a>
+              </Button>
             )
           }
         >

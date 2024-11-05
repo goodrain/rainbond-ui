@@ -115,7 +115,7 @@ export default class EnterpriseSetting extends PureComponent {
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title' />}
         content={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.content' />}
-        titleSvg={pageheaderSvg.getSvg("settingSvg", 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg("setting", 18)}
         isContent={true}
       >
         <Tabs

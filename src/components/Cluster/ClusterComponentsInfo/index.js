@@ -275,7 +275,6 @@ class ClusterComponentsInfo extends PureComponent {
                 <Skeleton active rows={10} />
                 :
                 <>
-                  <div style={{paddingBottom: 60}}>
                     {Object.keys(componentList).map((item, index) => {
                       return <div className={styles.pod_Info}>
                         <p>
@@ -315,7 +314,6 @@ class ClusterComponentsInfo extends PureComponent {
 
                       </div>
                     })}
-                  </div>
                 </>
               }
               <div

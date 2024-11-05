@@ -293,7 +293,7 @@ export default class AppPublishList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appPublish.title' })}
         content={formatMessage({ id: 'appPublish.desc' })}
-        titleSvg={pageheaderSvg.getSvg('publishSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}
       >
         <Card
           loading={loading}
@@ -302,12 +302,12 @@ export default class AppPublishList extends PureComponent {
             <div style={language ? {} : { display: 'flex' }}>
               <Button
                 style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }}
-                type="primary"
                 onClick={this.onPublishLocal}
+                icon='appstore'
               >
                 {formatMessage({ id: 'appPublish.btn.local' })}
               </Button>
-              <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }}>
+              <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
                 {formatMessage({ id: 'appPublish.btn.market' })}
               </Button>
             </div>
@@ -315,7 +315,6 @@ export default class AppPublishList extends PureComponent {
           }
           style={{
             borderRadius: 5,
-            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
           }}
         >
           <ScrollerX sm={800}>

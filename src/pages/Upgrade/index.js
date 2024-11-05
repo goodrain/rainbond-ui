@@ -792,13 +792,12 @@ export default class AppList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({ id: 'appUpgrade.title' })}
         content={formatMessage({ id: 'appUpgrade.desc' })}
-        titleSvg={pageheaderSvg.getSvg('upgradeSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('upgrade', 18)}
         extraContent={null}
       >
         <div
           style={loadingDetail ? {} : {
             borderRadius: 5,
-            boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
             overflow: 'hidden'
           }}
         >

@@ -31,33 +31,35 @@
 }
 .tabsStyle{
   margin: 10px 0px 0;
-  padding: 10px 32px 0;
-  background: @rbd-background-color;
-  height: 51px;
-  border-bottom: 1px solid @primary-color;
+  background: #fff;
+  height: 61px;
   .tabs {
-    margin: 0 0 -17px -8px;
 
     overflow: visible !important;
     :global{
+      .ant-tabs-nav-container {
+        height: 38px !important;
+      }
       .ant-tabs-tab{
-        background-color: @rbd-background-color !important;
+        height: 38px !important;
+        background-color: #fff !important;
         margin-right: 0px !important;
-        border: 1px solid  transparent !important;
+        border-radius: 0 !important;
+        border: 1px solid #E2E2E2 !important;
+        border-left: none !important;
+        box-sizing: border-box;
+      }
+      .ant-tabs-tab:first-child{
+        border-left: 1px solid #E2E2E2 !important;
       }
       .ant-tabs-bar{
-        border-bottom: 1px solid @primary-color !important;
         margin: 0;
-        padding-bottom: 1px !important;
       }
       .ant-tabs-nav-container{
         overflow: visible !important;
       }
       .ant-tabs-tab-active{
-        height: 41px !important ;
-        border: 1px solid @primary-color !important;
-        border-bottom: 1px solid #fff !important;
-        background-color: #fff !important;
+        color: @primary-color !important;
       }
       .ant-tabs-nav-scroll{
         overflow: visible !important;
@@ -70,11 +72,11 @@
 }
 
 .pageHeader {
-  // background: @component-background;
-  padding: 16px 32px 0;
 
   .detail {
     display: flex;
+    background-color: @rbd-background-color;
+    padding: 16px;
   }
 
   .row {
@@ -90,7 +92,6 @@
 
     :global {
       .ant-tabs-bar {
-        // border-bottom: @border-width-base @border-style-base @border-color-split;
       }
     }
   }
@@ -109,7 +110,6 @@
   }
 
   .title {
-    font-family: PingFangSC-Medium;
     font-size: 16px;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.65);
@@ -135,14 +135,20 @@
       }
     }
   }
+  .desc{
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    color: @rbd-auxiliary-color-secondary;
+  }
 
   .content {
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #9ca2a8 !important;
+    font-size: @rbd-auxiliary-size;
+    color: @rbd-auxiliary-color-secondary !important;
     letter-spacing: 0;
     line-height: 23px;
+    line-height: @rbd-auxiliary-line-height;
   }
+
 
   .title,
   .action,
@@ -166,8 +172,7 @@
     margin-bottom: 10px;
   }
 
-  .action,
-  .extraContent {
+  .action{
     text-align: right;
   }
 
@@ -241,7 +246,6 @@
   color: rgba(16, 16, 16, 1);
   font-size: 14px;
   text-align: left;
-  font-family: SourceHanSansSC-regular;
   margin-bottom: 10px;
 }
 .ServiceBox {
@@ -250,7 +254,6 @@
 .ServiceDiv {
   color: rgba(16, 16, 16, 1);
   font-size: 15px;
-  font-family: SourceHanSansSC-regular;
   margin: 5px 0;
   text-align: center;
   cursor: pointer;

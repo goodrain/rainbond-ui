@@ -868,13 +868,13 @@ export default class Index extends PureComponent {
             className={styles.tabsCard}
             extra={method != 'vm' && [
               appUtil.isOauthByBuildSource(buildSource) ? (
-                <a onClick={this.changeEditOauth} href="javascript:;">
+                <Button onClick={this.changeEditOauth} icon='form' >
                   <FormattedMessage id='componentOverview.body.Resource.edit' />
-                </a>
+                </Button>
               ) : (
-                <a onClick={this.changeBuildSource} href="javascript:;">
+                <Button onClick={this.changeBuildSource} icon='form'>
                   <FormattedMessage id='componentOverview.body.Resource.change' />
-                </a>
+                </Button>
               )
             ]}
           >

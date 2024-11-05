@@ -241,9 +241,6 @@ export default class Index extends PureComponent {
             </ScrollerX>
           </Card>
         }
-        <Card
-          
-        >
           <EnvironmentVariable
             // title="组件连接信息"
             title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
@@ -251,11 +248,9 @@ export default class Index extends PureComponent {
             autoQuery
             appAlias={appAlias}
           />
-        
           <RelatumComponentInfo 
             {...this.props} 
           />
-        </Card>
 
         {this.state.showAddRelation && (
           <AddRelation

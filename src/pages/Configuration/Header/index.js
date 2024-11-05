@@ -13,7 +13,7 @@ export default class Configuration extends PureComponent {
         breadcrumbList={breadcrumbList}
         title={formatMessage({id: 'appConfiguration.title'})}
         content={formatMessage({id: 'appConfiguration.desc'})}
-        titleSvg={pageheaderSvg.getSvg('settingSvg',18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('setting',18)}
       >
         {children}
       </PageHeaderLayout>

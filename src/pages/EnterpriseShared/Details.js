@@ -552,7 +552,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24,
                 borderRadius: 5,
-                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
+                border: '1px solid #e3e3e3'
               }}
               bordered={false}
               bodyStyle={{
@@ -808,10 +808,9 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24,
                 borderRadius: 5,
-                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
               }}
               title={<FormattedMessage id='applicationMarket.appsetting.edition'/>}
-              bordered={false}
+              bordered
               bodyStyle={{
                 padding: 0
               }}
@@ -956,16 +955,15 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24,
                 borderRadius: 5,
-                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
               }}
               title={<FormattedMessage id='applicationMarket.appsetting.details'/>}
-              bordered={false}
+              bordered
               extra={
                 <div>
                   {!isAppDetails && isEditApp && (
-                    <a onClick={() => this.handleAppDetails(!isAppDetails)}>
+                    <Button onClick={() => this.handleAppDetails(!isAppDetails)} icon='edit' type='primary'>
                       <FormattedMessage id='button.edit'/>
-                    </a>
+                    </Button>
                   )}
                 </div>
               }

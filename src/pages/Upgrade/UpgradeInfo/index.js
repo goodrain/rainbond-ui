@@ -23,6 +23,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { getApplicationUpgradeDetail } from '../../../services/app';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import {
   createApp,
   createEnterprise,
@@ -861,6 +862,7 @@ export default class AppList extends PureComponent {
         loading={loadingDetail}
         title={formatMessage({id:'helmAppInstall.UpgradeInfo.Administration'})}
         content={formatMessage({id:'helmAppInstall.UpgradeInfo.application'})}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('upgrade', 20)}
         extraContent={null}
       >
         <Spin spinning={loadingUpgradeDetail}>

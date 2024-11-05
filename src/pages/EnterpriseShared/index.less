@@ -319,7 +319,6 @@
 }
 
 .teamContent {
-  font-family: PingFangSC-Regular;
   font-size: 14px;
   color: #333333;
   letter-spacing: 0;
@@ -365,23 +364,28 @@
 
   :global {
     .ant-tabs-tab {
-      background-color: @rbd-background-color !important;
+      height: 38px !important;
+      background-color: #fff !important;
       margin-right: 0px !important;
-      border: 1px solid transparent !important;
-      height: 37px !important;
+      border-radius: 0 !important;
+      border: 1px solid #E2E2E2 !important;
+      border-left: none !important;
+      box-sizing: border-box;
     }
-    
+    .ant-tabs-tab:first-child{
+      border-left: 1px solid #E2E2E2 !important;
+    }
+    .ant-tabs-tab:last-child{
+      position: relative;
+      transform: translateY(2px);
+    }
+
     .ant-tabs-bar {
-      border-bottom: 1px solid @primary-color !important;
       margin: 0;
-      padding-bottom: 1px !important;
     }
 
     .ant-tabs-tab-active {
-      height: 39px !important;
-      border: 1px solid @primary-color !important;
-      border-bottom: 1px solid #fff !important;
-      background-color: #fff !important;
+      color: @primary-color !important;
     }
 
     .ant-tabs-top-content {
@@ -391,7 +395,7 @@
 
     .ant-tabs-card-content {
       background-color: #fff;
-      box-shadow: #242e4229 2px 4px 10px 0px !important;
+      padding: 12px 0;
     }
 
     .ant-tabs-nav-scroll {
@@ -404,6 +408,16 @@
 
     .ant-tabs-nav-container {
       overflow: visible !important;
+      margin-left: 0 !important;
+    }
+    .ant-pagination-item-link {
+      background-color: #efefef;
+    }
+    .ant-pagination-item-active {
+      background-color: @primary-color;
+      & > a {
+        color: #fff;
+      }
     }
   }
 
@@ -433,4 +447,41 @@
 .bgc {
   color: @primary-color ;
   background-color: @primary-color ;
+}
+.details_card_style {
+  padding: 24px 0;
+  :global {
+    .ant-pagination {
+      margin: 16px 20px !important;
+    }
+    .ant-pagination-item-link {
+      background-color: #efefef;
+    }
+    .ant-pagination-item-active {
+      background-color: @primary-color;
+      & > a {
+        color: #fff;
+      }
+    }
+  }
+}
+.visiblePagination {
+  :global {
+    .ant-pagination {
+      li:nth-last-of-type(2),
+      li:nth-last-of-type(3) {
+        display: none !important;
+      }
+      .ant-pagination-jump-next {
+        display: none !important;
+      }
+      .ant-pagination-prev,
+      .ant-pagination-next {
+        display: none !important;
+      }
+      .ant-pagination-options {
+        display: none !important;
+      }
+    }
+  }
 }

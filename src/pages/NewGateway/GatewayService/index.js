@@ -230,7 +230,7 @@ export default class index extends Component {
     return (
       <div>
         <Card
-          extra={isCreate && <Button icon="form" type="primary" onClick={() => this.routeDrawerShow({})}>{formatMessage({ id: 'teamNewGateway.NewGateway.ServiceDrawer.creat' })}</Button>}
+          extra={isCreate && <Button icon="plus" type="primary" onClick={() => this.routeDrawerShow({})}>{formatMessage({ id: 'teamNewGateway.NewGateway.ServiceDrawer.creat' })}</Button>}
           bodyStyle={{ padding: '0' }}
         >
           <Table
