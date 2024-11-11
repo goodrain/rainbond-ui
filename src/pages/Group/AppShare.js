@@ -117,7 +117,8 @@ class AppInfo extends PureComponent {
       return (
         <div
           style={{
-            marginBottom: 24
+            marginBottom: 24,
+            display: 'none'
           }}
         >
           <h4

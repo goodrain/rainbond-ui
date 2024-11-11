@@ -458,7 +458,7 @@ export default class EnterpriseShared extends PureComponent {
                   onChange={this.onChangeUpload}
                   onRemove={this.onRemove}
                   headers={myheaders}
-                  disabled={region_name === ''}
+                  disabled={region_name === '' || percents }
                 >
                   <Icon component={upSvg} />
                   <div className={styles.upText}><FormattedMessage id='applicationMarket.Offline.upload' /></div>

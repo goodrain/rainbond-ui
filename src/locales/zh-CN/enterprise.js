@@ -257,7 +257,7 @@ const applicationMarket = {
     // 离线导入
     'applicationMarket.Offline.not': '您还未对接集群，应用模版导入功能暂不可用',
     'applicationMarket.Offline.import': '离线应用模版导入',
-    'applicationMarket.Offline.mode': '离线应用模版导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出',
+    'applicationMarket.Offline.mode': '离线应用模版导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出。',
     'applicationMarket.Offline.use': '正在使用',
     'applicationMarket.Offline.import_task': '完成本次导入任务',
     'applicationMarket.Offline.upload_app': '上传APP文件',
@@ -1161,7 +1161,7 @@ const enterpriseSetting = {
     'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供。',
     // tabs>TabPane
     'enterpriseSetting.TabPane.basicsSetting': '基础设置',
-    'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员管理',
+    'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员',
     'enterpriseSetting.TabPane.dataBackups': '数据备份',
     'enterpriseSetting.TabPane.mirrorWarehouse': '镜像仓库',
     'enterpriseSetting.TabPane.upload': '组件语言版本',
@@ -1399,7 +1399,7 @@ const platformUpgrade = {
 
     'platformUpgrade.index.consulting':'商业咨询',
     'platformUpgrade.index.platforminfo':'平台信息',
-    'platformUpgrade.index.clicktoupload':'点击图标去升级平台版本！',
+    'platformUpgrade.index.clicktoupload':'有新版本可用，点击进入平台版本升级页面！',
     'platformUpgrade.index.have':'有',
     'platformUpgrade.index.new':'新',
     'platformUpgrade.index.ban':'版',

@@ -64,7 +64,7 @@ export default class Index extends PureComponent {
     }
   }
   componentDidMount() {
-    this.handleJarWarUploadRecord('jwar')
+    // this.handleJarWarUploadRecord('jwar')
   }
   componentWillUnmount() {
     this.loop = false;
@@ -393,6 +393,7 @@ export default class Index extends PureComponent {
             })(
               <Upload
                 fileList={fileList}
+                accept=".jar,.war,.zip,.tar"
                 name="packageTarFile"
                 onChange={this.onChangeUpload}
                 onRemove={this.onRemove}

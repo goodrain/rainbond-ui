@@ -183,16 +183,12 @@ export default class index extends Component {
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.name'})}>
                         {getFieldDecorator('name', {
-                            rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.name'}) }],
+                            rules: [
+                                { required: true, message: formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.name'}) },
+                                { pattern: /^[a-z]*$/, message: '只允许输入小写英文字母' }
+                            ],
                             initialValue: (editInfo && editInfo.name) || ''
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.name'})} disabled={editInfo && Object.keys(editInfo).length > 0} />)}
-                    </Form.Item>
-                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.Upstream'})}>
-                        {getFieldDecorator('type', {
-                            initialValue: upstreamType
-                        })(<Radio.Group onChange={this.upstreamTypeChange} defaultValue={upstreamType}>
-                            <Radio.Button value="node">{formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.node'})}</Radio.Button>
-                        </Radio.Group>)}
                     </Form.Item>
                     {upstreamType === 'node' &&
                         <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.host'})}>
@@ -269,7 +265,7 @@ export default class index extends Component {
                             <Form.Item  {...formItemLayouts} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.balancingType'})} >
                                 {getFieldDecorator('loadbalancerType', {
                                     // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.selectType'}) }],
-                                    initialValue: (editInfo && editInfo.loadbalancer && editInfo.loadbalancer.type) || 'roundrobin'
+                                    initialValue: (editInfo && editInfo.loadbalancer && editInfo.loadbalancer.type) || loadbalancerType
                                 })(
                                     <Select
                                         getPopupContainer={triggerNode => triggerNode.parentNode}

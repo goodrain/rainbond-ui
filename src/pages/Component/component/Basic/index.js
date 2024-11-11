@@ -4,6 +4,7 @@ import { Col, Form, Row, Tooltip,Card ,Skeleton} from 'antd';
 import numeral from 'numeral';
 import React, { Fragment, PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import moment from 'moment';
 import Svg from '../../../../utils/pageHeaderSvg.js';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
@@ -294,7 +295,7 @@ class Index extends PureComponent {
                             (beanData.kind && beanData.kind === '源码构建'
                               ? beanData.code_branch && beanData.code_branch
                               : beanData.kind && beanData.kind === '本地文件'
-                              ? beanData.code_branch && beanData.code_branch
+                              ? beanData.code_branch &&  moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')
                               : beanData.image_tag && beanData.image_tag)
                           }
                         >
@@ -303,7 +304,7 @@ class Index extends PureComponent {
                               ? beanData.kind && beanData.kind === '源码构建'
                                 ? beanData.code_branch && beanData.code_branch
                                 : beanData.kind && beanData.kind === '本地文件'
-                                ? beanData.code_branch && beanData.code_branch
+                                ? beanData.code_branch &&  moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')
                                 : beanData.image_tag
                                 ? beanData.image_tag
                                 : <FormattedMessage id='componentOverview.body.tab.overview.not'/>

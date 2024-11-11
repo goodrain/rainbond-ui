@@ -460,6 +460,10 @@ export default class Index extends PureComponent {
                               {
                                 max: 255,
                                 message:formatMessage({id:'applicationMarket.AuthCompany.max'})
+                              },
+                              {
+                                pattern: /^(https?:\/\/)/,
+                                message: formatMessage({id:'applicationMarket.HelmForm.invalid_protocol'}) 
                               }
                             ]
                           })(

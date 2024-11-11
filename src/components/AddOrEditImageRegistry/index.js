@@ -91,9 +91,7 @@ class ConfirmModal extends PureComponent {
       callback(formatMessage({id:'placeholder.reg_Chinese'}));
     } else if (value && regEmpty.test(value)) {
       callback(formatMessage({id:'placeholder.regEmpty'}));
-    } else if (value && !regNoHttp.test(value)) {
-      callback(formatMessage({id: 'placeholder.warehouse_address.ban'}));
-    } else {
+    }  else {
       callback();
     } 
   }

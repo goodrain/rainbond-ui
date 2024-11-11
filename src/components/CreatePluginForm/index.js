@@ -193,15 +193,6 @@ export default class Index extends PureComponent {
               disabled={allDisabled || isEdit}
               placeholder={formatMessage({id:'placeholder.plugin.category'})}
             >
-              <Option value="net-plugin:up">
-              {formatMessage({id:'teamPlugin.create.pages.entrance'})}
-              </Option>
-              <Option value="net-plugin:down">
-              {formatMessage({id:'teamPlugin.create.pages.exit'})}
-              </Option>
-              <Option value="net-plugin:in-and-out">
-              {formatMessage({id:'teamPlugin.create.pages.entrance_exit'})}
-              </Option>
               <Option value="analyst-plugin:perf">
               {formatMessage({id:'teamPlugin.create.pages.performance'})}
               </Option>
@@ -210,9 +201,6 @@ export default class Index extends PureComponent {
               </Option>
               <Option value="general-plugin">
               {formatMessage({id:'teamPlugin.create.pages.ordinary'})}
-              </Option>
-              <Option value="exporter-plugin">
-              {formatMessage({id:'teamPlugin.create.pages.monitor'})}
               </Option>
             </Select>
           )}

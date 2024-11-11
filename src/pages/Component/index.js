@@ -286,7 +286,8 @@ class Main extends PureComponent {
       websocketURL: '',
       componentTimer: true,
       tabsShow:false,
-      routerSwitch: true
+      routerSwitch: true,
+      componentPermissions: this.props?.componentPermissions || {},
     };
     this.socket = null;
     this.destroy = false;
@@ -321,6 +322,14 @@ class Main extends PureComponent {
 
   onDeleteApp = () => {
     this.setState({ showDeleteApp: true });
+  };
+  handlePermissions = (appDetail) => {
+    const { currentTeamPermissionsInfo } = this.props;
+    if (currentTeamPermissionsInfo && appDetail) {
+      this.setState({
+        componentPermissions: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo?.team, 'app_overview', `app_${appDetail?.service?.group_id}`)
+      })
+    }
   };
 
   getWebSocketUrl(service_id) {
@@ -503,6 +512,7 @@ class Main extends PureComponent {
         app_alias
       },
       callback: appDetail => {
+        this.handlePermissions(appDetail);
         this.fetchAppDetail();
         if(val){
           this.loadBuildState(appDetail,val);
@@ -1021,10 +1031,8 @@ class Main extends PureComponent {
   renderTitle(name) {
     const {
       appDetail,
-      componentPermissions: { isRestart, isStop, isDelete, isEdit },
-      componentPermissions
     } = this.props;
-    const { status, groupDetail, loadingDetail } = this.state;
+    const { status, groupDetail, loadingDetail, componentPermissions, componentPermissions: { isRestart, isStop, isDelete, isEdit }  } = this.state;
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
@@ -1161,23 +1169,6 @@ class Main extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      componentPermissions: {
-        isAccess,
-        isStart,
-        isVisitWebTerminal,
-        isServiceMonitor,
-        isConstruct,
-        isUpdate,
-        isTelescopic,
-        isEnv,
-        isRely,
-        isStorage,
-        isPort,
-        isPlugin,
-        isSource,
-        isOtherSetting,
-      },
-      componentPermissions,
       groups = [],
       form,
       deleteAppLoading,
@@ -1203,7 +1194,24 @@ class Main extends PureComponent {
       showMoveGroup,
       groupDetail,
       tabsShow,
-      routerSwitch
+      routerSwitch,
+      componentPermissions: {
+        isAccess,
+        isStart,
+        isVisitWebTerminal,
+        isServiceMonitor,
+        isConstruct,
+        isUpdate,
+        isTelescopic,
+        isEnv,
+        isRely,
+        isStorage,
+        isPort,
+        isPlugin,
+        isSource,
+        isOtherSetting,
+      },
+      componentPermissions,
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
@@ -1760,19 +1768,8 @@ export default class Index extends PureComponent {
     this.id = '';
     this.state = {
       show: true,
-      componentPermissions: this.handlePermissions(),
     };
   }
-  handlePermissions = () => {
-    const { currentTeamPermissionsInfo, appDetail } = this.props;
-    if(currentTeamPermissionsInfo && appDetail){
-      return roleUtil.queryPermissionsInfo(
-        currentTeamPermissionsInfo?.team,
-        'app_overview',
-        `app_${appDetail?.service?.group_id}`
-      );
-    }
-  };
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
@@ -1790,12 +1787,6 @@ export default class Index extends PureComponent {
     );
   };
   render() {
-    const { 
-      componentPermissions,
-      componentPermissions:{
-        isAccess
-      }
-     } = this.state;
     if (this.id !== this.getAlias()) {
       this.id = this.getAlias();
       this.flash();
@@ -1803,6 +1794,6 @@ export default class Index extends PureComponent {
     if (!this.state.show) {
       return null;
     }
-    return <Main {...this.props} {...this.state} />;
+    return <Main {...this.props} {...this.state} handlePermissions={this.handlePermissions}/>;
   }
 }

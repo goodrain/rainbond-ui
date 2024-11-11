@@ -192,7 +192,7 @@ class AccesstokenForm extends PureComponent {
               })(<Input placeholder={formatMessage({id:'otherEnterprise.AccesstokenForm.input_purpose'})} />)}
             </FormItem>
 
-            <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.AccesstokenForm.time'})}>
+            <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.AccesstokenForm.time'})} extra='若不选择则为不限制过期时间'>
               {getFieldDecorator('age', {
                 rules: [{ required: false, message: formatMessage({id:'otherEnterprise.AccesstokenForm.import_time'}) }],
                 initialValue: ''

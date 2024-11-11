@@ -22,7 +22,7 @@ export default class AddAdmin extends PureComponent {
     super(arg);
     this.state = {
       adminList: [],
-      roles: ['app_store', 'admin']
+      roles: ['admin']
     };
   }
   componentDidMount() {
@@ -77,11 +77,6 @@ export default class AddAdmin extends PureComponent {
     const { onOk, onCancel, actions, info, form } = this.props;
     const { getFieldDecorator } = form;
     const initialValueRoles = [];
-    // if (data && data.roles) {
-    //   data.roles.map(item => {
-    //     initialValueRoles.push(item.role_id);
-    //   });
-    // }
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },

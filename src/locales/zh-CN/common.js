@@ -247,6 +247,7 @@
         'confirmModal.plugin.delete.title':'删除插件',
         'confirmModal.configuration_item.delete.title':'删除配置项',
         'confirmModal.drop_procedure.delete.title':'删除存储',
+        'confirmModal.drop_procedure.delete.sub':'确定删除此存储吗？',
         'confirmModal.drop_versions.delete.title':'删除版本',
         'confirmModal.give_up_release.delete.title':'放弃发布',
         'confirmModal.quit.team.title':'退出团队',
@@ -297,7 +298,7 @@
         'confirmModal.delete.user.desc':'确定要删除此用户吗？',
         'confirmModal.delete.plugin.desc':'确定要删除此插件吗？',
         'confirmModal.delete.configuration_item.desc':'确定要删除此配置项？',
-        'confirmModal.delete.drop_procedure.desc':'确定要删除此存储？',
+        'confirmModal.delete.drop_procedure.desc':'确定要删除此配置组吗？',
         'confirmModal.delete.drop_versions.desc':'确定要删除当前版本吗？',
         'confirmModal.delete.give_up_release.desc':'确定要放弃此次发布吗? ',
         'confirmModal.delete.data_backup.desc':'确定要进行数据备份吗? ',
@@ -870,7 +871,9 @@
         'placeholder.lowercase':'仓库名称只能输入小写字母',
         'placeholder.warehouse_not_empty':'镜像仓库地址不能为空',
         'placeholder.warehouse_address':'请选择镜像或输入镜像名称筛选',
-        'placeholder.warehouse_address.ban':'禁止输入http或https'
+        'placeholder.warehouse_address.ban':'禁止输入http或https',
+        'placeholder.portFrom.invalid_format':'格式无效，不能包含空格、汉字，且不能以标点开头',
+        'applicationMarket.HelmForm.invalid_format':'请填入大写英文字母'
     }
     const tooltip = {
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',

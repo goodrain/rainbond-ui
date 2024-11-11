@@ -3278,7 +3278,7 @@ export async function addRunStrategy(body = {}) {
         backoff_limit: body.backoff_limit,
         completions: body.completions,
         parallelism: body.parallelism,
-        schedule: body.scheduleValue
+        schedule: body.schedule
       }
     }
   );

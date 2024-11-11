@@ -288,12 +288,6 @@ export default class AddVolumes extends PureComponent {
             <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
                 initialValue: data.volume_type || 'share-file',
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'componentOverview.body.AddVolumes.select_type' })
-                  }
-                ]
               })(
                 <RadioGroup onChange={this.handleChange}>
                   {volumeOpts.map(item => {

@@ -11,6 +11,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Management from './management';
 import rainbondUtil from '../../utils/rainbond';
 import pluginUtile from '../../utils/pulginUtils'
+import global from '@/utils/global';
 import ImageWarehouse from './imageWarehouse';
 import UpdateVersion from './updateVersion';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
@@ -20,7 +21,7 @@ import styles from "./index.less"
 
 const { TabPane } = Tabs;
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ user, list, loading, global, index, region }) => ({
   user: user.currentUser,
   list,
   loading: loading.models.list,
@@ -31,7 +32,8 @@ const { TabPane } = Tabs;
   certificateLongin: loading.effects['global/putCertificateType'],
   objectStorageLongin: loading.effects['global/editCloudBackup'],
   overviewInfo: index.overviewInfo,
-  pluginsList: global.pluginsList
+  pluginsList: global.pluginsList,
+  cluster_info: region.cluster_info
 }))
 export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
@@ -40,7 +42,8 @@ export default class EnterpriseSetting extends PureComponent {
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       adminer,
-      activeKey: 'infrastructure'
+      activeKey: 'infrastructure',
+      showEnterprisePlugin: false
     };
   }
   componentWillMount() {
@@ -49,14 +52,44 @@ export default class EnterpriseSetting extends PureComponent {
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
     }
+    this.isShowEnterprisePlugin()
     // 判断地址栏是否有showupdate, 存在显示版本更新列表
     if (location.query.type == 'updateVersion') {
       this.setState({ activeKey: 'updateversion' })
     }
   }
   onChange = key => {
+    const {dispatch} = this.props
+    const {region_name} = this.state
     this.setState({ activeKey: key });
+    if(key == 'upload' || key =='individuation')
+    dispatch(routerRedux.push(`/enterprise/${global.getCurrEnterpriseId()}/setting?regionName=${region_name}`));
   };
+
+  isShowEnterprisePlugin = () => {
+    const { dispatch, cluster_info} = this.props;
+      (cluster_info || []).forEach(item => {
+        dispatch({
+          type: 'global/getPluginList',
+          payload: { enterprise_id: global.getCurrEnterpriseId(), region_name: item.region_name },
+          callback: (res) => {
+            if (res && res.list) {
+              const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+              if(showEnterprisePlugin){
+                this.setState({
+                  showEnterprisePlugin: true,
+                  region_name: item.region_name
+                })
+              }
+            }
+          },
+          handleError: () => {
+            this.setState({ plugins: {}, loading: false });
+          },
+        });
+      })
+
+  }
 
   handlePlatformBasicInfo = () => {
     const {
@@ -99,7 +132,7 @@ export default class EnterpriseSetting extends PureComponent {
   }
 
   render() {
-    const { adminer, activeKey, } = this.state;
+    const { adminer, activeKey,showEnterprisePlugin } = this.state;
     const {
       match: {
         params: { eid }
@@ -107,9 +140,7 @@ export default class EnterpriseSetting extends PureComponent {
       rainbondInfo,
       enterprise,
       objectStorageLongin,
-      pluginsList
     } = this.props
-    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList)
 
     return (
       <PageHeaderLayout
@@ -186,7 +217,7 @@ export default class EnterpriseSetting extends PureComponent {
             <TabPane
               tab={
                 <div>
-                <FormattedMessage id='enterpriseSetting.TabPane.upload' />
+                  <FormattedMessage id='enterpriseSetting.TabPane.upload' />
                 </div>
               }
               key="upload">

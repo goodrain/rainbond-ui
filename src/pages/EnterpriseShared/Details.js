@@ -834,7 +834,7 @@ export default class Main extends PureComponent {
                       render: (val, data) => {
                         return (
                           <span>
-                            {val}({data.version_alias})
+                            {val}{data.version_alias && <>{data.version_alias}</>}
                           </span>
                         );
                       }

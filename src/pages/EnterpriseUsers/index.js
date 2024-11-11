@@ -267,21 +267,36 @@ export default class EnterpriseUsers extends PureComponent {
         title: formatMessage({ id: 'enterpriseUser.table.name' }),
         dataIndex: 'real_name',
         rowKey: 'real_name',
-        align: 'center'
+        align: 'center',
+        render: (val, data) => (
+          <span>
+            {val || '-'}
+          </span>
+        )
       },
       {
         // title: '电话',
         title: formatMessage({ id: 'enterpriseUser.table.phone' }),
         dataIndex: 'phone',
         rowKey: 'phone',
-        align: 'center'
+        align: 'center',
+        render: (val, data) => (
+          <span>
+            {val || '-'}
+          </span>
+        )
       },
       {
         // title: '邮箱',
         title: formatMessage({ id: 'enterpriseUser.table.email' }),
         dataIndex: 'email',
         rowKey: 'email',
-        align: 'center'
+        align: 'center',
+        render: (val, data) => (
+          <span>
+            {val || '-'}
+          </span>
+        )
       },
       {
         // title: '创建时间',

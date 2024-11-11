@@ -1015,45 +1015,45 @@ export default class Index extends PureComponent {
                 {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.dispatch' })}`)}
               </Col>
             </Row>
-            {method != 'vm' && 
+            {method != 'vm' &&
               <Row gutter={16}>
-              <Col lg={8} md={8} sm={24}>
-                <Form.Item
-                  label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
-                  labelCol={language ? { span: 5 } : { span: 8 }}
-                  wrapperCol={language ? { span: 19 } : { span: 16 }}
-                  className={styles.customFormItem}
-                >
-                  {getFieldDecorator('node', {
-                    initialValue: extendInfo.current_node
-                  })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      className={styles.nodeSelect}
-                    >
-                      {(extendInfo.node_list || []).map(item => (
-                        <Option key={item} value={item}>
-                          {item}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                  <Button
-                    disabled={notAllowScaling}
-                    onClick={this.handleHorizontal}
-                    size="default"
-                    type="primary"
-                    style={{
-                      marginLeft: '10px'
-                    }}
+                <Col lg={8} md={8} sm={24}>
+                  <Form.Item
+                    label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
+                    labelCol={language ? { span: 5 } : { span: 8 }}
+                    wrapperCol={language ? { span: 19 } : { span: 16 }}
+                    className={styles.customFormItem}
                   >
-                    <FormattedMessage id='componentOverview.body.Expansion.setUp' />
-                  </Button>
-                </Form.Item>
+                    {getFieldDecorator('node', {
+                      initialValue: extendInfo.current_node
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode => triggerNode.parentNode}
+                        className={styles.nodeSelect}
+                      >
+                        {(extendInfo.node_list || []).map(item => (
+                          <Option key={item} value={item}>
+                            {item}
+                          </Option>
+                        ))}
+                      </Select>
+                    )}
+                    <Button
+                      disabled={notAllowScaling}
+                      onClick={this.handleHorizontal}
+                      size="default"
+                      type="primary"
+                      style={{
+                        marginLeft: '10px'
+                      }}
+                    >
+                      <FormattedMessage id='componentOverview.body.Expansion.setUp' />
+                    </Button>
+                  </Form.Item>
 
-                {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
+                  {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
 
-              </Col>
+                </Col>
               </Row>
             }
           </Form>
@@ -1237,15 +1237,17 @@ export default class Index extends PureComponent {
                     {!memoryUse && <div style={{ height: '56px' }} />}
 
                     <div className={styles.automaTictelescopingContent}>
-                      <Icon
-                        type="plus"
-                        style={{ fontSize: '23px' }}
-                        onClick={() => {
-                          MemoryList.length > 0 &&
-                            automaticTelescopic &&
-                            this.handleAddIndicators('add');
-                        }}
-                      />
+                      {automaticTelescopic &&
+                        <Icon
+                          type="plus"
+                          style={{ fontSize: '23px' }}
+                          onClick={() => {
+                            MemoryList.length > 0 &&
+                              automaticTelescopic &&
+                              this.handleAddIndicators('add');
+                          }}
+                        />
+                      }
                     </div>
                   </Col>
                 </Row>
@@ -1303,94 +1305,94 @@ export default class Index extends PureComponent {
             editRules={editRules}
           />
         )}
-      {method != 'vm' && 
-        <Card
-        className={styles.clearCard}
-        style={{ marginTop: 16 }}
-        title={<FormattedMessage id='componentOverview.body.Expansion.horizontal' />}
-      >
-        <Table
-          className={styles.horizontalExpansionRecordTable}
-          rowKey={(record,index) => index}
-          dataSource={sclaingRecord}
-          pagination={total > page_size ? {
-            current: page_num,
-            pageSize: page_size,
-            total,
-            onChange: this.onPageChange
-          } : false}
-          columns={[
-            {
-              title: formatMessage({ id: 'componentOverview.body.Expansion.time' }),
-              dataIndex: 'last_time',
-              key: 'last_time',
-              align: 'center',
-              width: '18%',
-              render: val => (
-                <div
-                  style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
-                >
-                  {moment(val)
-                    .locale('zh-cn')
-                    .format('YYYY-MM-DD HH:mm:ss')}
-                </div>
-              )
-            },
-            {
-              title: formatMessage({ id: 'componentOverview.body.Expansion.telescopicDetails' }),
-              dataIndex: 'description',
-              key: 'description',
-              align: 'center',
-              width: '43%',
-              render: description => (
-                <div
-                  style={{
-                    textAlign: 'left',
-                    wordWrap: 'break-word',
-                    wordBreak: 'break-word'
-                  }}
-                >
-                  {description}
-                </div>
-              )
-            },
-            {
-              title: formatMessage({ id: 'componentOverview.body.Expansion.type' }),
-              dataIndex: 'record_type',
-              key: 'record_type',
-              align: 'center',
-              width: '13%',
-              render: record_type => (
-                <div>
-                  {record_type === 'hpa'
-                    ? <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic' />
-                    : record_type === 'manual'
-                      ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic' />
-                      : <FormattedMessage id='componentOverview.body.Expansion.vertical' />}
-                </div>
-              )
-            },
-            {
-              title: formatMessage({ id: 'componentOverview.body.Expansion.operator' }),
-              dataIndex: 'operator',
-              key: 'operator',
-              align: 'center',
-              width: '13%',
-              render: operator => {
-                return <span> {operator || '-'} </span>;
-              }
-            },
-            {
-              title: formatMessage({ id: 'componentOverview.body.Expansion.reason' }),
-              dataIndex: 'reason',
-              align: 'center',
-              key: 'reason',
-              width: '13%'
-            }
-          ]}
-        />
-      </Card>
-      }
+        {method != 'vm' &&
+          <Card
+            className={styles.clearCard}
+            style={{ marginTop: 16 }}
+            title={<FormattedMessage id='componentOverview.body.Expansion.horizontal' />}
+          >
+            <Table
+              className={styles.horizontalExpansionRecordTable}
+              rowKey={(record, index) => index}
+              dataSource={sclaingRecord}
+              pagination={total > page_size ? {
+                current: page_num,
+                pageSize: page_size,
+                total,
+                onChange: this.onPageChange
+              } : false}
+              columns={[
+                {
+                  title: formatMessage({ id: 'componentOverview.body.Expansion.time' }),
+                  dataIndex: 'last_time',
+                  key: 'last_time',
+                  align: 'center',
+                  width: '18%',
+                  render: val => (
+                    <div
+                      style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                    >
+                      {moment(val)
+                        .locale('zh-cn')
+                        .format('YYYY-MM-DD HH:mm:ss')}
+                    </div>
+                  )
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.Expansion.telescopicDetails' }),
+                  dataIndex: 'description',
+                  key: 'description',
+                  align: 'center',
+                  width: '43%',
+                  render: description => (
+                    <div
+                      style={{
+                        textAlign: 'left',
+                        wordWrap: 'break-word',
+                        wordBreak: 'break-word'
+                      }}
+                    >
+                      {description}
+                    </div>
+                  )
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.Expansion.type' }),
+                  dataIndex: 'record_type',
+                  key: 'record_type',
+                  align: 'center',
+                  width: '13%',
+                  render: record_type => (
+                    <div>
+                      {record_type === 'hpa'
+                        ? <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic' />
+                        : record_type === 'manual'
+                          ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic' />
+                          : <FormattedMessage id='componentOverview.body.Expansion.vertical' />}
+                    </div>
+                  )
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.Expansion.operator' }),
+                  dataIndex: 'operator',
+                  key: 'operator',
+                  align: 'center',
+                  width: '13%',
+                  render: operator => {
+                    return <span> {operator || '-'} </span>;
+                  }
+                },
+                {
+                  title: formatMessage({ id: 'componentOverview.body.Expansion.reason' }),
+                  dataIndex: 'reason',
+                  align: 'center',
+                  key: 'reason',
+                  width: '13%'
+                }
+              ]}
+            />
+          </Card>
+        }
       </div>
     );
   }

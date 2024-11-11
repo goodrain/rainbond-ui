@@ -95,7 +95,8 @@ export default class SelectTeam extends PureComponent {
       currentEnterprise,
       currentRegion,
       currentUser,
-      active
+      active,
+      changeTeam
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
     const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
@@ -139,7 +140,7 @@ export default class SelectTeam extends PureComponent {
                 if (item.link) {
                   return (
                     <li key={item.name}>
-                      <Link to={item.link} title={item.name}>
+                      <Link to={item.link} title={item.name} onClick={()=>{changeTeam && changeTeam()}}>
                         <span>{item.name}</span>
                       </Link>
                     </li>

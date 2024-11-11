@@ -10,11 +10,14 @@ import ImageNameDemo from './ImageName-Demo'
 import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
+
 
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(
-  ({ teamControl, enterprise }) => ({
+  ({ teamControl, enterprise, global }) => ({
+    rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
@@ -25,7 +28,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
   { pure: false }
 )
 export default class Main extends PureComponent {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.state = {
       archInfo: [],
@@ -61,6 +64,13 @@ export default class Main extends PureComponent {
     );
   };
   render() {
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      match,
+      rainbondInfo
+    } = this.props;
     const map = {
       custom: ImageName,
       Dockercompose: ImageCompose,
@@ -70,25 +80,21 @@ export default class Main extends PureComponent {
     const tabList = [
       {
         key: 'custom',
-        tab: formatMessage({id: 'teamAdd.create.image.tabImage'}),
+        tab: formatMessage({ id: 'teamAdd.create.image.tabImage' }),
       },
       {
         key: 'Dockercompose',
         tab: 'Docker Compose',
-      },
-      {
+      }
+    ];
+    if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
+      tabList.push({
         key: 'ImageNameDemo',
         tab: formatMessage({ id: 'teamAdd.create.code.demo' }),
-      },
-    ];
-    const {
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
-      match,
-    } = this.props;
+      },)
+    }
     const { archInfo, teamAppCreatePermission: { isAccess } } = this.state
-    if(!isAccess){
+    if (!isAccess) {
       return roleUtil.noPermission()
     }
     let { type } = match.params;
@@ -102,7 +108,7 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
+    breadcrumbList.push({ title: formatMessage({ id: 'teamAdd.create.createComponentTitle' }) });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -111,7 +117,7 @@ export default class Main extends PureComponent {
         content='支持从单一镜像、Docker命令、DockerCompose配置创建应用。'
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getSvg('dockerSvg',18)}
+        titleSvg={pageheaderSvg.getSvg('dockerSvg', 18)}
       >
         {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>

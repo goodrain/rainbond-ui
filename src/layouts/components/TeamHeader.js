@@ -12,7 +12,8 @@ export default function TeamHeader(props) {
     currentTeam,
     currentRegion,
     nobleIcon,
-    upDataHeader
+    upDataHeader,
+    changeTeam
   } = props;
   return (
     <div className={headerStype.itemBox}>
@@ -40,6 +41,7 @@ export default function TeamHeader(props) {
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentRegion={currentRegion}
+            changeTeam={changeTeam}
           />
         </div>
       )}
