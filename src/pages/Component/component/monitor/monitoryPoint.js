@@ -28,17 +28,7 @@ export default class customMonitor extends PureComponent {
       loading: true,
       editorData: {},
       dleCustomMonitor: false,
-      operationPermissions: this.handlePermissions('queryAppInfo')
     };
-  }
-  componentWillMount() {
-    const { dispatch } = this.props;
-    const {
-      operationPermissions: { isAccess }
-    } = this.state;
-    if (!isAccess) {
-      globalUtil.withoutPermission(dispatch);
-    }
   }
   componentDidMount() {
     this.fetchServiceMonitor();
@@ -158,7 +148,6 @@ export default class customMonitor extends PureComponent {
       editorData,
       addCustomMonitor,
       dleCustomMonitor,
-      operationPermissions: { isCreate }
     } = this.state;
     return (
       <div>
@@ -171,7 +160,6 @@ export default class customMonitor extends PureComponent {
               showIcon
             />
           </Col>
-          {isCreate && (
             <Button
               type="primary"
               icon="plus"
@@ -181,7 +169,6 @@ export default class customMonitor extends PureComponent {
               {/* 添加配置 */}
               <FormattedMessage id='componentOverview.body.tab.monitor.MonitoryPoint.add'/>
             </Button>
-          )}
           <Button
             style={{ float: 'right', margin: '0 10px 20px 0' }}
             onClick={onCancel}

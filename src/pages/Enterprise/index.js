@@ -233,12 +233,15 @@ export default class Enterprise extends PureComponent {
               },
               callback: data => {
                 if (data && data.bean) {
-                  this.setState({
-                    isNeedAuthz: data.bean.need_authz
-                  })
+                  if(data?.bean?.need_authz){
+                    this.setState({
+                      isNeedAuthz: data?.bean?.need_authz
+                    })
+                  }
                 }
               }
             })
+
             item.key = `cluster${indexs}`;
             clusters.push(item);
             return item;

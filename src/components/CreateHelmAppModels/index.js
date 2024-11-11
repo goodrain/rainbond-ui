@@ -299,6 +299,12 @@ class CreateHelmAppModels extends PureComponent {
       isDeploy: !this.state.isDeploy
     });
   };
+  selectChange=(val)=>{
+    const { form } = this.props
+    const { getFieldsValue } = form;
+    const formInfo = getFieldsValue()
+    this.fetchGroup(formInfo.team_name,val)
+  }
   render() {
     const { eid, onCancel, title, appInfo, form, appTypes } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
@@ -417,7 +423,7 @@ class CreateHelmAppModels extends PureComponent {
                   }
                 ]
               })(
-                <Select  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.select_colony'})}style={{ width: '323px' }}>
+                <Select  placeholder={formatMessage({id:'applicationMarket.CreateHelmAppModels.select_colony'})}style={{ width: '323px' }} onChange={this.selectChange}>
                   {regionList.map(item => (
                     <Option key={item.region_name} value={item.region_name}>
                       {item.region_alias}

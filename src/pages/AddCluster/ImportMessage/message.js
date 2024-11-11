@@ -41,6 +41,7 @@ export default class ImportMessage extends PureComponent {
 
     componentDidMount() {
         this.handleNameSpace()
+        console.log(this.props.overviewInfo,"this.props.overviewInfo");
     }
     //NameSpace列表
     handleNameSpace = () => {
@@ -137,7 +138,6 @@ export default class ImportMessage extends PureComponent {
                 {{ 
                 padding: '24px 12px' ,
                 borderRadius: 5,
-                boxShadow:'rgb(36 46 66 / 16%) 2px 4px 10px 0px',
                 }}>
                 <Row type="flex" style={{ alignItems: 'center', padding: '24px 0px' }}>
                     <div style={{ width: '120px', textAlign: 'right' }}><h3 className={styles.rbd_sub_title}>NameSpace：</h3></div>
@@ -241,7 +241,7 @@ export default class ImportMessage extends PureComponent {
 
                 </Row>
                 <Row style={{ textAlign: 'center' }}>
-                    <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }}>
+                    <Button type="primary" onClick={this.onNext} style={{ marginLeft: '120px', padding: '0px 36px' }} disabled={!namespace}>
                         {formatMessage({ id: 'button.next_step' })}
                     </Button>
                 </Row>

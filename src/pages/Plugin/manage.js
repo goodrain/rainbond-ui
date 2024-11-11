@@ -879,7 +879,7 @@ export default class Index extends PureComponent {
           <ConfirmModal
             title={formatMessage({id:'confirmModal.drop_procedure.delete.title'})}
             subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
+            desc={formatMessage({id:'confirmModal.drop_procedure.delete.sub'})}
             loading={removeStorageLoading}
             onOk={this.handleDelStorage}
             onCancel={this.handleCloseStorage}

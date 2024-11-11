@@ -27,6 +27,7 @@ import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import AddGroup from '../AddOrEditGroup';
 import styless from '../CreateTeam/index.less';
+import newRole from '@/utils/newRole';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -272,13 +273,17 @@ export default class Index extends PureComponent {
       callback: res => {
         this.handleCloseLoading();
         if (res && res.status_code === 200) {
+          newRole.refreshPermissionsInfo()
           notification.success({ message: formatMessage({id:'notification.success.copy'}) });
           const { tar_team_name, tar_region_name, tar_group_id } = res.bean;
-          dispatch(
-            routerRedux.push(
-              `/team/${tar_team_name}/region/${tar_region_name}/apps/${tar_group_id}`
-            )
-          );
+          setTimeout(()=>{
+            dispatch(
+              routerRedux.push(
+                `/team/${tar_team_name}/region/${tar_region_name}/apps/${tar_group_id}`
+              )
+            );
+          },1000)
+
           onCancel();
         }
       },

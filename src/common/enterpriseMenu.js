@@ -6,7 +6,7 @@ import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 
-function menuData(eid, currentUser, enterprise, pluginList) {
+function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const menuArr = [
     {
@@ -70,26 +70,60 @@ function menuData(eid, currentUser, enterprise, pluginList) {
       authority: ['admin', 'user']
     });
   }
-  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Platform')
-  if (pluginArr && pluginArr.length > 0) {
-    const pluginChildren = []
-    pluginArr.forEach(item => {
-      pluginChildren.push({
-        name: item.display_name,
+  const pluginObj = {};
+
+  const clusterInfo = window.sessionStorage.getItem('cluster_info')
+
+  if (pluginList && Object.keys(pluginList).length !== 0) {
+    Object.entries(pluginList).forEach(([key, value]) => {
+      const pluginArr = PluginUtil.segregatePluginsByHierarchy(value, 'Platform');
+      if (pluginArr.length > 0) {
+        pluginObj[key] = pluginArr;
+      }
+    });
+  }
+  
+  if (pluginObj && Object.keys(pluginObj).length > 0) {
+    const pluginChildren = [];
+  
+    Object.entries(pluginObj).forEach(([regionName, plugins]) => {
+      const regionPluginChildren = plugins.map(val => ({
+        name: val.display_name,
         icon: getMenuSvg.getSvg('plugin'),
-        path: `${item.name}`,
+        path: pluginObj && Object.keys(pluginObj).length === 1 
+          ? `${val.name}?regionName=${regionName}`
+          : val.name,
         authority: ['admin', 'user']
-      });
-    })
+      }));
+  
+      if (Object.keys(pluginObj).length > 1) {
+        pluginChildren.push({
+          name: getRegionDispalyName(clusterList,regionName),
+          icon: getMenuSvg.getSvg('clusters'),
+          path: regionName,
+          authority: ['admin', 'user'],
+          children: regionPluginChildren,
+        });
+      } else {
+        pluginChildren.push(...regionPluginChildren);
+      }
+    });
+  
     menuArr.push({
       name: '插件列表',
       icon: getMenuSvg.getSvg('plugin'),
       path: `/enterprise/${eid}/plugins`,
       authority: ['admin', 'user'],
-      children: pluginChildren
+      children: pluginChildren,
     });
   }
+  
   return menuArr;
+}
+
+function getRegionDispalyName (list,name){
+  const display_name = (list||[]).filter(item => item.region_name == name)
+  return display_name[0].region_alias || name
 }
 
 function formatter(data, parentPath = '', parentAuthority) {
@@ -114,7 +148,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getMenuData = (eid, currentUser, enterprise, pluginList) => {
-  const menus = formatter(menuData(eid, currentUser, enterprise, pluginList));
+export const getMenuData = (eid, currentUser, enterprise, pluginList, clusterList) => {
+  const menus = formatter(menuData(eid, currentUser, enterprise, pluginList, clusterList));
   return menus;
 };

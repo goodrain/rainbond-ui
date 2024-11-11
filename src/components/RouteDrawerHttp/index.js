@@ -1,6 +1,6 @@
 import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip } from 'antd';
 import globalUtil from '../../utils/global';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ServiceInput from '../ServiceInput';
@@ -55,37 +55,36 @@ export default class index extends Component {
     }
     componentWillMount() {
         const { editInfo, appID } = this.props;
-        
+
         if (Object.keys(editInfo).length > 0) {
-          const hasMethods = editInfo.methods && editInfo.methods.length > 0;
-          const hasExprs = editInfo.match.exprs && editInfo.match.exprs.length > 0;
-          const hasBackends = editInfo.backends && editInfo.backends.length > 0;
-          const hasUpstreams = editInfo.upstreams && editInfo.upstreams.length > 0;
-      
-          this.setState({
-            showMateMore: hasMethods || editInfo.priority || editInfo.remoteAddrs || hasExprs,
-            groupSelect: hasBackends ? 'k8s' : 'advanced',
-          },()=>{
-            if(this.state.groupSelect == 'k8s'){
-                this.handleServices({ key: editInfo.name.match(/^(\d+)/)[1] });
-            }
-          });
+            const hasMethods = editInfo.methods && editInfo.methods.length > 0;
+            const hasExprs = editInfo.match.exprs && editInfo.match.exprs.length > 0;
+            const hasBackends = editInfo.backends && editInfo.backends.length > 0;
+            const hasUpstreams = editInfo.upstreams && editInfo.upstreams.length > 0;
+            this.setState({
+                showMateMore: hasMethods || editInfo.priority || editInfo.remoteAddrs || hasExprs,
+                groupSelect: hasBackends ? 'k8s' : 'advanced',
+            }, () => {
+                if (this.state.groupSelect == 'k8s') {
+                    this.handleServices({ key: editInfo.name.match(/^(\d+)/)[1] });
+                }
+            });
         }
-      
+
         if (appID) {
-          this.handleServices({ key: appID });
+            this.handleServices({ key: appID });
         }
-      
+
         if (editInfo?.plugins && editInfo.plugins.length > 0) {
-          this.setState({
-            values: editInfo.plugins,
-            showPlugin: true,
-          });
+            this.setState({
+                values: editInfo.plugins,
+                showPlugin: true,
+            });
         }
 
         this.fetchInfo();
         this.getTableData();
-      }
+    }
     extractPreviousCharacters = (inputString) => {
         const pattern = /([^:]+):/;
         const match = inputString.match(pattern);
@@ -106,10 +105,10 @@ export default class index extends Component {
         formRefs.forEach((formRef, index) => {
             if (!formRef) return
             const form = formRef.props.form;
-            form.validateFields((err, values) => {    
+            form.validateFields((err, values) => {
                 if (!err) {
                     const { name, ...config } = values;
-                    plugins.push({name:values.name,secretRef:'', enable: true, config: config})
+                    plugins.push({ name: values.name, secretRef: '', enable: true, config: config })
                 }
             });
         });
@@ -140,9 +139,9 @@ export default class index extends Component {
                 data.match.methods = values.methods;
                 data.match.remoteAddrs = values.remoteAddrs;
                 if (values.exprs && values.exprs.length > 0) {
-                    if(values.exprs.length == 1 && (values.exprs[0].name == '' ||  values.exprs[0].value == '')){
+                    if (values.exprs.length == 1 && (values.exprs[0].name == '' || values.exprs[0].value == '')) {
                         data.match.exprs = [];
-                    }else{
+                    } else {
                         const arr = values.exprs.map(item => ({
                             subject: { scope: item.scope, name: item.name },
                             op: item.op,
@@ -169,19 +168,19 @@ export default class index extends Component {
                     }));
                     data.backends = [];
                 }
-                if(serviceComponentList.length == 0){
+                if (serviceComponentList.length == 0) {
                     notification.warning({
                         message: '当前应用下没有组件，请先创建组件'
                     });
                     return null;
                 } else {
-                    if(values?.group_id?.key){
+                    if (values?.group_id?.key) {
                         onOk(data, Number(values.group_id.key));
-                    }else{
+                    } else {
                         onOk(data);
                     }
                 }
-                
+
             }
         });
     };
@@ -362,7 +361,7 @@ export default class index extends Component {
 
     handleValidators = (_, val, callback) => {
         const ports = new Set(); // 使用 Set 存储 port
-    
+
         if (val && val.length > 0) {
             val.forEach(item => {
                 // 检查 item 是否有效
@@ -373,12 +372,12 @@ export default class index extends Component {
                     return callback(new Error(formatMessage({ id: 'placeholder.rewrites' })));
                 }
             });
-    
+
             // 检查 Set 的大小，如果大于 1，说明 port 不一致
             if (ports.size > 1) {
                 return callback(new Error(`错误: 端口不一致！请确保所有端口都是相同的。`));
             }
-    
+
             // 所有 port 一致，验证通过
             callback();
         } else {
@@ -391,21 +390,21 @@ export default class index extends Component {
         let isPass = false;
         let reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
         if (val && val.length > 0) {
-        val.some(item => {
-            if (item != '' && reg.test(item)) {
-                isPass = true;
+            val.some(item => {
+                if (item != '' && reg.test(item)) {
+                    isPass = true;
+                } else {
+                    isPass = false;
+                    return true;
+                }
+            });
+            if (isPass) {
+                callback();
             } else {
-                isPass = false;
-                return true;
+                callback(new Error('格式不满足要求'));
             }
-        });
-        if (isPass) {
-            callback();
         } else {
-            callback(new Error('格式不满足要求'));
-        }
-        } else {
-        return callback();
+            return callback();
         }
     };
     render() {
@@ -488,26 +487,26 @@ export default class index extends Component {
 
         return (
             <Drawer
-                title={Object.keys(editInfo).length > 0 ? formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.edit'}) :formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.add'})}
+                title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
                 width={700}
                 onClose={this.onClose}
                 visible={visible}
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
-                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.host'})}>
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
                         {getFieldDecorator('hosts', {
                             rules: [{ validator: this.handleValidatorsHosts }],
                             initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
-                        })(<DAHosts hostPlaceholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputHost'})} isEdit={Object.keys(editInfo).length > 0} isHosts={true}/>)}
+                        })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
                     </Form.Item>
                     <Row>
                         <Col>
-                            <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.path'})}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.path' })}>
                                 {getFieldDecorator('paths', {
                                     // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPath'}) }],
                                     initialValue: (editInfo && editInfo.match && editInfo.match.paths) || []
-                                })(<DAPath hostPlaceholder={'/*'}/>)}
+                                })(<DAPath hostPlaceholder={'/*'} />)}
                             </Form.Item>
                         </Col>
                         <Col style={{ position: 'absolute', right: 0, top: '5%' }}>
@@ -518,7 +517,7 @@ export default class index extends Component {
                                         className={styles.buttonStyle}
                                         onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
                                     >
-                                        {formatMessage({id:"enterpriseOverview.team.more"})}
+                                        {formatMessage({ id: "enterpriseOverview.team.more" })}
                                         {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
                                     </Button>
                                     :
@@ -527,7 +526,7 @@ export default class index extends Component {
                                         className={styles.buttonStyle}
                                         onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
                                     >
-                                        {formatMessage({id:'appPublish.table.btn.release_cancel'})}
+                                        {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
                                         {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
                                     </Button>
                             }
@@ -542,7 +541,7 @@ export default class index extends Component {
                                     <Select
                                         mode="multiple"
                                         style={{ width: '100%' }}
-                                        placeholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.method'})}
+                                        placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.method' })}
                                     >
                                         {MethodOptions.map(item => (
                                             <Option key={item.value} value={item.value}>
@@ -553,33 +552,33 @@ export default class index extends Component {
                                 )}
                             </Form.Item>
 
-                            <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.IP'})}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.IP' })}>
                                 {getFieldDecorator('remoteAddrs', {
                                     // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputIP'}) }],
                                     initialValue: (editInfo && editInfo.match && editInfo.match.remoteAddrs) || []
-                                })(<DAHosts hostPlaceholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputIP'})} />)}
+                                })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputIP' })} />)}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.Advanced'})}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Advanced' })}>
                                 {getFieldDecorator('exprs', {
-                                    rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced'}) }],
+                                    rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced' }) }],
                                     initialValue: (editInfo && editInfo.match && editInfo.match.exprs && this.handleExprs(editInfo.match.exprs)) || []
                                 })(<NewHeader />)}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.priority'})}>
+                            {/* <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.priority' })}>
                                 {getFieldDecorator('priority', {
                                     // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPriority'}) }],
                                     initialValue: editInfo && editInfo.priority || null
-                                })(<Input type='number' placeholder={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPriority'})} style={{ width: '25%' }} />)}
-                            </Form.Item>
+                                })(<Input type='number' placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputPriority' })} style={{ width: '25%' }} />)}
+                            </Form.Item> */}
                         </Fragment>
                     )}
-                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.source'})} >
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.source' })} >
                         {getFieldDecorator('type',
                             { initialValue: groupSelect },
                         )(
                             <Radio.Group onChange={this.groupChange}>
-                                <Radio value="k8s"> {formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.default'})}</Radio>
-                                <Radio value="advanced"> {formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.senior'})}</Radio>
+                                <Radio value="k8s"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.default' })}</Radio>
+                                <Radio value="advanced"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}</Radio>
                             </Radio.Group>,
                         )}
                     </Form.Item>
@@ -613,16 +612,25 @@ export default class index extends Component {
                                         )}
                                     </Form.Item>
                                     {(serviceComponentList && serviceComponentList.length > 0) &&
-                                    <Skeleton loading={componentLoading}>
-                                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newComponent.componentName' })}>
-                                            {getFieldDecorator('comListInfo', {
-                                                rules: [{ validator: this.handleValidators }],
-                                                initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
-                                            })(
-                                                <ServiceInputK8s comList={serviceComponentList} />
-                                            )}
-                                        </Form.Item>
-                                    </Skeleton>
+                                        <Skeleton loading={componentLoading}>
+                                            <Form.Item {...formItemLayout} label={
+                                                <>
+                                                    
+                                                    <Tooltip placement="top" title="权重值为1-100">
+                                                    {formatMessage({ id: 'popover.newComponent.componentName' })}<Icon type="question-circle" />
+                                                    </Tooltip>
+
+                                                </>
+                                            }
+                                            >
+                                                {getFieldDecorator('comListInfo', {
+                                                    rules: [{ validator: this.handleValidators }],
+                                                    initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
+                                                })(
+                                                    <ServiceInputK8s comList={serviceComponentList} />
+                                                )}
+                                            </Form.Item>
+                                        </Skeleton>
                                     }
                                 </Fragment>
                             </Skeleton>
@@ -630,12 +638,12 @@ export default class index extends Component {
                     ) : (
                         <Fragment>
                             <Skeleton loading={serviceLoading} active key="upstreams">
-                            <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.service'})}>
-                                            {getFieldDecorator('upstreams', {
-                                                rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputService'}) }],
-                                                initialValue: (editInfo && editInfo.upstreams && this.handleService(editInfo.upstreams, "upstreams")) || []
-                                            })(<ServiceInput comList={serviceList} type="upstreams" onClickEven={() => { this.props.onTabChange('service', true) }}/>)}
-                                        </Form.Item>
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.service' })}>
+                                    {getFieldDecorator('upstreams', {
+                                        rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputService' }) }],
+                                        initialValue: (editInfo && editInfo.upstreams && this.handleService(editInfo.upstreams, "upstreams")) || []
+                                    })(<ServiceInput comList={serviceList} type="upstreams" onClickEven={() => { this.props.onTabChange('service', true) }} />)}
+                                </Form.Item>
                             </Skeleton>
                         </Fragment>
                     )}
@@ -651,10 +659,10 @@ export default class index extends Component {
                                 showPlugin: !this.state.showPlugin
                             })
                         }}
-                        style={{marginBottom:12}}
+                        style={{ marginBottom: 12 }}
                         type={showPlugin ? "" : "primary"}
                     >
-                        {showPlugin ? formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.Plugin'}) : formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.addPlugin'})}
+                        {showPlugin ? formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Plugin' }) : formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.addPlugin' })}
                     </Button>
 
                     {showPlugin && this.state.values.map((item, index) => {
@@ -700,10 +708,10 @@ export default class index extends Component {
                     }}
                 >
                     <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-                        {formatMessage({id:'popover.cancel'})}
+                        {formatMessage({ id: 'popover.cancel' })}
                     </Button>
                     <Button type="primary" onClick={this.handleSubmit}>
-                        {formatMessage({id:'popover.confirm'})}
+                        {formatMessage({ id: 'popover.confirm' })}
                     </Button>
                 </div>
             </Drawer>

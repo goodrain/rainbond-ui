@@ -56,7 +56,7 @@ export default class Index extends PureComponent {
     this.statusloop = false;
   }
   componentDidMount() {
-    this.handleJarWarUploadRecord('jwar')
+    // this.handleJarWarUploadRecord('jwar')
   }
   componentWillUnmount() {
     this.loop = false;
@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
     roleUtil.refreshPermissionsInfo(groupId, false, this.callbcak)
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
+  callbcak = (val) => {
     this.setState({ creatComPermission: val })
   }
   handleJarWarUpload = () => {
@@ -412,8 +412,9 @@ export default class Index extends PureComponent {
                 ]
               })(
                 <Upload
+                  disabled={fileList.length === 1}
                   fileList={fileList}
-                  // accept=".jar,.war,.md"
+                  accept=".jar,.war,.zip,.tar"
                   name="packageTarFile"
                   onChange={this.onChangeUpload}
                   onRemove={this.onRemove}

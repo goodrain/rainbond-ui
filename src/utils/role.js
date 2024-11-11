@@ -17,7 +17,6 @@ const En_actionMaps = {
 };
 const roleMaps = {
   admin: formatMessage({id:'utils.role.roleMaps_admin'}),
-  app_store: formatMessage({id:'utils.role.roleMaps_app_store'})
 };
 const AccessText = {
   component: '组件管理',

@@ -9,7 +9,8 @@ import {
   Radio,
   Select,
   Spin,
-  Upload
+  Upload,
+  notification
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -338,6 +339,10 @@ class CreateAppModels extends PureComponent {
             onOk();
           }
           this.handleSubmitLoading(false);
+        },
+        handleError: err =>{
+        notification.error({message: err?.data?.msg || formatMessage({id:'notification.error.setUp'})})
+          this.handleSubmitLoading(false);
         }
       });
       return null;
@@ -364,6 +369,10 @@ class CreateAppModels extends PureComponent {
         if (res && res.status_code === 200 && onOk) {
           onOk();
         }
+        this.handleSubmitLoading(false);
+      },
+      handleError: err =>{
+        notification.error({message: err?.data?.msg || formatMessage({id:'notification.error.setUp'})})
         this.handleSubmitLoading(false);
       }
     });

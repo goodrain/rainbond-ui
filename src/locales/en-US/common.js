@@ -862,7 +862,9 @@
         'placeholder.lowercase':'The warehouse name can only be lowercase letters',
         'placeholder.warehouse_not_empty':'The mirror repository address cannot be empty',
         'placeholder.warehouse_address':'Please select a mirror or enter a mirror name filter',
-        'placeholder.warehouse_address.ban':'Do not enter http or https'
+        'placeholder.warehouse_address.ban':'Do not enter http or https',
+        'placeholder.portFrom.invalid_format':'The format is invalid, cannot contain Spaces, Chinese characters, and cannot start with punctuation',
+        'applicationMarket.HelmForm.invalid_format':'Please fill in the capital letters'
     }
     const tooltip = {
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',

@@ -30,6 +30,7 @@ export default class SetRegionConfig extends PureComponent {
       task: null,
       cluster_id: '',
       cluster_name: '',
+      showSuccess: false
     };
   }
   componentDidMount() {
@@ -73,7 +74,7 @@ export default class SetRegionConfig extends PureComponent {
       default:
         desc = `${formatMessage({ id: 'enterpriseColony.SetRegionConfig.Self' })}`;
     }
-    this.setState({ commitloading: true });
+    this.setState({ loading: true });
     dispatch({
       type: 'region/createEnterpriseCluster',
       payload: {
@@ -89,15 +90,25 @@ export default class SetRegionConfig extends PureComponent {
       callback: res => {
         if (res && res._condition === 200) {
           notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-          dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+          this.setState({
+            loading: false,
+            showSuccess: true
+          })
         }
       },
       handleError: errs => {
         cloud.handleCloudAPIError(errs);
-        this.setState({ commitloading: false });
+        this.setState({
+          loading: false,
+          showSuccess: false
+        });
       }
     });
   };
+  jump = () => {
+    const { dispatch, eid } = this.props
+    dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+  }
   loadTask = () => {
     const { dispatch, eid, selectClusterID, selectProvider } = this.props;
     dispatch({
@@ -107,7 +118,8 @@ export default class SetRegionConfig extends PureComponent {
           this.setState({
             configs: data.bean.configs,
             configsYaml: data.bean.configs_yaml,
-            loading: false
+          }, () => {
+            this.createClusters()
           });
         }
       },
@@ -127,7 +139,7 @@ export default class SetRegionConfig extends PureComponent {
   };
   render() {
     const { selectProvider, form } = this.props;
-    const { configs, loading, commitloading, guideStep } = this.state;
+    const { configs, loading, guideStep, showSuccess } = this.state;
     const { getFieldDecorator } = form;
     let clusterTitle;
     switch (selectProvider) {
@@ -159,30 +171,40 @@ export default class SetRegionConfig extends PureComponent {
           {loading ? (
             <Result
               type="ing"
-              title={formatMessage({id:'enterpriseColony.newHostInstall.node.ing'})}
+              title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.ing' })}
               style={{ padding: '48px' }}
             />
           ) : (
-            !configs?.apiAddress ? (
-              <Result
-                type="error"
-                title={formatMessage({id:'enterpriseColony.newHostInstall.node.Notpass'})}
-                description={`${formatMessage({id:'enterpriseColony.newHostInstall.node.Api'})} ${configs?.apiAddress} ${formatMessage({id:'enterpriseColony.newHostInstall.node.check'})}`}
-                style={{ padding: '48px' }}
-              />
-            ) : (
+            !showSuccess ? (
               <>
                 <Result
-                  type="success"
-                  title={formatMessage({id:'enterpriseColony.newHostInstall.node.pass'})}
+                  type="error"
+                  title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.Notpass' })}
                   style={{ padding: '48px' }}
                 />
                 <Row>
                   <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
                     <Button
-                      loading={commitloading}
                       onClick={this.createClusters}
-                      disabled={!configs.apiAddress}
+                      type="primary"
+                    >
+                      再次对接
+                    </Button>
+                  </Col>
+                </Row>
+              </>
+
+            ) : (
+              <>
+                <Result
+                  type="success"
+                  title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.pass' })}
+                  style={{ padding: '48px' }}
+                />
+                <Row>
+                  <Col style={{ textAlign: 'center', marginTop: '32px' }} span={24}>
+                    <Button
+                      onClick={this.jump}
                       type="primary"
                     >
                       <FormattedMessage id='button.Completed' />
@@ -192,8 +214,6 @@ export default class SetRegionConfig extends PureComponent {
               </>
             )
           )}
-
-
         </Card>
       </Form>
     );

@@ -542,7 +542,6 @@ export async function getApiGatewayList(params, handleError) {
 }
 /** 新增修改Api-Gateway路由 */
 export async function handleApiGateway(params, handleError) {
-  console.log(params,'params')
   return request(
     `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/${params.type}?appID=${ params.appID }&service_alias=${ params.service_alias }&name=${ params.name }&port=${ params.port }`,
     {

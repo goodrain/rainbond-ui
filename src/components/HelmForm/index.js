@@ -63,22 +63,6 @@ export default class Index extends PureComponent {
           createLoading: true
         });
         dispatch({
-          type: 'market/addHelmAppStore',
-          payload: Object.assign({}, { enterprise_id: eid }, values),
-          callback: res => {
-            if (res && res.status_code === 200 && onOk && onCancel) {
-              onOk(res.name);
-              onOkMarketsTab()
-              onCancel();
-            }
-            this.handleClose();
-          },
-          handleError: res => {
-            cloud.handleCloudAPIError(res);
-            this.handleClose();
-          }
-        });
-        dispatch({
           type: 'market/HelmwaRehouseAdd',
           payload: {
             repo_name: values.name,
@@ -87,6 +71,10 @@ export default class Index extends PureComponent {
             password: values.password
           },
           callback: res => {
+              onOk(res.name);
+            onOkMarketsTab()
+            onCancel();
+            this.handleClose();
           }
         });
       }
@@ -227,6 +215,10 @@ export default class Index extends PureComponent {
               {
                 pattern: /^[^\s]*$/,
                 message: formatMessage({id:'placeholder.no_spaces'})
+              },
+              {
+                pattern: /^(https?:\/\/)/,
+                message: formatMessage({id:'applicationMarket.HelmForm.invalid_protocol'}) 
               }
             ]
           })(<Input type="text"  placeholder={formatMessage({id:'applicationMarket.HelmForm.input_address'})}/>)}

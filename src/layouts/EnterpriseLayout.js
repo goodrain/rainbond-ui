@@ -98,7 +98,7 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false,
-      alertInfo:[],
+      alertInfo: [],
       offLineDisNew: [
         {
           key: 'welcome',
@@ -107,8 +107,9 @@ class EnterpriseLayout extends PureComponent {
         { key: 'applicationInfo', value: true },
         { key: 'installApp', value: true }
       ],
-      showMenu:true,
-      pluginList:[]
+      showMenu: true,
+      pluginList: {},
+      key: true
     };
   }
 
@@ -116,9 +117,9 @@ class EnterpriseLayout extends PureComponent {
     this.getEnterpriseList();
     this.handleLoadEnterpriseClusters();
     const urlParams = new URL(window.location.href);
-    if(urlParams){
+    if (urlParams) {
       const bool = urlParams.href.includes("/shell")
-      if(bool){
+      if (bool) {
         this.setState({
           showMenu: false
         })
@@ -129,44 +130,65 @@ class EnterpriseLayout extends PureComponent {
     const { dispatch } = this.props;
     const eid = globalUtil.getCurrEnterpriseId();
     dispatch({
-        type: 'region/fetchEnterpriseClusters',
-        payload: {
-            enterprise_id: eid
-        },
-        callback: res => {
-            if (res.status_code == 200) {
-              if(res?.list[0]?.region_name){
-                this.handlePluginList(res.list[0].region_name)
-              }
-            }
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res.status_code == 200) {
+
+          if (res?.list) {
+            this.setState({
+              clusterList: res?.list
+            })
+            const promises = res?.list.map(item => {
+              return this.handlePluginList(item.region_name);
+            });
+            Promise.all(promises)
+              .then(() => {
+
+                this.setState({ key: false })
+              })
+              .catch(error => {
+                this.setState({ key: false })
+              });
+          }
         }
+      }
     });
-};
+  };
   handlePluginList = (regionName) => {
+    return new Promise((resolve, reject) => {
     const { dispatch } = this.props
     const eid = globalUtil.getCurrEnterpriseId();
     dispatch({
-        type: 'global/getPluginList',
-        payload: {
-            enterprise_id: eid,
-            region_name: regionName,
-        },
-        callback: res => {
-            if (res && res.list) {
-                this.setState({
-                    pluginList: res.list,
-                })
-            }
-        },
-        handleError: err => {
-            if(err){
-                this.setState({
-                    pluginList: [],
-                })
-            }
+      type: 'global/getPluginList',
+      payload: {
+        enterprise_id: eid,
+        region_name: regionName,
+      },
+      callback: res => {
+        if (res && res.list) {
+          const arr = this.state.pluginList
+          arr[regionName] = res.list
+          this.setState({
+            pluginList: arr
+          })
+          resolve();
         }
+      },
+      handleError: err => {
+        if (err) {
+          this.setState({
+            pluginList: {},
+          })
+          reject(new Error("Failed to get component language version"));
+        }
+      }
     })
-}
+  })
+
+  }
 
   // 获取平台公共信息(判断用户是否是离线)
   handleGetEnterpeiseMsg = (data, eid) => {
@@ -204,14 +226,14 @@ class EnterpriseLayout extends PureComponent {
                 });
               }
             },
-            handleError: err => {}
+            handleError: err => { }
           });
         } else {
           const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
           isNewbieGuide && this.getNewbieGuideConfig(eid);
         }
       },
-      handleError: err => {}
+      handleError: err => { }
     });
   };
   // get enterprise list
@@ -387,11 +409,11 @@ class EnterpriseLayout extends PureComponent {
     });
   };
   getAlertInfo = () => {
-    const { 
+    const {
       dispatch,
       match: {
         params: { eid }
-      } 
+      }
     } = this.props;
     dispatch({
       type: 'global/getRainbondAlert',
@@ -401,23 +423,23 @@ class EnterpriseLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           //获取平台报警信息
-          if(res.list.length > 0){
+          if (res.list.length > 0) {
             this.setState({
               alertInfo: res.list
             })
           }
         }
-      },handleError: err => {
+      }, handleError: err => {
         console.log(err)
       }
     });
   }
   onJumpPersonal = () => {
-    const { 
+    const {
       match: {
-        params: {eid}
-      }, 
-      dispatch, 
+        params: { eid }
+      },
+      dispatch,
     } = this.props
     dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
   }
@@ -438,7 +460,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList } = this.state;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
@@ -454,7 +476,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeaderImg = () => {
       return (
         <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-           <img src={fetchLogo} alt="" />
+          <img src={fetchLogo} alt="" />
         </div>
       );
     };
@@ -471,7 +493,7 @@ class EnterpriseLayout extends PureComponent {
     const layout = () => {
       const { rainbondInfo } = this.props
       const isAlarm = rainbondInfo && rainbondInfo.is_alarm && rainbondInfo.is_alarm.enable
-      const { showMenu } = this.state
+      const { showMenu, key } = this.state
       const urlParams = new URL(window.location.href)
       const includesAdd = urlParams.href.includes('/addCluster')
       const includesPro = urlParams.href.includes('/provider')
@@ -508,6 +530,7 @@ class EnterpriseLayout extends PureComponent {
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
+                key={key}
                 currentEnterprise={enterpriseInfo}
                 enterpriseList={enterpriseList}
                 title={
@@ -518,8 +541,8 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid, currentUser, enterprise, pluginList)}
-                showMenu= {showMenu}
+                menuData={getMenuData(eid, currentUser, enterprise, pluginList, clusterList)}
+                showMenu={showMenu}
                 pathname={pathname}
                 location={location}
                 isMobile={this.state.isMobile}
@@ -535,9 +558,9 @@ class EnterpriseLayout extends PureComponent {
                 <CSSTransition
                   timeout={300}
                   classNames=
-                  {{                        
-                  enter: 'animate__animated',
-                  enterActive: 'animate__fadeIn',
+                  {{
+                    enter: 'animate__animated',
+                    enterActive: 'animate__fadeIn',
                   }}
                   unmountOnExit
                   key={showTransition ? "" : this.props.location.pathname}
@@ -553,20 +576,20 @@ class EnterpriseLayout extends PureComponent {
                   >
                     {/* 报警信息 */}
                     {isAlarm ? (
-                    alertInfo.length > 0 && alertInfo.map((item) => {
-                      return (
-                        <div className={styles.alerts}>
-                          <Alert
-                            style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
-                            message={item.annotations.description || item.annotations.summary}
-                            type="warning"
-                            showIcon
-                          />
-                        </div>
-                      )
-                    })
-                    ):
-                    null
+                      alertInfo.length > 0 && alertInfo.map((item) => {
+                        return (
+                          <div className={styles.alerts}>
+                            <Alert
+                              style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
+                              message={item.annotations.description || item.annotations.summary}
+                              type="warning"
+                              showIcon
+                            />
+                          </div>
+                        )
+                      })
+                    ) :
+                      null
                     }
                     <div
                       style={{
@@ -582,8 +605,8 @@ class EnterpriseLayout extends PureComponent {
                       </Authorized>
                     </div>
                   </Content>
-              </CSSTransition>
-             </TransitionGroup>
+                </CSSTransition>
+              </TransitionGroup>
             </Layout>
           </Layout>
         </Layout>
@@ -617,7 +640,7 @@ class EnterpriseLayout extends PureComponent {
             orders={orders}
           />
         )}
-        {terminalStatus && ReactDOM.createPortal(<Shell/>,document.getElementById("root"))}
+        {terminalStatus && ReactDOM.createPortal(<Shell />, document.getElementById("root"))}
       </Fragment>
     );
   }

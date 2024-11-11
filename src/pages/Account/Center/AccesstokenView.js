@@ -1,4 +1,4 @@
-import { Alert, Button, notification, Row, Table } from 'antd';
+import { Alert, Button, notification, Row, Table, Popconfirm } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
@@ -179,14 +179,18 @@ class BindingView extends Component {
             >
               {formatMessage({id:'otherEnterprise.AccesstokenView.delete'})}
             </a>
+            <Popconfirm
+            title='重新生成后之前的AccessKey将无法使用,确认重新生成吗？'
+            placement="top"
+            onConfirm={()=>this.handleRegenerateAccessToken(data.ID)} okText="确定" cancelText="取消"
+            >
             <a
-              onClick={() => {
-                this.handleRegenerateAccessToken(data.ID);
-              }}
               style={{ margintRight: 10 }}
             >
               {formatMessage({id:'otherEnterprise.AccesstokenView.Regenerate'})}
             </a>
+            </Popconfirm>
+
           </Fragment>
         )
       }

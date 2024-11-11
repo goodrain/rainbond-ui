@@ -20,7 +20,7 @@ class Headers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            values: [{ weight: '', port: '', name: '', PortList: [] }],
+            values: [{ weight: '1', port: '', name: '', PortList: [] }],
             portLoading: false,
         };
     }
@@ -68,7 +68,7 @@ class Headers extends Component {
     setValues(arr) {
         const setArr = arr || [];
         if (!setArr.length) {
-            setArr.push({ weight: '', port: '', name: '', PortList: [] });
+            setArr.push({ weight: '1', port: '', name: '', PortList: [] });
         }
         this.setState({ values: setArr });
     }
@@ -87,7 +87,7 @@ class Headers extends Component {
             return null;
         }
         this.setState({
-            values: values.concat({ weight: '', port: '', name: '', PortList: [] })
+            values: values.concat({ weight: '1', port: '', name: '', PortList: [] })
         });
     };
 
@@ -130,7 +130,6 @@ class Headers extends Component {
             },
             callback: data => {
                 const list = (data && data.list) || [];
-                console.log(list,"list");
                 this.setState({ portList: list }, () => {
                     if(this.state.portList[0].inner_url != ''){
                         this.onPortChange(this.state.portList[0].container_port, index)
@@ -171,7 +170,6 @@ class Headers extends Component {
                 {values.map((item, indexs) => {
                     const first = indexs === 0;
                     const key = item.name && this.handleName(item.name)
-                    console.log(item,"item");
                     return (
                         <Row key={indexs} style={{ marginBottom: 10 }}>
                             <Col span={8}>
@@ -223,10 +221,11 @@ class Headers extends Component {
                                 <InputNumber
                                     name="value"
                                     min={1}
+                                    max={100}
                                     onChange={val => {
                                         this.onWeightChange(val, indexs);
                                     }}
-                                    value={item.weight || ''}
+                                    value={item.weight || 1}
                                     placeholder={'权重'}
                                 />
                             </Col>

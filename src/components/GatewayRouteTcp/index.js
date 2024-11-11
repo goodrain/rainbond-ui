@@ -137,6 +137,7 @@ export default class index extends Component {
                 region_name: globalUtil.getCurrRegionName(),
             },
             callback: res => {
+                if(res && res.status_code === 200)
                 this.setState({
                     routeDrawer: false
                 }, () => {

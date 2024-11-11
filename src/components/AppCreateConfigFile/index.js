@@ -253,7 +253,13 @@ class BaseInfo extends PureComponent {
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const extendMethods = method == 'state_singleton' ? 'state_multiple' : method == 'stateless_singleton' ? 'stateless_multiple' : method == 'job' ? 'job' : method == 'cronjob' ? 'cronjob' : method;
     const list = this.state.memoryList;
-    const arrOption = ['0 * * * *', '0 0 * * *', '0 0 * * 0', '0 0 1 * *', '0 0 1 1 *']
+    const arrOption = [
+      { name: formatMessage({ id: 'componentOverview.body.Strategy.hour' }), value: '0 * * * *' },
+      { name: formatMessage({ id: 'componentOverview.body.Strategy.day' }), value: '0 0 * * *' },
+      { name: formatMessage({ id: 'componentOverview.body.Strategy.week' }), value: '0 0 * * 0' },
+      { name: formatMessage({ id: 'componentOverview.body.Strategy.month' }), value: '0 0 1 * *' },
+      { name: formatMessage({ id: 'componentOverview.body.Strategy.year' }), value: '0 0 1 1 *' }
+    ]
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -345,8 +351,8 @@ class BaseInfo extends PureComponent {
                 {(arrOption.length > 0)
                   ? arrOption.map((item) => {
                     const res = (
-                      <AutoComplete.Option value={item}>
-                        {item}
+                      <AutoComplete.Option value={item.value}>
+                        {item.name}
                       </AutoComplete.Option>
                     );
                     return res;

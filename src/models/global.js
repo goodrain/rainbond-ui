@@ -127,7 +127,8 @@ import {
   updatePlatform,
   fetchAllVersion,
   fetchVersionDetails,
-  fetchVersionData
+  fetchVersionData,
+  updateVersion
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1060,6 +1061,13 @@ export default {
         callback(response);
       }
     },
+    *updateVersion({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updateVersion, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    
     
   },
   reducers: {

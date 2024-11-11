@@ -117,8 +117,15 @@ class EditAlias extends PureComponent {
                 {
                   required: true,
                   message: formatMessage({id:'componentOverview.body.EditAlias.label_alias.message'})
-
-                }
+                },
+                {
+                  pattern: /^[^\s\u4e00-\u9fa5!@#\$%\^\&\*\(\)_\+\-=\[\]\{\};:'"\\|,<>\?\/`~][^\s\u4e00-\u9fa5]*$/,
+                  message: formatMessage({id:'placeholder.portFrom.invalid_format'}) 
+                },
+                {
+                  pattern: /^[A-Z][A-Z0-9]*$/,
+                  message: formatMessage({id:'applicationMarket.HelmForm.invalid_format'})
+                },
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.EditAlias.label_alias.message'})}/>)}
           </FormItem>

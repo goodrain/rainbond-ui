@@ -129,8 +129,8 @@ export default {
         callback(response);
       }
     },
-    *createAppModel({ payload, callback }, { call }) {
-      const response = yield call(createAppModel, payload);
+    *createAppModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(createAppModel, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -141,8 +141,8 @@ export default {
         callback(response);
       }
     },
-    *createMarketAppModel({ payload, callback }, { call }) {
-      const response = yield call(createMarketAppModel, payload);
+    *createMarketAppModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(createMarketAppModel, payload, handleError);
       if (response && callback) {
         callback(response);
       }

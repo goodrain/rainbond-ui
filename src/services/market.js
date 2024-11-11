@@ -306,7 +306,7 @@ export async function createAppMarket(body) {
 }
 
 /* 创建本地应用 */
-export async function createAppModel(body) {
+export async function createAppModel(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models`,
     {
@@ -323,17 +323,19 @@ export async function createAppModel(body) {
         details: 'This is a default description',
         describe: body.describe,
         tag_ids: body.tag_ids
-      }
+      },
+      handleError
     }
   );
 }
 /* 创建市场应用 */
-export async function createMarketAppModel(data) {
+export async function createMarketAppModel(data,handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${data.enterprise_id}/cloud/markets/${data.marketName}/app-models`,
     {
       method: 'post',
-      data
+      data,
+      handleError
     }
   );
 }

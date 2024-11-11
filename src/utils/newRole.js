@@ -19,7 +19,6 @@ const En_actionMaps = {
 };
 const roleMaps = {
     admin: formatMessage({ id: 'utils.role.roleMaps_admin' }),
-    app_store: formatMessage({ id: 'utils.role.roleMaps_app_store' })
 };
 const AccessText = {
     team_overview: '团队总览',

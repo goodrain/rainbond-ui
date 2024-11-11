@@ -611,7 +611,13 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) }]
+                rules: [
+                  { required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) },
+                  // 长度255
+                  { max: 255, message: '最大输入长度为255个字符' },
+                  // 不允许输入中文、空格
+                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: '不允许输入中文、空格' }
+                ]
               })(
                 <div className={styles.address}>
                   <div className={styles.registryAddress}>

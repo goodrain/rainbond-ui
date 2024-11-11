@@ -16,10 +16,11 @@ import roleUtil from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './wizard.less';
 
-@connect(({ enterprise, user, teamControl }) => ({
+@connect(({ enterprise, user, teamControl, global }) => ({
     currentEnterprise: enterprise.currentEnterprise,
     user: user.currentUser,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    rainbondInfo: global.rainbondInfo,
 }))
 
 export default class Index extends PureComponent {
@@ -102,7 +103,9 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
+        const {rainbondInfo} = this.props
         const { rainStoreTab, language, localist, teamAppCreatePermission:{isAccess} } = this.state
+        const showDemo = rainbondInfo?.official_demo?.enable
         if(!isAccess){
             return roleUtil.noPermission()
         }
@@ -151,6 +154,7 @@ export default class Index extends PureComponent {
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({id:'componentOverview.body.tab.log.container'})}</p>
                             <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({id:'Vm.createVm.vm'})}</p>
+                            {showDemo && <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
@@ -172,7 +176,7 @@ export default class Index extends PureComponent {
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('code', 'custom')}>{formatMessage({ id: 'teamAdd.create.code.customSource' })}</p>
                             <p onClick={() => this.onClickLinkCreate('code', 'jwar')}>{formatMessage({ id: 'teamAdd.create.code.package' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('code', 'demo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>
+                            {showDemo && <p onClick={() => this.onClickLinkCreate('code', 'demo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                         </div>
                     </div>
                     <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>

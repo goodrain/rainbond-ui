@@ -267,7 +267,7 @@ class TeamLayout extends PureComponent {
               }
             })
           }
-          if (res && res.bean) {
+          if (res && res.bean && res.bean.need_authz) {
             this.setState({
               isNeedAuthz: res.bean.need_authz
             })
@@ -582,6 +582,7 @@ class TeamLayout extends PureComponent {
       groupDetail
     } = this.props;
     const {
+      eid,
       enterpriseList,
       ready,
       currentEnterprise,
@@ -604,24 +605,6 @@ class TeamLayout extends PureComponent {
 
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
-    // Parameters of the abnormal
-    if (!teamName || !regionName) {
-      return <Redirect to="/" />;
-    }
-    // The necessary data is loaded
-    if (!teamView) {
-      return <Exception />;
-    }
-    if (
-      !ready ||
-      isAuthorizationLoading ||
-      !currentEnterprise ||
-      !currentTeam ||
-      !currentTeamPermissionsInfo
-    ) {
-      return <PageLoading />;
-    }
-
     if (isNeedAuthz) {
       if (!isAuthorizationLoading && !licenseInfo) {
         return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
@@ -644,6 +627,25 @@ class TeamLayout extends PureComponent {
         return <Overdue title={overdueTitle} desc={overdueDesc} />;
       }
     }
+    // Parameters of the abnormal
+    if (!teamName || !regionName) {
+      return <Redirect to="/" />;
+    }
+    // The necessary data is loaded
+    if (!teamView) {
+      return <Exception />;
+    }
+    if (
+      !ready ||
+      isAuthorizationLoading ||
+      !currentEnterprise ||
+      !currentTeam ||
+      !currentTeamPermissionsInfo
+    ) {
+      return <PageLoading />;
+    }
+
+
     
     if (
       teamName !== currentTeam.team_name ||
@@ -701,6 +703,7 @@ class TeamLayout extends PureComponent {
             currentRegion={currentRegion}
             regionName={regionName}
             upDataHeader={upDataHeader}
+            changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10)}}
           />
         );
       }
@@ -717,6 +720,7 @@ class TeamLayout extends PureComponent {
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
+          changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10)}}
         />
       );
     }

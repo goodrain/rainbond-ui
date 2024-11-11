@@ -50,7 +50,7 @@ export default class Index extends PureComponent {
     this.loop = false;
   }
   componentDidMount() {
-    this.handleJarWarUploadRecord('yaml')
+    // this.handleJarWarUploadRecord('yaml')
   }
   componentWillUnmount() {
     this.loop = false;

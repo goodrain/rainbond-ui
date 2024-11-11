@@ -17,7 +17,8 @@ export default function AppHeader(props) {
     currentComponent,
     nobleIcon,
     upDataHeader,
-    handleClick
+    handleClick,
+    changeTeam
   } = props;
   return (
     <div className={headerStype.itemBox}>
@@ -43,6 +44,7 @@ export default function AppHeader(props) {
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentRegion={currentRegion}
+            changeTeam={changeTeam}
           />
           <div className={headerStype.item}>
             <span className={headerStype.itemseparator}>></span>

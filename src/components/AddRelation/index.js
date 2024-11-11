@@ -71,7 +71,7 @@ export default class AddRelation extends PureComponent {
             this.setState({
               apps: res.list || [],
               total: res.total,
-              selectedRowKeys: []
+              // selectedRowKeys: []
             });
           }
         }
@@ -89,7 +89,7 @@ export default class AddRelation extends PureComponent {
           this.setState({
             apps: data.list || [],
             total: data.total,
-            selectedRowKeys: []
+            // selectedRowKeys: []
           });
         }
       });

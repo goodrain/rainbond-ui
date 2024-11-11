@@ -46,18 +46,10 @@ export default class Index extends Component {
   };
 
   loadEnterpriseClusters = () => {
-    const { dispatch } = this.props;
-    const enterpriseId = Global.getCurrEnterpriseId();
-
-    dispatch({
-      type: 'region/fetchEnterpriseClusters',
-      payload: { enterprise_id: enterpriseId },
-      callback: (res) => {
-        if (res.status_code === 200 && res.list?.[0]?.region_name) {
-          this.loadPluginList(res.list[0].region_name);
-        }
-      },
-    });
+    const urlParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
+    const region_name = urlParams.get('regionName');
+    const regionName = Global.getCurrRegionName() || this.props?.match?.params?.regionID  || region_name 
+    this.loadPluginList(regionName);
   };
 
   loadPluginList = (regionName) => {
