@@ -56,7 +56,7 @@ export default class Index extends PureComponent {
     this.statusloop = false;
   }
   componentDidMount() {
-    // this.handleJarWarUploadRecord('jwar')
+    this.handleJarWarUpload()
   }
   componentWillUnmount() {
     this.loop = false;
@@ -182,7 +182,6 @@ export default class Index extends PureComponent {
           this.setState({
             existFileList: []
           })
-          this.handleJarWarUpload()
         }
       },
       handleError: () => { }

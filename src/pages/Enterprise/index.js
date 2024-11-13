@@ -1273,7 +1273,8 @@ export default class Enterprise extends PureComponent {
                   all_nodes,
                   services_status,
                   node_ready,
-                  region_id
+                  region_id,
+                  run_pod_number
                 } = item
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
@@ -1342,7 +1343,7 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.node}>
                             <p >{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
                             <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{services_status && services_status.running || 0}</span>
+                              <span className={enterpriseStyles.running}>{run_pod_number && run_pod_number || 0}</span>
                             </div>
                           </div>
                         </div>

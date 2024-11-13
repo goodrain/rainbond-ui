@@ -187,11 +187,12 @@ class ConfirmModal extends PureComponent {
                   message: formatMessage({id:'placeholder.git_url_domain'}),
                 },
                 {
-                  validator: this.validateNoChinese
-                },
-                {
                   max: 255,
                   message: formatMessage({id:'placeholder.max255'}),
+                },
+                {
+                  pattern: /^(http:\/\/|https:\/\/)/,
+                  message: formatMessage({ id: 'placeholder.warehouse_address.Ban' }),
                 }
               ],
               getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},

@@ -445,8 +445,8 @@ export default class Index extends PureComponent {
             })(
               <RadioGroup onChange={this.hanldeMetaTypeChange}>
                 <Radio value="un_define">{formatMessage({id:'teamOther.AddOrEditConfig.unrely_on'})}</Radio>
-                <Radio value="upstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.port'})}</Radio>
-                <Radio value="downstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.downstream'})}</Radio>
+                {/* <Radio value="upstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.port'})}</Radio>
+                <Radio value="downstream_port">{formatMessage({id:'teamOther.AddOrEditConfig.downstream'})}</Radio> */}
               </RadioGroup>
             )}
           </Form.Item>
@@ -462,7 +462,7 @@ export default class Index extends PureComponent {
                 >
                   {formatMessage({id:'teamOther.AddOrEditConfig.env'})}
                 </Radio>
-                <Radio value="auto">{formatMessage({id:'teamOther.AddOrEditConfig.find'})}</Radio>
+                {/* <Radio value="auto">{formatMessage({id:'teamOther.AddOrEditConfig.find'})}</Radio> */}
               </RadioGroup>
             )}
           </Form.Item>

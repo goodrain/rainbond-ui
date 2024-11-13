@@ -872,6 +872,7 @@
         'placeholder.warehouse_not_empty':'镜像仓库地址不能为空',
         'placeholder.warehouse_address':'请选择镜像或输入镜像名称筛选',
         'placeholder.warehouse_address.ban':'禁止输入http或https',
+        'placeholder.warehouse_address.Ban':'请输入以http://或https://为开头的有效地址',
         'placeholder.portFrom.invalid_format':'格式无效，不能包含空格、汉字，且不能以标点开头',
         'applicationMarket.HelmForm.invalid_format':'请填入大写英文字母'
     }
