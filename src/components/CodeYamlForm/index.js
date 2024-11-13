@@ -55,7 +55,7 @@ export default class Index extends PureComponent {
     // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
-    // this.handleJarWarUploadRecord('jwar')
+    this.handleJarWarUpload()
   }
   componentWillUnmount() {
     this.loop = false;

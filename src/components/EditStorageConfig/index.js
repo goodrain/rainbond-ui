@@ -230,31 +230,6 @@ export default class AddVolumes extends PureComponent {
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.StorageConfig.path'})}/>)}
           </FormItem>
-          {/* <FormItem {...formItemLayout} label="存储配额(GB)">
-            {getFieldDecorator('volume_capacity', {
-              initialValue: defaultVolumeCapacity,
-              rules: [
-                {
-                  min: 0,
-                  message: '最小值为0，即不限制'
-                },
-                {
-                  validator: this.checkVolumeCapacity
-                }
-              ]
-            })(
-              <Input
-                type="number"
-                placeholder={
-                  !!this.props.editor && data.volume_capacity === 0
-                    ? '不限制'
-                    : '请输入存储配额'
-                }
-                min={1}
-                disabled={!!this.props.editor}
-              />
-            )}
-          </FormItem> */}
           {!this.props.editor && (
             <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.StorageConfig.type'/>}>
               {getFieldDecorator('volume_type', {

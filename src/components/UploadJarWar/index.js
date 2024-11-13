@@ -65,6 +65,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     // this.handleJarWarUploadRecord('jwar')
+    this.handleJarWarUpload()
   }
   componentWillUnmount() {
     this.loop = false;

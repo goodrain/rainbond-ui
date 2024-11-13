@@ -122,6 +122,19 @@ export default class index extends Component {
     handleService = (data, type) => {
         return 
     }
+    getAccessAddress = () =>{
+        const { editInfo, form } = this.props;
+        const {getFieldValue} = form
+        const { comList } = this.state;
+        const str = getFieldValue('service_id')
+        const port =getFieldValue('ingressPort')
+        const arr = comList.filter(item => `${item.service_name}:${item.port}` == str   )
+        if(str && port){
+            return`访问地址：${arr[0]?.outer_url}:${port}` || ''
+        }else{
+            return ''
+        }
+    }
 
     render() {
         const { getFieldDecorator } = this.props.form;
@@ -174,23 +187,17 @@ export default class index extends Component {
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
-                    <Row>
-                        <Col span={12}>
-                        </Col>
-                        <Col span={12}>
-                        </Col>
-                    </Row>
-                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.TCP.port'})}>
+                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.TCP.port'})} extra={<span style={{color:'red'}}>{this.getAccessAddress()}</span>}>
                         {getFieldDecorator('ingressPort', {
                             rules: [
                                 { required: true, message: formatMessage({id:'teamNewGateway.NewGateway.TCP.inputPort'}) },
                                 { pattern: /^3[0-1][0-9]{3}$|^32000$/, message: '端口范围 30000-32000之间'  }
                             ],
-                            initialValue: (editInfo && editInfo.nodePort) || []
+                            initialValue: (editInfo && editInfo.nodePort) || ''
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.inputPort'})} type='number'/>)}
                     </Form.Item>
                     < Skeleton loading={serviceComponentLoading} active >
-                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.access_strategy.lable.component' })}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.access_strategy.lable.component' })} >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
                                 initialValue: (Object.keys(editInfo).length  ? `${editInfo.name}:${editInfo.port}` : undefined)
@@ -200,7 +207,7 @@ export default class index extends Component {
                             >
                                 {
                                     comList && comList.map((item, index) => {
-                                        const { component_name, port, service_name } = item;
+                                        const { component_name, port, service_name, outer_url } = item;
                                         if (service_name != null) {
                                             return (
                                                 <Option
@@ -222,7 +229,6 @@ export default class index extends Component {
                                     })
 
                                 }
-
                             </Select>
                             )}
                         </Form.Item>

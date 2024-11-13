@@ -744,7 +744,7 @@ export default class Index extends PureComponent {
           </div>
         </Card>
         {/* 存储管理 */}
-        <Card
+        {/* <Card
           style={{
             marginBottom: 16
           }}
@@ -815,7 +815,7 @@ export default class Index extends PureComponent {
               {formatMessage({id:'teamOther.manage.add_storage'})}
             </Button>
           </div>
-        </Card>
+        </Card> */}
         <Card title={formatMessage({id:'teamOther.manage.already_installed'})}>
           <Table
             rowKey={(record,index) => index}

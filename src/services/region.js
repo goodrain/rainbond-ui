@@ -412,7 +412,9 @@ export async function installCluster(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/cluster_install`, {
     method: 'post',
     data: {
-      value_yaml: params.value_yaml
+      value_yaml: params.value_yaml,
+      third_db: params.third_db,
+      third_hub: params.third_hub
     },
     handleError
   });

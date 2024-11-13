@@ -278,7 +278,7 @@ const global = {
       Building: '#007710', // 构建  纯蓝
       succeeded: '#00D777', //绿色 已完成
       SUCCEEDED: '#6db7fb', //蓝色 已完成
-      PENDING: '#5BB2FA'
+      PENDING: '#F69D4A'
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },

@@ -784,35 +784,18 @@ export default class EnterpriseShared extends PureComponent {
       }
     } = this.props;
     dispatch({
-      type: 'market/deleteHelmAppStore',
-      payload: {
-        enterprise_id: eid,
-        name: helmInfo.name
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            activeTabKey: 'local',
-            helmInfo: false,
-            deleteHelmAppMarketLoading: false,
-            tabsList: []
-          }, () => {
-            this.handleCloseDeleteHelmAppMarket();
-            this.getHelmMarketsTab();
-            this.getMarketsTab();
-          });
-          notification.success({
-            message: formatMessage({ id: 'notification.success.delete' })
-          });
-        }
-      }
-    });
-    dispatch({
       type: 'market/HelmwaRehouseDelete',
       payload: {
         repo_name: helmInfo.name
       },
       callback: res => {
+        this.setState({
+          activeTabKey: 'local'
+        }, () => {
+          this.handleCloseDeleteHelmAppMarket();
+          this.getHelmMarketsTab();
+          this.getMarketsTab();
+        })
       }
     });
   };
@@ -1663,8 +1646,8 @@ export default class EnterpriseShared extends PureComponent {
           )}
           {isImportApp && (
             <Button type="primary" icon='download' onClick={this.jump}>
-                {/* 导入应用模版 */}
-                <FormattedMessage id='applicationMarket.localMarket.import.template' />
+              {/* 导入应用模版 */}
+              <FormattedMessage id='applicationMarket.localMarket.import.template' />
             </Button>
           )}
         </div>

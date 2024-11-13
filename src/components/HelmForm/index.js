@@ -89,20 +89,15 @@ export default class Index extends PureComponent {
           createLoading: true
         });
         dispatch({
-          type: 'market/upHelmAppStore',
-          payload: Object.assign({}, { enterprise_id: eid }, values),
+          type: 'market/HelmwaRehouseEdit',
+          payload: {
+            repo_name: values.name,
+            repo_url: values.url,
+          },
           callback: res => {
             if (res && res.status_code === 200) {
               this.handleClose();
               onOk();
-              dispatch({
-                type: 'market/HelmwaRehouseEdit',
-                payload: {
-                  repo_name: values.name,
-                  repo_url: values.url,
-                }
-              });
-             
             }
           },
           handleError: res => {

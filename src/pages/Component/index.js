@@ -1144,6 +1144,7 @@ class Main extends PureComponent {
                 <Divider type="vertical" />
               )}
               {status && status.status && isDelete && (
+                (status.status !== 'runing' && appDetail?.service?.extend_method === 'cronjob') && 
                 <a
                   onClick={() => {
                     this.handleDropClick('deleteApp');
