@@ -186,9 +186,9 @@ export default class index extends Component {
                             record.match.hosts.map((item, index) => {
                                 return (
                                     <Row style={{ marginBottom: 4 }} key={index}>
-                                        <Tag key={index} color="volcano">
-                                            {item}
-                                        </Tag>
+                                            <a href={item} target="_blank">
+                                                {item}
+                                            </a>
                                     </Row>
                                 )
                             })

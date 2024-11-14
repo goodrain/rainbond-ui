@@ -669,7 +669,7 @@ export function fetchGetTcpService(params) {
 // 编辑tcp服务
 export function fetchEditTcpService(params) {
   return request(
-    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}`,
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}&port=${params?.values?.match?.ingressPort}`,
     {
       method: 'post',
       data: {

@@ -122,7 +122,7 @@ class ConfirmModal extends PureComponent {
           <FormItem {...formItemLayout} label="">
             {getFieldDecorator('graphIds', {
               initialValue: defaultCheckedList || [],
-              rules: [{ required: true, message: formatMessage({id:''}) }]
+              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.tab.BatchDeleteChart.view'}) }]
             })(
               <Checkbox.Group
                 style={{ width: '472px' }}

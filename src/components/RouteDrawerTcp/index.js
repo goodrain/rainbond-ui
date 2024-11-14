@@ -128,7 +128,10 @@ export default class index extends Component {
         const { comList } = this.state;
         const str = getFieldValue('service_id')
         const port =getFieldValue('ingressPort')
+        console.log(str,"str");
+        console.log(comList,"comList");
         const arr = comList.filter(item => `${item.service_name}:${item.port}` == str   )
+        console.log(arr,"arr");
         if(str && port){
             return`访问地址：${arr[0]?.outer_url}:${port}` || ''
         }else{
@@ -187,6 +190,7 @@ export default class index extends Component {
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
+                <Skeleton Skeleton loading={serviceComponentLoading} active >
                     <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.TCP.port'})} extra={<span style={{color:'red'}}>{this.getAccessAddress()}</span>}>
                         {getFieldDecorator('ingressPort', {
                             rules: [
@@ -196,6 +200,7 @@ export default class index extends Component {
                             initialValue: (editInfo && editInfo.nodePort) || ''
                         })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.inputPort'})} type='number'/>)}
                     </Form.Item>
+                    </Skeleton>
                     < Skeleton loading={serviceComponentLoading} active >
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.access_strategy.lable.component' })} >
                             {getFieldDecorator('service_id', {
@@ -208,7 +213,7 @@ export default class index extends Component {
                                 {
                                     comList && comList.map((item, index) => {
                                         const { component_name, port, service_name, outer_url } = item;
-                                        if (service_name != null) {
+                                        if (service_name != null && outer_url ) {
                                             return (
                                                 <Option
                                                     value={`${service_name}:${port}`}

@@ -27,29 +27,29 @@ export default class AddAdmin extends PureComponent {
   }
   componentDidMount() {
     this.loadTeams();
-    this.loadRoles();
+    // this.loadRoles();
   }
   onSearch = value => {
     this.loadTeams(value);
   };
 
-  loadRoles = () => {
-    const { dispatch, eid } = this.props;
+  // loadRoles = () => {
+  //   const { dispatch, eid } = this.props;
 
-    dispatch({
-      type: 'global/fetchEnterpriseRoles',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res) {
-          this.setState({
-            roles: res.list || []
-          });
-        }
-      }
-    });
-  };
+  //   dispatch({
+  //     type: 'global/fetchEnterpriseRoles',
+  //     payload: {
+  //       enterprise_id: eid
+  //     },
+  //     callback: res => {
+  //       if (res) {
+  //         this.setState({
+  //           roles: res.list || []
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
 
   loadTeams = name => {
     const { dispatch, eid } = this.props;
@@ -135,7 +135,7 @@ export default class AddAdmin extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label={formatMessage({id:'enterpriseSetting.enterpriseAdmin.form.select.roles'})}>
             {getFieldDecorator('roles', {
-              initialValue: (info && info.roles) || [],
+              initialValue: (info && info.roles) || roles,
               rules: [
                 {
                   required: true,

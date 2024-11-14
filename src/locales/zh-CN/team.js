@@ -568,7 +568,7 @@ const teamOther = {
 
   'teamOther.move_team.name':'修改团队名称',
   'teamOther.move_team.null':'不能为空!',
-  'teamOther.move_team.max':'最大长度32位',
+  'teamOther.move_team.max':'最大长度24位',
   'teamOther.move_team.input_name':'请输入新的团队名称',
   'teamOther.move_team.name_label':'修改名称',
   'teamOther.move_team.logo_label':'修改团队信息',

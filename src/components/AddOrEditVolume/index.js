@@ -260,7 +260,7 @@ export default class AddVolumes extends PureComponent {
           )}
           <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
             {getFieldDecorator('volume_capacity', {
-              initialValue: defaultVolumeCapacity,
+              initialValue: defaultVolumeCapacity || 10,
               rules: [
                 {
                   min: 0,
@@ -280,6 +280,7 @@ export default class AddVolumes extends PureComponent {
                     : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
                 }
                 min={1}
+                max={500}
                 disabled={!!this.props.editor}
               />
             )}
@@ -287,7 +288,7 @@ export default class AddVolumes extends PureComponent {
           {method != 'vm' &&
             <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
-                initialValue: data.volume_type || 'share-file',
+                initialValue: data.volume_type || "memoryfs",
               })(
                 <RadioGroup onChange={this.handleChange}>
                   {volumeOpts.map(item => {
