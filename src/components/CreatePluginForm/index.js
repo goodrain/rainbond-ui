@@ -185,7 +185,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.category'})}>
           {getFieldDecorator('category', {
-            initialValue: data.category || 'net-plugin:up',
+            initialValue: data.category || 'analyst-plugin:perf',
             rules: [{ required: true, message: formatMessage({id:'placeholder.plugin.build_source'}) }]
           })(
             <Select

@@ -566,7 +566,7 @@ const teamOther = {
 
   'teamOther.move_team.name':'Modify team name',
   'teamOther.move_team.null':'Cannot be empty!',
-  'teamOther.move_team.max':'Maximum length: 32 bits',
+  'teamOther.move_team.max':'Maximum length: 24 bits',
   'teamOther.move_team.input_name':'Please enter a new team name',
 
   'teamOther.manage.structure':'Build',

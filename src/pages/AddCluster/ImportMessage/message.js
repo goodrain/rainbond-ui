@@ -8,10 +8,12 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import router from 'umi/router';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
+import global from '@/utils/global';
 import styles from './index.less';
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 @Form.create()
+
 @connect(({ user, list, loading, global, index, region, enterprise, team }) => ({
     user: user.currentUser,
     list,
@@ -24,6 +26,7 @@ const { Option, OptGroup } = Select;
     baseConfiguration: region.base_configuration,
     team: team
 }))
+
 export default class ImportMessage extends PureComponent {
     constructor(props) {
         super(props);
@@ -41,19 +44,18 @@ export default class ImportMessage extends PureComponent {
 
     componentDidMount() {
         this.handleNameSpace()
-        console.log(this.props.overviewInfo,"this.props.overviewInfo");
     }
     //NameSpace列表
     handleNameSpace = () => {
         const {
             dispatch
         } = this.props;
-        const regionId = this.props.region_id
+        const regionId = (this.props.region_id
             ? this.props.region_id
-            : this.props.overviewInfo.region_id
+            : this.props.overviewInfo.region_id )
         const eid = this.props.eid
             ? this.props.eid
-            : this.props.overviewInfo.eid
+            : this.props.enterprise?.enterprise_id
         dispatch({
             type: 'region/fetchImportMessage',
             payload: {

@@ -269,7 +269,7 @@ export default class Index extends PureComponent {
               initialValue: data.docker_cmd || '',
               rules: [{ required: true, message: '请填写命令' }]
             })(
-              <TextArea style={{ minHeight: '200px' }} placeholder='请填写命令1' />
+              <TextArea style={{ minHeight: '200px' }} placeholder='请填写命令' />
             )}
           </Form.Item>
 
