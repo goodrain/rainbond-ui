@@ -400,10 +400,12 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          const arr = res.filter(item => {item.name === ID});
           this.setState(
             {
               helmTab: Array.isArray(res) ? res : [],
-              tabsList: []
+              tabsList: [],
+              helmInfo: arr[0] || {}
             },
             () => {
               const arr = [];

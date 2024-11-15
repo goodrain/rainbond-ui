@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
   componentWillMount() {
     this.loop = false;
     const { handleType, groupId } = this.props;
-    if(handleType && handleType === 'Service'){
+    if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
   }
@@ -82,7 +82,7 @@ export default class Index extends PureComponent {
     role.refreshPermissionsInfo(groupId, false, this.callbcak)
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
+  callbcak = (val) => {
     this.setState({ creatComPermission: val })
   }
   handleJarWarUpload = () => {
@@ -230,7 +230,7 @@ export default class Index extends PureComponent {
     const { event_id } = this.state
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
         onSubmit(fieldsValue, event_id);
@@ -254,42 +254,42 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({ id: 'otherApp.UploadYaml.max' })));
     }
   };
-    // 获取当前选取的app的所有组件的英文名称
-    fetchComponentNames = (group_id) => {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'appControl/getComponentNames',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          group_id
-        },
-        callback: res => {
-          if (res && res.bean ) {
-            this.setState({
-              comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-            })
+  // 获取当前选取的app的所有组件的英文名称
+  fetchComponentNames = (group_id) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/getComponentNames',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
+          })
         }
       }
-      });
-    };
-    // 生成英文名
-    generateEnglishName = (name) => {
-      if(name != undefined){
-        const { comNames } = this.state;
-        const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
-        const cleanedPinyinName = pinyinName.toLowerCase();
-        if (comNames && comNames.length > 0) {
-          const isExist = comNames.some(item => item === cleanedPinyinName);
-          if (isExist) {
-            const random = Math.floor(Math.random() * 10000);          
-            return `${cleanedPinyinName}${random}`;
-          }
-          return cleanedPinyinName;
+    });
+  };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
       }
-      return ''
+      return cleanedPinyinName;
     }
+    return ''
+  }
   render() {
     const { form } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -310,9 +310,9 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -393,13 +393,14 @@ export default class Index extends PureComponent {
               ]
             })(
               <Upload
+                disabled={existFileList.length === 1}
                 fileList={fileList}
                 accept=".jar,.war,.zip,.tar"
                 name="packageTarFile"
                 onChange={this.onChangeUpload}
                 onRemove={this.onRemove}
                 action={record.upload_url}
-                multiple={true}
+                multiple={false}
               >
                 <Button>
                   <Icon type="upload" /> {formatMessage({ id: 'otherApp.UploadYaml.up' })}
@@ -408,59 +409,59 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           <Form.Item
-              labelCol={language ? { span: 5 } : { span: 7 }}
-              wrapperCol={language ? { span: 19 } : { span: 15 }}
-              label={formatMessage({ id: 'teamAdd.create.fileList' })}
+            labelCol={language ? { span: 5 } : { span: 7 }}
+            wrapperCol={language ? { span: 19 } : { span: 15 }}
+            label={formatMessage({ id: 'teamAdd.create.fileList' })}
+          >
+            <div
+              style={{
+                display: 'flex'
+              }}
             >
-              <div
-                style={{
-                  display: 'flex'
-                }}
-              >
-                <div>
-                  {existFileList.length > 0 ?
-                    (existFileList.map((item) => {
-                      return (
-                        <div className={styles.file}>
-                          <Icon style={{ marginRight: '6px' }} type="inbox" />
-                          <span className={styles.fileName}>
-                            {item}
-                          </span>
-                        </div>
-                      )
-                    })) : (
-                      <div className={styles.empty}>
-                        {formatMessage({ id: 'teamAdd.create.null_data' })}
+              <div>
+                {existFileList.length > 0 ?
+                  (existFileList.map((item) => {
+                    return (
+                      <div className={styles.file}>
+                        <Icon style={{ marginRight: '6px' }} type="inbox" />
+                        <span className={styles.fileName}>
+                          {item}
+                        </span>
                       </div>
-                    )}
-                </div>
-                {existFileList.length > 0 &&
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      background: '#ff7b7b',
-                      padding: '0px 12px',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
-                  </div>
-                }
+                    )
+                  })) : (
+                    <div className={styles.empty}>
+                      {formatMessage({ id: 'teamAdd.create.null_data' })}
+                    </div>
+                  )}
               </div>
-            </Form.Item>
-            {archLegnth == 2 &&
-            <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+              {existFileList.length > 0 &&
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#ff7b7b',
+                    padding: '0px 12px',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                </div>
+              }
+            </div>
+          </Form.Item>
+          {archLegnth == 2 &&
+            <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+              {getFieldDecorator('arch', {
+                initialValue: arch,
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              })(
+                <Radio.Group onChange={this.onChangeCpu} value={this.state.value}>
+                  <Radio value='amd64'>amd64</Radio>
+                  <Radio value='arm64'>arm64</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>}
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{

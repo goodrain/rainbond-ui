@@ -1144,7 +1144,9 @@ class Main extends PureComponent {
                 <Divider type="vertical" />
               )}
               {status && status.status && isDelete && (
-                (status.status !== 'runing' && appDetail?.service?.extend_method === 'cronjob') && 
+                (status.status === 'running' && appDetail?.service?.extend_method === 'cronjob') ?
+                <></>
+                :
                 <a
                   onClick={() => {
                     this.handleDropClick('deleteApp');
@@ -1441,7 +1443,7 @@ class Main extends PureComponent {
       CompluginList.forEach( item =>{
         tabs.push({
           key: item.name,
-          tab: item.name
+          tab: item.display_name
         });
       })
     }

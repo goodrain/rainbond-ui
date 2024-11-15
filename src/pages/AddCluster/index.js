@@ -199,7 +199,6 @@ export default class EnterpriseClusters extends PureComponent {
         }
       }
     });
-
   };
   handleInstallRegion = type => {
     const {

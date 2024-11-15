@@ -411,7 +411,7 @@ export default class Index extends PureComponent {
                 ]
               })(
                 <Upload
-                  disabled={fileList.length === 1}
+                  disabled={existFileList.length === 1}
                   fileList={fileList}
                   accept=".jar,.war,.zip,.tar"
                   name="packageTarFile"
@@ -419,7 +419,7 @@ export default class Index extends PureComponent {
                   onRemove={this.onRemove}
                   action={record.upload_url}
                   headers={myheaders}
-                  multiple={true}
+                  multiple={false}
                 >
                   <Button>
                     <Icon type="upload" />

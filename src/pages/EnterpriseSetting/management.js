@@ -215,29 +215,18 @@ export default class Management extends PureComponent {
               <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete' />
             </a>
           </Menu.Item>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.handleEdit(item);
-              }}
-            >
-              {/* 编辑管理员 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.edit' />
-            </a>
-          </Menu.Item>
         </Menu>
       );
     };
     const operation = (
-        <Button
-          type="primary"
-          onClick={this.onAddAdmin}
-          icon="plus"
-        >
-          {/* 添加管理员 */}
-          <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add' />
-        </Button>
+      <Button
+        type="primary"
+        onClick={this.onAddAdmin}
+        icon="plus"
+      >
+        {/* 添加管理员 */}
+        <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add' />
+      </Button>
     );
     const managementAdmin = (
       <Card
@@ -252,21 +241,25 @@ export default class Management extends PureComponent {
             align="middle"
             style={{ padding: 16, background: '#FAFAFA' }}
           >
-            <Col span={5}>
+            <Col span={5} style={{paddingLeft:14}}>
               {/* 名称 */}
               <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.designation' />
             </Col>
-            <Col span={5}>
+            <Col span={5} style={{paddingLeft:14}}>
               {/* 姓名 */}
               <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.name' />
             </Col>
-            <Col span={6}>
+            <Col span={6} style={{paddingLeft:14}}>
               {/* 角色 */}
               <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.role' />
             </Col>
-            <Col span={5}>
+            <Col span={5} style={{paddingLeft:14}}>
               {/* 时间 */}
               <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time' />
+            </Col>
+            <Col span={3} style={{paddingLeft:14}}>
+              {/* 时间 */}
+              操作
             </Col>
           </Row>
         )}
@@ -306,15 +299,18 @@ export default class Management extends PureComponent {
                   <Col span={5}>
                     {moment(createTime).format('YYYY-MM-DD HH:mm:ss')}
                   </Col>
-                  <Col span={2} />
-                  <Col span={1} className={styles.bor}>
-                    <Dropdown
-                      disabled={userId == id}
-                      overlay={managementMenu(item)}
-                      placement="bottomLeft"
-                    >
-                      <Icon component={moreSvg} style={{ width: '100%' }} />
-                    </Dropdown>
+                  <Col span={3} >
+                    {userId != id &&
+                      <a
+                        href="javascript:;"
+                        onClick={() => {
+                          this.showDelTeam(item.user_id);
+                        }}
+                      >
+                        {/* 删除管理员 */}
+                        <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete' />
+                      </a>
+                    }
                   </Col>
                 </Row>
               </Card>

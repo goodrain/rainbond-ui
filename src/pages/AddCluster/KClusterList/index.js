@@ -46,6 +46,43 @@ export default class EnterpriseClusters extends PureComponent {
       nextBtnstatus: {}
     };
   }
+  componentDidMount() {
+    this.toClusterList()
+  }
+  toClusterList = (provider = 'rke') => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const TOCLUSTERLIST_PATHS = {
+      initializing: '/enterprise/{eid}/provider/{provider}/kclusters/append?event_id={eventId}',
+      initialized: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      installing: '/enterprise/{eid}/provider/{provider}/kclusters?type=installing&event_id={eventId}',
+      installed: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      integrating: '/enterprise/{eid}/provider/{provider}/kclusters/init?event_id={eventId}',
+      integrated: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
+    };
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: ''
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          window.localStorage.setItem('event_id', res.bean.event_id)
+          const status = res.bean.create_status;
+          let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;
+          path = path.replace('{eid}', eid).replace('{provider}', provider);
+          if (path.includes('{eventId}')) {
+            path = path.replace('{eventId}', res.bean.event_id);
+          }
+          dispatch(routerRedux.push(path));
+        }
+      }
+    });
+  };
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch, location: {
@@ -189,8 +226,8 @@ export default class EnterpriseClusters extends PureComponent {
   countRoles = (clusterInfoList) => {
     if (clusterInfoList && clusterInfoList.length > 0) {
       const bool = clusterInfoList.every(cluster => cluster.status === 'Ready');
-      if(!bool){
-        return { disabled: true, msg: formatMessage({id:'enterpriseColony.newHostInstall.node.nodeNotReady'}) };
+      if (!bool) {
+        return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.nodeNotReady' }) };
       }
       const allRoles = clusterInfoList.flatMap(info => info.roles.split(', ').filter(role => role.trim() !== '')).map(role => role.trim());
       const countObj = allRoles.reduce((acc, role) => {
@@ -305,7 +342,7 @@ export default class EnterpriseClusters extends PureComponent {
                           </Tag>
                         );
                       default:
-                        return null; 
+                        return null;
                     }
                   })}
                 </>

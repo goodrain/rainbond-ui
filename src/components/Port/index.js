@@ -606,7 +606,7 @@ export default class Index extends PureComponent {
                     <FormattedMessage id='componentOverview.body.Ports.add'/>
                   </Button>
                 )} */}
-                {port && port.protocol != 'http' && (
+                {/* {port && port.protocol != 'http' && (
                   <Link
                     to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`}
                     style={{
@@ -617,7 +617,7 @@ export default class Index extends PureComponent {
                   >
                     <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage'/></Button>
                   </Link>
-                )}
+                )} */}
               </td>
             )} 
             <td>
