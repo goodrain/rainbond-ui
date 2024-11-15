@@ -27,7 +27,8 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
   ({ user, appControl }) => ({
     currUser: user.currentUser,
     volumes: appControl.volumes,
-    appBaseInfo: appControl.baseInfo
+    appBaseInfo: appControl.baseInfo,
+    appDetail: appControl.appDetail,
   }),
   null,
   null,
@@ -279,7 +280,7 @@ export default class Index extends PureComponent {
   }
   render() {
     const { mntList, relyComponent, relyComponentList } = this.state;
-    const { volumes, method } = this.props;
+    const { volumes, method, appDetail } = this.props;
     if (!this.canView()) return <NoPermTip />;
     const columns = [
       {
@@ -476,10 +477,12 @@ export default class Index extends PureComponent {
           <Card
             title={<span> {formatMessage({ id: 'componentOverview.body.mnt.share' })} </span>}
             extra={
-              <Button onClick={this.showAddRelation}>
+              <Tooltip title={appDetail?.service?.extend_method === "state_multiple" ? '有状态组件不允许挂载其他组件存储':''}>
+              <Button onClick={this.showAddRelation} disabled={appDetail?.service?.extend_method === "state_multiple"}>
                 <Icon type="plus" />
                 {formatMessage({ id: 'componentOverview.body.mnt.mount' })}
               </Button>
+              </Tooltip>
             }
           >
             <ScrollerX sm={850}>
@@ -600,7 +603,6 @@ export default class Index extends PureComponent {
             </ScrollerX>
           </Card>
         }
-
         {this.state.showAddVar && (
           <AddVolumes
             onCancel={this.handleCancelAddVar}

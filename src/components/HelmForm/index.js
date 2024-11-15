@@ -97,7 +97,7 @@ export default class Index extends PureComponent {
           callback: res => {
             if (res && res.status_code === 200) {
               this.handleClose();
-              onOk();
+              onOk(values.name);
             }
           },
           handleError: res => {

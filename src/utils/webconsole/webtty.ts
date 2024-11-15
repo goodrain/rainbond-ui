@@ -112,8 +112,7 @@ export class WebTTY {
             this.term.setPreferences(preferences);
             break;
           case msgSetReconnect:
-            const autoReconnect = JSON.parse(payload);
-            this.reconnect = autoReconnect;
+            this.reconnect = -1;
             break;
           default:
             break;
@@ -123,7 +122,8 @@ export class WebTTY {
       connection.onClose(() => {
         clearInterval(pingTimer);
         this.term.deactivate();
-        this.term.showMessage('Connection Closed', 0);
+        this.term.output('');
+        this.term.output('\n Connection Closed');
         if (this.reconnect > 0) {
           reconnectTimeout = window.setTimeout(() => {
             connection = this.connectionFactory.create();

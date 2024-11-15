@@ -39,7 +39,43 @@ export default class ClusterLink extends PureComponent {
       dispatch(routerRedux.push(`/`));
     }
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this.toClusterList()
+  }
+  toClusterList = (provider = 'rke') => {
+    const { dispatch } = this.props;
+    const {
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    const TOCLUSTERLIST_PATHS = {
+      initializing: '/enterprise/{eid}/provider/{provider}/kclusters/append?event_id={eventId}',
+      initialized: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      installing: '/enterprise/{eid}/provider/{provider}/kclusters?type=installing&event_id={eventId}',
+      installed: '/enterprise/{eid}/provider/{provider}/kclusters?event_id={eventId}',
+      integrating: '/enterprise/{eid}/provider/{provider}/kclusters/init?event_id={eventId}',
+      integrated: '/enterprise/{eid}/provider/{provider}/kclusters/check?event_id={eventId}',
+    };
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: ''
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          window.localStorage.setItem('event_id', res.bean.event_id)
+          const status = res.bean.create_status;
+          let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;
+          path = path.replace('{eid}', eid).replace('{provider}', provider);
+          if (path.includes('{eventId}')) {
+            path = path.replace('{eventId}', res.bean.event_id);
+          }
+          dispatch(routerRedux.push(path));
+        }
+      }
+    });
+  };
   loadSteps = () => {
     const steps = [
       {

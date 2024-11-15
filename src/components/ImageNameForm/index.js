@@ -761,6 +761,7 @@ export default class Index extends PureComponent {
                   <>
                     <Upload
                       fileList={fileList}
+                      accept='.tar'
                       name="packageTarFile"
                       onChange={this.onChangeUpload}
                       onRemove={this.onRemove}
