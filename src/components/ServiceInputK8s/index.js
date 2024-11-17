@@ -20,7 +20,7 @@ class Headers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            values: [{ weight: '1', port: '', name: '', PortList: [] }],
+            values: [{ weight: '100', port: '', name: '', PortList: [] }],
             portLoading: false,
         };
     }
@@ -68,7 +68,7 @@ class Headers extends Component {
     setValues(arr) {
         const setArr = arr || [];
         if (!setArr.length) {
-            setArr.push({ weight: '1', port: '', name: '', PortList: [] });
+            setArr.push({ weight: '100', port: '', name: '', PortList: [] });
         }
         this.setState({ values: setArr });
     }
@@ -87,7 +87,7 @@ class Headers extends Component {
             return null;
         }
         this.setState({
-            values: values.concat({ weight: '1', port: '', name: '', PortList: [] })
+            values: values.concat({ weight: '100', port: '', name: '', PortList: [] })
         });
     };
 
@@ -225,7 +225,7 @@ class Headers extends Component {
                                     onChange={val => {
                                         this.onWeightChange(val, indexs);
                                     }}
-                                    value={item.weight || 1}
+                                    value={item.weight || 100}
                                     placeholder={'权重'}
                                 />
                             </Col>
