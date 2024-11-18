@@ -421,7 +421,7 @@ export default class Index extends PureComponent {
                   headers={myheaders}
                   multiple={false}
                 >
-                  <Button>
+                  <Button disabled={existFileList.length === 1}>
                     <Icon type="upload" />
                     {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
                   </Button>

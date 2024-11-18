@@ -131,7 +131,7 @@ class Headers extends Component {
             callback: data => {
                 const list = (data && data.list) || [];
                 this.setState({ portList: list }, () => {
-                    if(this.state.portList[0].inner_url != ''){
+                    if(this.state.portList[0]?.inner_url != ''){
                         this.onPortChange(this.state.portList[0].container_port, index)
                     }
                 });

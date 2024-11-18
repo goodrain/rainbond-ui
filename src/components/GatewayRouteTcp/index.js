@@ -33,7 +33,8 @@ export default class index extends Component {
             dataSource: [],
             type: 'add',
             tableLoading: true,
-            comList:[]
+            comList:[],
+            outer_url:''
         };
     }
     componentWillMount(){
@@ -78,6 +79,7 @@ export default class index extends Component {
             callback: res => {
                 this.setState({
                     comList: res.bean.ports,
+                    outer_url: res.bean.outer_url||''
                 })
             }
         })
@@ -204,7 +206,8 @@ export default class index extends Component {
             routeDrawer,
             dataSource,
             editInfo,
-            tableLoading
+            tableLoading,
+            outer_url
         } = this.state;
         const {
             appID,
@@ -233,6 +236,16 @@ export default class index extends Component {
                 ),
             },
             {
+                title: '访问地址',
+                dataIndex: 'address',
+                key: 'address',
+                render: (text, record) => (
+                    <a href={`http://${outer_url}:${record.nodePort}`} target="_blank">
+                        {outer_url}:{record.nodePort}
+                    </a>
+                ),
+            },
+            {
                 title: '开放端口',
                 dataIndex: 'nodePort',
                 key: 'nodePort',
@@ -255,11 +268,11 @@ export default class index extends Component {
                 key: 'address',
                 render: (text, record) => (
                     <span>
-                        {isEdit &&
+                        {/* {isEdit &&
                             <a onClick={() => this.routeDrawerShow(record, 'edit')}>
                                 {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
                             </a>
-                        }
+                        } */}
                         {isDelete &&
                             <Popconfirm
                                 title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}

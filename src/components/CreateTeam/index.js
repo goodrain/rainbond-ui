@@ -112,8 +112,8 @@ class CreateTeam extends PureComponent {
       }
       callback();
     }
-    if (value.length > 32) {
-      return callback(new Error(`${formatMessage({ id: 'placeholder.max32' })}`));
+    if (value.length > 24) {
+      return callback(new Error(`${formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' })}`));
     }
   };
 

@@ -113,6 +113,7 @@ export default class index extends Component {
             callback: res => {
                 this.setState({
                     comList: res.bean.ports,
+                    outer_url: res.bean.outer_url,
                     serviceComponentLoading: false
                 })
             }
@@ -125,7 +126,7 @@ export default class index extends Component {
     getAccessAddress = () =>{
         const { editInfo, form } = this.props;
         const {getFieldValue} = form
-        const { comList } = this.state;
+        const { comList, outer_url } = this.state;
         const str = getFieldValue('service_id')
         const port =getFieldValue('ingressPort')
         console.log(str,"str");
@@ -133,7 +134,7 @@ export default class index extends Component {
         const arr = comList.filter(item => `${item.service_name}:${item.port}` == str   )
         console.log(arr,"arr");
         if(str && port){
-            return`访问地址：${arr[0]?.outer_url}:${port}` || ''
+            return`访问地址：${outer_url}:${port}` || ''
         }else{
             return ''
         }
@@ -183,7 +184,7 @@ export default class index extends Component {
         ];
         return (
             <Drawer
-                title={editInfo ? formatMessage({id:'teamNewGateway.NewGateway.TCP.edit'}) : formatMessage({id:'teamNewGateway.NewGateway.TCP.add'})}
+                title={Object.keys(editInfo).length > 0 ? formatMessage({id:'teamNewGateway.NewGateway.TCP.edit'}) : formatMessage({id:'teamNewGateway.NewGateway.TCP.add'})}
                 width={700}
                 onClose={this.onClose}
                 visible={visible}
@@ -212,8 +213,8 @@ export default class index extends Component {
                             >
                                 {
                                     comList && comList.map((item, index) => {
-                                        const { component_name, port, service_name, outer_url } = item;
-                                        if (service_name != null && outer_url ) {
+                                        const { component_name, port, service_name } = item;
+                                        if (service_name != null ) {
                                             return (
                                                 <Option
                                                     value={`${service_name}:${port}`}
