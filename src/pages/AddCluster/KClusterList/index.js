@@ -47,7 +47,7 @@ export default class EnterpriseClusters extends PureComponent {
     };
   }
   componentDidMount() {
-    this.toClusterList()
+    // this.toClusterList()
   }
   toClusterList = (provider = 'rke') => {
     const { dispatch } = this.props;
