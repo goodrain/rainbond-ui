@@ -50,7 +50,7 @@ export default class Index extends PureComponent {
     this.loop = false;
   }
   componentDidMount() {
-    // this.handleJarWarUploadRecord('yaml')
+    this.handleJarWarUploadRecord('yaml')
   }
   componentWillUnmount() {
     this.loop = false;
@@ -251,6 +251,7 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
+    console.log(record, 'record')
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
