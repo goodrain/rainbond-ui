@@ -402,7 +402,7 @@ export default class Index extends PureComponent {
                 action={record.upload_url}
                 multiple={false}
               >
-                <Button>
+                <Button disabled={existFileList.length === 1}>
                   <Icon type="upload" /> {formatMessage({ id: 'otherApp.UploadYaml.up' })}
                 </Button>
               </Upload>

@@ -108,7 +108,7 @@ export default class index extends Component {
             },
             handleError: (err) => {
                 notification.error({
-                    message: formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
+                    message: err?.data?.msg || formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
                 });
             }
         })
