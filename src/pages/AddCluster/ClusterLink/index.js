@@ -40,7 +40,7 @@ export default class ClusterLink extends PureComponent {
     }
   }
   componentDidMount() {
-    this.toClusterList()
+    // this.toClusterList()
   }
   toClusterList = (provider = 'rke') => {
     const { dispatch } = this.props;
