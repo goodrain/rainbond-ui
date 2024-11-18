@@ -29,6 +29,7 @@ class Index extends PureComponent {
     const service_alias = this.props.service_alias || ''
     form.validateFields((err, value) => {
       if (err) return;
+      value.schedule = this.extractText(value.schedule)
       addRunStrategy({
         team_name: teamName,
         service_alias: service_alias,
@@ -44,6 +45,15 @@ class Index extends PureComponent {
         });
     });
   }
+  // 截取运行规则口号前的内容
+  extractText = (selectValue) => {
+    // 判断是否包含括号
+    if (selectValue.includes('(')) {
+        // 使用正则表达式提取括号前的内容
+        return selectValue.split(/\s*\(.*?\)\s*/)[0].trim();
+    }
+    return selectValue.trim();
+}
   handleRunStrategy = () => {
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''
