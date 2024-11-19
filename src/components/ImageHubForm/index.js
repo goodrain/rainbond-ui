@@ -75,10 +75,10 @@ export default class ImageHubForm extends PureComponent {
                   },
                   {
                     validator: (_, value, callback) => {
-                      if (!value || value.startsWith('http://') || value.startsWith('https://')) {
-                        callback(); // 验证通过
+                      if (value || value.startsWith('http://') || value.startsWith('https://')) {
+                        callback(formatMessage({ id: 'placeholder.warehouse_address.ban' })); // 显示错误消息
                       } else {
-                        callback(formatMessage({ id: 'placeholder.warehouse_address.Ban' })); // 显示错误消息
+                        callback(); // 验证通过
                       }
                     }
                   }
