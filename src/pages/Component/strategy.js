@@ -29,7 +29,9 @@ class Index extends PureComponent {
     const service_alias = this.props.service_alias || ''
     form.validateFields((err, value) => {
       if (err) return;
-      value.schedule = this.extractText(value.schedule)
+      if(value.schedule){
+        value.schedule = this.extractText(value.schedule)
+      }
       addRunStrategy({
         team_name: teamName,
         service_alias: service_alias,

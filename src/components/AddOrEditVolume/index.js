@@ -263,11 +263,6 @@ export default class AddVolumes extends PureComponent {
               initialValue: defaultVolumeCapacity || 10,
               rules: [
                 {
-                  min: 0,
-                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.min' })
-
-                },
-                {
                   validator: this.checkVolumeCapacity
                 }
               ]

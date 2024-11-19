@@ -79,7 +79,8 @@ export default class index extends Component {
         });
     }
     // 新增或修改
-    addOrEditApiGateway = (values, app_id) => {
+    addOrEditApiGateway = (values, app_id, serviceAliasArr) => {
+        console.log(serviceAliasArr, 'serviceAliasArr')
         const { dispatch, appID, type } = this.props
         const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
@@ -90,7 +91,7 @@ export default class index extends Component {
                 values: values,
                 appID: app_id || appID || '',
                 type: type,
-                service_alias: values.backends && values.backends.length > 0 ? values.backends.map(item => { return item.serviceName }).join(',') : '',
+                service_alias: serviceAliasArr && serviceAliasArr.length > 0 ? serviceAliasArr.join(',') : '',
                 name: values.name || '',
                 port: values.backends && values.backends.length > 0 ? values.backends[0].servicePort : '',
             },

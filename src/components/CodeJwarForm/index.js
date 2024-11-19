@@ -48,7 +48,8 @@ export default class Index extends PureComponent {
       groupName: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
       comNames: [],
-      creatComPermission: {}
+      creatComPermission: {},
+      isDisabledUpload: false
     };
   }
   componentWillMount() {
@@ -207,7 +208,8 @@ export default class Index extends PureComponent {
       callback: (data) => {
         if (data.bean.res == 'ok') {
           this.setState({
-            existFileList: []
+            existFileList: [],
+            isDisabledUpload: false
           });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
@@ -238,11 +240,11 @@ export default class Index extends PureComponent {
         percents: false
       });
     }
-    this.setState({ fileList });
+    this.setState({ fileList, isDisabledUpload: true });
   };
   //删除
   onRemove = () => {
-    this.setState({ fileList: [] });
+    this.setState({ fileList: [], isDisabledUpload: false });
   };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
@@ -283,6 +285,11 @@ export default class Index extends PureComponent {
     }
     return ''
   }
+  handleDisabledUpload = () => {
+    this.setState({
+      isDisabledUpload: true
+    })
+  }
   render() {
     const {
       form,
@@ -291,7 +298,7 @@ export default class Index extends PureComponent {
       archInfo
     } = this.props;
     const myheaders = {};
-    const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language, creatComPermission: { isCreate } } = this.state;
+    const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language, creatComPermission: { isCreate }, isDisabledUpload } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -391,9 +398,10 @@ export default class Index extends PureComponent {
                   onRemove={this.onRemove}
                   action={record.upload_url}
                   headers={myheaders}
+                  maxCount={1}
                   multiple={false}
                 >
-                  <Button disabled={existFileList.length === 1}>
+                  <Button disabled={isDisabledUpload || existFileList.length === 1}>
                     <Icon type="upload" />
                     {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
                   </Button>

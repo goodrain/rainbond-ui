@@ -72,6 +72,15 @@ export default class ImageHubForm extends PureComponent {
                   {
                     max: 255,
                     message: formatMessage({id:'placeholder.max255'})
+                  },
+                  {
+                    validator: (_, value, callback) => {
+                      if (!value || value.startsWith('http://') || value.startsWith('https://')) {
+                        callback(); // 验证通过
+                      } else {
+                        callback(formatMessage({ id: 'placeholder.warehouse_address.Ban' })); // 显示错误消息
+                      }
+                    }
                   }
                 ]
               })(<Input placeholder={formatMessage({id:'placeholder.git_url_domain'})} />)}

@@ -53,7 +53,8 @@ export default class Index extends PureComponent {
       percents: false,
       existFileList: [],
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      comNames: []
+      comNames: [],
+      isDisabledUpload: false
     };
   }
   componentWillMount() {
@@ -161,7 +162,8 @@ export default class Index extends PureComponent {
       callback: (data) => {
         if (data.bean.res == 'ok') {
           this.setState({
-            existFileList: []
+            existFileList: [],
+            isDisabledUpload: false
           });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
@@ -192,11 +194,11 @@ export default class Index extends PureComponent {
         percents: false
       });
     }
-    this.setState({ fileList });
+    this.setState({ fileList, isDisabledUpload: true });
   };
   //删除
   onRemove = () => {
-    this.setState({ fileList: [] });
+    this.setState({ fileList: [], isDisabledUpload: false });
   };
   handleSubmit = e => {
     e.preventDefault();
@@ -277,7 +279,7 @@ export default class Index extends PureComponent {
       showCreateGroup = true,
       archInfo
     } = this.props;
-    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, language } = this.state
+    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, language, isDisabledUpload } = this.state
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
@@ -374,9 +376,10 @@ export default class Index extends PureComponent {
                 onChange={this.onChangeUpload}
                 onRemove={this.onRemove}
                 action={record.upload_url}
+                maxCount={1}
                 multiple={false}
               >
-                <Button disabled={existFileList.length === 1}>
+                <Button disabled={isDisabledUpload || existFileList.length === 1}>
                   <Icon type="upload" /> {formatMessage({ id: 'otherApp.UploadYaml.up' })}
                 </Button>
               </Upload>
