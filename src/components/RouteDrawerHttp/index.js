@@ -151,9 +151,12 @@ export default class index extends Component {
                         data.match.exprs = arr;
                     }
                 }
+                let serviceAliasArr = []
                 if (values.type === 'k8s') {
                     data.backends = (values.comListInfo || []).map(item => {
                         const matchingPort = (item.PortList || []).find(portItem => portItem.container_port === item.port);
+                        // service_alias
+                        serviceAliasArr.push(matchingPort.service_alias)
                         return {
                             serviceName: matchingPort ? matchingPort.k8s_service_name : item.name,
                             servicePort: item.port,
@@ -175,9 +178,9 @@ export default class index extends Component {
                     return null;
                 } else {
                     if (values?.group_id?.key) {
-                        onOk(data, Number(values.group_id.key));
+                        onOk(data, Number(values.group_id.key), serviceAliasArr);
                     } else {
-                        onOk(data);
+                        onOk(data, null, serviceAliasArr);
                     }
                 }
 
