@@ -156,7 +156,7 @@ export default class index extends Component {
         const { dispatch } = this.props;
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-        const ComponentID = this.splitString(serviceName, '|', 'comid');
+        const ComponentID = serviceName.slice(-8);
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${ComponentID}/overview`));
     }
     render() {
