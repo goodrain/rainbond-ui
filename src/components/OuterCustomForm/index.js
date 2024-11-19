@@ -429,7 +429,6 @@ export default class Index extends PureComponent {
                 value={endpointsType}
               >
                 <Radio value="static">{formatMessage({ id: 'teamAdd.create.third.staticRegister' })}</Radio>
-                <Radio value="api">{formatMessage({ id: 'teamAdd.create.third.apiRegister' })}</Radio>
                 <Radio value="kubernetes">Kubernetes</Radio>
               </RadioGroup>
             )}
