@@ -101,6 +101,7 @@ export default class Index extends PureComponent {
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
       this.bindEvent()
+      this.handleJarWarUpload()
     } else {
       this.time()
     }
@@ -216,34 +217,7 @@ export default class Index extends PureComponent {
       },
     });
   }
-  //查询上传记录
-  handleJarWarUploadRecord = () => {
-    const {
-      dispatch,
-      appDetail
-    } = this.props;
-    const service_id = appDetail.service.service_id
-    dispatch({
-      type: 'createApp/createJarWarUploadRecord',
-      payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
-        component_id: service_id,
-        file_type: 'jwar'
-      },
-      callback: data => {
-        if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
-          this.setState({
-            existFileList: data.bean.source_dir,
-            event_id: data.bean.event_id
-          })
-        } else {
-          this.handleJarWarUpload()
-        }
-      },
-      handleError: () => { }
-    });
-  }
+
   //查询上传状态
   handleJarWarUploadStatus = () => {
     const {
@@ -489,7 +463,6 @@ export default class Index extends PureComponent {
   };
   handleToUpload = () => {
     this.setState({ uploadFile: true });
-    this.handleJarWarUploadRecord()
   }
   handlelanguageBox = () => {
     this.setState({ languageBox: false, create_status: '' });
