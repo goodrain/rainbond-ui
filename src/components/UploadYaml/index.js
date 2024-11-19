@@ -226,6 +226,7 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
+    console.log(record, 'record')
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
