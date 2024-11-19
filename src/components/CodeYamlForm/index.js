@@ -146,35 +146,6 @@ export default class Index extends PureComponent {
       },
     });
   }
-  //查询上传记录
-  handleJarWarUploadRecord = (fileType) => {
-    const {
-      dispatch
-    } = this.props;
-    dispatch({
-      type: 'createApp/createJarWarUploadRecord',
-      payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
-        file_type: fileType,
-        component_id: '',
-      },
-      callback: data => {
-        if (data.bean && data.bean.source_dir && data.bean.source_dir.length > 0) {
-          this.setState({
-            existFileList: data.bean.source_dir,
-            event_id: data.bean.event_id
-          })
-        } else {
-          this.setState({
-            existFileList: []
-          })
-          this.handleJarWarUpload()
-        }
-      },
-      handleError: () => { }
-    });
-  }
 
   //查询上传状态
   handleJarWarUploadStatus = () => {
