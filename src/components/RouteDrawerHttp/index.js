@@ -38,7 +38,6 @@ export default class index extends Component {
             showServiceMore: false,
             showMateMore: false,
             selsectRewrite: 'rewrite',
-            comList: [],
             serviceList: [],
             serviceLoading: true,
             values: [{
@@ -81,7 +80,6 @@ export default class index extends Component {
                 showPlugin: true,
             });
         }
-
         this.fetchInfo();
         this.getTableData();
     }
@@ -151,12 +149,9 @@ export default class index extends Component {
                         data.match.exprs = arr;
                     }
                 }
-                let serviceAliasArr = []
                 if (values.type === 'k8s') {
                     data.backends = (values.comListInfo || []).map(item => {
                         const matchingPort = (item.PortList || []).find(portItem => portItem.container_port === item.port);
-                        // service_alias
-                        serviceAliasArr.push(matchingPort.service_alias)
                         return {
                             serviceName: matchingPort ? matchingPort.k8s_service_name : item.name,
                             servicePort: item.port,
@@ -171,6 +166,15 @@ export default class index extends Component {
                     }));
                     data.backends = [];
                 }
+                const result = [];
+
+                data.backends.forEach(itemBackend => {
+                    serviceComponentList.forEach(itemK8s => {
+                        if (itemBackend.serviceName === itemK8s.k8s_service_name) {
+                            result.push(itemK8s.service_alias);
+                        }
+                    });
+                });
                 if (serviceComponentList.length == 0) {
                     notification.warning({
                         message: '当前应用下没有组件，请先创建组件'
@@ -178,9 +182,9 @@ export default class index extends Component {
                     return null;
                 } else {
                     if (values?.group_id?.key) {
-                        onOk(data, Number(values.group_id.key), serviceAliasArr);
+                        onOk(data, Number(values.group_id.key), result);
                     } else {
-                        onOk(data, null, serviceAliasArr);
+                        onOk(data, null, result);
                     }
                 }
 
@@ -390,17 +394,26 @@ export default class index extends Component {
     };
 
     handleValidatorsHosts = (_, val, callback) => {
-        let isPass = false;
-        let reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
+        let isPass = true;
+        const reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+    
         if (val && val.length > 0) {
+            // 检查是否有重复项
+            const uniqueValues = new Set(val);
+            if (uniqueValues.size !== val.length) {
+                return callback(new Error('域名不能重复'));
+            }
+    
+            // 检查格式
             val.some(item => {
-                if (item != '' && reg.test(item)) {
+                if (item !== '' && reg.test(item)) {
                     isPass = true;
                 } else {
                     isPass = false;
-                    return true;
+                    return true; // 终止循环
                 }
             });
+    
             if (isPass) {
                 callback();
             } else {
@@ -410,6 +423,7 @@ export default class index extends Component {
             return callback();
         }
     };
+    
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -428,7 +442,6 @@ export default class index extends Component {
             showServiceMore,
             showMateMore,
             selsectRewrite,
-            comList,
             serviceLoading,
             serviceList,
             showPlugin
@@ -487,7 +500,6 @@ export default class index extends Component {
         const containerPorts =
             portList && portList.length > 0 && portList[0].container_port;
         const isOk = !(componentLoading || portLoading);
-
         return (
             <Drawer
                 title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
@@ -567,12 +579,6 @@ export default class index extends Component {
                                     initialValue: (editInfo && editInfo.match && editInfo.match.exprs && this.handleExprs(editInfo.match.exprs)) || []
                                 })(<NewHeader />)}
                             </Form.Item>
-                            {/* <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.priority' })}>
-                                {getFieldDecorator('priority', {
-                                    // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPriority'}) }],
-                                    initialValue: editInfo && editInfo.priority || null
-                                })(<Input type='number' placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputPriority' })} style={{ width: '25%' }} />)}
-                            </Form.Item> */}
                         </Fragment>
                     )}
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.source' })} >

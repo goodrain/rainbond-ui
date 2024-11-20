@@ -149,7 +149,7 @@ class Headers extends Component {
         const { comList } = this.props
         let str = ''
         comList.map(i => {
-            if (i.service_alias == val) {
+            if (i.k8s_service_name == val) {
                 str = i.service_id
             }
         })
@@ -182,7 +182,6 @@ class Headers extends Component {
                                     onChange={(val) => {
                                         this.handlePorts(val, indexs);
                                         this.onNameChange(val, indexs);
-
                                     }
                                     }
                                 >

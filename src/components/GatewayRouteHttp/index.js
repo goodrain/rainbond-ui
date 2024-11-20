@@ -80,7 +80,6 @@ export default class index extends Component {
     }
     // 新增或修改
     addOrEditApiGateway = (values, app_id, serviceAliasArr) => {
-        console.log(serviceAliasArr, 'serviceAliasArr')
         const { dispatch, appID, type } = this.props
         const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
