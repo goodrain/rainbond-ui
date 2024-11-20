@@ -40,7 +40,7 @@ class Headers extends Component {
         let str = ''
         comList.filter(i => {
             if (i.service_id == value) {
-                str = i.service_alias
+                str = i.k8s_service_name
             }
         })
         values[index].name = str;
