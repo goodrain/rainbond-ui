@@ -1015,9 +1015,9 @@ export default class EnterpriseClusters extends PureComponent {
         <Card
           extra={<Row>
             <Col span={24} style={{ textAlign: 'right' }}>
-              <Button onClick={this.terminalCallout}icon="code">
+              {/* <Button onClick={this.terminalCallout}icon="code">
                 {formatMessage({ id: 'otherEnterprise.shell.line' })}
-              </Button>
+              </Button> */}
               <div
                 style={{
                   display: 'inline-block',
