@@ -130,7 +130,7 @@ export default class Index extends PureComponent {
                         </div>
                         <div className={styles.bottomContent}>
                             <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({ id: 'teamAdd.create.market.market' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })} {localist && localist.length > 0 ? (<> ({localist.length}) </>) : (<span>(0)</span>)}</p>
+                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })}</p>
                             <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({ id: 'teamAdd.create.market.command' })}</p>
                             <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import' /></p>
                         </div>
