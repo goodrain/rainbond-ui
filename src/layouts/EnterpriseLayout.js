@@ -36,6 +36,7 @@ import Context from './MenuContext';
 import Logo from '../../public/logo.png'
 import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
+import pluginUtile from '../utils/pulginUtils'
 import { loadRegionConfig } from '@/services/cloud';
 import "animate.css"
 const { Content } = Layout;
@@ -109,7 +110,8 @@ class EnterpriseLayout extends PureComponent {
       ],
       showMenu: true,
       pluginList: {},
-      key: true
+      key: true,
+      showEnterprisePlugin: false
     };
   }
 
@@ -169,6 +171,12 @@ class EnterpriseLayout extends PureComponent {
       },
       callback: res => {
         if (res && res.list) {
+          const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+          if(showEnterprisePlugin){
+            this.setState({
+              showEnterprisePlugin: showEnterprisePlugin
+            })
+          }
           const arr = this.state.pluginList
           arr[regionName] = res.list
           this.setState({
@@ -460,7 +468,8 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
+    window.sessionStorage.setItem('showEnterprisePlugin',showEnterprisePlugin)
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({

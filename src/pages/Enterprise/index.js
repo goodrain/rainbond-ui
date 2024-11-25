@@ -111,7 +111,7 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading: true,
       isNeedAuthz: false,
       authorizationCode: '',
-      hasNewVs: false
+      hasNewVs: true
     };
   }
   componentWillMount() {
