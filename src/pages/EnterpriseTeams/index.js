@@ -81,7 +81,8 @@ export default class EnterpriseTeams extends PureComponent {
       initShow: false,
       guideStep: 1,
       searchConfig: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showEnterprisePlugin: window.sessionStorage.getItem('showEnterprisePlugin')
     };
   }
   componentDidMount() {
@@ -642,9 +643,10 @@ export default class EnterpriseTeams extends PureComponent {
       regionAlias,
       limitSummitLoading,
       initLimitStorageValue,
-      teamNameTitle
+      teamNameTitle,
+      showEnterprisePlugin
     } = this.state;
-    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList)
+    const showPlugin = showEnterprisePlugin !== 'false'
     const request_join_team =
       overviewTeamInfo &&
       overviewTeamInfo.request_join_team.filter(item => {
@@ -742,7 +744,7 @@ export default class EnterpriseTeams extends PureComponent {
               <FormattedMessage id='enterpriseTeamManagement.admin.handle.open' />
             </a>
           </Menu.Item>
-          {showEnterprisePlugin &&
+          {showPlugin &&
             <Menu.Item>
               <a
                 onClick={() => {
@@ -835,107 +837,111 @@ export default class EnterpriseTeams extends PureComponent {
             </Col>
             {operation}
           </Row>
-          <div style={{padding:'24px 0 0 0',border: '1px solid #e3e3e3',borderTop:0 }}>
-          <Row style={{ width: '100%' }} className={styles.rowTitle}>
-            <Row className={styles.teamMinTit} type="flex" align="middle">
-              <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
-                {/* 项目/团队名称 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* 管理员 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.Administrator' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* 人数 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.number' />
-              </Col>
-              <Col span={7} style={{ width: '30%', textAlign: 'center' }}>
-                {/* 集群 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.colony' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* 内存使用量(MB) */}
-                <FormattedMessage id='enterpriseTeamManagement.table.memory' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* CPU使用量 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.CUP' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* 租户限额(MB) */}
-                <FormattedMessage id='enterpriseTeamManagement.table.quota' />
-              </Col>
-              <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
-                {/* 运行应用数 */}
-                <FormattedMessage id='enterpriseTeamManagement.table.operation' />
+          <div style={{ padding: '24px 0 0 0', border: '1px solid #e3e3e3', borderTop: 0 }}>
+            <Row style={{ width: '100%' }} className={styles.rowTitle}>
+              <Row className={styles.teamMinTit} type="flex" align="middle">
+                <Col span={4} style={{ width: '13%', textAlign: 'center' }}>
+                  {/* 项目/团队名称 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.teamName' />
+                </Col>
+                <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                  {/* 管理员 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.Administrator' />
+                </Col>
+                <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                  {/* 人数 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.number' />
+                </Col>
+                <Col span={7} style={{ width: showPlugin ? '30%' : '39%', textAlign: 'center' }}>
+                  {/* 集群 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.colony' />
+                </Col>
+                <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                  {/* 内存使用量(MB) */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.memory' />
+                </Col>
+                <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                  {/* CPU使用量 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.CUP' />
+                </Col>
+                {showPlugin &&
+                  <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                    {/* 租户限额(MB) */}
+                    <FormattedMessage id='enterpriseTeamManagement.table.quota' />
+                  </Col>
+                }
+                <Col span={2} style={{ width: '9%', textAlign: 'center' }}>
+                  {/* 运行应用数 */}
+                  <FormattedMessage id='enterpriseTeamManagement.table.operation' />
+                </Col>
+              </Row>
+              <Col className={styles.borTitle}>
+                {/* 操作 */}
+                <FormattedMessage id='enterpriseTeamManagement.table.handle' />
               </Col>
             </Row>
-            <Col className={styles.borTitle}>
-              {/* 操作 */}
-              <FormattedMessage id='enterpriseTeamManagement.table.handle' />
-            </Col>
-          </Row>
-          {teamList.map(item => {
-            const {
-              team_id,
-              team_alias,
-              region_list,
-              owner_name,
-              team_name,
-              running_apps,
-              user_number,
-              cpu_request,
-              memory_request,
-              set_limit_memory
-            } = item;
-            const memory = (memory_request == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
-            const set_limit = (set_limit_memory == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1)
-            return (
-              <Card
-                key={team_id}
-                style={{ border: 0, borderBottom: '1px solid #f4f4f4' }}
-                hoverable
-                bodyStyle={{ padding: 0 }}
-              >
-                <Row
-                  type="flex"
-                  align="middle"
-                  className={styles.pl24}
+            {teamList.map(item => {
+              const {
+                team_id,
+                team_alias,
+                region_list,
+                owner_name,
+                team_name,
+                running_apps,
+                user_number,
+                cpu_request,
+                memory_request,
+                set_limit_memory
+              } = item;
+              const memory = (memory_request == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
+              const set_limit = (set_limit_memory == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1)
+              return (
+                <Card
+                  key={team_id}
+                  style={{ border: 0, borderBottom: '1px solid #f4f4f4' }}
+                  hoverable
+                  bodyStyle={{ padding: 0 }}
                 >
                   <Row
                     type="flex"
                     align="middle"
-                    className={styles.pl23}
-                    onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name) }}
+                    className={styles.pl24}
                   >
-                    <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{user_number}</Col>
-                    <Col style={{ width: '30%', display: 'flex', justifyContent: 'center' }} >
-                      {this.showRegions(team_name, region_list, true)}
-                    </Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{memory} </Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{cpu_request}</Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{set_limit}</Col>
-                    <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
-                  </Row>
-                  <Col className={styles.bor}>
-                    <Dropdown
-                      overlay={managementMenu(team_name)}
-                      placement="bottomLeft"
+                    <Row
+                      type="flex"
+                      align="middle"
+                      className={styles.pl23}
+                      onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name) }}
                     >
-                      <Icon component={moreSvg} style={{ width: '100%' }} />
-                    </Dropdown>
-                  </Col>
-                </Row>
-              </Card>
-            );
-          })}
-        </div>
-        <div style={{ textAlign: 'right', margin: '15px' }}>
-          {Number(this.state.total) > 10 && this.handlePaginations()}
-        </div>
+                      <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
+                      <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
+                      <Col style={{ width: '9%', textAlign: 'center' }}>{user_number}</Col>
+                      <Col style={{ width: showPlugin ? '30%' : '39%', display: 'flex', justifyContent: 'center' }} >
+                        {this.showRegions(team_name, region_list, true)}
+                      </Col>
+                      <Col style={{ width: '9%', textAlign: 'center' }}>{memory} </Col>
+                      <Col style={{ width: '9%', textAlign: 'center' }}>{cpu_request}</Col>
+                      {showPlugin &&
+                        <Col style={{ width: '9%', textAlign: 'center' }}>{set_limit}</Col>
+                      }
+                      <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
+                    </Row>
+                    <Col className={styles.bor}>
+                      <Dropdown
+                        overlay={managementMenu(team_name)}
+                        placement="bottomLeft"
+                      >
+                        <Icon component={moreSvg} style={{ width: '100%' }} />
+                      </Dropdown>
+                    </Col>
+                  </Row>
+                </Card>
+              );
+            })}
+          </div>
+          <div style={{ textAlign: 'right', margin: '15px' }}>
+            {Number(this.state.total) > 10 && this.handlePaginations()}
+          </div>
         </div>
       </div>
     );
