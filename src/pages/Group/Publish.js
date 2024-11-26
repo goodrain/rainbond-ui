@@ -234,7 +234,9 @@ export default class AppPublishList extends PureComponent {
     this.setState({ showExporterApp: false });
   };
   showAppExport = (data) => {
-    data.version = Array.of(data.version)
+    if (!Array.isArray(data.version)){
+      data.version = Array.of(data.version)
+    }
     data.app_id = data.app_model_id
     this.setState({ showExporterApp: true, appData: data });
   };
