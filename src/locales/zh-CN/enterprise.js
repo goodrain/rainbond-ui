@@ -568,6 +568,9 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.check': '建立通信，请检查服务器网络或端口',
     'enterpriseColony.newHostInstall.node.pass': '恭喜您！平台安装已完成',
     'enterpriseColony.newHostInstall.node.nodeNotReady': '节点未就绪',
+    'enterpriseColony.newHostInstall.node.deleteNode': '删除节点',
+    'enterpriseColony.newHostInstall.node.deleteNodeDesc': '确定要删除节点吗？此操作不可恢复',
+    'enterpriseColony.newHostInstall.node.deleteNodeSubDesc': '执行以下命令清理节点:',
     // 添加集群
     'enterpriseColony.addCluster.supplier': '集群名称',
     'enterpriseColony.addCluster.cluster': '选择(创建)平台集群',

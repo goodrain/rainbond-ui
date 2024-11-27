@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Checkbox, notification, Icon, Tag } from 'antd';
+import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Checkbox, notification, Icon, Tag, message } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -9,6 +9,8 @@ import RKEClusterCmd from '../../../components/RKEClusterCmd'
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import copy from 'copy-to-clipboard';
+import ConfirmModal from '@/components/ConfirmModal';
 import globalUtil from '../../../utils/global';
 import userUtil from '../../../utils/user';
 import styles from './index.less'
@@ -43,7 +45,8 @@ export default class EnterpriseClusters extends PureComponent {
       registrationCmd: '',
       copyText: '',
       clusterInfoList: [],
-      nextBtnstatus: {}
+      nextBtnstatus: {},
+      deleteNode: null,
     };
   }
   componentDidMount() {
@@ -253,7 +256,40 @@ export default class EnterpriseClusters extends PureComponent {
       return { disabled: true, msg: formatMessage({ id: 'enterpriseColony.newHostInstall.node.nodeinfo' }) };
     }
   }
+  handleDeleteNode = () => {
+    const { dispatch } = this.props;
+    const { deleteNode } = this.state;
+    dispatch({
+      type: 'region/deleteClusterNode',
+      payload: {
+        node_name: deleteNode.name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+          this.setState({ deleteNode: null })
+          this.fetchClusterInfoList()
+        }
+      }
+    });
+  }
+  // 删除节点弹窗方法
+  showDeleteNode = (item) => {
+    this.setState({
+      deleteNode: item
+    })
+  }
+  // 取消删除节点
+  cancalDeleteNode = () => {
+    this.setState({
+      deleteNode: null
+    })
+  }
 
+  handleCopy = (copyValue) => {
+    copy(copyValue);
+    message.success(formatMessage({ id: 'notification.success.copy' }));
+  }
   render() {
     const {
       match: {
@@ -266,8 +302,12 @@ export default class EnterpriseClusters extends PureComponent {
       copyText,
       clusterInfoList,
       nextBtnstatus,
-      eventId
+      eventId,
+      deleteNode
     } = this.state
+    const copySvg = (
+      <svg width="30" height="30" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="#fff" fill-rule="evenodd"><rect opacity="0.4" x="7.5" y="4.5" width="8" height="8" rx="1"></rect><rect x="4.5" y="7.5" width="8" height="8" rx="1"></rect></g></svg>
+    )
     const columns = [
       {
         title: formatMessage({ id: 'enterpriseColony.newHostInstall.node.status' }),
@@ -358,6 +398,23 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'uptime',
         key: 'uptime',
       },
+      {
+        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.method'}),
+        dataIndex: 'operate',
+        key: 'operate',
+        render: (val, item) => {
+          return [
+            <a
+              onClick={() => {
+                this.showDeleteNode(item);
+              }}
+            >
+              {/* 编辑 */}
+              <FormattedMessage id='button.delete' />
+            </a>
+          ];
+        }
+      },
     ];
     return (
       <PageHeaderLayout
@@ -394,7 +451,27 @@ export default class EnterpriseClusters extends PureComponent {
             <Button onClick={() => this.lastOrNextSteps('next')} type="primary" disabled={nextBtnstatus.disabled}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.next' })}</Button>
           </Tooltip>
         </div>
-
+        {deleteNode && 
+          <Modal
+            title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.deleteNode' })}
+            visible={deleteNode}
+            onOk={this.handleDeleteNode}
+            onCancel={this.cancalDeleteNode}
+          >
+            <div className={styles.inner}>
+              <span className={styles.icon}>
+                <Icon type="exclamation-circle-o" />
+              </span>
+              <div className={styles.desc}>
+                {formatMessage({ id: 'enterpriseColony.newHostInstall.node.deleteNodeDesc' })}
+              </div>
+            </div>
+            <span>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.deleteNodeSubDesc' })}</span>
+            <div className={styles.cmd}>
+              <p>/usr/local/bin/rke2-uninstall.sh</p>
+              <div className={styles.copy} onClick={()=>this.handleCopy('/usr/local/bin/rke2-uninstall.sh')}>{copySvg}</div>
+            </div>
+          </Modal>}
       </PageHeaderLayout>
     );
   }

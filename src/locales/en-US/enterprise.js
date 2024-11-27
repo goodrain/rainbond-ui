@@ -567,6 +567,9 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.check': 'To establish communication, check the server network or port',
     'enterpriseColony.newHostInstall.node.pass': 'Congratulations! Platform installation completed',
     'enterpriseColony.newHostInstall.node.nodeNotReady': 'Node not ready',
+    'enterpriseColony.newHostInstall.node.deleteNode': 'Delete node',
+    'enterpriseColony.newHostInstall.node.deleteNodeDesc': 'Are you sure you want to delete the node? This operation cannot be restored.',
+    'enterpriseColony.newHostInstall.node.deleteNodeSubDesc': 'Run the following command to clear the node:',
     // 添加集群
     'enterpriseColony.addCluster.supplier': 'Cluster Name',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',
