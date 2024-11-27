@@ -75,7 +75,7 @@ export default class ImageHubForm extends PureComponent {
                   },
                   {
                     validator: (_, value, callback) => {
-                      if (value || value.startsWith('http://') || value.startsWith('https://')) {
+                      if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
                         callback(formatMessage({ id: 'placeholder.warehouse_address.ban' })); // 显示错误消息
                       } else {
                         callback(); // 验证通过
