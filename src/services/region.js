@@ -330,16 +330,6 @@ export async function fetchClusterNodeList(params, handleError) {
     handleError
   });
 }
-// 删除集群节点
-export async function deleteClusterNode(params, handleError) {
-  return request(`${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${params.enterprise_id}/rke2/nodes/${params.node_id}`, {
-    method: 'put',
-    data: {
-      cluster_id: params.clusterID
-    },
-    handleError
-  });
-}
 
 // 获取 helm 对接集群事件
 export async function fetchHelmEvents(params, handleError) {
@@ -385,6 +375,17 @@ export async function fetchClusterInfoList(params, handleError) {
     method: 'get',
     params: {
       event_id: params.event_id
+    },
+    handleError
+  });
+}
+
+// 主机安装节点删除
+export async function deleteClusterNode(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/cluster_node`, {
+    method: 'delete',
+    data: {
+      node_name: params.node_name
     },
     handleError
   });
