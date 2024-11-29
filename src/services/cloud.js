@@ -1,34 +1,6 @@
 import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
-/* 获取企业的cloud access key */
-export async function queryEnterpriseAccesskey(body = {}) {
-  return request(
-    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/accesskey`,
-    {
-      method: 'get',
-      params: {
-        provider_name: body.provider_name
-      }
-    }
-  );
-}
-
-/* 设置企业的cloud access key */
-export async function setEnterpriseAccesskey(body = {}) {
-  return request(
-    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/accesskey`,
-    {
-      method: 'post',
-      data: {
-        provider_name: body.provider_name,
-        access_key: body.access_key,
-        secret_key: body.secret_key
-      }
-    }
-  );
-}
-
 /* 获取阿里云的kubernetes集群列表 */
 export async function loadKubereneteClusters(body, handleError) {
   return request(

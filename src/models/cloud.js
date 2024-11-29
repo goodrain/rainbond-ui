@@ -11,9 +11,7 @@ import {
   loadTask,
   loadTaskEvents,
   queryCreateLog,
-  queryEnterpriseAccesskey,
   reInstall,
-  setEnterpriseAccesskey,
   updateInitTaskStatus,
   updateKubernetesCluster,
   fetchCheckSsh,
@@ -29,18 +27,6 @@ export default {
   },
 
   effects: {
-    *setAccessKey({ payload, callback }, { call }) {
-      const response = yield call(setEnterpriseAccesskey, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *getAccessKey({ payload, callback }, { call }) {
-      const response = yield call(queryEnterpriseAccesskey, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
     *loadKubereneteClusters({ payload, callback, handleError }, { call }) {
       const response = yield call(loadKubereneteClusters, payload, handleError);
       if (response && callback) {

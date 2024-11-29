@@ -55,7 +55,6 @@ export default class EnterpriseClusters extends PureComponent {
       selectProvider: 'ack',
       currentStep: 0,
       guideStep: 2,
-      providerAccess: {},
       loading: false,
       initTask: {},
       clusters: null
@@ -70,63 +69,13 @@ export default class EnterpriseClusters extends PureComponent {
     }
   }
   componentDidMount() {
-    this.getAccessKey();
     this.loadClusters();
   }
 
-  // getAccessKey get enterprise accesskey
-  getAccessKey = () => {
-    const { dispatch } = this.props;
-    const { selectProvider } = this.state;
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'cloud/getAccessKey',
-      payload: {
-        enterprise_id: eid,
-        provider_name: selectProvider
-      },
-      callback: access => {
-        this.setState({ providerAccess: access });
-      }
-    });
-  };
   setProvider = value => {
     this.setState({ selectProvider: value });
   };
-  setAccessKey = () => {
-    const { form, dispatch } = this.props;
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    const { selectProvider } = this.state;
-    form.validateFields((err, fieldsValue) => {
-      if (err) {
-        return;
-      }
-      this.setState({ loading: true });
-      dispatch({
-        type: 'cloud/setAccessKey',
-        payload: {
-          enterprise_id: eid,
-          provider_name: selectProvider,
-          access_key: fieldsValue.access_key,
-          secret_key: fieldsValue.secret_key
-        },
-        callback: access => {
-          if (access) {
-            // load clusters
-            this.toClusterList(selectProvider);
-          }
-        }
-      });
-    });
-  };
+  
   loadClusters = () => {
     const {
       dispatch,
