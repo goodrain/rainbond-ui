@@ -126,8 +126,7 @@ export default class ClusterLink extends PureComponent {
     const installDesc = (
       <div>
         {formatMessage({id:'enterpriseColony.cloud.Refresh1'})}
-        <a href='https://www.rainbond.com/docs/installation/install-with-helm/install-from-kubernetes' target='_blank'>{formatMessage({id:'enterpriseColony.cloud.Refresh2'})}</a>
-        {formatMessage({id:'enterpriseColony.cloud.Refresh3'})}
+        <a href='https://www.rainbond.com/docs/troubleshooting/install' target='_blank'>{formatMessage({id:'enterpriseColony.cloud.Refresh2'})}</a>
       </div>
     )
     if (status === 'installed') {

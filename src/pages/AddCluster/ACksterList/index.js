@@ -66,16 +66,14 @@ export default class RainbondClusterInit extends PureComponent {
       operator: {
         env: [
           {
-            name: 'CONTAINER_RUNTIME',
-            value: 'containerd'
-          },
-          {
             name: 'HELM_TOKEN',
             value: ''
           },
         ]
       },
-      Cluster: {},
+      Cluster: {
+        containerdRuntimePath: '/run/containerd'
+      },
       Component: {
         rbd_app_ui: {
           enable: false
@@ -210,6 +208,14 @@ export default class RainbondClusterInit extends PureComponent {
       this.formObj.Cluster.nodesForChaos = e
     } else {
       delete this.formObj.Cluster.nodesForChaos
+    }
+  }
+  handleOnChangeContainerdRuntimePath = e => {
+    const value = e.target.value;
+    if (value) {
+      this.formObj.Cluster.containerdRuntimePath = value
+    } else {
+      delete this.formObj.Cluster.containerdRuntimePath
     }
   }
   handleOnChangeServer = e => {
@@ -496,7 +502,7 @@ export default class RainbondClusterInit extends PureComponent {
       }
     };
     const mode = this.props.location.query.mode || 'helm';
-    this.formObj.operator.env[1].value = token
+    this.formObj.operator.env[0].value = token
     const { getFieldDecorator, setFieldsValue } = form;
     const yamlJson = yaml.dump(this.formObj)
     const dataInfo = this.formObj.Cluster || {};
@@ -556,46 +562,6 @@ export default class RainbondClusterInit extends PureComponent {
                   <Col span={20}>
                     <div className={styles.basics}>
                       {menuKey == 'basics' && <>
-                        <Row className={styles.row}>
-                          <div className={styles.title_name}>
-                            {formatMessage({ id: 'enterpriseColony.ACksterList.runtimeTitle' })}
-                            <Tooltip
-                              placement="right"
-                              title={<div>
-                                {mode == 'ack'
-                                  ? formatMessage({ id: 'enterpriseColony.ACksterList.ack.tip.runtime' })
-                                  : mode == 'huawei'
-                                    ? formatMessage({ id: 'enterpriseColony.ACksterList.huawei.tip.runtime' })
-                                    : mode == 'tencent'
-                                      ? formatMessage({ id: 'enterpriseColony.ACksterList.tencent.tip.runtime' })
-                                      : formatMessage({ id: 'enterpriseColony.ACksterList.helm.tip.runtime' })
-                                }
-                              </div>}>
-                              <div>
-                                {globalUtil.fetchSvg('tip')}
-                              </div>
-                            </Tooltip>
-                          </div>
-                          <Form.Item
-                            {...is_formItemLayout}
-                            label={formatMessage({ id: 'enterpriseColony.ACksterList.change_runtime' })}
-                          >
-                            {getFieldDecorator('runtime', {
-                              initialValue: this.formObj.operator.env.CONTAINER_RUNTIME || 'containerd',
-                            })(
-                              <Radio.Group onChange={this.onChangeRunTime}>
-                                {mode == 'ack' || mode == 'huawei' ? (
-                                  <Radio value={'containerd'}>Containerd</Radio>
-                                ) : (
-                                  <>
-                                    <Radio value={'containerd'}>Containerd</Radio>
-                                    <Radio value={'docker'}>Docker</Radio>
-                                  </>
-                                )}
-                              </Radio.Group>
-                            )}
-                          </Form.Item>
-                        </Row>
                         <Row className={styles.row}>
                           <div className={styles.title_name}>
                             {mode == 'ack'
@@ -729,6 +695,35 @@ export default class RainbondClusterInit extends PureComponent {
                                 valueArr={dataInfo.nodesForChaos}
                                 onChange={this.handleOnChangeForChaos}
                                 keys='chaos'
+                              />
+                            )}
+                          </Form.Item>
+                        </Row>
+                        <Row className={styles.row}>
+                          <div className={styles.title_name}>
+                            {formatMessage({ id: 'enterpriseColony.cloud.containerdRuntimePath.title' })}
+                            <span> *</span>
+                            <Tooltip
+                              placement="right"
+                              title={<div>
+                                {formatMessage({ id: 'enterpriseColony.cloud.containerdRuntimePath.tip' })}
+                              </div>}
+                            >
+                              <div>
+                                {globalUtil.fetchSvg('tip')}
+                              </div>
+                            </Tooltip>
+                          </div>
+                          <Form.Item
+                            {...is_formItemLayout}
+                            label={formatMessage({ id: 'enterpriseColony.cloud.containerdRuntimePath.input' })}
+                          >
+                            {getFieldDecorator('containerdRuntimePath', {
+                              initialValue: dataInfo.containerdRuntimePath || '',
+                            })(
+                              <Input
+                                placeholder={formatMessage({ id: 'enterpriseColony.cloud.containerdRuntimePath.input.desc' })}
+                                onChange={this.handleOnChangeContainerdRuntimePath}
                               />
                             )}
                           </Form.Item>
