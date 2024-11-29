@@ -17,8 +17,8 @@ import {
       super(arg);
       this.state = {
         loading: false,
-        step2: `helm repo add rainbond https://openchart.goodrain.com/goodrain/rainbond\nhelm repo update\nkubectl create namespace rbd-system`,
-        step3: `helm install rainbond rainbond/rainbond-cluster -n rbd-system -f values.yaml`,
+        step2: `helm repo add rainbond https://chart.rainbond.com\nhelm repo update`,
+        step3: `helm install rainbond rainbond/rainbond --create-namespace -n rbd-system -f values.yaml`,
       };
     }
   
@@ -31,7 +31,7 @@ import {
           dataObj,
           onOk
         } = this.props;
-        const token = dataObj.operator.env[1].value
+        const token = dataObj.operator.env[0].value
         const host = dataObj.Cluster.gatewayIngressIPs;
         dispatch({
           type: 'region/createHelmEvents',
@@ -99,18 +99,15 @@ import {
                         <div className={styles.content}>
                             <span>
                             {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step2'})}
-                            <a href='https://www.rainbond.com/docs/ops-guide/tools/#helm-cli' target='_blank'> Helm </a>
+                            <a href='https://helm.sh/docs/intro/install/' target='_blank'> Helm </a>
                             {formatMessage({id:'enterpriseColony.ACksterList.commandModal.step5'})}
                             </span>
                             <Button onClick={()=>this.handleCopy(step2)}>{copySvg}{formatMessage({id:'button.copy'})}</Button>
                         </div>
                     </div>
                     <div className={styles.code}>
-                        <p>
-                            helm repo add rainbond https://openchart.goodrain.com/goodrain/rainbond
-                        </p>
+                        <p>helm repo add rainbond https://chart.rainbond.com</p>
                         <p>helm repo update</p>
-                        <p>kubectl create namespace rbd-system</p>
                     </div>
                 </li>
                 <li className={styles.item}>
@@ -125,7 +122,7 @@ import {
                     </div>
                     <div className={styles.code}>
                         <p>
-                            helm install rainbond rainbond/rainbond-cluster -n rbd-system -f values.yaml
+                          helm install rainbond rainbond/rainbond --create-namespace -n rbd-system -f values.yaml
                         </p>
                     </div>
                 </li>
