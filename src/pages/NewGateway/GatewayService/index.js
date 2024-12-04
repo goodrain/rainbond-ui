@@ -27,7 +27,9 @@ export default class index extends Component {
       serviceDrawer: this.props.open ? this.props.open : false,
       tableLoading: true,
       dataSource: [],
-      editInfo: {}
+      editInfo: {},
+      pageSize: 10,
+      page: 1
     };
   }
   componentDidMount() {
@@ -148,12 +150,20 @@ export default class index extends Component {
     })
 
   }
+  onPageChange = (page_num, page_size) => {
+    this.setState({
+        page: page_num,
+        pageSize: page_size
+    })
+}
   render() {
     const {
       serviceDrawer,
       dataSource,
       editInfo,
-      tableLoading
+      tableLoading,
+      pageSize,
+      page
     } = this.state;
     const {
       appID,
@@ -237,6 +247,17 @@ export default class index extends Component {
             dataSource={dataSource}
             columns={columns}
             loading={tableLoading}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              total: dataSource.length ,
+              onChange: this.onPageChange,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              onShowSizeChange: this.onPageChange,
+              hideOnSinglePage: dataSource.length<=10
+          }}
           />
         </Card>
         {serviceDrawer &&

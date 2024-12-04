@@ -28,7 +28,7 @@ export default class Index extends PureComponent {
       viewRelationInfo: null,
       showText: null,
       page: 1,
-      pageSize: 8,
+      pageSize: 5,
       total: 0,
       serviceId: ''
     };
@@ -37,8 +37,8 @@ export default class Index extends PureComponent {
     this.loadRelationedApp();
   }
 
-  onPageChange = page => {
-    this.setState({ page }, () => {
+  onPageChange = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
       this.loadRelationedApp();
     });
   };
@@ -145,12 +145,18 @@ export default class Index extends PureComponent {
           <ScrollerX sm={650}>
             <Table
               rowKey={(record,index) => index}
-              pagination={this.state.total > this.state.pageSize ? {
+              pagination={{
                 current: this.state.page,
                 pageSize: this.state.pageSize,
                 total: this.state.total,
-                onChange: this.onPageChange
-              } : false}
+                onChange: this.onPageChange ,
+                onShowSizeChange: this.onPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                pageSizeOptions:['5', '10', '20', '30'],
+                hideOnSinglePage: Number(this.state.total) <= 5
+              }}
               columns={[
                 {
                   // title: '组件名',

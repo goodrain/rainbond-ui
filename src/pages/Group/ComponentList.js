@@ -371,6 +371,9 @@ export default class ComponentList extends Component {
       onChange: this.onSelectChange
     };
     const pagination = {
+      hideOnSinglePage: total <= 10,
+      showQuickJumper: true,
+      showTotal: (total) => `共 ${total} 条`,
       pageSize,
       current,
       total,

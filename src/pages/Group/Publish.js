@@ -73,8 +73,8 @@ export default class AppPublishList extends PureComponent {
     this.handleShare('', {});
   };
 
-  onPageChange = page => {
-    this.setState({ page }, () => {
+  onPageChange = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
       this.fetchPublishRecoder();
     });
   };
@@ -322,12 +322,17 @@ export default class AppPublishList extends PureComponent {
           <ScrollerX sm={800}>
             <Table
               rowKey={(record, index) => index}
-              pagination={total > 10 ? {
+              pagination={ {
                 current: page,
                 pageSize,
                 total,
-                onChange: this.onPageChange
-              } : false}
+                onChange: this.onPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                onShowSizeChange: this.onPageChange,
+                hideOnSinglePage: total<=10
+              } }
               dataSource={recoders || []}
               columns={[
                 {

@@ -195,7 +195,6 @@ export default class MemberList extends PureComponent {
             <TeamMemberTable
               users={currUser}
               memberPermissions={memberPermissions}
-              pagination={total >8 ? pagination : false}
               team={currentTeam}
               onMoveTeam={this.onMoveTeam}
               onDelete={this.onDelMember}
