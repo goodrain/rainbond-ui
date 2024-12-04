@@ -59,9 +59,9 @@ class Control extends Component {
     this.load();
   }
 
-  onPageChange = pageNumber => {
+  onPageChange = (pageNumber, pageSize) => {
     this.setState({ licenseLoading: true });
-    this.setState({ page: pageNumber }, () => {
+    this.setState({ page: pageNumber, pageSize }, () => {
       this.load();
     });
   };
@@ -455,10 +455,15 @@ class Control extends Component {
           <Table
             pagination={{
               total,
-              page_num: page,
               pageSize,
               onChange: this.onPageChange,
-              current: page
+              current: page,
+              total: licenseList.length ,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              onShowSizeChange: this.onPageChange,
+              hideOnSinglePage: licenseList.length<=10
             }}
             rowKey={this.rowKey}
             dataSource={licenseList}

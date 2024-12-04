@@ -46,7 +46,12 @@ export default class Index extends PureComponent {
       editor: null,
       volumeOpts: [],
       relyComponent: false,
-      relyComponentList: []
+      relyComponentList: [],
+      page: 1,
+      pageSize: 5,
+      mntPage: 1,
+      mntPageSize: 5,
+      mntTotal:0
     };
   }
 
@@ -121,17 +126,19 @@ export default class Index extends PureComponent {
     });
   };
   loadMntList = () => {
+    const {mntPage, mntPageSize ,mntTotal} = this.state
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      page: 1,
-      page_size: 1000,
+      page: mntPage,
+      page_size: mntPageSize,
       volume_type: ['share-file', 'memoryfs', 'local'],
       type: 'mnt'
     }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || []
+          mntList: data.list || [],
+          mntTotal: data.total || 0
         });
       }
     });
@@ -278,6 +285,18 @@ export default class Index extends PureComponent {
     }
     return obj[key] || '-'
   }
+  onPageChange = (page, pageSize) => {
+    this.setState({
+      page: page,
+      pageSize: pageSize
+    });
+  }
+  onMntPageChange = (page, pageSize) => {
+    this.setState({
+      mntPage: page,
+      mntPageSize: pageSize
+    });
+  }
   render() {
     const { mntList, relyComponent, relyComponentList } = this.state;
     const { volumes, method, appDetail } = this.props;
@@ -371,7 +390,18 @@ export default class Index extends PureComponent {
           >
             <ScrollerX sm={650}>
               <Table
-                pagination={false}
+                pagination={{
+                  current: this.state.page,
+                  pageSize: this.state.pageSize,
+                  total: Number(volumes.length),
+                  onChange: this.onPageChange,
+                  onShowSizeChange: this.onPageChange,
+                  showQuickJumper: true,
+                  showSizeChanger: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  pageSizeOptions:['5', '10', '20', '30'],
+                  hideOnSinglePage: Number(volumes.length) <= 5
+                }}
                 rowKey={(record,index) => index}
                 columns={[
                   {
@@ -487,7 +517,20 @@ export default class Index extends PureComponent {
           >
             <ScrollerX sm={850}>
               <Table
-                pagination={false}
+                pagination={
+                  {
+                    current: this.state.mntPage,
+                    pageSize: this.state.mntPageSize,
+                    total: Number( this.state.mntTotal),
+                    onChange: this.onMntPageChange,
+                    onShowSizeChange: this.onMntPageChange,
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    showTotal: (total) => `共 ${total} 条`,
+                    pageSizeOptions:['5', '10', '20', '30'],
+                    hideOnSinglePage: Number(this.state.mntTotal) <= 5
+                  }
+                }
                 rowKey={(record,index) => index}
                 columns={[
                   {

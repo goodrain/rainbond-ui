@@ -9,19 +9,38 @@ class TeamMemberTable extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
+      page: 1,
+      pageSize: 10
     }
   }
+  onPageChange = (page, pageSize) => {
+    this.setState({
+      page,
+      pageSize
+    });
+  }
   render() {
+    const { page, pageSize } = this.state
     const {
       list,
       members,
-      pagination,
       onDelete,
       onEditAction,
       onMoveTeam,
       memberPermissions: { isEdit, isDelete, isAccess },
       team,
     } = this.props;
+    const pagination = {
+      current: page,
+      pageSize: pageSize,
+      total: list.length ,
+      onChange: this.onPageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal: (total) => `共 ${total} 条`,
+      onShowSizeChange: this.onPageChange,
+      hideOnSinglePage: list.length<=10
+  }
     const columns = [
       {
         title: formatMessage({id: 'teamManage.tabs.image.table.imageAddress'}),
@@ -86,7 +105,7 @@ class TeamMemberTable extends PureComponent {
     ];
 
     return (
-      <Table rowKey={(record,index) => index} pagination={list.length > 8 ? pagination : false} dataSource={list} columns={columns} />
+      <Table rowKey={(record,index) => index}  pagination={pagination} dataSource={list} columns={columns} />
     );
   }
 }

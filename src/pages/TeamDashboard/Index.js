@@ -562,6 +562,9 @@ export default class Index extends PureComponent {
                     total={total}
                     pageSizeOptions={pageSizeOptions}
                     onChange={this.handleChangePage}
+                    showQuickJumper
+                    showTotal={(total) => `共 ${total} 条`}
+                    hideOnSinglePage={ total <= 12}
                   />
                 </div>}
             </div>

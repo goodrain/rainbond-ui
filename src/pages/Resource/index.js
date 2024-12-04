@@ -35,6 +35,9 @@ class Index extends PureComponent {
       isSubmit: true,
       loadingSwitch: true,
       resourcePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_resources', `app_${globalUtil.getAppID()}`),
+      page: 1,
+      pageSize: 10,
+      total: 0
     };
   }
   componentDidMount() {
@@ -276,6 +279,12 @@ class Index extends PureComponent {
       }
     });
   }
+  onPageChange = (page, pageSize) => {
+    this.setState({
+      page,
+      pageSize
+    })
+  }
   render() {
     const {
       form: { getFieldDecorator, setFieldsValue },
@@ -296,11 +305,26 @@ class Index extends PureComponent {
         isDelete,
         isCreate,
         isEdit,
-      }
+      },
+      page,
+      pageSize,
+      total
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission()
     }
+    const paginationProps = {
+      pageSize,
+      total: content.length,
+      page,
+      current: page,
+      onChange: this.onPageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal: (total) => `共 ${total} 条`,
+      onShowSizeChange: this.onPageChange,
+      hideOnSinglePage: content.length<=10
+    } 
     const isBool = (type == "add") ? true : false
     const rowSelection = {
       selectedRowKeys,
@@ -485,6 +509,7 @@ class Index extends PureComponent {
               columns={columns}
               rowSelection={rowSelection}
               rowKey={record => record.ID}
+              pagination={paginationProps}
             />
 
           )}

@@ -400,7 +400,7 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = res.filter(item => {item.name === ID});
+          const arr = res.filter(item => { item.name === ID });
           this.setState(
             {
               helmTab: Array.isArray(res) ? res : [],
@@ -1427,6 +1427,16 @@ export default class EnterpriseShared extends PureComponent {
     dispatch(routerRedux.push(`/enterprise/${eid}/shared/import`));
 
   }
+  onShowSizeChangeMarket = (page, pageSize) => {
+    const { marketInfo, marketPag } = this.state;
+    const setMarketPag = Object.assign({}, marketPag, {
+      page,
+      pageSize
+    });
+    this.setState({ marketPag: setMarketPag }, () => {
+      this.getMarkets(marketInfo && marketInfo.name);
+    });
+  }
   render() {
     const {
       match: {
@@ -1728,6 +1738,10 @@ export default class EnterpriseShared extends PureComponent {
               pageSize={this.state.pageSize}
               total={Number(this.state.total)}
               onChange={this.onPageChangeApp}
+              showTotal={total => `共 ${total} 条`}
+              showSizeChanger
+              onShowSizeChange={this.onPageChangeApp}
+              hideOnSinglePage={Number(this.state.total) <= 10}
             />
           }
         </div>
@@ -1791,15 +1805,17 @@ export default class EnterpriseShared extends PureComponent {
           noCloudMarket(false)
         )}
         <div style={paginationStyle}>
-          {Number(marketPag.total) > 10 &&
-            <Pagination
-              showQuickJumper
-              current={marketPag.page}
-              pageSize={marketPag.pageSize}
-              total={Number(marketPag.total)}
-              onChange={this.onPageChangeAppMarket}
-            />
-          }
+          <Pagination
+            showQuickJumper
+            current={marketPag.page}
+            pageSize={marketPag.pageSize}
+            total={Number(marketPag.total)}
+            onChange={this.onPageChangeAppMarket}
+            showTotal={total => `共 ${total} 条`}
+            showSizeChanger
+            onShowSizeChange={this.onPageChangeAppMarket}
+            hideOnSinglePage={Number(marketPag.total) <= 10}
+          />
         </div>
 
       </div>
@@ -1840,15 +1856,17 @@ export default class EnterpriseShared extends PureComponent {
         )}
 
         <div style={paginationStyle}>
-          {Number(helmPag.total) > 10 &&
-            <Pagination
-              showQuickJumper
-              current={helmPag.page}
-              pageSize={helmPag.pageSize}
-              total={Number(helmPag.total)}
-              onChange={this.onPageChangeAppHelm}
-            />
-          }
+          <Pagination
+            showQuickJumper
+            current={helmPag.page}
+            pageSize={helmPag.pageSize}
+            total={Number(helmPag.total)}
+            onChange={this.onPageChangeAppHelm}
+            showTotal={total => `共 ${total} 条`}
+            showSizeChanger
+            onShowSizeChange={this.onPageChangeAppHelm}
+            hideOnSinglePage={Number(helmPag.total) <= 10}
+          />
         </div>
       </div>
     );

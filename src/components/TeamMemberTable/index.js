@@ -6,10 +6,23 @@ import cookie from '@/utils/cookie';
 import roleUtil from '../../utils/role';
 
 class TeamMemberTable extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      page: 1,
+      pageSize: 10
+    };
+  }
+  onPageChange = (page, pageSize) => {
+    this.setState({
+      page,
+      pageSize
+    });
+  }
   render() {
+    const { page, pageSize } = this.state;
     const {
       list,
-      pagination,
       onDelete,
       onEditAction,
       onMoveTeam,
@@ -17,6 +30,17 @@ class TeamMemberTable extends PureComponent {
       team,
       users
     } = this.props;
+    const pagination = {
+      current: page,
+      pageSize: pageSize,
+      total: list.length ,
+      onChange: this.onPageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal: (total) => `共 ${total} 条`,
+      onShowSizeChange: this.onPageChange,
+      hideOnSinglePage: list.length<=10
+  }
     const columns = [
       {
         title: formatMessage({id: 'teamManage.tabs.member.table.userName'}),

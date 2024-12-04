@@ -349,6 +349,7 @@ export default class Main extends PureComponent {
           if (Array.isArray(res)) {
             const helmQuery = helmPag.query;
             const helmPage = helmPag.page;
+            const helmPageSize = helmPag.pageSize
             if (helmQuery) {
               const arr = [];
               const ql = helmQuery.length;
@@ -362,9 +363,9 @@ export default class Main extends PureComponent {
               });
               setHelmPag.total = arr.length;
               helmList =
-                arr.length > 9 ? arr.splice((helmPage - 1) * 9, 9) : arr;
+              arr.length > helmPageSize ? arr.splice((helmPage - 1) * helmPageSize, helmPageSize) : arr;
             } else {
-              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * 9 : 0, 9);
+              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * helmPageSize : 0, helmPageSize);
             }
           }
           this.setState({
@@ -412,10 +413,11 @@ export default class Main extends PureComponent {
     }
   };
 
-  hanldePageChange = page => {
+  hanldePageChange = (page, pageSize) => {
     this.setState(
       {
-        page
+        page,
+        pageSize
       },
       () => {
         this.getApps();
@@ -423,22 +425,23 @@ export default class Main extends PureComponent {
     );
   };
 
-  hanldeCloudPageChange = page => {
+  hanldeCloudPageChange = (page, page_size) => {
     this.setState(
       {
-        cloudPage: page
+        cloudPage: page,
+        cloudPageSize: page_size
       },
       () => {
         this.getCloudRecommendApps();
       }
     );
   };
-  hanldeHelmPageChange = page => {
+  hanldeHelmPageChange = (page,pageSize) => {
     const { helmPag, scopeMax } = this.state;
-    const paginfo = Object.assign({}, helmPag, { page });
+    const paginfo = Object.assign({}, helmPag, { page, pageSize });
     this.setState(
       {
-        helmPag: paginfo
+        helmPag: paginfo,
       },
       () => {
         this.getHelmAppStore(scopeMax.slice(5));
@@ -1079,28 +1082,36 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
-      hideOnSinglePage: setHideOnSinglePage,
-      onChange: v => {
-        this.hanldePageChange(v);
-      }
+      onChange: this.hanldePageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      onShowSizeChange: this.hanldePageChange,
+      pageSizeOptions: ['9', '18', '27', '36'],
+      hideOnSinglePage: total <= 9
     };
     const cloudPaginationProps = {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      hideOnSinglePage: setHideOnSinglePage,
-      onChange: v => {
-        this.hanldeCloudPageChange(v);
-      }
+      onChange:this.hanldeCloudPageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal: (total) => `共 ${total} 条`,
+      onShowSizeChange: this.hanldeCloudPageChange,
+      pageSizeOptions: ['9', '18', '27', '36'],
+      hideOnSinglePage: cloudTotal <= 9
     };
     const helmPaginationProps = {
       current: moreState ? 1 : helmPag.page,
       pageSize: moreState ? 3 : helmPag.pageSize,
       total: moreState ? 1 : helmPag.total,
-      hideOnSinglePage: setHideOnSinglePage,
-      onChange: v => {
-        this.hanldeHelmPageChange(v);
-      }
+      onChange:this.hanldeHelmPageChange,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal: (total) => `共 ${total} 条`,
+      onShowSizeChange: this.hanldeHelmPageChange,
+      pageSizeOptions: ['9', '18', '27', '36'],
+      hideOnSinglePage: helmPag.total <= 9
     };
     let isInstall = true;
 

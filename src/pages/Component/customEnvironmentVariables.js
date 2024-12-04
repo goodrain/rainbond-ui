@@ -65,6 +65,8 @@ export default class Index extends React.Component {
       isAttrNameList: [],
       errorDelete: false,
       toDeleteVolumeErr: null,
+      mntpageSize: 5,
+      mntPage: 1
     };
   }
   componentDidMount() {
@@ -118,16 +120,28 @@ export default class Index extends React.Component {
       }
     });
   };
-  onPageChange = page => {
+  onPageChange = (page, pageSize) => {
     this.setState(
       {
-        page
+        page,
+        page_size: pageSize
       },
       () => {
         this.fetchInnerEnvs();
       }
     );
   };
+  onMntPageChange = (page, pageSize) => {
+    this.setState(
+      {
+        mntPage: page,
+        mntpageSize: pageSize
+      },
+      () => {
+        this.loadMntList();
+      }
+    );
+  }
 
   onEditVar = data => {
     this.setState({ showEditVar: data });
@@ -324,11 +338,12 @@ export default class Index extends React.Component {
     });
   };
   loadMntList = () => {
+    const { mntpageSize , mntPage} = this.state;
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      page: 1,
-      page_size: 1000,
+      page: mntPage,
+      page_size: mntpageSize,
       volume_type: ['config-file']
     }).then(data => {
       if (data) {
@@ -485,7 +500,7 @@ export default class Index extends React.Component {
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { mntList } = this.state;
+    const { mntList, page, page_size } = this.state;
     const { baseInfo, volumes } = this.props;
     const wraps = {
       wordBreak: 'break-all',
@@ -542,7 +557,20 @@ export default class Index extends React.Component {
         >
           <ScrollerX sm={650}>
             <Table
-              pagination={false}
+              pagination={
+                {
+                  current: page,
+                  pageSize: page_size,
+                  total: Number(volumes.length),
+                  onChange: this.onPageChange,
+                  onShowSizeChange: this.onPageChange,
+                  showQuickJumper: true,
+                  showSizeChanger: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  pageSizeOptions:['5', '10', '20', '30'],
+                  hideOnSinglePage: Number(volumes.length) <= 5
+                }
+              }
               columns={[
                 {
                   title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
@@ -600,7 +628,18 @@ export default class Index extends React.Component {
         >
           <ScrollerX sm={850}>
             <Table
-              pagination={false}
+              pagination={{
+                current: this.state.mntPage,
+                pageSize: this.state.mntpageSize,
+                total: Number(mntList.length),
+                onChange: this.onMntPageChange,
+                onShowSizeChange: this.onMntPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                pageSizeOptions:['5', '10', '20', '30'],
+                hideOnSinglePage: Number(mntList.length) <= 5
+              }}
               rowKey={(record,index) => index}
               columns={[
                 {

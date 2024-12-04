@@ -34,7 +34,9 @@ export default class index extends Component {
             type: 'add',
             tableLoading: true,
             comList:[],
-            outer_url:''
+            outer_url:'',
+            pageSize: 10,
+            page: 1 
         };
     }
     componentWillMount(){
@@ -201,13 +203,21 @@ export default class index extends Component {
         )
       );
     }
+    onPageChange = (page_num, page_size) => {
+        this.setState({
+            page: page_num,
+            pageSize: page_size
+        })
+    }
     render() {
         const {
             routeDrawer,
             dataSource,
             editInfo,
             tableLoading,
-            outer_url
+            outer_url,
+            pageSize,
+            page
         } = this.state;
         const {
             appID,
@@ -315,6 +325,17 @@ export default class index extends Component {
                         dataSource={dataSource}
                         columns={columns}
                         loading={tableLoading}
+                        pagination={{
+                            current: page,
+                            pageSize: pageSize,
+                            total: dataSource.length ,
+                            onChange: this.onPageChange,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            showTotal: (total) => `共 ${total} 条`,
+                            onShowSizeChange: this.onPageChange,
+                            hideOnSinglePage: dataSource.length <= 10
+                        }}
                     />
                 </Card>
                 {routeDrawer &&

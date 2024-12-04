@@ -180,6 +180,11 @@ export default class EnterpriseTeams extends PureComponent {
       pageSize={this.state.page_size}
       total={Number(this.state.total)}
       onChange={this.onPageChangeTeam}
+      showQuickJumper
+      showTotal={total => `共 ${total} 条`} 
+      showSizeChanger
+      onShowSizeChange={this.onPageChangeTeam}
+      hideOnSinglePage={this.state.total <= 10}
     />
   );
   handleSearchUserTeam = name => {
