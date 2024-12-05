@@ -910,7 +910,7 @@ export default class EnterpriseClusters extends PureComponent {
               {/* 导入 */}
             </Link>
           ];
-          if (item.region_name != 'dind-region') {
+          if (item.region_name != 'dind-region' && item.region_name != 'default' && item.region_name != 'rainbond') {
             mlist.push(
               <a onClick={() => { this.delUser(item, 'delete'); }}>
                 <FormattedMessage id='enterpriseColony.table.handle.delete' />

@@ -292,14 +292,14 @@ export default class Index extends PureComponent {
             )}
           </Fragment>
         }
-        extra={
-          <Fragment>
-            <a onClick={this.showDownHistory1000Log}>
-              {/* 最近1000条日志 */}
-              <FormattedMessage id='componentOverview.body.tab.log.lately' />
-            </a>
-          </Fragment>
-        }
+        // extra={
+        //   <Fragment>
+        //     <a onClick={this.showDownHistory1000Log}>
+        //       {/* 最近1000条日志 */}
+        //       <FormattedMessage id='componentOverview.body.tab.log.lately' />
+        //     </a>
+        //   </Fragment>
+        // }
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
           <Form.Item

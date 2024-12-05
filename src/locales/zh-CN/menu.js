@@ -7,7 +7,7 @@ const enterpriseMenu = {
   'menu.enterprise.user': '用户管理',
   'menu.enterprise.monitoring': '观测中心',
   'menu.enterprise.audit': '审计',
-  'menu.enterprise.log': '日志/审计',
+  'menu.enterprise.log': '日志',
   'menu.enterprise.extension': '插件扩展',
   'menu.enterprise.setting': '企业设置',
   'menu.enterprise.order': '订购',
