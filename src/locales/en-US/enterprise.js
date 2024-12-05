@@ -519,6 +519,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.addnode':'Add node',
     'enterpriseColony.newHostInstall.node.lookOut':'Warning',
     'enterpriseColony.newHostInstall.node.msg':'Before proceeding, ensure that at least the Control-plane, Worker, and ETCD nodes are registered and the number of ETCD nodes is odd.',
+    'enterpriseColony.newHostInstall.node.msgs': 'Ensure that nodes can communicate with each other on internal networks. If public IP addresses are available, use ports 6443 and 9345.',
     'enterpriseColony.newHostInstall.node.last':'Last step',
     'enterpriseColony.newHostInstall.node.next':'Next step',
     'enterpriseColony.newHostInstall.node.unInstallSuccess':'Uninstall successfully',
