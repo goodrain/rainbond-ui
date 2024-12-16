@@ -28,7 +28,7 @@ export default class Index extends PureComponent {
     super(arg);
     this.state = {
       type: 'now',
-      showMenu: 'pm',
+      showMenu: 'resource',
       anaPlugins: null,
     };
   }
@@ -169,7 +169,7 @@ export default class Index extends PureComponent {
       componentPermissions: { isServiceMonitor },
       method
     } = this.props;
-    const defaultShow = [(method != 'vm' ? 'pm' : 'resource')];
+    const defaultShow = ['resource'];
     const enablePM =
       appDetail &&
       appDetail.service &&
@@ -184,15 +184,16 @@ export default class Index extends PureComponent {
               defaultSelectedKeys={defaultShow}
               style={{ height: '590px', border: '1px solid #e8e8e8', borderRadius: 5 }}
             >
+              <Menu.Item key="resource">
+                {/* 资源监控 */}
+                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
+              </Menu.Item>
               {method != 'vm' &&
                 <Menu.Item key="pm">
                   {/* 性能分析 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
                 </Menu.Item>}
-              <Menu.Item key="resource">
-                {/* 资源监控 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
-              </Menu.Item>
+              
               {enablePM && method != 'vm' &&
                 <Menu.Item key="trace">
                   {/* 链路追踪 */}

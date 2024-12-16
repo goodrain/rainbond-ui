@@ -910,7 +910,7 @@ export default class EnterpriseClusters extends PureComponent {
               {/* 导入 */}
             </Link>
           ];
-          if (item.region_name != 'dind-region' && item.region_name != 'default' && item.region_name != 'rainbond') {
+          if (item.scope != 'default') {
             mlist.push(
               <a onClick={() => { this.delUser(item, 'delete'); }}>
                 <FormattedMessage id='enterpriseColony.table.handle.delete' />
@@ -1093,7 +1093,6 @@ export default class EnterpriseClusters extends PureComponent {
           )}
           <Alert
             style={{ marginBottom: '16px' }}
-            // message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
             message={<FormattedMessage id='enterpriseColony.alert.message' />}
           />
           <Table

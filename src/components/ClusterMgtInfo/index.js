@@ -673,6 +673,13 @@ class Index extends Component {
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.import' />
                   </Button>
+                  {rowClusterInfo.scope != 'default' && (
+                    <Button
+                      onClick={() => this.delEven('delete')}
+                    >
+                      <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                    </Button>
+                  )}
                 </Col>
               </Row>
               {/* 基本信息 */}

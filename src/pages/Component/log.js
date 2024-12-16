@@ -51,9 +51,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
-    // this.loadLog();
     this.fetchInstanceInfo();
-    // this.initializeSSE(100);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -66,8 +64,8 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
-    if (this.eventSource) {
-      this.eventSource.close();
+    if (this.eventSources) {
+      this.closeAllEventSources();
     }
   }
 
@@ -160,14 +158,14 @@ export default class Index extends PureComponent {
   }
   handleStop = () => {
     this.setState({ started: false });
-    if (this.eventSource) {
+    if (this.eventSources) {
       this.closeAllEventSources()
     }
   };
   handleStart = () => {
     const { instances } = this.state
     this.setState({ started: true });
-    this.initializeEventSources(instances, 0)
+    this.initializeEventSources(instances, 100)
   };
   onChangeCascader = value => {
     const { instances } = this.state
@@ -191,7 +189,7 @@ export default class Index extends PureComponent {
         },
         () => {
           this.closeTimer();
-          this.initializeEventSources(instances, 0)
+          this.initializeEventSources(instances, 100)
         }
       );
     }
@@ -260,9 +258,44 @@ export default class Index extends PureComponent {
   hideDownHistory1000Log = () => {
     this.setState({ showHistory1000Log: false });
   };
+
+  onFinish = value => {
+    this.setState({ filter: value }, () => {
+      const { logs, pod_name: podName } = this.state;
+      if (value === '') {
+        this.handleStart()
+      } else {
+        this.closeAllEventSources()
+        this.setLogs(logs);
+      }
+    });
+  };
+  setLogs = logs => {
+    const { filter, pod_name: podName } = this.state;
+    let newlogs = logs;
+    newlogs = logs.filter(item => {
+      if (filter == '' || item.indexOf(filter) != -1) {
+        return true;
+      }
+      return false;
+    });
+    newlogs = newlogs.map(item => {
+      if (item.indexOf(filter) != -1) {
+        const newitem = item.replace(filter, `\x1b[33m${filter}\x1b[0m`);
+        return newitem;
+      }
+      return item;
+    });
+    if (newlogs.length > 5000) {
+      newlogs = newlogs.slice(logs.length - 5000, logs.length);
+    }
+    const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
+    this.setState(upDataInfo);
+  };
+
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { appAlias, regionName } = this.props;
+    const { appAlias, regionName, teamName } = this.props;
     const {
       logs,
       pod_name,
@@ -292,16 +325,28 @@ export default class Index extends PureComponent {
             )}
           </Fragment>
         }
-        // extra={
-        //   <Fragment>
-        //     <a onClick={this.showDownHistory1000Log}>
-        //       {/* 最近1000条日志 */}
-        //       <FormattedMessage id='componentOverview.body.tab.log.lately' />
-        //     </a>
-        //   </Fragment>
-        // }
+        extra={
+          <Fragment>
+            <a onClick={this.showDownHistory1000Log}>
+              {/* 最近1000条日志 */}
+              <FormattedMessage id='componentOverview.body.tab.log.lately' />
+            </a>
+          </Fragment>
+        }
       >
         <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
+          <Form.Item
+            name="filter"
+            label={<FormattedMessage id='componentOverview.body.tab.log.text' />}
+            style={{ marginRight: '10px' }}
+          >
+            <Input.Search
+              style={{ width: '300px' }}
+              // placeholder="请输入过滤文本"
+              placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
+              onSearch={this.onFinish}
+            />
+          </Form.Item>
           <Form.Item
             name="container"
             label={<FormattedMessage id='componentOverview.body.tab.log.container' />}
@@ -461,6 +506,8 @@ export default class Index extends PureComponent {
             onCancel={this.hideDownHistory1000Log}
             region={regionName}
             podName={appAlias}
+            instances={instances}
+            teamName={teamName}
           />
         )}
       </Card>

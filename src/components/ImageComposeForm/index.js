@@ -28,6 +28,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
+    
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if(archInfo && archInfo.length != 2 && archInfo.length != 0){
