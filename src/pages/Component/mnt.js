@@ -17,6 +17,7 @@ import AddRelationMnt from '../../components/AddRelationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import RelyComponentModal from '../../components/RelyComponentModal';
+import DirectoryPersistence from '../../components/DirectoryPersistence/index'
 import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
@@ -51,7 +52,8 @@ export default class Index extends PureComponent {
       pageSize: 5,
       mntPage: 1,
       mntPageSize: 5,
-      mntTotal:0
+      mntTotal: 0,
+      DirectoryPersistenceShow: false
     };
   }
 
@@ -126,7 +128,7 @@ export default class Index extends PureComponent {
     });
   };
   loadMntList = () => {
-    const {mntPage, mntPageSize ,mntTotal} = this.state
+    const { mntPage, mntPageSize, mntTotal } = this.state
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -297,24 +299,40 @@ export default class Index extends PureComponent {
       mntPageSize: pageSize
     });
   }
+  DirectoryPersistenceShow = (val) => {
+    const { volumesArr } = this.state;
+    volumesArr && volumesArr.map(item => {
+      if (item.volume_name == val.volume_name) {
+        this.setState({
+          hostPath: item.volume_path,
+          volumeName: item.volume_name
+        })
+      }
+    })
+    this.setState({
+      DirectoryPersistenceShow: !this.state.DirectoryPersistenceShow,
+      volume_path: val.volume_path,
+      isType: val.volume_type == 'alicloud-disk-efficiency' ? true : false
+    })
+  }
   render() {
-    const { mntList, relyComponent, relyComponentList } = this.state;
+    const { mntList, relyComponent, relyComponentList, DirectoryPersistenceShow, volume_path, hostPath, isType, volumeName } = this.state;
     const { volumes, method, appDetail } = this.props;
     if (!this.canView()) return <NoPermTip />;
     const columns = [
       {
-        title: formatMessage({id:'Vm.createVm.Storagename'}),
+        title: formatMessage({ id: 'Vm.createVm.Storagename' }),
         dataIndex: 'volume_name'
       },
       {
-        title: formatMessage({id:'Vm.createVm.Storagetype'}),
+        title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
         dataIndex: 'volume_path',
         render: (text, record) => {
           return <span>{this.handleMountFormat(text)}</span>;
         }
       },
       {
-        title: formatMessage({id:'Vm.createVm.capacity'}),
+        title: formatMessage({ id: 'Vm.createVm.capacity' }),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
           if (text == 0) {
@@ -324,7 +342,7 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: formatMessage({id:'Vm.createVm.status'}),
+        title: formatMessage({ id: 'Vm.createVm.status' }),
         dataIndex: 'status',
         render: (text, record) => {
           if (text == 'not_bound') {
@@ -334,7 +352,7 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: formatMessage({id:'Vm.createVm.handle'}),
+        title: formatMessage({ id: 'Vm.createVm.handle' }),
         dataIndex: 'action',
         render: (val, data) => {
           return (
@@ -399,10 +417,10 @@ export default class Index extends PureComponent {
                   showQuickJumper: true,
                   showSizeChanger: true,
                   showTotal: (total) => `共 ${total} 条`,
-                  pageSizeOptions:['5', '10', '20', '30'],
+                  pageSizeOptions: ['5', '10', '20', '30'],
                   hideOnSinglePage: Number(volumes.length) <= 5
                 }}
-                rowKey={(record,index) => index}
+                rowKey={(record, index) => index}
                 columns={[
                   {
                     title: formatMessage({ id: 'componentOverview.body.mnt.volume_name' }),
@@ -477,6 +495,14 @@ export default class Index extends PureComponent {
                         >
                           {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
                         </a>
+                        {data.status != 'not_bound' && data.volume_type != 'nfs' &&
+                          <a
+                            onClick={() => this.DirectoryPersistenceShow(data)}
+                            href="javascript:;"
+                          >
+                            {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.file' })}
+                          </a>
+                        }
                       </div>
                     )
                   }
@@ -499,7 +525,7 @@ export default class Index extends PureComponent {
             }
           >
             <ScrollerX sm={650}>
-              <Table rowKey={(record,index) => index} pagination={false} dataSource={volumes} columns={columns} />
+              <Table rowKey={(record, index) => index} pagination={false} dataSource={volumes} columns={columns} />
             </ScrollerX>
           </Card>
         }
@@ -507,11 +533,11 @@ export default class Index extends PureComponent {
           <Card
             title={<span> {formatMessage({ id: 'componentOverview.body.mnt.share' })} </span>}
             extra={
-              <Tooltip title={appDetail?.service?.extend_method === "state_multiple" ? '有状态组件不允许挂载其他组件存储':''}>
-              <Button onClick={this.showAddRelation} disabled={appDetail?.service?.extend_method === "state_multiple"}>
-                <Icon type="plus" />
-                {formatMessage({ id: 'componentOverview.body.mnt.mount' })}
-              </Button>
+              <Tooltip title={appDetail?.service?.extend_method === "state_multiple" ? '有状态组件不允许挂载其他组件存储' : ''}>
+                <Button onClick={this.showAddRelation} disabled={appDetail?.service?.extend_method === "state_multiple"}>
+                  <Icon type="plus" />
+                  {formatMessage({ id: 'componentOverview.body.mnt.mount' })}
+                </Button>
               </Tooltip>
             }
           >
@@ -521,17 +547,17 @@ export default class Index extends PureComponent {
                   {
                     current: this.state.mntPage,
                     pageSize: this.state.mntPageSize,
-                    total: Number( this.state.mntTotal),
+                    total: Number(this.state.mntTotal),
                     onChange: this.onMntPageChange,
                     onShowSizeChange: this.onMntPageChange,
                     showQuickJumper: true,
                     showSizeChanger: true,
                     showTotal: (total) => `共 ${total} 条`,
-                    pageSizeOptions:['5', '10', '20', '30'],
+                    pageSizeOptions: ['5', '10', '20', '30'],
                     hideOnSinglePage: Number(this.state.mntTotal) <= 5
                   }
                 }
-                rowKey={(record,index) => index}
+                rowKey={(record, index) => index}
                 columns={[
                   {
                     title: formatMessage({ id: 'componentOverview.body.mnt.local_vol_path' }),
@@ -688,6 +714,16 @@ export default class Index extends PureComponent {
             onOk={this.handleCloseRelyComponent}
           />
         )}
+        {DirectoryPersistenceShow &&
+          <DirectoryPersistence
+            isShow={this.DirectoryPersistenceShow}
+            appAlias={this.props.appAlias}
+            volumePath={volume_path}
+            hostPath={hostPath}
+            isType={isType}
+            volumeName={volumeName}
+          />
+        }
       </Fragment>
     );
   }

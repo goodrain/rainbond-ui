@@ -10,6 +10,7 @@ import ImportCluster from '../AddCluster/ImportMessage/message';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import { Icon, Button } from 'antd';
 import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/newRole';
 import Yaml from './yaml-yaml';
@@ -41,9 +42,10 @@ export default class Main extends PureComponent {
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
+    const group_id = globalUtil.getGroupID()
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/yaml/${key}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/yaml/${key}?group_id=${group_id}`
       )
     );
   };
@@ -82,6 +84,7 @@ export default class Main extends PureComponent {
     ];
     
     let { type } = match.params;
+    type = type.split('?')[0];
     if (!type) {
       type = 'yaml';
     }
@@ -102,6 +105,18 @@ export default class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('yaml',18)}
+        extraContent={
+          <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                  routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                  })
+              );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+          </Button>
+      }
       >
         {Com ? (
           <Com

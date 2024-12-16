@@ -26,17 +26,6 @@ export default function AppHeader(props) {
         <Spin size="large" />
       ) : (
         <div>
-          <div className={headerStype.item}>
-            {nobleIcon}
-            <Link
-              className={headerStype.itemlink}
-              to={`/enterprise/${currentEnterprise.enterprise_id}/personal`}
-            >
-              {/* {currentEnterprise && currentEnterprise.enterprise_alias} */}
-            {formatMessage({id:'enterpriseTeamManagement.other.personal'})}
-            </Link>
-            <span className={headerStype.itemseparator}>></span>
-          </div>
           <SelectTeam
             active={false}
             className={headerStype.select}

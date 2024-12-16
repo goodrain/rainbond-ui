@@ -853,7 +853,7 @@ export default class Index extends PureComponent {
               <div style={{ minHeight: '190px' }} />
             </Spin>
           ) : (
-            <div>
+            <div style={{display:'flex',flexWrap:'wrap' ,marginBottom:24}}>
               <InstanceList
                 method={method}
                 handlePodClick={this.handlePodClick}
@@ -863,34 +863,6 @@ export default class Index extends PureComponent {
                   this.props.appDetail.service.k8s_component_name
                 }
               />
-              <Divider />
-              <div>
-                <Row>
-                  <Col span={24} style={{ display: 'flex' }}>
-                    <span className={styles.commandText}><FormattedMessage id='componentOverview.body.Expansion.query' /></span>
-                    <div className={styles.commandWidth}>
-                      <Input
-                        value={grctlCmd}
-                        style={{ background: '#F9FAFC', textAlign: 'center' }}
-                      />
-                      <div className={styles.remindDesc}>
-                        <FormattedMessage id='componentOverview.body.Expansion.copyCommand' />
-                      </div>
-                    </div>
-
-                    <CopyToClipboard
-                      text={grctlCmd}
-                      onCopy={() => {
-                        notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
-                      }}
-                    >
-                      <Button type="primary" style={{ marginLeft: 19 }}>
-                        <FormattedMessage id='componentOverview.body.Expansion.copy' />
-                      </Button>
-                    </CopyToClipboard>
-                  </Col>
-                </Row>
-              </div>
             </div>
           )}
         </Card>

@@ -38,12 +38,12 @@ export default [
       // Enterprise view layout
       {
         path: '/',
-        redirect: '/enterprise/auto'
+        redirect: '/redirect'
       },
       {
-        path: '/enterprise/:eid/personal',
-        component: '../layouts/PersonalSpace',
-        name: 'PersonalSpace',
+        path: '/redirect',
+        component: '../layouts/Auto',
+        name: 'Auto',
         authority: ['admin', 'user'],
       },
       {
@@ -51,6 +51,7 @@ export default [
         component: '../layouts/EnterpriseLayout',
         name: 'EnterprisePage',
         authority: ['admin', 'user'],
+        Routes: ['./routes/AdminRoute.js'],
         routes: [
           {
             path: '/enterprise/:eid/index',
@@ -654,6 +655,14 @@ export default [
               {
                 path: '/account/center/accesstoken',
                 component: './Account/Center/AccesstokenView'
+              },
+              {
+                path: '/account/center/img',
+                component: './Account/Center/ImgView'
+              },
+              {
+                path: '/account/center/personal',
+                component: './Account/Center/PersonalView'
               }
             ]
           },

@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { Icon, Button } from 'antd';
 import ImageName from './image-name';
 import ImageCmd from './image-cmd';
 import ImageCompose from './image-compose';
@@ -57,9 +58,10 @@ export default class Main extends PureComponent {
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
+    const group_id = globalUtil.getGroupID()
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
       )
     );
   };
@@ -98,6 +100,7 @@ export default class Main extends PureComponent {
       return roleUtil.noPermission()
     }
     let { type } = match.params;
+    type = type.split('?')[0];
     if (!type) {
       type = 'custom';
     }
@@ -118,6 +121,18 @@ export default class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getSvg('dockerSvg', 18)}
+        extraContent={
+          <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                  routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                  })
+              );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+          </Button>
+      }
       >
         {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>

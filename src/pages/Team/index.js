@@ -6,10 +6,8 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import TeamImg from '../../../public/images/team-icon.png';
 import ConfirmModal from '../../components/ConfirmModal';
-import TeamDataCenterList from '../../components/Team/TeamDataCenterList';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
-import TeamImageList from '../../components/Team/TeamImageList'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -40,7 +38,7 @@ export default class Index extends PureComponent {
       showExitTeam: false,
       scope: '',
       teamsUrl: this.props.currentEnterprise
-        ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/personal`
+        ? this.getLoginRole(this.props.currUser)
         : '/',
       eventPermissions: this.handlePermissions('team_dynamic'),
       memberPermissions: this.handlePermissions('team_member'),
@@ -73,8 +71,6 @@ export default class Index extends PureComponent {
       scopes = 'event';
     } else if (memberAccess) {
       scopes = 'member';
-    } else if (datecenterAccess) {
-      scopes = 'datecenter';
     } else {
       scopes = 'role';
     }
@@ -92,6 +88,21 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.loadOverview()
+  }
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${team_name}/region/${team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
   }
   // 获取团队下的基本信息
   loadOverview = () => {
@@ -273,9 +284,19 @@ export default class Index extends PureComponent {
         <div className={styles.extraBtns}>
           {!isEnterpriseAdmin && (
             <Button onClick={this.showExitTeam} type="dashed">
-              {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
+             <Icon type="rollback" /> {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
             </Button>
           )}
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push({
+                pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+              })
+            );
+          }} type="default">
+            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+          </Button>
         </div>
       </div>
     );
@@ -293,22 +314,10 @@ export default class Index extends PureComponent {
         tab: formatMessage({ id: 'teamManage.tabs.member' })
       });
     }
-    if (datecenterAccess) {
-      tabList.push({
-        key: 'datecenter',
-        tab: formatMessage({ id: 'teamManage.tabs.cluster' })
-      });
-    }
     if (roleAccess && sheowEnterprisePlugin) {
       tabList.push({
         key: 'role',
         tab: formatMessage({ id: 'teamManage.tabs.role' })
-      });
-    }
-    if (registryAccess) {
-      tabList.push({
-        key: 'image',
-        tab: formatMessage({ id: 'teamManage.tabs.image' })
       });
     }
 
@@ -328,9 +337,6 @@ export default class Index extends PureComponent {
         content={pageHeaderContent}
         extraContent={extraContent}
       >
-        {scope === 'datecenter' && (
-          <TeamDataCenterList datecenterPermissions={datecenterPermissions} />
-        )}
         {scope === 'member' && (
           <TeamMemberList memberPermissions={memberPermissions} />
         )}
@@ -339,9 +345,6 @@ export default class Index extends PureComponent {
 
         {scope === 'event' && dynamicAccess && (
           <TeamEventList memberPermissions={memberPermissions} />
-        )}
-        {scope === 'image' && registryAccess && (
-          <TeamImageList memberPermissions={registryPermissions} />
         )}
         {showEditName && (
           <MoveTeam

@@ -18,7 +18,8 @@ import {
   Tag,
   Tooltip,
   Row,
-  Col
+  Col,
+  Icon,
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -1487,6 +1488,18 @@ export default class Main extends PureComponent {
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
+              action={
+                <Button onClick={() => {
+                    const { dispatch } = this.props;
+                    dispatch(
+                        routerRedux.push({
+                            pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                        })
+                    );
+                }} type="default">
+                    <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+                </Button>
+            }
             >
               {scopeMax !== 'localApplication' && !isInstall && (
                 <Alert

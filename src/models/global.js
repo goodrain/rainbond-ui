@@ -166,7 +166,8 @@ export default {
     nouse: false,
     needLogin: false,
     teamOverview: null,
-    pluginsList: []
+    pluginsList: [],
+    myTeams: []
   },
 
   effects: {
@@ -719,9 +720,13 @@ export default {
         callback(response);
       }
     },
-    *fetchMyTeams({ payload, callback }, { call }) {
+    *fetchMyTeams({ payload, callback }, { call, put }) {
       const response = yield call(fetchMyTeams, payload);
       if (response && callback) {
+        yield put({
+          type: 'saveMyTeams',
+          payload: response.list || []
+        });
         callback(response);
       }
     },
@@ -1245,6 +1250,12 @@ export default {
         pluginsList:  payload && payload.list && payload.list.length > 0 ? payload.list : []
       };
     },
+    saveMyTeams(state, { payload }) {
+      return {
+        ...state,
+        myTeams: payload
+      };
+    }
   },
 
   subscriptions: {

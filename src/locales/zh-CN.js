@@ -14,6 +14,7 @@ import global from './zh-CN/global';
 import ApplicationState from'./zh-CN/ApplicationState';
 import utils from './zh-CN/utils'
 import login from './zh-CN/login'
+import versionUpdata from './zh-CN/versionUpdata'
 export default {
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
@@ -35,5 +36,6 @@ export default {
   ...global,
   ...ApplicationState,
   ...utils,
-  ...login
+  ...login,
+  ...versionUpdata
 };

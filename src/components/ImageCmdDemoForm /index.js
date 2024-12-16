@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio } from 'antd';
+import { Button, Form, Input, Select, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../AddOrEditGroup';
+import globalUtil from '../../utils/global';
+import role from '../../utils/newRole'
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -28,10 +30,11 @@ const formItemLayouts = {
 };
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, teamControl }) => ({
     groups: global.groups,
     createAppByDockerrunLoading:
-      loading.effects['createApp/createAppByDockerrun']
+      loading.effects['createApp/createAppByDockerrun'],
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -46,8 +49,17 @@ export default class Index extends PureComponent {
       addGroup: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       dockerRun: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d mysql:5.7.42',
-      demoName: 'mysql'
+      demoName: 'mysql',
+      creatComPermission: {}
     };
+  }
+  componentDidMount() {
+    const group_id = globalUtil.getGroupID()
+    if (group_id) {
+      this.setState({
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
+      })
+    }
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -66,11 +78,11 @@ export default class Index extends PureComponent {
     const isService = handleType && handleType === 'Service';
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if(!isService){
+        if (!isService) {
           fieldsValue.k8s_app = "appDockerDemo"
           fieldsValue.is_demo = true
         }
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
         onSubmit(fieldsValue);
@@ -96,7 +108,7 @@ export default class Index extends PureComponent {
   };
   demoChange = (val) => {
     const { setFieldsValue } = this.props.form;
-    setFieldsValue({ service_cname: val, k8s_component_name: val,  docker_cmd: val == "mysql" ? 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d mysql:5.7.42' : val == "nginx" ? 'docker run --name nginx -d -p 80:80 nginx:alpine' : 'docker run --name redis -d redis:7.0.11'})
+    setFieldsValue({ service_cname: val, k8s_component_name: val, docker_cmd: val == "mysql" ? 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d mysql:5.7.42' : val == "nginx" ? 'docker run --name nginx -d -p 80:80 nginx:alpine' : 'docker run --name redis -d redis:7.0.11' })
     this.setState({
       dockerRun: val == "mysql" ? 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d mysql:5.7.42' : val == "nginx" ? 'docker run --name nginx -d -p 80:80 nginx:alpine' : 'docker run --name redis -d redis:7.0.11',
       demoName: val
@@ -117,6 +129,7 @@ export default class Index extends PureComponent {
       isDemo = false,
       archInfo
     } = this.props;
+    const { creatComPermission:{isCreate} } = this.state
     const { getFieldDecorator } = form;
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
@@ -124,11 +137,12 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
+    const group_id = globalUtil.getGroupID()
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -139,7 +153,7 @@ export default class Index extends PureComponent {
             })(
               <Select
                 showSearch
-                filterOption={(input, option) => 
+                filterOption={(input, option) =>
                   option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 onChange={this.demoChange}
@@ -153,35 +167,20 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : language ? "镜像构建示例" : "Source sample application",
+              initialValue: isService ? Number(groupId) : Number(group_id),
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
-              !isService ?
-                <Input
-                  disabled={true}
-                  placeholder={formatMessage({ id: 'placeholder.appName' })}
-                />
-                :
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={language ? {
-                    display: 'inline-block',
-                    width: isService ? '' : 270,
-                    marginRight: 15
-                  } : {
-                    display: 'inline-block',
-                    width: isService ? '' : 330,
-                    marginRight: 15
-                  }}
-                  disabled={!!isService}
-                >
-                  {(groups || []).map(group => (
-                    <Option key={group.group_id} value={group.group_id}>
-                      {group.group_name}
-                    </Option>
-                  ))}
-                </Select>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder={formatMessage({ id: 'placeholder.appName' })}
+                disabled={!!isService || group_id}
+              >
+                {(groups || []).map(group => (
+                  <Option key={group.group_id} value={group.group_id}>
+                    {group.group_name}
+                  </Option>
+                ))}
+              </Select>
             )}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
@@ -218,21 +217,21 @@ export default class Index extends PureComponent {
               initialValue: dockerRun,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
             })(
-              <TextArea style={{height:80}} placeholder={formatMessage({ id: 'placeholder.dockerRun' })} disabled={isDemo} />
+              <TextArea style={{ height: 80 }} placeholder={formatMessage({ id: 'placeholder.dockerRun' })} disabled={isDemo} />
             )}
           </Form.Item>
           {archLegnth == 2 &&
-          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+            <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+              {getFieldDecorator('arch', {
+                initialValue: arch,
+                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              })(
+                <Radio.Group>
+                  <Radio value='amd64'>amd64</Radio>
+                  <Radio value='arm64'>arm64</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>}
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
@@ -256,13 +255,16 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByDockerrunLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
+                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByDockerrunLoading}
+                      disabled={!isCreate}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

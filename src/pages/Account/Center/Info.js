@@ -22,8 +22,17 @@ class Info extends Component {
       currentUser.oauth_services &&
       currentUser.oauth_services.length > 0 &&
       currentUser.oauth_services;
-    const isOpenOauth = isOauth && oauth_services;
+    console.log(isOauth,"isOauth");
+    console.log(isOpenOauth,"isOpenOauth");
+    // const isOpenOauth = isOauth && oauth_services;
+    const isOpenOauth = true
     const menuMap = {};
+    menuMap.personal = (
+      <FormattedMessage
+        id="app.settings.menuMap.personal"
+        defaultMessage="Personal"
+      />
+    );
     if (isOpenOauth) {
       menuMap.binding = (
         <FormattedMessage
@@ -38,11 +47,17 @@ class Info extends Component {
         defaultMessage="Access Token"
       />
     );
+    menuMap.img = (
+      <FormattedMessage
+        id="app.settings.menuMap.img"
+        defaultMessage="Private Image Repository"
+      />
+    );
     const key = location.pathname.replace(`${match.path}/`, '');
     this.state = {
       mode: 'inline',
       menuMap,
-      selectKey: menuMap[key] ? key : isOpenOauth ? 'binding' : 'accesstoken',
+      selectKey: menuMap[key] ? key : 'personal',
     };
   }
 
@@ -56,7 +71,7 @@ class Info extends Component {
     } = props;
     const filterPath = match.path.replace(/:eid/g, eid);
     let selectKey = location.pathname.replace(`${filterPath}/`, '');
-    selectKey = state.menuMap[selectKey] ? selectKey : 'binding';
+    selectKey = state.menuMap[selectKey] ? selectKey : 'personal';
     if (selectKey !== state.selectKey) {
       return { selectKey };
     }

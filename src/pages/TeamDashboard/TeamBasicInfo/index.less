@@ -1,0 +1,61 @@
+.basicInfoRow {
+  height: 166px;
+  box-sizing: border-box;
+  padding: 24px 0;
+  .basicInfo {
+    text-align: left;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 16px;
+
+    .basicInfoTitle {
+      font-weight: 700;
+      font-size: @rbd-sub-title-size;
+      color: @rbd-auxiliary-color-secondary;
+      line-height: @rbd-sub-title-line-height;
+    }
+
+    .basicInfoContent {
+      color: @primary-color;
+      font-size: 40px;
+      font-weight: 700;
+      width: 100%;
+      height: 60px;
+      text-align: left;
+    }
+  }
+
+}
+.appListCard {
+  padding: 16px;
+  border: 1px solid #e8e8e8;
+  min-height: 470px;
+  :global{
+    .ant-card-body {
+      padding: 0;
+    }
+    .ant-card-head {
+      background-color: transparent;
+      padding: 0;
+      border-bottom: 0;
+    }
+    .ant-card-head-title {
+      font-size: @rbd-title-size;
+      color: @rbd-title-color;
+      line-height: @rbd-title-line-height;
+      font-weight: 500;
+      padding: 0 0 24px;
+    }
+    .ant-card-extra {
+      padding: 0 0 24px;
+    }
+  }
+}
+
+.appName {
+  font-weight: 500;
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-sub-title-line-height;
+  cursor: pointer;
+}
