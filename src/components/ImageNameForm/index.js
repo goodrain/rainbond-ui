@@ -80,6 +80,12 @@ export default class Index extends PureComponent {
     this.handleJarWarUpload();
     this.handleGetWarehouse();
     const { handleType, groupId } = this.props;
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.setState({
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
+      })
+    }
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
@@ -500,6 +506,8 @@ export default class Index extends PureComponent {
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
+    const group_id = globalUtil.getGroupID()
+
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -517,7 +525,7 @@ export default class Index extends PureComponent {
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
               rules: [
                 {
                   required: true,
@@ -532,16 +540,7 @@ export default class Index extends PureComponent {
                 }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
-                style={language ? {
-                  display: 'inline-block',
-                  width: isService ? '' : 276,
-                  marginRight: 10, textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                } : {
-                  display: 'inline-block',
-                  width: isService ? '' : 262,
-                  marginRight: 10, textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                }}
-                disabled={!!isService}
+                disabled={!!isService || group_id}
                 onChange={this.fetchComponentNames}
               >
                 {(groups || []).map(group => (
@@ -549,9 +548,6 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
-            ) : null}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
@@ -900,7 +896,7 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                   <Button
                     onClick={this.handleSubmit}
                     type="primary"

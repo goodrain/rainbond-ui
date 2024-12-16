@@ -58,6 +58,12 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUpload()
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.setState({
+        creatComPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
+      })
+    }
   }
   componentWillUnmount() {
     this.loop = false;
@@ -324,12 +330,14 @@ export default class Index extends PureComponent {
     } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
+    const group_id = globalUtil.getGroupID()
     return (
       <>
         <div className={styles.yaml_container}>
           <Form onSubmit={this.handleSubmit}>
             <Form.Item  {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
               {getFieldDecorator('group_id', {
+                initialValue: Number(group_id),
                 rules: [
                   {
                     required: true,
@@ -345,18 +353,14 @@ export default class Index extends PureComponent {
                   }
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  style={{
-                    display: 'inline-block',
-                    width: language ? 276 : 289,
-                    marginRight: 10
-                  }}
+                  disabled={group_id}
                 >
                   {(groups || []).map(group => (
                     <Option value={group.group_id}>{group.group_name}</Option>
                   ))}
                 </Select>
               )}
-              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
+              {/* <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button> */}
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
@@ -470,7 +474,7 @@ export default class Index extends PureComponent {
                 }
               }}
             >
-              <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+              <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                 <Button type="primary" htmlType="submit" disabled={!isCreate}>
                   {formatMessage({ id: 'teamAdd.create.btn.create' })}
                 </Button>

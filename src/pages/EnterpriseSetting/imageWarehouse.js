@@ -9,10 +9,11 @@ import ConfirmModal from '../../components/ConfirmModal';
 import ScrollerX from '../../components/ScrollerX';
 import TeamMemberTable from '../../components/TeamImageTable';
 
-@connect(({ teamControl, loading }) => ({
+@connect(({ teamControl, loading, user }) => ({
     regions: teamControl.regions,
     currentTeam: teamControl.currentTeam,
     toMoveTeamLoading: loading.effects['teamControl/moveTeam'],
+    currentUser: user.currentUser,
 }))
 export default class ImageWarehouse extends PureComponent {
     constructor(props) {
@@ -124,14 +125,12 @@ export default class ImageWarehouse extends PureComponent {
     loadClusters = () => {
         const {
             dispatch,
-            match: {
-                params: { eid }
-            }
+            currentUser
         } = this.props;
         dispatch({
             type: 'region/fetchEnterpriseClusters',
             payload: {
-                enterprise_id: eid
+                enterprise_id: currentUser?.enterprise_id
             },
             callback: res => {
                 if (res && res.list) {
@@ -177,7 +176,6 @@ export default class ImageWarehouse extends PureComponent {
     render() {
         const {
             currentTeam,
-            memberPermissions,
             toMoveTeamLoading,
         } = this.props;
         const {

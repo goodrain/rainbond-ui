@@ -2,6 +2,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { Icon, Button } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -66,9 +67,10 @@ export default class Main extends PureComponent {
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
+    const group_id = globalUtil.getGroupID()
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}?group_id=${group_id}`
       )
     );
   };
@@ -149,6 +151,7 @@ export default class Main extends PureComponent {
     }
 
     let { type } = match.params;
+    type = type.split('?')[0];
     if (!type) {
       type = 'custom';
     }
@@ -171,6 +174,18 @@ export default class Main extends PureComponent {
         tabList={tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('code', 18)}
         isContent
+        extraContent={
+          <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                  routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                  })
+              );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+          </Button>
+      }
       >
         {Com ? (
           <Com

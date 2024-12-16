@@ -1,4 +1,4 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
     Button,
     Icon,
@@ -12,22 +12,25 @@ import {
     Affix,
     Input
 } from 'antd';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import {routerRedux} from 'dva/router';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
+import CustomFooter from '../../layouts/CustomFooter';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import ConfirmModal from '../../components/ConfirmModal';
 
 import appUtil from '../../utils/app';
-import {buildApp} from '../../services/createApp';
+import { buildApp } from '../../services/createApp';
 import AppCreateSetting from '../../components/AppCreateSetting';
 
 const TabPane = Tabs.TabPane;
 
-@connect(({user, appControl, teamControl, createApp}) => ({}), null, null,
- {withRef: true}
- )
+@connect(({ user, appControl, teamControl, createApp }) => ({}), null, null,
+    { withRef: true }
+)
 export default class Index extends PureComponent {
     constructor(props) {
         super(props);
@@ -41,9 +44,9 @@ export default class Index extends PureComponent {
     componentDidMount() {
         this.loadDetail();
     }
-    componentWillUnmount() {}
+    componentWillUnmount() { }
     getParams() {
-        return {group_id: this.props.match.params.appID, compose_id: this.props.match.params.composeId}
+        return { group_id: this.props.match.params.appID, compose_id: this.props.match.params.composeId }
     }
     loadDetail = () => {
         const params = this.getParams();
@@ -57,9 +60,9 @@ export default class Index extends PureComponent {
                 },
                 callback: (data) => {
                     this.setState({
-                        apps: (data&&data.list || []).map((item) => {
+                        apps: (data && data.list || []).map((item) => {
                             //为了兼容数据结构，  需要优化 TODO
-                            return {service: item};
+                            return { service: item };
                         })
                     })
                 },
@@ -74,10 +77,10 @@ export default class Index extends PureComponent {
                         }
 
                         //访问的应用不在当前的集群里
-                        if (code === 10404) {}
+                        if (code === 10404) { }
 
                         //访问的应用不在当前团队里
-                        if (code === 10403) {}
+                        if (code === 10403) { }
 
                     }
 
@@ -105,7 +108,7 @@ export default class Index extends PureComponent {
                         .dispatch({
                             type: 'global/fetchGroups',
                             payload: {
-                            team_name: team_name
+                                team_name: team_name
                             }
                         });
                     this
@@ -126,13 +129,13 @@ export default class Index extends PureComponent {
                 },
                 callback: () => {
                     this
-                    .props
-                    .dispatch({
-                        type: 'global/fetchGroups',
-                        payload: {
-                            team_name: globalUtil.getCurrTeamName()
-                        }
-                    });
+                        .props
+                        .dispatch({
+                            type: 'global/fetchGroups',
+                            payload: {
+                                team_name: globalUtil.getCurrTeamName()
+                            }
+                        });
                     this
                         .props
                         .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
@@ -140,7 +143,7 @@ export default class Index extends PureComponent {
             })
     }
     showDelete = () => {
-        this.setState({showDelete: true})
+        this.setState({ showDelete: true })
     }
     render() {
         const apps = this.state.apps;
@@ -151,56 +154,58 @@ export default class Index extends PureComponent {
         }
 
         return (
-            <div>
-                <h2 style={{
-                    textAlign: 'center'
-                }}
-                >{formatMessage({ id: 'componentCheck.advanced.setup' })}</h2>
-                <div style={{
-                    overflow: 'hidden'
-                }}>
-                    <Tabs defaultActiveKey="0">
-                        {apps.map((app, index) => {
-                            return <TabPane tab={app.service.service_cname} key={index}>
-                            <AppCreateSetting updateDetail={this.loadDetail}  appDetail={app}/></TabPane>
-                        })
-}
-                    </Tabs>
-                    <div
-                        style={{
-                        background: '#fff',
-                        padding: '20px',
-                        textAlign: 'right',
-                        position: 'fixed',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        zIndex: 2,
-                        borderTop: '1px solid #e8e8e8'
+            <>
+                <PageHeaderLayout
+                    titleSvg={pageheaderSvg.getPageHeaderSvg("advanced", 18)}
+                    title={formatMessage({ id: 'componentCheck.advanced.setup' })}
+                    content={formatMessage({ id: 'versionUpdata_6_1.content2' })}
+                >
+                    <div style={{
+                        overflow: 'hidden'
                     }}>
-                        <Button
+                        <Tabs defaultActiveKey="0">
+                            {apps.map((app, index) => {
+                                return <TabPane tab={app.service.service_cname} key={index}>
+                                    <AppCreateSetting updateDetail={this.loadDetail} appDetail={app} /></TabPane>
+                            })
+                            }
+                        </Tabs>
+                        <div
                             style={{
-                            marginRight: 8
-                        }}
-                            onClick={this.handleBuild}
-                            type="primary">
+                                background: '#fff',
+                                padding: '20px',
+                                textAlign: 'right',
+                                position: 'fixed',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                zIndex: 2,
+                                borderTop: '1px solid #e8e8e8'
+                            }}>
+                            <Button
+                                style={{
+                                    marginRight: 8
+                                }}
+                                onClick={this.handleBuild}
+                                type="primary">
                                 {formatMessage({ id: 'button.confirm_create' })}
                             </Button>
-                        <Button onClick={this.showDelete} type="default">
-                        {formatMessage({ id: 'button.abandon_create' })}
-                        </Button>
+                            <Button onClick={this.showDelete} type="default">
+                                {formatMessage({ id: 'button.abandon_create' })}
+                            </Button>
+                        </div>
+                        {this.state.showDelete && <ConfirmModal
+                            onOk={this.handleDelete}
+                            title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+                            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                            desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
+                            onCancel={() => {
+                                this.setState({ showDelete: false })
+                            }} />}
                     </div>
-                    {this.state.showDelete && <ConfirmModal
-                        onOk={this.handleDelete}
-                        title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
-                        subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-                        desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
-                        onCancel={() => {
-                        this.setState({showDelete: false})
-                    }}/>}
-                </div>
-
-            </div>
+                </PageHeaderLayout>
+                <CustomFooter />
+            </>
         )
     }
 }

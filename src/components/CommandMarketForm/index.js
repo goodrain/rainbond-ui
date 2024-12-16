@@ -7,6 +7,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
+import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
 
@@ -55,6 +56,12 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       creatComPermission: {}
     };
+  }
+  componentDidMount(){
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.handleChange(group_id)
+    }
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -230,26 +237,18 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     const showCreateGroups = showCreateGroup === void 0 ? true : showCreateGroup;
     const isService = handleType && handleType === 'Service';
+    const group_id = globalUtil.getGroupID()
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.appName' }) }]
             })(
               <Select
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
-                style={language ? {
-                  display: 'inline-block',
-                  width: isService ? '' : 292,
-                  marginRight: 15
-                } : {
-                  display: 'inline-block',
-                  width: isService ? '' : 310,
-                  marginRight: 15
-                }}
-                disabled={!!isService}
+                disabled={!!isService || group_id}
                 onChange={this.handleChange}
               >
                 {(groups || []).map(group => (
@@ -259,17 +258,13 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {handleType &&
-              handleType === 'Service' ? null : showCreateGroups ? (
-                <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamOverview.createApp' })}</Button>
-              ) : null}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
             {getFieldDecorator('command', {
               initialValue: data.docker_cmd || '',
-              rules: [{ required: true, message: '请填写命令' }]
+              rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.command' })}]
             })(
-              <TextArea style={{ minHeight: '200px' }} placeholder='请填写命令' />
+              <TextArea style={{ minHeight: '200px' }} placeholder={formatMessage({ id: 'versionUpdata_6_1.command' })} />
             )}
           </Form.Item>
 
@@ -296,7 +291,7 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"

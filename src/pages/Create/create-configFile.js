@@ -5,6 +5,9 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { Icon } from 'antd';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { setNodeLanguage } from '../../services/createApp';
 import AppConfigFile from '../../components/AppCreateConfigFile';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -253,14 +256,12 @@ export default class Index extends PureComponent {
       return null;
     }
     return (
-      <div>
-        <h2
-          style={{
-            textAlign: 'center'
-          }}
-        >
-          {formatMessage({id:'componentCheck.advanced.env'})}
-        </h2>
+      <>
+        <PageHeaderLayout
+          titleSvg={pageheaderSvg.getPageHeaderSvg("environment", 18)}
+          title={formatMessage({id:'componentCheck.advanced.env'})}
+          content={formatMessage({id:'versionUpdata_6_1.content3'})}
+      >
         <div>
           <AppConfigFile
             updateDetail={this.loadDetail}
@@ -304,7 +305,6 @@ export default class Index extends PureComponent {
               {formatMessage({id:'button.next'})}
             </Button>
           </div>
-        <CustomFooter />
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}
@@ -318,7 +318,9 @@ export default class Index extends PureComponent {
             />
           )}
         </div>
-      </div>
+      </PageHeaderLayout>
+      <CustomFooter />
+      </>
     );
   }
 }

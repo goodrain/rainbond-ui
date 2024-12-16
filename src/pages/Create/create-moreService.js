@@ -6,6 +6,9 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AppCreateMoreService from '../../components/AppCreateMoreService';
 import ConfirmModal from '../../components/ConfirmModal';
+import CustomFooter from '../../layouts/CustomFooter';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
@@ -189,94 +192,95 @@ export default class Index extends PureComponent {
     }
 
     return (
-      <div>
-        <h2
-          style={{
-            textAlign: 'center'
-          }}
+      <>
+        <PageHeaderLayout
+          titleSvg={pageheaderSvg.getPageHeaderSvg("advanced", 18)}
+          title={formatMessage({ id: 'JavaMaven.title' })}
+          content={formatMessage({ id: 'versionUpdata_6_1.content' })}
         >
-          {formatMessage({id:'JavaMaven.title'})}
-        </h2>
-        <div
-          style={{
-            overflow: 'hidden'
-          }}
-        >
-          {data && data.length > 0 && (
-            <AppCreateMoreService
-              data={arr}
-              onSubmit={JavaMavenData => {
-                this.setState({
-                  JavaMavenData
-                });
-              }}
-            />
-          )}
           <div
             style={{
-              background: '#fff',
-              padding: '20px',
-              textAlign: 'right',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 2,
-              borderTop: '1px solid #e8e8e8'
+              overflow: 'hidden',
+              position: 'relative'
             }}
           >
+            {data && data.length > 0 && (
+              <AppCreateMoreService
+                data={arr}
+                onSubmit={JavaMavenData => {
+                  this.setState({
+                    JavaMavenData
+                  });
+                }}
+              />
+            )}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end'
+                background: '#fff',
+                padding: '20px',
+                textAlign: 'right',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 2,
+                // borderTop: '1px solid #e8e8e8'
               }}
             >
-              <Button
+              <div
                 style={{
-                  marginRight: 8
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end'
                 }}
-                onClick={this.handleBuild}
-                loading={buildState}
-                type="primary"
               >
-                {formatMessage({ id: 'button.confirm_create' })}
-              </Button>
-              <div>
-                <Tooltip
-                  placement="topLeft"
-                  title={formatMessage({id:'JavaMaven.Tooltip'})}
+                <Button
+                  style={{
+                    marginRight: 8
+                  }}
+                  onClick={this.handleBuild}
+                  loading={buildState}
+                  type="primary"
                 >
-                  <Radio
-                    size="small"
-                    onClick={this.renderSuccessOnChange}
-                    checked={is_deploy}
-                  >
-                  {formatMessage({ id: 'button.build_start' })}
-                  </Radio>
-                </Tooltip>
-              </div>
-              {isDelete && (
-                <Button onClick={this.showDelete} type="default">
-                  {formatMessage({ id: 'button.abandon_create' })}
+                  {formatMessage({ id: 'button.confirm_create' })}
                 </Button>
-              )}
+                <div>
+                  <Tooltip
+                    placement="topLeft"
+                    title={formatMessage({ id: 'JavaMaven.Tooltip' })}
+                  >
+                    <Radio
+                      size="small"
+                      onClick={this.renderSuccessOnChange}
+                      checked={is_deploy}
+                    >
+                      {formatMessage({ id: 'button.build_start' })}
+                    </Radio>
+                  </Tooltip>
+                </div>
+                {isDelete && (
+                  <Button onClick={this.showDelete} type="default">
+                    {formatMessage({ id: 'button.abandon_create' })}
+                  </Button>
+                )}
+              </div>
             </div>
+            {showDelete && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                loading={deleteLoading}
+                title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />
+            )}
           </div>
-          {showDelete && (
-            <ConfirmModal
-              onOk={this.handleDelete}
-              loading={deleteLoading}
-              title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
-              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
-              onCancel={() => {
-                this.setState({ showDelete: false });
-              }}
-            />
-          )}
-        </div>
-      </div>
+        </PageHeaderLayout>
+        <CustomFooter />
+      </>
     );
   }
 }

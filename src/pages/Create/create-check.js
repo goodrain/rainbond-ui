@@ -12,6 +12,7 @@ import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
 import ShowRegionKey from '../../components/ShowRegionKey';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
 import {
   buildApp,
   getCheckuuid,
@@ -1949,7 +1950,11 @@ export default class CreateCheck extends React.Component {
       </Card>
     );
     return (
-      <div>
+      <PageHeaderLayout
+        title={formatMessage({id:'versionUpdata_6_1.check'})}
+        content={formatMessage({id:'versionUpdata_6_1.content4'})}
+        titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
+      >
         {ServiceGetData ? box : <Card>{box}</Card>}
 
         {modifyImageName && (
@@ -1998,7 +2003,7 @@ export default class CreateCheck extends React.Component {
             }}
           />
         )}
-      </div>
+      </PageHeaderLayout>
     );
   }
 }

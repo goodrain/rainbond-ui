@@ -113,6 +113,7 @@ class TeamLayout extends PureComponent {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.fetchUserInfo();
+    this.fetchGroup()
     const {teamAppCreatePermission:{isAccess}} = this.state
     if(isAccess){
       this.getAppNames();
@@ -223,13 +224,16 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          setTimeout(()=>{
+            dispatch({
+              type: 'teamControl/fetchCurrentTeamPermissions',
+              payload: team && team.tenant_actions
+            });
+          },10)
           this.setState({
             currentTeam: team,
           });
-          dispatch({
-            type: 'teamControl/fetchCurrentTeamPermissions',
-            payload: team && team.tenant_actions
-          });
+
         }
       },
     });
@@ -336,7 +340,7 @@ class TeamLayout extends PureComponent {
 
   getTeamOverview = () => {
     this.load();
-    const { dispatch } = this.props;
+    const { dispatch, currentUser } = this.props;
     const { enterpriseList, teamOverviewPermission:{isAccess} } = this.state;
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
@@ -360,6 +364,7 @@ class TeamLayout extends PureComponent {
           }
         },
         handleError: err => {
+          const link = this.getLoginRole(currentUser)
           if (err && err.data && err.data.code) {
             const errtext =
               err.data.code === 10411
@@ -371,7 +376,7 @@ class TeamLayout extends PureComponent {
               notification.warning({ message: errtext });
               dispatch(
                 routerRedux.push(
-                  `/enterprise/${enterpriseList[0].enterprise_id}/personal`
+                  link
                 )
               );
             } else {
@@ -381,7 +386,21 @@ class TeamLayout extends PureComponent {
         }
       });
   };
-
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${globalUtil.getCurrTeamName() || team_name}/region/${globalUtil.getCurrRegionName() || team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
+  }
   load = () => {
     this.queryComponentDeatil();
     const { enterpriseList, eid, teamOverviewPermission:{isAccess} } = this.state;
@@ -559,8 +578,9 @@ class TeamLayout extends PureComponent {
   };
   onJumpPersonal = () => {
     const { eid } = this.state
-    const { dispatch } = this.props
-    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+    const { dispatch, currentUser } = this.props
+    const link = this.getLoginRole(currentUser)
+    dispatch(routerRedux.replace(link))
   }
 
   render() {
@@ -703,7 +723,7 @@ class TeamLayout extends PureComponent {
             currentRegion={currentRegion}
             regionName={regionName}
             upDataHeader={upDataHeader}
-            changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10)}}
+            changeTeam={()=>{setTimeout(()=>{this.fetchGroup()},10)}}
           />
         );
       }
@@ -720,7 +740,7 @@ class TeamLayout extends PureComponent {
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
-          changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10)}}
+          changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10); this.fetchGroup()}}
         />
       );
     }
@@ -860,7 +880,7 @@ class TeamLayout extends PureComponent {
                   onCollapse={this.handleMenuCollapse}
                   menuData={menuData}
                   pathname={pathname}
-                  showMenu={showMenu ? !componentID : false}
+                  showMenu={mode == 'team' ? false : showMenu ? !componentID : false}
                 />
               )}
               {this.state.GroupShow ?

@@ -574,7 +574,7 @@ export default class Index extends PureComponent {
                 : !handleType && (
                   <div>
                     {endpointsType == 'api' && apiMessage}
-                    <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                    <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                       <Button onClick={this.handleSubmit} type="primary" disabled={!isCreate}>
                         {formatMessage({ id: 'teamAdd.create.btn.create' })}
                       </Button>

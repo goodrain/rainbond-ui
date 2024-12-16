@@ -10,6 +10,7 @@ import styles from './RegisterResult.less';
 @connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
+  currUser: user.currentUser,
 }))
 
 export default class Register extends Component {
@@ -82,6 +83,21 @@ export default class Register extends Component {
       }
     });
   };
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${team_name}/region/${team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
+  }
   onRouterLink = (eid, firstRegist, regionName)=>{
     const { dispatch } = this.props;
     if(firstRegist){
@@ -91,7 +107,7 @@ export default class Register extends Component {
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
     }else{
-      dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+      dispatch(routerRedux.replace(this.getLoginRole(this.props.currUser)))
     }
   }
   render() {
