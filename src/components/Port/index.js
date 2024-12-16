@@ -471,19 +471,6 @@ export default class Index extends PureComponent {
                                   domain.domain_path ? domain.domain_path : '/'
                                 }`}
                               </a>
-                              <a
-                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
-                                onClick={() => {
-                                  this.props.onDeleteDomain({
-                                    port: port.container_port,
-                                    domain: domain.domain_name
-                                  });
-                                }}
-                                className={styles.removePort}
-                                href="javascript:;"
-                              >
-                                <Icon type="close" />
-                              </a>
                             </p>
                           ) : (
                             ''
@@ -519,19 +506,6 @@ export default class Index extends PureComponent {
                                 }://${domain.domain_name}${
                                   domain.domain_path ? domain.domain_path : '/'
                                 }`}
-                              </a>
-                              <a
-                                title={<FormattedMessage id='componentOverview.body.Ports.unbound'/>}
-                                onClick={() => {
-                                  this.props.onDeleteDomain({
-                                    port: port.container_port,
-                                    domain: domain.domain_name
-                                  });
-                                }}
-                                className={styles.removePort}
-                                href="javascript:;"
-                              >
-                                <Icon type="close" />
                               </a>
                             </p>
                           ) : (

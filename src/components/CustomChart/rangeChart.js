@@ -124,14 +124,13 @@ export default class RangeChart extends PureComponent {
       const parameter = isState ? serviceAlias : serviceId;
       switch (T) {
         case 'containerMem':
-          return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*"}/1024/1024) by (pod, namespace)`;
+          return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}) by (pod, namespace) / 1024 / 1024`;
         case 'containerCpu':
-          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*"}[5m])*100)by(pod,namespace)`;
+          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}[5m])) by (pod,namespace) * 100`;
         case 'containerNetR':
-          return `rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
+          return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])) by (pod, namespace) / 1024`;
         case 'containerNetT':
-          return `rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])/1024`;
-
+          return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m]) by (pod, namespace) / 1024`;
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
         case 'throughput':
@@ -296,9 +295,6 @@ export default class RangeChart extends PureComponent {
         alias: { label },
         tickCount: 5,
         formatter: val => {
-          if (val > 1000) {
-            return `${val / 1000}k`;
-          }
           return val;
         }
       },

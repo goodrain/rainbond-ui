@@ -535,6 +535,7 @@ export async function getApiGatewayList(params, handleError) {
       method: 'get',
       params: {
         appID: params.appID,
+        query: params.query
       },
       handleError
     }

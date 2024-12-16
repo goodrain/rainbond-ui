@@ -192,7 +192,8 @@ export async function createAppByCompose(body = {}) {
         yaml_content: body.yaml_content,
         user_name: body.user_name,
         password: body.password,
-        k8s_app: body.k8s_app
+        k8s_app: body.k8s_app,
+        arch: body.arch,
       }
     }
   );

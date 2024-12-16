@@ -3,7 +3,7 @@
 /* eslint-disable import/extensions */
 
 import Ansi from '@/components/Ansi';
-import { Icon, Modal } from 'antd';
+import { Icon, Modal, Button } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from './Log.less';
@@ -38,38 +38,86 @@ export default class History1000Log extends PureComponent {
       loading: true,
       showHighlighted: '',
     };
+    this.eventSources = {};
   }
+
   componentDidMount() {
-    this.fetchClusterLogInfoSingle();
+    this.initializeEventSources();
   }
   componentWillUnmount() {
     if (this.eventSources) {
-      this.eventSources.close();
+      this.closeAllEventSources();
+    }
+  }
+  closeEventSource(podsName) {
+    if (this.eventSources[podsName]) {
+      this.eventSources[podsName].close();
+      console.log(`${podsName} EventSource closed.`);
+      delete this.eventSources[podsName]; // 从对象中移除引用
     }
   }
 
-  fetchClusterLogInfoSingle = () => {
-    const { dispatch, region, podName } = this.props;
-    const url = `/sse/console/sse/v2/proxy-pass/system/logs?region_name=${region}&ns=${'rbd-system'}&name=${podName}&lines=${1000}`;
-    this.eventSources = new EventSource(url, {withCredentials: true});
-    const messages = [];
-    this.eventSources.onmessage = (event) => {
-      const newMessage = event.data;
-      messages.push(newMessage);
-      if (messages.length >= 10) {  // 每收到10条消息更新一次
-        this.setState((prevState) => ({
-          loading: false,
-          list: [...prevState.list, ...messages],
-        }));
-        messages.length = 0;  // 清空数组
-      }
-    };
-    this.eventSources.onerror = (error) => {
-      console.error('SSE error:', error);
-      this.eventSources.close();
-    };
+  // 如果需要，可以添加更多管理方法，比如关闭所有实例
+  closeAllEventSources() {
+    if (this.eventSources) {
+      Object.keys(this.eventSources).forEach(podsName => {
+        this.closeEventSource(podsName);
+      });
+    }
   }
 
+  initializeEventSources() {
+    const { podName, region, teamName, instances } = this.props;
+    instances.forEach(pod => {
+      if (pod.pod_name) {
+        const url = `/console/sse/v2/tenants/${teamName}/services/${podName}/pods/${pod.pod_name}/logs?region_name=${region}&lines=${1000}`;
+        this.eventSources[pod.pod_name] = new EventSource(url, { withCredentials: true });
+        this.eventSources[pod.pod_name].onmessage = (event) => {
+          const newMessage = event.data;
+          this.setState((prevState) => ({
+            list: [...prevState.list, newMessage],
+          }));
+        };
+        this.eventSources[pod.pod_name].onerror = (error) => {
+          console.error(`${pod.pod_name} EventSource failed:`, error);
+          this.closeEventSource(pod.pod_name); // 出错时关闭EventSource实例
+        };
+      }
+    });
+  }
+  handleExportLogs = () => {
+    // 前端导出.txt文件，内容是list里面的值
+    const { list } = this.state;
+    
+    // 如果日志列表为空，直接返回
+    if (!list || list.length === 0) {
+      return;
+    }
+  
+    // 将日志数组转换为文本内容，每条日志占一行
+    const content = list.join('\n');
+    
+    // 创建Blob对象
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    
+    // 创建下载链接
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    
+    // 设置文件名（使用当前时间戳）
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    downloadLink.download = `logs-${timestamp}.txt`;
+    
+    // 添加链接到文档
+    document.body.appendChild(downloadLink);
+    
+    // 触发下载
+    downloadLink.click();
+    
+    // 清理：移除链接并释放URL对象
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(downloadLink.href);
+  }
   render() {
     const { loading, list, showHighlighted } = this.state;
     return (
@@ -80,7 +128,11 @@ export default class History1000Log extends PureComponent {
         bodyStyle={{ background: '#222222', color: '#fff' }}
         className={styles.logModal}
         onCancel={this.props.onCancel}
-        footer={null}
+        footer={[
+          <Button onClick={this.handleExportLogs}>
+            导出日志
+          </Button>
+        ]}
       >
       <div
         style={{

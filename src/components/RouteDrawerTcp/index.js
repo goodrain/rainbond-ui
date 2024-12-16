@@ -59,10 +59,12 @@ export default class index extends Component {
     }
     handleSubmit = e => {
         const { editInfo } = this.props
+        const { comList } = this.state
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 const data = {}
+                const serviceInfo = comList.find(item => item.service_name === this.extractPreviousCharacters(values.service_id));
                 data.protocol = "TCP"
                 data.match = {
                     host: values.host,
@@ -72,7 +74,11 @@ export default class index extends Component {
                     serviceName: this.extractPreviousCharacters(values.service_id),
                     servicePort: Number(this.extractAfterColon(values.service_id)),
                 }
-                this.props.onOk(data)
+                if(serviceInfo.app_id){
+                    this.props.onOk(data,serviceInfo.app_id)
+                }else{
+                    this.props.onOk(data)
+                }
             }
         });
     };
