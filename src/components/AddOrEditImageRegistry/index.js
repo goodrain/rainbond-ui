@@ -191,8 +191,8 @@ class ConfirmModal extends PureComponent {
                   message: formatMessage({id:'placeholder.max255'}),
                 },
                 {
-                  pattern: /^(http:\/\/|https:\/\/)/,
-                  message: formatMessage({ id: 'placeholder.warehouse_address.Ban' }),
+                  pattern: /^(?!http:\/\/|https:\/\/)/,
+                  message: formatMessage({ id: 'placeholder.warehouse_address.ban' }),
                 }
               ],
               getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
