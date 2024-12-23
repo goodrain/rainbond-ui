@@ -1,7 +1,7 @@
 import { Form, Input, Modal, Select, Skeleton, Button, Spin, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 import roleUtil from '../../utils/role';
@@ -32,19 +32,19 @@ class ConfirmModal extends PureComponent {
     dispatch({
       type: 'global/checkHubLink',
       payload: {
-          regionName: clusters[0].region_name,
-          domain: values.domain,
-          username: values.username,
-          password: values.password
+        regionName: clusters[0].region_name,
+        domain: values.domain,
+        username: values.username,
+        password: values.password
       },
       callback: res => {
-          if(res){
-            this.setState({
-              checking: false,
-              checkLoading: false
-            })
-            onOk(values);
-          }
+        if (res) {
+          this.setState({
+            checking: false,
+            checkLoading: false
+          })
+          onOk(values);
+        }
       },
       handleError: res => {
         this.setState({
@@ -64,7 +64,7 @@ class ConfirmModal extends PureComponent {
           // 如果是，删除末尾的斜杠
           values.domain = values.domain.slice(0, -1);
         }
-        if(values.domain){
+        if (values.domain) {
           this.handleCheckImageHub(values);
         } else {
           onOk(values);
@@ -88,20 +88,20 @@ class ConfirmModal extends PureComponent {
     let regEmpty = /^\s*$/g;
     let regNoHttp = /^(?!.*(?:https?)).*$/;
     if (value && !reg.test(value)) {
-      callback(formatMessage({id:'placeholder.reg_Chinese'}));
+      callback(formatMessage({ id: 'placeholder.reg_Chinese' }));
     } else if (value && regEmpty.test(value)) {
-      callback(formatMessage({id:'placeholder.regEmpty'}));
-    }  else {
+      callback(formatMessage({ id: 'placeholder.regEmpty' }));
+    } else {
       callback();
-    } 
+    }
   }
   validateSecret = (rule, value, callback) => {
     const { imageList } = this.props
     // 只允许输入小写字母正则
     let reg = /^[a-z]+$/g;
-    if(imageList.some(item => item.secret_id === value)){
+    if (imageList.some(item => item.secret_id === value)) {
       callback(formatMessage({ id: 'placeholder.warehouse_exist' }));
-    } else if((value && !reg.test(value))){
+    } else if ((value && !reg.test(value))) {
       callback(formatMessage({ id: 'placeholder.lowercase' }));
     } else {
       callback();
@@ -150,85 +150,101 @@ class ConfirmModal extends PureComponent {
           </div>
         }
       >
-        
+
         <Form onSubmit={this.handleSubmit}>
-        <Spin
-          spinning={checkLoading}
-          tip="正在检测..."
-        >
-        {!data &&  
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.name'})}>
-            {getFieldDecorator('secret_id', {
-              initialValue: data && data.secret_id || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({id:'placeholder.warehouse_name'}),
-                },
-                {
-                  validator: this.validateSecret
-                },
-                {
-                  max: 32,
-                  message: formatMessage({id:'placeholder.max32'}),
-                }
-              ],
-              getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
-            })(<Input placeholder={formatMessage({id:'placeholder.warehouse_name'})} />)}
-          </FormItem>
-        } 
-        {!data && 
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.domain'})}>
-            {getFieldDecorator('domain', {
-              initialValue: data && data.domain || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({id:'placeholder.git_url_domain'}),
-                },
-                {
-                  max: 255,
-                  message: formatMessage({id:'placeholder.max255'}),
-                },
-                {
-                  pattern: /^(http:\/\/|https:\/\/)/,
-                  message: formatMessage({ id: 'placeholder.warehouse_address.Ban' }),
-                }
-              ],
-              getValueFromEvent: event => {return event.target.value.replace(/(^\s*)|(\s*$)/g, '');},
-            })(<Input placeholder={formatMessage({id:'placeholder.git_url_domain'})} />)}
-          </FormItem>
-        }
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.username'})}>
-            {getFieldDecorator('username', {
-              initialValue: data && data.username || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({id:'placeholder.userName'}),
-                },
-                {
-                  max: 255,
-                  message: formatMessage({id:'placeholder.max255'}),
-                }
-              ]
-            })(<Input placeholder={formatMessage({id:'placeholder.userName'})} />)}
-          </FormItem>
-          <FormItem {...is_language} label={formatMessage({id:'confirmModal.common.image.lable.password'})}>
-            {getFieldDecorator('password', {
-              initialValue: data && data.password || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({id:'placeholder.password_1'}),
-                },
-                {
-                  max: 255,
-                  message: formatMessage({id:'placeholder.max255'}),
-                }
-              ]
-            })(<Input placeholder={formatMessage({id:'placeholder.password_1'})} type="password" />)}
-          </FormItem>
+          <Spin
+            spinning={checkLoading}
+            tip="正在检测..."
+          >
+              <FormItem {...is_language} label={formatMessage({ id: 'versionUpdata_6_1.hub_type' })}>
+                {getFieldDecorator('hub_type', {
+                  initialValue: data && data.hub_type || 'Docker',
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'placeholder.warehouse_name' }),
+                    },
+                  ]
+                })(<Select placeholder={formatMessage({ id: 'placeholder.warehouse_name' })} disabled={!!data}>
+                  <Option value="Docker">Docker Registry</Option>
+                  <Option value="Harbor">Harbor</Option>
+                  <Option value="Volcano">{formatMessage({ id: 'versionUpdata_6_1.volcano' })}</Option>
+                  <Option value="Aliyun">{formatMessage({ id: 'versionUpdata_6_1.aliyun' })}</Option>
+                </Select>)}
+              </FormItem>
+            {!data &&
+              <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.name' })}>
+                {getFieldDecorator('secret_id', {
+                  initialValue: data && data.secret_id || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'placeholder.warehouse_name' }),
+                    },
+                    {
+                      validator: this.validateSecret
+                    },
+                    {
+                      max: 32,
+                      message: formatMessage({ id: 'placeholder.max32' }),
+                    }
+                  ],
+                  getValueFromEvent: event => { return event.target.value.replace(/(^\s*)|(\s*$)/g, ''); },
+                })(<Input placeholder={formatMessage({ id: 'placeholder.warehouse_name' })} disabled={!!data}/>)}
+              </FormItem>
+            }
+            {!data &&
+              <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.domain' })}>
+                {getFieldDecorator('domain', {
+                  initialValue: data && data.domain || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'placeholder.git_url_domain' }),
+                    },
+                    {
+                      max: 255,
+                      message: formatMessage({ id: 'placeholder.max255' }),
+                    },
+                    {
+                      pattern: /^(http:\/\/|https:\/\/)/,
+                      message: formatMessage({ id: 'placeholder.warehouse_address.Ban' }),
+                    }
+                  ],
+                  getValueFromEvent: event => { return event.target.value.replace(/(^\s*)|(\s*$)/g, ''); },
+                })(<Input placeholder={formatMessage({ id: 'placeholder.git_url_domain' })} />)}
+              </FormItem>
+            }
+            <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.username' })}>
+              {getFieldDecorator('username', {
+                initialValue: data && data.username || '',
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.userName' }),
+                  },
+                  {
+                    max: 255,
+                    message: formatMessage({ id: 'placeholder.max255' }),
+                  }
+                ]
+              })(<Input placeholder={formatMessage({ id: 'placeholder.userName' })} />)}
+            </FormItem>
+            <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.password' })}>
+              {getFieldDecorator('password', {
+                initialValue: data && data.password || '',
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.password_1' }),
+                  },
+                  {
+                    max: 255,
+                    message: formatMessage({ id: 'placeholder.max255' }),
+                  }
+                ]
+              })(<Input placeholder={formatMessage({ id: 'placeholder.password_1' })} type="password" />)}
+            </FormItem>
           </Spin>
         </Form>
       </Modal>

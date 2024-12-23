@@ -124,7 +124,8 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
-      is_console: true
+      is_console: true,
+      system: true
     };
     this.handelRequest(obj);
   };
@@ -230,6 +231,7 @@ export default class OauthTable extends PureComponent {
       }
       return null;
     });
+    
     return (
       <Modal
         title={formatMessage({id:'enterpriseSetting.basicsSetting.serve.Modal.title'})}

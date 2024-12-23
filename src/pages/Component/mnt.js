@@ -302,7 +302,7 @@ export default class Index extends PureComponent {
   DirectoryPersistenceShow = (val) => {
     const { volumesArr } = this.state;
     volumesArr && volumesArr.map(item => {
-      if (item.volume_name == val.volume_name) {
+      if (item.volume_name == val.volume_name) {        
         this.setState({
           hostPath: item.volume_path,
           volumeName: item.volume_name
@@ -312,11 +312,14 @@ export default class Index extends PureComponent {
     this.setState({
       DirectoryPersistenceShow: !this.state.DirectoryPersistenceShow,
       volume_path: val.volume_path,
+      hostPath: val.volume_path,
       isType: val.volume_type == 'alicloud-disk-efficiency' ? true : false
     })
   }
   render() {
     const { mntList, relyComponent, relyComponentList, DirectoryPersistenceShow, volume_path, hostPath, isType, volumeName } = this.state;
+    console.log(isType,"isType");
+    
     const { volumes, method, appDetail } = this.props;
     if (!this.canView()) return <NoPermTip />;
     const columns = [
@@ -720,7 +723,7 @@ export default class Index extends PureComponent {
             appAlias={this.props.appAlias}
             volumePath={volume_path}
             hostPath={hostPath}
-            isType={isType}
+            isType={true}
             volumeName={volumeName}
           />
         }

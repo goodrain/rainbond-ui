@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-import { FormattedMessage } from 'umi-plugin-locale';
+import {formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../../utils/rainbond';
 import CustomFooter from "../../../layouts/CustomFooter";
 import { Menu } from 'antd';
@@ -22,8 +24,6 @@ class Info extends Component {
       currentUser.oauth_services &&
       currentUser.oauth_services.length > 0 &&
       currentUser.oauth_services;
-    console.log(isOauth,"isOauth");
-    console.log(isOpenOauth,"isOpenOauth");
     // const isOpenOauth = isOauth && oauth_services;
     const isOpenOauth = true
     const menuMap = {};
@@ -103,18 +103,23 @@ class Info extends Component {
     const { mode, selectKey } = this.state;
     return (
       <>
-      <div className={styles.main}>
-        <div className={styles.leftmenu}>
-          <Menu mode={mode} selectedKeys={[selectKey]} onClick={this.selectKey}>
-            {this.getmenu()}
-          </Menu>
-        </div>
-        <div className={styles.right}>
-          <div className={styles.title}>{this.getRightTitle()}</div>
-          {children}
-        </div>
-      </div>
-      <CustomFooter/>
+        <PageHeaderLayout
+          title={formatMessage({ id: 'versionUpdata_6_1.center' })}
+          content={formatMessage({ id: 'versionUpdata_6_1.center.content' })}
+          titleSvg={pageheaderSvg.getPageHeaderSvg('center', 18)}
+        >
+          <div className={styles.main}>
+            <div className={styles.leftmenu}>
+              <Menu mode={mode} selectedKeys={[selectKey]} onClick={this.selectKey}>
+                {this.getmenu()}
+              </Menu>
+            </div>
+            <div className={styles.right}>
+              {children}
+            </div>
+          </div>
+        </PageHeaderLayout>
+        <CustomFooter />
       </>
     );
   }

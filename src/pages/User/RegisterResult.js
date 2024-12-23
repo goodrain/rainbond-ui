@@ -19,7 +19,8 @@ export default class Register extends Component {
     this.state = {
       eid:'',
       is_admin: 0,
-      regionName: null
+      regionName: null,
+      currUser:{}
     }
   }
   componentDidMount(){
@@ -43,7 +44,20 @@ export default class Register extends Component {
       })
     }
     this.getEnterpriseList()
+    this.fetchUserInfo()
   }
+  fetchUserInfo = () => {
+    this.props.dispatch({
+        type: 'user/fetchCurrent',
+        callback: res => {
+            if (res) {
+                this.setState({
+                  currUser: res.bean
+                })
+            }
+        },
+    });
+}
    // 获取企业列表
   getEnterpriseList = () => {
     const { dispatch } = this.props;
@@ -107,7 +121,7 @@ export default class Register extends Component {
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
     }else{
-      dispatch(routerRedux.replace(this.getLoginRole(this.props.currUser)))
+      dispatch(routerRedux.replace(this.getLoginRole(this.state.currUser)))
     }
   }
   render() {

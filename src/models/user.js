@@ -25,11 +25,18 @@ import {
   queryThirdInfo,
   queryThirdLoginBinding,
   register,
-  upDataUserRoles
+  upDataUserRoles,
+  getUserInfo,
+  updateUserInfo,
+  getImageList,
+  createInviteLink,
+  getInviteLink,
+  acceptInvite
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import cookie from '../utils/cookie';
 import userUtil from '../utils/global';
+import globalUtil from '../utils/global';
 
 export default {
   namespace: 'user',
@@ -248,14 +255,33 @@ export default {
           response.bean &&
           response.bean.nick_name
         ) {
-          yield put(
-            routerRedux.push({
-              pathname: '/user/register-result',
-              state: {
-                account: response.bean.nick_name
-              }
-            })
-          );
+          const redirect = window.localStorage.getItem('redirect');
+          let inviteId = '';
+          if (redirect && redirect.includes('invite')) {
+            const reg = /invite\/([^\/]+)/;
+            const match = redirect.match(reg);
+            if (match) {
+              inviteId = match[1];
+            }
+            yield put(
+              routerRedux.push({
+                pathname: `/invite/${inviteId}`,
+                state: {
+                  account: response.bean.nick_name
+                }
+              })
+            );
+          } else {
+            yield put(
+              routerRedux.push({
+                pathname: '/user/register-result',
+                state: {
+                  account: response.bean.nick_name
+                }
+              })
+            );
+          }
+
         } else {
           yield put(routerRedux.push('/'));
         }
@@ -296,6 +322,42 @@ export default {
       const response = yield call(createGitlabProject, payload);
       if (response) {
         callback && callback(response.bean);
+      }
+    },
+    *getUserInfo({ callback, handleError }, { call }) {
+      const response = yield call(getUserInfo, handleError);
+      if (response) {
+        callback && callback(response.bean);
+      }
+    },
+    *updateUserInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(updateUserInfo, payload, handleError);
+      if (response) {
+        callback && callback(response.bean);
+      }
+    },
+    *getImageList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getImageList, payload, handleError);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *createInviteLink({ payload, callback, handleError }, { call }) {
+      const response = yield call(createInviteLink, payload, handleError);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *getInviteLink({ payload, callback, handleError }, { call }) {
+      const response = yield call(getInviteLink, payload, handleError);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *acceptInvite({ payload, callback, handleError }, { call }) {
+      const response = yield call(acceptInvite, payload, handleError);
+      if (response) {
+        callback && callback(response);
       }
     }
   },

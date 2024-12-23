@@ -15,12 +15,28 @@ const { UserName, Password, Submit } = Login;
 }))
 export default class LoginComponent extends Component {
   handleSubmit = (err, values) => {
+
     const { onSubmit } = this.props;
     if (!err && onSubmit) {
+      const redirect = window.localStorage.getItem('redirect');
+      const redirectUrl = encodeURIComponent(redirect);
+      if (redirect && redirect.includes('invite')) {
+        values.isInvite = true
+      }
       userUtil.removeCookie();
       onSubmit(values);
     }
   };
+  // 获取地址栏重定向参数
+  getRedirectParams = () => {
+    const redirect = window.localStorage.getItem('redirect');
+    const redirectUrl = encodeURIComponent(redirect);
+    if (redirect && redirect.includes('invite')) {
+
+      return '/user/register?redirect=' + redirectUrl;
+    }
+    return '/user/register';
+  }
 
   render() {
     const { thirdLogin, userLogin, type } = this.props;
@@ -34,7 +50,7 @@ export default class LoginComponent extends Component {
           </Submit>
           <div className={styles.other}>
             {this.props.isRegist && type !== 'thirdLogin' && (
-              <Link className={styles.register} to="/user/register">
+              <Link className={styles.register} to={this.getRedirectParams()}>
                 <FormattedMessage id= 'login.loginComponent.register'/>
               </Link>
             )}

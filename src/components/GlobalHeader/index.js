@@ -87,7 +87,7 @@ export default class GlobalHeader extends PureComponent {
     const { dispatch } = this.props;
     const { language } = this.state
     if (key === 'userCenter') {
-      dispatch(routerRedux.push(`/account/center`));
+      dispatch(routerRedux.push(`/account/center/personal`));
     }
     if (key === 'cpw') {
       this.showChangePass();

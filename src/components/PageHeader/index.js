@@ -69,7 +69,7 @@ export default class PageHeader extends PureComponent {
   conversionFromLocation = (routerLocation, breadcrumbNameMap) => {
     const { linkElement = 'a' } = this.props;
     // Convert the path to an array
-    const pathSnippets = routerLocation.pathname.split('/').filter(i => i);
+    const pathSnippets = routerLocation?.pathname?.split('/').filter(i => i);
     // Loop data mosaic routing
     const extraBreadcrumbItems = pathSnippets.map((_, index) => {
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
@@ -167,7 +167,6 @@ export default class PageHeader extends PureComponent {
     if (tabActiveKey !== undefined && tabList) {
       tabDefaultValue = tabList.filter(item => item.default)[0] || tabList[0];
     }
-    const breadcrumb = this.conversionBreadcrumbList();
     const activeKeyProps = {
       defaultActiveKey: tabDefaultValue && tabDefaultValue.key
     };

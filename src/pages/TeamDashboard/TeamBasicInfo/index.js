@@ -284,17 +284,17 @@ export default class index extends Component {
         key: 'used_mem',
         render: (text, record) => {
           return <span>
-            {text / 1024 || 0}
+            {text|| 0}
           </span>
         }
       },
       {
-        title: 'CPU(Core)',
-        dataIndex: 'cpu_usage',
-        key: 'cpu_usage',
+        title: 'CPU(m)',
+        dataIndex: 'used_cpu',
+        key: 'used_cpu',
         render: (text, record) => {
           return <span>
-            {text / 1000 || 0}
+            {text || 0}
           </span>
         }
       },
@@ -302,6 +302,11 @@ export default class index extends Component {
         title: formatMessage({id:'versionUpdata_6_1.disk'}),
         dataIndex: 'disk_usage',
         key: 'disk_usage',
+        render: (text, record) => {
+          return <span>
+            {text / 1000 || 0}
+          </span>
+        }
       },
       {
         title: formatMessage({id:'versionUpdata_6_1.updateTime'}),

@@ -23,7 +23,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import App from '../../../public/images/app.svg';
+import App from '../../../public/images/code.svg';
 import globalUtil from '../../utils/global';
 import ThirForm from './form.js';
 import styles from './Index.less';
@@ -249,11 +249,7 @@ class Index extends React.Component {
       }
     ];
     return (
-      <div
-        style={{
-          background: ServiceComponent ? '#fff ' : '#F0F2F5'
-        }}
-      >
+      <div>
         {detection && (
           <Modal
             visible={detection}
@@ -460,7 +456,7 @@ class Index extends React.Component {
                       alignItems: 'center',
                       overflow: 'hidden'
                     }}
-                    avatar={<Avatar src={App} />}
+                    avatar={<Avatar src={App} shape="square" />}
                     title={
                       <a target="_blank" href={item.project_url}>
                         <div className={styles.listItemMataTitle}>

@@ -1295,7 +1295,7 @@ const otherEnterprise = {
     'otherEnterprise.AccesstokenView.delete': 'Delete',
     'otherEnterprise.AccesstokenView.Regenerate': 'Regenerate',
     'otherEnterprise.AccesstokenView.api': 'The access token is used to access the platform API. The permissions of the access token are consistent with your account permissions',
-    'otherEnterprise.AccesstokenView.add': 'Add',
+    'otherEnterprise.AccesstokenView.add': 'Add access token',
     'otherEnterprise.AccesstokenView.Unlimited': 'Unlimited',
     'otherEnterprise.ChangePassword.max': 'The password must be at least 8 digits long',
     'otherEnterprise.ChangePassword.maxLength': 'Maximum length: 16 bits',
@@ -1335,6 +1335,7 @@ const otherEnterprise = {
     'otherEnterprise.shell.list': 'Cluster list',
     'otherEnterprise.shell.connection': 'Are connected',
     'otherEnterprise.shell.line': 'Command line',
+    'otherEnterprise.GitRepository.add': 'Add Git repository',
 }
 //日志
 const LogEnterprise = {
