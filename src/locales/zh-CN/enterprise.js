@@ -1301,7 +1301,7 @@ const otherEnterprise = {
     'otherEnterprise.AccesstokenView.delete': '删除',
     'otherEnterprise.AccesstokenView.Regenerate': '重新生成',
     'otherEnterprise.AccesstokenView.api': '访问令牌用于访问平台API, 访问令牌的权限与你的账号权限一致',
-    'otherEnterprise.AccesstokenView.add': '新增',
+    'otherEnterprise.AccesstokenView.add': '新增访问令牌',
     'otherEnterprise.AccesstokenView.Unlimited': '不限制',
     'otherEnterprise.ChangePassword.max': '密码长度至少为8位',
     'otherEnterprise.ChangePassword.maxLength': '最大长度16位',
@@ -1342,6 +1342,7 @@ const otherEnterprise = {
     'otherEnterprise.shell.list': '集群列表',
     'otherEnterprise.shell.connection': '正在连接',
     'otherEnterprise.shell.line': '命令行',
+    'otherEnterprise.GitRepository.add': '新增Git仓库',
 
 
 

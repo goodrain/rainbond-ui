@@ -86,34 +86,7 @@ class Index extends Component {
                         containerName: res.list.new_pods && res.list.new_pods[0] && res.list.new_pods[0].container[0] && res.list.new_pods[0].container[0].container_name,
                         selectLoading: true
                     }, () => {
-                        if (this.props.isType) {
-                            this.determineStorageType()
-                        } else {
-                            this.getListFiles()
-                        }
-                    })
-                }
-            }
-        });
-    };
-    // 获取文件类型
-    determineStorageType = () => {
-        this.props.dispatch({
-            type: 'appControl/determineStorageType',
-            payload: {
-                team_name: globalUtil.getCurrTeamName(),
-                group_id: this.props.appAlias,
-                region_name: globalUtil.getCurrRegionName(),
-                pod_name: this.state.selectDefaultValue,
-                namespace: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.namespace,
-                volume_path: this.props && this.props.volumePath,
-            },
-            callback: res => {
-                if (res) {
-                    this.setState({
-                        hostPath: res.bean,
-                    }, () => {
-                        this.getListFiles( true )
+                        this.getListFiles()
                     })
                 }
             }
@@ -266,7 +239,7 @@ class Index extends Component {
         })
     }
     // 展开树图
-    onExpand = (expandedKeys, info) => {
+    onExpand = (expandedKeys, info) => {        
         let newLoadKeys = this.state.loadedKeys
         if (this.state.expandedKeys.length > expandedKeys.length) {
             //  当是收起的时候，把这个收起的节点从loadedKeys中移除
@@ -277,7 +250,7 @@ class Index extends Component {
             selectedKeys: [`${info.node.props.dataRef.key}`],
             showData: this.sortShowData(info.node.props.dataRef.children),
             loadedKeys: newLoadKeys
-        }, () => {
+        }, () => {            
             this.getPath()
         })
     };
@@ -332,6 +305,8 @@ class Index extends Component {
             const { title, children } = item
             if (keyArr.indexOf(`${item.key}`) != -1) {
                 const arr = this.state.pathArr
+                console.log(arr,"arr");
+                console.log(title,"title");
                 arr.push(title)
                 this.setState({
                     pathArr: arr

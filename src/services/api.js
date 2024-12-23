@@ -1523,6 +1523,7 @@ export async function addPlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
+        hub_type: body.hub_type
       },
       handleError
     }
@@ -1539,6 +1540,7 @@ export async function updatePlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
+        hub_type: body.hub_type
       },
       handleError
     }

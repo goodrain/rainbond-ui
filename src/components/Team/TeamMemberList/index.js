@@ -1,4 +1,4 @@
-import { Card, notification,Button } from 'antd';
+import { Card, notification, Button, Modal, Select, message } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -7,12 +7,15 @@ import AddMember from '../../AddMember';
 import ConfirmModal from '../../ConfirmModal';
 import ScrollerX from '../../ScrollerX';
 import TeamMemberTable from '../../TeamMemberTable';
+import roleUtil from '../../../utils/role';
+import copy from 'copy-to-clipboard';
 
-@connect(({ teamControl, loading, user }) => ({
+@connect(({ teamControl, loading, user, index }) => ({
   currUser: user.currentUser,
   regions: teamControl.regions,
   currentTeam: teamControl.currentTeam,
-  toMoveTeamLoading: loading.effects['teamControl/moveTeam']
+  toMoveTeamLoading: loading.effects['teamControl/moveTeam'],
+  overviewInfo: index.overviewInfo
 }))
 export default class MemberList extends PureComponent {
   constructor(props) {
@@ -24,11 +27,17 @@ export default class MemberList extends PureComponent {
       page: 1,
       pageSize: 8,
       total: 0,
-      members: []
+      members: [],
+      showInviteModal: false,
+      selectedRole: undefined,
+      inviteLink: '',
+      isLinkGenerated: false,
+      roles: []
     };
   }
   componentDidMount() {
     this.loadMembers();
+    this.loadRoles();
   }
   onMoveTeam = member => {
     this.setState({ toMoveTeam: member });
@@ -146,6 +155,72 @@ export default class MemberList extends PureComponent {
       this.loadMembers();
     });
   };
+  showInviteModal = () => {
+    this.setState({
+      showInviteModal: true,
+      selectedRole: undefined,
+      inviteLink: '',
+      isLinkGenerated: false
+    });
+  };
+
+  handleRoleChange = (value) => {
+    this.setState({ selectedRole: value });
+  };
+
+  handleCreateInviteLink = () => {
+    const { dispatch, overviewInfo } = this.props;
+    const { selectedRole } = this.state;
+
+    dispatch({
+      type: 'user/createInviteLink',
+      payload: {
+        team_id: overviewInfo.team_id,
+        role_id: selectedRole
+      },
+      callback: res => {
+        console.log(res,"res");
+        
+        if (res && res.status_code === 200) {
+          const inviteLink = res.bean.invite_id;
+          this.setState({
+            inviteLink: `${window.location.origin}/#/invite/${inviteLink}`,
+            isLinkGenerated: true
+          });
+        }
+      }
+    });
+  };
+
+  handleCopyLink = () => {
+    const { inviteLink } = this.state;
+    copy(inviteLink);
+    message.success(formatMessage({ id: 'versionUpdata_6_1.invite.copy.success' }));
+    this.handleCloseModal();
+  };
+
+  handleCloseModal = () => {
+    this.setState({ showInviteModal: false });
+  };
+  loadRoles = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/fetchTeamRoles',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        page_size: -1,
+        page: 1
+      },
+      callback: data => {
+        this.setState(
+          {
+            roles: data.list || []
+          }
+        );
+      }
+    });
+  };
+
   render() {
     const {
       currentTeam,
@@ -163,7 +238,11 @@ export default class MemberList extends PureComponent {
       roles,
       toEditAction,
       toDeleteMember,
-      toMoveTeam
+      toMoveTeam,
+      showInviteModal,
+      selectedRole,
+      inviteLink,
+      isLinkGenerated
     } = this.state;
     const pagination = {
       current: page,
@@ -182,13 +261,11 @@ export default class MemberList extends PureComponent {
           bodyStyle={{
             paddingTop: 12
           }}
-          title={formatMessage({id: 'teamManage.tabs.member.title'})}
+          title={formatMessage({ id: 'teamManage.tabs.member.title' })}
           extra={
-            isCreate && (
-              <Button  onClick={this.showAddMember} type="primary" icon='plus'>
-                {formatMessage({id: 'teamManage.tabs.member.btn.add'})}
-              </Button>
-            )
+            <Button onClick={this.showInviteModal} type="primary" icon='plus'>
+              { formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.submit' }) }
+            </Button>
           }
         >
           <ScrollerX sm={600}>
@@ -222,9 +299,9 @@ export default class MemberList extends PureComponent {
         {toDeleteMember && (
           <ConfirmModal
             onOk={this.handleDelMember}
-            title={formatMessage({id:'confirmModal.delete.member'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.member.desc'})}
+            title={formatMessage({ id: 'confirmModal.delete.member' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.member.desc' })}
             onCancel={this.hideDelMember}
           />
         )}
@@ -232,12 +309,59 @@ export default class MemberList extends PureComponent {
           <ConfirmModal
             onOk={this.handleMoveTeam}
             loading={toMoveTeamLoading}
-            title={formatMessage({id:'confirmModal.MoveTeam.title'})}
-            subDesc={formatMessage({id:'confirmModal.MoveTeam.subDesc'})}
-            desc={formatMessage({id:'confirmModal.MoveTeam.desc'},{nick_name: toMoveTeam.nick_name})}
+            title={formatMessage({ id: 'confirmModal.MoveTeam.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.MoveTeam.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.MoveTeam.desc' }, { nick_name: toMoveTeam.nick_name })}
             onCancel={this.hideMoveTeam}
           />
         )}
+        <Modal
+          title={formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.title' })}
+          visible={showInviteModal}
+          onCancel={this.handleCloseModal}
+          footer={[
+            <Button key="cancel" onClick={this.handleCloseModal}>
+              取消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              disabled={!selectedRole && !isLinkGenerated}
+              onClick={isLinkGenerated ? this.handleCopyLink : this.handleCreateInviteLink}
+            >
+              {isLinkGenerated ? formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.copy' }) : formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.submit' })}
+            </Button>
+          ]}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <Select
+              style={{ width: '100%' }}
+              placeholder={formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.subDesc' })}
+              onChange={this.handleRoleChange}
+              disabled={isLinkGenerated}
+              value={selectedRole}
+            >
+              {roles.map(item => {
+                const { ID, name } = item;
+                return (
+                  <Option key={ID} value={ID}>
+                    {roleUtil.actionMap(name, true)}
+                  </Option>
+                );
+              })}
+            </Select>
+          </div>
+          {isLinkGenerated && (
+            <div style={{
+              background: '#f5f5f5',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              wordBreak: 'break-all'
+            }}>
+              {inviteLink}
+            </div>
+          )}
+        </Modal>
       </div>
     );
   }

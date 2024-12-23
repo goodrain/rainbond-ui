@@ -1,149 +1,214 @@
 import React, { Component } from 'react'
-import { Form, Row, Col, Input, Button, Icon, Upload } from 'antd';
+import { connect } from 'dva';
+import { Form, Row, Col, Input, Button, Icon, Upload, Avatar, notification, Skeleton } from 'antd';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import ChangePassword from '../../../components/ChangePassword'
+import EditUserInfoFrom from '../../../components/EditUserInfoFrom'
 
 @Form.create()
+@connect()
 export default class PersonalView extends Component {
   constructor(props) {
     super(props);
     this.state = {
       imageUrl: '',
       loading: false,
+      userInfo: {},
+      showChangePassword: false
     };
   }
-  handleChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({ loading: true });
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, imageUrl =>
+  componentDidMount() {
+    this.getUserInfo();
+  }
+  // 获取用户信息
+  getUserInfo = () => {
+    this.setState({
+      loading: true
+    })
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/getUserInfo',
+      callback: (data) => {
         this.setState({
-          imageUrl,
-          loading: false,
-        }),
-      );
+          userInfo: data,
+          imageUrl: data.logo,
+          loading: false
+        })
+      },
+      handleError: () => {
+      }
+    })
+  }
+  handleUpdateInfo = () => {
+    this.setState({
+      showEditUserInfoFrom: true
+    })
+  }
+  handleCancel = () => {
+    this.setState({
+      showEditUserInfoFrom: false
+    })
+  }
+  handleOk = (val, type) => {
+    if (type == 'info') {
+      this.updataUserInfo(val)
+    } else {
+      // 修改手机号逻辑
     }
+  }
+  // 更新个人信息
+  updataUserInfo = (val) => {
+    const { dispatch } = this.props;
+    // 更新个人信息
+    dispatch({
+      type: 'user/updateUserInfo',
+      payload: {
+        ...val
+      },
+      callback: (data) => {
+        this.setState({
+          showEditUserInfoFrom: false
+        }, () => {
+          this.getUserInfo()
+          notification.success({ message: formatMessage({ id: 'notification.success.change' }) })
+        })
+      },
+      handleError: (err) => {
+        this.setState({
+          showEditUserInfoFrom: false,
+        }, () => {
+          notification.error({ message: formatMessage({ id: 'notification.error.change' }) })
+        })
+      }
+    })
+
+  }
+  handleChangePass = vals => {
+    this.props.dispatch({
+      type: 'user/changePass',
+      payload: {
+        ...vals
+      },
+      callback: () => {
+        notification.success({ message: formatMessage({ id: 'GlobalHeader.success' }) });
+      }
+    });
   };
-  beforeUpload = file => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
+  cancelChangePass = () => {
+    this.setState({ showChangePassword: false });
+  };
+  handleUpdatePassword = () =>{
+    this.setState({ showChangePassword: true });
   }
   render() {
-    const uploadButton = (
-      <div>
-        <Icon type={this.state.loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    );
-    const { imageUrl } = this.state;
+    const { imageUrl, userInfo, showEditUserInfoFrom, loading, showChangePassword } = this.state;
     const { getFieldDecorator } = this.props.form;
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    };
     return (
       <div>
-        <Form>
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.name'})}>
-                {getFieldDecorator(`name`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.name.placeholder'}),
-                    },
-                  ],
-                })(<Input placeholder="placeholder" />)}
-              </Form.Item>
+        <Skeleton loading={loading} paragraph={{ rows: 6 }} active>
+          <Row type="flex" align="bottom">
+            <Col span={3} style={{ paddingLeft: "2%" }}>
+              <Avatar src={imageUrl} size={100} />
             </Col>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.email'})}>
-                {getFieldDecorator(`email`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.email.placeholder'}),
-                    },
-                  ],
-                })(<Input placeholder="placeholder" />)}
-              </Form.Item>
+            <Col span={21}>
+              <Button type="link" onClick={this.handleUpdateInfo}>修改基础信息</Button>
+              <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>
             </Col>
           </Row>
+          <Row style={{ marginTop: 24 }}>
+            <Form {...formItemLayout}>
+              <Row >
+                <Col span={12}>
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.name' })}>
+                    {getFieldDecorator(`real_name`, {
+                      initialValue: userInfo.real_name,
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'versionUpdata_6_1.name.placeholder' }),
+                        },
+                      ],
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.name.placeholder' })} disabled={true} />)}
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.email' })}>
+                    {getFieldDecorator(`email`, {
+                      initialValue: userInfo.email,
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'versionUpdata_6_1.email.placeholder' }),
+                        },
+                      ],
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.email.placeholder' })} disabled={true} />)}
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.username'})}>
-                {getFieldDecorator(`username`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.username.placeholder'}),
-                    },
-                  ],
-                })(<Input placeholder="placeholder" />)}
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.password'})}>
-                {getFieldDecorator(`password`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.password.placeholder'}),
-                    },
-                  ],
-                })(<Input placeholder="placeholder" />)}
-              </Form.Item>
-            </Col>
+              <Row >
+                <Col span={12}>
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.username' })}>
+                    {getFieldDecorator(`user_name`, {
+                      initialValue: userInfo.user_name,
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'versionUpdata_6_1.username.placeholder' }),
+                        },
+                      ],
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.username.placeholder' })} disabled={true} />)}
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.password' })}>
+                    {getFieldDecorator(`password`, {
+                      initialValue: userInfo.password || '********',
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'versionUpdata_6_1.password.placeholder' }),
+                        },
+                      ],
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.password.placeholder' })} disabled={true} type='password' />)}
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* 手机号 */}
+              <Row>
+                <Col span={12}>
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.phone' })}>
+                    {getFieldDecorator(`phone`, {
+                      initialValue: userInfo.phone,
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' }),
+                        },
+                      ],
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' })} disabled={true} />)}
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
           </Row>
-          {/* 手机号 */}
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.phone'})}>
-                {getFieldDecorator(`phone`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.phone.placeholder'}),
-                    },
-                  ],
-                })(<Input placeholder="placeholder" />)}
-              </Form.Item>
-            </Col>
-          </Row>
-          {/* 头像 */}
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label={formatMessage({id:'versionUpdata_6_1.avatar'})}>
-                {getFieldDecorator(`avatar`, {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({id:'versionUpdata_6_1.avatar.placeholder'}),
-                    },
-                  ],
-                })(
-                  <Upload
-                    name="avatar"
-                    listType="picture-card"
-                    className="avatar-uploader"
-                    showUploadList={false}
-                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                    beforeUpload={this.beforeUpload}
-                    onChange={this.handleChange}
-                  >
-                    {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-                  </Upload>
-                )}
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+          <EditUserInfoFrom
+            userInfo={userInfo}
+            visible={showEditUserInfoFrom}
+            onCancel={this.handleCancel}
+            onOk={this.handleOk}
+          />
+          {showChangePassword && (
+            <ChangePassword
+              onOk={this.handleChangePass}
+              onCancel={this.cancelChangePass}
+            />
+          )}
+        </Skeleton>
       </div>
     )
   }

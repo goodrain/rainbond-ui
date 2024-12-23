@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { Icon, Button } from 'antd';
+import { Icon, Button, notification } from 'antd';
 import ImageName from './image-name';
 import ImageCmd from './image-cmd';
 import ImageCompose from './image-compose';
@@ -11,18 +11,22 @@ import ImageNameDemo from './ImageName-Demo'
 import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
+import ImgRepostory from '../../components/ImgRepostory';
+import AddOrEditImageRegistry from '../../components/AddOrEditImageRegistry';
 import rainbondUtil from '../../utils/rainbond';
 
 
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(
-  ({ teamControl, enterprise, global }) => ({
+  ({ teamControl, enterprise, global, region, user }) => ({
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    cluster_info: region.cluster_info,
+    currentUser: user.currentUser
   }),
   null,
   null,
@@ -33,11 +37,16 @@ export default class Main extends PureComponent {
     super(props)
     this.state = {
       archInfo: [],
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
+      imageList: [],
+      clusters: [],
+      imageHubLoading: false,
     }
   }
   componentWillMount() {
     this.handleArchCpuInfo()
+    this.getImageHub()
+    this.loadClusters()
   }
   handleArchCpuInfo = () => {
     const { dispatch } = this.props;
@@ -56,15 +65,92 @@ export default class Main extends PureComponent {
       }
     });
   }
-  handleTabChange = key => {
-    const { dispatch } = this.props;
-    const group_id = globalUtil.getGroupID()
-    dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
-      )
-    );
+  getImageHub = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/fetchPlatformImageHub',
+      callback: data => {
+        if (data) {
+          this.setState({
+            imageList: data.list
+          });
+        }
+      }
+    })
+  }
+  loadClusters = () => {
+    const {
+      dispatch,
+      currentUser
+    } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: currentUser?.enterprise_id
+      },
+      callback: res => {
+        if (res && res.list) {
+          const clusters = [];
+          res.list.map((item, index) => {
+            item.key = `cluster${index}`;
+            clusters.push(item);
+            return item;
+          });
+          console.log(clusters, 'clusters');
+
+          this.setState({ clusters });
+        } else {
+          this.setState({ clusters: [] });
+        }
+      }
+    });
   };
+  handleTabChange = key => {
+    if (key === 'add') {
+      this.setState({
+        visible: true
+      })
+    } else {
+      const { dispatch } = this.props;
+      const group_id = globalUtil.getGroupID()
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
+        )
+      );
+    }
+  };
+  handleAddImageHub = (values) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/addPlatformImageHub',
+      payload: {
+        secret_id: values.secret_id,
+        domain: values.domain,
+        username: values.username,
+        password: values.password,
+        hub_type: values.hub_type
+      },
+      callback: res => {
+        if (res && res.response_data && res.response_data.code == 200) {
+          notification.success({
+            message: formatMessage({ id: 'notification.success.add' })
+          })
+          this.getImageHub()
+        }
+        this.setState({
+          imageHubLoading: false,
+          visible: false
+
+        })
+      }
+    })
+  }
+  handelClone = () => {
+    this.setState({
+      visible: false
+    })
+  }
   render() {
     const {
       currentEnterprise,
@@ -73,6 +159,7 @@ export default class Main extends PureComponent {
       match,
       rainbondInfo
     } = this.props;
+    const { imageList, clusters, imageHubLoading } = this.state;
     const map = {
       custom: ImageName,
       Dockercompose: ImageCompose,
@@ -89,12 +176,31 @@ export default class Main extends PureComponent {
         tab: 'Docker Compose',
       }
     ];
+
+    if (imageList && imageList.length > 0) {
+      imageList.forEach(item => {
+        map[item.secret_id] = ImgRepostory
+        tabList.push({
+          key: item.secret_id,
+          tab: `${item.hub_type} (${item.secret_id})`
+        })
+      })
+    }
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({
         key: 'ImageNameDemo',
         tab: formatMessage({ id: 'teamAdd.create.code.demo' }),
       },)
     }
+    tabList.push({
+      key: 'add',
+      tab: <Icon type="plus" style={{
+        display: 'flex',
+        padding: '12px 0px 5px',
+        marginRight: '0 !important'
+      }} />
+    })
+
     const { archInfo, teamAppCreatePermission: { isAccess } } = this.state
     if (!isAccess) {
       return roleUtil.noPermission()
@@ -105,36 +211,37 @@ export default class Main extends PureComponent {
       type = 'custom';
     }
     const Com = map[type];
-    let breadcrumbList = [];
-    breadcrumbList = createTeam(
-      createEnterprise(breadcrumbList, currentEnterprise),
-      currentTeam,
-      currentRegionName
-    );
-    breadcrumbList.push({ title: formatMessage({ id: 'teamAdd.create.createComponentTitle' }) });
     return (
       <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-        title='从容器创建组件'
+        title={formatMessage({ id: 'versionUpdata_6_1.createComponent' })}
         onTabChange={this.handleTabChange}
-        content='支持从单一镜像、Docker命令、DockerCompose配置创建应用。'
+        content={formatMessage({ id: 'versionUpdata_6_1.createComponent.content' })}
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getSvg('dockerSvg', 18)}
         extraContent={
           <Button onClick={() => {
-              const { dispatch } = this.props;
-              dispatch(
-                  routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
-                  })
-              );
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push({
+                pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+              })
+            );
           }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
           </Button>
-      }
+        }
       >
-        {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
+        {Com ? <Com archInfo={archInfo} {...this.props} key={type} /> : <FormattedMessage id="teamAdd.create.error" />}
+        {this.state.visible && (
+          <AddOrEditImageRegistry
+            loading={imageHubLoading}
+            imageList={imageList}
+            clusters={clusters}
+            onOk={this.handleAddImageHub}
+            onCancel={this.handelClone}
+          />
+        )}
       </PageHeaderLayout>
     );
   }

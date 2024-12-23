@@ -1,8 +1,8 @@
-import { Alert, Button, notification, Row, Table, Popconfirm } from 'antd';
+import { Alert, Button, notification, Row, Table, Popconfirm, Card } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AccesstokenForm from '../../../components/AccesstokenForm';
 import ConfirmModal from '../../../components/ConfirmModal';
 
@@ -54,7 +54,7 @@ class BindingView extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.loadAccessTokenList();
           this.onCanceAccessToken();
         }
@@ -124,13 +124,13 @@ class BindingView extends Component {
     const { dataSource, openDeleteAccessToken, visible, ID } = this.state;
     const columns = [
       {
-        title: formatMessage({id:'otherEnterprise.AccesstokenView.note'}),
+        title: formatMessage({ id: 'otherEnterprise.AccesstokenView.note' }),
         dataIndex: 'note',
         key: 'note',
         width: '30%'
       },
       {
-        title: formatMessage({id:'otherEnterprise.AccesstokenView.expire_time'}),
+        title: formatMessage({ id: 'otherEnterprise.AccesstokenView.expire_time' }),
         dataIndex: 'expire_time',
         key: 'expire_time',
         width: '25%',
@@ -141,11 +141,11 @@ class BindingView extends Component {
               .locale('zh-cn')
               .format('YYYY-MM-DD HH:mm:ss');
           }
-          return `${formatMessage({id:'otherEnterprise.AccesstokenView.Unlimited'})}`;
+          return `${formatMessage({ id: 'otherEnterprise.AccesstokenView.Unlimited' })}`;
         }
       },
       {
-        title: formatMessage({id:'otherEnterprise.AccesstokenView.user_id'}),
+        title: formatMessage({ id: 'otherEnterprise.AccesstokenView.user_id' }),
         dataIndex: 'user_id',
         key: 'user_id',
         width: '20%',
@@ -160,14 +160,14 @@ class BindingView extends Component {
                   color: isOverdue ? '#f81d22' : ' #0b8235'
                 }}
               >
-                {isOverdue ? <FormattedMessage id="otherEnterprise.AccesstokenView.overdue"/> : <FormattedMessage id="otherEnterprise.AccesstokenView.normal"/>}
+                {isOverdue ? <FormattedMessage id="otherEnterprise.AccesstokenView.overdue" /> : <FormattedMessage id="otherEnterprise.AccesstokenView.normal" />}
               </div>
             </Fragment>
           );
         }
       },
       {
-        title:formatMessage({id:'otherEnterprise.AccesstokenView.var'}),
+        title: formatMessage({ id: 'otherEnterprise.AccesstokenView.var' }),
         dataIndex: 'var',
         width: '20%',
 
@@ -177,18 +177,18 @@ class BindingView extends Component {
               onClick={() => this.openDeleteAccessToken(data.ID)}
               style={{ margintRight: 10 }}
             >
-              {formatMessage({id:'otherEnterprise.AccesstokenView.delete'})}
+              {formatMessage({ id: 'otherEnterprise.AccesstokenView.delete' })}
             </a>
             <Popconfirm
-            title='重新生成后之前的AccessKey将无法使用,确认重新生成吗？'
-            placement="top"
-            onConfirm={()=>this.handleRegenerateAccessToken(data.ID)} okText="确定" cancelText="取消"
+              title={formatMessage({ id: 'versionUpdata_6_1.regenerate' })}
+              placement="top"
+              onConfirm={() => this.handleRegenerateAccessToken(data.ID)} okText="确定" cancelText="取消"
             >
-            <a
-              style={{ margintRight: 10 }}
-            >
-              {formatMessage({id:'otherEnterprise.AccesstokenView.Regenerate'})}
-            </a>
+              <a
+                style={{ margintRight: 10 }}
+              >
+                {formatMessage({ id: 'otherEnterprise.AccesstokenView.Regenerate' })}
+              </a>
             </Popconfirm>
 
           </Fragment>
@@ -197,23 +197,16 @@ class BindingView extends Component {
     ];
 
     return (
-      <Fragment>
+      <Card
+        extra={<Button type="primary" onClick={this.addAccessToken} icon="plus">{formatMessage({ id: 'otherEnterprise.AccesstokenView.add' })}</Button>}
+      >
         <Alert
-          message={formatMessage({id:'otherEnterprise.AccesstokenView.api'})}
+          message={formatMessage({ id: 'otherEnterprise.AccesstokenView.api' })}
           type="info"
           showIcon
-          style={{ margin: '20px' }}
+          style={{marginBottom:24}}
         />
-        <Row style={{ textAlign: 'right' }}>
-          <Button
-            style={{ margin: '0  5px 20px 0' }}
-            type="primary"
-            onClick={this.addAccessToken}
-          >
-            {formatMessage({id:'otherEnterprise.AccesstokenView.add'})}
-          </Button>
-        </Row>
-        <Table rowKey={(record,index) => index} dataSource={dataSource} columns={columns} pagination={false} />
+        <Table rowKey={(record, index) => index} dataSource={dataSource} columns={columns} pagination={false} />
         {visible && (
           <AccesstokenForm
             onOk={this.handleSubmit}
@@ -230,7 +223,7 @@ class BindingView extends Component {
             onOk={this.handleDeleteAccessToken}
           />
         )}
-      </Fragment>
+      </Card>
     );
   }
 }

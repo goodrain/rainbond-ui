@@ -2,7 +2,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { Icon, Button } from 'antd';
+import { Icon, Button, notification } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -14,16 +14,18 @@ import roleUtil from '../../utils/newRole';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
 import Jwar from './jwar';
+import OauthForm from '../../components/OauthForm';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 @connect(
-  ({ teamControl, global, enterprise }) => ({
+  ({ teamControl, global, enterprise, user }) => ({
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     enterprises: global.enterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currUser: user.currentUser
   }),
   null,
   null,
@@ -35,7 +37,10 @@ export default class Main extends PureComponent {
     this.state = {
       serversList: null,
       archInfo: [],
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
+      oauthTable: [],
+      visible: false,
+      loading: false
     }
   }
 
@@ -66,13 +71,20 @@ export default class Main extends PureComponent {
     });
   }
   handleTabChange = key => {
-    const { dispatch } = this.props;
-    const group_id = globalUtil.getGroupID()
-    dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}?group_id=${group_id}`
-      )
-    );
+    if (key === 'add') {
+      this.setState({
+        visible: true
+      })
+    }else{
+      const { dispatch } = this.props;
+      const group_id = globalUtil.getGroupID()
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}?group_id=${group_id}`
+        )
+      );
+    }
+
   };
   fetchEnterpriseInfo = eid => {
     if (!eid) {
@@ -93,7 +105,95 @@ export default class Main extends PureComponent {
       }
     });
   };
+  handelClone = () => {
+    this.setState({
+      visible: false
+    })
+  };
+  fetchOauthInfo = () => {
+    const { dispatch, currUser } = this.props;
+    this.setState({ loading: true });
+    
+    dispatch({
+      type: 'global/getOauthInfo',
+      payload: {
+        enterprise_id: currUser.enterprise_id
+      },
+      callback: res => {
+        if (res?.status_code === 200) {
+          this.setState({
+            oauthTable: res.list || [],
+            loading: false
+          });
+        }
+      }
+    });
+  };
 
+  handleCreatOauth = values => {
+    const { oauth_type, redirect_domain, ...rest } = values;
+    const homeUrls = {
+      github: 'https://github.com',
+      aliyun: 'https://oauth.aliyun.com',
+      dingtalk: 'https://oapi.dingtalk.com'
+    };
+
+    const oauthData = {
+      ...rest,
+      oauth_type: oauth_type.toLowerCase(),
+      home_url: homeUrls[oauth_type.toLowerCase()] || '',
+      redirect_uri: `${redirect_domain}/console/oauth/redirect`,
+      is_auto_login: false,
+      is_console: true
+    };
+
+    this.handleOauthRequest(oauthData);
+  };
+
+  handleOauthRequest = (data, isClone = false) => {
+    const { dispatch, currUser } = this.props;
+    const { oauthInfo, oauthTable } = this.state;
+    
+    const updatedData = {
+      ...data,
+      eid: currUser.enterprise_id,
+      service_id: oauthInfo?.service_id || null,
+      enable: !isClone,
+      system: false
+    };
+
+    const updatedTable = [...oauthTable];
+    if (oauthInfo) {
+      const index = updatedTable.findIndex(item => item.service_id === updatedData.service_id);
+      if (index > -1) {
+        updatedTable[index] = { ...updatedTable[index], ...updatedData, is_console: true };
+      }
+    } else {
+      updatedTable.push(updatedData);
+    }
+
+    dispatch({
+      type: 'global/creatOauth',
+      payload: {
+        enterprise_id: currUser.enterprise_id,
+        arr: updatedTable
+      },
+      callback: data => {
+        if (data && data.status_code === 200) {
+          notification.success({
+            message: isClone
+              ? formatMessage({ id: 'notification.success.close' })
+              : oauthInfo
+                ? formatMessage({ id: 'notification.success.edit' })
+                : formatMessage({ id: 'notification.success.add' })
+          });
+          this.setState({
+            visible: false
+          })
+        }
+      }
+    });
+  };
   render() {
     const {
       rainbondInfo,
@@ -103,8 +203,8 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName,
     } = this.props;
-    const { serversList, archInfo, teamAppCreatePermission: { isAccess }  } = this.state
-    if(!isAccess){
+    const { serversList, archInfo, teamAppCreatePermission: { isAccess } } = this.state
+    if (!isAccess) {
       return roleUtil.noPermission()
     }
     const map = {
@@ -121,7 +221,7 @@ export default class Main extends PureComponent {
       {
         key: 'jwar',
         tab: formatMessage({ id: 'teamAdd.create.code.package' })
-      }
+      },
     ];
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: 'demo', tab: formatMessage({ id: 'teamAdd.create.code.demo' }) });
@@ -149,6 +249,14 @@ export default class Main extends PureComponent {
         return tabList;
       });
     }
+    tabList.push({
+      key: 'add',
+      tab: <Icon type="plus" style={{
+        display: 'flex',
+        padding: '12px 0px 5px',
+        marginRight: '0 !important'
+      }} />
+    });
 
     let { type } = match.params;
     type = type.split('?')[0];
@@ -176,16 +284,16 @@ export default class Main extends PureComponent {
         isContent
         extraContent={
           <Button onClick={() => {
-              const { dispatch } = this.props;
-              dispatch(
-                  routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
-                  })
-              );
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push({
+                pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+              })
+            );
           }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
           </Button>
-      }
+        }
       >
         {Com ? (
           <Com
@@ -198,6 +306,15 @@ export default class Main extends PureComponent {
           <>
             {formatMessage({ id: 'teamAdd.create.error' })}
           </>
+        )}
+        {this.state.visible && (
+          <OauthForm
+            title={formatMessage({ id: 'versionUpdata_6_1.addPrivateGit' })}
+            type="private"
+            oauthInfo={false}
+            onOk={this.handleCreatOauth}
+            onCancel={this.handelClone}
+          />
         )}
       </PageHeaderLayout>
     );

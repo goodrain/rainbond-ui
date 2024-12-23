@@ -90,7 +90,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.image || ""));
+    const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match?.params?.image || ""));
     const { localImageList } = this.state
     return (
       <Card>

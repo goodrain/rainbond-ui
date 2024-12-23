@@ -174,7 +174,7 @@ export default class Index extends PureComponent {
       const Reg = /^[^\s]*$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('镜像名称不能包含空格')
+          new Error(formatMessage({ id: 'mirror.name.space' }))
         );
       }
       callback();
@@ -514,10 +514,10 @@ export default class Index extends PureComponent {
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
-    let archLegnth = archInfo.length
+    let archLegnth = archInfo?.length || 0
     if (archLegnth == 2) {
       arch = 'amd64'
-    } else if (archInfo.length == 1) {
+    } else if (archLegnth == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -551,7 +551,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || '',
+              initialValue: data.service_cname || globalUtil.getImageTag() || '',
               rules: [
                 {
                   required: true,
@@ -572,7 +572,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
-              initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
+              initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
@@ -603,48 +603,18 @@ export default class Index extends PureComponent {
             <Form.Item 
               {...is_language} 
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
-              extra={<div style={{ fontSize: '12px' }}>私有仓库需要管理员在“平台管理-设置-镜像仓库”进行添加，按回车进行搜索。</div>}
             >
               {getFieldDecorator('docker_cmd', {
-                initialValue: '',
+                initialValue: globalUtil.getImageTagUrl() || '',
                 rules: [
                   { required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) },
                   // 长度255
-                  { max: 255, message: '最大输入长度为255个字符' },
+                  { max: 255, message: formatMessage({ id: 'mirror.length.limit' }) },
                   // 不允许输入中文、空格
-                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: '不允许输入中文、空格' }
+                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: formatMessage({ id: 'mirror.input.rule' }) }
                 ]
               })(
-                <div className={styles.address}>
-                  <div className={styles.registryAddress}>
-                    {warehouseList.length > 0 ? (
-                      <Select defaultValue="DockerHub" onChange={this.onChangeRegistry}>
-                        <Option value='DockerHub'>
-                            公开仓库
-                        </Option>
-                        {warehouseList.map(item => {
-                          return (
-                              <Option value={item.secret_id}>
-                                <Tooltip placement="right" title={item.domain}>
-                                  <div style={{ width: '100%' }}>
-                                  {item.secret_id}
-                                  </div>
-                                </Tooltip>
-                              </Option>
-                          )
-                        })}
-                      </Select>
-                      ) : (
-                        <div className={styles.registry}>
-                          公开仓库
-                        </div>
-                      )
-                    }
-                  </div>
-                  <div className={styles.imageName}>
-                    <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
-                  </div>
-                </div>
+                <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
                 )}
             </Form.Item>
           }

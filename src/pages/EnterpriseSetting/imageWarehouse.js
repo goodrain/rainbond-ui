@@ -31,7 +31,6 @@ export default class ImageWarehouse extends PureComponent {
         };
     }
     componentDidMount() {
-        // 示例用法
         this.loadClusters()
         this.getImageHub()
     }
@@ -58,7 +57,8 @@ export default class ImageWarehouse extends PureComponent {
                 secret_id: values.secret_id,
                 domain: values.domain,
                 username: values.username,
-                password: values.password
+                password: values.password,
+                hub_type: values.hub_type
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {
@@ -83,7 +83,8 @@ export default class ImageWarehouse extends PureComponent {
             payload: {
                 secret_id: editData.secret_id,
                 username: data.username,
-                password: data.password
+                password: data.password,
+                hub_type: data.hub_type
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {

@@ -46,6 +46,14 @@ export default [
         name: 'Auto',
         authority: ['admin', 'user'],
       },
+      // 邀请
+      {
+        path: '/invite/:InviteId',
+        component: '../layouts/Invite',
+        name: 'Invite',
+        authority: ['admin', 'user'],
+      },
+      // 企业
       {
         path: '/enterprise/:eid',
         component: '../layouts/EnterpriseLayout',

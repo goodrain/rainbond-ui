@@ -95,6 +95,14 @@ export default class RegisterComponent extends Component {
       time: Date.now()
     });
   };
+  getRedirectParams = () => {
+    const redirect = window.localStorage.getItem('redirect');
+    const redirectUrl = encodeURIComponent(redirect);
+    if (redirect && redirect.includes('invite')) {
+      return '/user/login?redirect=' + redirectUrl;
+    }
+    return '/user/login';
+  }
 
   render() {
     const {
@@ -248,7 +256,7 @@ export default class RegisterComponent extends Component {
           </Button>
 
           {!firstRegist && type === 'register' && (
-            <Link className={styles.login} to="/user/login">
+            <Link className={styles.login} to={this.getRedirectParams()}>
               <FormattedMessage id='login.registerComponent.use' />
             </Link>
           )}
