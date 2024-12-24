@@ -89,25 +89,50 @@ class Index extends PureComponent {
     const match = val.match(regex);
     const msgregex = /(.+)(?=\[)/;
     const message = val.match(msgregex);
+
     if (bool) {
-      return message[1] || '';
+      return message && message[1] ? message[1] : '';
     }
+
     let arr = [];
     if (match && match.length > 1) {
       const arrayStr = match[0];
       arr = JSON.parse(arrayStr);
     }
-    return <>
-              ({message[1]}
-              {arr && arr.length > 0 && arr.map((item,index) =>{
-                if(arr.length > 3){
-                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.showJumpModal(arr)}}>{formatMessage({id:'componentOverview.body.tab.overview.handle.Dependent'})}</span>
-                }else{
-                  return <span style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.serivce_alias)}}>{item.service_cname}</span>
-                }
-              })})
-           </>
-  }
+
+    return (
+      <>
+        ({message && message[1] ? message[1] : ''}
+        {arr &&
+          arr.length > 0 &&
+          arr.map((item, index) => {
+            if (arr.length > 3) {
+              return (
+                <span
+                  style={{ color: '#3296fa', cursor: 'pointer' }}
+                  onClick={() => {
+                    this.showJumpModal(arr);
+                  }}
+                >
+                  {formatMessage({ id: 'componentOverview.body.tab.overview.handle.Dependent' })}
+                </span>
+              );
+            }
+            return (
+              <span
+                style={{ color: '#3296fa', cursor: 'pointer' }}
+                onClick={() => {
+                  this.jumpExpansion(true, item.serivce_alias);
+                }}
+              >
+                {item.service_cname}
+              </span>
+            );
+          })}
+        )
+      </>
+    );
+  };
   showJumpModal = (arr) =>{
     this.setState({
       showModal: true,
