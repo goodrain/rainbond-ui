@@ -123,7 +123,7 @@ class EditAlias extends PureComponent {
                   message: formatMessage({id:'placeholder.portFrom.invalid_format'}) 
                 },
                 {
-                  pattern: /^[A-Z][A-Z0-9]*$/,
+                  pattern: /^[A-Z][A-Z0-9_]*$/,
                   message: formatMessage({id:'applicationMarket.HelmForm.invalid_format'})
                 },
               ]
