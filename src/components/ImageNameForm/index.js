@@ -500,9 +500,9 @@ export default class Index extends PureComponent {
       groupId,
       showSubmitBtn = true,
       showCreateGroup = true,
-      archInfo
+      archInfo,
+      isPublic = true
     } = this.props;
-
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
@@ -583,9 +583,10 @@ export default class Index extends PureComponent {
               initialValue: 'address',
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
-              <Radio.Group onChange={this.handleChangeImageSource}>
-                <Radio value='address'>
-                  {formatMessage({ id: 'teamAdd.create.image.address'})}
+              isPublic ? (
+                <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio value='address'>
+                    {formatMessage({ id: 'teamAdd.create.image.address'})}
                 </Radio>
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
@@ -595,8 +596,15 @@ export default class Index extends PureComponent {
                 </Radio>
                 <Radio value='local'>
                   {formatMessage({ id: 'teamAdd.create.image.local'})}
-                </Radio>
-              </Radio.Group>
+                  </Radio>
+                </Radio.Group>
+              ) : (
+                <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio value='address'>
+                    {formatMessage({ id: 'teamAdd.create.image.private'})}
+                  </Radio>
+                </Radio.Group>
+              )
             )}
           </Form.Item>
           {radioKey === 'address' &&
@@ -614,11 +622,11 @@ export default class Index extends PureComponent {
                   { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: formatMessage({ id: 'mirror.input.rule' }) }
                 ]
               })(
-                <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
+                <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} disabled={!isPublic} />
                 )}
             </Form.Item>
           }
-          {radioKey === 'address' &&
+          {radioKey === 'address' && isPublic &&
             <Form.Item 
               label=''
               wrapperCol={{
@@ -671,7 +679,7 @@ export default class Index extends PureComponent {
                 initialValue: '',
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
               })(
-                <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })} />
+                <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })}/>
               )}
             </Form.Item>
           }

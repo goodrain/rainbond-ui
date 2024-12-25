@@ -89,6 +89,7 @@ const teamAdd = {
   'teamAdd.create.image.docker_cmd':'命令',
   'teamAdd.create.image.upload':'上传',
   'teamAdd.create.image.address':'地址',
+  'teamAdd.create.image.private':'私有',
   'teamAdd.create.image.local':'本地',
   'teamAdd.create.image.change_image':'选择镜像',
   'teamAdd.create.image.upload_helm_chart':'上传 Helm Chart',

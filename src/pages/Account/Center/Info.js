@@ -19,13 +19,6 @@ class Info extends Component {
   constructor(props) {
     super(props);
     const { match, location, enterprise, currentUser } = props;
-    const isOauth = rainbondUtil.OauthEnterpriseEnable(enterprise);
-    const oauth_services =
-      currentUser.oauth_services &&
-      currentUser.oauth_services.length > 0 &&
-      currentUser.oauth_services;
-    // const isOpenOauth = isOauth && oauth_services;
-    const isOpenOauth = true
     const menuMap = {};
     menuMap.personal = (
       <FormattedMessage
@@ -33,14 +26,6 @@ class Info extends Component {
         defaultMessage="Personal"
       />
     );
-    if (isOpenOauth) {
-      menuMap.binding = (
-        <FormattedMessage
-          id="app.settings.menuMap.binding"
-          defaultMessage="Account Binding"
-        />
-      );
-    }
     menuMap.accesstoken = (
       <FormattedMessage
         id="app.settings.menuMap.access-token"
@@ -51,6 +36,12 @@ class Info extends Component {
       <FormattedMessage
         id="app.settings.menuMap.img"
         defaultMessage="Private Image Repository"
+      />
+    );
+    menuMap.binding = (
+      <FormattedMessage
+        id="app.settings.menuMap.binding"
+        defaultMessage="Account Binding"
       />
     );
     const key = location.pathname.replace(`${match.path}/`, '');

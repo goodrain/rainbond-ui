@@ -184,9 +184,9 @@ export default class index extends Component {
     const { dispatch } = this.props;
     this.setState({
       addGroup: false
-    },()=>{
+    }, () => {
       notification.success({
-        message: formatMessage({id:'versionUpdata_6_1.createSuccess'})
+        message: formatMessage({ id: 'versionUpdata_6_1.createSuccess' })
       })
       dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${groupId}`))
     })
@@ -246,11 +246,11 @@ export default class index extends Component {
       addGroup
     } = this.state;
     const { index, currentTeamPermissionsInfo } = this.props;
-    
+
     const dataSource = [];
     const columns = [
       {
-        title: formatMessage({id:'versionUpdata_6_1.appName'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.appName' }),
         dataIndex: 'group_name',
         key: 'group_name',
         render: (text, record) => {
@@ -266,7 +266,7 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.status'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.status' }),
         dataIndex: 'status',
         key: 'status',
         render: (text, record) => {
@@ -274,17 +274,17 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.servicesNum'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.servicesNum' }),
         dataIndex: 'services_num',
         key: 'services_num',
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.memory'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.memory' }),
         dataIndex: 'used_mem',
         key: 'used_mem',
         render: (text, record) => {
           return <span>
-            {text|| 0}
+            {text || 0}
           </span>
         }
       },
@@ -299,7 +299,7 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.disk'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.disk' }),
         dataIndex: 'disk_usage',
         key: 'disk_usage',
         render: (text, record) => {
@@ -309,7 +309,7 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.updateTime'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.updated_at.title' }),
         dataIndex: 'update_time',
         key: 'update_time',
         render: (text, record) => {
@@ -317,16 +317,22 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({id:'versionUpdata_6_1.action'}),
+        title: formatMessage({ id: 'versionUpdata_6_1.action' }),
         key: 'action',
         render: (text, record) => (
           <>
-            <a onClick={()=>{
+            <a onClick={() => {
               this.props.dispatch(
                 routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${record.group_id}`)
               )
-            }}>{formatMessage({id:'versionUpdata_6_1.addComponent'})}</a>
-            <a type="link">{formatMessage({id:'versionUpdata_6_1.manage'})}</a>
+            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}</a>
+            <a
+              onClick={() => {
+                const { dispatch } = this.props;
+                dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}`))
+              }}>
+              {formatMessage({ id: 'versionUpdata_6_1.manage' })}
+            </a>
           </>
 
         ),
@@ -340,37 +346,37 @@ export default class index extends Component {
             <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({id:'versionUpdata_6_1.appNum'})}</div>
+                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.appNum' })}</div>
                   <div className={styles.basicInfoContent}>{index?.overviewInfo?.team_app_num || 0}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({id:'versionUpdata_6_1.serviceNum'})}</div>
+                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.serviceNum' })}</div>
                   <div className={styles.basicInfoContent}>{index?.overviewInfo?.team_service_num || 0}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({id:'versionUpdata_6_1.cpuUsage'})} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
+                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
                   <div className={styles.basicInfoContent}>{this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({id:'versionUpdata_6_1.memoryUsage'})} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
+                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
                   <div className={styles.basicInfoContent}>{this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({id:'versionUpdata_6_1.diskUsage'})}</div>
+                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}</div>
                   <div className={styles.basicInfoContent}>{index?.overviewInfo?.disk_usage || 0}</div>
                 </div>
               </Col>
             </Row>
             <Card
-              title={formatMessage({id:'versionUpdata_6_1.appList'})}
+              title={formatMessage({ id: 'versionUpdata_6_1.appList' })}
               bordered={false}
               className={styles.appListCard}
               extra={
@@ -402,7 +408,7 @@ export default class index extends Component {
                         addGroup: true
                       })
                     }}>
-                    {formatMessage({id:'versionUpdata_6_1.createApp'})}
+                    {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
                   </Button>
                 </>
               }
@@ -412,7 +418,7 @@ export default class index extends Component {
                 columns={columns}
                 pagination={false}
                 rowClassName={this.getRowClassName}
-                rowKey={record=>record.group_id}
+                rowKey={record => record.group_id}
                 loading={appListLoading}
                 pagination={false}
               />

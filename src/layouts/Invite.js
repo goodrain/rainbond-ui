@@ -24,7 +24,7 @@ export default class Invite extends Component {
     dispatch({
       type: 'user/getInviteLink',
       payload: { invite_id: globalUtil.getInviteID() },
-      callback: res => {        
+      callback: res => {
         this.setState({ inviteData: res.bean });
       }
     });
@@ -37,7 +37,7 @@ export default class Invite extends Component {
       payload: { action: 'accept', invite_id: globalUtil.getInviteID() },
       callback: (res) => {
         if (res && res.status_code === 200) {
-          console.log(res,"res");
+          console.log(res, "res");
           notification.success({
             message: '邀请成功',
             description: '即将进入团队主页',
@@ -56,6 +56,8 @@ export default class Invite extends Component {
 
   render() {
     const { inviteData } = this.state;
+
+    const isExpired = inviteData.expired_time && moment().isAfter(moment(inviteData.expired_time));
 
     return (
       <div className={styles.inviteContainer}>
@@ -84,22 +86,54 @@ export default class Invite extends Component {
             </Col>
           </Row>
           <div className={styles.inviteActions}>
-            {(!inviteData.is_member && !inviteData.is_accepted) ? (
-              <Button 
-                type="primary" 
+            {isExpired ? (
+              <>
+                <Button
+                  type="primary"
+                  disabled
+                >
+                  邀请链接已过期
+                </Button>
+                <Button
+                  type="default"
+                  onClick={this.handleGoHome}
+                  style={{ marginLeft: 16 }}
+                >
+                  返回首页
+                </Button>
+              </>
+            ) : inviteData.is_accepted ? (
+              <>
+                <Button
+                  type="primary"
+                  disabled
+                >
+                  邀请链接已使用
+                </Button>
+                <Button
+                  type="default"
+                  onClick={this.handleGoHome}
+                  style={{ marginLeft: 16 }}
+                >
+                  返回首页
+                </Button>
+              </>
+            ) : (!inviteData.is_member) ? (
+              <Button
+                type="primary"
                 onClick={this.handleAcceptInvite}
               >
                 接受邀请
               </Button>
             ) : (
               <>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   disabled
                 >
-                  {inviteData.is_member ? '已是团队成员' : '已接受邀请'}
+                  已是团队成员
                 </Button>
-                <Button 
+                <Button
                   type="default"
                   onClick={this.handleGoHome}
                   style={{ marginLeft: 16 }}

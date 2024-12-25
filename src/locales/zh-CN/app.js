@@ -54,7 +54,7 @@ const appOverview = {
   'appOverview.list.BatchDelete.ConfirmDelete': '确定批量删除',
 
   'appOverview.no_limit': '不限制',
-  'appOverview.serviceNum': '服务数量',
+  'appOverview.serviceNum': '组件数量',
   'appOverview.principal.username': '账号:',
   'appOverview.principal.principal': '姓名:',
   'appOverview.principal.email': '邮箱:',

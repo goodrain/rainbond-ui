@@ -1086,7 +1086,10 @@ export async function queryOauthInfo(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/oauth/oauth-services`,
     {
-      method: 'get'
+      method: 'get',
+      params: {
+        system: true
+      }
     }
   );
 }
