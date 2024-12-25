@@ -120,7 +120,7 @@ export default class Index extends PureComponent {
             hideRequiredMark
           >
             <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
-              {getFieldDecorator('group_name', {
+              {getFieldDecorator('group_id', {
                 initialValue: data.group_name || Number(group_id) || '',
                 rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
               })(

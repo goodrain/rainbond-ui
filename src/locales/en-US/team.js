@@ -91,6 +91,7 @@ const teamAdd = {
   'teamAdd.create.image.docker_cmd':'Command',
   'teamAdd.create.image.upload':'Upload',
   'teamAdd.create.image.address':'Address',
+  'teamAdd.create.image.private':'Private',
   'teamAdd.create.image.local':'Local',
   'teamAdd.create.image.change_image':'Change image',
   'teamAdd.create.image.upload_helm_chart':'Upload Helm Chart',

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Spin, Button, Table, Input, Select, Pagination, Tooltip } from 'antd';
+import { Card, Spin, Button, Table, Input, Select, Pagination, Tooltip, Empty } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import ImageNameForm from '../../pages/Create/image-name';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -317,7 +317,7 @@ export default class ImgRepository extends Component {
         render: (created_at) => new Date(created_at).toLocaleString()
       },
       {
-        title: formatMessage({ id: 'versionUpdata_6_1.updated_at' }),
+        title: formatMessage({ id: 'versionUpdata_6_1.updated_at.title' }),
         dataIndex: 'updated_at',
         key: 'updated_at',
         render: (updated_at) => new Date(updated_at).toLocaleString()
@@ -383,56 +383,64 @@ export default class ImgRepository extends Component {
                 </div>
               ) : (
                 <>
-                  <div className={styles.imageList}>
-                    {imageList.map(item => (
-                      <div
-                        key={item.name}
-                        className={styles.imageItem}
-                        onClick={() => this.handleImageClick(item)}
-                      >
-                        <div className={styles.imageCount}>
-                          <Tooltip placement="top" title={formatMessage({ id: 'versionUpdata_6_1.imageCount' }, { count: item.pull_count })}>
-                            {item.pull_count < 100 ? item.pull_count : '99+'}
-                          </Tooltip>
-                        </div>
-                        <div className={styles.imageIcon} >
-                          {globalUtil.fetchSvg('dockerIcon')}
-                        </div>
-                        <div className={styles.imageContent}>
-                          <div className={styles.imageTitle}>{item.name}</div>
-                          <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>
-                        </div>
-                        <span className={styles.imageDate}>
-                          {formatMessage({ id: 'versionUpdata_6_1.updateTime' })} {new Date(item.updated_at).toLocaleDateString()}
-                        </span>
-                        <span className={styles.imageDate}>
-                          {formatMessage({ id: 'versionUpdata_6_1.createdTime' })} {new Date(item.created_at).toLocaleDateString()}
-                        </span>
-                        <div className={styles.imageDetail}>
-                          <Button type="link" onClick={() => this.handleImageClick(item)}>
-                            {formatMessage({ id: 'versionUpdata_6_1.imageDetail' })}
-                          </Button>
-                        </div>
+                  {imageList.length > 0 ? (
+                    <>
+                      <div className={styles.imageList}>
+                        {imageList.map(item => (
+                          <div
+                            key={item.name}
+                            className={styles.imageItem}
+                            onClick={() => this.handleImageClick(item)}
+                          >
+                            <div className={styles.imageCount}>
+                              <Tooltip placement="top" title={formatMessage({ id: 'versionUpdata_6_1.imageCount' }, { count: item.pull_count })}>
+                                {item.pull_count < 100 ? item.pull_count : '99+'}
+                              </Tooltip>
+                            </div>
+                            <div className={styles.imageIcon} >
+                              {globalUtil.fetchSvg('dockerIcon')}
+                            </div>
+                            <div className={styles.imageContent}>
+                              <div className={styles.imageTitle}>{item.name}</div>
+                              <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>
+                            </div>
+                            <span className={styles.imageDate}>
+                              {formatMessage({ id: 'versionUpdata_6_1.updateTime' })} {new Date(item.updated_at).toLocaleDateString()}
+                            </span>
+                            <span className={styles.imageDate}>
+                              {formatMessage({ id: 'versionUpdata_6_1.createdTime' })} {new Date(item.created_at).toLocaleDateString()}
+                            </span>
+                            <div className={styles.imageDetail}>
+                              <Button type="link" onClick={() => this.handleImageClick(item)}>
+                                {formatMessage({ id: 'versionUpdata_6_1.imageDetail' })}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div className={styles.pagination}>
-                    <Pagination
-                      current={imagePagination.current}
-                      pageSize={imagePagination.pageSize}
-                      total={imagePagination.total}
-                      onChange={this.handleImageListChange}
-                      showTotal={total => formatMessage({ id: 'versionUpdata_6_1.imageTotal' }, { total })}
-                      showSizeChanger
-                      pageSizeOptions={['10', '20', '50', '100']}
-                    />
-                  </div>
+                      <div className={styles.pagination}>
+                        <Pagination
+                          current={imagePagination.current}
+                          pageSize={imagePagination.pageSize}
+                          total={imagePagination.total}
+                          onChange={this.handleImageListChange}
+                          showTotal={total => formatMessage({ id: 'versionUpdata_6_1.imageTotal' }, { total })}
+                          showSizeChanger
+                          pageSizeOptions={['10', '20', '50', '100']}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <Empty />
+                    </div>
+                  )}
                 </>
               )}
             </div>
           ) : (
             showInstall ? (
-              <ImageNameForm />
+              <ImageNameForm isPublic={false} />
             ) : (
               <div>
                 <div className={styles.rbd_title_container}>

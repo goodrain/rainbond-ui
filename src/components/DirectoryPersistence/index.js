@@ -21,6 +21,7 @@ import download from '@/utils/download';
 import apiconfig from '../../../config/api.config';
 import SVG from './svg';
 import styles from './index.less';
+import cookie from '@/utils/cookie';
 
 const { TreeNode, DirectoryTree } = Tree;
 @connect(
@@ -49,7 +50,8 @@ class Index extends Component {
             userName: '',
             showDataLoading: false,
             nameSpace: '',
-            containerName: ''
+            containerName: '',
+            uploading: false
         }
     }
     componentDidMount() {
@@ -518,6 +520,93 @@ class Index extends Component {
         const showDataArr = [...folder, ...valuesArray]
         return showDataArr
     }
+    uploadFolder = async (e) => {
+        e.preventDefault();
+        const { downOrUploadPath, selectDefaultValue, containerName, nameSpace, userName, hostPath, path } = this.state;
+        const upLoadPath = path ? `${hostPath}/${path}` : hostPath;
+        const uploadString = upLoadPath.replace(/\/+$/, "");
+        
+        try {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.directory = true;
+            
+            input.onchange = async () => {
+                const files = Array.from(input.files);
+                if (!files.length) return;
+
+                const formData = new FormData();
+                const arr = []
+                files.forEach(file => {
+                    const relativePath = file.webkitRelativePath;
+                    arr.push(file)
+                    // formData.append('files', file, relativePath);
+                });                
+                formData.append('files', [...arr])
+                formData.append('path', uploadString);
+                formData.append('container_name', containerName);
+                formData.append('pod_name', selectDefaultValue);
+                formData.append('namespace', nameSpace);
+                formData.append('user_name', userName);
+                formData.append('tenant_id', this.props.appDetail?.service?.tenant_id);
+                formData.append('service_id', this.props.appDetail?.service?.service_id);
+                formData.append('volume_name', this.props.volumeName);
+
+                this.setState({ uploading: true });
+
+                try {
+                    // 添加请求头和错误处理
+                    const response = await fetch(`${downOrUploadPath}/v2/file-operate/upload`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            // 不要设置 Content-Type，让浏览器自动设置
+                            'Accept': 'application/json',
+                            // 如果需要认证，添加 token
+                            'Authorization': `GRJWT ${cookie.get('token')}`, // 如果你使用 token 认证
+                        },
+                        // 添加凭证
+                        credentials: 'include',
+                        // 设置超时
+                        timeout: 300000, // 5分钟超时
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.message || '上传失败');
+                    }
+
+                    notification.success({ message: formatMessage({ id: 'notification.success.upload' }) });
+                    
+                    const { selectedKeys } = this.state;
+                    if (selectedKeys[0] == undefined) {
+                        this.getListFiles();
+                    } else {
+                        this.updateTree();
+                    }
+
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    notification.error({ 
+                        message: formatMessage({ id: 'notification.error.update' }),
+                        description: error.message || '网络请求失败，请检查网络连接'
+                    });
+                }
+            };
+
+            input.click();
+
+        } catch (error) {
+            console.error('General error:', error);
+            notification.error({ 
+                message: formatMessage({ id: 'notification.error.update' }),
+                description: error.message || '操作失败'
+            });
+        } finally {
+            this.setState({ uploading: false });
+        }
+    };
     render() {
         const {
             selectedKeys,
@@ -535,7 +624,8 @@ class Index extends Component {
             userName,
             showDataLoading,
             containerName,
-            nameSpace
+            nameSpace,
+            uploading
         } = this.state
         const { volumeName } = this.props
         const upLoadPath = this.state.path ? `${this.state.hostPath}/${this.state.path}` : `${this.state.hostPath}`;
@@ -580,16 +670,14 @@ class Index extends Component {
                     closable={false}
                     footer={
                         <>
-                            <Upload
-                                {...props}
-                                showUploadList={false}
-                                multiple
-                                onChange={this.uploadChange}
+                            <Button 
+                                type="primary" 
+                                onClick={this.uploadFolder}
+                                loading={this.state.uploading}
+                                style={{ marginRight: 10 }}
                             >
-                                <Button type="primary" style={{ marginRight: 10 }}>
-                                    <Icon type="upload" /> {formatMessage({ id: 'applicationMarket.Offline.upload' })}
-                                </Button>
-                            </Upload>
+                                <Icon type="upload" /> 上传文件夹
+                            </Button>
                             <Button type="primary" onClick={this.fileDownload}>
                                 <Icon type="download" />
                                 {formatMessage({ id: 'button.download' })}

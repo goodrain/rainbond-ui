@@ -254,6 +254,7 @@ class CreateOAuthForm extends PureComponent {
               <Input
                 placeholder={formatMessage({ id: 'placeholder.oauth.redirect_domains' })}
                 addonAfter="/console/oauth/redirect"
+                disabled={type == 'private'}
               />
             )}
 

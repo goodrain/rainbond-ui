@@ -170,7 +170,7 @@ class Index extends React.Component {
             res.bean.check_status != 'Success' &&
             res.bean.check_status != 'Failure'
           ) {
-            this.timer = setTimeout(function() {
+            this.timer = setTimeout(function () {
               _th.handleDetectionCode();
             }, 3000);
           } else {
@@ -258,20 +258,20 @@ class Index extends React.Component {
             footer={
               !create_status
                 ? [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      loading={create_loading}
-                      onClick={this.handleTestCode}
-                    >
-                      检测
-                    </Button>
-                  ]
+                  <Button key="back" onClick={this.handleDetection}>
+                    关闭
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={create_loading}
+                    onClick={this.handleTestCode}
+                  >
+                    检测
+                  </Button>
+                ]
                 : create_status == 'Success'
-                ? [
+                  ? [
                     <Button key="back" onClick={this.handleDetection}>
                       关闭
                     </Button>,
@@ -283,7 +283,7 @@ class Index extends React.Component {
                       确认
                     </Button>
                   ]
-                : [
+                  : [
                     <Button key="back" onClick={this.handleDetection}>
                       关闭
                     </Button>
@@ -351,7 +351,7 @@ class Index extends React.Component {
                   </div>
                   {serviceInfos && (
                     <Table
-                      rowKey={(record,index) => index}
+                      rowKey={(record, index) => index}
                       title={() =>
                         service_info.length > 1 && (
                           <div
@@ -517,27 +517,21 @@ class Index extends React.Component {
             )}
           />
         ) : (
-          <Card bordered={false} style={{ padding: '24px 32px' }}>
-            <Icon
-              style={{ fontSize: '16px', marginRight: '8px' }}
-              type="arrow-left"
-              onClick={this.handleCancel}
+          <Card bordered={false}  className={styles.listCard}
+            extra={
+              <Button
+                onClick={this.handleCancel}
+              >
+                回到列表
+              </Button>
+            }
+          >
+            <ThirForm
+              onSubmit={this.props.handleSubmit}
+              {...this.props}
+              ServiceComponent={ServiceComponent}
+              thirdInfo={thirdInfo}
             />
-            回到列表
-            <div
-              className={styles.formWrap}
-              style={{
-                marginTop: ServiceComponent ? '25px' : '0',
-                width: ServiceComponent ? 'auto' : '500px'
-              }}
-            >
-              <ThirForm
-                onSubmit={this.props.handleSubmit}
-                {...this.props}
-                ServiceComponent={ServiceComponent}
-                thirdInfo={thirdInfo}
-              />
-            </div>
           </Card>
         )}
       </div>

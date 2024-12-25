@@ -93,7 +93,7 @@ class TeamMemberTable extends PureComponent {
                   {formatMessage({id: 'teamManage.tabs.member.table.editRole'})}
                 </Button>
               )}
-              {teamUtil.canChangeOwner(team) && (
+              {/* {teamUtil.canChangeOwner(team) && (
                 <Button
                   type="link"
                   size='small'
@@ -108,7 +108,7 @@ class TeamMemberTable extends PureComponent {
                   
                   {formatMessage({id: 'teamManage.tabs.member.table.turnOver'})}
                 </Button>
-              )}
+              )} */}
               {isDelete && (
                 <Button
                   type="link"

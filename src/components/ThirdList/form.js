@@ -21,6 +21,7 @@ import React, { Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 
 const { Option, OptGroup } = Select;
@@ -28,10 +29,10 @@ const { TabPane } = Tabs;
 
 const formItemLayout = {
   labelCol: {
-    span: 7
+    span: 8
   },
   wrapperCol: {
-    span: 17
+    span: 7
   }
 };
 
@@ -139,6 +140,24 @@ class Index extends React.Component {
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
@@ -242,7 +261,7 @@ class Index extends React.Component {
               label={formatMessage({ id: 'versionUpdata_6_1.serviceName.k8sComponentName' })}
             >
               {getFieldDecorator('k8s_component_name', {
-                initialValue: '',
+                initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
                 rules: [{ required: true, validator: this.handleValiateNameSpace }]
               })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.serviceName.k8sComponentName.placeholder' })} />)}
             </Form.Item>
@@ -297,7 +316,7 @@ class Index extends React.Component {
               value={checkedList}
             >
               <Row>
-                <Col span={24} style={{ textAlign: 'right' }}>
+                <Col span={15} style={{ textAlign: 'right' }}>
                   <Checkbox value="subdirectories">{formatMessage({ id: 'versionUpdata_6_1.subdirectories' })}</Checkbox>
                 </Col>
               </Row>
@@ -314,8 +333,7 @@ class Index extends React.Component {
               </Form.Item>
             )}
             <Form.Item
-
-              {...formItemLayoutOrder}
+              {...formItemLayout}
               label={formatMessage({ id: 'versionUpdata_6_1.openWebhook' })}
             >
               {getFieldDecorator('open_webhook', {
@@ -324,7 +342,7 @@ class Index extends React.Component {
               })(<Switch />)}
             </Form.Item>
             {archLegnth == 2 &&
-              <Form.Item {...formItemLayoutOrder} label={formatMessage({ id: 'versionUpdata_6_1.arch' })}>
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'versionUpdata_6_1.arch' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
                   rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
