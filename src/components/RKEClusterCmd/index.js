@@ -31,7 +31,7 @@ const { TextArea } = Input;
 const CheckboxGroup = Checkbox.Group;
 
 const plainOptions = ['ETCD', 'Control-plane', 'Worker'];
-const defaultCheckedList = ['ETCD', 'Control-plane','Worker'];
+const defaultCheckedList = ['ETCD', 'Control-plane', 'Worker'];
 
 @Form.create()
 @connect()
@@ -123,21 +123,28 @@ export default class EnterpriseClusters extends PureComponent {
       <>
         <Modal
           width={1024}
-          title={formatMessage({id:'enterpriseColony.newHostInstall.node.addnode'})}
+          title={formatMessage({ id: 'enterpriseColony.newHostInstall.node.addnode' })}
           visible
-          footer={<Button onClick={this.handleCancel}>{formatMessage({id:'enterpriseColony.newHostInstall.node.Cancel'})}</Button>}
+          footer={<Button onClick={this.handleCancel}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.Cancel' })}</Button>}
           onCancel={this.handleCancel}
           style={{ position: "relative" }}
         >
+          <Alert
+            message={formatMessage({ id: 'enterpriseColony.newHostInstall.node.lookOut' })}
+            description={formatMessage({ id: 'enterpriseColony.newHostInstall.node.msgs' })}
+            type="warning"
+            showIcon
+            style={{ marginBottom: 24 }}
+          />
           <div className={styles.moreConfig}>
-              <Button type="link" onClick={this.ipInputShowFun}>{!ipInputShow ? formatMessage({id:'enterpriseColony.newHostInstall.node.advanced'}):formatMessage({id:'enterpriseColony.newHostInstall.node.Cancel'})}</Button>
+            <Button type="link" onClick={this.ipInputShowFun}>{!ipInputShow ? formatMessage({ id: 'enterpriseColony.newHostInstall.node.advanced' }) : formatMessage({ id: 'enterpriseColony.newHostInstall.node.Cancel' })}</Button>
           </div>
           <div className={styles.hostInfo}>
-            <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.nodeRole'})}</h1>
-            <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.select'})}</p>
+            <h1>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.nodeRole' })}</h1>
+            <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.select' })}</p>
             <CheckboxGroup
               options={plainOptions.map(option => ({
-                label: formatMessage({id: `enterpriseColony.newHostInstall.node.select.${option}`}),
+                label: formatMessage({ id: `enterpriseColony.newHostInstall.node.select.${option}` }),
                 value: option
               }))}
               value={this.state.checkedList}
@@ -148,11 +155,11 @@ export default class EnterpriseClusters extends PureComponent {
           {ipInputShow &&
             <>
               <div className={styles.hostInfo}>
-                <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.advancedopt'})}</h1>
-                <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.ipMsg'})}</p>
+                <h1>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.advancedopt' })}</h1>
+                <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.ipMsg' })}</p>
                 <Input
-                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.externalIP'})}
-                  style={{ marginBottom: 12, width: 350,height:40 }}
+                  placeholder={formatMessage({ id: 'enterpriseColony.newHostInstall.node.externalIP' })}
+                  style={{ marginBottom: 12, width: 350, height: 40 }}
                   value={externalIP}
                   onChange={(e) => {
                     this.setState({
@@ -162,8 +169,8 @@ export default class EnterpriseClusters extends PureComponent {
                     })
                   }} />
                 <Input
-                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.internalIP'})}
-                  style={{ marginBottom: 12, width: 350,height:40,marginLeft:24 }}
+                  placeholder={formatMessage({ id: 'enterpriseColony.newHostInstall.node.internalIP' })}
+                  style={{ marginBottom: 12, width: 350, height: 40, marginLeft: 24 }}
                   value={internalIP}
                   onChange={(e) => {
                     this.setState({
@@ -174,10 +181,10 @@ export default class EnterpriseClusters extends PureComponent {
                   }} />
               </div>
               <div className={styles.hostInfo}>
-                <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.inputConsole'})}</p>
+                <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.inputConsole' })}</p>
                 <Input
-                  placeholder={formatMessage({id:'enterpriseColony.newHostInstall.node.consoleAdd'})}
-                  style={{ marginBottom: 12, width: 350,height:40 }}
+                  placeholder={formatMessage({ id: 'enterpriseColony.newHostInstall.node.consoleAdd' })}
+                  style={{ marginBottom: 12, width: 350, height: 40 }}
                   value={Localhost}
                   onChange={(e) => {
                     this.setState({
@@ -192,8 +199,8 @@ export default class EnterpriseClusters extends PureComponent {
           }
 
           <div className={styles.hostInfo}>
-            <h1>{formatMessage({id:'enterpriseColony.newHostInstall.node.cmd'})}</h1>
-            <p>{formatMessage({id:'enterpriseColony.newHostInstall.node.Linux'})}</p>
+            <h1>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.cmd' })}</h1>
+            <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.Linux' })}</p>
             <div className={styles.copyBox}>
               <CopyToClipboard
                 text={copyText}

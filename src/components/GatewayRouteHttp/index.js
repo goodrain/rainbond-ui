@@ -32,7 +32,8 @@ export default class index extends Component {
             type: 'add',
             tableLoading: true,
             pageSize: 10,
-            page: 1 
+            page: 1, 
+            searchKey: '', // 添加搜索关键词状态
         };
     }
     componentDidMount() {
@@ -42,14 +43,15 @@ export default class index extends Component {
     getTableData = () => {
         this.setState({ tableLoading: true })
         const { dispatch, nameSpace, appID, type } = this.props
+        const { searchKey } = this.state;
         const teamName = globalUtil.getCurrTeamName()
         dispatch({
             type: 'gateWay/getApiGatewayList',
             payload: {
                 teamName: teamName,
                 appID: appID || '',
-                type: type
-
+                type: type,
+                query: searchKey || ''
             },
             callback: res => {
                 if (res && res.list) {
@@ -166,6 +168,14 @@ export default class index extends Component {
             pageSize: page_size
         })
     }
+
+    handleSearch = (value) => {
+        this.setState({
+            searchKey: value
+        }, () => {
+            this.getTableData();
+        })
+    }
     render() {
         const {
             routeDrawer,
@@ -196,9 +206,9 @@ export default class index extends Component {
                             record.match.hosts.map((item, index) => {
                                 return (
                                     <Row style={{ marginBottom: 4 }} key={index}>
-                                            <a href={`http://${item}`} target="_blank">
-                                                {item}
-                                            </a>
+                                        <a href={`http://${item}`} target="_blank">
+                                            {item}
+                                        </a>
                                     </Row>
                                 )
                             })
@@ -228,38 +238,15 @@ export default class index extends Component {
                 ),
             },
             {
-                title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.service' }),
+                title: formatMessage({ id: 'teamAdd.create.form.service_cname' }),
                 dataIndex: 'serviceName',
                 key: 'serviceName',
                 render: (text, record) => (
-                    <div>
-                        {record.backends && record.backends.length > 0 && record.backends.map((item, index) => {
-                            return (
-                                <Row style={{ marginBottom: 4 }} key={index}>
-                                    <Tag key={index} color="blue" onClick={() => this.componentsRouter(record.name)} style={{ cursor: 'pointer' }}>
-                                        {item.serviceName}:{item.servicePort}
-                                    </Tag>
-                                </Row>
-                            )
-                        })}
-                        {record.upstreams && record.upstreams.length > 0 && record.upstreams.map((item, index) => {
-                            return (
-                                <Row style={{ marginBottom: 4 }} key={index}>
-                                    <Tag key={index}>
-                                        {item.name}
-                                    </Tag>
-                                </Row>
-                            )
-                        }
-                        )}
-                    </div>
-                ),
+                    <a onClick={() => this.componentsRouter(record.name)} style={{ cursor: 'pointer' }}>
+                        {record.component_name || '-'}
+                    </a>
+                )
             },
-            // {
-            //     title:  formatMessage({id:'teamNewGateway.NewGateway.GatewayRoute.senior'}),
-            //     dataIndex: 'advanced',
-            //     key: 'advanced',
-            // },
             {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.handle' }),
                 dataIndex: 'address',
@@ -310,6 +297,19 @@ export default class index extends Component {
                     }
                     bodyStyle={{ padding: '0' }}
                 >
+                    {/* 添加搜索框 */}
+                    <div style={{ padding: '12px' }}>
+                        <Row>
+                            <Col span={8}>
+                                <Input.Search
+                                    placeholder="支持域名/组件名称搜索"
+                                    onSearch={this.handleSearch}
+                                    style={{ width: '100%' }}
+                                    allowClear
+                                />
+                            </Col>
+                        </Row>
+                    </div>
                     <Table
                         dataSource={dataSource}
                         columns={columns}

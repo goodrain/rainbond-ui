@@ -327,7 +327,7 @@
 
         //应用治理模式切换
         'confirmModal.app.govern.title':'Apply governance mode switch',
-        'confirmModal.app.govern.alert.msg':'Application governance mode mainly refers to the governance of inter-component communication mode, which supports built-in ServiceMesh mode and Kubernetes native Service mode by default',
+        'confirmModal.app.govern.alert.msg':'Application governance mode mainly refers to the governance of the communication mode between components, and supports Kubernetes native Service mode by default.',
         'confirmModal.app.govern.label.name_port':'Component Name/port',
         'confirmModal.app.govern.label.alias':'Alias',
         'confirmModal.app.govern.label.DNS':'Within domain',

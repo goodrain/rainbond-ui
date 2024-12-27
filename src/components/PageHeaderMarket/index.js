@@ -185,7 +185,6 @@ export default class PageHeader extends PureComponent {
     if (tabActiveKey !== undefined) {
       activeKeyProps.activeKey = tabActiveKey;
     }
-    console.log(extraContent,"extraContent");
     return (
       <>
         <div className={clsString}>

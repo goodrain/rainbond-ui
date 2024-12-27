@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import VisterBtn from '../../../components/visitBtnForAlllink';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
 import { routerRedux } from 'dva/router';
+import cookie from '../../../utils/cookie'
 import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
@@ -43,6 +45,7 @@ export default class index extends Component {
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: true,
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentDidMount() {
@@ -244,75 +247,83 @@ export default class index extends Component {
   };
   // 添加卡片视图渲染函数
   renderCardView = () => {
-    const { teamHotAppList, appListLoading } = this.state;
+    const { teamHotAppList, appListLoading, language } = this.state;
+    const { dispatch } = this.props;
+    const addComponentSvg = (
+      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="18" height="18"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
+    )
+    const visterSvg = (
+      <svg t="1735296596548" style={{ marginRight: '2px' }} class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
+    )
     return (
-      <Spin spinning={appListLoading} style={{ paddingTop: 60 }}>
-        <Row className={styles.cardRow}>
-          {teamHotAppList.map(app => {
+      <Spin spinning={appListLoading}>
+        <div className={styles.teamHotAppList} style={{ height: teamHotAppList.length < 8 ? '300px' : '' }}>
+          {teamHotAppList.map((item, index) => {
             // 添加操作菜单
             const appOverviewPermission = newRole.queryPermissionsInfo(
               this.props.currentTeamPermissionsInfo?.team,
               'app_overview',
-              `app_${app.group_id}`
+              `app_${item.group_id}`
             );
             const isAppCreate = appOverviewPermission?.isCreate;
             return (
-              <Col span={5} key={app.group_id}>
-                <div className={`${styles.customCard} ${this.getRowClassName(app)}`}
+              <div key={item.group_id} style={{ marginLeft: (index % 4) ? '1.2%' : '0px' }}>
+                <div
+                  className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
                   onClick={() => {
-                    const { dispatch } = this.props;
                     dispatch(routerRedux.push(
-                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${app.group_id}`
+                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`
                     ));
                   }}
                 >
-                  <div className={styles.cardHeader}>
-                    <span className={styles.appName}>{app.group_name}</span>
-                    <Tag color={globalUtil.appStatusColor(app.status)}>
-                      {globalUtil.appStatusText(app.status)}
-                    </Tag>
-                  </div>
-                  <div className={styles.cardContent}>
-                    <div className={styles.infoItem}>
-                      <span className={styles.label}>组件数量:</span>
-                      <span className={styles.value}>{app.services_num} 个</span>
+                  <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
+                  <div className={styles.appItemDetail}>
+                    <Tooltip placement="topLeft" title={item.group_name}>
+                      <div className={styles.appTitle}>{item.group_name}</div>
+                    </Tooltip>
+                    <div className={styles.value}>
+                      <div className={styles.statusText} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                        {globalUtil.appStatusText(item.status)}
+                      </div>
+                      <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
                     </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.label}>内存使用:</span>
-                      <span className={styles.value}>{app.used_mem || 0} MB</span>
+                    <div className={styles.updateTime}>
+                      {item.update_time &&
+                        moment(item.update_time).fromNow()}
+                      <FormattedMessage id="teamOverview.update" />
                     </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.label}>CPU使用:</span>
-                      <span className={styles.value}>{app.used_cpu || 0} Core</span>
+                    <div className={styles.btn}>
+                      {isAppCreate && (
+                        <div className={styles.actionButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            this.props.dispatch(
+                              routerRedux.push(
+                                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${item.group_id}`
+                              )
+                            );
+                          }}>
+                          {addComponentSvg} 组件
+                        </div>
+                      )}
+                      {item.status === 'RUNNING' && (
+                        <div className={styles.visterBtn}>
+                          {visterSvg}
+                          {item.accesses.length > 0 && (
+                            <VisterBtn
+                              linkList={item.accesses}
+                              type="link"
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.label}>更新时间:</span>
-                      <span className={styles.value}>{moment(app.update_time).fromNow()}</span>
-                    </div>
-                  </div>
-                  <div className={styles.cardFooter}>
-                    {isAppCreate && (
-                      <Button className={styles.actionButton}
-                        icon='plus'
-                        type='link'
-                        size='small'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          this.props.dispatch(
-                            routerRedux.push(
-                              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${app.group_id}`
-                            )
-                          );
-                        }}>
-                        添加组件
-                      </Button>
-                    )}
                   </div>
                 </div>
-              </Col>
+              </div>
             );
           })}
-        </Row>
+        </div>
       </Spin>
     );
   };
@@ -435,7 +446,7 @@ export default class index extends Component {
 
     return (
       <>
-        {(index?.overviewInfo?.region_health || loadingOverview) &&
+        {(index?.overviewInfo?.region_health || loadingOverview) && (
           <>
             <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
               <Col span={4}>
@@ -472,27 +483,38 @@ export default class index extends Component {
               </Col>
             </Row>
             <Card
-              title={formatMessage({ id: 'versionUpdata_6_1.appList' })}
+              title={
+                <div>
+                  {formatMessage({ id: 'versionUpdata_6_1.appList' })}
+                  <Radio.Group
+                    style={{ marginLeft: '14px' }}
+                    value={isTableView ? 'table' : 'card'}
+                    onChange={(e) => this.handleViewChange(e.target.value === 'table')}
+                  >
+                    <Radio.Button value="card">
+                      <Tooltip title="卡片">
+                        <Icon type="appstore" />
+                      </Tooltip>
+                    </Radio.Button>
+                    <Radio.Button value="table">
+                      <Tooltip title="表格">
+                        <Icon type="table" />
+                      </Tooltip>
+                    </Radio.Button>
+                  </Radio.Group>
+                </div>}
               bordered={false}
               className={styles.appListCard}
               extra={
                 <>
-                  <span>排列方式：</span>
-                  <Select
-                    style={{ width: '80px', marginRight: 10 }}
-                    value={isTableView}
-                    onChange={this.handleViewChange}
-                  >
-                    <Option value={true}>表格</Option>
-                    <Option value={false}>卡片</Option>
-                  </Select>
+
                   <Search
                     placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
                     onSearch={this.onSearch}
                     value={query}
                     allowClear
                     onChange={(e) => {
-                      this.setState({ query: e.target.value })
+                      this.setState({ query: e.target.value });
                     }}
                     style={{ width: 300, marginRight: 10 }}
                   />
@@ -502,35 +524,40 @@ export default class index extends Component {
                     defaultValue={1}
                     onChange={this.handleSortChange}
                   >
-                    <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
-                    <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
+                    <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
+                      <FormattedMessage id="teamOverview.runStatusSort" />
+                    </Option>
+                    <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
+                      <FormattedMessage id="teamOverview.updateTimeSort" />
+                    </Option>
                   </Select>
-                  {isAppCreate && <Button
-                    type="primary"
-                    onClick={() => {
-                      this.setState({
-                        addGroup: true
-                      })
-                    }}>
-                    {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                  </Button>}
+                  {isAppCreate && (
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        this.setState({
+                          addGroup: true,
+                        });
+                      }}
+                    >
+                      {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
+                    </Button>
+                  )}
                 </>
               }
             >
               {isAppList ? (
                 <>
                   {isTableView ? (
-                    <>
-                      <Table
-                        dataSource={teamHotAppList}
-                        columns={columns}
-                        pagination={false}
-                        rowClassName={this.getRowClassName}
-                        rowKey={record => record.group_id}
-                        loading={appListLoading}
-                        pagination={false}
-                      />
-                    </>
+                    <Table
+                      dataSource={teamHotAppList}
+                      columns={columns}
+                      pagination={false}
+                      rowClassName={this.getRowClassName}
+                      rowKey={(record) => record.group_id}
+                      loading={appListLoading}
+                      pagination={false}
+                    />
                   ) : (
                     this.renderCardView()
                   )}
@@ -555,36 +582,23 @@ export default class index extends Component {
               )}
             </Card>
           </>
-        }
-        {loadedOverview &&
-          index?.overviewInfo &&
-          !index?.overviewInfo?.region_health && (
-            <div>
-              <Result
-                type="warning"
-                title={formatMessage({ id: 'teamOverview.result.title' })}
-                description={formatMessage({ id: 'teamOverview.result.description' })}
-                actions={[
-                  <Button
-                    loading={loadingOverview}
-                    onClick={this.loadOverview}
-                    type="primary"
-                    key="console"
-                  >
-                    <FormattedMessage id="teamOverview.loadOverview" />
-                  </Button>
-                ]}
-              />
-            </div>
-          )}
-        {addGroup &&
-          <AddGroup
-            onCancel={this.cancelAddApp}
-            onOk={this.handleAddGroup}
-          />
-        }
+        )}
+        {loadedOverview && index?.overviewInfo && !index?.overviewInfo?.region_health && (
+          <div>
+            <Result
+              type="warning"
+              title={formatMessage({ id: 'teamOverview.result.title' })}
+              description={formatMessage({ id: 'teamOverview.result.description' })}
+              actions={[
+                <Button loading={loadingOverview} onClick={this.loadOverview} type="primary" key="console">
+                  <FormattedMessage id="teamOverview.loadOverview" />
+                </Button>,
+              ]}
+            />
+          </div>
+        )}
+        {addGroup && <AddGroup onCancel={this.cancelAddApp} onOk={this.handleAddGroup} />}
       </>
-
-    )
+    );
   }
 }

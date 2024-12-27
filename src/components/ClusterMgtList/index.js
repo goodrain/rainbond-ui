@@ -257,7 +257,6 @@ class Index extends Component {
             <span onClick={() => this.editNodeStatus('unschedulable', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.banDispatch'})}</span>,
           ]
           const list = [<span onClick={() => this.editNodeStatus('evict', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.evacuation'})}</span>]
-          const deleteList = [<span onClick={() => this.editNodeStatus('delete', roed.name, roed)}>{formatMessage({id:'enterpriseColony.mgt.cluster.delete_node'})}</span>]
           const arr = []
           if (roed.unschedulable == false) {
             arr.push(...endList)
@@ -265,7 +264,6 @@ class Index extends Component {
             arr.push(...startList)
           }
           arr.push(...list)
-          arr.push(...deleteList)
           const MenuList = (
             <Menu
               onMouseEnter={this.menuMouseEnter}

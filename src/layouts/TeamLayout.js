@@ -724,7 +724,7 @@ class TeamLayout extends PureComponent {
             currentRegion={currentRegion}
             regionName={regionName}
             upDataHeader={upDataHeader}
-            changeTeam={() => { setTimeout(() => { this.fetchGroup() }, 10) }}
+            changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10); this.fetchGroup()}}
           />
         );
       }
@@ -741,7 +741,7 @@ class TeamLayout extends PureComponent {
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
-          changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
+          changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10); this.fetchGroup()}}
         />
       );
     }

@@ -128,7 +128,7 @@ export default class index extends Component {
         });
     }
     // 新增或修改
-    addOrEditApiGateway = (values) => {
+    addOrEditApiGateway = (values, app_id) => {
         const { dispatch, appID, type } = this.props
         const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
@@ -137,7 +137,7 @@ export default class index extends Component {
             payload: {
                 teamName: teamName,
                 values: values,
-                appID: appID || '',
+                appID: app_id || appID || '',
                 region_name: globalUtil.getCurrRegionName(),
             },
             callback: res => {

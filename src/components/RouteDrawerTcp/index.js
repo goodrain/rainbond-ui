@@ -59,11 +59,13 @@ export default class index extends Component {
     }
     handleSubmit = e => {
         const { editInfo } = this.props
+        const { comList } = this.state
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 const data = {}
-                data.protocol= "TCP"
+                const serviceInfo = comList.find(item => item.service_name === this.extractPreviousCharacters(values.service_id));
+                data.protocol = "TCP"
                 data.match = {
                     host: values.host,
                     ingressPort: Number(values.ingressPort)
@@ -72,7 +74,11 @@ export default class index extends Component {
                     serviceName: this.extractPreviousCharacters(values.service_id),
                     servicePort: Number(this.extractAfterColon(values.service_id)),
                 }
-                this.props.onOk(data)
+                if(serviceInfo.app_id){
+                    this.props.onOk(data,serviceInfo.app_id)
+                }else{
+                    this.props.onOk(data)
+                }
             }
         });
     };
@@ -121,20 +127,22 @@ export default class index extends Component {
     }
 
     handleService = (data, type) => {
-        return 
+        return
     }
-    getAccessAddress = () =>{
+    getAccessAddress = () => {
         const { editInfo, form } = this.props;
-        const {getFieldValue} = form
+        const { getFieldValue } = form
         const { comList, outer_url } = this.state;
         const str = getFieldValue('service_id')
-        const port =getFieldValue('ingressPort')
-        const arr = comList.filter(item => `${item.service_name}:${item.port}` == str   )
-        if(str && port){
-            return`访问地址：${outer_url}:${port}` || ''
-        }else{
+        const port = getFieldValue('ingressPort')
+        const bool = Number(port) >= 30000 && Number(port) <= 32000
+        const arr = comList.filter(item => `${item.service_name}:${item.port}` == str)
+        if (str && port && bool) {
+            return `访问地址：${outer_url}:${port}` || ''
+        } else {
             return ''
         }
+
     }
 
     render() {
@@ -181,49 +189,49 @@ export default class index extends Component {
         ];
         return (
             <Drawer
-                title={Object.keys(editInfo).length > 0 ? formatMessage({id:'teamNewGateway.NewGateway.TCP.edit'}) : formatMessage({id:'teamNewGateway.NewGateway.TCP.add'})}
+                title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.TCP.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.TCP.add' })}
                 width={700}
                 onClose={this.onClose}
                 visible={visible}
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
-                <Skeleton Skeleton loading={serviceComponentLoading} active >
-                    <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.TCP.port'})} extra={<span style={{color:'red'}}>{this.getAccessAddress()}</span>}>
-                        {getFieldDecorator('ingressPort', {
-                            rules: [
-                                { required: true, message: formatMessage({id:'teamNewGateway.NewGateway.TCP.inputPort'}) },
-                                { pattern: /^3[0-1][0-9]{3}$|^32000$/, message: '端口范围 30000-32000之间'  }
-                            ],
-                            initialValue: (editInfo && editInfo.nodePort) || ''
-                        })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.inputPort'})} type='number'/>)}
-                    </Form.Item>
+                    <Skeleton Skeleton loading={serviceComponentLoading} active >
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.port' })} extra={<span style={{ color: 'red' }}>{this.getAccessAddress()}</span>}>
+                            {getFieldDecorator('ingressPort', {
+                                rules: [
+                                    { required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' }) },
+                                    { pattern: /^3[0-1][0-9]{3}$|^32000$/, message: '端口范围 30000-32000之间' }
+                                ],
+                                initialValue: (editInfo && editInfo.nodePort) || ''
+                            })(<Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' })} type='number' />)}
+                        </Form.Item>
                     </Skeleton>
                     < Skeleton loading={serviceComponentLoading} active >
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.access_strategy.lable.component' })} >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
-                                initialValue: (Object.keys(editInfo).length  ? `${editInfo.name}:${editInfo.port}` : undefined)
+                                initialValue: (Object.keys(editInfo).length ? `${editInfo.name}:${editInfo.port}` : undefined)
                             })(<Select
-                                placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.selectService'})}
+                                placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.selectService' })}
                                 allowClear
                             >
                                 {
                                     comList && comList.map((item, index) => {
                                         const { component_name, port, service_name } = item;
-                                        if (service_name != null ) {
+                                        if (service_name != null) {
                                             return (
                                                 <Option
                                                     value={`${service_name}:${port}`}
                                                     key={index + service_name}
                                                 >
                                                     <span>
-                                                        {formatMessage({id:'teamNewGateway.NewGateway.TCP.name'})}
+                                                        {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.name' })}
                                                         {service_name}
                                                         <span style={{ color: 'rgb(0 0 0 / 31%)' }}>
                                                             ({component_name})
                                                         </span>{' '}
-                                                        {formatMessage({id:'teamNewGateway.NewGateway.TCP.ports'})}
+                                                        {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.ports' })}
                                                         {port}
                                                     </span>
                                                 </Option>
@@ -251,10 +259,10 @@ export default class index extends Component {
                     }}
                 >
                     <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-                    {formatMessage({id:'popover.cancel'})}
+                        {formatMessage({ id: 'popover.cancel' })}
                     </Button>
                     <Button type="primary" onClick={this.handleSubmit}>
-                    {formatMessage({id:'popover.confirm'})}
+                        {formatMessage({ id: 'popover.confirm' })}
                     </Button>
                 </div>
             </Drawer>

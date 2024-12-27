@@ -45,6 +45,7 @@ class Index extends Component {
             used_disk,
             used_memory,
             services_status,
+            run_pod_number
         } = rowClusterInfo
         // CPU使用率
         const cpuUsed = total_cpu == 0 ? 0 : ((used_cpu / total_cpu) * 100).toFixed(2);
@@ -113,7 +114,7 @@ class Index extends Component {
                                 </div>
                                 <div>
                                     <p>
-                                        {services_status && services_status.running || 0}
+                                        {run_pod_number || 0}
                                     </p>
                                 </div>
                             </div>

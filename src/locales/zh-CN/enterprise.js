@@ -520,6 +520,7 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.addnode': '添加节点',
     'enterpriseColony.newHostInstall.node.lookOut': '注意',
     'enterpriseColony.newHostInstall.node.msg': '请确保至少有管理节点、计算节点、ETCD 节点注册完毕，且 ETCD 节点数为单数，再进行下一步操作。',
+    'enterpriseColony.newHostInstall.node.msgs': '请确保节点之间内网互通，如有公网 IP 请开放 6443 和 9345 端口。',
     'enterpriseColony.newHostInstall.node.last': '上一步',
     'enterpriseColony.newHostInstall.node.next': '下一步',
     'enterpriseColony.newHostInstall.node.unInstallSuccess': '卸载成功',
