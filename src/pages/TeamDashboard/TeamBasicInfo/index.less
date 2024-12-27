@@ -53,9 +53,104 @@
 }
 
 .appName {
-  font-weight: 500;
-  font-size: @rbd-sub-title-size;
-  color: @rbd-sub-title-color;
-  line-height: @rbd-sub-title-line-height;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.customCard {
+  padding: 12px 18px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  margin-left: 6px;
+  min-height: 140px;
+  border: 1px solid #e8e8e8;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+    background-color: #d9d9d9;
+    border-radius: 6px 0 0 6px;
+  }
+
+  &.runningRow::before {
+    background-color: #52c41a;
+  }
+
+  &.stoppedRow::before {
+    background-color: #000000b3;
+  }
+
+  &.errorRow::before {
+    background-color: #f5222d;
+  }
+
+  &.defaultRow::before {
+    background-color: #d9d9d9;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .appName {
+      font-size: @rbd-sub-title-size;
+      color: @rbd-sub-title-color;
+      line-height: @rbd-sub-title-line-height;
+      font-weight: 500;
+    }
+  }
+
+  .cardContent {
+    .infoItem {
+      display: flex;
+      margin-bottom: 4px;
+      font-size: 12px;
+      
+      .label {
+        color: @rbd-content-color-secondary;
+        margin-right: 8px;
+        min-width: 56px;
+        font-weight: 600;
+      }
+
+      .value {
+        color: @rbd-sub-title-color;
+      }
+    }
+  }
+}
+
+.cardRow {
+  :global {
+    .ant-col {
+      flex: 0 0 calc(25% - 32px);
+      margin: 12px 28px;
+    }
+  }
+}
+
+.cardFooter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  :global {
+   .ant-btn-sm {
+    font-size: 12px;
+    }
+  }
 }
