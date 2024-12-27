@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
@@ -31,7 +31,7 @@ export default class index extends Component {
     super(props);
     this.state = {
       page: 1,
-      page_size: 10,
+      page_size: 12,
       query: '',
       sortValue: 1,
       loadingOverview: true,
@@ -41,16 +41,16 @@ export default class index extends Component {
       appListTotal: 0,
       addGroup: false,
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
-      teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create')
+      teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
+      isTableView: true,
     };
   }
   componentDidMount() {
     const { teamOverviewPermission, teamAppCreatePermission } = this.state;
     this.loadOverview();
-  }
-  // 添加组件权限管理
-  handleAddComponent = (group_id) => {
-
+    this.setState({
+      isTableView: window.localStorage.getItem('isTableView') === 'true'
+    })
   }
   // 获取团队下的基本信息
   loadOverview = () => {
@@ -234,6 +234,88 @@ export default class index extends Component {
         return styles.defaultRow;
     }
   };
+  // 添加视图切换处理函数
+  handleViewChange = (checked) => {
+    this.setState({
+      isTableView: checked
+    }, () => {
+      window.localStorage.setItem('isTableView', checked);
+    });
+  };
+  // 添加卡片视图渲染函数
+  renderCardView = () => {
+    const { teamHotAppList, appListLoading } = this.state;
+    return (
+      <Spin spinning={appListLoading} style={{ paddingTop: 60 }}>
+        <Row className={styles.cardRow}>
+          {teamHotAppList.map(app => {
+            // 添加操作菜单
+            const appOverviewPermission = newRole.queryPermissionsInfo(
+              this.props.currentTeamPermissionsInfo?.team,
+              'app_overview',
+              `app_${app.group_id}`
+            );
+            const isAppCreate = appOverviewPermission?.isCreate;
+            return (
+              <Col span={5} key={app.group_id}>
+                <div className={`${styles.customCard} ${this.getRowClassName(app)}`}
+                  onClick={() => {
+                    const { dispatch } = this.props;
+                    dispatch(routerRedux.push(
+                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${app.group_id}`
+                    ));
+                  }}
+                >
+                  <div className={styles.cardHeader}>
+                    <span className={styles.appName}>{app.group_name}</span>
+                    <Tag color={globalUtil.appStatusColor(app.status)}>
+                      {globalUtil.appStatusText(app.status)}
+                    </Tag>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.label}>组件数量:</span>
+                      <span className={styles.value}>{app.services_num} 个</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.label}>内存使用:</span>
+                      <span className={styles.value}>{app.used_mem || 0} MB</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.label}>CPU使用:</span>
+                      <span className={styles.value}>{app.used_cpu || 0} Core</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.label}>更新时间:</span>
+                      <span className={styles.value}>{moment(app.update_time).fromNow()}</span>
+                    </div>
+                  </div>
+                  <div className={styles.cardFooter}>
+                    {isAppCreate && (
+                      <Button className={styles.actionButton}
+                        icon='plus'
+                        type='link'
+                        size='small'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          this.props.dispatch(
+                            routerRedux.push(
+                              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${app.group_id}`
+                            )
+                          );
+                        }}>
+                        添加组件
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Col>
+            );
+          })}
+        </Row>
+      </Spin>
+    );
+  };
   render() {
     const {
       loadingOverview,
@@ -254,7 +336,8 @@ export default class index extends Component {
       },
       teamAppCreatePermission: {
         isAccess: isAppCreate
-      }
+      },
+      isTableView
     } = this.state;
     const { index, currentTeamPermissionsInfo } = this.props;
     const dataSource = [];
@@ -394,6 +477,15 @@ export default class index extends Component {
               className={styles.appListCard}
               extra={
                 <>
+                  <span>排列方式：</span>
+                  <Select
+                    style={{ width: '80px', marginRight: 10 }}
+                    value={isTableView}
+                    onChange={this.handleViewChange}
+                  >
+                    <Option value={true}>表格</Option>
+                    <Option value={false}>卡片</Option>
+                  </Select>
                   <Search
                     placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
                     onSearch={this.onSearch}
@@ -402,9 +494,8 @@ export default class index extends Component {
                     onChange={(e) => {
                       this.setState({ query: e.target.value })
                     }}
-                    style={{ width: 400, marginRight: 10 }}
+                    style={{ width: 300, marginRight: 10 }}
                   />
-
                   <Select
                     style={{ width: '140px', marginRight: 10 }}
                     placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
@@ -426,17 +517,23 @@ export default class index extends Component {
                 </>
               }
             >
-              {isAppList ?
+              {isAppList ? (
                 <>
-                  <Table
-                    dataSource={teamHotAppList}
-                    columns={columns}
-                    pagination={false}
-                    rowClassName={this.getRowClassName}
-                    rowKey={record => record.group_id}
-                    loading={appListLoading}
-                    pagination={false}
-                  />
+                  {isTableView ? (
+                    <>
+                      <Table
+                        dataSource={teamHotAppList}
+                        columns={columns}
+                        pagination={false}
+                        rowClassName={this.getRowClassName}
+                        rowKey={record => record.group_id}
+                        loading={appListLoading}
+                        pagination={false}
+                      />
+                    </>
+                  ) : (
+                    this.renderCardView()
+                  )}
                   <Pagination
                     showSizeChanger
                     onShowSizeChange={this.handleChangePage}
@@ -447,14 +544,15 @@ export default class index extends Component {
                     onChange={this.handleChangePage}
                     showQuickJumper
                     showTotal={(appListTotal) => `共 ${appListTotal} 条`}
-                    hideOnSinglePage={appListTotal <= 10}
+                    hideOnSinglePage={appListTotal <= 12}
+                    pageSizeOptions={['12', '24', '36', '48', '60']}
                   />
                 </>
-                :
+              ) : (
                 <div style={{ paddingTop: '96px' }}>
                   <Empty />
                 </div>
-              }
+              )}
             </Card>
           </>
         }
