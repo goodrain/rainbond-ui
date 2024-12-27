@@ -31,6 +31,7 @@ const { Option } = Select;
 export default class index extends Component {
   constructor(props) {
     super(props);
+    const savedViewState = window.localStorage.getItem('isTableView');
     this.state = {
       page: 1,
       page_size: 12,
@@ -44,16 +45,13 @@ export default class index extends Component {
       addGroup: false,
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
-      isTableView: true,
+      isTableView: savedViewState === 'true',
       language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentDidMount() {
     const { teamOverviewPermission, teamAppCreatePermission } = this.state;
     this.loadOverview();
-    this.setState({
-      isTableView: window.localStorage.getItem('isTableView') === 'true'
-    })
   }
   // 获取团队下的基本信息
   loadOverview = () => {
@@ -239,10 +237,9 @@ export default class index extends Component {
   };
   // 添加视图切换处理函数
   handleViewChange = (checked) => {
+    window.localStorage.setItem('isTableView', checked);
     this.setState({
       isTableView: checked
-    }, () => {
-      window.localStorage.setItem('isTableView', checked);
     });
   };
   // 添加卡片视图渲染函数
@@ -250,7 +247,7 @@ export default class index extends Component {
     const { teamHotAppList, appListLoading, language } = this.state;
     const { dispatch } = this.props;
     const addComponentSvg = (
-      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="18" height="18"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
+      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="16" height="16"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
     )
     const visterSvg = (
       <svg t="1735296596548" style={{ marginRight: '2px' }} class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
