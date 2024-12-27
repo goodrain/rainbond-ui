@@ -460,6 +460,16 @@ class PluginList extends PureComponent {
         content={content}
         extraContent={extraContent}
         titleSvg={pageheaderSvg.getPageHeaderSvg('api',18)}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
+            );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+          </Button>
+        }
       >
         <div className={styles.cardList}>
           <List

@@ -37,7 +37,6 @@ export default class Invite extends Component {
       payload: { action: 'accept', invite_id: globalUtil.getInviteID() },
       callback: (res) => {
         if (res && res.status_code === 200) {
-          console.log(res, "res");
           notification.success({
             message: '邀请成功',
             description: '即将进入团队主页',

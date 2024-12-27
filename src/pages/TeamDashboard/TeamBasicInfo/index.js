@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -39,9 +40,12 @@ export default class index extends Component {
       teamHotAppList: [],
       appListTotal: 0,
       addGroup: false,
+      teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
+      teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create')
     };
   }
   componentDidMount() {
+    const { teamOverviewPermission, teamAppCreatePermission } = this.state;
     this.loadOverview();
   }
   // 添加组件权限管理
@@ -243,10 +247,16 @@ export default class index extends Component {
       query,
       appListLoading,
       appListTotal,
-      addGroup
+      addGroup,
+      teamOverviewPermission: {
+        isAppList,
+        isAccess: isTeamOverview
+      },
+      teamAppCreatePermission: {
+        isAccess: isAppCreate
+      }
     } = this.state;
     const { index, currentTeamPermissionsInfo } = this.props;
-
     const dataSource = [];
     const columns = [
       {
@@ -319,13 +329,15 @@ export default class index extends Component {
       {
         title: formatMessage({ id: 'versionUpdata_6_1.action' }),
         key: 'action',
-        render: (text, record) => (
-          <>
-            <a onClick={() => {
+        render: (text, record) => {
+          const appOverviewPermission = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${record.group_id}`)
+          const isAppCreate = appOverviewPermission?.isCreate
+          return <>
+            {isAppCreate && <a onClick={() => {
               this.props.dispatch(
                 routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${record.group_id}`)
               )
-            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}</a>
+            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}</a>}
             <a
               onClick={() => {
                 const { dispatch } = this.props;
@@ -334,8 +346,7 @@ export default class index extends Component {
               {formatMessage({ id: 'versionUpdata_6_1.manage' })}
             </a>
           </>
-
-        ),
+        },
       },
     ];
 
@@ -347,31 +358,33 @@ export default class index extends Component {
               <Col span={4}>
                 <div className={styles.basicInfo}>
                   <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.appNum' })}</div>
-                  <div className={styles.basicInfoContent}>{index?.overviewInfo?.team_app_num || 0}</div>
+                  <div className={styles.basicInfoContent}>
+                    {isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'}
+                  </div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
                   <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.serviceNum' })}</div>
-                  <div className={styles.basicInfoContent}>{index?.overviewInfo?.team_service_num || 0}</div>
+                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
                   <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
-                  <div className={styles.basicInfoContent}>{this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0}</div>
+                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0 : '**'}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
                   <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
-                  <div className={styles.basicInfoContent}>{this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0}</div>
+                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0 : '**'}</div>
                 </div>
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
                   <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}</div>
-                  <div className={styles.basicInfoContent}>{index?.overviewInfo?.disk_usage || 0}</div>
+                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.disk_usage || 0 : '**'}</div>
                 </div>
               </Col>
             </Row>
@@ -401,7 +414,7 @@ export default class index extends Component {
                     <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}><FormattedMessage id="teamOverview.runStatusSort" /></Option>
                     <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}><FormattedMessage id="teamOverview.updateTimeSort" /></Option>
                   </Select>
-                  <Button
+                  {isAppCreate && <Button
                     type="primary"
                     onClick={() => {
                       this.setState({
@@ -409,31 +422,39 @@ export default class index extends Component {
                       })
                     }}>
                     {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                  </Button>
+                  </Button>}
                 </>
               }
             >
-              <Table
-                dataSource={teamHotAppList}
-                columns={columns}
-                pagination={false}
-                rowClassName={this.getRowClassName}
-                rowKey={record => record.group_id}
-                loading={appListLoading}
-                pagination={false}
-              />
-              <Pagination
-                showSizeChanger
-                onShowSizeChange={this.handleChangePage}
-                current={page}
-                pageSize={page_size}
-                total={appListTotal}
-                pageSizeOptions={pageSizeOptions}
-                onChange={this.handleChangePage}
-                showQuickJumper
-                showTotal={(appListTotal) => `共 ${appListTotal} 条`}
-                hideOnSinglePage={appListTotal <= 10}
-              />
+              {isAppList ?
+                <>
+                  <Table
+                    dataSource={teamHotAppList}
+                    columns={columns}
+                    pagination={false}
+                    rowClassName={this.getRowClassName}
+                    rowKey={record => record.group_id}
+                    loading={appListLoading}
+                    pagination={false}
+                  />
+                  <Pagination
+                    showSizeChanger
+                    onShowSizeChange={this.handleChangePage}
+                    current={page}
+                    pageSize={page_size}
+                    total={appListTotal}
+                    pageSizeOptions={pageSizeOptions}
+                    onChange={this.handleChangePage}
+                    showQuickJumper
+                    showTotal={(appListTotal) => `共 ${appListTotal} 条`}
+                    hideOnSinglePage={appListTotal <= 10}
+                  />
+                </>
+                :
+                <div style={{ paddingTop: '96px' }}>
+                  <Empty />
+                </div>
+              }
             </Card>
           </>
         }

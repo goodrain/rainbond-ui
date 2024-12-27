@@ -52,7 +52,6 @@ import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import sourceUtil from '../../utils/source-unit';
 import rainbondUtil from '../../utils/rainbond';
-import CustomFooter from "../../layouts/CustomFooter";
 import Instance from '../Component/component/Instance/index';
 import AppShape from '../Group/AppShape';
 import AppJoinMode from '../Group/AppJoinMode';
@@ -1441,7 +1440,6 @@ export default class Index extends PureComponent {
             {this.handleConfing()}
           </div>
         }
-        <CustomFooter />
       </Fragment>
     );
   }

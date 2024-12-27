@@ -318,7 +318,6 @@ export default class Index extends PureComponent {
   }
   render() {
     const { mntList, relyComponent, relyComponentList, DirectoryPersistenceShow, volume_path, hostPath, isType, volumeName } = this.state;
-    console.log(isType,"isType");
     
     const { volumes, method, appDetail } = this.props;
     if (!this.canView()) return <NoPermTip />;

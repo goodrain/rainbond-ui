@@ -37,7 +37,6 @@ import DeployAttribute from "../../../components/DeployAttribute"
 import FlexAttribute from '../../../components/FlexAttribute'
 import SpecialAttribute from '../../../components/SpecialAttribute'
 import Kubernetes from "../../../components/KubernetesAttribute"
-import CustomFooter from "../../../layouts/CustomFooter";
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
@@ -336,7 +335,6 @@ export default class ImportMessage extends PureComponent {
                         </Button>
                     </div>
                 </Spin>
-                <CustomFooter/>
             </div >
         );
     }

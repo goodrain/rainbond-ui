@@ -27,7 +27,6 @@ import ConfirmModal from '../../components/ConfirmModal';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import { buildApp } from '../../services/createApp';
-import CustomFooter from "../../layouts/CustomFooter";
 import AppDeteleResource from '../../components/AppDeteleResource'
 import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
@@ -1540,7 +1539,6 @@ export default class Index extends PureComponent {
             <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[code] })}</p>
           </Modal>
         )}
-        <CustomFooter />
       </Fragment>
     );
   }

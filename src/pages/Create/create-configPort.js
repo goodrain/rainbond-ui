@@ -10,7 +10,6 @@ import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
-import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -321,7 +320,6 @@ export default class Index extends PureComponent {
             )}
           </div>
         </PageHeaderLayout>
-        <CustomFooter />
       </>
     );
   }

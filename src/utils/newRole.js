@@ -148,7 +148,7 @@ export default {
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
-                return ['describe', 'resource_limit']
+                return ['describe', 'resource_limit','app_list']
                 break;
             case 'team_app_create':
             case 'team_gateway_monitor':
@@ -202,7 +202,7 @@ export default {
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
-                return ['isAccess', 'isResourceLimit']
+                return ['isAccess', 'isResourceLimit','isAppList']
                 break;
             case 'team_app_create':
             case 'team_gateway_monitor':

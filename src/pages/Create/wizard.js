@@ -11,7 +11,6 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Button, Icon } from 'antd';
-import CustomFooter from "../../layouts/CustomFooter"
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
@@ -93,11 +92,11 @@ export default class Index extends PureComponent {
         const group_id = this.props.location.query.group_id;
         if (type == 'import') {
             dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/shared/${link}` })
+                routerRedux.push( `/team/${teamName}/region/${regionName}/shared/${link}?group_id=${group_id}`)
             );
         } else {
             dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}?group_id=${group_id}` })
+                routerRedux.push( `/team/${teamName}/region/${regionName}/create/${type}/${link}?group_id=${group_id}`)
             );
         }
     }
@@ -224,7 +223,6 @@ export default class Index extends PureComponent {
                         </div>
                     </div>
                 </PageHeaderLayout>
-                <CustomFooter />
             </>
         );
     }

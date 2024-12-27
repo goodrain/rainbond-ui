@@ -24,7 +24,6 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import EditGroupName from '../../components/AddOrEditGroup';
 import AppState from '../../components/ApplicationState';
 import Result from '../../components/Result';
-import CustomFooter from "../../layouts/CustomFooter"
 import VisterBtn from '../../components/visitBtnForAlllink';
 import globalUtil from '../../utils/global';
 import TeamWizard from '../Create/wizard'
@@ -593,7 +592,6 @@ export default class Index extends PureComponent {
               />
             </div>
           )}
-        <CustomFooter />
       </Fragment>
     )
   }

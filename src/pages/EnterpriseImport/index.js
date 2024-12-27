@@ -22,6 +22,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
+import globalUtil from '../../utils/global';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
@@ -416,12 +417,22 @@ export default class EnterpriseShared extends PureComponent {
       lineHeight: '30px'
     };
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
-
+    const group_id = globalUtil.getGroupID()
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='applicationMarket.Offline.import' />}
         content={<FormattedMessage id='applicationMarket.Offline.mode' />}
         titleSvg={pageheaderSvg.getPageHeaderSvg('import', 20)}
+        extraContent={
+          <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+              );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+          </Button>
+      }
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
           <div className={styles.tit}><FormattedMessage id='applicationMarket.Offline.import' /></div>

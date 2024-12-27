@@ -3,7 +3,6 @@ import { Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CustomFooter from "../../layouts/CustomFooter";
 import globalUtil from '@/utils/global'
 
 @connect(({ user, teamControl, global }) => ({
@@ -129,7 +128,6 @@ class Index extends Component {
                     </div>
                 )}
 
-                <CustomFooter />
             </div>
         );
     }
