@@ -13,7 +13,6 @@ import AppConfigFile from '../../components/AppCreateConfigFile';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
-import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
 
 @connect(
@@ -319,7 +318,6 @@ export default class Index extends PureComponent {
           )}
         </div>
       </PageHeaderLayout>
-      <CustomFooter />
       </>
     );
   }

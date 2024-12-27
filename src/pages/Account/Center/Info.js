@@ -5,7 +5,6 @@ import {formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../../utils/rainbond';
-import CustomFooter from "../../../layouts/CustomFooter";
 import { Menu } from 'antd';
 import styles from './Info.less';
 
@@ -110,7 +109,6 @@ class Info extends Component {
             </div>
           </div>
         </PageHeaderLayout>
-        <CustomFooter />
       </>
     );
   }

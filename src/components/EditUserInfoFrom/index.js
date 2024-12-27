@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, Upload, Icon } from 'antd'
+import { Form, Input, Modal, Upload, Icon, notification } from 'antd'
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config'
 import cookie from '@/utils/cookie';
@@ -42,6 +42,12 @@ export default class index extends Component {
       this.setState({ loading: true });
       return;
     }
+    if(info.file.status === 'error'){
+      notification.error({
+        message: info.file.response.msg_show || '上传失败'
+      })
+      return
+    }
     if (info.file.status === 'done') {
       this.setState({
         imageUrl:
@@ -69,7 +75,7 @@ export default class index extends Component {
     this.setState({ imageUrl: '', imageBase64: '' });
   };
   render() {
-    const { userInfo, imageBase64, imageUrl } = this.state;
+    const { userInfo, imageBase64, imageUrl, loading } = this.state;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -92,6 +98,7 @@ export default class index extends Component {
         visible={this.props.visible}
         onCancel={this.handleCancel}
         onOk={this.handleOk}
+        confirmLoading={loading}
       >
         <Form {...formItemLayout}>
           <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.name' })}>

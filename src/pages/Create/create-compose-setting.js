@@ -15,7 +15,6 @@ import {
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
-import CustomFooter from '../../layouts/CustomFooter';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
@@ -204,7 +203,6 @@ export default class Index extends PureComponent {
                             }} />}
                     </div>
                 </PageHeaderLayout>
-                <CustomFooter />
             </>
         )
     }

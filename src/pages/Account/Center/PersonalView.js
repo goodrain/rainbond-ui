@@ -4,6 +4,7 @@ import { Form, Row, Col, Input, Button, Icon, Upload, Avatar, notification, Skel
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ChangePassword from '../../../components/ChangePassword'
 import EditUserInfoFrom from '../../../components/EditUserInfoFrom'
+import styles from './Info.less'
 
 @Form.create()
 @connect()
@@ -97,7 +98,7 @@ export default class PersonalView extends Component {
   cancelChangePass = () => {
     this.setState({ showChangePassword: false });
   };
-  handleUpdatePassword = () =>{
+  handleUpdatePassword = () => {
     this.setState({ showChangePassword: true });
   }
   render() {
@@ -115,8 +116,15 @@ export default class PersonalView extends Component {
               <Avatar src={imageUrl} size={100} />
             </Col>
             <Col span={21}>
-              <Button type="link" onClick={this.handleUpdateInfo}>修改基础信息</Button>
-              <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>
+              <Row style={{ display: "flex", flexDirection: "column" }}>
+                <Col className={styles.userName}>
+                  {userInfo.user_name}
+                </Col>
+                <Col>
+                  <Button type="link" onClick={this.handleUpdateInfo}>修改基础信息</Button>
+                  <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>
+                </Col>
+              </Row>
             </Col>
           </Row>
           <Row style={{ marginTop: 24 }}>
@@ -152,16 +160,16 @@ export default class PersonalView extends Component {
 
               <Row >
                 <Col span={12}>
-                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.username' })}>
-                    {getFieldDecorator(`user_name`, {
-                      initialValue: userInfo.user_name,
+                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.phone' })}>
+                    {getFieldDecorator(`phone`, {
+                      initialValue: userInfo.phone,
                       rules: [
                         {
                           required: true,
-                          message: formatMessage({ id: 'versionUpdata_6_1.username.placeholder' }),
+                          message: formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' }),
                         },
                       ],
-                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.username.placeholder' })} disabled={true} />)}
+                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' })} disabled={true} />)}
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -175,22 +183,6 @@ export default class PersonalView extends Component {
                         },
                       ],
                     })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.password.placeholder' })} disabled={true} type='password' />)}
-                  </Form.Item>
-                </Col>
-              </Row>
-              {/* 手机号 */}
-              <Row>
-                <Col span={12}>
-                  <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.phone' })}>
-                    {getFieldDecorator(`phone`, {
-                      initialValue: userInfo.phone,
-                      rules: [
-                        {
-                          required: true,
-                          message: formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' }),
-                        },
-                      ],
-                    })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.phone.placeholder' })} disabled={true} />)}
                   </Form.Item>
                 </Col>
               </Row>

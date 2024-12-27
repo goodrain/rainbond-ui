@@ -1,73 +1,124 @@
-.ModalStyle{
-    :global{
+.ModalStyle {
+    :global {
         .ant-modal-body {
             padding: 0;
             min-height: 420px;
-            .ant-row{
-                .ant-col-6{
+
+            .ant-row {
+                .ant-col-6 {
                     overflow-y: auto;
                     height: 420px;
-                    padding: 24px 0 24px 24px ;
+                    padding: 24px 0 24px 24px;
                     border-right: 1px solid #e8e8e8;
                 }
             }
         }
     }
+
     :global {
         .ant-tree .ant-tree-switcher {
-          display: none;
+            display: none;
         }
-      }
+    }
 }
-.iconShow{
+
+.iconShow {
     display: flex;
     flex-wrap: wrap;
     max-height: 420px;
     overflow-y: auto;
     padding: 40px 0px 0px;
-    .outerLayer{
+
+    .outerLayer {
         display: flex;
         flex-direction: column;
         justify-content: center;
         width: 120px;
         height: 120px;
         box-sizing: border-box;
-        margin: 0 14px 10px;
+        margin: 0 10px 10px;
         border-radius: 5px;
-        div{
+
+        div {
             text-align: center;
             font-weight: 600;
         }
-        div:nth-of-type(2){
+
+        div:nth-of-type(2) {
             max-width: 120px;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
-    .emptyStyle{
+
+    .emptyStyle {
         width: 100%;
         height: 420px;
         margin-top: 130px
     }
 }
-.goBack{
+
+.goBack {
     position: absolute;
     top: 0;
     width: 100%;
     border-bottom: 1px solid #e8e8e8;
     background-color: #fff;
+    height: 40px;
+    line-height: 40px;
     // :global{
-        button{
-            box-shadow:  0 0 0 ;
-            border: 0;
-            background-color: transparent;
-            height: 30px;
-            padding: 0px 15px;
-            cursor: pointer;
-            svg{
-                vertical-align: baseline;
-                margin-right: 5px;
+    button {
+        box-shadow: 0 0 0;
+        border: 0;
+        background-color: transparent;
+        height: 30px;
+        padding: 0px 15px;
+        cursor: pointer;
+
+        svg {
+            vertical-align: baseline;
+            margin-right: 5px;
+        }
+    }
+
+    .path {
+        padding-left: 10px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: #333;
+        font-weight: 600;
+    }
+}
+
+.footerBtnGroup {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+
+    .leftBtns {
+        display: flex;
+        gap: 8px;
+    }
+
+    .rightBtns {
+        display: flex;
+        gap: 8px;
+
+        :global {
+            .ant-dropdown-trigger {
+                display: inline-flex;
+                align-items: center;
+
+                .anticon {
+                    margin-left: 4px;
+                }
+            }
+
+            .ant-btn {
+                min-width: 88px;
             }
         }
+    }
 }

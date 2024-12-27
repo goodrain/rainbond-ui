@@ -88,7 +88,6 @@ export default class ImportMessage extends PureComponent {
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/ChangeResourceTest?event_id=${event_id}&group_id=${group_id}`));
     }
     checkIfEmpty = (data) => {
-        console.log(data, "data");
         const isEmpty = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length === 0;
         if (isEmpty(data?.workloads) && isEmpty(data?.others)) {
             return true; // Both objects are empty

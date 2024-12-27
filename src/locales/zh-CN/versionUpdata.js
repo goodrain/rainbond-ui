@@ -14,6 +14,7 @@ const versionUpdata = {
   'versionUpdata_6_1.avatar': '头像',
   'versionUpdata_6_1.avatar.placeholder': '请上传头像',
   'versionUpdata_6_1.home': '首页',
+  'versionUpdata_6_1.wizard': '向导页',
   'versionUpdata_6_1.appName': '应用名称',
   'versionUpdata_6_1.status': '状态',
   'versionUpdata_6_1.servicesNum': '组件数',

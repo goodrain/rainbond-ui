@@ -38,6 +38,7 @@ import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import pluginUtile from '../utils/pulginUtils'
 import { loadRegionConfig } from '@/services/cloud';
+import CustomFooter from "./CustomFooter"
 import "animate.css"
 const { Content } = Layout;
 
@@ -617,6 +618,7 @@ class EnterpriseLayout extends PureComponent {
                         noMatch={<Redirect to="/user/login" />}
                       >
                         {children}
+                        <CustomFooter />
                       </Authorized>
                     </div>
                   </Content>

@@ -28,7 +28,6 @@ import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
 import PluginUtil from '../../utils/pulginUtils'
 import userUtil from '../../utils/user';
-import role from '../../utils/newRole';
 import styles from './NewIndex.less';
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -43,7 +42,6 @@ const { Option } = Select;
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   loading,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -58,8 +56,6 @@ export default class Index extends PureComponent {
       isNeedAuthz: false,
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
-      teamOverviewPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_overview'),
-      teamAppCreatePermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
     };
   }
   componentDidMount() {
@@ -152,7 +148,7 @@ export default class Index extends PureComponent {
     if (showPipeline.length > 0) {
       return <Dropdown overlay={menu} placement="bottomLeft" style={{ marginRight: 10 }}>
         <Button style={{ marginRight: 10 }}>
-          <Icon type="control" />插件
+          <Icon type="control" />功能拓展
           <Icon type="down" className={styles.downIcon} />
         </Button>
       </Dropdown>
@@ -214,6 +210,20 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.right}>
               {this.getPluginsMenu()}
+              <Button
+                style={{ marginRight: 10 }}
+                onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`,
+                    })
+                  );
+                }}
+              >
+                <Icon type="setting" />
+                插件管理
+              </Button>
               <Button onClick={() => {
                 const { dispatch } = this.props;
                 dispatch(

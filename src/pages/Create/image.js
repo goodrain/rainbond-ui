@@ -96,7 +96,6 @@ export default class Main extends PureComponent {
             clusters.push(item);
             return item;
           });
-          console.log(clusters, 'clusters');
 
           this.setState({ clusters });
         } else {
@@ -211,6 +210,7 @@ export default class Main extends PureComponent {
       type = 'custom';
     }
     const Com = map[type];
+    const group_id = globalUtil.getGroupID()
     return (
       <PageHeaderLayout
         title={formatMessage({ id: 'versionUpdata_6_1.createComponent' })}
@@ -223,12 +223,10 @@ export default class Main extends PureComponent {
           <Button onClick={() => {
             const { dispatch } = this.props;
             dispatch(
-              routerRedux.push({
-                pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
-              })
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
             );
           }} type="default">
-            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
           </Button>
         }
       >

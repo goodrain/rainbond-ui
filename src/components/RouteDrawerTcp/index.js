@@ -129,10 +129,7 @@ export default class index extends Component {
         const { comList, outer_url } = this.state;
         const str = getFieldValue('service_id')
         const port =getFieldValue('ingressPort')
-        console.log(str,"str");
-        console.log(comList,"comList");
         const arr = comList.filter(item => `${item.service_name}:${item.port}` == str   )
-        console.log(arr,"arr");
         if(str && port){
             return`访问地址：${outer_url}:${port}` || ''
         }else{

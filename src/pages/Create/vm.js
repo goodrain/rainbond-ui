@@ -93,6 +93,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
+    const group_id = globalUtil.getGroupID()
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -106,12 +107,10 @@ export default class Main extends PureComponent {
           <Button onClick={() => {
               const { dispatch } = this.props;
               dispatch(
-                  routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
-                  })
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
               );
           }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
           </Button>
       }
       >

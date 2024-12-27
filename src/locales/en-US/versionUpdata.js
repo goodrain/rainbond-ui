@@ -14,6 +14,7 @@ const versionUpdata = {
   'versionUpdata_6_1.avatar': 'Avatar',
   'versionUpdata_6_1.avatar.placeholder': 'Please upload your avatar',
   'versionUpdata_6_1.home': 'Home',
+  'versionUpdata_6_1.wizard': 'Wizard',
   'versionUpdata_6_1.appName': 'Application Name',
   'versionUpdata_6_1.status': 'Status',
   'versionUpdata_6_1.servicesNum': 'Component Number (pcs)',

@@ -8,7 +8,6 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CustomFooter from '../../layouts/CustomFooter';
 import AppCreateSetting from '../../components/AppCreateSetting';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -265,7 +264,6 @@ export default class Index extends PureComponent {
           )}
           </div>
         </PageHeaderLayout>
-        <CustomFooter />
       </>
 
     );

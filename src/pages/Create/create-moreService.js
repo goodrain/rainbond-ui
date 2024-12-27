@@ -6,7 +6,6 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AppCreateMoreService from '../../components/AppCreateMoreService';
 import ConfirmModal from '../../components/ConfirmModal';
-import CustomFooter from '../../layouts/CustomFooter';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import { batchOperation } from '../../services/app';
@@ -279,7 +278,6 @@ export default class Index extends PureComponent {
             )}
           </div>
         </PageHeaderLayout>
-        <CustomFooter />
       </>
     );
   }

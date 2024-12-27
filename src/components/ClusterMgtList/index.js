@@ -148,7 +148,6 @@ class Index extends Component {
   }
   total = (total) => `共 ${total} 条`;
   pageChange = (current, pageSize) => {
-    console.log(current, pageSize);
     this.setState({
       pageSize,
       current

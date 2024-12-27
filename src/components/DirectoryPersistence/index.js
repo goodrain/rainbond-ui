@@ -13,12 +13,16 @@ import {
     Popconfirm,
     Select,
     Spin,
-    notification
+    notification,
+    Menu,
+    Dropdown,
+    Input
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global'
 import download from '@/utils/download';
 import apiconfig from '../../../config/api.config';
+import axios from 'axios';
 import SVG from './svg';
 import styles from './index.less';
 import cookie from '@/utils/cookie';
@@ -33,6 +37,7 @@ const { TreeNode, DirectoryTree } = Tree;
 class Index extends Component {
     constructor(props) {
         super(props);
+        this.fileUploadRef = React.createRef();
         this.state = {
             treeData: [],
             selectedKeys: [],
@@ -51,7 +56,10 @@ class Index extends Component {
             showDataLoading: false,
             nameSpace: '',
             containerName: '',
-            uploading: false
+            uploading: false,
+            createFolderVisible: false,
+            folderName: '',
+            createFolderLoading: false
         }
     }
     componentDidMount() {
@@ -95,7 +103,7 @@ class Index extends Component {
         });
     };
     // 获取文件列表
-    getListFiles = ( bool = false ) => {
+    getListFiles = (bool = false) => {
         this.props.dispatch({
             type: 'appControl/getListFiles',
             payload: {
@@ -241,7 +249,7 @@ class Index extends Component {
         })
     }
     // 展开树图
-    onExpand = (expandedKeys, info) => {        
+    onExpand = (expandedKeys, info) => {
         let newLoadKeys = this.state.loadedKeys
         if (this.state.expandedKeys.length > expandedKeys.length) {
             //  当是收起的时候，把这个收起的节点从loadedKeys中移除
@@ -252,7 +260,7 @@ class Index extends Component {
             selectedKeys: [`${info.node.props.dataRef.key}`],
             showData: this.sortShowData(info.node.props.dataRef.children),
             loadedKeys: newLoadKeys
-        }, () => {            
+        }, () => {
             this.getPath()
         })
     };
@@ -307,8 +315,6 @@ class Index extends Component {
             const { title, children } = item
             if (keyArr.indexOf(`${item.key}`) != -1) {
                 const arr = this.state.pathArr
-                console.log(arr,"arr");
-                console.log(title,"title");
                 arr.push(title)
                 this.setState({
                     pathArr: arr
@@ -435,7 +441,13 @@ class Index extends Component {
     }
     uploadChange = info => {
         const { path, selectedKeys } = this.state
+        this.setState({
+            uploading: true
+        })
         if (info && info.file && info.file.status === 'done') {
+            this.setState({
+                uploading: false
+            })
             notification.success({ message: formatMessage({ id: 'notification.success.upload' }) });
             if (selectedKeys[0] == undefined) {
                 this.getListFiles()
@@ -443,6 +455,9 @@ class Index extends Component {
                 this.updateTree()
             }
         } else if (info && info.file && info.file.status === 'error') {
+            this.setState({
+                uploading: false
+            })
             notification.error({ message: formatMessage({ id: 'notification.error.update' }) });
             if (selectedKeys[0] == undefined) {
                 this.getListFiles()
@@ -473,7 +488,7 @@ class Index extends Component {
     removeShowData = (datas) => {
         const { selectedKeys } = this.state
         const newData = datas;
-        function setGrayNode(data) { 
+        function setGrayNode(data) {
             for (var i = 0; i < data.length; i++) {
                 if (data[i].key == selectedKeys[0]) {
                     delete data[i].children
@@ -520,30 +535,27 @@ class Index extends Component {
         const showDataArr = [...folder, ...valuesArray]
         return showDataArr
     }
-    uploadFolder = async (e) => {
-        e.preventDefault();
+    uploadFolder = async () => {
         const { downOrUploadPath, selectDefaultValue, containerName, nameSpace, userName, hostPath, path } = this.state;
         const upLoadPath = path ? `${hostPath}/${path}` : hostPath;
         const uploadString = upLoadPath.replace(/\/+$/, "");
-        
+
         try {
             const input = document.createElement('input');
             input.type = 'file';
             input.webkitdirectory = true;
             input.directory = true;
-            
+
             input.onchange = async () => {
                 const files = Array.from(input.files);
                 if (!files.length) return;
-
                 const formData = new FormData();
-                const arr = []
-                files.forEach(file => {
+                files.map(file => {
                     const relativePath = file.webkitRelativePath;
-                    arr.push(file)
-                    // formData.append('files', file, relativePath);
-                });                
-                formData.append('files', [...arr])
+                    // 创建新的 File 对象，使用相对路径作为名称
+                    const newFile = new File([file], relativePath);
+                    formData.append('files', newFile);
+                })
                 formData.append('path', uploadString);
                 formData.append('container_name', containerName);
                 formData.append('pod_name', selectDefaultValue);
@@ -556,20 +568,13 @@ class Index extends Component {
                 this.setState({ uploading: true });
 
                 try {
-                    // 添加请求头和错误处理
                     const response = await fetch(`${downOrUploadPath}/v2/file-operate/upload`, {
                         method: 'POST',
                         body: formData,
                         headers: {
-                            // 不要设置 Content-Type，让浏览器自动设置
-                            'Accept': 'application/json',
-                            // 如果需要认证，添加 token
-                            'Authorization': `GRJWT ${cookie.get('token')}`, // 如果你使用 token 认证
+                            'Authorization': `GRJWT ${cookie.get('token')}`,
                         },
-                        // 添加凭证
                         credentials: 'include',
-                        // 设置超时
-                        timeout: 300000, // 5分钟超时
                     });
 
                     if (!response.ok) {
@@ -578,7 +583,7 @@ class Index extends Component {
                     }
 
                     notification.success({ message: formatMessage({ id: 'notification.success.upload' }) });
-                    
+                    this.setState({ uploading: false });
                     const { selectedKeys } = this.state;
                     if (selectedKeys[0] == undefined) {
                         this.getListFiles();
@@ -588,7 +593,7 @@ class Index extends Component {
 
                 } catch (error) {
                     console.error('Upload error:', error);
-                    notification.error({ 
+                    notification.error({
                         message: formatMessage({ id: 'notification.error.update' }),
                         description: error.message || '网络请求失败，请检查网络连接'
                     });
@@ -599,7 +604,7 @@ class Index extends Component {
 
         } catch (error) {
             console.error('General error:', error);
-            notification.error({ 
+            notification.error({
                 message: formatMessage({ id: 'notification.error.update' }),
                 description: error.message || '操作失败'
             });
@@ -607,6 +612,112 @@ class Index extends Component {
             this.setState({ uploading: false });
         }
     };
+    // 添加上传菜单点击处理函数
+    handleUploadMenuClick = ({ key }) => {
+        if (key === 'file') {
+            // 触发文件上传input点击
+            this.fileUploadRef.current.click();
+        } else if (key === 'folder') {
+            this.uploadFolder();
+        }
+    };
+    showCreateFolder = () => {
+        this.setState({
+            createFolderVisible: true
+        });
+    }
+    handleCreateFolderCancel = () => {
+        this.setState({
+            createFolderVisible: false,
+            folderName: ''
+        });
+    }
+    handleFolderNameChange = (e) => {
+        this.setState({
+            folderName: e.target.value
+        });
+    }
+    handleCreateFolder = async() => {
+        const { folderName, downOrUploadPath, selectDefaultValue, containerName, nameSpace, userName, hostPath, path } = this.state;
+        if (!folderName.trim()) {
+            notification.warning({ message: '请输入文件夹名称' });
+            return;
+        }
+
+        this.setState({ createFolderLoading: true });
+
+        const createPath = path ? `${hostPath}/${path}/${folderName}` : `${hostPath}/${folderName}`;
+        const finalPath = createPath.replace(/\/+/g, '/');
+        const formData = new FormData();
+        formData.append('path', finalPath);
+        formData.append('container_name', containerName);
+        formData.append('pod_name', selectDefaultValue);
+        formData.append('namespace', nameSpace);
+        formData.append('user_name', userName);
+        formData.append('tenant_id', this.props.appDetail?.service?.tenant_id);
+        formData.append('service_id', this.props.appDetail?.service?.service_id);
+        formData.append('volume_name', this.props.volumeName);
+
+        try {
+            const response = await fetch(`${downOrUploadPath}/v2/file-operate/mkdir`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `GRJWT ${cookie.get('token')}`,
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || '创建文件夹失败');
+            }
+
+            notification.success({ message: '创建文件夹成功' });
+            this.setState({ createFolderLoading: false, createFolderVisible: false, folderName: '' });
+            const { selectedKeys } = this.state;
+            if (selectedKeys[0] == undefined) {
+                this.getListFiles();
+            } else {
+                this.updateTree();
+            }
+        } catch (error) {
+            console.log(error,"error");
+            notification.error({
+                message: '创建文件夹失败',
+                description: error.message || '网络请求失败，请检查网络连接'
+            });
+        }
+        //     type: 'appControl/createFolder',
+        //     payload: ,
+        //     callback: (res) => {
+        //         if (res && res.status_code === 200) {
+        //             notification.success({ message: '创建文件夹成功' });
+        //             this.setState({
+        //                 createFolderVisible: false,
+        //                 folderName: '',
+        //                 createFolderLoading: false
+        //             });
+        //             // 刷新目录
+        //             const { selectedKeys } = this.state;
+        //             if (selectedKeys[0] == undefined) {
+        //                 this.getListFiles();
+        //             } else {
+        //                 this.updateTree();
+        //             }
+        //         } else {
+        //             notification.error({ message: '创建文件夹失败' });
+        //             this.setState({ createFolderLoading: false });
+        //         }
+        //     },
+        //     handleError: () => {
+        //         notification.error({ message: '创建文件夹失败' });
+        //         this.setState({ createFolderLoading: false });
+        //     }
+        // });
+    }
+    createFolder = () => {
+        this.showCreateFolder();
+    }
     render() {
         const {
             selectedKeys,
@@ -625,7 +736,10 @@ class Index extends Component {
             showDataLoading,
             containerName,
             nameSpace,
-            uploading
+            uploading,
+            createFolderVisible,
+            folderName,
+            createFolderLoading
         } = this.state
         const { volumeName } = this.props
         const upLoadPath = this.state.path ? `${this.state.hostPath}/${this.state.path}` : `${this.state.hostPath}`;
@@ -646,6 +760,17 @@ class Index extends Component {
             method: "post",
             name: 'file',
         };
+        // 上传按钮的下拉菜单
+        const uploadMenu = (
+            <Menu onClick={this.handleUploadMenuClick}>
+                <Menu.Item key="file">
+                    <Icon type="file" /> 上传文件
+                </Menu.Item>
+                <Menu.Item key="folder">
+                    <Icon type="folder" /> 上传文件夹
+                </Menu.Item>
+            </Menu>
+        );
         return (
             <div>
                 <Modal
@@ -669,28 +794,40 @@ class Index extends Component {
                     width={1000}
                     closable={false}
                     footer={
-                        <>
-                            <Button 
-                                type="primary" 
-                                onClick={this.uploadFolder}
-                                loading={this.state.uploading}
-                                style={{ marginRight: 10 }}
-                            >
-                                <Icon type="upload" /> 上传文件夹
-                            </Button>
-                            <Button type="primary" onClick={this.fileDownload}>
-                                <Icon type="download" />
-                                {formatMessage({ id: 'button.download' })}
-                            </Button>
-                            <Button onClick={this.props.isShow}>
-                                {formatMessage({ id: 'popover.cancel' })}
-                            </Button>
-                        </>
+                        <div className={styles.footerBtnGroup}>
+                            <div className={styles.leftBtns}>
+                                <Button type="primary" onClick={this.createFolder}>
+                                    <Icon type="folder-add" /> 新建文件夹
+                                </Button>
+                            </div>
+                            <div className={styles.rightBtns}>
+                                <Upload
+                                    {...props}
+                                    showUploadList={false}
+                                    multiple
+                                    onChange={this.uploadChange}
+                                    style={{ display: 'none' }}
+                                >
+                                    <input ref={this.fileUploadRef} style={{ display: 'none' }} />
+                                </Upload>
+                                <Dropdown overlay={uploadMenu} placement="topCenter" disabled={this.state.uploading}>
+                                    <Button type="primary" loading={this.state.uploading}>
+                                        <Icon type="upload" /> 上传 {!this.state.uploading && <Icon type="down" />}
+                                    </Button>
+                                </Dropdown>
+                                <Button type="primary" onClick={this.fileDownload}>
+                                    <Icon type="download" /> {formatMessage({ id: 'button.download' })}
+                                </Button>
+                                <Button onClick={this.props.isShow}>
+                                    {formatMessage({ id: 'popover.cancel' })}
+                                </Button>
+                            </div>
+                        </div>
                     }
                 >
                     {treeDataLoading ? (
                         <Row>
-                            <Col span={6}>
+                            <Col span={0}>
                                 <Tree
                                     loadData={this.onLoadData}
                                     onSelect={this.onSelect}
@@ -704,9 +841,21 @@ class Index extends Component {
                                     {this.renderTreeNodes(this.state.treeData)}
                                 </Tree>
                             </Col>
-                            <Col span={18} style={{ position: 'relative' }}>
+                            <Col span={24} style={{ position: 'relative' }}>
                                 <div className={styles.goBack}>
-                                    <button onClick={this.goBack}>{SVG.getSvg("goBack", 12)}{formatMessage({ id: 'componentOverview.body.DirectoryPersistence.return' })}</button>
+                                    <Row>
+                                        <Col span={20}>
+                                            <div className={styles.path}>
+                                                路径：{upLoadPath}
+                                            </div>
+                                        </Col>
+                                        <Col span={4} style={{textAlign:'right'}}>
+                                            <Button type='link' onClick={this.goBack}>
+                                                {SVG.getSvg("goBack", 12, globalUtil.getPublicColor())}
+                                                {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.return' })}
+                                                </Button>
+                                        </Col>
+                                    </Row>
                                 </div>
                                 {showDataLoading ? (
                                     <div className={styles.iconShow}>
@@ -762,6 +911,25 @@ class Index extends Component {
                         }} />
                     )}
 
+                </Modal>
+                <Modal
+                    title="新建文件夹"
+                    visible={createFolderVisible}
+                    onOk={this.handleCreateFolder}
+                    onCancel={this.handleCreateFolderCancel}
+                    confirmLoading={createFolderLoading}
+                >
+                    <div style={{ marginBottom: 16 }}>
+                        <div style={{ marginBottom: 8 }}>将在以下路径创建文件夹：</div>
+                        <div style={{ background: '#f5f5f5', padding: 8, wordBreak: 'break-all' }}>
+                            {this.state.path ? `${this.state.hostPath}/${this.state.path}` : this.state.hostPath}
+                        </div>
+                    </div>
+                    <Input
+                        placeholder="请输入文件夹名称"
+                        value={folderName}
+                        onChange={this.handleFolderNameChange}
+                    />
                 </Modal>
             </div>
         );

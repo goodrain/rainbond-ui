@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { connect } from 'dva';
 import { Link, Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
+import CustomFooter from './CustomFooter';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -218,6 +219,7 @@ class AccountLayout extends PureComponent {
                   noMatch={<Redirect to="/user/login" />}
                 >
                   {children}
+                  <CustomFooter />
                 </Authorized>
               </div>
             </Content>
