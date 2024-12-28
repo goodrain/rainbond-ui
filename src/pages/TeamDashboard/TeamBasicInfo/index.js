@@ -300,7 +300,7 @@ export default class index extends Component {
                               )
                             );
                           }}>
-                          {addComponentSvg} 组件
+                          {addComponentSvg} {formatMessage({ id: 'versionUpdata_6_1.addComponent.card' })}
                         </div>
                       )}
                       {item.status === 'RUNNING' && (
@@ -489,12 +489,12 @@ export default class index extends Component {
                     onChange={(e) => this.handleViewChange(e.target.value === 'table')}
                   >
                     <Radio.Button value="card">
-                      <Tooltip title="卡片">
+                      <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.card' })}>
                         <Icon type="appstore" />
                       </Tooltip>
                     </Radio.Button>
                     <Radio.Button value="table">
-                      <Tooltip title="表格">
+                      <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.table' })}>
                         <Icon type="table" />
                       </Tooltip>
                     </Radio.Button>
@@ -558,19 +558,20 @@ export default class index extends Component {
                   ) : (
                     this.renderCardView()
                   )}
-                  <Pagination
-                    showSizeChanger
-                    onShowSizeChange={this.handleChangePage}
-                    current={page}
-                    pageSize={page_size}
-                    total={appListTotal}
-                    pageSizeOptions={pageSizeOptions}
-                    onChange={this.handleChangePage}
-                    showQuickJumper
-                    showTotal={(appListTotal) => `共 ${appListTotal} 条`}
-                    hideOnSinglePage={appListTotal <= 12}
-                    pageSizeOptions={['12', '24', '36', '48', '60']}
-                  />
+                  <div className={styles.paginationContainer}>
+                    <Pagination
+                      showSizeChanger
+                      onShowSizeChange={this.handleChangePage}
+                      current={page}
+                      pageSize={page_size}
+                      total={appListTotal}
+                      onChange={this.handleChangePage}
+                      showQuickJumper
+                      showTotal={(appListTotal) => `共 ${appListTotal} 条`}
+                      hideOnSinglePage={appListTotal <= 12}
+                      pageSizeOptions={['12', '24', '36', '48', '60']}
+                    />
+                  </div>
                 </>
               ) : (
                 <div style={{ paddingTop: '96px' }}>
