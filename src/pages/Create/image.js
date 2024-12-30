@@ -230,7 +230,7 @@ export default class Main extends PureComponent {
           </Button>
         }
       >
-        {Com ? <Com archInfo={archInfo} {...this.props} key={type} /> : <FormattedMessage id="teamAdd.create.error" />}
+        {Com ? <Com archInfo={archInfo} imgRepostoryList={imageList} {...this.props} key={type} /> : <FormattedMessage id="teamAdd.create.error" />}
         {this.state.visible && (
           <AddOrEditImageRegistry
             loading={imageHubLoading}

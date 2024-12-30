@@ -120,7 +120,7 @@ export default class Index extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, archInfo } = this.props;
+    const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic } = this.props;
     const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
@@ -132,6 +132,11 @@ export default class Index extends PureComponent {
         }
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
+        }
+        if(!isPublic){
+          const secretObj = imgRepostoryList.find(item => item.secret_id === secretId)
+          fieldsValue.user_name = secretObj.username
+          fieldsValue.password = secretObj.password
         }
         onSubmit(fieldsValue);
       }

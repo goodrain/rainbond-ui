@@ -46,9 +46,9 @@ class InstanceList extends PureComponent {
         });
     }
     if(type){
-      return  memRate * 100
+      return  memRate
     }
-    return memRate * 100 + '%';
+    return memRate + '%';
   };
   getMemorySum = containers => {
     let memorySum = 0;
@@ -70,6 +70,7 @@ class InstanceList extends PureComponent {
     return (
       <>
         {(list||[]).map((item) => {
+          console.log(item, 'item')
           return <>
             <div className={style.card}> 
               <h1>{this.showName(item.pod_name)}</h1>

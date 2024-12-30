@@ -345,7 +345,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         {!allDisabled ? (
           <Row>
-            <Col offset={5} span={19}>
+            <Col offset={9} span={15}>
               {Modifys ? (
                 <div>
                   {isEdit && (

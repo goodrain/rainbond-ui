@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
-import { Card } from 'antd';
+import { Card, Icon, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
@@ -22,7 +22,7 @@ export default class Index extends PureComponent {
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${data &&
-              data.bean.plugin_id}`
+            data.bean.plugin_id}`
           )
         );
       },
@@ -31,14 +31,21 @@ export default class Index extends PureComponent {
   render() {
     const content = <div className={styles.pageHeaderContent} />;
 
-    const extraContent = <div className={styles.extraImg} />;
-
     return (
       <PageHeaderLayout
-        title={formatMessage({id:'teamPlugin.create.title'})}
-        content={content}
-        extraContent={extraContent}
-        titleSvg={pageheaderSvg.getSvg('apiSvg',18)}
+        title={formatMessage({ id: 'teamPlugin.create.title' })}
+        content="创建一个属于您的插件，创建好的插件可以在组件中使用。"
+        titleSvg={pageheaderSvg.getSvg('apiSvg', 18)}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+            );
+          }} type="default">
+              <Icon type="home" />插件管理
+          </Button>
+        }
       >
         <Card>
           <div

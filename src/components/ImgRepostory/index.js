@@ -43,7 +43,6 @@ export default class ImgRepository extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props, 'this.props')
     this.getSecretId();
   }
 
@@ -52,10 +51,8 @@ export default class ImgRepository extends Component {
     const { location } = window;
     const hash = location.hash;
     const match = hash.match(/image\/([^?]+)/);
-    console.log(match, 'match')
     if (match && match[1]) {
       const secretId = match[1];
-      console.log(secretId, 'secretId')
       this.setState({ secretId });
       this.fetchNamespaces(secretId);
     } else if (imgSecretId) {
@@ -296,9 +293,9 @@ export default class ImgRepository extends Component {
       showInstall,
       imageUrl,
       tag,
+      secretId
     } = this.state;
     const { handleType } = this.props;
-    // 如果 handleType 为 Service 则不显示系统架构、创建时间、更新时间
     const columns = [
       {
       title: 'Tag',
@@ -462,6 +459,7 @@ export default class ImgRepository extends Component {
                 selectedImage={selectedImage} 
                 imageUrl={imageUrl}
                 tag={tag}
+                secretId={secretId}
                 isPublic={false} 
                 {...this.props}
               />

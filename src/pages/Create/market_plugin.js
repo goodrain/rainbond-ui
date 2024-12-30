@@ -19,7 +19,8 @@ import {
   Tooltip,
   Row,
   Col,
-  notification
+  notification,
+  Icon
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -1387,6 +1388,16 @@ export default class Main extends PureComponent {
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
+              extraContent={
+                <Button onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+                  );
+                }} type="default">
+                    <Icon type="home" />插件管理
+                </Button>
+              }
             >
               {scopeMax !== 'localApplication' && !isInstall && (
                 <Alert
@@ -1459,7 +1470,7 @@ export default class Main extends PureComponent {
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
-              extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              // extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
               tabList={marketTab}
               keyword={false}
               helmInfoSwitch={helmInfoSwitch}
@@ -1467,6 +1478,16 @@ export default class Main extends PureComponent {
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
+              extraContent={
+                <Button onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+                  );
+                }} type="default">
+                    <Icon type="home" />插件管理
+                </Button>
+              }
             >
               {scopeMax !== 'localApplication' && !isInstall && (
                 <Alert
