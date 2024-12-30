@@ -633,8 +633,9 @@ class Index extends Component {
         });
     }
     handleFolderNameChange = (e) => {
-        if (e.target.value.includes('/')) {
-            notification.warning({ message: '文件夹名称不能包含/符号' });
+        // 限制不能输入/和空格
+        if (e.target.value.includes('/') || e.target.value.includes(' ')) {
+            notification.warning({ message: '文件夹名称不能包含“/”符号和空格' });
             return;
         }
         this.setState({
