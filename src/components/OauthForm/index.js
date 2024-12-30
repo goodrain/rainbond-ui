@@ -244,7 +244,6 @@ class CreateOAuthForm extends PureComponent {
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
                 { required: true, message: formatMessage({ id: 'placeholder.oauth.redirect_domain' }) },
-                { type: 'url', message: formatMessage({ id: 'placeholder.oauth.not_url' }) },
                 {
                   max: 255,
                   message: formatMessage({ id: 'placeholder.max255' })
