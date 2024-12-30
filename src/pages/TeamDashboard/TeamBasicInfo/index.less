@@ -33,9 +33,23 @@
   border: 1px solid #e8e8e8;
   border-radius: 5px;
   min-height: 470px;
-  :global{
+  display: flex;
+  flex-direction: column;
+  
+  :global {
     .ant-card-body {
       padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      .ant-table-wrapper {
+        flex: 1;
+      }
+      
+      .teamHotAppList {
+        flex: 1;
+      }
     }
     .ant-card-head {
       background-color: transparent;
@@ -206,9 +220,10 @@
           }
           .value{
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             margin-top: 16px;
+            gap: 16px;
             .statusText {
               width: 62px;
               padding: 2px 0px;
@@ -219,7 +234,7 @@
             }
             .component {
               color: #717179;
-              font-size: 16px;
+              font-size: 14px;
             }
           }
           .updateTime {
@@ -228,10 +243,10 @@
             margin-top: 16px;
           }
           .btn{
-            color: @primary-color;
+            color: #717179;
             position: absolute;
             right: 12px;
-            top: 14%;
+            top: 16px;
             display: flex;
             align-items: center;
             .icon {
@@ -240,10 +255,51 @@
             > div{
               display: flex;
               align-items: center;
+              padding: 2px 8px;
+              border-radius: 3px;
+              border: 1px solid transparent;
+              > svg {
+                path {
+                  fill: #717179;
+                }
+              }
+              &:hover{
+                color: @primary-color;
+                border: 1px solid rgba(25, 92, 163, 0.15);
+                > svg {
+                  path {
+                    fill: @primary-color;
+                  }
+                }
+              }
             }
           }
           .visterBtn {
-            margin-left: 10px;
+            margin-left: 4px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            > a {
+              color: #717179;
+            }
+            > svg {
+              fill: #717179;
+              path {
+                fill: #717179;
+              }
+            }
+            &:hover{
+              border: 1px solid rgba(25, 92, 163, 0.15);
+              > a {
+                color: @primary-color;
+              }
+              > svg {
+                fill: @primary-color;
+                path {
+                  fill: @primary-color;
+                }
+              }
+            }
           }
       }
     }
@@ -251,4 +307,11 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   }
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding: 45px 16px 0 0;
 }

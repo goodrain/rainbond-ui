@@ -4,7 +4,7 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import TeamImg from '../../../public/images/team-icon.png';
+import TeamImg from '../../../public/images/default_Avatar.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
@@ -96,7 +96,7 @@ export default class Index extends PureComponent {
       const { team_name, region } = teams[0]
       const { team_region_name } = region[0]
       if (team_name && team_region_name) {
-        return`/team/${team_name}/region/${team_region_name}/index`
+        return `/team/${team_name}/region/${team_region_name}/index`
       }
     } else {
       if (currUser?.is_enterprise_admin) {
@@ -116,7 +116,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           this.setState({
-            logoInfo: res.bean.logo
+            logoInfo: res.bean.logo || TeamImg
           })
         }
       },
@@ -235,32 +235,7 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          {logoInfo ?
-            (
-              <Avatar size="large" src={logoInfo} />
-            ) : (
-              <Avatar
-                style=
-                {{
-                  backgroundColor: '#00a2ae',
-                  verticalAlign: 'middle'
-                }}
-                size={60}
-                shape="square">
-                <span
-                  style=
-                  {{
-                    color: '#fff',
-                    fontSize: 35,
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  {currentTeam.team_alias.substr(0, 1)}
-                </span>
-              </Avatar>
-            )}
-
-
+          <Avatar size="large" src={logoInfo} />
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
@@ -284,7 +259,7 @@ export default class Index extends PureComponent {
         <div className={styles.extraBtns}>
           {!isEnterpriseAdmin && (
             <Button onClick={this.showExitTeam} type="dashed">
-             <Icon type="rollback" /> {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
+              <Icon type="rollback" /> {formatMessage({ id: 'teamManage.tabs.deleteTeam' })}
             </Button>
           )}
           <Button onClick={() => {

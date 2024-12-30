@@ -23,11 +23,13 @@ const versionUpdata = {
   'versionUpdata_6_1.updateTime': 'Update Time',
   'versionUpdata_6_1.action': 'Action',
   'versionUpdata_6_1.appNum': 'Application Number (pcs)',
-  'versionUpdata_6_1.serviceNum': 'Service Number (pcs)',
+  'versionUpdata_6_1.serviceNum': 'Component Number (pcs)',
   'versionUpdata_6_1.cpuUsage': 'CPU Usage',
   'versionUpdata_6_1.memoryUsage': 'Memory Usage',
   'versionUpdata_6_1.diskUsage': 'Storage Usage (GB)',
   'versionUpdata_6_1.appList': 'Application List',
+  'versionUpdata_6_1.appList.table': 'List View',
+  'versionUpdata_6_1.appList.card': 'Card View',
   'versionUpdata_6_1.createApp': 'Create Application',
   'versionUpdata_6_1.plugin': 'Plugin',
   'versionUpdata_6_1.command': 'Please enter the command',
@@ -42,6 +44,7 @@ const versionUpdata = {
   'versionUpdata_6_1.setting': 'Setting',
   'versionUpdata_6_1.createSuccess': 'Create Application Success',
   'versionUpdata_6_1.addComponent': 'Add Component',
+  'versionUpdata_6_1.addComponent.card': 'Component',
   'versionUpdata_6_1.manage': 'Manage',
   'versionUpdata_6_1.createComponent': 'Create Component from Container',
   'versionUpdata_6_1.addPrivateGit': 'Add Private Git Repository',
@@ -111,6 +114,8 @@ const versionUpdata = {
   'versionUpdata_6_1.arch.placeholder': 'Please select the architecture',
   'versionUpdata_6_1.createComponent': 'Create Component',
   'versionUpdata_6_1.confirmCreate': 'Confirm Create',
+  'teamOverview.empty.description': 'No applications yet, create your first one now',
+  'teamOverview.empty.button': 'Create Application'
 }
 
 

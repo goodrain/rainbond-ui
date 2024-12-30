@@ -4,6 +4,7 @@ import { Form, Row, Col, Input, Button, Icon, Upload, Avatar, notification, Skel
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ChangePassword from '../../../components/ChangePassword'
 import EditUserInfoFrom from '../../../components/EditUserInfoFrom'
+import userIcon from '../../../../public/images/default_Avatar.png';
 import styles from './Info.less'
 
 @Form.create()
@@ -113,7 +114,7 @@ export default class PersonalView extends Component {
         <Skeleton loading={loading} paragraph={{ rows: 6 }} active>
           <Row type="flex" align="bottom">
             <Col span={3} style={{ paddingLeft: "2%" }}>
-              <Avatar src={imageUrl} size={100} />
+              <Avatar src={imageUrl || userIcon} size={100} />
             </Col>
             <Col span={21}>
               <Row style={{ display: "flex", flexDirection: "column" }}>

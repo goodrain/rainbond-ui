@@ -200,7 +200,8 @@ export default class OauthTable extends PureComponent {
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
+        system: true
       },
       callback: res => {
         if (res && res.status_code === 200) {

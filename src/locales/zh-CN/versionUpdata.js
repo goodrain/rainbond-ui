@@ -23,11 +23,13 @@ const versionUpdata = {
   'versionUpdata_6_1.updateTime': '更新时间',
   'versionUpdata_6_1.action': '操作',
   'versionUpdata_6_1.appNum': '应用数量（个）',
-  'versionUpdata_6_1.serviceNum': '服务数量（个）',
+  'versionUpdata_6_1.serviceNum': '组件数量（个）',
   'versionUpdata_6_1.cpuUsage': 'CPU使用量',
   'versionUpdata_6_1.memoryUsage': '内存使用量',
   'versionUpdata_6_1.diskUsage': '存储使用量 (GB)',
   'versionUpdata_6_1.appList': '应用列表',
+  'versionUpdata_6_1.appList.table': '列表视图',
+  'versionUpdata_6_1.appList.card': '卡片视图',
   'versionUpdata_6_1.createApp': '新建应用',
   'versionUpdata_6_1.plugin': '插件',
   'versionUpdata_6_1.command': '请填写命令',
@@ -42,6 +44,7 @@ const versionUpdata = {
   'versionUpdata_6_1.setting': '设置',
   'versionUpdata_6_1.createSuccess': '新建应用成功',
   'versionUpdata_6_1.addComponent': '添加组件',
+  'versionUpdata_6_1.addComponent.card': '组件',
   'versionUpdata_6_1.manage': '管理',
   'versionUpdata_6_1.createComponent': '从容器创建组件',
   'versionUpdata_6_1.addPrivateGit': '添加私有Git仓库',
@@ -120,6 +123,8 @@ const versionUpdata = {
   'versionUpdata_6_1.teamManage.invite.modal.submit': '生成邀请链接',
   'versionUpdata_6_1.teamManage.invite.modal.title': '邀请链接生成',
   'versionUpdata_6_1.teamManage.invite.modal.copy': '复制邀请链接',
+  'teamOverview.empty.description': '暂无应用，快来创建你的第一个应用吧',
+  'teamOverview.empty.button': '新建应用'
 }
 export default versionUpdata;
 

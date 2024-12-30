@@ -117,7 +117,8 @@ export default class Main extends PureComponent {
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: currUser.enterprise_id
+        enterprise_id: currUser.enterprise_id,
+        system: false
       },
       callback: res => {
         if (res?.status_code === 200) {

@@ -37,7 +37,8 @@ class BindingView extends Component {
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: currUser.enterprise_id
+        enterprise_id: currUser.enterprise_id,
+        system: false
       },
       callback: res => {
         if (res?.status_code === 200) {
@@ -64,7 +65,8 @@ class BindingView extends Component {
       home_url: homeUrls[oauth_type.toLowerCase()] || '',
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       is_auto_login: false,
-      is_console: true
+      is_console: true,
+      system: false
     };
 
     this.handelRequest(oauthData);
@@ -109,7 +111,8 @@ class BindingView extends Component {
           });
           this.setState({
             oauthInfo: false,
-            oauthTable: []
+            oauthTable: [],
+            visible: false
           },()=>{
             this.fetchOauthInfo();
           })

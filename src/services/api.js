@@ -1088,7 +1088,7 @@ export async function queryOauthInfo(body) {
     {
       method: 'get',
       params: {
-        system: true
+        system: body.system 
       }
     }
   );
