@@ -23,7 +23,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
-import userIcon from '../../../public/images/user-icon-small.png';
+import userIcon from '../../../public/images/default_Avatar.png';
 import { setNewbieGuide, fetchAllVersion } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';

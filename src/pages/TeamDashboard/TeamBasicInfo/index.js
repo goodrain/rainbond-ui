@@ -543,7 +543,7 @@ export default class index extends Component {
                 </>
               }
             >
-              {isAppList ? (
+              {isAppList && teamHotAppList.length > 0 ? (
                 <>
                   {isTableView ? (
                     <Table
