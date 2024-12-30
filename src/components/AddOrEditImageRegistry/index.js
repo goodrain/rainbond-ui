@@ -64,11 +64,11 @@ class ConfirmModal extends PureComponent {
           // 如果是，删除末尾的斜杠
           values.domain = values.domain.slice(0, -1);
         }
-        if (values.domain) {
-          this.handleCheckImageHub(values);
-        } else {
+        // if (values.domain) {
+        //   this.handleCheckImageHub(values);
+        // } else {
           onOk(values);
-        }
+        // }
       }
     });
   };
@@ -168,8 +168,8 @@ class ConfirmModal extends PureComponent {
                 })(<Select placeholder={formatMessage({ id: 'placeholder.warehouse_name' })} disabled={!!data}>
                   <Option value="Docker">Docker Registry</Option>
                   <Option value="Harbor">Harbor</Option>
-                  <Option value="Volcano">{formatMessage({ id: 'versionUpdata_6_1.volcano' })}</Option>
-                  <Option value="Aliyun">{formatMessage({ id: 'versionUpdata_6_1.aliyun' })}</Option>
+                  {/* <Option value="Volcano">{formatMessage({ id: 'versionUpdata_6_1.volcano' })}</Option>
+                  <Option value="Aliyun">{formatMessage({ id: 'versionUpdata_6_1.aliyun' })}</Option> */}
                 </Select>)}
               </FormItem>
             {!data &&

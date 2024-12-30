@@ -258,12 +258,12 @@ const global = {
     }
     return '';
   },
-  getImageTag() {
+  getImageTag(value) {
     const reg = /tag=([^\&]+)/;
     const hash = window.location.hash || window.location.pathname || '';
     const match = hash.match(reg);
     if (match) {
-      return match[1];
+      return value ? value.name + match[1] : match[1];
     }
     return '';
   },

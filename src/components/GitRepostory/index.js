@@ -143,7 +143,7 @@ export default class Index extends PureComponent {
     return (
       <Card className={styles.ClearCard}>
         <div>
-          {!isAuth ? (
+          {isAuth ? (
             <div
               style={{
                 textAlign: 'center',

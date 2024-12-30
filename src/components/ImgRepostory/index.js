@@ -37,21 +37,30 @@ export default class ImgRepository extends Component {
       imageSearchKey: '',
       tagSearchKey: '',
       showInstall: false,
+      imageUrl: '',
+      tag: '',
     }
   }
 
   componentDidMount() {
+    console.log(this.props, 'this.props')
     this.getSecretId();
   }
 
   getSecretId = () => {
+    const { imgSecretId } = this.props
     const { location } = window;
     const hash = location.hash;
     const match = hash.match(/image\/([^?]+)/);
+    console.log(match, 'match')
     if (match && match[1]) {
       const secretId = match[1];
+      console.log(secretId, 'secretId')
       this.setState({ secretId });
       this.fetchNamespaces(secretId);
+    } else if (imgSecretId) {
+      this.setState({ secretId: imgSecretId });
+      this.fetchNamespaces(imgSecretId);
     }
   }
 
@@ -257,10 +266,9 @@ export default class ImgRepository extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          dispatch(
-            routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${secretId}?group_id=${globalUtil.getGroupID()}&image_url=${res?.bean?.image}&tag=${record.name}`)
-          );
           this.setState({
+            imageUrl: res?.bean?.image,
+            tag: record.name,
             showInstall: true,
           })
         }
@@ -285,30 +293,29 @@ export default class ImgRepository extends Component {
       imageSearchKey,
       tagSearchKey,
       tableLoading,
-      showInstall
+      showInstall,
+      imageUrl,
+      tag,
     } = this.state;
+    const { handleType } = this.props;
+    // 如果 handleType 为 Service 则不显示系统架构、创建时间、更新时间
     const columns = [
       {
-        title: 'Tag',
-        dataIndex: 'name',
-        key: 'name',
+      title: 'Tag',
+      dataIndex: 'name',
+      key: 'name',
       },
       {
-        title: formatMessage({ id: 'versionUpdata_6_1.size' }),
-        dataIndex: 'size',
-        key: 'size',
-        render: (size) => `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
+      title: formatMessage({ id: 'versionUpdata_6_1.size' }),
+      dataIndex: 'size',
+      key: 'size',
+      render: (size) => `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
       },
+      ...(handleType !== 'Service' ? [
       {
         title: formatMessage({ id: 'versionUpdata_6_1.os' }),
         key: 'platform',
         render: (_, record) => `${record.os || '-'}/${record.architecture || '-'}`
-      },
-      {
-        title: formatMessage({ id: 'versionUpdata_6_1.status' }),
-        dataIndex: 'status',
-        key: 'status',
-        render: (status) => status === 'active' ? '活跃' : status
       },
       {
         title: formatMessage({ id: 'versionUpdata_6_1.created_at' }),
@@ -321,17 +328,24 @@ export default class ImgRepository extends Component {
         dataIndex: 'updated_at',
         key: 'updated_at',
         render: (updated_at) => new Date(updated_at).toLocaleString()
+      }
+      ] : []),
+      {
+      title: formatMessage({ id: 'versionUpdata_6_1.status' }),
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => status === 'active' ? '活跃' : status
       },
       {
-        title: formatMessage({ id: 'versionUpdata_6_1.action' }),
-        key: 'action',
-        render: (_, record) => (
-          <a
-            onClick={() => this.handleInstall(record)}
-          >
-            {formatMessage({ id: 'versionUpdata_6_1.install' })}
-          </a>
-        )
+      title: formatMessage({ id: 'versionUpdata_6_1.action' }),
+      key: 'action',
+      render: (_, record) => (
+        <a
+        onClick={() => this.handleInstall(record)}
+        >
+        {formatMessage({ id: 'versionUpdata_6_1.install' })}
+        </a>
+      )
       }
     ];
     return (
@@ -366,7 +380,7 @@ export default class ImgRepository extends Component {
           }
           className={styles.rbd_card}
           extra={
-            showDetail ? (
+            (showDetail && handleType != 'Service') ? (
               <Button
                 onClick={this.handleBack}
               >
@@ -402,14 +416,17 @@ export default class ImgRepository extends Component {
                             </div>
                             <div className={styles.imageContent}>
                               <div className={styles.imageTitle}>{item.name}</div>
-                              <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>
+                              {handleType != 'Service' && <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>}
                             </div>
-                            <span className={styles.imageDate}>
-                              {formatMessage({ id: 'versionUpdata_6_1.updateTime' })} {new Date(item.updated_at).toLocaleDateString()}
-                            </span>
-                            <span className={styles.imageDate}>
-                              {formatMessage({ id: 'versionUpdata_6_1.createdTime' })} {new Date(item.created_at).toLocaleDateString()}
-                            </span>
+                            {handleType != 'Service' && (
+                            <>
+                              <span className={styles.imageDate}>
+                                {formatMessage({ id: 'versionUpdata_6_1.updateTime' })} {new Date(item.updated_at).toLocaleDateString()}
+                              </span>
+                              <span className={styles.imageDate}>
+                                {formatMessage({ id: 'versionUpdata_6_1.createdTime' })} {new Date(item.created_at).toLocaleDateString()}
+                              </span>
+                            </>)}
                             <div className={styles.imageDetail}>
                               <Button type="link" onClick={() => this.handleImageClick(item)}>
                                 {formatMessage({ id: 'versionUpdata_6_1.imageDetail' })}
@@ -440,7 +457,14 @@ export default class ImgRepository extends Component {
             </div>
           ) : (
             showInstall ? (
-              <ImageNameForm isPublic={false} />
+              <ImageNameForm 
+                groupId={globalUtil.getGroupID()} 
+                selectedImage={selectedImage} 
+                imageUrl={imageUrl}
+                tag={tag}
+                isPublic={false} 
+                {...this.props}
+              />
             ) : (
               <div>
                 <div className={styles.rbd_title_container}>
