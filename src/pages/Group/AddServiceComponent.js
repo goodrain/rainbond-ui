@@ -693,6 +693,7 @@ export default class AddServiceComponent extends PureComponent {
               {...PublicParameter}
               type={hubType}
               archInfo={archInfo}
+              imgRepostoryList={imageList}
               imgSecretId={imgRepostoryServiceID}
             />
           }

@@ -62,7 +62,7 @@ class BindingView extends Component {
     const oauthData = {
       ...rest,
       oauth_type: oauth_type.toLowerCase(),
-      home_url: homeUrls[oauth_type.toLowerCase()] || '',
+      home_url: homeUrls[oauth_type.toLowerCase()] || values.home_url ||'',
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       is_auto_login: false,
       is_console: true,

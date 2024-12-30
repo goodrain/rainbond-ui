@@ -315,12 +315,6 @@ export default class ImgRepository extends Component {
         render: (_, record) => `${record.os || '-'}/${record.architecture || '-'}`
       },
       {
-        title: formatMessage({ id: 'versionUpdata_6_1.created_at' }),
-        dataIndex: 'created_at',
-        key: 'created_at',
-        render: (created_at) => new Date(created_at).toLocaleString()
-      },
-      {
         title: formatMessage({ id: 'versionUpdata_6_1.updated_at.title' }),
         dataIndex: 'updated_at',
         key: 'updated_at',
@@ -416,14 +410,10 @@ export default class ImgRepository extends Component {
                               {handleType != 'Service' && <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>}
                             </div>
                             {handleType != 'Service' && (
-                            <>
                               <span className={styles.imageDate}>
-                                {formatMessage({ id: 'versionUpdata_6_1.updateTime' })} {new Date(item.updated_at).toLocaleDateString()}
+                                {formatMessage({ id: 'versionUpdata_6_1.updated_at.title' })} {new Date(item.created_at).toLocaleDateString()}
                               </span>
-                              <span className={styles.imageDate}>
-                                {formatMessage({ id: 'versionUpdata_6_1.createdTime' })} {new Date(item.created_at).toLocaleDateString()}
-                              </span>
-                            </>)}
+                            )}
                             <div className={styles.imageDetail}>
                               <Button type="link" onClick={() => this.handleImageClick(item)}>
                                 {formatMessage({ id: 'versionUpdata_6_1.imageDetail' })}

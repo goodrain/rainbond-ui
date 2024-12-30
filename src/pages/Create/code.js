@@ -172,7 +172,6 @@ export default class Main extends PureComponent {
     } else {
       updatedTable.push(updatedData);
     }
-
     dispatch({
       type: 'global/creatOauth',
       payload: {
