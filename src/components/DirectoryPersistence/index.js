@@ -633,6 +633,10 @@ class Index extends Component {
         });
     }
     handleFolderNameChange = (e) => {
+        if (e.target.value.includes('/')) {
+            notification.warning({ message: '文件夹名称不能包含/符号' });
+            return;
+        }
         this.setState({
             folderName: e.target.value
         });
@@ -687,33 +691,6 @@ class Index extends Component {
                 description: error.message || '网络请求失败，请检查网络连接'
             });
         }
-        //     type: 'appControl/createFolder',
-        //     payload: ,
-        //     callback: (res) => {
-        //         if (res && res.status_code === 200) {
-        //             notification.success({ message: '创建文件夹成功' });
-        //             this.setState({
-        //                 createFolderVisible: false,
-        //                 folderName: '',
-        //                 createFolderLoading: false
-        //             });
-        //             // 刷新目录
-        //             const { selectedKeys } = this.state;
-        //             if (selectedKeys[0] == undefined) {
-        //                 this.getListFiles();
-        //             } else {
-        //                 this.updateTree();
-        //             }
-        //         } else {
-        //             notification.error({ message: '创建文件夹失败' });
-        //             this.setState({ createFolderLoading: false });
-        //         }
-        //     },
-        //     handleError: () => {
-        //         notification.error({ message: '创建文件夹失败' });
-        //         this.setState({ createFolderLoading: false });
-        //     }
-        // });
     }
     createFolder = () => {
         this.showCreateFolder();
