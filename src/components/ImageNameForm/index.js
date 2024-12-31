@@ -83,7 +83,7 @@ export default class Index extends PureComponent {
     const group_id = globalUtil.getGroupID()
     if(group_id){
       this.setState({
-        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
       })
     }
     if (handleType && handleType === 'Service') {

@@ -218,29 +218,24 @@
             overflow: hidden;
             text-overflow: ellipsis;
           }
-          .value{
+          .statusText {
+            width: 62px;
+            margin-top: 16px;
+            padding: 2px 0px;
+            color: #fff;
+            text-align: center;
+            border-radius: 20px;
+            font-weight: 500;
+          }
+          .bottomBox {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             margin-top: 16px;
-            gap: 16px;
-            .statusText {
-              width: 62px;
-              padding: 2px 0px;
-              color: #fff;
-              text-align: center;
-              border-radius: 20px;
-              font-weight: 500;
-            }
-            .component {
+            >div {
               color: #717179;
               font-size: 14px;
             }
-          }
-          .updateTime {
-            color: #717179;
-            font-size: 14px;
-            margin-top: 16px;
           }
           .btn{
             color: #717179;
@@ -314,4 +309,20 @@
   justify-content: flex-end;
   margin-top: auto;
   padding: 45px 16px 0 0;
+}
+.appListEmpty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 380px;
+  width: 100%;
+  font-size: 16px;
+  border: 1px dashed #e8e8e8;
+  border-radius: 5px;
+  color: @rbd-content-color-secondary;
+  cursor: pointer;
+}
+.appListEmpty:hover {
+  border: 1px dashed @primary-color;
+  background-color: #f4f4f4;
 }

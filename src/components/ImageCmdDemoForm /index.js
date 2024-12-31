@@ -80,7 +80,7 @@ export default class Index extends PureComponent {
       if (!err && onSubmit) {
         if (!isService) {
           fieldsValue.k8s_app = "appDockerDemo"
-          fieldsValue.is_demo = true
+          fieldsValue.is_demo = false
         }
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]

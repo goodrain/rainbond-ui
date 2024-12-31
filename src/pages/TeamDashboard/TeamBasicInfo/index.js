@@ -190,6 +190,7 @@ export default class index extends Component {
     this.setState({
       addGroup: false
     }, () => {
+      newRole.refreshPermissionsInfo()
       notification.success({
         message: formatMessage({ id: 'versionUpdata_6_1.createSuccess' })
       })
@@ -278,16 +279,16 @@ export default class index extends Component {
                     <Tooltip placement="topLeft" title={item.group_name}>
                       <div className={styles.appTitle}>{item.group_name}</div>
                     </Tooltip>
-                    <div className={styles.value}>
-                      <div className={styles.statusText} style={{ background: globalUtil.appStatusColor(item.status) }}>
-                        {globalUtil.appStatusText(item.status)}
-                      </div>
-                      <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
+                    <div className={styles.statusText} style={{ background: globalUtil.appStatusColor(item.status) }}>
+                      {globalUtil.appStatusText(item.status)}
                     </div>
-                    <div className={styles.updateTime}>
-                      {item.update_time &&
-                        moment(item.update_time).fromNow()}
-                      <FormattedMessage id="teamOverview.update" />
+                    <div className={styles.bottomBox}>
+                      <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
+                      <div className={styles.updateTime}>
+                        {item.update_time &&
+                          moment(item.update_time).fromNow()}
+                        <FormattedMessage id="teamOverview.update" />
+                      </div>
                     </div>
                     <div className={styles.btn}>
                       {isAppCreate && (
@@ -410,7 +411,7 @@ export default class index extends Component {
         }
       },
       {
-        title: formatMessage({ id: 'versionUpdata_6_1.updated_at.title' }),
+        title: formatMessage({ id: 'versionUpdata_6_1.updated.time' }),
         dataIndex: 'update_time',
         key: 'update_time',
         render: (text, record) => {
@@ -574,8 +575,17 @@ export default class index extends Component {
                   </div>
                 </>
               ) : (
-                <div style={{ paddingTop: '96px' }}>
-                  <Empty />
+                // 空列表做成可点击的效果指引用户去创建应用
+                <div 
+                  className={styles.appListEmpty} 
+                  onClick={() => {
+                  this.setState({
+                    addGroup: true,
+                  });
+                }}>
+                  <Empty 
+                    description={'开始部署您的应用'}
+                  />
                 </div>
               )}
             </Card>

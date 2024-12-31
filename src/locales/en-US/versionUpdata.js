@@ -77,6 +77,7 @@ const versionUpdata = {
   'versionUpdata_6_1.platform': 'Operating System/Architecture',
   'versionUpdata_6_1.status': 'Status',
   'versionUpdata_6_1.updated_at.title': 'Last push',
+  'versionUpdata_6_1.updated.time': 'Updated Time',
   'versionUpdata_6_1.action': 'Action',
   'versionUpdata_6_1.size.GB': 'GB',
   'versionUpdata_6_1.os': 'Operating System/Architecture',

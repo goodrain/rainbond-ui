@@ -78,6 +78,7 @@ const versionUpdata = {
   'versionUpdata_6_1.platform': '操作系统/架构',
   'versionUpdata_6_1.status': '状态',
   'versionUpdata_6_1.updated_at.title': '最近一次推送',
+  'versionUpdata_6_1.updated.time': '更新时间',
   'versionUpdata_6_1.action': '操作',
   'versionUpdata_6_1.size.GB': 'GB',
   'versionUpdata_6_1.os': '操作系统/架构',
