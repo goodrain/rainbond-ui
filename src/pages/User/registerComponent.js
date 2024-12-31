@@ -95,6 +95,14 @@ export default class RegisterComponent extends Component {
       time: Date.now()
     });
   };
+  getRedirectParams = () => {
+    const redirect = window.localStorage.getItem('redirect');
+    const redirectUrl = encodeURIComponent(redirect);
+    if (redirect && redirect.includes('invite')) {
+      return '/user/login?redirect=' + redirectUrl;
+    }
+    return '/user/login';
+  }
 
   render() {
     const {
@@ -231,6 +239,18 @@ export default class RegisterComponent extends Component {
             ]
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
         </FormItem>
+        {/* 手机号 */}
+        <FormItem>
+          {getFieldDecorator('phone', {
+            rules: [
+              { required: true, message: formatMessage({ id: 'login.registerComponent.phone' }) },
+              {
+                pattern: /^1[3-9]\d{9}$/,
+                message: formatMessage({ id: 'login.registerComponent.phone_error' })
+              }
+            ],
+          })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.phone' })} />)}
+        </FormItem>
         <FormItem>
           <Button
             size="large"
@@ -248,7 +268,7 @@ export default class RegisterComponent extends Component {
           </Button>
 
           {!firstRegist && type === 'register' && (
-            <Link className={styles.login} to="/user/login">
+            <Link className={styles.login} to={this.getRedirectParams()}>
               <FormattedMessage id='login.registerComponent.use' />
             </Link>
           )}

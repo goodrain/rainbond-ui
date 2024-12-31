@@ -439,12 +439,17 @@ export default class EnterpriseUsers extends PureComponent {
             )}
             <div style={{padding:24}}>
             <Table
-              pagination={total > 10 ? {
+              pagination={{
                 current: page,
                 pageSize,
                 total,
-                onChange: this.onPageChange
-              } : false}
+                onChange: this.onPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                onShowSizeChange: this.onPageChange,
+                hideOnSinglePage: total <= 10
+              }}
               dataSource={adminList}
               columns={columns}
             />

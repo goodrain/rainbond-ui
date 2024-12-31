@@ -366,3 +366,66 @@ export async function createGitlabProject(
     }
   );
 }
+// 获取用户信息
+export async function getUserInfo(handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/details`, {
+    method: 'get',
+    handleError
+  });
+}
+// 修改用户信息
+export async function updateUserInfo(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/details`, {
+    method: 'post',
+    data: {
+      real_name: body.real_name,
+      email: body.email,
+      logo: body.logo
+    },
+    handleError
+  });
+}
+// 获取镜像列表
+export async function getImageList(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/hub/registry/image`, {
+    method: 'get',
+    params: {
+      secret_id: body.secret_id,
+      namespace: body.namespace || '',
+      name: body.name || '',
+      tag: body.tag || '',
+      page: body.page || 1,
+      page_size: body.page_size || 10,
+      search_key: body.search_key || '',
+    },
+    handleError
+  });
+}
+// 生成邀请链接
+export async function createInviteLink(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/invite`, {
+    method: 'post',
+    data: {
+      team_id: body.team_id,
+      role_id: body.role_id
+    },
+    handleError
+  });
+}
+// 获取邀请链接
+export async function getInviteLink(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/invite/${body.invite_id}`, {
+    method: 'get',
+    handleError
+  });
+}
+// 同意邀请
+export async function acceptInvite(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/invite/${body.invite_id}`, {
+    method: 'post',
+    data: {
+      action : body.action
+    },
+    handleError
+  });
+}

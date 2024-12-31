@@ -38,6 +38,7 @@ import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import pluginUtile from '../utils/pulginUtils'
 import { loadRegionConfig } from '@/services/cloud';
+import CustomFooter from "./CustomFooter"
 import "animate.css"
 const { Content } = Layout;
 
@@ -358,8 +359,9 @@ class EnterpriseLayout extends PureComponent {
       this.handlePutLog(rainbondInfo, selectE);
       this.fetchEnterpriseInfo(selectE.enterprise_id);
       this.setState({ enterpriseInfo: selectE });
+      const link = this.getLoginRole(currentUser)
       dispatch(
-        routerRedux.replace(`/enterprise/${selectE.enterprise_id}/personal`)
+        routerRedux.replace(link)
       );
     } else {
       enterpriseList.map(item => {
@@ -448,8 +450,24 @@ class EnterpriseLayout extends PureComponent {
         params: { eid }
       },
       dispatch,
+      currentUser
     } = this.props
-    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+    dispatch(routerRedux.replace(this.getLoginRole(currentUser)))
+  }
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${team_name}/region/${team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
   }
   render() {
     const {
@@ -489,16 +507,6 @@ class EnterpriseLayout extends PureComponent {
         </div>
       );
     };
-    const customHeader = () => {
-      return (
-        <Link
-          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
-          to={`/enterprise/${eid}/personal`}
-        >
-          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
-        </Link>
-      )
-    }
     const layout = () => {
       const { rainbondInfo } = this.props
       const isAlarm = rainbondInfo && rainbondInfo.is_alarm && rainbondInfo.is_alarm.enable
@@ -534,7 +542,6 @@ class EnterpriseLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
-              customHeader={customHeader}
               customHeaderImg={customHeaderImg}
             />
             <Layout style={{ flexDirection: 'row' }}>
@@ -611,6 +618,7 @@ class EnterpriseLayout extends PureComponent {
                         noMatch={<Redirect to="/user/login" />}
                       >
                         {children}
+                        <CustomFooter />
                       </Authorized>
                     </div>
                   </Content>

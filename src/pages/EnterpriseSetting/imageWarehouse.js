@@ -9,10 +9,11 @@ import ConfirmModal from '../../components/ConfirmModal';
 import ScrollerX from '../../components/ScrollerX';
 import TeamMemberTable from '../../components/TeamImageTable';
 
-@connect(({ teamControl, loading }) => ({
+@connect(({ teamControl, loading, user }) => ({
     regions: teamControl.regions,
     currentTeam: teamControl.currentTeam,
     toMoveTeamLoading: loading.effects['teamControl/moveTeam'],
+    currentUser: user.currentUser,
 }))
 export default class ImageWarehouse extends PureComponent {
     constructor(props) {
@@ -30,7 +31,6 @@ export default class ImageWarehouse extends PureComponent {
         };
     }
     componentDidMount() {
-        // 示例用法
         this.loadClusters()
         this.getImageHub()
     }
@@ -57,7 +57,8 @@ export default class ImageWarehouse extends PureComponent {
                 secret_id: values.secret_id,
                 domain: values.domain,
                 username: values.username,
-                password: values.password
+                password: values.password,
+                hub_type: values.hub_type
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {
@@ -82,7 +83,8 @@ export default class ImageWarehouse extends PureComponent {
             payload: {
                 secret_id: editData.secret_id,
                 username: data.username,
-                password: data.password
+                password: data.password,
+                hub_type: data.hub_type
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {
@@ -124,14 +126,12 @@ export default class ImageWarehouse extends PureComponent {
     loadClusters = () => {
         const {
             dispatch,
-            match: {
-                params: { eid }
-            }
+            currentUser
         } = this.props;
         dispatch({
             type: 'region/fetchEnterpriseClusters',
             payload: {
-                enterprise_id: eid
+                enterprise_id: currentUser?.enterprise_id
             },
             callback: res => {
                 if (res && res.list) {
@@ -177,7 +177,6 @@ export default class ImageWarehouse extends PureComponent {
     render() {
         const {
             currentTeam,
-            memberPermissions,
             toMoveTeamLoading,
         } = this.props;
         const {

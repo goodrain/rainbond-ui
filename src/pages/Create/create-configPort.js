@@ -10,8 +10,9 @@ import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
-import CustomFooter from "../../layouts/CustomFooter";
 import roleUtil from '../../utils/role';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(
   ({ loading, teamControl, appControl }) => ({
@@ -74,9 +75,9 @@ export default class Index extends PureComponent {
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
-  handleDebounce (fn, wait) {
+  handleDebounce(fn, wait) {
     let timer = null
-    return (e)=>{
+    return (e) => {
       if (timer !== null) {
         clearTimeout(timer)
       }
@@ -86,24 +87,24 @@ export default class Index extends PureComponent {
       }, wait)
     }
   }
-  
+
   handleBuild = () => {
     this.loadingBuild = true
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false
     const { isDeploy } = this.state;
-    this.setState({ buildAppLoading: true },()=>{
+    this.setState({ buildAppLoading: true }, () => {
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
-      const obj = {
-        team_name: team_name,
-        app_alias: app_alias,
-        lang: soundCodeLanguage,
-        package_tool: packageNpmOrYarn,
-      }
-      if(soundCodeLanguage == 'NodeJSStatic'){
-        obj.dist = dist
-      }
+        const obj = {
+          team_name: team_name,
+          app_alias: app_alias,
+          lang: soundCodeLanguage,
+          package_tool: packageNpmOrYarn,
+        }
+        if (soundCodeLanguage == 'NodeJSStatic') {
+          obj.dist = dist
+        }
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: obj,
@@ -137,8 +138,8 @@ export default class Index extends PureComponent {
               })
             }
           }
-        }) 
-      }else{
+        })
+      } else {
         dispatch({
           type: 'createApp/buildApps',
           payload: {
@@ -164,15 +165,15 @@ export default class Index extends PureComponent {
           }
         })
       }
-       
+
     });
-    
+
   };
 
   handlePreventClick = () => {
-    if(!this.loadingBuild){
+    if (!this.loadingBuild) {
       this.handleBuild()
-    }else{
+    } else {
       notification.warning({ message: '正在创建，请勿频繁操作！' });
     }
   }
@@ -219,22 +220,22 @@ export default class Index extends PureComponent {
       app_alias: this.getAppAlias()
     };
   };
-  handleBuildSwitch = (val) =>{
+  handleBuildSwitch = (val) => {
     this.setState({
       handleBuildSwitch: val
     })
   }
   handleLinkConfigFile = (link) => {
-    const { 
-        match: {
-            params:{
-                appAlias,
-                regionName,
-                teamName
-            }
-        },
-        dispatch 
-    } = this.props 
+    const {
+      match: {
+        params: {
+          appAlias,
+          regionName,
+          teamName
+        }
+      },
+      dispatch
+    } = this.props
     dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
   render() {
@@ -251,76 +252,75 @@ export default class Index extends PureComponent {
       return null;
     }
     return (
-      <div>
-        <h2
-          style={{
-            textAlign: 'center'
-          }}
+      <>
+        <PageHeaderLayout
+          titleSvg={pageheaderSvg.getPageHeaderSvg("advanced", 18)}
+          title={formatMessage({ id: 'componentCheck.advanced.setup' })}
+          content={formatMessage({ id: 'versionUpdata_6_1.content2' })}
         >
-          {formatMessage({id:'componentCheck.advanced.setup'})}
-        </h2>
-        <div
-          style={{
-            overflow: 'hidden'
-          }}
-        >
-          <AppConfigPort
-            updateDetail={this.loadDetail}
-            appDetail={appDetail}
-            handleBuildSwitch={this.handleBuildSwitch}
-          />
+
           <div
             style={{
-              width:'100%',
-              display: 'flex',
-              justifyContent:'center'
+              overflow: 'hidden'
             }}
           >
-            {isDelete && (
-              <Button 
-                onClick={this.showDelete} 
-                type="default"
+            <AppConfigPort
+              updateDetail={this.loadDetail}
+              appDetail={appDetail}
+              handleBuildSwitch={this.handleBuildSwitch}
+            />
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              {isDelete && (
+                <Button
+                  onClick={this.showDelete}
+                  type="default"
+                  style={{
+                    marginRight: 8
+                  }}
+                >
+                  {formatMessage({ id: 'button.abandon_create' })}
+                </Button>
+              )}
+              <Button
                 style={{
                   marginRight: 8
                 }}
+                onClick={() => this.handleLinkConfigFile('create-configFile')}
               >
-               {formatMessage({id:'button.abandon_create'})}
+                {formatMessage({ id: 'button.previous' })}
               </Button>
+              <Button
+                loading={buildAppLoading}
+                style={{
+                  marginRight: 8
+                }}
+                onClick={() => this.handleDebounce(this.handleBuild(handleBuildSwitch), 1000)}
+                type="primary"
+              >
+                {formatMessage({ id: 'button.confirm_create' })}
+              </Button>
+            </div>
+            {showDelete && (
+              <ConfirmModal
+                loading={deleteAppLoading}
+                onOk={this.handleDelete}
+                title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />
             )}
-            <Button
-              style={{
-                marginRight: 8
-              }}
-              onClick={() => this.handleLinkConfigFile('create-configFile')}
-            >
-              {formatMessage({id:'button.previous'})}
-            </Button>
-            <Button
-              loading={buildAppLoading}
-              style={{
-                marginRight: 8
-              }}
-              onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
-              type="primary"
-            >
-              {formatMessage({id:'button.confirm_create'})}
-            </Button>
           </div>
-          <CustomFooter />
-          {showDelete && (
-            <ConfirmModal
-              loading={deleteAppLoading}
-              onOk={this.handleDelete}
-              title={formatMessage({id:'confirmModal.abandon_create.create_check.title'})}
-              subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-              desc={formatMessage({id:'confirmModal.delete.create_check.desc'})}
-              onCancel={() => {
-                this.setState({ showDelete: false });
-              }}
-            />
-          )}
-        </div>
-      </div>
+        </PageHeaderLayout>
+      </>
     );
   }
 }

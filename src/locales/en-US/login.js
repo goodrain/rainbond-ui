@@ -67,6 +67,8 @@ const login = {
     'login.system':'Cloud native application management system',
     'login.registerComponent.confirmPassword':'Please confirm the password',
     'login.registerComponent.passwordMismatch': 'The two passwords are different. Please re-enter them',
+    'login.registerComponent.phone':'Please enter your mobile number',
+    'login.registerComponent.phone_error':'Mobile phone number format error!',
 }
 
 export default Object.assign({}, login);

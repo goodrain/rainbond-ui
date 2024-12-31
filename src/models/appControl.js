@@ -142,7 +142,9 @@ import {
   vmPause,
   getComponentNames,
   getReverseDependency,
-  addReverseDependency
+  addReverseDependency,
+  determineStorageType,
+  getListFiles,
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1183,7 +1185,18 @@ export default {
         callback(response);
       }
     },
-
+    *determineStorageType({ payload, callback, handleError }, { call }) {
+      const response = yield call(determineStorageType, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getListFiles({ payload, callback, handleError }, { call }) {
+      const response = yield call(getListFiles, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     clearMembers(state) {

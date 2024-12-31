@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-import { FormattedMessage } from 'umi-plugin-locale';
+import {formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../../utils/rainbond';
-import CustomFooter from "../../../layouts/CustomFooter";
 import { Menu } from 'antd';
 import styles from './Info.less';
 
@@ -17,32 +18,36 @@ class Info extends Component {
   constructor(props) {
     super(props);
     const { match, location, enterprise, currentUser } = props;
-    const isOauth = rainbondUtil.OauthEnterpriseEnable(enterprise);
-    const oauth_services =
-      currentUser.oauth_services &&
-      currentUser.oauth_services.length > 0 &&
-      currentUser.oauth_services;
-    const isOpenOauth = isOauth && oauth_services;
     const menuMap = {};
-    if (isOpenOauth) {
-      menuMap.binding = (
-        <FormattedMessage
-          id="app.settings.menuMap.binding"
-          defaultMessage="Account Binding"
-        />
-      );
-    }
+    menuMap.personal = (
+      <FormattedMessage
+        id="app.settings.menuMap.personal"
+        defaultMessage="Personal"
+      />
+    );
     menuMap.accesstoken = (
       <FormattedMessage
         id="app.settings.menuMap.access-token"
         defaultMessage="Access Token"
       />
     );
+    menuMap.img = (
+      <FormattedMessage
+        id="app.settings.menuMap.img"
+        defaultMessage="Private Image Repository"
+      />
+    );
+    menuMap.binding = (
+      <FormattedMessage
+        id="app.settings.menuMap.binding"
+        defaultMessage="Account Binding"
+      />
+    );
     const key = location.pathname.replace(`${match.path}/`, '');
     this.state = {
       mode: 'inline',
       menuMap,
-      selectKey: menuMap[key] ? key : isOpenOauth ? 'binding' : 'accesstoken',
+      selectKey: menuMap[key] ? key : 'personal',
     };
   }
 
@@ -56,7 +61,7 @@ class Info extends Component {
     } = props;
     const filterPath = match.path.replace(/:eid/g, eid);
     let selectKey = location.pathname.replace(`${filterPath}/`, '');
-    selectKey = state.menuMap[selectKey] ? selectKey : 'binding';
+    selectKey = state.menuMap[selectKey] ? selectKey : 'personal';
     if (selectKey !== state.selectKey) {
       return { selectKey };
     }
@@ -88,18 +93,22 @@ class Info extends Component {
     const { mode, selectKey } = this.state;
     return (
       <>
-      <div className={styles.main}>
-        <div className={styles.leftmenu}>
-          <Menu mode={mode} selectedKeys={[selectKey]} onClick={this.selectKey}>
-            {this.getmenu()}
-          </Menu>
-        </div>
-        <div className={styles.right}>
-          <div className={styles.title}>{this.getRightTitle()}</div>
-          {children}
-        </div>
-      </div>
-      <CustomFooter/>
+        <PageHeaderLayout
+          title={formatMessage({ id: 'versionUpdata_6_1.center' })}
+          content={formatMessage({ id: 'versionUpdata_6_1.center.content' })}
+          titleSvg={pageheaderSvg.getPageHeaderSvg('center', 18)}
+        >
+          <div className={styles.main}>
+            <div className={styles.leftmenu}>
+              <Menu mode={mode} selectedKeys={[selectKey]} onClick={this.selectKey}>
+                {this.getmenu()}
+              </Menu>
+            </div>
+            <div className={styles.right}>
+              {children}
+            </div>
+          </div>
+        </PageHeaderLayout>
       </>
     );
   }

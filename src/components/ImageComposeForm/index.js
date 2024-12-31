@@ -1,8 +1,9 @@
-import { Button, Card, Form, Input, Radio } from 'antd';
+import { Button, Card, Form, Input, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import GlobalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
@@ -96,11 +97,13 @@ export default class Index extends PureComponent {
       data = {},
       createAppByCompose,
       showSubmitBtn = true,
-      archInfo
+      archInfo,
+      groups
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
     const {language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
+    const group_id = GlobalUtil.getGroupID()
     let arch = 'amd64'
     let archLegnth = archInfo.length
     if(archLegnth == 2){
@@ -118,24 +121,25 @@ export default class Index extends PureComponent {
             hideRequiredMark
           >
             <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
-              {getFieldDecorator('group_name', {
-                initialValue: data.group_name || '',
+              {getFieldDecorator('group_id', {
+                initialValue: data.group_name || Number(group_id) || '',
                 rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
               })(
-                <Input
-                  style={{ maxWidth: 300 }}
-                  placeholder={formatMessage({id: 'placeholder.group_name'})}
-                  autocomplete="off"
-                />
+                <Select
+                showSearch
+                filterOption={(input, option) => 
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                placeholder={formatMessage({ id: 'placeholder.appName' })}
+                disabled={group_id}
+                onChange={this.fetchComponentNames}
+              >
+                {(groups || []).map(group => (
+                  <Option value={group.group_id}>{group.group_name}</Option>
+                ))}
+              </Select>
               )}
-            </Form.Item>
-            <Form.Item {...is_language} label={formatMessage({id: 'popover.newApp.appEngName'})}>
-              {getFieldDecorator('k8s_app', {
-              initialValue: this.generateEnglishName(form.getFieldValue('group_name')),
-                rules: [
-                  { required: true, validator: this.handleValiateNameSpace }
-                ]
-              })(<Input placeholder={formatMessage({id: 'popover.newApp.appEngName.placeholder'})} />)}
             </Form.Item>
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}

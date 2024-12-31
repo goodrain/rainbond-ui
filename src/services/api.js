@@ -1086,7 +1086,10 @@ export async function queryOauthInfo(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/oauth/oauth-services`,
     {
-      method: 'get'
+      method: 'get',
+      params: {
+        system: body.system 
+      }
     }
   );
 }
@@ -1523,6 +1526,7 @@ export async function addPlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
+        hub_type: body.hub_type
       },
       handleError
     }
@@ -1539,6 +1543,7 @@ export async function updatePlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
+        hub_type: body.hub_type
       },
       handleError
     }

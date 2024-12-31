@@ -1,0 +1,163 @@
+@import '~antd/lib/style/themes/default.less';
+.rbd_card{
+  // body的padding 删除
+  :global(.ant-card-body){
+    padding: 24px 0 0;
+  }
+  :global(.ant-card-head){
+    background-color: #fff;
+    padding: 0 !important;
+  }
+}
+.listItem {
+  cursor: pointer;
+  padding: 16px 24px;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: @primary-1;
+  }
+}
+
+.actionText {
+  color: #8c8c8c;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleText {
+  font-size: @rbd-title-size;
+  color: @rbd-title-color;
+  line-height: @rbd-title-line-height;
+}
+
+.publicTag {
+  color: #52c41a;
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: @rbd-auxiliary-size;
+}
+
+.description {
+  margin-top: 8px;
+}
+
+.descriptionText {
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  color: @rbd-content-color-secondary;
+}
+
+.namespace {
+  font-size: @rbd-content-size;
+  color: @rbd-content-color-secondary;
+  line-height: @rbd-content-line-height;
+}
+
+.namespaceIcon {
+  margin-right: 4px;
+}
+
+.rbd_title_container{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.rbd_sub_title{
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-sub-title-line-height;
+}
+
+.imageList {
+  background: #fff;
+  border-radius: 4px;
+}
+
+.imageItem {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e8e8e8;
+  cursor: pointer;
+  height: 80px;
+  margin-bottom: 16px;
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.imageCount {
+  height: 80px;
+  line-height: 80px;
+  width: 24px;
+  color: #fff;
+  font-weight: 400;
+  background-color: @primary-color;
+  text-align: center;
+}
+
+.imageIcon {
+  display: flex;
+  align-items: center;
+  width: 56px;
+  height: 44px;
+  margin: 0 40px;
+}
+
+.imageContent {
+  flex: 1;
+}
+
+.imageTitle {
+  font-size: 16px;
+  color: @primary-color;
+  margin-bottom: 4px;
+}
+
+.imageDesc {
+  font-size: 14px;
+  color: @rbd-content-color-secondary;
+}
+
+.imageDate {
+  color: @rbd-content-color-secondary;
+  margin-right: 24px;
+}
+
+.imageTag {
+  padding: 2px 8px;
+  background: #f0f7ff;
+  color: @primary-color;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 16px;
+}
+
+.installBtn {
+  padding: 6px 16px;
+  color: @primary-color;
+  border: 1px solid @primary-color;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: #f0f7ff;
+  }
+}
+
+.pagination {
+  margin-top: 16px;
+  text-align: right;
+  padding: 0 24px;
+}
+
+.imageDetail {
+  padding: 0 24px;
+}

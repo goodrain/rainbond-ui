@@ -16,6 +16,22 @@
   .ant-card-bordered{
     border-radius: 5px;
   }
+  .ant-pagination-disabled>.ant-pagination-item-link {
+    background-color: #efefef;
+  }
+  
+  .ant-pagination-item-active {
+    background-color: @primary-color;
+    &>a {
+      color: #fff;
+    }
+  }
+  .ant-pagination-item-active:focus {
+    background-color: @primary-color;
+    &>a {
+      color: #fff;
+    }
+  }
 }
 .content {
   padding: 24px 0 0 0;
@@ -40,6 +56,7 @@
     }
   }
 }
+
 
 @media screen and (max-width: @screen-sm) {
   .content {

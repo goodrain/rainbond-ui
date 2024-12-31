@@ -24,6 +24,7 @@ import Jwar from '../Create/upload-jarwar'
 import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
 import MarketDrawer from '../Create/market-drawer'
+import ImgRepostory from '../../components/ImgRepostory';
 import styles from './Index.less';
 
 @connect(({ user, application, global, enterprise }) => ({
@@ -56,13 +57,17 @@ export default class AddServiceComponent extends PureComponent {
       scopeProMax: '',
       event_id: '',
       serversList: null,
-      vmLoading: true
+      vmLoading: true,
+      imageList: [],
+      imgRepostoryServiceID: null,
+      hubType: null,
     };
   }
 
   componentDidMount() {
     const enterprise_id = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id
     this.fetchEnterpriseInfo(enterprise_id)
+    this.getImageHub()
     this.fetchPipePipeline()
   }
   // 获取插件列表
@@ -119,6 +124,11 @@ export default class AddServiceComponent extends PureComponent {
     return tabName;
   };
 
+  getImageWarehouse = (item) => {
+    const tabName = `${item.hub_type} (${item.secret_id})`
+    return tabName;
+  }
+
   fetchEnterpriseInfo = eid => {
     if (!eid) {
       return null;
@@ -139,6 +149,20 @@ export default class AddServiceComponent extends PureComponent {
     });
   };
 
+  // 获取个人私有镜像仓库
+  getImageHub = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'global/fetchPlatformImageHub',
+      callback: data => {
+        if (data) {
+          this.setState({
+            imageList: data.list
+          });
+        }
+      }
+    })
+  }
 
   toAddService = () => {
     this.setState({ toAddService: true, isDrawer: true });
@@ -286,7 +310,10 @@ export default class AddServiceComponent extends PureComponent {
       event_id,
       serversList,
       vmShow,
-      vmLoading
+      vmLoading,
+      imageList,
+      imgRepostoryServiceID,
+      hubType
     } = this.state;
     const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
     const codeSvg = globalUtil.fetchSvg('codeSvg');
@@ -295,7 +322,6 @@ export default class AddServiceComponent extends PureComponent {
     const yaml_svg = globalUtil.fetchSvg('yaml_svg');
     const helm_svg = globalUtil.fetchSvg('helm_svg');
     const codeDemo_svg = globalUtil.fetchSvg('codeDemo');
-
     const servers = oauthUtil.getEnableGitOauthServer(serversList);
     const BasisParameter = {
       handleType: 'Service',
@@ -532,6 +558,38 @@ export default class AddServiceComponent extends PureComponent {
                         </Col>
                       </Tooltip>
                   )}
+                  {imageList && 
+                    imageList.length > 0 &&
+                    imageList.map(item => {
+                      const {hub_type, secret_id} = item;
+                      return (
+                        <Col
+                          key={secret_id}
+                          span={8}
+                          className={styles.ServiceDiv}
+                          onClick={() => {
+                            this.setState(
+                              {
+                                hubType: hub_type,
+                                imgRepostoryServiceID: secret_id
+                              },
+                              () => {
+                                this.handleServiceComponent(
+                                  false,
+                                  'imgrepostory'
+                                );
+                              }
+                            );
+                          }}
+                        >
+                          {docker_svg}
+                          <p className={styles.ServiceSmallTitle}>
+                            {this.getImageWarehouse(item)}
+                          </p>
+                        </Col>
+                      );
+                    })
+                  }
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
@@ -581,7 +639,6 @@ export default class AddServiceComponent extends PureComponent {
               type={gitServiceID}
               archInfo={archInfo}
               gitType={gitType}
-               
             />
           )}
           {ServiceComponentThreePage === 'check' && ServiceGetData && (
@@ -631,6 +688,15 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentTwoPage === 'VirtualMachine' && (
             <VirtualMachine archInfo={archInfo} {...PublicParameter} onClose={this.cancelAddService}  />
           )}
+          {ServiceComponentTwoPage === 'imgrepostory' &&  
+            <ImgRepostory  
+              {...PublicParameter}
+              type={hubType}
+              archInfo={archInfo}
+              imgRepostoryList={imageList}
+              imgSecretId={imgRepostoryServiceID}
+            />
+          }
           {ServiceComponentTwoPage === 'market' && (
             <Market
               {...MarketParameter}

@@ -6,6 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import VirtualMachine from './virtual-machine'
 import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import { Icon, Button } from 'antd';
 import globalUtil from '../../utils/global';
 
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -51,9 +52,10 @@ export default class Main extends PureComponent {
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
+    const group_id = globalUtil.getGroupID()  
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
       )
     );
   };
@@ -79,6 +81,7 @@ export default class Main extends PureComponent {
       return roleUtil.noPermission()
     }
     let { type } = match.params;
+    type = type.split('?')[0];
     if (!type) {
       type = 'VirtualMachine';
     }
@@ -90,6 +93,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
+    const group_id = globalUtil.getGroupID()
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -99,6 +103,16 @@ export default class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('vm',18)}
+        extraContent={
+          <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+              );
+          }} type="default">
+              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+          </Button>
+      }
       >
         {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
       </PageHeaderLayout>

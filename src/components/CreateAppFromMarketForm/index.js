@@ -32,6 +32,14 @@ export default class Index extends PureComponent {
       creatComPermission: {}
     };
   }
+  componentDidMount(){
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.setState({
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
+      })
+    }
+  }
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
@@ -102,6 +110,7 @@ export default class Index extends PureComponent {
       showCreate.versions &&
       showCreate.versions.length > 0 &&
       showCreate.versions;
+    const group_id = globalUtil.getGroupID()
 
     return (
       <Modal
@@ -112,7 +121,7 @@ export default class Index extends PureComponent {
         title={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.title' })}
         footer={[
           <Button onClick={onCancel}>{formatMessage({ id: "button.cancel" })}</Button>,
-          <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+          <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
             <Button
               onClick={this.handleSubmit}
               type="primary"
@@ -189,7 +198,7 @@ export default class Index extends PureComponent {
 
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.app' })}>
             {getFieldDecorator('group_id', {
-              initialValue: data.groupd_id,
+              initialValue: data.groupd_id || Number(group_id),
               rules: [
                 {
                   required: true,
@@ -200,6 +209,7 @@ export default class Index extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.setect_app' })}
+                disabled={group_id}
                 style={{
                   display: 'inline-block',
                   width: 220,
@@ -214,11 +224,6 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {isAccess &&
-              <Button onClick={this.onAddGroup}>
-                {formatMessage({ id: 'popover.newApp.title' })}
-              </Button>
-            }
           </Form.Item>
           {this.state.addGroup && (
             <AddGroup

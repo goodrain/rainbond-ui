@@ -12,7 +12,6 @@ import Management from './management';
 import rainbondUtil from '../../utils/rainbond';
 import pluginUtile from '../../utils/pulginUtils'
 import global from '@/utils/global';
-import ImageWarehouse from './imageWarehouse';
 import UpdateVersion from './updateVersion';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 import defaultLogo from '../../../public/logo.png';
@@ -203,7 +202,7 @@ export default class EnterpriseSetting extends PureComponent {
               <BackupManage {...this.props} />
             </TabPane>
           )}
-          <TabPane
+          {/* <TabPane
             tab={
               <div>
                 <FormattedMessage id='enterpriseSetting.TabPane.mirrorWarehouse' />
@@ -212,7 +211,7 @@ export default class EnterpriseSetting extends PureComponent {
             key="image"
           >
             <ImageWarehouse {...this.props} />
-          </TabPane>
+          </TabPane> */}
           {showEnterprisePlugin && (
             <TabPane
               tab={

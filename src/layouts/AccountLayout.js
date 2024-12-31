@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { connect } from 'dva';
 import { Link, Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
+import CustomFooter from './CustomFooter';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -94,13 +95,30 @@ class AccountLayout extends PureComponent {
       }
     });
   };
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${team_name}/region/${team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
+  }
   onJumpPersonal = () => {
     const { 
       enterprise,
       dispatch,
+      currentUser
     } = this.props
     const eid = enterprise && enterprise.enterprise_id;
-    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+    const link =this.getLoginRole(currentUser)
+    dispatch(routerRedux.replace(link))
   }
   render() {
     const {
@@ -153,16 +171,6 @@ class AccountLayout extends PureComponent {
         </div>
       );
     };
-    const customHeader = () => {
-      return (
-        <Link
-          style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }}
-          to={`/enterprise/${eid}/personal`}
-        >
-          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
-        </Link>
-      )
-    }
     const layout = () => {
       return (
         <Layout>
@@ -190,7 +198,6 @@ class AccountLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={isMobiles}
-              customHeader={customHeader}
               customHeaderImg={customHeaderImg}
             />
             <Content
@@ -212,6 +219,7 @@ class AccountLayout extends PureComponent {
                   noMatch={<Redirect to="/user/login" />}
                 >
                   {children}
+                  <CustomFooter />
                 </Authorized>
               </div>
             </Content>

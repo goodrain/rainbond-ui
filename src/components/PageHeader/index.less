@@ -40,6 +40,11 @@
       .ant-tabs-nav-container {
         height: 38px !important;
       }
+      .ant-tabs-nav{
+        &>div:nth-of-type(1){
+          display: flex !important;
+        }
+      }
       .ant-tabs-tab{
         height: 38px !important;
         background-color: #fff !important;
@@ -164,14 +169,14 @@
       margin-bottom: 0;
     }
   }
-  .logo,
-  .extraContent {
+  .logo {
     margin-bottom: 10px;
   }
 
   .action,
   .extraContent {
     text-align: right;
+    float: right;
   }
 
   .extraContent {

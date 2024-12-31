@@ -185,7 +185,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.category'})}>
           {getFieldDecorator('category', {
-            initialValue: data.category || 'analyst-plugin:perf',
+            initialValue: data.category || 'init-plugin',
             rules: [{ required: true, message: formatMessage({id:'placeholder.plugin.build_source'}) }]
           })(
             <Select
@@ -193,14 +193,14 @@ export default class Index extends PureComponent {
               disabled={allDisabled || isEdit}
               placeholder={formatMessage({id:'placeholder.plugin.category'})}
             >
-              <Option value="analyst-plugin:perf">
-              {formatMessage({id:'teamPlugin.create.pages.performance'})}
-              </Option>
               <Option value="init-plugin">
               {formatMessage({id:'teamPlugin.create.pages.initialize'})}
               </Option>
               <Option value="general-plugin">
               {formatMessage({id:'teamPlugin.create.pages.ordinary'})}
+              </Option>
+              <Option value="analyst-plugin:perf">
+              {formatMessage({id:'teamPlugin.create.pages.performance'})}
               </Option>
             </Select>
           )}
@@ -345,7 +345,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         {!allDisabled ? (
           <Row>
-            <Col offset={5} span={19}>
+            <Col offset={9} span={15}>
               {Modifys ? (
                 <div>
                   {isEdit && (

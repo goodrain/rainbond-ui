@@ -83,7 +83,7 @@
   align-items: center;
   height: 63px;
   background: rgba(255, 255, 255, 1);
-  border: none !important;
+  // border: none !important;
   border-radius: 3px;
 
   :global {
@@ -138,5 +138,13 @@
     text-overflow: ellipsis;
     word-break: break-all;
     white-space: nowrap;
+  }
+}
+
+.listCard {
+  :global {
+    .ant-card-head {
+      background-color: #fff !important;
+    }
   }
 }

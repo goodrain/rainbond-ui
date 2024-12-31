@@ -49,6 +49,9 @@ class Index extends Component {
       showUpdateKubernetes: false,
       showUpdateKubernetesTasks: false,
       isShowAddNodeModal: false,
+      pageSize: 10,
+      total: 0,
+      current: 1
     }
   }
   //节点状态
@@ -142,6 +145,13 @@ class Index extends Component {
       this.props.active(active, name, rowClusterInfo.region_name)
     }
 
+  }
+  total = (total) => `共 ${total} 条`;
+  pageChange = (current, pageSize) => {
+    this.setState({
+      pageSize,
+      current
+    })
   }
   render() {
     const { nodeList, rowClusterInfo, showInfo, form, eventId } = this.props
@@ -285,6 +295,17 @@ class Index extends Component {
         sm: { span: 16 }
       }
     };
+    const pagination = {
+      total: nodeList.length || 0,
+      current: this.state.current,
+      pageSize: this.state.pageSize,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      showTotal:  this.total,
+      onChange: this.pageChange,
+      onShowSizeChange :this.pageChange,
+      hideOnSinglePage: nodeList.length <= 10
+    };    
     return (
       <>
         <Card
@@ -298,7 +319,7 @@ class Index extends Component {
               columns={columns}
               rowKey={(record,index) => index}
               dataSource={nodeList}
-              pagination={nodeList && nodeList.length > 10 ? true : false}
+              pagination={pagination}
               onRow={this.onClickRow}
               rowClassName={styles.rowStyle}
             />

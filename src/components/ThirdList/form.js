@@ -18,12 +18,10 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import Application from '../../../public/images/application.svg';
-import Branches from '../../../public/images/branches.svg';
-import Component from '../../../public/images/component.svg';
-import Unlock from '../../../public/images/unlock.svg';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
+import globalUtil from '../../utils/global';
+import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 
 const { Option, OptGroup } = Select;
@@ -31,10 +29,10 @@ const { TabPane } = Tabs;
 
 const formItemLayout = {
   labelCol: {
-    span: 7
+    span: 8
   },
   wrapperCol: {
-    span: 17
+    span: 7
   }
 };
 
@@ -121,7 +119,7 @@ class Index extends React.Component {
     }
     form.validateFields((err, values) => {
       if (!err) {
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           values.arch = archInfo[0]
         }
         const info = Object.assign({}, values);
@@ -142,6 +140,24 @@ class Index extends React.Component {
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
@@ -150,21 +166,21 @@ class Index extends React.Component {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(`${formatMessage({id:'componentOverview.EditName.input_en_name'})}` ));
+      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.input_en_name' })}`));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            `${formatMessage({id:'componentOverview.EditName.only'})}`
+            `${formatMessage({ id: 'componentOverview.EditName.only' })}`
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error( `${formatMessage({id:'componentOverview.EditName.Cannot'})}` ));
+      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.Cannot' })}`));
     }
   };
   render() {
@@ -189,11 +205,12 @@ class Index extends React.Component {
       checkedList,
       showSubdirectories
     } = this.state;
+    const group_id = globalUtil.getGroupID()
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -205,28 +222,18 @@ class Index extends React.Component {
             hideRequiredMark
           >
             <Form.Item
-              className={styles.clearConform}
               {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Application} alt="" />
-                  应用&nbsp;:
-                </div>
-              }
+              label={formatMessage({ id: 'teamAdd.create.form.appName' })}
+
             >
               {getFieldDecorator('group_id', {
-                initialValue: ServiceComponent ? Number(groupId) : '',
-                rules: [{ required: true, message: '请选择' }]
+                initialValue: ServiceComponent ? Number(groupId) : Number(group_id) || '',
+                rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.selectApp' }) }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请选择所属应用"
-                  style={{
-                    display: 'inline-block',
-                    width: ServiceComponent ? '' : 251,
-                    marginRight: 15
-                  }}
-                  disabled={!!ServiceComponent}
+                  placeholder={formatMessage({ id: 'versionUpdata_6_1.selectApp.placeholder' })}
+                  disabled={!!ServiceComponent || !!group_id}
                 >
                   {(groups || []).map(group => (
                     <Option
@@ -239,59 +246,36 @@ class Index extends React.Component {
                   ))}
                 </Select>
               )}
-              {ServiceComponent ? null : showCreateGroup ? (
-                <Button onClick={this.onAddGroup}>
-                  {formatMessage({id:'popover.newApp.title'})}
-                </Button>
-              ) : null}
             </Form.Item>
             <Form.Item
-              className={styles.clearConform}
               {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Component} alt="" />
-                  组件名称&nbsp;:
-                </div>
-              }
+              label={formatMessage({ id: 'versionUpdata_6_1.serviceName' })}
             >
               {getFieldDecorator('service_cname', {
                 initialValue: thirdInfo ? thirdInfo.project_name : '',
-                rules: [{ required: true, message: '要创建的组件还没有名字' }]
-              })(<Input placeholder="请为创建的组件起个名字吧" />)}
+                rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.serviceName.placeholder' }) }]
+              })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.serviceName.placeholder' })} />)}
             </Form.Item>
             <Form.Item
-              className={styles.clearConform}
               {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Component} alt="" />
-                  组件英文名称&nbsp;:
-                </div>
-              }
+              label={formatMessage({ id: 'versionUpdata_6_1.serviceName.k8sComponentName' })}
             >
               {getFieldDecorator('k8s_component_name', {
-                initialValue: '',
-                rules: [{ required: true, validator: this.handleValiateNameSpace}]
-              })(<Input placeholder="请为创建的组件起个英文名字吧" />)}
+                initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
+                rules: [{ required: true, validator: this.handleValiateNameSpace }]
+              })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.serviceName.k8sComponentName.placeholder' })} />)}
             </Form.Item>
             <Form.Item
-              className={styles.clearConform}
               {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Branches} alt="" />
-                  代码版本&nbsp;:
-                </div>
-              }
+              label={formatMessage({ id: 'versionUpdata_6_1.codeVersion' })}
             >
               {getFieldDecorator('code_version', {
                 initialValue: tags && tags.length > 0 && tags[0],
-                rules: [{ required: true, message: '请输入代码版本' }]
+                rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.codeVersion.placeholder' }) }]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder="请输入代码版本"
+                  placeholder={formatMessage({ id: 'versionUpdata_6_1.codeVersion.placeholder' })}
                 >
                   <OptGroup
                     label={
@@ -332,78 +316,66 @@ class Index extends React.Component {
               value={checkedList}
             >
               <Row>
-                <Col span={24} style={{ textAlign: 'right' }}>
-                  <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+                <Col span={15} style={{ textAlign: 'right' }}>
+                  <Checkbox value="subdirectories">{formatMessage({ id: 'versionUpdata_6_1.subdirectories' })}</Checkbox>
                 </Col>
               </Row>
             </Checkbox.Group>
 
             {showSubdirectories && (
               <Form.Item
-                className={styles.clearConform}
                 {...formItemLayout}
-                label={
-                  <div className={styles.clearConformMinTitle}>
-                    <Icon type="unordered-list" />
-                    子目录路径&nbsp;:
-                  </div>
-                }
+                label={formatMessage({ id: 'versionUpdata_6_1.subdirectories' })}
               >
                 {getFieldDecorator('subdirectories')(
-                  <Input placeholder="请输入子目录路径" />
+                  <Input placeholder={formatMessage({ id: 'versionUpdata_6_1.subdirectories.placeholder' })} />
                 )}
               </Form.Item>
             )}
             <Form.Item
-              className={styles.clearConform}
-              {...formItemLayoutOrder}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Unlock} alt="" />
-                  是否开启自动构建&nbsp;:
-                </div>
-              }
+              {...formItemLayout}
+              label={formatMessage({ id: 'versionUpdata_6_1.openWebhook' })}
             >
               {getFieldDecorator('open_webhook', {
                 initialValue: false,
-                rules: [{ required: true, message: '请选择' }]
+                rules: [{ required: true, message: '' }]
               })(<Switch />)}
             </Form.Item>
-           {archLegnth == 2 &&
-            <Form.Item {...formItemLayoutOrder} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-           </Form.Item>}
+            {archLegnth == 2 &&
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'versionUpdata_6_1.arch' })}>
+                {getFieldDecorator('arch', {
+                  initialValue: arch,
+                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                })(
+                  <Radio.Group>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </Radio.Group>
+                )}
+              </Form.Item>}
 
             {showSubmitBtn ? (
               <div style={{ textAlign: 'center' }}>
                 {ServiceComponent && this.props.ButtonGroupState
                   ? this.props.handleServiceBotton(
-                      <Button
-                        onClick={this.handleSubmit}
-                        type="primary"
-                        loading={createAppByCodeLoading}
-                      >
-                        新建组件
-                      </Button>,
-                      false
-                    )
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({ id: 'versionUpdata_6_1.createComponent' })}
+                    </Button>,
+                    false
+                  )
                   : !ServiceComponent && (
-                      <Button
-                        onClick={this.handleSubmit}
-                        type="primary"
-                        loading={createAppByCodeLoading}
-                      >
-                        确认创建
-                      </Button>
-                    )}
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({ id: 'versionUpdata_6_1.confirmCreate' })}
+                    </Button>
+                  )}
               </div>
             ) : null}
           </Form>

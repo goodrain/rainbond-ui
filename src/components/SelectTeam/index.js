@@ -87,7 +87,21 @@ export default class SelectTeam extends PureComponent {
   handleOut = () => {
     this.setState({ visible: false });
   };
-
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return`/team/${team_name}/region/${team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
+  }
   render() {
     const {
       className,
@@ -100,7 +114,7 @@ export default class SelectTeam extends PureComponent {
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
     const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/personal`;
+    const currentEnterpriseTeamPageLink = this.getLoginRole(currentUser)
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);

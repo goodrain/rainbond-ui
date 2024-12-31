@@ -16,7 +16,12 @@ class CreateOAuthForm extends PureComponent {
     super(props);
     this.state = {
       oauthList: [],
-      edit: false
+      edit: false,
+      privateList: [
+        "github",
+        "gitlab",
+        "gitee",
+      ]
     };
   }
   componentDidMount() {
@@ -42,7 +47,7 @@ class CreateOAuthForm extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             oauthList: res.bean && res.bean.oauth_type
-          });
+          })
         }
       }
     });
@@ -58,8 +63,8 @@ class CreateOAuthForm extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { onCancel, loading, oauthInfo } = this.props;
-    const { edit, oauthList } = this.state;
+    const { onCancel, loading, oauthInfo, title, type = 'public' } = this.props;
+    const { edit, oauthList, privateList } = this.state;
     const formItemLayout = {
       labelCol: {
         span: 8
@@ -72,7 +77,7 @@ class CreateOAuthForm extends PureComponent {
     return (
       <Modal
         visible
-        title={edit ? formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.title.edit' }) : formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.title.add' })}
+        title={title || (edit ? formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.title.edit' }) : formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.title.add' }))}
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -105,12 +110,21 @@ class CreateOAuthForm extends PureComponent {
                 disabled={edit}
                 placeholder={formatMessage({ id: 'placeholder.oauth.oauth_type' })}
               >
-                {oauthList &&
+                {type === 'private' ? (
+                  oauthList&&
+                  privateList.map(item => (
+                    <Option key={item} value={item}>
+                      {item}
+                    </Option>
+                  ))
+                ) : (
+                  oauthList &&
                   oauthList.map(item => (
                     <Option key={item} value={item}>
                       {item}
                     </Option>
-                  ))}
+                  ))
+                )}
               </Select>
             )}
             {edit && (
@@ -230,7 +244,6 @@ class CreateOAuthForm extends PureComponent {
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
                 { required: true, message: formatMessage({ id: 'placeholder.oauth.redirect_domain' }) },
-                { type: 'url', message: formatMessage({ id: 'placeholder.oauth.not_url' }) },
                 {
                   max: 255,
                   message: formatMessage({ id: 'placeholder.max255' })
@@ -240,6 +253,7 @@ class CreateOAuthForm extends PureComponent {
               <Input
                 placeholder={formatMessage({ id: 'placeholder.oauth.redirect_domains' })}
                 addonAfter="/console/oauth/redirect"
+                disabled={type == 'private'}
               />
             )}
 
@@ -247,9 +261,10 @@ class CreateOAuthForm extends PureComponent {
               {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain.desc' })}
             </div>
           </Form.Item>
-          <Form.Item
-            className={styles.clearConform}
-            {...formItemLayout}
+          {type !== 'private' && (
+            <Form.Item
+              className={styles.clearConform}
+              {...formItemLayout}
             label={
               <div className={styles.clearConformMinTitle}>
                 <img src={Branches} alt="" />
@@ -269,8 +284,9 @@ class CreateOAuthForm extends PureComponent {
             )}
             <div className={styles.conformDesc}>
               {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login.desc' })}
-            </div>
-          </Form.Item>
+              </div>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     );

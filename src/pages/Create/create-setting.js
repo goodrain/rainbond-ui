@@ -6,6 +6,8 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { setNodeLanguage } from '../../services/createApp';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AppCreateSetting from '../../components/AppCreateSetting';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -71,9 +73,9 @@ export default class Index extends PureComponent {
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
-  handleDebounce (fn, wait) {
+  handleDebounce(fn, wait) {
     let timer = null
-    return (e)=>{
+    return (e) => {
       if (timer !== null) {
         clearTimeout(timer)
       }
@@ -87,13 +89,13 @@ export default class Index extends PureComponent {
     const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { appDetail } = this.state
     const { team_name, app_alias } = this.fetchParameter();
-    if( val == false ){
+    if (val == false) {
       setNodeLanguage({
         team_name: team_name,
         app_alias: app_alias,
         lang: soundCodeLanguage,
         package_tool: packageNpmOrYarn,
-      }).then(res=>{
+      }).then(res => {
         dispatch({
           type: 'createApp/buildApps',
           payload: {
@@ -114,11 +116,11 @@ export default class Index extends PureComponent {
               this.handleJump(`components/${app_alias}/overview`);
             }
           }
-          });
+        });
       })
-      
-    }else{
-      notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
+
+    } else {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.save' }) });
     }
   };
   handleDelete = () => {
@@ -163,21 +165,21 @@ export default class Index extends PureComponent {
       app_alias: this.getAppAlias()
     };
   };
-  handleBuildSwitch = (val) =>{
+  handleBuildSwitch = (val) => {
     this.setState({
       handleBuildSwitch: val
     })
   }
   render() {
-    const { 
-      buildAppsLoading, 
+    const {
+      buildAppsLoading,
       deleteAppLoading,
       match: {
-          params:{
-              appAlias,
-          }
+        params: {
+          appAlias,
+        }
       },
-  } = this.props
+    } = this.props
     const {
       showDelete,
       // appPermissions: { isDelete },
@@ -189,14 +191,13 @@ export default class Index extends PureComponent {
       return null;
     }
     return (
-      <div>
-        <h2
-          style={{
-            textAlign: 'center'
-          }}
-        >
-           {formatMessage({id:'componentCheck.advanced.setup'})}
-        </h2>
+      <>
+        <PageHeaderLayout
+          titleSvg={pageheaderSvg.getPageHeaderSvg("advanced", 18)}
+          title={formatMessage({ id: 'componentCheck.advanced.setup' })}
+          content={formatMessage({ id: 'versionUpdata_6_1.content2' })}
+      >
+
         <div
           style={{
             overflow: 'hidden'
@@ -221,48 +222,50 @@ export default class Index extends PureComponent {
             }}
           >
             {isDelete && (
-              <Button 
-                onClick={this.showDelete} 
+              <Button
+                onClick={this.showDelete}
                 type="default"
                 style={{
                   marginRight: 8
                 }}
               >
-               {formatMessage({id:'button.abandon_create'})}
+                {formatMessage({ id: 'button.abandon_create' })}
               </Button>
             )}
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleJump(`create/create-configPort/${appAlias}`)}
+              onClick={() => this.handleJump(`create/create-configPort/${appAlias}`)}
               style={{
                 marginRight: 8
               }}
             >
               上一步
-            </Button> 
+            </Button>
             <Button
               loading={buildAppsLoading}
-              onClick={()=>this.handleDebounce(this.handleBuild(handleBuildSwitch),1000)}
+              onClick={() => this.handleDebounce(this.handleBuild(handleBuildSwitch), 1000)}
               type="primary"
             >
-              {formatMessage({id:'button.confirm_create'})}
+              {formatMessage({ id: 'button.confirm_create' })}
             </Button>
-            
+
           </div>
           {showDelete && (
             <ConfirmModal
               loading={deleteAppLoading}
               onOk={this.handleDelete}
-              title={formatMessage({id:'confirmModal.abandon_create.create_check.title'})}
-              subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-              desc={formatMessage({id:'confirmModal.delete.create_check.desc'})}
+              title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
               onCancel={() => {
                 this.setState({ showDelete: false });
               }}
             />
           )}
-        </div>
-      </div>
+          </div>
+        </PageHeaderLayout>
+      </>
+
     );
   }
 }

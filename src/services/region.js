@@ -157,7 +157,6 @@ export async function fetchHelmJoinStatus(param) {
 }
 /* 导入集群NameSpace */
 export async function fetchImportMessage(param) {
-  console.log(param,"param");
   return request(`${apiconfig.baseUrl}/console/enterprise/${param.eid}/regions/${param.region_id}/namespace`, {
     method: 'get',
     params: {

@@ -49,12 +49,11 @@ export default class ConfigurationTable extends PureComponent {
   componentDidMount() {
     this.fetchConfigurationList();
   }
-  onPageChange = page => {
-    this.setState({ page }, () => {
+  onPageChange = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
       this.fetchConfigurationList();
     });
   };
-
   fetchConfigurationList = () => {
     const { dispatch, teamName, regionName, appID } = this.props;
     const { page, pageSize, query } = this.state;
@@ -252,13 +251,18 @@ export default class ConfigurationTable extends PureComponent {
             <Table
               size="default"
               rowKey={(record, index) => index}
-              pagination={total > pageSize ? {
+              pagination={{
                 size: 'default',
                 current: page,
                 pageSize,
                 total,
-                onChange: this.onPageChange
-              } : false}
+                onChange: this.onPageChange,
+                onShowSizeChange: this.onPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                hideOnSinglePage: total<=10
+              }}
               dataSource={apps || []}
               loading={loading}
               columns={[

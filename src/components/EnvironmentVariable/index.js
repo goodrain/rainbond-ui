@@ -748,22 +748,19 @@ class EnvironmentVariable extends React.Component {
                 components={components}
                 columns={columns}
                 dataSource={innerEnvsList}
-                pagination={false}
+                pagination={{
+                  current: page,
+                  pageSize: page_size,
+                  total: Number(total),
+                  onChange: this.onPageChange,
+                  onShowSizeChange: this.onShowSizeChange,
+                  showQuickJumper: true,
+                  showSizeChanger: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  pageSizeOptions:['5', '10', '20', '30'],
+                  hideOnSinglePage: Number(total) <= 5
+                }}
               />
-              <div style={{ textAlign: 'right', marginTop: '8px' }}>
-              {Number(total) >page_size &&
-                <Pagination
-                  current={page}
-                  pageSize={page_size}
-                  showSizeChanger
-                  total={Number(total)}
-                  defaultCurrent={1}
-                  onChange={this.onPageChange}
-                  pageSizeOptions={['5', '10', '20', '50']}
-                  onShowSizeChange={this.onShowSizeChange}
-                />
-              }
-              </div>
             </EditableContext.Provider>
           </ScrollerX>
           

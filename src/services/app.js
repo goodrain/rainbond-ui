@@ -3378,3 +3378,36 @@ export async function addReverseDependency(body = {}) {
     }
   );
 }
+//存储 > 文件管理 >  判断存储类型
+export async function determineStorageType(body = {},handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.group_id}/file-manage/block`,
+    {
+      method: 'get',
+      params: {
+        pod_name: body.pod_name,
+        region_name: body.region_name,
+        namespace: body.namespace,
+        volume_path: body.volume_path,
+      },
+      handleError
+    }
+  );
+}
+// 存储 > 文件管理 > 获取存储文件列表
+export async function getListFiles(body = {},handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.group_id}/file-manage`,
+    {
+      method: 'get',
+      params: {
+        host_path: body.host_path,
+        region_name: body.region_name,
+        pod_name: body.pod_name,
+        container_name: body.container_name,
+        extend_method: body.extend_method
+      },
+      handleError
+    }
+  );
+}

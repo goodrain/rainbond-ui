@@ -370,7 +370,8 @@ export default {
   },
   
   reducers: {
-    saveCurrentTeamPermissionsInfo(state, { payload }) {
+    saveCurrentTeamPermissionsInfo(state, { payload }) {      
+      console.log(payload,"payload");
       return {
         ...state,
         currentTeamPermissionsInfo: payload

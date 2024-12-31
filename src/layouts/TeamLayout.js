@@ -8,6 +8,7 @@ import { Alert, Icon, Layout, notification, Tooltip, Modal } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
+import CustomFooter from "./CustomFooter"
 import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
@@ -95,7 +96,7 @@ class TeamLayout extends PureComponent {
       showMenu: true,
       GroupShow: true,
       marginShow: true,
-      vm_url:"",
+      vm_url: "",
       teamOverviewPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_overview'),
       teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
       isAuthorizationLoading: true,
@@ -113,8 +114,9 @@ class TeamLayout extends PureComponent {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.fetchUserInfo();
-    const {teamAppCreatePermission:{isAccess}} = this.state
-    if(isAccess){
+    this.fetchGroup()
+    const { teamAppCreatePermission: { isAccess } } = this.state
+    if (isAccess) {
       this.getAppNames();
     }
   }
@@ -148,11 +150,11 @@ class TeamLayout extends PureComponent {
         })
       }
       const isPipeline = urlParams.href.includes("Pipeline");
-      if(isPipeline){
+      if (isPipeline) {
         this.setState({
           marginShow: false
         })
-      }else{
+      } else {
         this.setState({
           marginShow: true
         })
@@ -182,7 +184,7 @@ class TeamLayout extends PureComponent {
     if (dispatch) {
       dispatch({
         type: 'region/getEnterpriseLicense',
-        payload:{
+        payload: {
           enterprise_id: currentUser && currentUser.enterprise_id
         },
         callback: res => {
@@ -205,7 +207,7 @@ class TeamLayout extends PureComponent {
             });
           }
         },
-        handleError:(error) => {
+        handleError: (error) => {
           if (error && error.data && error.data.code === 400) {
             this.setState({
               licenseInfo: null,
@@ -223,13 +225,16 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          setTimeout(() => {
+            dispatch({
+              type: 'teamControl/fetchCurrentTeamPermissions',
+              payload: team && team.tenant_actions
+            });
+          }, 10)
           this.setState({
             currentTeam: team,
           });
-          dispatch({
-            type: 'teamControl/fetchCurrentTeamPermissions',
-            payload: team && team.tenant_actions
-          });
+
         }
       },
     });
@@ -249,35 +254,35 @@ class TeamLayout extends PureComponent {
       GroupShow: true
     })
   }
-  fetchPipePipeline = (eid) =>{
+  fetchPipePipeline = (eid) => {
     const { dispatch } = this.props;
     dispatch({
-        type: 'teamControl/fetchPluginUrl',
-        payload: {
-            enterprise_id: eid,
-            region_name: globalUtil.getCurrRegionName()
-        },
-        callback: res=>{
-          if(res&&res.list){
-            res.list.map(item=>{
-              if(item.name == "rainbond-vm"){
-                this.setState({
-                  vm_url:item.urls[0]
-                })
-              }
-            })
-          }
-          if (res && res.bean && res.bean.need_authz) {
-            this.setState({
-              isNeedAuthz: res.bean.need_authz
-            })
-          }
-          this.setState({
-            showPipeline:res.list
+      type: 'teamControl/fetchPluginUrl',
+      payload: {
+        enterprise_id: eid,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.list) {
+          res.list.map(item => {
+            if (item.name == "rainbond-vm") {
+              this.setState({
+                vm_url: item.urls[0]
+              })
+            }
           })
         }
+        if (res && res.bean && res.bean.need_authz) {
+          this.setState({
+            isNeedAuthz: res.bean.need_authz
+          })
+        }
+        this.setState({
+          showPipeline: res.list
+        })
+      }
     })
-}
+  }
   getNewbieGuideConfig = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -336,55 +341,70 @@ class TeamLayout extends PureComponent {
 
   getTeamOverview = () => {
     this.load();
-    const { dispatch } = this.props;
-    const { enterpriseList, teamOverviewPermission:{isAccess} } = this.state;
+    const { dispatch, currentUser } = this.props;
+    const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
-      dispatch({
-        type: 'global/getTeamOverview',
-        payload: {
-          team_name: teamName,
-          region_name: regionName
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            window.sessionStorage.setItem("team_id",res.bean.team_id)
-            this.setState(
-              {
-                eid: res.bean.eid
-              },()=>{
-                this.fetchPipePipeline(res.bean.eid)
-              }
-            );
-          }
-        },
-        handleError: err => {
-          if (err && err.data && err.data.code) {
-            const errtext =
-              err.data.code === 10411
-                ? '当前集群不可用'
-                : err.data.code === 10412
-                  ? '当前集群不存在'
-                  : false;
-            if (errtext && enterpriseList.length > 0) {
-              notification.warning({ message: errtext });
-              dispatch(
-                routerRedux.push(
-                  `/enterprise/${enterpriseList[0].enterprise_id}/personal`
-                )
-              );
-            } else {
-              notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
+    dispatch({
+      type: 'global/getTeamOverview',
+      payload: {
+        team_name: teamName,
+        region_name: regionName
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          window.sessionStorage.setItem("team_id", res.bean.team_id)
+          this.setState(
+            {
+              eid: res.bean.eid
+            }, () => {
+              this.fetchPipePipeline(res.bean.eid)
             }
+          );
+        }
+      },
+      handleError: err => {
+        const link = this.getLoginRole(currentUser)
+        if (err && err.data && err.data.code) {
+          const errtext =
+            err.data.code === 10411
+              ? '当前集群不可用'
+              : err.data.code === 10412
+                ? '当前集群不存在'
+                : false;
+          if (errtext && enterpriseList.length > 0) {
+            notification.warning({ message: errtext });
+            dispatch(
+              routerRedux.push(
+                link
+              )
+            );
+          } else {
+            notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
           }
         }
-      });
+      }
+    });
   };
-
+  getLoginRole = (currUser) => {
+    const { dispatch } = this.props;
+    const { teams } = currUser
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0]
+      const { team_region_name } = region[0]
+      if (team_name && team_region_name) {
+        return `/team/${globalUtil.getCurrTeamName() || team_name}/region/${globalUtil.getCurrRegionName() || team_region_name}/index`
+      }
+    } else {
+      if (currUser?.is_enterprise_admin) {
+        return `/enterprise/${currUser?.enterprise_id}/index`
+      }
+    }
+  }
   load = () => {
     this.queryComponentDeatil();
-    const { enterpriseList, eid, teamOverviewPermission:{isAccess} } = this.state;
+    const { enterpriseList, eid, teamOverviewPermission: { isAccess } } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
@@ -441,7 +461,7 @@ class TeamLayout extends PureComponent {
         payload: {
           team_name: teamName,
           app_alias: componentID,
-          vm_url:this.state.vm_url
+          vm_url: this.state.vm_url
         },
         callback: appDetail => {
           this.setState({ currentComponent: appDetail.service, GroupShow: false });
@@ -559,8 +579,9 @@ class TeamLayout extends PureComponent {
   };
   onJumpPersonal = () => {
     const { eid } = this.state
-    const { dispatch } = this.props
-    dispatch(routerRedux.replace(`/enterprise/${eid}/personal`))
+    const { dispatch, currentUser } = this.props
+    const link = this.getLoginRole(currentUser)
+    dispatch(routerRedux.replace(link))
   }
 
   render() {
@@ -609,10 +630,10 @@ class TeamLayout extends PureComponent {
       if (!isAuthorizationLoading && !licenseInfo) {
         return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
-    
+
       let overdueTitle = '';
       const overdueDesc = '联系企业管理员，更新授权码';
-    
+
       if (isLicense) {
         overdueTitle = '集群超出授权限制';
       } else if (isNode) {
@@ -622,7 +643,7 @@ class TeamLayout extends PureComponent {
       } else if (isMemory) {
         overdueTitle = '内存超出授权限制';
       }
-    
+
       if (overdueTitle) {
         return <Overdue title={overdueTitle} desc={overdueDesc} />;
       }
@@ -646,7 +667,7 @@ class TeamLayout extends PureComponent {
     }
 
 
-    
+
     if (
       teamName !== currentTeam.team_name ||
       regionName !== (currentRegion && currentRegion.team_region_name)
@@ -675,7 +696,7 @@ class TeamLayout extends PureComponent {
       setTimeout(() => {
         this.queryComponentDeatil();
       }, 1000);
-      return <GlobalHeader/>;
+      return <GlobalHeader />;
     } else {
       this.setState({ currentComponent: null });
     }
@@ -804,6 +825,7 @@ class TeamLayout extends PureComponent {
           </div>
         );
       };
+      const isApp = mode == 'team' ? false : showMenu ? !componentID : false
       return (
         <Layout>
           <SiderMenu
@@ -860,7 +882,7 @@ class TeamLayout extends PureComponent {
                   onCollapse={this.handleMenuCollapse}
                   menuData={menuData}
                   pathname={pathname}
-                  showMenu={showMenu ? !componentID : false}
+                  showMenu={isApp}
                 />
               )}
               {this.state.GroupShow ?
@@ -891,10 +913,11 @@ class TeamLayout extends PureComponent {
                     >
                       <div
                         style={{
-                          margin: marginShow ? '24px 24px 0' : "0px"
+                          margin: marginShow ? !isApp ? '0px' : '24px 24px 0' : "0px"
                         }}
                       >
                         {renderContent()}
+                        <CustomFooter />
                       </div>
                     </Content>
                   </CSSTransition>
@@ -910,10 +933,12 @@ class TeamLayout extends PureComponent {
                   >
                     <div
                       style={{
-                        margin: '24px 24px 0'
+                        margin: !isApp ? '0px' : '24px 24px 0'
                       }}
                     >
                       {renderContent()}
+                      <CustomFooter />
+
                     </div>
                   </Content>
                 )

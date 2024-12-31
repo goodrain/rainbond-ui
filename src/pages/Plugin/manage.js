@@ -620,14 +620,41 @@ export default class Index extends PureComponent {
         breadcrumbList={breadcrumbList}
         title={currInfo.plugin_alias}
         content={currInfo.desc}
-        extraContent={extra}
-        action={action}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+            );
+          }} type="default">
+              <Icon type="home" />插件管理
+          </Button>
+        }
       >
         <Card
           style={{
             marginBottom: 16
           }}
           title={formatMessage({id:'teamOther.manage.information'})}
+          extra={
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className={styles.heading} style={{ marginRight: '12px' }}> {pluginUtil.getBuildStatusCN(currInfo.build_status)}</div>
+              <div>
+                <ButtonGroup>
+                  {isCreate && (
+                    <Button type="primary" onClick={this.handleBuildPluginVersion}>
+                      {formatMessage({id:'teamOther.manage.structure'})}
+                    </Button>
+                  )}
+                  {currInfo.build_status !== 'unbuild' && (
+                    <Button type="default" onClick={this.showBuildLog}>
+                      {formatMessage({id:'teamOther.manage.log'})}
+                    </Button>
+                  )}
+                </ButtonGroup>
+              </div>
+            </div>
+          }
         >
           <div
             style={{

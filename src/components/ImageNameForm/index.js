@@ -80,6 +80,12 @@ export default class Index extends PureComponent {
     this.handleJarWarUpload();
     this.handleGetWarehouse();
     const { handleType, groupId } = this.props;
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.setState({
+        creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
+      })
+    }
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
@@ -114,7 +120,7 @@ export default class Index extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, archInfo } = this.props;
+    const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true } = this.props;
     const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
@@ -127,17 +133,11 @@ export default class Index extends PureComponent {
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
-        if(fieldsValue.imagefrom == 'address'){
-          const colonIndex = fieldsValue.docker_cmd.indexOf(':');
-          if(isHub){
-            
-            fieldsValue.docker_cmd = checkedValues ? ((colonIndex !== -1) ? fieldsValue.docker_cmd : (fieldsValue.docker_cmd + ':' + checkedValues)) : fieldsValue.docker_cmd
-          } else {
-            const cleanedUrl = warehouseInfo.domain.replace(/^(https?:\/\/)/, '');
-            fieldsValue.docker_cmd = (colonIndex !== -1) ? `${cleanedUrl}/${fieldsValue.docker_cmd}` : `${cleanedUrl}/${fieldsValue.docker_cmd}:${checkedValues}`
-            fieldsValue.user_name = warehouseInfo.username
-            fieldsValue.password = warehouseInfo.password
-          }
+        console.log(isPublic, 'isPublic')
+        if(!isPublic){
+          const secretObj = imgRepostoryList.find(item => item.secret_id === secretId)
+          fieldsValue.user_name = secretObj.username
+          fieldsValue.password = secretObj.password
         }
         onSubmit(fieldsValue);
       }
@@ -168,7 +168,7 @@ export default class Index extends PureComponent {
       const Reg = /^[^\s]*$/;
       if (!Reg.test(value)) {
         return callback(
-          new Error('镜像名称不能包含空格')
+          new Error(formatMessage({ id: 'mirror.name.space' }))
         );
       }
       callback();
@@ -305,9 +305,10 @@ export default class Index extends PureComponent {
       checkedValues: '',
       isHub: true,
       warehouseInfo: false,
-      domain: ''
+      domain: '',
+      showUsernameAndPass: false
     })
-    form.resetFields(['docker_cmd'])
+    form.resetFields(['docker_cmd', 'user_name', 'password'])
   }
   //上传
   onChangeUpload = info => {
@@ -494,22 +495,27 @@ export default class Index extends PureComponent {
       groupId,
       showSubmitBtn = true,
       showCreateGroup = true,
-      archInfo
+      archInfo,
+      isPublic = true,
+      selectedImage = false,
+      imageUrl = false,
+      tag = false,
     } = this.props;
-
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
+    const group_id = globalUtil.getGroupID()
+
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts;
     let arch = 'amd64'
-    let archLegnth = archInfo.length
+    let archLegnth = archInfo?.length || 0
     if (archLegnth == 2) {
       arch = 'amd64'
-    } else if (archInfo.length == 1) {
+    } else if (archLegnth == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -517,7 +523,7 @@ export default class Index extends PureComponent {
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id,
+              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
               rules: [
                 {
                   required: true,
@@ -532,16 +538,7 @@ export default class Index extends PureComponent {
                 }
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
-                style={language ? {
-                  display: 'inline-block',
-                  width: isService ? '' : 276,
-                  marginRight: 10, textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                } : {
-                  display: 'inline-block',
-                  width: isService ? '' : 262,
-                  marginRight: 10, textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                }}
-                disabled={!!isService}
+                disabled={!!isService || group_id}
                 onChange={this.fetchComponentNames}
               >
                 {(groups || []).map(group => (
@@ -549,13 +546,10 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button>
-            ) : null}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || '',
+              initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
               rules: [
                 {
                   required: true,
@@ -576,7 +570,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
-              initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
+              initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
               rules: [
                 { required: true, validator: this.handleValiateNameSpace }
               ]
@@ -587,9 +581,10 @@ export default class Index extends PureComponent {
               initialValue: 'address',
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
-              <Radio.Group onChange={this.handleChangeImageSource}>
-                <Radio value='address'>
-                  {formatMessage({ id: 'teamAdd.create.image.address'})}
+              isPublic ? (
+                <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio value='address'>
+                    {formatMessage({ id: 'teamAdd.create.image.address'})}
                 </Radio>
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
@@ -599,104 +594,34 @@ export default class Index extends PureComponent {
                 </Radio>
                 <Radio value='local'>
                   {formatMessage({ id: 'teamAdd.create.image.local'})}
-                </Radio>
-              </Radio.Group>
+                  </Radio>
+                </Radio.Group>
+              ) : (
+                <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio value='address'>
+                    {formatMessage({ id: 'teamAdd.create.image.private'})}
+                  </Radio>
+                </Radio.Group>
+              )
             )}
           </Form.Item>
           {radioKey === 'address' &&
             <Form.Item 
               {...is_language} 
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
-              extra={<div style={{ fontSize: '12px' }}>私有仓库需要管理员在“平台管理-设置-镜像仓库”进行添加，按回车进行搜索。</div>}
             >
               {getFieldDecorator('docker_cmd', {
-                initialValue: '',
+                initialValue: imageUrl || '',
                 rules: [
                   { required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) },
                   // 长度255
-                  { max: 255, message: '最大输入长度为255个字符' },
+                  { max: 255, message: formatMessage({ id: 'mirror.length.limit' }) },
                   // 不允许输入中文、空格
-                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: '不允许输入中文、空格' }
+                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: formatMessage({ id: 'mirror.input.rule' }) }
                 ]
               })(
-                <div className={styles.address}>
-                  <div className={styles.registryAddress}>
-                    {warehouseList.length > 0 ? (
-                      <Select defaultValue="DockerHub" onChange={this.onChangeRegistry}>
-                        <Option value='DockerHub'>
-                            公开仓库
-                        </Option>
-                        {warehouseList.map(item => {
-                          return (
-                              <Option value={item.secret_id}>
-                                <Tooltip placement="right" title={item.domain}>
-                                  <div style={{ width: '100%' }}>
-                                  {item.secret_id}
-                                  </div>
-                                </Tooltip>
-                              </Option>
-                          )
-                        })}
-                      </Select>
-                      ) : (
-                        <div className={styles.registry}>
-                          公开仓库
-                        </div>
-                      )
-                    }
-                  </div>
-                  <div className={styles.imageName}>
-                    <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} />
-                  </div>
-                </div>
+                <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} disabled={!isPublic} />
                 )}
-            </Form.Item>
-          }
-          {radioKey === 'address' &&
-            <Form.Item 
-              label=''
-              wrapperCol={{
-                xs: {
-                  span: 24,
-                  offset: 0
-                },
-                sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
-                }
-              }}
-            >
-              {getFieldDecorator('checkout', {
-                initialValue: ''
-              })(
-                <div className={styles.hubCheckbox}> 
-                  {tagLoading && 
-                    <Spin wrapperClassName={styles.spin} />
-                  }
-                  {!tagLoading && warehouseImageTags.length == 0 &&
-                    <div className={styles.empty}>
-                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                    </div>
-                  }
-                  {!tagLoading && warehouseImageTags.length > 0 &&
-                    <Radio.Group 
-                      defaultValue={warehouseImageTags[0]} 
-                      className={styles.setCheckbox} 
-                      onChange={this.onChangeCheckbox}
-                    >
-                      <Row span={24}>
-                        {(warehouseImageTags || []).map(item => {
-                          return (
-                            <Radio value={item}>
-                              {item}
-                            </Radio>
-                          )
-                        })}
-                      </Row>
-                    </Radio.Group>
-                  }
-                </div>
-              )}
             </Form.Item>
           }
           {radioKey === 'cmd' &&
@@ -705,7 +630,7 @@ export default class Index extends PureComponent {
                 initialValue: '',
                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
               })(
-                <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })} />
+                <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })}/>
               )}
             </Form.Item>
           }
@@ -821,7 +746,7 @@ export default class Index extends PureComponent {
               </Form.Item>
             </>
           }
-          {radioKey === 'cmd' &&
+          {(radioKey === 'cmd' || radioKey === 'address') && isPublic &&
             <div style={{ textAlign: 'right', marginRight: isService ? '80px' : '100px' }}>
               {formatMessage({ id: 'teamAdd.create.image.hint1' })}
               <a
@@ -834,7 +759,7 @@ export default class Index extends PureComponent {
               </a>
             </div>
           }
-          { radioKey === 'cmd' && <>
+          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
               {...is_language}
@@ -900,7 +825,7 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Tooltip title={!isCreate && '您没有选择应用或选中的应用没有组件创建权限'}>
+                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                   <Button
                     onClick={this.handleSubmit}
                     type="primary"

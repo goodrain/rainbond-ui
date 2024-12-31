@@ -121,6 +121,7 @@ export default class MoveTeam extends PureComponent {
                 <FormattedMessage id='popover.enterpriseOverview.setUpTeam.label.logo' />
               </div>
             }
+            style={{display:'none'}}
           >
             {getFieldDecorator('logo', {
               rules: [

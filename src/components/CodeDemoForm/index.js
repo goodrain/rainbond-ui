@@ -7,6 +7,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import role from '../../utils/newRole'
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -29,10 +30,12 @@ const en_formItemLayout = {
 };
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading, teamControl }) => ({
     groups: global.groups,
     createAppByCodeLoading: loading.effects['createApp/createAppByCode'],
-    rainbondInfo: global.rainbondInfo
+    rainbondInfo: global.rainbondInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+
   }),
   null,
   null,
@@ -47,9 +50,21 @@ export default class Index extends PureComponent {
       addGroup: false,
       demoHref:
         this.props.data.git_url || configureGlobal.documentAddressDefault,
-      defaultName: 'demo-2048'
+      defaultName: 'demo-2048',
+      creatComPermission: {}
     };
   }
+  componentDidMount(){
+    const group_id = globalUtil.getGroupID()
+    if(group_id){
+      this.handleChangeGroup(group_id)
+    }
+  }
+  handleChangeGroup = (appid) => {
+    this.setState({
+      creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${appid}`)
+    })
+  };
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
@@ -64,7 +79,7 @@ export default class Index extends PureComponent {
       if (!err && onSubmit) {
         if(!isService){
           fieldsValue.k8s_app="appCodeDemo"
-          fieldsValue.is_demo = true
+          fieldsValue.is_demo = false
         }
         if(archInfo && archInfo.length != 2 && archInfo.length != 0){
           fieldsValue.arch = archInfo[0]
@@ -248,6 +263,7 @@ export default class Index extends PureComponent {
     }else if(archInfo.length == 1){
       arch = archInfo && archInfo[0]
     }
+    const group_id = globalUtil.getGroupID()    
     return (
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.selectDemo' })}</span>}>
@@ -336,28 +352,13 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
           {getFieldDecorator('group_id', {
-            initialValue:  isService ? Number(groupId) : language ? "源码构建示例" : "Source sample application", 
+            initialValue:  isService ? Number(groupId) : Number(group_id), 
             rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
           })(
-            !isService ?
-             <Input
-             disabled={true}
-             placeholder={formatMessage({ id: 'placeholder.appName' })}
-           />
-           :
            <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({ id: 'placeholder.appName' })}
-              style={language ? {
-                display: 'inline-block',
-                width: isService ? '' : 270,
-                marginRight: 15
-              } : {
-                display: 'inline-block',
-                width: isService ? '' : 330,
-                marginRight: 15
-              }}
-              disabled={!!isService}
+              disabled={!!isService || group_id}
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>

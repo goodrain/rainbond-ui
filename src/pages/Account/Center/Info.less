@@ -3,29 +3,30 @@
 .main {
   width: 100%;
   height: 100%;
+  min-height: 60vh;
   background-color: @body-background;
   display: flex;
-  padding-top: 16px;
-  padding-bottom: 16px;
   overflow: auto;
+
   .leftmenu {
     width: 224px;
     border-right: @border-width-base @border-style-base @border-color-split;
+
     :global {
       .ant-menu-inline {
         border: none;
       }
+
       .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
         font-weight: bold;
       }
     }
   }
+
   .right {
     flex: 1;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 0 24px 24px;
+
     .title {
       font-size: 20px;
       color: @heading-color;
@@ -34,18 +35,22 @@
       margin-bottom: 12px;
     }
   }
+
   :global {
     .ant-list-split .ant-list-item:last-child {
       border-bottom: 1px solid #e8e8e8;
     }
+
     .ant-list-item {
       padding-top: 14px;
       padding-bottom: 14px;
     }
   }
 }
+
 :global {
   .ant-list-item-meta {
+
     // 账号绑定图标
     .taobao {
       color: #ff4000;
@@ -54,6 +59,7 @@
       line-height: 48px;
       border-radius: @border-radius-base;
     }
+
     .dingding {
       background-color: #2eabff;
       color: #fff;
@@ -63,6 +69,7 @@
       margin: 2px;
       border-radius: @border-radius-base;
     }
+
     .alipay {
       color: #2eabff;
       font-size: 48px;
@@ -75,21 +82,32 @@
   font.strong {
     color: @rbd-success-status;
   }
+
   font.medium {
     color: @rbd-warning-status;
   }
+
   font.weak {
     color: @rbd-error-status;
   }
 }
 
+.userName {
+  font-size: @rbd-title-big-size;
+  color: @rbd-title-big-color;
+  line-height: @rbd-title-big-line-height;
+  padding: 0 0 12px 14px;
+}
+
 @media screen and (max-width: @screen-md) {
   .main {
     flex-direction: column;
+
     .leftmenu {
       width: 100%;
       border: none;
     }
+
     .right {
       padding: 40px;
     }

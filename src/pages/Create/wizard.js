@@ -10,7 +10,9 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import CustomFooter from "../../layouts/CustomFooter"
+import { Button, Icon } from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '../../utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import cookie from '../../utils/cookie';
@@ -34,8 +36,8 @@ export default class Index extends PureComponent {
         };
     }
     componentDidMount() {
-        const {teamAppCreatePermission:{isAccess}} = this.state;
-        if(isAccess){
+        const { teamAppCreatePermission: { isAccess } } = this.state;
+        if (isAccess) {
             this.getMarketsTab()
             this.getCloudRecommendApps()
         }
@@ -87,13 +89,14 @@ export default class Index extends PureComponent {
         const { dispatch, currentEnterprise } = this.props
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
+        const group_id = this.props.location.query.group_id;
         if (type == 'import') {
             dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/shared/${link}` })
+                routerRedux.push( `/team/${teamName}/region/${regionName}/shared/${link}?group_id=${group_id}`)
             );
         } else {
             dispatch(
-                routerRedux.push({ pathname: `/team/${teamName}/region/${regionName}/create/${type}/${link}` })
+                routerRedux.push( `/team/${teamName}/region/${regionName}/create/${type}/${link}?group_id=${group_id}`)
             );
         }
     }
@@ -103,107 +106,124 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
-        const {rainbondInfo} = this.props
-        const { rainStoreTab, language, localist, teamAppCreatePermission:{isAccess} } = this.state
+        const { rainbondInfo } = this.props
+        const { rainStoreTab, language, localist, teamAppCreatePermission: { isAccess } } = this.state
         const showDemo = rainbondInfo?.official_demo?.enable
-        if(!isAccess){
+        if (!isAccess) {
             return roleUtil.noPermission()
         }
         return (
-            <Fragment>
-                <div className={styles.overviewBox}>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
-                                    {teamMarket}
+            <>
+                <PageHeaderLayout
+                    title={formatMessage({id:'versionUpdata_6_1.create'})}
+                    content={formatMessage({id:'versionUpdata_6_1.create.content'})}
+                    titleSvg={pageheaderSvg.getPageHeaderSvg("component", 18)}
+                    extraContent={
+                        <Button onClick={() => {
+                            const { dispatch } = this.props;
+                            dispatch(
+                                routerRedux.push({
+                                    pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                                })
+                            );
+                        }} type="default">
+                            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+                        </Button>
+                    }
+                >
+                    <div className={styles.overviewBox}>
+                        <div>
+                            <div className={styles.topContent} style={{ height: 220 }}>
+                                <div className={styles.initIcon}>
+                                    <div>
+                                        {teamMarket}
+                                    </div>
+                                </div>
+                                <div className={styles.initTitle}>
+                                    {formatMessage({ id: 'menu.team.create.market' })}
+                                </div>
+                                <div className={styles.initDesc}>
+                                    <p>
+                                        {formatMessage({ id: 'teamAdd.create.market.desc' })}
+                                    </p>
                                 </div>
                             </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.market' })}
-                            </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.market.desc' })}
-                                </p>
+                            <div className={styles.bottomContent}>
+                                <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({ id: 'teamAdd.create.market.market' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({ id: 'teamAdd.create.market.command' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import' /></p>
                             </div>
                         </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('market', rainStoreTab)}>{formatMessage({ id: 'teamAdd.create.market.market' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', '')}>{formatMessage({ id: 'popover.applicationMarket.local' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('market', 'command')}>{formatMessage({ id: 'teamAdd.create.market.command' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('import', 'import')}><FormattedMessage id='applicationMarket.localMarket.import' /></p>
-                        </div>
-                    </div>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
-                                    {teamImage}
+                        <div>
+                            <div className={styles.topContent} style={{ height: 220 }}>
+                                <div className={styles.initIcon}>
+                                    <div>
+                                        {teamImage}
+                                    </div>
+                                </div>
+                                <div className={styles.initTitle}>
+                                    {formatMessage({ id: 'menu.team.create.image' })}
+                                </div>
+                                <div className={styles.initDesc}>
+                                    <p>
+                                        {formatMessage({ id: 'teamAdd.create.image.desc' })}
+                                    </p>
                                 </div>
                             </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.image' })}
-                            </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.image.desc' })}
-                                </p>
+                            <div className={styles.bottomContent}>
+                                <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'componentOverview.body.tab.log.container' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({ id: 'Vm.createVm.vm' })}</p>
+                                {showDemo && <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                             </div>
                         </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({id:'componentOverview.body.tab.log.container'})}</p>
-                            <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({id:'Vm.createVm.vm'})}</p>
-                            {showDemo && <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
-                        </div>
-                    </div>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
-                                    {teamCode}
+                        <div >
+                            <div className={styles.topContent} style={{ height: 220 }}>
+                                <div className={styles.initIcon}>
+                                    <div>
+                                        {teamCode}
+                                    </div>
+                                </div>
+                                <div className={styles.initTitle}>
+                                    {formatMessage({ id: 'menu.team.create.code' })}
+                                </div>
+                                <div className={styles.initDesc}>
+                                    <p>
+                                        {formatMessage({ id: 'teamAdd.create.code.desc' })}
+                                    </p>
                                 </div>
                             </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.code' })}
-                            </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.code.desc' })}
-                                </p>
+                            <div className={styles.bottomContent}>
+                                <p onClick={() => this.onClickLinkCreate('code', 'custom')}>{formatMessage({ id: 'teamAdd.create.code.customSource' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('code', 'jwar')}>{formatMessage({ id: 'teamAdd.create.code.package' })}</p>
+                                {showDemo && <p onClick={() => this.onClickLinkCreate('code', 'demo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                             </div>
                         </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('code', 'custom')}>{formatMessage({ id: 'teamAdd.create.code.customSource' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('code', 'jwar')}>{formatMessage({ id: 'teamAdd.create.code.package' })}</p>
-                            {showDemo && <p onClick={() => this.onClickLinkCreate('code', 'demo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
-                        </div>
-                    </div>
-                    <div style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
-                        <div className={styles.topContent} style={{ height: language ? '230px' : '260px' }}>
-                            <div className={styles.initIcon}>
-                                <div>
-                                    {teamUpload}
+                        <div >
+                            <div className={styles.topContent} style={{ height: 220 }}>
+                                <div className={styles.initIcon}>
+                                    <div>
+                                        {teamUpload}
+                                    </div>
+                                </div>
+                                <div className={styles.initTitle}>
+                                    {formatMessage({ id: 'menu.team.create.upload' })}
+                                </div>
+                                <div className={styles.initDesc}>
+                                    <p>
+                                        {formatMessage({ id: 'teamAdd.create.upload.desc' })}
+                                    </p>
                                 </div>
                             </div>
-                            <div className={styles.initTitle}>
-                                {formatMessage({ id: 'menu.team.create.upload' })}
+                            <div className={styles.bottomContent}>
+                                <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.yaml' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p>
+                                <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p>
                             </div>
-                            <div className={styles.initDesc}>
-                                <p>
-                                    {formatMessage({ id: 'teamAdd.create.upload.desc' })}
-                                </p>
-                            </div>
-                        </div>
-                        <div className={styles.bottomContent}>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.yaml' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p>
-                            <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p>
                         </div>
                     </div>
-                </div>
-                <CustomFooter />
-            </Fragment>
+                </PageHeaderLayout>
+            </>
         );
     }
 }

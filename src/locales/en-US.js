@@ -14,6 +14,7 @@ import error from './en-US/error';
 import ApplicationState from "./en-US/ApplicationState"
 import utils from './en-US/utils'
 import login from './en-US/login'
+import versionUpdata from './en-US/versionUpdata'
 
 export default {
   'navBar.lang': 'lang',
@@ -36,5 +37,6 @@ export default {
   ...ApplicationState,
   ...error,
   ...utils,
-  ...login
+  ...login,
+  ...versionUpdata
 };

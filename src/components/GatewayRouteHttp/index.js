@@ -31,6 +31,8 @@ export default class index extends Component {
             dataSource: [],
             type: 'add',
             tableLoading: true,
+            pageSize: 10,
+            page: 1, 
             searchKey: '', // 添加搜索关键词状态
         };
     }
@@ -160,6 +162,12 @@ export default class index extends Component {
         const ComponentID = serviceName.slice(-8);
         dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${ComponentID}/overview`));
     }
+    onPageChange = (page_num, page_size) => {
+        this.setState({
+            page: page_num,
+            pageSize: page_size
+        })
+    }
 
     handleSearch = (value) => {
         this.setState({
@@ -173,7 +181,9 @@ export default class index extends Component {
             routeDrawer,
             dataSource,
             editInfo,
-            tableLoading
+            tableLoading,
+            page,
+            pageSize
         } = this.state;
         const {
             appID,
@@ -305,6 +315,17 @@ export default class index extends Component {
                         columns={columns}
                         loading={tableLoading}
                         rowKey={record => record.name || record.serviceName}
+                        pagination={{
+                            current: page,
+                            pageSize: pageSize,
+                            total: dataSource.length ,
+                            onChange: this.onPageChange,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            showTotal: (total) => `共 ${total} 条`,
+                            onShowSizeChange: this.onPageChange,
+                            hideOnSinglePage: dataSource.length <= 10
+                        }}
                     />
                 </Card>
                 {routeDrawer &&

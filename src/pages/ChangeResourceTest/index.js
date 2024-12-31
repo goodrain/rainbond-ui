@@ -17,7 +17,6 @@ import FlexAttribute from '../../components/FlexAttribute'
 import HealthAttribute from "../../components/HealthAttribute"
 import SpecialAttribute from '../../components/SpecialAttribute'
 import Kubernetes from "../../components/KubernetesAttribute"
-import CustomFooter from "../../layouts/CustomFooter";
 import globalUtil from '../../utils/global'
 import styles from './index.less'
 const { TabPane } = Tabs;
@@ -321,7 +320,6 @@ class Index extends PureComponent {
                         </Button>
                     </div>
                 </Spin>
-                <CustomFooter />
             </Fragment>
         );
     }

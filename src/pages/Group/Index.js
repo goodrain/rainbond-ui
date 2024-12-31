@@ -40,8 +40,8 @@ export default class Index extends PureComponent {
 
 
   render() {
-    const { groupDetail } = this.props;
-    const { isAppOverview } = this.state.appPermissions
+    const { groupDetail, currentTeamPermissionsInfo } = this.props;    
+    const {appPermissions, appPermissions:{isAppOverview}} =  this.state
     if(!isAppOverview){
       return roleUtil.noPermission()
     }
