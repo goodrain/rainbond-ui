@@ -10,10 +10,12 @@ export default function Result({
   title,
   description,
   isGoBack,
+  linkPath,
   extra,
   actions,
   ...restProps
 }) {
+  console.log(linkPath, 'linkPath')
   const iconMap = {
     error: <Icon className={styles.error} type="close-circle" />,
     success: <Icon className={styles.success} type="check-circle" />,
@@ -26,7 +28,7 @@ export default function Result({
       <div className={styles.icon}>{iconMap[type]}</div>
       <div className={styles.title}>{title}</div>
       {description && <div className={styles.description}>{description}</div>}
-      {isGoBack && <Link to='/'>返回首页</Link>}
+      {isGoBack && <Link to={linkPath}>去授权</Link>}
       {extra && <div className={styles.extra}>{extra}</div>}
       {actions && <div className={styles.actions}>{actions}</div>}
     </div>

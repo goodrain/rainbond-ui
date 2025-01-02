@@ -1121,7 +1121,7 @@ import {
               defaultValue={defaultValue}
               onSearch={this.handleSearch}
               style={{
-                width: 500
+                width: 450
               }}
             />
           </span>}

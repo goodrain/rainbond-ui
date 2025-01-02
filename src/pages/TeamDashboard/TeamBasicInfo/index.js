@@ -26,7 +26,7 @@ const { Option } = Select;
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   loading,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class index extends Component {
   constructor(props) {
@@ -348,7 +348,7 @@ export default class index extends Component {
       },
       isTableView
     } = this.state;
-    const { index, currentTeamPermissionsInfo } = this.props;
+    const { index, currentTeamPermissionsInfo, pluginsList } = this.props;
     const dataSource = [];
     const columns = [
       {
@@ -503,6 +503,7 @@ export default class index extends Component {
                 </div>}
               bordered={false}
               className={styles.appListCard}
+              loading={appListLoading}
               extra={
                 <>
 
@@ -544,7 +545,7 @@ export default class index extends Component {
                 </>
               }
             >
-              {isAppList && teamHotAppList.length > 0 ? (
+              {!appListLoading && isAppList && teamHotAppList.length > 0 && (
                 <>
                   {isTableView ? (
                     <Table
@@ -573,21 +574,19 @@ export default class index extends Component {
                       pageSizeOptions={['12', '24', '36', '48', '60']}
                     />
                   </div>
-                </>
-              ) : (
-                // 空列表做成可点击的效果指引用户去创建应用
-                <div 
-                  className={styles.appListEmpty} 
+                </>)}
+              {!appListLoading && teamHotAppList.length == 0 &&
+                <div
+                  className={styles.appListEmpty}
                   onClick={() => {
-                  this.setState({
-                    addGroup: true,
-                  });
-                }}>
-                  <Empty 
+                    this.setState({
+                      addGroup: true,
+                    });
+                  }}>
+                  <Empty
                     description={'开始部署您的应用'}
                   />
-                </div>
-              )}
+                </div>}
             </Card>
           </>
         )}

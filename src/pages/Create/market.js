@@ -1179,6 +1179,7 @@ export default class Main extends PureComponent {
     const cloudCardList = (
       <List
         bordered={false}
+        padding={12}
         grid={{
           gutter: 24,
           lg: 3,
@@ -1243,7 +1244,7 @@ export default class Main extends PureComponent {
             // defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
-              width: 500
+              width: 450
             }}
           />
         </span>}
@@ -1425,6 +1426,7 @@ export default class Main extends PureComponent {
                       handleType &&
                       handleType === 'Service' &&
                       '40px',
+                    padding: '12px'
                   }}
                 >
                   
@@ -1437,7 +1439,8 @@ export default class Main extends PureComponent {
                       !moreState &&
                       handleType &&
                       handleType === 'Service' &&
-                      '40px'
+                      '40px',
+                    padding: '12px'
                   }}
                 >
                   <CommandMarket {...this.props} archInfo={archInfo}/>
@@ -1451,7 +1454,7 @@ export default class Main extends PureComponent {
                       <div
                         className={PluginStyles.cardList}
                         style={{
-                          paddingBottom: '20px',
+                          padding: '12px',
                           marginBottom: !moreState ? '40px' : '0px'
                         }}
                       >
@@ -1552,7 +1555,6 @@ export default class Main extends PureComponent {
                       <div
                         className={PluginStyles.cardList}
                         style={{
-                          paddingBottom: '20px',
                           marginBottom: !moreState ? '40px' : '0px'
                         }}
                       >
