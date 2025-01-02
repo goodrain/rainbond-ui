@@ -602,6 +602,7 @@ class TeamLayout extends PureComponent {
       currentTeamPermissionsInfo,
       groupDetail
     } = this.props;
+
     const {
       eid,
       enterpriseList,
@@ -628,7 +629,7 @@ class TeamLayout extends PureComponent {
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     if (isNeedAuthz) {
       if (!isAuthorizationLoading && !licenseInfo) {
-        return <Overdue title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
+        return <Overdue currentUser={currentUser} title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
 
       let overdueTitle = '';
@@ -645,7 +646,7 @@ class TeamLayout extends PureComponent {
       }
 
       if (overdueTitle) {
-        return <Overdue title={overdueTitle} desc={overdueDesc} />;
+        return <Overdue currentUser={currentUser} title={overdueTitle} desc={overdueDesc} />;
       }
     }
     // Parameters of the abnormal

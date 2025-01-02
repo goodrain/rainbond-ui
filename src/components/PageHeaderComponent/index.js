@@ -181,7 +181,6 @@ export default class PageHeader extends PureComponent {
     if (tabActiveKey !== undefined) {
       activeKeyProps.activeKey = tabActiveKey;
     }
-
     return (
       <div className={clsString}>
         {/* disable breadcrumb */}

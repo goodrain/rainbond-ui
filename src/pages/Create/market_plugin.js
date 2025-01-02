@@ -1388,7 +1388,7 @@ export default class Main extends PureComponent {
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
-              extraContent={
+              action={
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
@@ -1470,7 +1470,7 @@ export default class Main extends PureComponent {
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
-              // extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
               tabList={marketTab}
               keyword={false}
               helmInfoSwitch={helmInfoSwitch}
@@ -1478,7 +1478,7 @@ export default class Main extends PureComponent {
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
-              extraContent={
+              action={
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
