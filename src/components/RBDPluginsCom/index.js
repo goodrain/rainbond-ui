@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { Spin, Card, Button } from 'antd';
 import Result from '../Result';
+import { connect } from 'dva';
 import PluginsUtiles from '../../utils/pulginUtils'
 import Global from '../../utils/global'
+import cookie from "@/utils/cookie";
 import styles from './index.less';
-
+@connect(({ user, region }) => ({
+  currentUser: user.currentUser,
+  cluster_info: region.cluster_info,
+}))
 
 export default class index extends Component {
   constructor(props) {
@@ -47,8 +52,13 @@ export default class index extends Component {
       ) : (
         AppPagePlugin &&
         <AppPagePlugin
-          colorPrimary={Global.getPublicColor('primary-color')}
-          currentLocale='en'
+          baseInfo={{
+            colorPrimary: Global.getPublicColor('primary-color'),
+            currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
+            cluster_info: this.props.cluster_info,
+            currentUser: this.props.currentUser,
+          }}
+          globalUtile={Global}
         />
       )
     );
