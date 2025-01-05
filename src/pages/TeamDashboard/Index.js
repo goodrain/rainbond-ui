@@ -42,6 +42,7 @@ const { Option } = Select;
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   loading,
+  pluginsList: teamControl.pluginsList,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -87,6 +88,15 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 设置流水线插件
+  setTeamMenu = (pluginMenu, menuName) => {
+    if(pluginMenu){
+      const isShow = pluginMenu.some(item =>{
+          return item.name == menuName
+      })
+      return isShow
+    }
+  }
   fetchPipePipeline = (eid) => {
     const { dispatch } = this.props;
     dispatch({
@@ -196,6 +206,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { currentTeam } = this.state
+    const { pluginsList } = this.props;
     return (
       <div className={styles.container} key={this.state.loading}>
         <Spin spinning={this.state.loading}>
@@ -210,6 +221,23 @@ export default class Index extends PureComponent {
             </div>
             <div className={styles.right}>
               {this.getPluginsMenu()}
+              {this.setTeamMenu(pluginsList, 'pipeline') && 
+                <Button
+                style={{ marginRight: 10 }}
+                onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Pipeline`,
+                    })
+                  );
+                }}
+              >
+                {globalUtil.fetchSvg('pipeLine', false, '14px' )}
+                {formatMessage({id:'menu.team.pipeline'})}
+              </Button>
+              }
+    
               <Button
                 style={{ marginRight: 10 }}
                 onClick={() => {

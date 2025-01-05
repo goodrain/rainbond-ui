@@ -171,7 +171,6 @@ export default class PageHeader extends PureComponent {
       helmInfoSwitch,
       marketInfoSwitch
     } = this.props;
-    console.log(extraContent, 'extraContent')
     const appMarketSvg = globalUtil.fetchSvg('appmarket');
     const clsString = classNames(styles.pageHeader, className);
     // const { teamName, regionName } = this.props.match.params;
@@ -203,15 +202,15 @@ export default class PageHeader extends PureComponent {
                 {content && <div className={styles.content}>{content}</div>}
               </div>
             </div>
-            {extraContent?.props?.children && <div className={styles.row} style={{ marginTop: 24, textAlign: "left" }}>
-              {extraContent && (
-                <div className={styles.extraContent}>{extraContent}</div>
-              )}
-            </div>
-            }
           </div>
-
         </div>
+        {extraContent?.props?.children &&
+          <div className={styles.row} style={{ margin: '24px 0px', textAlign: "left" }}>
+            {extraContent && (
+              <div className={styles.extraContent}>{extraContent}</div>
+            )}
+          </div>
+        }
         {tabList && tabList.length && helmInfoSwitch && marketInfoSwitch && (
           <div className={styles.tabsStyle}>
             <Tabs
