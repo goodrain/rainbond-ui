@@ -58,35 +58,35 @@ export default class EnterpriseSetting extends PureComponent {
     }
   }
   onChange = key => {
-    const {dispatch} = this.props
-    const {region_name} = this.state
+    const { dispatch } = this.props
+    const { region_name } = this.state
     this.setState({ activeKey: key });
-    if(key == 'upload' || key =='individuation')
-    dispatch(routerRedux.push(`/enterprise/${global.getCurrEnterpriseId()}/setting?regionName=${region_name}`));
+    if (key == 'upload' || key == 'individuation')
+      dispatch(routerRedux.push(`/enterprise/${global.getCurrEnterpriseId()}/setting?regionName=${region_name}`));
   };
 
   isShowEnterprisePlugin = () => {
-    const { dispatch, cluster_info} = this.props;
-      (cluster_info || []).forEach(item => {
-        dispatch({
-          type: 'global/getPluginList',
-          payload: { enterprise_id: global.getCurrEnterpriseId(), region_name: item.region_name },
-          callback: (res) => {
-            if (res && res.list) {
-              const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
-              if(showEnterprisePlugin){
-                this.setState({
-                  showEnterprisePlugin: true,
-                  region_name: item.region_name
-                })
-              }
+    const { dispatch, cluster_info } = this.props;
+    (cluster_info || []).forEach(item => {
+      dispatch({
+        type: 'global/getPluginList',
+        payload: { enterprise_id: global.getCurrEnterpriseId(), region_name: item.region_name },
+        callback: (res) => {
+          if (res && res.list) {
+            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+            if (showEnterprisePlugin) {
+              this.setState({
+                showEnterprisePlugin: true,
+                region_name: item.region_name
+              })
             }
-          },
-          handleError: () => {
-            this.setState({ plugins: {}, loading: false });
-          },
-        });
-      })
+          }
+        },
+        handleError: () => {
+          this.setState({ plugins: {}, loading: false });
+        },
+      });
+    })
 
   }
 
@@ -131,7 +131,7 @@ export default class EnterpriseSetting extends PureComponent {
   }
 
   render() {
-    const { adminer, activeKey,showEnterprisePlugin } = this.state;
+    const { adminer, activeKey, showEnterprisePlugin } = this.state;
     const {
       match: {
         params: { eid }
@@ -153,6 +153,7 @@ export default class EnterpriseSetting extends PureComponent {
           activeKey={activeKey}
           type="card"
           className={styles.tabBarStyle}
+          destroyInactiveTabPane
         >
           <TabPane
             tab={
@@ -183,7 +184,7 @@ export default class EnterpriseSetting extends PureComponent {
               key="individuation"
             >
               <EnterprisePluginsPage
-                key="PackageUpload"
+                key="Customization"
                 type="Customization"
                 componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
                 }
@@ -223,6 +224,21 @@ export default class EnterpriseSetting extends PureComponent {
               <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" />
             </TabPane>
           )}
+          {showEnterprisePlugin &&
+            <TabPane
+              tab={<div>
+                超分比例
+              </div>}
+              key="OverMark"
+            >
+              <EnterprisePluginsPage
+                key="OverMark"
+                type="OverMark"
+                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
+                }
+              />
+            </TabPane>
+          }
           <TabPane
             tab={
               <div>

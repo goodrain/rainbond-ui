@@ -1689,3 +1689,25 @@ export async function updatePlatform(params, handleError) {
     }
   );
 }
+// 获取超分数据
+// /console/over_score
+export async function fetchOverScore(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/over_score`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+// 更新超分数据
+export async function updateOverScore(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/over_score`,
+    {
+      method: 'put',
+      data: params,
+      handleError
+    }
+  );
+}

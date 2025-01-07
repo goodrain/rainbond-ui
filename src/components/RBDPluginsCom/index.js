@@ -57,6 +57,7 @@ export default class index extends Component {
             currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
             cluster_info: this.props.cluster_info,
             currentUser: this.props.currentUser,
+            token: cookie.get('token')
           }}
           globalUtile={Global}
         />
