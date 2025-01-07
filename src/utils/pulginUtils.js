@@ -81,6 +81,9 @@ export default {
       case 'PackageUpload':
         return 'PackageUploadPage'
         break;
+      case 'OverMark':
+        return 'OverMarkPage'
+        break;
       default:
         return key
         break;
