@@ -57,7 +57,9 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
       authority: ['admin', 'user']
     });
   }
-  if (PluginUtil.isInstallEnterprisePlugin(pluginList)) {
+  const showAppBackup = PluginUtil.isInstallPlugin(pluginList, 'rainbond-bill');
+
+  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && !showAppBackup) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: getMenuSvg.getSvg('backup'),
@@ -65,7 +67,7 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
       authority: ['admin', 'user']
     });
   }
-  if (isAppResources) {
+  if (isAppResources && !showAppBackup) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.k8s' }),
       icon: getMenuSvg.getSvg('kubenetes'),

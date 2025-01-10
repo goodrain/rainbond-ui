@@ -3,12 +3,29 @@
 export default {
   // 对企业级、团队级、应用级的插件列表进行筛选归类
   segregatePluginsByHierarchy(list, type) {
-    const arr = (list || []).filter(item => item?.plugin_views?.includes(type) && item.name != 'rainbond-enterprise-base' && item.enable_status === 'true' ).map(item => item);
-    return arr
+      const arr = (list || []).filter(item => item?.plugin_views?.includes(type) && item.name != 'rainbond-enterprise-base'  && item.name != 'rainbond-bill' && item.enable_status === 'true' ).map(item => item);
+      return arr
   },
   // 判断当前企业是否安装企业插件
   isInstallEnterprisePlugin(list) {
     return (list || []).some(element => element.name === 'rainbond-enterprise-base');
+  },
+
+  getPluginInfo(list, pluginId) {
+    const pluginList = {}
+    Object.keys(list || {}).forEach(item => {
+      const plugin = list[item]
+      plugin.forEach(items => {
+        if (items.name === pluginId) {
+          pluginList[item]=items
+        }
+      })
+    });
+    return pluginList
+  },
+  // 判断是否安装了某个插件
+  isInstallPlugin(list, pluginId) {
+    return (list || []).some(element => element.name === pluginId);
   },
   // 判断当前路由的视图位置
   getCurrentViewPosition(urlPath) {
