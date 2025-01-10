@@ -49,10 +49,16 @@ export default class GlobalHeader extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       treeData: [],
       isVersionUpdate: false,
+      showBill: false,
+      isTeamView: globalUtil.getCurrTeamName() !== '' && globalUtil.getCurrRegionName() !== '',
     };
   }
   componentDidMount() {
-    const { is_enterprise } = this.props
+    const { is_enterprise, currentUser } = this.props
+    const eid = globalUtil.getCurrEnterpriseId() || currentUser?.enterprise_id
+    if (this.state.isTeamView) {
+      this.fetchPipePipeline(eid)
+    }
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
     if (Language == null) {
@@ -83,6 +89,23 @@ export default class GlobalHeader extends PureComponent {
       }
     }
   }
+  fetchPipePipeline = (eid) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/fetchPluginUrl',
+      payload: {
+        enterprise_id: eid,
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res.list.some(item => item.name === 'rainbond-bill')) {
+          this.setState({
+            showBill: true
+          })
+        }
+      }
+    })
+  }
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
     const { language } = this.state
@@ -91,6 +114,9 @@ export default class GlobalHeader extends PureComponent {
     }
     if (key === 'cpw') {
       this.showChangePass();
+    }
+    if (key === 'bill') {
+      dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/rainbond-bill`));
     }
     if (key === 'zh_en') {
       if (language) {
@@ -172,7 +198,7 @@ export default class GlobalHeader extends PureComponent {
   };
   // 获取所有主机版本
   fetchAllVersion = () => {
-    const {dispatch, rainbondInfo} = this.props
+    const { dispatch, rainbondInfo } = this.props
     const currentVersion = rainbondInfo.version.value.split('-')[0]
     fetchAllVersion().then(res => {
       if (res) {
@@ -185,7 +211,7 @@ export default class GlobalHeader extends PureComponent {
           }
         })
       }
-    }).catch(e => {console.log(e)})
+    }).catch(e => { console.log(e) })
   }
   // 跳转到版本更新页面
   handleRouteupdate = () => {
@@ -203,8 +229,8 @@ export default class GlobalHeader extends PureComponent {
   };
 
   render() {
-    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space=false, is_enterprise=false, customHeaderImg } = this.props;
-    const { language, treeData, isVersionUpdate } = this.state
+    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space = false, is_enterprise = false, customHeaderImg } = this.props;
+    const { language, treeData, isVersionUpdate, isTeamView, showBill } = this.state
     if (!currentUser) {
       return null;
     }
@@ -233,6 +259,9 @@ export default class GlobalHeader extends PureComponent {
         <path d="M511.174192 746.339166c-9.912767 0-18.419512-8.018627-18.419512-17.907858L492.75468 298.639634c0-9.889231 8.506744-17.907858 18.419512-17.907858s18.419512 8.018627 18.419512 17.907858l0 429.791673C529.593703 738.321562 521.086959 746.339166 511.174192 746.339166z" p-id="9660" fill="#ffffff"></path>
       </svg>
     )
+    const handleBillSvg = () => (
+      <svg t="1736330635739" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5523" width="16" height="16"><path d="M793.1904 742.4H220.5696a20.48 20.48 0 1 1 0-40.96h572.6208a20.48 20.48 0 0 1 0 40.96z" p-id="5524"></path><path d="M856.2688 952.32H157.4912A105.2672 105.2672 0 0 1 51.2 848.1792V175.8208A105.2672 105.2672 0 0 1 157.4912 71.68h698.7776A105.2672 105.2672 0 0 1 962.56 175.8208v672.3584A105.2672 105.2672 0 0 1 856.2688 952.32zM156.672 112.64A64 64 0 0 0 92.16 175.8208v672.3584A64 64 0 0 0 156.672 911.36h700.416a64 64 0 0 0 64.512-63.1808V175.8208A64 64 0 0 0 857.088 112.64z" p-id="5525"></path><path d="M777.4208 460.8H635.6992a20.48 20.48 0 1 1 0-40.96h141.7216a20.48 20.48 0 1 1 0 40.96M417.5872 386.4576H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96M417.5872 472.064H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96" p-id="5526"></path><path d="M325.2224 555.3152a20.48 20.48 0 0 1-20.48-20.48V365.4656a20.48 20.48 0 1 1 40.96 0v169.3696a20.48 20.48 0 0 1-20.48 20.48" p-id="5527"></path><path d="M323.7888 389.12a20.48 20.48 0 0 1-18.2272-11.264l-93.0816-184.32a20.48 20.48 0 0 1 36.5568-18.432l93.0816 184.32a20.48 20.48 0 0 1-9.1136 27.5456 19.7632 19.7632 0 0 1-9.216 2.2528" p-id="5528"></path><path d="M329.6256 386.048a19.6608 19.6608 0 0 1-9.728-2.4576 20.48 20.48 0 0 1-8.2944-27.7504l92.9792-172.544A20.48 20.48 0 0 1 440.32 202.752l-92.16 172.544a20.48 20.48 0 0 1-18.0224 10.752" p-id="5529"></path></svg>
+    )
     const en_language = () => (
       <svg class="icon" width="15" height="15" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <path d="M229.248 704V337.504h271.744v61.984h-197.76v81.28h184v61.76h-184v99.712h204.768V704h-278.72z m550.496 0h-70.24v-135.488c0-28.672-1.504-47.232-4.48-55.648a39.04 39.04 0 0 0-14.656-19.616 41.792 41.792 0 0 0-24.384-7.008c-12.16 0-23.04 3.328-32.736 10.016-9.664 6.656-16.32 15.488-19.872 26.496-3.584 11.008-5.376 31.36-5.376 60.992V704h-70.24v-265.504h65.248v39.008c23.168-30.016 52.32-44.992 87.488-44.992 15.52 0 29.664 2.784 42.496 8.352 12.832 5.6 22.56 12.704 29.12 21.376 6.592 8.672 11.2 18.496 13.76 29.504 2.56 11.008 3.872 26.752 3.872 47.264V704zM160 144a32 32 0 0 0-32 32V864a32 32 0 0 0 32 32h688a32 32 0 0 0 32-32V176a32 32 0 0 0-32-32H160z m0-64h688a96 96 0 0 1 96 96V864a96 96 0 0 1-96 96H160a96 96 0 0 1-96-96V176a96 96 0 0 1 96-96z" />
@@ -254,6 +283,7 @@ export default class GlobalHeader extends PureComponent {
             }}
           />
           {text == 1 && <FormattedMessage id="GlobalHeader.core" />}
+          {text == 2 && '计量计费'}
           {text == 3 && <FormattedMessage id="GlobalHeader.language" />}
           {text == 4 && <FormattedMessage id="GlobalHeader.exit" />}
         </Menu.Item>
@@ -263,6 +293,7 @@ export default class GlobalHeader extends PureComponent {
       <div className={styles.uesrInfo}>
         <Menu onClick={this.handleMenuClick}>
           {MenuItems('userCenter', handleUserSvg, 1)}
+          {showBill && isTeamView && MenuItems('bill', handleBillSvg, 2)}
           {MenuItems('zh_en', language ? cn_language : en_language, 3)}
           {!rainbondUtil.logoutEnable(rainbondInfo) &&
             MenuItems('logout', handleLogoutSvg, 4)}
@@ -284,7 +315,7 @@ export default class GlobalHeader extends PureComponent {
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}
-          
+
           {isNewbieGuide && (
             <Popconfirm
               title={formatMessage({ id: 'GlobalHeader.close' })}
@@ -316,7 +347,7 @@ export default class GlobalHeader extends PureComponent {
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>
-                <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon}  />
+                <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
                 <span className={styles.name}>{currentUser.user_name}</span>
               </span>
             </Dropdown>

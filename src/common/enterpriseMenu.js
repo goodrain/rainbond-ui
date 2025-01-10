@@ -6,7 +6,7 @@ import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 
-function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
+function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const menuArr = [
     {
@@ -36,6 +36,35 @@ function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
     path: `/enterprise/${eid}/teams`,
     authority: ['admin', 'user']
   });
+
+  const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
+  if (billPlugin && Object.keys(billPlugin).length === 1) {
+    Object.entries(billPlugin).forEach(([regionName, plugins]) => {
+      menuArr.push({
+        name: '计量计费',
+        icon: getMenuSvg.getSvg('bill'),
+        path: `/enterprise/${eid}/plugins/rainbond-bill?regionName=${regionName}`,
+        authority: ['admin', 'user']
+      });
+    });
+  } else if (billPlugin && Object.keys(billPlugin).length > 1) {
+    const billPluginChildren = []
+    Object.entries(billPlugin).forEach(([regionName, plugins]) => {
+      billPluginChildren.push({
+        name: regionName,
+        icon: getMenuSvg.getSvg('clusters'),
+        path: `rainbond-bill?regionName=${regionName}`,
+        authority: ['admin', 'user']
+      });
+    });
+    menuArr.push({
+      name: '计量计费',
+      icon: getMenuSvg.getSvg('bill'),
+      path: `/enterprise/${eid}/plugins`,
+      authority: ['admin', 'user'],
+      children: billPluginChildren,
+    });
+  }
   if (adminer) {
     menuArr.push(
       {
@@ -82,23 +111,22 @@ function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
       }
     });
   }
-  
+
   if (pluginObj && Object.keys(pluginObj).length > 0) {
     const pluginChildren = [];
-  
     Object.entries(pluginObj).forEach(([regionName, plugins]) => {
       const regionPluginChildren = plugins.map(val => ({
         name: val.display_name,
         icon: getMenuSvg.getSvg('plugin'),
-        path: pluginObj && Object.keys(pluginObj).length === 1 
+        path: pluginObj && Object.keys(pluginObj).length === 1
           ? `${val.name}?regionName=${regionName}`
           : val.name,
         authority: ['admin', 'user']
       }));
-  
+
       if (Object.keys(pluginObj).length > 1) {
         pluginChildren.push({
-          name: getRegionDispalyName(clusterList,regionName),
+          name: getRegionDispalyName(clusterList, regionName),
           icon: getMenuSvg.getSvg('clusters'),
           path: regionName,
           authority: ['admin', 'user'],
@@ -108,7 +136,7 @@ function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
         pluginChildren.push(...regionPluginChildren);
       }
     });
-  
+
     menuArr.push({
       name: '插件列表',
       icon: getMenuSvg.getSvg('plugin'),
@@ -117,12 +145,12 @@ function menuData(eid, currentUser, enterprise, pluginList,clusterList) {
       children: pluginChildren,
     });
   }
-  
+
   return menuArr;
 }
 
-function getRegionDispalyName (list,name){
-  const display_name = (list||[]).filter(item => item.region_name == name)
+function getRegionDispalyName(list, name) {
+  const display_name = (list || []).filter(item => item.region_name == name)
   return display_name[0].region_alias || name
 }
 

@@ -14,11 +14,12 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import apiconfig from '../../../config/api.config';
 import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';
+import pluginUtils from '../../utils/pulginUtils';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -26,10 +27,11 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 @Form.create()
-@connect(({ user, global, teamControl }) => ({
+@connect(({ user, global, teamControl, rbdPlugin }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  currentTeam: teamControl.currentTeam
+  currentTeam: teamControl.currentTeam,
+  pluginList: rbdPlugin.pluginList,
 }))
 class CreateAppModels extends PureComponent {
   constructor(props) {
@@ -54,7 +56,8 @@ class CreateAppModels extends PureComponent {
       tagLoading: true,
       isAddLicense: false,
       enterpriseTeamsLoading: true,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showPublish: pluginUtils.isInstallPlugin(this.props?.pluginList, 'rainbond-bill'),
 
     };
   }
@@ -340,8 +343,8 @@ class CreateAppModels extends PureComponent {
           }
           this.handleSubmitLoading(false);
         },
-        handleError: err =>{
-        notification.error({message: err?.data?.msg || formatMessage({id:'notification.error.setUp'})})
+        handleError: err => {
+          notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
           this.handleSubmitLoading(false);
         }
       });
@@ -371,8 +374,8 @@ class CreateAppModels extends PureComponent {
         }
         this.handleSubmitLoading(false);
       },
-      handleError: err =>{
-        notification.error({message: err?.data?.msg || formatMessage({id:'notification.error.setUp'})})
+      handleError: err => {
+        notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
         this.handleSubmitLoading(false);
       }
     });
@@ -422,7 +425,8 @@ class CreateAppModels extends PureComponent {
       organizationsLoading,
       organizations,
       submitLoading,
-      language
+      language,
+      showPublish
     } = this.state;
 
     const formItemLayout = {
@@ -468,7 +472,7 @@ class CreateAppModels extends PureComponent {
     const uploadButton = (
       <div>
         <Icon type={loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.uploadIcon'})}</div>
+        <div className="ant-upload-text">{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.uploadIcon' })}</div>
       </div>
     );
 
@@ -490,44 +494,44 @@ class CreateAppModels extends PureComponent {
           onCancel={onCancel}
           footer={
             <Fragment>
-              <Button onClick={onCancel}> {formatMessage({id:'popover.cancel'})} </Button>
+              <Button onClick={onCancel}> {formatMessage({ id: 'popover.cancel' })} </Button>
               <Button
                 type="primary"
                 disabled={organizationsLoading || tagLoading}
                 onClick={this.handleSubmit}
                 loading={submitLoading}
               >
-                {formatMessage({id:'popover.confirm'})}
+                {formatMessage({ id: 'popover.confirm' })}
               </Button>
             </Fragment>
           }
         >
           <Spin spinning={organizationsLoading || tagLoading}>
             <Form onSubmit={this.handleSubmit} layout="horizontal">
-              <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.name'})}>
+              <FormItem {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.name' })}>
                 {getFieldDecorator('name', {
                   initialValue: appName || (appInfo ? appInfo.app_name : ''),
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.appShare.appPublish.name'})
+                      message: formatMessage({ id: 'placeholder.appShare.appPublish.name' })
                     },
                     {
                       max: 32,
-                      message: formatMessage({id:'placeholder.max32'})
+                      message: formatMessage({ id: 'placeholder.max32' })
                     },
                     {
                       pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,
-                      message: formatMessage({id:'placeholder.nameSpaceReg'})
+                      message: formatMessage({ id: 'placeholder.nameSpaceReg' })
                     }
                   ]
-                })(<Input placeholder={formatMessage({id:'placeholder.appShare.appPublish.name'})} />)}
+                })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}
                 <div className={styles.conformDesc}>
-                  {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.max32'})}
+                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max32' })}
                 </div>
               </FormItem>
               {!marketId && (
-                <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope'})}>
+                <FormItem {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.scope' })}>
                   {getFieldDecorator('scope', {
                     initialValue: appInfo
                       ? isShared && appInfo.scope && appInfo.scope === 'team'
@@ -537,7 +541,7 @@ class CreateAppModels extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: formatMessage({id:'placeholder.appShare.appPublish.name'})
+                        message: formatMessage({ id: 'placeholder.appShare.appPublish.name' })
                       }
                     ]
                   })(
@@ -546,7 +550,7 @@ class CreateAppModels extends PureComponent {
                         getPopupContainer={triggerNode =>
                           triggerNode.parentNode
                         }
-                        placeholder={formatMessage({id:'placeholder.appShare.scopePublish'})}
+                        placeholder={formatMessage({ id: 'placeholder.appShare.scopePublish' })}
                         dropdownRender={menu => (
                           <div>
                             {menu}
@@ -566,7 +570,7 @@ class CreateAppModels extends PureComponent {
                                       this.addTeams();
                                     }}
                                   >
-                                    <Icon type="plus" /> {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.loadingMore'})}
+                                    <Icon type="plus" /> {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.loadingMore' })}
                                   </div>
                                 )}
                               </div>
@@ -576,7 +580,7 @@ class CreateAppModels extends PureComponent {
                       >
                         <Option value="enterprise" key="enterprise">
                           <div style={{ borderBottom: '1px solid #ccc' }}>
-                            {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.present_enterprise'})}
+                            {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.present_enterprise' })}
                           </div>
                         </Option>
 
@@ -594,25 +598,27 @@ class CreateAppModels extends PureComponent {
                       </Select>
                     ) : (
                       <Radio.Group name="scope">
-                        <Radio value="team">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.present_team'})}</Radio>
-                        <Radio value="enterprise">{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.enterprise'})}</Radio>
+                        <Radio value="team">{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.present_team' })}</Radio>
+                        {!showPublish && (
+                          <Radio value="enterprise">{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.enterprise' })}</Radio>
+                        )}  
                       </Radio.Group>
                     )
                   )}
-                  <div className={styles.conformDesc}>{formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.scope_Publish'})}</div>
+                  <div className={styles.conformDesc}>{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.scope_Publish' })}</div>
                 </FormItem>
               )}
               {marketId && marketVersion && marketVersion === '2.0' && (
-                <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.org_id'})}>
+                <FormItem {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.org_id' })}>
                   {getFieldDecorator('org_id', {
                     rules: [
                       {
                         required: true,
-                        message: formatMessage({id:'placeholder.appShare.org_id'})
+                        message: formatMessage({ id: 'placeholder.appShare.org_id' })
                       }
                     ]
                   })(
-                    <Select placeholder={formatMessage({id:'placeholder.appShare.org_id'})}>
+                    <Select placeholder={formatMessage({ id: 'placeholder.appShare.org_id' })}>
                       {organizations &&
                         organizations.length > 0 &&
                         organizations.map(item => {
@@ -624,7 +630,7 @@ class CreateAppModels extends PureComponent {
                   )}
                 </FormItem>
               )}
-              <FormItem {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.describe'})}>
+              <FormItem {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.describe' })}>
                 {getFieldDecorator('describe', {
                   initialValue: appInfo
                     ? appInfo.describe || appInfo.app_describe
@@ -632,21 +638,21 @@ class CreateAppModels extends PureComponent {
                   rules: [
                     {
                       required: false,
-                      message: formatMessage({id:'placeholder.appShare.describe'})
+                      message: formatMessage({ id: 'placeholder.appShare.describe' })
                     }
                   ]
-                })(<TextArea placeholder={formatMessage({id:'placeholder.appShare.describe'})} />)}
+                })(<TextArea placeholder={formatMessage({ id: 'placeholder.appShare.describe' })} />)}
                 <div className={styles.conformDesc}>
-                  {formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.model_intro'})}
+                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.model_intro' })}
                 </div>
               </FormItem>
-              <Form.Item {...is_formItemLayout} label={formatMessage({id:'appPublish.btn.record.creactAppModel.pages.label.logo'})}>
+              <Form.Item {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.logo' })}>
                 {getFieldDecorator('pic', {
                   initialValue: appInfo ? appInfo.pic : '',
                   rules: [
                     {
                       required: false,
-                      message: formatMessage({id:'placeholder.appShare.picLogo'})
+                      message: formatMessage({ id: 'placeholder.appShare.picLogo' })
                     }
                   ]
                 })(

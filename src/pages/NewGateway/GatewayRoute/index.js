@@ -6,21 +6,32 @@ import {
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import GatewayRouteHttp from '../../../components/GatewayRouteHttp';
 import GatewayRouteTcp from '../../../components/GatewayRouteTcp';
+import pluginUtils from '../../../utils/pulginUtils';
 const { TabPane } = Tabs;
+@connect(({ rbdPlugin }) => ({
+    pluginList: rbdPlugin.pluginList,
+}))
 
 export default class index extends Component {
     constructor(props) {
         super(props);
         this.state = {
             tableKey: "http",
+            showTcp: false,
         };
     }
     componentDidMount() {
+        const { pluginList } = this.props;
+        const isInstall = pluginUtils.isInstallPlugin(pluginList, 'rainbond-bill');
+        this.setState({
+            showTcp: isInstall,
+        })
     }
 
     render() {
         const {
             tableKey,
+            showTcp,
         } = this.state;
         const { appID, open, operationPermissions, onTabChange, permission } = this.props;
         return (
@@ -36,15 +47,17 @@ export default class index extends Component {
                             permission={permission}
                         />
                     </TabPane>
-                    <TabPane tab="TCP" key="tcp">
-                        <GatewayRouteTcp
-                            operationPermissions={operationPermissions}
-                            open={open}
-                            type={tableKey}
-                            appID={appID}
-                            permission={permission}
-                        />
-                    </TabPane>
+                    {!showTcp && (
+                        <TabPane tab="TCP" key="tcp">
+                            <GatewayRouteTcp
+                                operationPermissions={operationPermissions}
+                                open={open}
+                                type={tableKey}
+                                appID={appID}
+                                permission={permission}
+                            />
+                        </TabPane>
+                    )}
                 </Tabs>
 
             </div>

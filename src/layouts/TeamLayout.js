@@ -272,6 +272,10 @@ class TeamLayout extends PureComponent {
             }
           })
         }
+        dispatch({
+          type: 'rbdPlugin/fetchPluginList',
+          payload: res.list
+        })
         if (res && res.bean && res.bean.need_authz) {
           this.setState({
             isNeedAuthz: res.bean.need_authz

@@ -25,16 +25,18 @@ import {
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import pluginUtils from '../../utils/pulginUtils';
 import cookie from '../../utils/cookie';
 import style from './publish.less';
 
-@connect(({ list, loading, teamControl, enterprise }) => ({
+@connect(({ list, loading, teamControl, enterprise, rbdPlugin }) => ({
   list,
   loading: loading.models.list,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  pluginList: rbdPlugin.pluginList,
 }))
 export default class AppPublishList extends PureComponent {
   constructor(props) {
@@ -51,15 +53,12 @@ export default class AppPublishList extends PureComponent {
       showExporterApp: false,
       is_exporting: false,
       appData: null,
-      publishPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_release', `app_${globalUtil.getAppID()}`)
+      publishPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_release', `app_${globalUtil.getAppID()}`),
+      showPublish: pluginUtils.isInstallPlugin(this.props?.pluginList, 'rainbond-bill'),
     };
   }
   componentWillMount() {
-    const { currentTeamPermissionsInfo } = this.props;
-    // const isShare = roleUtil.queryAppInfo(currentTeamPermissionsInfo, 'share');
-    // if (!isShare) {
-    //   globalUtil.withoutPermission(dispatch);
-    // }
+    console.log(this.props.pluginList,"this.props.pluginList");
   }
 
   componentDidMount() {
@@ -261,7 +260,8 @@ export default class AppPublishList extends PureComponent {
         isShare,
         isExport,
         isDelete,
-      }
+      },
+      showPublish,
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission();
@@ -309,9 +309,11 @@ export default class AppPublishList extends PureComponent {
               >
                 {formatMessage({ id: 'appPublish.btn.local' })}
               </Button>
-              <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
-                {formatMessage({ id: 'appPublish.btn.market' })}
-              </Button>
+              {!showPublish && (
+                <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
+                  {formatMessage({ id: 'appPublish.btn.market' })}
+                </Button>
+              )}
             </div>
 
           }
