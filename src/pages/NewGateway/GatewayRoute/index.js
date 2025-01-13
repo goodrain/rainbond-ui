@@ -8,8 +8,9 @@ import GatewayRouteHttp from '../../../components/GatewayRouteHttp';
 import GatewayRouteTcp from '../../../components/GatewayRouteTcp';
 import pluginUtils from '../../../utils/pulginUtils';
 const { TabPane } = Tabs;
-@connect(({ rbdPlugin }) => ({
+@connect(({ rbdPlugin, user }) => ({
     pluginList: rbdPlugin.pluginList,
+    currentUser: user.currentUser,
 }))
 
 export default class index extends Component {
@@ -33,7 +34,7 @@ export default class index extends Component {
             tableKey,
             showTcp,
         } = this.state;
-        const { appID, open, operationPermissions, onTabChange, permission } = this.props;
+        const { appID, open, operationPermissions, onTabChange, permission, currentUser } = this.props;
         return (
             <div>
                 <Tabs onChange={(e) => { this.setState({ tableKey: e }) }} activeKey={tableKey}>
@@ -47,7 +48,7 @@ export default class index extends Component {
                             permission={permission}
                         />
                     </TabPane>
-                    {!showTcp && (
+                    {(currentUser.is_enterprise_admin || !showTcp) && (
                         <TabPane tab="TCP" key="tcp">
                             <GatewayRouteTcp
                                 operationPermissions={operationPermissions}

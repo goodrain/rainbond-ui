@@ -5,7 +5,7 @@ import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 
-function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
+function menuData(teamName, regionName, appID, permissionsInfo, pluginList, currentUser) {
   const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Application')
   const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team, 'app', `app_${appID}`);
   const {
@@ -59,7 +59,7 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
   }
   const showAppBackup = PluginUtil.isInstallPlugin(pluginList, 'rainbond-bill');
 
-  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && !showAppBackup) {
+  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && (currentUser.is_enterprise_admin || !showAppBackup)) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: getMenuSvg.getSvg('backup'),
@@ -67,7 +67,7 @@ function menuData(teamName, regionName, appID, permissionsInfo,pluginList) {
       authority: ['admin', 'user']
     });
   }
-  if (isAppResources && !showAppBackup) {
+  if (isAppResources && (currentUser.is_enterprise_admin || !showAppBackup)) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.k8s' }),
       icon: getMenuSvg.getSvg('kubenetes'),
@@ -132,10 +132,11 @@ export const getAppMenuData = (
   regionName,
   appID,
   permissionsInfo,
-  pluginList
+  pluginList,
+  currentUser
 ) => {
   const menus = formatter(
-    menuData(teamName, regionName, appID, permissionsInfo, pluginList)
+    menuData(teamName, regionName, appID, permissionsInfo, pluginList, currentUser)
   );
   return menus;
 };
