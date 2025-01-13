@@ -308,6 +308,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.GatewayRoute.handle':'Operation',
   'teamNewGateway.NewGateway.GatewayRoute.add':'Add a new route',
   'teamNewGateway.NewGateway.RouteDrawer.InputHost':'Please fill in the domain name.',
+  'teamNewGateway.NewGateway.RouteDrawer.InputHostIp':'Domain name cannot be filled in ip',
   'teamNewGateway.NewGateway.RouteDrawer.InputPath':'Please fill in the path',
   'teamNewGateway.NewGateway.RouteDrawer.more':'more',
   'teamNewGateway.NewGateway.RouteDrawer.cancel':'cancel',

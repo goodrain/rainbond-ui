@@ -56,6 +56,11 @@ class LicenseDrawer extends PureComponent {
         max: 64,
         message: formatMessage({id:'placeholder.appShare.max64'})
       },
+      // 名称中不能包含任何*符号
+      {
+        pattern: /^[^*]*$/,
+        message: formatMessage({id:'placeholder.certificate.name.not_star'})
+      }
     ]
     let gatewayArr = [
       { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },

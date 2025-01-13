@@ -62,9 +62,6 @@ class Index extends Component {
         return (
             <>
                 <Card
-                    style={
-                        { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
-                    }
                 >
                     {rowClusterInfo && Object.keys(rowClusterInfo).length > 0 && showInfo ?
                         <>

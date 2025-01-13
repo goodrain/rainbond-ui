@@ -59,7 +59,6 @@ class Index extends Component {
                 <Card
                     style={
                         {
-                            boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px',
                             position: 'relative'
                         }
                     }

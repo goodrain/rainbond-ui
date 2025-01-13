@@ -373,7 +373,8 @@ export async function fetchClusterInfoList(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/cluster_node`, {
     method: 'get',
     params: {
-      event_id: params.event_id
+      event_id: params.event_id || '',
+      cluster_id: params.cluster_id || ''
     },
     handleError
   });

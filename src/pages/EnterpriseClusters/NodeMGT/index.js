@@ -11,6 +11,8 @@ import NodeInfo from '../../../components/NodeMgtInfo'
 import NodeUse from '../../../components/NodeMgtUse'
 import NodeStain from '../../../components/NodeMgtStain'
 import NodeLable from '../../../components/NodeMgtLabel'
+import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import SVG from "../../../utils/pageHeaderSvg"
 import global from '../../../utils/global'
 import styles from './index.less'
@@ -354,14 +356,18 @@ class Index extends Component {
     const { clusterInfo, nodeDetail, showInfo, labelList, showLable, showTaints, taintsList } = this.state
     const eid = global.getCurrEnterpriseId()
     return (
-      <>
-        <Row className={styles.breadStyle}>
-          <span>{SVG.getSvg("ClusterSvg", 18)}</span>
-          <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterMgt' })} / </Link></span>
-          <span><Link to={`/enterprise/${eid}/clusters/clustersmgt/${clusterInfo.region_id}`}>{clusterInfo.region_alias} / </Link></span>
-          <span>{nodeDetail && nodeDetail.name}</span>
-        </Row>
-        <Row className={styles.titleStyle}>
+      <PageHeaderLayout
+        title={
+          <Row className={styles.breadStyle}>
+            <span>{pageheaderSvg.getPageHeaderSvg('clusters', 18)}</span>
+            <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterMgt' })} / </Link></span>
+            <span><Link to={`/enterprise/${eid}/clusters/clustersmgt/${clusterInfo.region_id}`}>{clusterInfo.region_alias} / </Link></span>
+            <span>{nodeDetail && nodeDetail.name}</span>
+          </Row>
+        }
+        content={formatMessage({ id: 'enterpriseColony.mgt.cluster.nodeInfo' })}
+      >
+        <Row className={styles.titleStyle} style={{margin: '0 0 10px'}}>
           <span>{SVG.getSvg("infoSvg", 20)}</span>
           <span>{formatMessage({ id: 'enterpriseColony.mgt.node.nodeDetails' })}</span>
         </Row>
@@ -408,7 +414,7 @@ class Index extends Component {
             remove={this.removeTaintsList}
           />
         </Row>
-      </>
+      </PageHeaderLayout>
     );
   }
 }

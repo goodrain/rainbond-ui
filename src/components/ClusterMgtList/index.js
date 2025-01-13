@@ -310,9 +310,6 @@ class Index extends Component {
       <>
         <Card
           extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="plus" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.addNode'})}</Button>}
-          style={
-            { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
-          }
         >
           {showInfo ?
             <Table

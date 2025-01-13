@@ -423,7 +423,15 @@ export default class index extends Component {
             return callback();
         }
     };
-    
+    handleValidatorsHostsIp = (_, val, callback) => {
+        const reg = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        if (val && val.length > 0) {
+            if (reg.test(val)) {
+                return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHostIp' })));
+            }
+        }
+        return callback();
+    };
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -511,7 +519,11 @@ export default class index extends Component {
                 <Form hideRequiredMark onSubmit={this.handleSubmit}>
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
                         {getFieldDecorator('hosts', {
-                            rules: [{ validator: this.handleValidatorsHosts }],
+                            rules: [
+                                { validator: this.handleValidatorsHosts },
+                                // 域名不允许填入ip
+                                { validator: this.handleValidatorsHostsIp }
+                            ],
                             initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
                         })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
                     </Form.Item>
