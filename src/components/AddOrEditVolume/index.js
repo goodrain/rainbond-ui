@@ -23,11 +23,18 @@ const RadioGroup = Radio.Group;
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' ? true : false };
+    this.state = {
+      volumeCapacityValidation: {},
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      volume_type: ''
+    };
   }
   componentDidMount = () => {
     const { data } = this.props;
     if (data && data.volume_type) {
+      this.setState({
+        volume_type: data.volume_type
+      })
       // this.setVolumeCapacityValidation(data.volume_type);
     } else {
       // this.setVolumeCapacityValidation('share-file');
@@ -43,7 +50,7 @@ export default class AddVolumes extends PureComponent {
         if (ismount) {
           return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath' /> });
         }
-        if(method == 'vm'){
+        if (method == 'vm') {
           values.volume_type = 'vm-file'
         }
         onSubmit(values);
@@ -76,6 +83,10 @@ export default class AddVolumes extends PureComponent {
   };
   handleChange = e => {
     this.setVolumeCapacityValidation(e.target.value);
+    this.setState({
+      volume_type: e.target.value
+    })
+
   };
   setVolumeCapacityValidation = volume_type => {
     const { volumeOpts } = this.props;
@@ -153,7 +164,7 @@ export default class AddVolumes extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { data = {}, volumeOpts, method } = this.props;
-    const { volumeCapacityValidation, language } = this.state;
+    const { volumeCapacityValidation, language, volume_type } = this.state;
     let defaultVolumeCapacity = '';
     if (data.volume_capacity) {
       defaultVolumeCapacity = data.volume_capacity;
@@ -258,28 +269,6 @@ export default class AddVolumes extends PureComponent {
               })(<Input placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.volume_path_placeholder' })} />)}
             </FormItem>
           )}
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
-            {getFieldDecorator('volume_capacity', {
-              initialValue: defaultVolumeCapacity || 10,
-              rules: [
-                {
-                  validator: this.checkVolumeCapacity
-                }
-              ]
-            })(
-              <Input
-                type="number"
-                placeholder={
-                  !!this.props.editor && data.volume_capacity === 0
-                    ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
-                    : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
-                }
-                min={1}
-                max={500}
-                disabled={!!this.props.editor}
-              />
-            )}
-          </FormItem>
           {method != 'vm' &&
             <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
@@ -300,6 +289,30 @@ export default class AddVolumes extends PureComponent {
                     );
                   })}
                 </RadioGroup>
+              )}
+            </FormItem>
+          }
+          {volume_type !== "volcengine" &&
+            <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
+              {getFieldDecorator('volume_capacity', {
+                initialValue: defaultVolumeCapacity || 10,
+                rules: [
+                  {
+                    validator: this.checkVolumeCapacity
+                  }
+                ]
+              })(
+                <Input
+                  type="number"
+                  placeholder={
+                    !!this.props.editor && data.volume_capacity === 0
+                      ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
+                      : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
+                  }
+                  min={1}
+                  max={500}
+                  disabled={!!this.props.editor}
+                />
               )}
             </FormItem>
           }

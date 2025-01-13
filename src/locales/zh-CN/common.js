@@ -862,6 +862,7 @@
         'placeholder.cluster.edit.key_file.content':'API-Client证书密钥内容',
         'placeholder.cluster.edit.desc':'集群备注信息',
         'placeholder.certificate.name':'请输入证书名称',
+        'placeholder.certificate.name.not_star':'不允许输入*',
         'placeholder.certificate.private':'请输入私钥', 
         'placeholder.userName.search':'请输入用户名称进行搜索',
         'placeholder.limit_memory':'内存限制必填',

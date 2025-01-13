@@ -116,9 +116,6 @@ class Index extends Component {
           title={showInfo && titleContent}
           extra={showInfo && extraContent}
           className={styles.description}
-          style={
-            { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
-          }
           bodyStyle={{
             padding: '24px 24px 12px'
           }}

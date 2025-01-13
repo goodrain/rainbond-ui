@@ -162,40 +162,44 @@ class EnterpriseLayout extends PureComponent {
   };
   handlePluginList = (regionName) => {
     return new Promise((resolve, reject) => {
-    const { dispatch } = this.props
-    const eid = globalUtil.getCurrEnterpriseId();
-    dispatch({
-      type: 'global/getPluginList',
-      payload: {
-        enterprise_id: eid,
-        region_name: regionName,
-      },
-      callback: res => {
-        if (res && res.list) {
-          const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
-          if(showEnterprisePlugin){
-            this.setState({
-              showEnterprisePlugin: showEnterprisePlugin
+      const { dispatch } = this.props
+      const eid = globalUtil.getCurrEnterpriseId();
+      dispatch({
+        type: 'global/getPluginList',
+        payload: {
+          enterprise_id: eid,
+          region_name: regionName,
+        },
+        callback: res => {
+          if (res && res.list) {
+            dispatch({
+              type: 'rbdPlugin/fetchPluginList',
+              payload: res.list
             })
+            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+            if (showEnterprisePlugin) {
+              this.setState({
+                showEnterprisePlugin: showEnterprisePlugin
+              })
+            }
+            const arr = this.state.pluginList
+            arr[regionName] = res.list
+            this.setState({
+              pluginList: arr
+            })
+            resolve();
           }
-          const arr = this.state.pluginList
-          arr[regionName] = res.list
-          this.setState({
-            pluginList: arr
-          })
-          resolve();
+        },
+        handleError: err => {
+          if (err) {
+            this.setState({
+              pluginList: {},
+            })
+            reject(new Error("Failed to get component language version"));
+          }
         }
-      },
-      handleError: err => {
-        if (err) {
-          this.setState({
-            pluginList: {},
-          })
-          reject(new Error("Failed to get component language version"));
-        }
-      }
+      })
     })
-  })
 
   }
 
@@ -461,7 +465,7 @@ class EnterpriseLayout extends PureComponent {
       const { team_name, region } = teams[0]
       const { team_region_name } = region[0]
       if (team_name && team_region_name) {
-        return`/team/${team_name}/region/${team_region_name}/index`
+        return `/team/${team_name}/region/${team_region_name}/index`
       }
     } else {
       if (currUser?.is_enterprise_admin) {
@@ -487,7 +491,7 @@ class EnterpriseLayout extends PureComponent {
       terminalStatus
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
-    window.sessionStorage.setItem('showEnterprisePlugin',showEnterprisePlugin)
+    window.sessionStorage.setItem('showEnterprisePlugin', showEnterprisePlugin)
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({

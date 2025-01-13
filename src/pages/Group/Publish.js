@@ -58,7 +58,6 @@ export default class AppPublishList extends PureComponent {
     };
   }
   componentWillMount() {
-    console.log(this.props.pluginList,"this.props.pluginList");
   }
 
   componentDidMount() {

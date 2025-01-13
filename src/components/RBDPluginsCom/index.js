@@ -28,7 +28,6 @@ export default class index extends Component {
   rbdPluginsRender = () => {
     const { app, plugins, pluginLoading, error, errInfo, dispatch, reduxInfo } = this.props;
     const key = this.isMultiViewPlugin()
-    console.log(app,"app");
     const AppPagePlugin = app[key] ? app[key] : false
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

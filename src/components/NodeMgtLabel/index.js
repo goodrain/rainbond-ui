@@ -81,9 +81,6 @@ class Index extends Component {
             <>
                 <Card
                     extra={showLable && <Button icon="form" onClick={this.handleClick}>{formatMessage({id:'enterpriseColony.mgt.node.editLable'})}</Button>}
-                    style={
-                        { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px' }
-                    }
                 >
                     {showLable ?
                         <div className={styles.labelStyle}>

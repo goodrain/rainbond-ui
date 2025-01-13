@@ -311,6 +311,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.GatewayRoute.handle':'操作',
   'teamNewGateway.NewGateway.GatewayRoute.add':'新增路由',
   'teamNewGateway.NewGateway.RouteDrawer.InputHost':'请填写域名',
+  'teamNewGateway.NewGateway.RouteDrawer.InputHostIp':'域名不允许填入ip',
   'teamNewGateway.NewGateway.RouteDrawer.InputPath':'请填写路径',
   'teamNewGateway.NewGateway.RouteDrawer.more':'更多',
   'teamNewGateway.NewGateway.RouteDrawer.cancel':'取消',

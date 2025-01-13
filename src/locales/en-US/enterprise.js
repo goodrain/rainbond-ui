@@ -355,6 +355,10 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': 'Quota (GB)',
     'enterpriseTeamManagement.table.operation': 'Running applications',
     'enterpriseTeamManagement.table.handle': 'Operation',
+    'enterpriseTeamManagement.table.memory_total': 'Memory usage/total (MB)',
+    'enterpriseTeamManagement.table.CUP_total': 'CPU usage/total (m)',
+    'enterpriseTeamManagement.table.quota_total': 'Storage usage/total (GB)',
+    
     // td 表体
     'enterpriseTeamManagement.table.td.role': 'Role',
     'enterpriseTeamManagement.table.td.status': 'State',
@@ -1093,6 +1097,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.num': 'Number of copies',
     'enterpriseColony.mgt.cluster.restart': "Number of restarts",
     'enterpriseColony.mgt.cluster.pods': 'Component runs (Pod)',
+    'enterpriseColony.mgt.cluster.info': 'Cluster management, view cluster details, node list, Rainbond component list information, etc.',
+    'enterpriseColony.mgt.cluster.nodeInfo': 'Node management, view node details, edit labels, edit stains, etc.',
 
     // 节点
     'enterpriseColony.mgt.node.infoError': 'Failed to get node details',

@@ -853,6 +853,7 @@
         'placeholder.cluster.edit.desc':'Cluster Remarks',
         'placeholder.appEngName':'Please enter the English name of the application',
         'placeholder.certificate.name':'Please enter the certificate name',
+        'placeholder.certificate.name.not_star':'Not allowed to enter *',
         'placeholder.certificate.private':'Please enter your private key',
         'placeholder.userName.search':'Please enter a user name to search',
         'placeholder.limit_memory':'Memory limit value required',
