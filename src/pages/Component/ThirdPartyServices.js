@@ -320,24 +320,27 @@ export default class Index extends PureComponent {
               extra={
                 isHelm ? null : (
                   <div>
-                    {appDetail.register_way !== 'kubernetes' && (
-                      <Button
-                        style={{ marginRight: '5px' }}
-                        onClick={() => {
-                          this.addInstance();
-                        }}
-                      >
-                        <FormattedMessage id='menu.team.create'/>
-                      </Button>
-                    )}
-
                     <Button
+                      style={{ marginRight: '5px' }}
                       onClick={() => {
                         this.handleGetList();
                       }}
                     >
                       <FormattedMessage id='button.freshen'/>
                     </Button>
+
+                    {appDetail.register_way !== 'kubernetes' && (
+                      <Button
+                        type='primary'
+                        onClick={() => {
+                          this.addInstance();
+                        }}
+                      >
+                        <FormattedMessage id='componentOverview.body.ThirdPartyServices.add'/>
+                      </Button>
+                    )}
+
+                    
                   </div>
                 )
               }
