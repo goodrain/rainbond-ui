@@ -1010,7 +1010,6 @@ export default class EnterpriseClusters extends PureComponent {
         sm: { span: 12 }
       }
     };
-    console.log(isNeedAuthz, isAdd, clusterLoadings, 'clusterLoadings')
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title' />}
