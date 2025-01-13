@@ -643,7 +643,8 @@ export default class Index extends React.Component {
       form,
       componentPermissions: { isOtherSetting },
       appDetail,
-      method
+      method,
+      currUser
     } = this.props;
     if(!isOtherSetting){
       return role.noPermission()
@@ -851,7 +852,7 @@ export default class Index extends React.Component {
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
             />
           )}
-          {!showKubernetes && (
+          {(currUser.is_enterprise_admin || !showKubernetes) && (
             <Kubernetes
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
               extend_method={appDetail.service.extend_method}

@@ -29,7 +29,7 @@ import pluginUtils from '../../utils/pulginUtils';
 import cookie from '../../utils/cookie';
 import style from './publish.less';
 
-@connect(({ list, loading, teamControl, enterprise, rbdPlugin }) => ({
+@connect(({ list, loading, teamControl, enterprise, rbdPlugin, user }) => ({
   list,
   loading: loading.models.list,
   currentTeam: teamControl.currentTeam,
@@ -37,6 +37,7 @@ import style from './publish.less';
   currentEnterprise: enterprise.currentEnterprise,
   currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
   pluginList: rbdPlugin.pluginList,
+  currentUser: user.currentUser,
 }))
 export default class AppPublishList extends PureComponent {
   constructor(props) {
@@ -266,6 +267,7 @@ export default class AppPublishList extends PureComponent {
       return roleUtil.noPermission();
     }
     const {
+      currentUser,
       currentEnterprise,
       currentTeam,
       currentRegionName,
@@ -287,7 +289,7 @@ export default class AppPublishList extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
-
+    
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -308,7 +310,7 @@ export default class AppPublishList extends PureComponent {
               >
                 {formatMessage({ id: 'appPublish.btn.local' })}
               </Button>
-              {!showPublish && (
+              {(currentUser.is_enterprise_admin || !showPublish) && (
                 <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
                   {formatMessage({ id: 'appPublish.btn.market' })}
                 </Button>

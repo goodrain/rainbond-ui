@@ -775,7 +775,8 @@ class TeamLayout extends PureComponent {
         regionName,
         appID,
         currentTeam.tenant_actions,
-        showPipeline
+        showPipeline,
+        currentUser
       );
     } else if (mode === 'helm') {
       menuData = getAppMenuData(
