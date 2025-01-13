@@ -101,8 +101,12 @@ export default class EnterpriseClusters extends PureComponent {
   }
   // 获取企业授权信息
   handleGetEnterpriseAuthorization = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
     dispatch({
       type: 'region/getEnterpriseLicense',
       payload: {
@@ -1006,6 +1010,7 @@ export default class EnterpriseClusters extends PureComponent {
         sm: { span: 12 }
       }
     };
+    console.log(isNeedAuthz, isAdd, clusterLoadings, 'clusterLoadings')
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title' />}
