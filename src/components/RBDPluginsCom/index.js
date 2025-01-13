@@ -47,20 +47,28 @@ export default class index extends Component {
               marginTop: 48,
               marginBottom: 16
             }}
-          />,
+          />
         </Card>
       ) : (
-        AppPagePlugin &&
-        <AppPagePlugin
-          baseInfo={{
-            colorPrimary: Global.getPublicColor('primary-color'),
-            currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
-            cluster_info: this.props.cluster_info,
-            currentUser: this.props.currentUser,
-            token: cookie.get('token')
-          }}
-          globalUtile={Global}
-        />
+        AppPagePlugin ?
+          <AppPagePlugin
+            baseInfo={{
+              colorPrimary: Global.getPublicColor('primary-color'),
+              currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
+              cluster_info: this.props.cluster_info,
+              currentUser: this.props.currentUser,
+              token: cookie.get('token')
+            }}
+            globalUtile={Global}
+          />
+          :
+          <Card style={{ marginTop: 20 }}>
+            <Result
+              type="error"
+              title='插件未安装'
+              description={`请检查插件安装版本是否与平台版本兼容`}
+            />
+          </Card>
       )
     );
 

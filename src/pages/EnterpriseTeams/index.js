@@ -48,10 +48,10 @@ const FormItem = Form.Item;
 
 @Form.create()
 
-@connect(({ user, global, rbdPlugin }) => ({
+@connect(({ user, global, rbdPlugin, region }) => ({
   user: user.currentUser,
   pluginsList: global.pluginsList,
-  pluginList: rbdPlugin.pluginList
+  cluster_info: region.cluster_info
 }))
 export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
@@ -83,7 +83,7 @@ export default class EnterpriseTeams extends PureComponent {
       guideStep: 1,
       searchConfig: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      showEnterprisePlugin: window.sessionStorage.getItem('showEnterprisePlugin') === 'false'
+      showEnterprisePlugin: false
     };
   }
   componentDidMount() {
@@ -91,6 +91,29 @@ export default class EnterpriseTeams extends PureComponent {
     if (user) {
       this.load();
     }
+    this.isShowEnterprisePlugin()
+  }
+  isShowEnterprisePlugin = () => {
+    const { dispatch, cluster_info } = this.props;
+    (cluster_info || []).forEach(item => {
+      dispatch({
+        type: 'global/getPluginList',
+        payload: { enterprise_id: globalUtil.getCurrEnterpriseId(), region_name: item.region_name },
+        callback: (res) => {
+          if (res && res.list) {
+            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+            if (showEnterprisePlugin) {
+              this.setState({
+                showEnterprisePlugin: true,
+              })
+            }
+          }
+        },
+        handleError: () => {
+          this.setState({ plugins: {}, loading: false });
+        },
+      });
+    })
   }
 
   onPageChangeTeam = (page, pageSize) => {
@@ -216,7 +239,7 @@ export default class EnterpriseTeams extends PureComponent {
         // 添加完查询企业团队列表
         this.load();
         this.cancelCreateTeam();
-      }      
+      }
     });
   };
 
@@ -843,7 +866,7 @@ export default class EnterpriseTeams extends PureComponent {
             {operation}
           </Row>
           {showEnterprisePlugin ? (
-            
+
             <div style={{ padding: '24px 0 0 0', border: '1px solid #e3e3e3', borderTop: 0 }}>
               <Row style={{ width: '100%' }} className={styles.rowTitle}>
                 <Row className={styles.teamMinTit} type="flex" align="middle">
