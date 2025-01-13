@@ -178,9 +178,12 @@ class EnterpriseLayout extends PureComponent {
             })
             const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
             if (showEnterprisePlugin) {
+              window.localStorage.setItem('showEnterprisePlugin', showEnterprisePlugin)
               this.setState({
                 showEnterprisePlugin: showEnterprisePlugin
               })
+            }else{
+              window.localStorage.setItem('showEnterprisePlugin', 'false')
             }
             const arr = this.state.pluginList
             arr[regionName] = res.list
@@ -491,7 +494,6 @@ class EnterpriseLayout extends PureComponent {
       terminalStatus
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
-    window.sessionStorage.setItem('showEnterprisePlugin', showEnterprisePlugin)
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
