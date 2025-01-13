@@ -57,8 +57,8 @@ export default {
       target: 'http://127.0.0.1:8080/',
       changeOrigin: true
     },
-    '/enterprise-server': {
-      target: 'http://127.0.0.1:8080/',
+    '/enterprise-server':{
+      target:'http://127.0.0.1:8080/',
       changeOrigin: true
     },
   }
