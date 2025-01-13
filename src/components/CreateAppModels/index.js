@@ -408,7 +408,8 @@ class CreateAppModels extends PureComponent {
       defaultScope,
       marketId,
       appName,
-      marketVersion
+      marketVersion,
+      user
     } = this.props;
     const {
       loading,
@@ -599,7 +600,7 @@ class CreateAppModels extends PureComponent {
                     ) : (
                       <Radio.Group name="scope">
                         <Radio value="team">{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.present_team' })}</Radio>
-                        {!showPublish && (
+                        {(user.is_enterprise_admin || !showPublish) && (
                           <Radio value="enterprise">{formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.enterprise' })}</Radio>
                         )}  
                       </Radio.Group>
