@@ -48,11 +48,11 @@ class Index extends Component {
   }
   fetchClusterInfoList = () => {
     const { dispatch } = this.props;
-    const { eventId, clusterID } = this.state
+    const { eventId, clusterID,rowCluster} = this.state
     dispatch({
       type: 'region/fetchClusterInfoList',
       payload: {
-        cluster_id: clusterID
+        cluster_id: rowCluster.region_name
       },
     });
   };
@@ -86,7 +86,9 @@ class Index extends Component {
               }, () => {
                 this.fetClusterNodeList(item);
                 this.fetDashboardList(item)
-                this.fetchClusterInfoList()
+                if(item.provider == 'rke'){
+                  this.fetchClusterInfoList()
+                }
               });
           })
         } else {
@@ -181,7 +183,9 @@ class Index extends Component {
           }, () => {
             this.timer = setTimeout(() => {
               this.fetClusterNodeList(item, false)
-              this.fetchClusterInfoList()
+              if(item.provider == 'rke'){
+                this.fetchClusterInfoList()
+              }
             }, 5000)
           })
         }
