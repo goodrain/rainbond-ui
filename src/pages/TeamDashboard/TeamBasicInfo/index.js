@@ -402,11 +402,11 @@ export default class index extends Component {
       },
       {
         title: formatMessage({ id: 'versionUpdata_6_1.disk' }),
-        dataIndex: 'disk_usage',
-        key: 'disk_usage',
+        dataIndex: 'used_disk',
+        key: 'used_disk',
         render: (text, record) => {
           return <span>
-            {text / 1000 || 0}
+            {text || 0}
           </span>
         }
       },

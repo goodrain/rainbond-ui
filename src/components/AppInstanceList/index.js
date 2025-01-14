@@ -70,7 +70,6 @@ class InstanceList extends PureComponent {
     return (
       <>
         {(list||[]).map((item) => {
-          console.log(item, 'item')
           return <>
             <div className={style.card}> 
               <h1>{this.showName(item.pod_name)}</h1>

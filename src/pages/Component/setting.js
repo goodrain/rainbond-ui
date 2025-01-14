@@ -31,6 +31,7 @@ import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
 import Strategy from './strategy';
+import pluginUtils from '../../utils/pulginUtils';
 import cookie from '../../utils/cookie';
 import styles from './resource.less';
 
@@ -38,7 +39,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @connect(
-  ({ user, appControl, teamControl }) => ({
+  ({ user, appControl, teamControl, rbdPlugin }) => ({
     currUser: user.currentUser,
     startProbe: appControl.startProbe,
     runningProbe: appControl.runningProbe,
@@ -47,7 +48,8 @@ const RadioGroup = Radio.Group;
     // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
-    appControl
+    appControl,
+    pluginList: rbdPlugin.pluginList,
   }),
   null,
   null,
@@ -81,7 +83,8 @@ export default class Index extends React.Component {
       page_size: 5,
       env_name: '',
       loading: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      showKubernetes: pluginUtils.isInstallPlugin(this.props?.pluginList, 'rainbond-bill'),
     };
   }
   componentDidMount() {
@@ -640,13 +643,14 @@ export default class Index extends React.Component {
       form,
       componentPermissions: { isOtherSetting },
       appDetail,
-      method
+      method,
+      currUser
     } = this.props;
     if(!isOtherSetting){
       return role.noPermission()
     }
     const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
-    const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
+    const { viewStartHealth, tags, tabData, isShow, loading, language, showKubernetes } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -848,10 +852,12 @@ export default class Index extends React.Component {
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
             />
           )}
-        <Kubernetes
-          service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
-          extend_method={appDetail.service.extend_method}
-        />
+          {(currUser.is_enterprise_admin || !showKubernetes) && (
+            <Kubernetes
+              service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
+              extend_method={appDetail.service.extend_method}
+            />
+          )}
         {this.state.addTag && (
           <AddTag
             tags={tabData || []}

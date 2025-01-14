@@ -128,7 +128,9 @@ import {
   fetchAllVersion,
   fetchVersionDetails,
   fetchVersionData,
-  updateVersion
+  updateVersion,
+  fetchOverScore,
+  updateOverScore
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1072,8 +1074,18 @@ export default {
         callback(response);
       }
     },
-    
-    
+    *fetchOverScore({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchOverScore, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updateOverScore({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updateOverScore, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    }
   },
   reducers: {
     isUpDataHeader(state, action) {

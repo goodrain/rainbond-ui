@@ -15,7 +15,6 @@ export default function Result({
   actions,
   ...restProps
 }) {
-  console.log(linkPath, 'linkPath')
   const iconMap = {
     error: <Icon className={styles.error} type="close-circle" />,
     success: <Icon className={styles.success} type="check-circle" />,

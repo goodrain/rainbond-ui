@@ -106,6 +106,7 @@ class TeamLayout extends PureComponent {
       isNode: false,
       isTime: false,
       isNeedAuthz: false,
+      showFooter: true
     };
   }
 
@@ -129,9 +130,20 @@ class TeamLayout extends PureComponent {
     const urlParams = new URL(window.location.href);
     if (urlParams) {
       const bool = urlParams.href.includes("/helminstall");
+      const webconsole = urlParams.href.includes("/webconsole");
+      if (webconsole) {
+        this.setState({
+          showFooter: false
+        })
+      } else {
+        this.setState({
+          showFooter: true
+        })
+      }
       if (bool) {
         this.setState({
-          showMenu: false
+          showMenu: false,
+          showFooter: false
         })
       } else {
         this.setState({
@@ -272,6 +284,10 @@ class TeamLayout extends PureComponent {
             }
           })
         }
+        dispatch({
+          type: 'rbdPlugin/fetchPluginList',
+          payload: res.list
+        })
         if (res && res.bean && res.bean.need_authz) {
           this.setState({
             isNeedAuthz: res.bean.need_authz
@@ -622,7 +638,8 @@ class TeamLayout extends PureComponent {
       isMemory,
       isNode,
       isTime,
-      isNeedAuthz
+      isNeedAuthz,
+      showFooter
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -725,7 +742,7 @@ class TeamLayout extends PureComponent {
             currentRegion={currentRegion}
             regionName={regionName}
             upDataHeader={upDataHeader}
-            changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10); this.fetchGroup()}}
+            changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
           />
         );
       }
@@ -742,7 +759,7 @@ class TeamLayout extends PureComponent {
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
-          changeTeam={()=>{setTimeout(()=>{this.fetchPipePipeline(eid)},10); this.fetchGroup()}}
+          changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
         />
       );
     }
@@ -758,7 +775,8 @@ class TeamLayout extends PureComponent {
         regionName,
         appID,
         currentTeam.tenant_actions,
-        showPipeline
+        showPipeline,
+        currentUser
       );
     } else if (mode === 'helm') {
       menuData = getAppMenuData(
@@ -938,7 +956,7 @@ class TeamLayout extends PureComponent {
                       }}
                     >
                       {renderContent()}
-                      <CustomFooter />
+                      {showFooter && <CustomFooter />}
 
                     </div>
                   </Content>

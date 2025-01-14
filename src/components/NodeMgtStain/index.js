@@ -103,9 +103,6 @@ class Index extends Component {
             <>
                 <Card
                     extra={showTaints && exportButton}
-                    style={
-                        { boxShadow: 'rgba(36, 46, 66, 0.16) 2px 4px 10px 0px', marginBottom: 30 }
-                    }
                 >
                     {showTaints ?
                         <Form onSubmit={this.handleSubmit}>

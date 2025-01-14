@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { Spin, Card, Button } from 'antd';
 import Result from '../Result';
+import { connect } from 'dva';
 import PluginsUtiles from '../../utils/pulginUtils'
 import Global from '../../utils/global'
+import cookie from "@/utils/cookie";
 import styles from './index.less';
-
+@connect(({ user, region }) => ({
+  currentUser: user.currentUser,
+  cluster_info: region.cluster_info,
+}))
 
 export default class index extends Component {
   constructor(props) {
@@ -42,14 +47,28 @@ export default class index extends Component {
               marginTop: 48,
               marginBottom: 16
             }}
-          />,
+          />
         </Card>
       ) : (
-        AppPagePlugin &&
-        <AppPagePlugin
-          colorPrimary={Global.getPublicColor('primary-color')}
-          currentLocale='en'
-        />
+        AppPagePlugin ?
+          <AppPagePlugin
+            baseInfo={{
+              colorPrimary: Global.getPublicColor('primary-color'),
+              currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
+              cluster_info: this.props.cluster_info,
+              currentUser: this.props.currentUser,
+              token: cookie.get('token')
+            }}
+            globalUtile={Global}
+          />
+          :
+          <Card style={{ marginTop: 20 }}>
+            <Result
+              type="error"
+              title='插件未安装'
+              description={`请检查插件安装版本是否与平台版本兼容`}
+            />
+          </Card>
       )
     );
 

@@ -355,6 +355,10 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': '租户限额(GB)',
     'enterpriseTeamManagement.table.operation': '运行应用数',
     'enterpriseTeamManagement.table.handle': '操作',
+    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(MB)',
+    'enterpriseTeamManagement.table.CUP_total': 'CPU使用量/总量(m)',
+    'enterpriseTeamManagement.table.quota_total': '存储使用量/总量(GB)',
+
     // td 表体
     'enterpriseTeamManagement.table.td.role': '角色',
     'enterpriseTeamManagement.table.td.status': '状态',
@@ -1098,6 +1102,8 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.num': '副本数量',
     'enterpriseColony.mgt.cluster.ip': 'IP地址',
     'enterpriseColony.mgt.cluster.restart': '重启次数',
+    'enterpriseColony.mgt.cluster.info': '集群管理，查看集群详情，节点列表，Rainbond组件列表信息等。',
+    'enterpriseColony.mgt.cluster.nodeInfo': '节点管理，查看节点详情，编辑标签，编辑污点等。',
 
     // 节点
     'enterpriseColony.mgt.node.infoError': '获取节点详情失败',

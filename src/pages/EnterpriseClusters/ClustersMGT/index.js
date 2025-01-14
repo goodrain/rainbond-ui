@@ -15,6 +15,8 @@ import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
 import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
 import SVG from '../../../utils/pageHeaderSvg'
+import pageheaderSvg from '@/utils/pageHeaderSvg';
+import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import global from '@/utils/global';
 import styles from "./index.less";
 
@@ -34,12 +36,26 @@ class Index extends Component {
       isComponents: false,
       showUpdateKubernetes: false,
       dashboardShow: false,
-      eventId:''
+      eventId: ''
     }
+    this.timer = null
   }
   componentDidMount() {
     this.loadClusters();
   }
+  componentWillUnmount() {
+    clearTimeout(this.timer)
+  }
+  fetchClusterInfoList = () => {
+    const { dispatch } = this.props;
+    const { eventId, clusterID } = this.state
+    dispatch({
+      type: 'region/fetchClusterInfoList',
+      payload: {
+        cluster_id: clusterID
+      },
+    });
+  };
   // 获取集群信息
   loadClusters = () => {
     const {
@@ -70,6 +86,7 @@ class Index extends Component {
               }, () => {
                 this.fetClusterNodeList(item);
                 this.fetDashboardList(item)
+                this.fetchClusterInfoList()
               });
           })
         } else {
@@ -118,25 +135,25 @@ class Index extends Component {
         console.log(err);
       });
   };
-    // 获取添加节点的参数event_id
-    getNodeEventID = (region_name) => {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'region/fetchClusterInfo',
-        payload: {
-          cluster_id: region_name
-        },
-        callback: res => {
-          if (res && res.status_code === 200) {
-            this.setState({
-              eventId: res?.bean?.event_id || ''
-            })
-          }
+  // 获取添加节点的参数event_id
+  getNodeEventID = (region_name) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: region_name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            eventId: res?.bean?.event_id || ''
+          })
         }
-      });
-    };
+      }
+    });
+  };
   // 获取节点列表
-  fetClusterNodeList = (item) => {
+  fetClusterNodeList = (item, isLoading = true) => {
     const {
       dispatch,
       match: {
@@ -144,9 +161,9 @@ class Index extends Component {
       },
     } = this.props;
     this.setState({
-      showListInfo: false
+      showListInfo: isLoading ? false : true
     })
-    if(item.provider == 'rke'){
+    if (item.provider == 'rke') {
       this.getNodeEventID(item.region_name)
     }
     dispatch({
@@ -161,6 +178,11 @@ class Index extends Component {
             nodeList: res.list,
             showListInfo: true,
             nodeType: res.bean
+          }, () => {
+            this.timer = setTimeout(() => {
+              this.fetClusterNodeList(item, false)
+              this.fetchClusterInfoList()
+            }, 5000)
           })
         }
       },
@@ -282,13 +304,15 @@ class Index extends Component {
       eventId
     } = this.state
     return (
-      <>
-        <Row className={styles.breadStyle}>
-          <span>{SVG.getSvg("ClusterSvg", 18)}</span>
+      <PageHeaderLayout
+        title={<Row className={styles.breadStyle}>
+          <span>{pageheaderSvg.getPageHeaderSvg('clusters', 18)}</span>
           <span><Link to={`/enterprise/${eid}/clusters`}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterMgt' })} / </Link></span>
           <span>{rowCluster && rowCluster.region_alias}</span>
-        </Row>
-        <Row className={styles.titleStyle}>
+        </Row>}
+        content={formatMessage({ id: 'enterpriseColony.mgt.cluster.info' })}
+      >
+        <Row className={styles.titleStyle} style={{margin: '0 0 10px'}}>
           <span>{SVG.getSvg("infoSvg", 20)}</span>
           <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
         </Row>
@@ -335,7 +359,7 @@ class Index extends Component {
             dashboardShow={dashboardShow}
           />
         </Row>
-      </>
+      </PageHeaderLayout>
     );
   }
 }
