@@ -562,6 +562,7 @@
         'notification.success.add_success':'New success',
         'notification.success.wait_patiently':'Update, please wait patiently',
         'notification.warn.save': 'You need to save the modified basic information in deployment properties first!',
+        'notification.warn.no_port': 'This component does not have an end port',
 
         // 失败
         'notification.error.delete':'Delete failure',

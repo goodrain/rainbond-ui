@@ -621,7 +621,7 @@
         'notification.warn.not_app': '当前应用不存在!',
         'notification.warn.not_team': '当前团队不存在!',
         'notification.warn.save': '请先保存部署属性中已修改的基本信息!',
-
+        'notification.warn.no_port': '该组件暂无端口',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',
