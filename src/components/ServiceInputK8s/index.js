@@ -130,12 +130,19 @@ class Headers extends Component {
             },
             callback: data => {
                 const list = (data && data.list) || [];
-                this.setState({ portList: list }, () => {
-                    if(this.state.portList[0]?.inner_url != ''){
-                        this.onPortChange(this.state.portList[0].container_port, index)
-                    }
-                });
-                this.onPortListChange(list, index)
+                if(list.length > 0) {
+                    this.setState({ portList: list }, () => {
+                        const { portList } = this.state;
+                        if(portList.length > 0 && portList[0].inner_url != ''){
+                            this.onPortChange(portList[0].container_port, index);
+                        }
+                    });
+                    this.onPortListChange(list, index)
+                } else {
+                    notification.warning({
+                        message: formatMessage({ id: 'notification.warn.no_port' })
+                    });
+                }
                 this.handlePortLoading(false);
             }
         });
