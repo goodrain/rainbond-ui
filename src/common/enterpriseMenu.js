@@ -38,32 +38,17 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   });
 
   const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
-  if (billPlugin && Object.keys(billPlugin).length === 1) {
-    Object.entries(billPlugin).forEach(([regionName, plugins]) => {
+  if (billPlugin && Object.keys(billPlugin).length !== 0) {
+    const firstEntry = Object.entries(billPlugin)[0];
+    if (firstEntry) {
+      const [regionName, plugins] = firstEntry;
       menuArr.push({
         name: '计量计费',
         icon: getMenuSvg.getSvg('bill'),
         path: `/enterprise/${eid}/plugins/rainbond-bill?regionName=${regionName}`,
         authority: ['admin', 'user']
       });
-    });
-  } else if (billPlugin && Object.keys(billPlugin).length > 1) {
-    const billPluginChildren = []
-    Object.entries(billPlugin).forEach(([regionName, plugins]) => {
-      billPluginChildren.push({
-        name: regionName,
-        icon: getMenuSvg.getSvg('clusters'),
-        path: `rainbond-bill?regionName=${regionName}`,
-        authority: ['admin', 'user']
-      });
-    });
-    menuArr.push({
-      name: '计量计费',
-      icon: getMenuSvg.getSvg('bill'),
-      path: `/enterprise/${eid}/plugins`,
-      authority: ['admin', 'user'],
-      children: billPluginChildren,
-    });
+    }
   }
   if (adminer) {
     menuArr.push(
