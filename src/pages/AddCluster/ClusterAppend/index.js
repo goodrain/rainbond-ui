@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
-import { Card, Form, Row, Steps, Col, Input, Button } from 'antd';
+import { Card, Form, Row, Steps, Col, Input, Button, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -117,7 +117,10 @@ export default class ClusterLink extends PureComponent {
             dispatch(routerRedux.push(`/enterprise/${eid || GlobalUtile.getCurrEnterpriseId()}/provider/${provider}/kclusters?event_id=${res.bean.event_id}`));
           }
         },
-        handleError: errs => {
+        handleError: err => {
+          notification.error({
+            message: err.data.msg_show,
+          });
         }
       });
     });
