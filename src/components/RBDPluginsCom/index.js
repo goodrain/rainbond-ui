@@ -52,6 +52,7 @@ export default class index extends Component {
       ) : (
         AppPagePlugin ?
           <AppPagePlugin
+            dispatch={dispatch}
             baseInfo={{
               colorPrimary: Global.getPublicColor('primary-color'),
               currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
