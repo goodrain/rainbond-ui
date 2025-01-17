@@ -11,7 +11,10 @@ import {
   Select
 } from 'antd';
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import pluginUtil from '../../utils/plugin';
+import pluginUtils from '../../utils/pulginUtils';
+import PriceCard from '../../components/PriceCard';
 import cookie from '../../utils/cookie';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
@@ -20,13 +23,22 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @Form.create()
+@connect(
+  ({ rbdPlugin }) => ({
+    pluginList: rbdPlugin.pluginList
+  }),
+  null,
+  null,
+  { pure: false, withRef: true }
+)
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       volumeCapacityValidation: {},
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      volume_type: ''
+      volume_type: '',
+      showBill: pluginUtils.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
     };
   }
   componentDidMount = () => {
@@ -315,6 +327,9 @@ export default class AddVolumes extends PureComponent {
                 />
               )}
             </FormItem>
+          }
+          {volume_type == 'volcengine' && this.state.showBill &&
+            <PriceCard type="Alert" />
           }
         </Form>
         <div

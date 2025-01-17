@@ -130,7 +130,9 @@ import {
   fetchVersionData,
   updateVersion,
   fetchOverScore,
-  updateOverScore
+  updateOverScore,
+  getPricingConfig,
+  fetchTeamDetails
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1082,6 +1084,18 @@ export default {
     },
     *updateOverScore({ payload, callback, handleError }, { put, call }) {
       const response = yield call(updateOverScore, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getPricingConfig({ callback }, { call }) {
+      const response = yield call(getPricingConfig);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchTeamDetails({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchTeamDetails, payload, handleError);
       if (callback) {
         callback(response);
       }
