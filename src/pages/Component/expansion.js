@@ -15,7 +15,8 @@ import {
   Spin,
   Switch,
   Table,
-  AutoComplete
+  AutoComplete,
+  Slider
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -28,6 +29,8 @@ import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import { horizontal, vertical } from '../../services/app';
 import globalUtil from '../../utils/global';
+import PriceCard from '../../components/PriceCard';
+import pluginUtil from '../../utils/pulginUtils';
 import licenseUtil from '../../utils/license';
 import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
@@ -39,13 +42,14 @@ import cookie from '../../utils/cookie';
 const { Option } = Select;
 
 @connect(
-  ({ user, appControl, teamControl }) => ({
+  ({ user, appControl, teamControl, rbdPlugin }) => ({
     currUser: user.currentUser,
     baseInfo: appControl.baseInfo,
     extendInfo: appControl.extendInfo,
     instances: appControl.pods,
     scaling: appControl.scalingRules,
-    features: teamControl.features
+    features: teamControl.features,
+    pluginList: rbdPlugin.pluginList
   }),
   null,
   null,
@@ -88,6 +92,49 @@ export default class Index extends PureComponent {
       enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
       language: cookie.get('language') === 'zh-CN' ? true : false,
       dataSource: [],
+      showBill: pluginUtil.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
+      memoryMarks: {
+        1: '64M',
+        2: '128M',
+        3: '256M',
+        4: '512M',
+        5: '1G',
+        6: '2G',
+        7: '4G',
+        8: '8G',
+        9: '16G'
+      },
+      memoryMarksObj: {
+        64: 1,
+        128: 2,
+        256: 3,
+        512: 4,
+        1024: 5,
+        2048: 6,
+        4096: 7,
+        8192: 8,
+        16384: 9
+      },
+      cpuMarks: {
+        1: '250m',
+        2: '500m',
+        3: '1Core',
+        4: '2Core',
+        5: '4Core',
+        6: '8Core',
+        7: '16Core'
+      },
+      cpuMarksObj: {
+        250: 1,
+        500: 2,
+        1000: 3,
+        2000: 4,
+        4000: 5,
+        8000: 6,
+        16000: 7
+      },
+      cpuValue: 0,
+      memoryValue: 0
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -109,8 +156,20 @@ export default class Index extends PureComponent {
       });
     }
   }
+  getPrice = () => {
+    const { memoryMarksObj, cpuMarksObj } = this.state;
+    const extendInfo = this.props.extendInfo;
+    const cpuValue = extendInfo?.current_cpu || 250;
+    const memoryValue = extendInfo?.current_memory || 512;
+    const mValue = memoryMarksObj[memoryValue];
+    const cValue = cpuMarksObj[cpuValue];
+    this.setState({ cpuValue: cValue, memoryValue: mValue });
+  }
   componentDidMount() {
     if (!this.canView()) return;
+    if (this.state.showBill) {
+      this.getPrice();
+    }
     if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getScalingRules();
       this.getScalingRecord();
@@ -759,6 +818,77 @@ export default class Index extends PureComponent {
       setUnit: val
     })
   }
+  handleFromData = () => {
+    const { form, appAlias, extendInfo } = this.props;
+    const { cpuMarksObj, memoryMarksObj } = this.state;
+    form.validateFields((err, values) => {
+      if (!err) return;
+      const { new_memory, new_cpu } = values;
+      const memory = Object.keys(memoryMarksObj).find(item => {
+        if (memoryMarksObj[item] == new_memory) {
+          return item;
+        }
+      });
+      const cpu = Object.keys(cpuMarksObj).find(item => {
+        if (cpuMarksObj[item] == new_cpu) {
+          return item;
+        }
+      });
+      vertical({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+        new_memory: Number(memory),
+        new_gpu: extendInfo.current_gpu,
+        new_cpu: Number(cpu)
+      }).then(data => {
+        if (data && !data.status) {
+          notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+        }
+      });
+      horizontal({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        new_node: values.node
+      }).then(data => {
+        if (data && !data.status) {
+          notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+        }
+      });
+      this.setState({
+        editBillInfo: false
+      })
+    })
+  }
+  handleMemoryChange = (value) => {
+    this.setState({
+      memoryValue: value
+    })
+  }
+  handleCpuChange = (value) => {
+    this.setState({
+      cpuValue: value
+    })
+  }
+  getFormValues = (data, type) => {
+    const { cpuMarksObj, memoryMarksObj } = this.state
+    let num = 0
+    if (type == 'memory') {
+      Object.keys(memoryMarksObj).forEach(item => {
+        if (memoryMarksObj[item] == data) {
+          console.log(item, 'item');
+          num = item
+        }
+      })
+    } else {
+      Object.keys(cpuMarksObj).forEach(item => {
+        if (cpuMarksObj[item] == data) {
+          console.log(item, 'item');
+          num = item
+        }
+      })
+    }
+    return num
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo, appAlias, form, appDetail, method } = this.props;
@@ -790,7 +920,11 @@ export default class Index extends PureComponent {
       enableGPU,
       language,
       dataSource,
-      setUnit
+      setUnit,
+      memoryMarks,
+      cpuMarks,
+      cpuValue,
+      memoryValue
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -800,7 +934,24 @@ export default class Index extends PureComponent {
       })
     }
     const minNumber = getFieldValue('minNum') || 0;
-
+    const formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 3
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 21
+        }
+      }
+    };
     const grctlCmd = `grctl service get ${appAlias} -t ${globalUtil.getCurrTeamName()}`;
     const MemoryList = [];
     const cpuUse =
@@ -853,7 +1004,7 @@ export default class Index extends PureComponent {
               <div style={{ minHeight: '190px' }} />
             </Spin>
           ) : (
-            <div style={{display:'flex',flexWrap:'wrap' ,marginBottom:24}}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: 24 }}>
               <InstanceList
                 method={method}
                 handlePodClick={this.handlePodClick}
@@ -884,135 +1035,188 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
-        <Card className={styles.clerBorder} border={false} title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}>
-          {!enableGPU && (
-            <Alert
-              style={{ marginBottom: '16px' }}
-              type="warning"
-              closable
-              message={<>
-                <FormattedMessage id='componentOverview.body.Expansion.empower' />
-                <a
-                  href='https://www.rainbond.com/enterprise_server/'
-                  target="_blank"
-                >
-                  {formatMessage({ id: 'componentOverview.body.Expansion.authorization' })}
-                </a>
-              </>}
-            />
-          )}
-          <Form layout="inline" hideRequiredMark className={styles.fromItem}>
-            <Row gutter={16}>
-              <Col lg={8} md={8} sm={24}>
-                <Form.Item
-                  labelCol={language ? { span: 5 } : { span: 6 }}
-                  wrapperCol={language ? { span: 19 } : { span: 18 }}
-                  label={<FormattedMessage id='componentOverview.body.Expansion.memory' />}
-                  className={styles.customFormItem}
-                >
-                  {getFieldDecorator('memory', {
-                    initialValue: `${extendInfo.current_memory && extendInfo.current_memory % 1024 == 0 ? extendInfo.current_memory / 1024 : extendInfo.current_memory}` || 0
+        {/* 手动伸缩   */}
+        {this.state.showBill ? (
+          <>
+            <Card
+              className={styles.clerBorder}
+              border={false}
+              title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}
+              extra={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {this.state.editBillInfo && 
+                  <PriceCard
+                    key={cpuValue * memoryValue}
+                    type='title'
+                    cpu_use={this.getFormValues(cpuValue, 'cpu')}
+                    memory_use={this.getFormValues(memoryValue, 'memory')}
+                  />
+                  }
+                  {this.state.editBillInfo ?
+                    <div style={{ marginLeft: 10 }}>
+                      <Button type='link' onClick={this.handleFromData}>
+                        确认
+                      </Button>
+                      <Button type='link' onClick={() => this.setState({ editBillInfo: false })}>
+                        取消
+                      </Button>
+                    </div>
+                    :
+                    <Button type='link' onClick={() => this.setState({ editBillInfo: true })}>
+                      修改
+                    </Button>
+                  }
+                </div>
+              }
+            >
+              <Form hideRequiredMark className={styles.fromItem} onSubmit={this.handleFromData}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
+                  {getFieldDecorator('new_memory', {
+                    initialValue: this.state.memoryValue || 4,
                   })(
-                    <Input
-                      addonAfter={
-                        <Select value={setUnit ? setUnit : (extendInfo.current_memory % 1024 == 0) ? "G" : "M"} onChange={this.selectAfterChange}>
-                          <Option value="M">M</Option>
-                          <Option value="G">G</Option>
-                        </Select>
-                      }
+                    <Slider
+                      disabled={!this.state.editBillInfo}
+                      style={{ width: '500px' }}
+                      marks={memoryMarks}
+                      min={1}
+                      max={9}
+                      step={null}
+                      onChange={this.handleMemoryChange}
+                      tooltipVisible={false}
                     />
                   )}
                 </Form.Item>
-                {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.algorithm' })}`)}
-              </Col>
-              <Col lg={8} md={8} sm={24}>
-                <Form.Item
-                  labelCol={language ? { span: 6 } : { span: 8 }}
-                  wrapperCol={language ? { span: 18 } : { span: 16 }}
-                  className={styles.customFormItem}
-                  label={<FormattedMessage id='componentOverview.body.Expansion.video' />}
-                >
-                  {getFieldDecorator('gpu', {
-                    initialValue: `${extendInfo.current_gpu}`
-                  })(
-                    <Input
-                      disabled={!enableGPU}
-                      type="number"
-                      addonAfter="MiB"
-                    />
-                  )}
-                </Form.Item>
-
-                {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.resources' })}`)}
-
-              </Col>
-              <Col lg={8} md={8} sm={24}>
-                <Form.Item
-                  label="CPU"
-                  labelCol={language ? { span: 5 } : { span: 6 }}
-                  wrapperCol={language ? { span: 19 } : { span: 18 }}
-                  className={styles.customFormItem}
-                >
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
                   {getFieldDecorator('new_cpu', {
-                    initialValue: extendInfo.current_cpu || 0,
-                    rules: [
-                      {
-                        required: true,
-                        message: formatMessage({ id: 'componentOverview.body.Expansion.input_cup' })
-                      },
-                      {
-                        pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                        message: formatMessage({ id: 'componentOverview.body.Expansion.onlyAllowed' })
-                      }
-                    ]
+                    initialValue: this.state.cpuValue || 1,
                   })(
-                    <Input
-                      type="number"
-                      min={0}
-                      addonAfter="m"
-                      placeholder={formatMessage({ id: 'componentOverview.body.Expansion.input_cup' })}
+                    <Slider
+                      disabled={!this.state.editBillInfo}
+                      style={{ width: '500px' }}
+                      marks={cpuMarks}
+                      min={1}
+                      max={7}
+                      step={null}
+                      onChange={this.handleCpuChange}
+                      tooltipVisible={false}
                     />
                   )}
-                  <Button
-                    onClick={this.handleVertical}
-                    size="default"
-                    type="primary"
-                    style={{
-                      marginLeft: '10px'
-                    }}
-                  >
-                    <FormattedMessage id='componentOverview.body.Expansion.setUp' />
-                  </Button>
                 </Form.Item>
-                {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.dispatch' })}`)}
-              </Col>
-            </Row>
-            {method != 'vm' &&
+                <Form.Item
+                  label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
+                  {...formItemLayout}
+                >
+                  {getFieldDecorator('node', {
+                    initialValue: extendInfo.current_node
+                  })(
+                    <Select
+                      disabled={!this.state.editBillInfo}
+                      style={{ width: 500 }}
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                    >
+                      {(extendInfo.node_list || []).map(item => (
+                        <Option key={item} value={item}>
+                          {item}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Form.Item>
+              </Form>
+            </Card>
+          </>
+        ) : (
+          <Card className={styles.clerBorder} border={false} title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}>
+            {!enableGPU && (
+              <Alert
+                style={{ marginBottom: '16px' }}
+                type="warning"
+                closable
+                message={<>
+                  <FormattedMessage id='componentOverview.body.Expansion.empower' />
+                  <a
+                    href='https://www.rainbond.com/enterprise_server/'
+                    target="_blank"
+                  >
+                    {formatMessage({ id: 'componentOverview.body.Expansion.authorization' })}
+                  </a>
+                </>}
+              />
+            )}
+            <Form layout="inline" hideRequiredMark className={styles.fromItem}>
               <Row gutter={16}>
                 <Col lg={8} md={8} sm={24}>
                   <Form.Item
-                    label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
-                    labelCol={language ? { span: 5 } : { span: 8 }}
-                    wrapperCol={language ? { span: 19 } : { span: 16 }}
+                    labelCol={language ? { span: 5 } : { span: 6 }}
+                    wrapperCol={language ? { span: 19 } : { span: 18 }}
+                    label={<FormattedMessage id='componentOverview.body.Expansion.memory' />}
                     className={styles.customFormItem}
                   >
-                    {getFieldDecorator('node', {
-                      initialValue: extendInfo.current_node
+                    {getFieldDecorator('memory', {
+                      initialValue: `${extendInfo.current_memory && extendInfo.current_memory % 1024 == 0 ? extendInfo.current_memory / 1024 : extendInfo.current_memory}` || 0
                     })(
-                      <Select
-                        getPopupContainer={triggerNode => triggerNode.parentNode}
-                        className={styles.nodeSelect}
-                      >
-                        {(extendInfo.node_list || []).map(item => (
-                          <Option key={item} value={item}>
-                            {item}
-                          </Option>
-                        ))}
-                      </Select>
+                      <Input
+                        addonAfter={
+                          <Select value={setUnit ? setUnit : (extendInfo.current_memory % 1024 == 0) ? "G" : "M"} onChange={this.selectAfterChange}>
+                            <Option value="M">M</Option>
+                            <Option value="G">G</Option>
+                          </Select>
+                        }
+                      />
+                    )}
+                  </Form.Item>
+                  {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.algorithm' })}`)}
+                </Col>
+                <Col lg={8} md={8} sm={24}>
+                  <Form.Item
+                    labelCol={language ? { span: 6 } : { span: 8 }}
+                    wrapperCol={language ? { span: 18 } : { span: 16 }}
+                    className={styles.customFormItem}
+                    label={<FormattedMessage id='componentOverview.body.Expansion.video' />}
+                  >
+                    {getFieldDecorator('gpu', {
+                      initialValue: `${extendInfo.current_gpu}`
+                    })(
+                      <Input
+                        disabled={!enableGPU}
+                        type="number"
+                        addonAfter="MiB"
+                      />
+                    )}
+                  </Form.Item>
+
+                  {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.resources' })}`)}
+
+                </Col>
+                <Col lg={8} md={8} sm={24}>
+                  <Form.Item
+                    label="CPU"
+                    labelCol={language ? { span: 5 } : { span: 6 }}
+                    wrapperCol={language ? { span: 19 } : { span: 18 }}
+                    className={styles.customFormItem}
+                  >
+                    {getFieldDecorator('new_cpu', {
+                      initialValue: extendInfo.current_cpu || 0,
+                      rules: [
+                        {
+                          required: true,
+                          message: formatMessage({ id: 'componentOverview.body.Expansion.input_cup' })
+                        },
+                        {
+                          pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                          message: formatMessage({ id: 'componentOverview.body.Expansion.onlyAllowed' })
+                        }
+                      ]
+                    })(
+                      <Input
+                        type="number"
+                        min={0}
+                        addonAfter="m"
+                        placeholder={formatMessage({ id: 'componentOverview.body.Expansion.input_cup' })}
+                      />
                     )}
                     <Button
-                      disabled={notAllowScaling}
-                      onClick={this.handleHorizontal}
+                      onClick={this.handleVertical}
                       size="default"
                       type="primary"
                       style={{
@@ -1022,20 +1226,74 @@ export default class Index extends PureComponent {
                       <FormattedMessage id='componentOverview.body.Expansion.setUp' />
                     </Button>
                   </Form.Item>
-
-                  {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
-
+                  {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.dispatch' })}`)}
                 </Col>
               </Row>
-            }
-          </Form>
-        </Card>
+              {method != 'vm' &&
+                <Row gutter={16}>
+                  <Col lg={8} md={8} sm={24}>
+                    <Form.Item
+                      label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
+                      labelCol={language ? { span: 5 } : { span: 8 }}
+                      wrapperCol={language ? { span: 19 } : { span: 16 }}
+                      className={styles.customFormItem}
+                    >
+                      {getFieldDecorator('node', {
+                        initialValue: extendInfo.current_node
+                      })(
+                        <Select
+                          getPopupContainer={triggerNode => triggerNode.parentNode}
+                          className={styles.nodeSelect}
+                        >
+                          {(extendInfo.node_list || []).map(item => (
+                            <Option key={item} value={item}>
+                              {item}
+                            </Option>
+                          ))}
+                        </Select>
+                      )}
+                      <Button
+                        disabled={notAllowScaling}
+                        onClick={this.handleHorizontal}
+                        size="default"
+                        type="primary"
+                        style={{
+                          marginLeft: '10px'
+                        }}
+                      >
+                        <FormattedMessage id='componentOverview.body.Expansion.setUp' />
+                      </Button>
+                    </Form.Item>
 
-        {method != 'vm' &&
+                    {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
+
+                  </Col>
+                </Row>
+              }
+            </Form>
+          </Card>
+        )
+        }
+
+        {/* 自动伸缩 */}
+        {
+          method != 'vm' &&
           <Card
             style={{ marginTop: 16 }}
             className={styles.clearCard}
             title={<FormattedMessage id='componentOverview.body.Expansion.flex' />}
+            extra={
+              automaticTelescopic &&
+              <PriceCard
+                key={(rulesList && rulesList.length > 0 && rulesList[0].min_replicas) * (rulesList && rulesList.length > 0 && rulesList[0].max_replicas)}
+                type='title'
+                cpu_use={this.getFormValues(cpuValue, 'cpu')}
+                memory_use={this.getFormValues(memoryValue, 'memory')}
+                section={true}
+                min_node={rulesList && rulesList.length > 0 && rulesList[0].min_replicas || 0}
+                max_node={rulesList && rulesList.length > 0 && rulesList[0].max_replicas || 1}
+              />
+            }
           >
             <Row gutter={24} className={styles.automaTictelescopingBOX}>
               <Col span={12} className={language ? styles.automaTictelescopingTitle : styles.en_automaTictelescopingTitle}>
@@ -1251,33 +1509,38 @@ export default class Index extends PureComponent {
             </Row>
           </Card>
         }
-        {this.state.toDeleteMnt && (
-          <ConfirmModal
-            title={<FormattedMessage id="confirmModal.deldete.index.title" />}
-            desc={<FormattedMessage id="confirmModal.deldete.index.desc" />}
-            onCancel={this.cancelDeleteMnt}
-            onOk={() => {
-              this.handleAddIndicators('delete');
-            }}
-          />
-        )}
-        {showEditAutoScaling && (
-          <AddScaling
-            data={rulesInfo}
-            ref={this.saveForm}
-            isvisable={showEditAutoScaling}
-            isaddindicators={addindicators}
-            memoryList={MemoryList}
-            onClose={this.cancelEditAutoScaling}
-            onOk={values => {
-              enable
-                ? this.changeAutoScaling(values)
-                : this.openAutoScaling(values);
-            }}
-            editRules={editRules}
-          />
-        )}
-        {method != 'vm' &&
+        {
+          this.state.toDeleteMnt && (
+            <ConfirmModal
+              title={<FormattedMessage id="confirmModal.deldete.index.title" />}
+              desc={<FormattedMessage id="confirmModal.deldete.index.desc" />}
+              onCancel={this.cancelDeleteMnt}
+              onOk={() => {
+                this.handleAddIndicators('delete');
+              }}
+            />
+          )
+        }
+        {
+          showEditAutoScaling && (
+            <AddScaling
+              data={rulesInfo}
+              ref={this.saveForm}
+              isvisable={showEditAutoScaling}
+              isaddindicators={addindicators}
+              memoryList={MemoryList}
+              onClose={this.cancelEditAutoScaling}
+              onOk={values => {
+                enable
+                  ? this.changeAutoScaling(values)
+                  : this.openAutoScaling(values);
+              }}
+              editRules={editRules}
+            />
+          )
+        }
+        {
+          method != 'vm' &&
           <Card
             className={styles.clearCard}
             style={{ marginTop: 16 }}
@@ -1365,7 +1628,7 @@ export default class Index extends PureComponent {
             />
           </Card>
         }
-      </div>
+      </div >
     );
   }
 }

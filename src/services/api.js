@@ -353,7 +353,7 @@ export async function getService(body = {}) {
 }
 // https://console.goodrain.com/console/teams/23ehgni5/apps/gr3698ab/monitor/query_range?query=sum(ceil(increase(app_request%7Bservice_id%3D%22dde947ccc8cc6fe46c734dddd13698ab%22,method%3D%22total%22%7D[1m])%2F12))
 /*
-	 获取应用吞吐率监控数据(一段时间内数据)
+   获取应用吞吐率监控数据(一段时间内数据)
 */
 export async function getDomainTime(body = {}) {
   return request(
@@ -625,7 +625,7 @@ export function getRainbondInfo(handleError) {
 /*
    获取云帮的公共报警信息
 */
-export function getRainbondAlert(params,handleError) {
+export function getRainbondAlert(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/alerts`, {
     method: 'get',
     handleError
@@ -1088,7 +1088,7 @@ export async function queryOauthInfo(body) {
     {
       method: 'get',
       params: {
-        system: body.system 
+        system: body.system
       }
     }
   );
@@ -1383,7 +1383,7 @@ export async function toSearchTenant(params) {
 }
 
 /** 应用报警信息 */
-export async function fetchAppAlertInfo(params,handleError) {
+export async function fetchAppAlertInfo(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
     {
@@ -1400,7 +1400,7 @@ export async function createShellPod(params) {
     {
       method: 'post',
       data: {
-        region_name :  params.region_name
+        region_name: params.region_name
       }
     }
   );
@@ -1412,8 +1412,8 @@ export async function deleteShellPod(params) {
     {
       method: 'DELETE',
       data: {
-        region_name : params.region_name,
-        pod_name : params.pod_name
+        region_name: params.region_name,
+        pod_name: params.pod_name
       }
     }
   );
@@ -1438,7 +1438,7 @@ export async function getAbilitiesList(body) {
   );
 }
 // 能力编辑
-export async function abilitiesEdit(body,handleError) {
+export async function abilitiesEdit(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
     {
@@ -1588,7 +1588,7 @@ export async function fetchAllVersion(body, handleError) {
       handleError
     }
   );
-} 
+}
 // 获取某个主机版本详情
 export async function fetchVersionDetails(body, handleError) {
   return request(
@@ -1600,7 +1600,7 @@ export async function fetchVersionDetails(body, handleError) {
   );
 }
 // 获取某个主机版本data
-export async function fetchVersionData(body,handleError) {
+export async function fetchVersionData(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/update/versions/${body.version}/images`,
     {
@@ -1608,7 +1608,7 @@ export async function fetchVersionData(body,handleError) {
       handleError
     }
   );
-} 
+}
 
 // 更新某个主机版本
 export async function updateVersion(body, handleError) {
@@ -1707,6 +1707,25 @@ export async function updateOverScore(params, handleError) {
     {
       method: 'put',
       data: params,
+      handleError
+    }
+  );
+}
+// 获取定价配置
+export async function getPricingConfig() {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/pricing`,
+    {
+      method: 'get'
+    }
+  );
+}
+// 获取团队详情
+export async function fetchTeamDetails(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/users/team_details`,
+    {
+      method: 'get',
       handleError
     }
   );
