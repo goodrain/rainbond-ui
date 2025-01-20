@@ -1,0 +1,140 @@
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Card, Popover, Badge, Table, Alert } from 'antd';
+import { formatMessage } from 'umi-plugin-locale';
+import global from '@/utils/global';
+import styles from './index.less';
+
+@connect(null, null, null, { withRef: true })
+
+class PriceCard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      totalPrice: 0,
+      cpuPrice: 0,
+      memoryPrice: 0,
+      unit: '¥'
+    };
+  }
+
+  componentDidMount() {
+    // 模拟请求获取单价
+    this.fetchPrices();
+  }
+
+  fetchPrices = () => {
+    // 假设从API获取数据
+    const { dispatch, cpu_use, memory_use, section, min_node, max_node } = this.props;
+    dispatch({
+      type: 'global/getPricingConfig',
+      payload: {
+        region_name: global.getCurrRegionName() || ''
+      },
+      callback: (res) => {
+        if (res.status_code == 200) {
+          console.log(res.response_data, "res.response_data");
+          let totalPrice
+          totalPrice = (Number(res.response_data.cpu_price_per_core) * (cpu_use / 1000) * 24 + Number(res.response_data.memory_price_per_mb) * (memory_use / 1024) * 24).toFixed(2);
+          if (section) {
+            totalPrice = `${totalPrice * min_node.toFixed(2)} ~ ¥${totalPrice * max_node.toFixed(2)}`
+          }
+          this.setState({
+            cpuPrice: res.response_data?.cpu_price_per_core,
+            memoryPrice: res.response_data?.memory_price_per_mb,
+            totalPrice: totalPrice
+          });
+        }
+      }
+    });
+
+  };
+
+  render() {
+    const { type = 'card' } = this.props;
+    const { totalPrice, cpuPrice, memoryPrice, unit } = this.state;
+
+    const priceDetail = (
+      <div className={styles.priceDetail}>
+        <Table
+          columns={[
+            {
+              title: '类型',
+              dataIndex: 'item',
+              key: 'item',
+            },
+            {
+              title: '价格/小时',
+              dataIndex: 'price',
+              key: 'price',
+            },
+            {
+              title: '单位',
+              dataIndex: 'unit',
+              key: 'unit',
+            },
+          ]}
+          dataSource={[
+            {
+              key: '1',
+              item: <Badge color='cyan' text={formatMessage({ id: 'price.cpu' })} />,
+              price: `¥${cpuPrice}`,
+              unit: '1 Core',
+            },
+            {
+              key: '2',
+              item: <Badge color='green' text={formatMessage({ id: 'price.memory' })} />,
+              price: `¥${memoryPrice}`,
+              unit: '1 GB',
+            },
+          ]}
+          pagination={false}
+        />
+      </div>
+    );
+
+    if (type === 'title') {
+      return (
+        <div className={styles.priceTitle}>
+          <Popover title="详细信息" content={priceDetail} placement="bottom">
+            <span>{formatMessage({ id: 'price.total' })}:</span>
+            <span className={styles.amount}>{unit}{totalPrice}</span>
+          </Popover>
+        </div>
+
+      );
+    }
+    if (type === 'Alert') {
+      return (
+        <Alert
+          message="注意"
+          description={
+            <>
+              <p>{`存储空间按实际使用量计费，单价为¥${memoryPrice}/GB/小时。`}</p>
+              <p>{`计算公式：单价 * 实际使用量 * 24小时 = 实际费用`}</p>
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      );
+    }
+
+
+    return (
+      <Card
+        title={
+          <div className={styles.cardTitle}>
+            <span>{formatMessage({ id: 'price.total' })} :</span>
+            <span className={styles.amount}>{unit}{totalPrice}</span>
+          </div>
+        }
+        className={styles.priceCard}
+      >
+        {priceDetail}
+      </Card>
+    );
+  }
+}
+
+export default PriceCard; 

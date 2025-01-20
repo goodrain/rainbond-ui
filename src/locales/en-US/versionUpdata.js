@@ -111,7 +111,10 @@ const versionUpdata = {
   'versionUpdata_6_1.createComponent': 'Create Component',
   'versionUpdata_6_1.confirmCreate': 'Confirm Create',
   'teamOverview.empty.description': 'No applications yet, create your first one now',
-  'teamOverview.empty.button': 'Create Application'
+  'teamOverview.empty.button': 'Create Application',
+  'price.cpu': 'CPU',
+  'price.memory': 'Memory',
+  'price.total': 'Estimated Price (¥/Day)'
 }
 
 

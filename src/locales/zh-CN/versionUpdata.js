@@ -122,7 +122,10 @@ const versionUpdata = {
   'versionUpdata_6_1.teamManage.invite.modal.title': '邀请链接生成',
   'versionUpdata_6_1.teamManage.invite.modal.copy': '复制邀请链接',
   'teamOverview.empty.description': '暂无应用，快来创建你的第一个应用吧',
-  'teamOverview.empty.button': '新建应用'
+  'teamOverview.empty.button': '新建应用',
+  'price.cpu': 'CPU',
+  'price.memory': '内存',
+  'price.total': '预估价格(元/日)'
 }
 export default versionUpdata;
 
