@@ -61,8 +61,9 @@ export default class EnterpriseSetting extends PureComponent {
     const { dispatch } = this.props
     const { region_name } = this.state
     this.setState({ activeKey: key });
-    if (key == 'upload' || key == 'individuation')
+    if (key == 'upload' || key == 'individuation' || key == 'OverMark') {
       dispatch(routerRedux.push(`/enterprise/${global.getCurrEnterpriseId()}/setting?regionName=${region_name}`));
+    }
   };
 
   isShowEnterprisePlugin = () => {

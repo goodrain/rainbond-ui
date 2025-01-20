@@ -374,7 +374,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': '申请加入项目/团队审批中',
     'enterpriseTeamManagement.other.haveNewJoinTeam': '最新加入项目/团队',
     'enterpriseTeamManagement.other.description': '暂无项目/团队，请点击创建项目/团队进行创建',
-    'enterpriseTeamManagement.other.personal': '工作空间',
+    'enterpriseTeamManagement.other.personal': '团队空间',
 
 }
 // 集群
