@@ -673,7 +673,7 @@ class VirtualMachineBaseInfo extends PureComponent {
   }
 
   componentDidMount() {
-    const { onRefCpu } = this.props
+    const { onRefCpu, appDetail } = this.props
     if (onRefCpu) {
       this.props.onRefCpu(this)
     }

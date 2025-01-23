@@ -227,7 +227,10 @@ export default class GlobalHeader extends PureComponent {
       isVersionUpdate: true,
     })
   };
-
+  handleBalanceBill = () => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/rainbond-bill`));
+  }
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space = false, is_enterprise = false, customHeaderImg } = this.props;
     const { language, treeData, isVersionUpdate, isTeamView, showBill } = this.state
@@ -283,7 +286,7 @@ export default class GlobalHeader extends PureComponent {
             }}
           />
           {text == 1 && <FormattedMessage id="GlobalHeader.core" />}
-          {text == 2 && '计量计费'}
+          {text == 2 && '账户中心'}
           {text == 3 && <FormattedMessage id="GlobalHeader.language" />}
           {text == 4 && <FormattedMessage id="GlobalHeader.exit" />}
         </Menu.Item>
@@ -336,13 +339,23 @@ export default class GlobalHeader extends PureComponent {
           {platformUrl && (
             <a
               className={styles.action}
-              style={{ verticalAlign: '-7px', color: '#fff' }}
+              style={{ verticalAlign: '-7px', color: '#fff', marginRight: '12px' }}
               href={docsUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
               {handleHandBookSvg}
             </a>
+          )}
+          {showBill && isTeamView &&  (
+            <div
+              onClick={() => {this.handleBalanceBill()}}
+              className={styles.balance}
+            >
+              <div>
+                余额 | ¥4.70
+              </div>
+            </div>
           )}
           {currentUser ? (
             <Dropdown overlay={menu}>
