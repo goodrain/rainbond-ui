@@ -167,9 +167,6 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
-    if (this.state.showBill) {
-      this.getPrice();
-    }
     if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getScalingRules();
       this.getScalingRecord();
@@ -875,14 +872,12 @@ export default class Index extends PureComponent {
     if (type == 'memory') {
       Object.keys(memoryMarksObj).forEach(item => {
         if (memoryMarksObj[item] == data) {
-          console.log(item, 'item');
           num = item
         }
       })
     } else {
       Object.keys(cpuMarksObj).forEach(item => {
         if (cpuMarksObj[item] == data) {
-          console.log(item, 'item');
           num = item
         }
       })
@@ -924,8 +919,12 @@ export default class Index extends PureComponent {
       memoryMarks,
       cpuMarks,
       cpuValue,
-      memoryValue
+      memoryValue,
+      showBill
     } = this.state;
+    if(extendInfo && Object.keys(extendInfo).length > 0 && showBill){      
+      this.getPrice()
+    }
     if (!extendInfo) {
       return null;
     } else {
@@ -1036,7 +1035,7 @@ export default class Index extends PureComponent {
           />
         )}
         {/* 手动伸缩   */}
-        {this.state.showBill ? (
+        { this.state.showBill ? (
           <>
             <Card
               className={styles.clerBorder}
