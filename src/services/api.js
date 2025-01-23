@@ -1720,6 +1720,16 @@ export async function getPricingConfig() {
     }
   );
 }
+
+// 获取定价配置
+export async function getUserBalance() {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/user/account/financial`,
+    {
+      method: 'get'
+    }
+  );
+}
 // 获取团队详情
 export async function fetchTeamDetails(params, handleError) {
   return request(

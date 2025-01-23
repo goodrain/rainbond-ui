@@ -51,6 +51,8 @@ export default class GlobalHeader extends PureComponent {
       isVersionUpdate: false,
       showBill: false,
       isTeamView: globalUtil.getCurrTeamName() !== '' && globalUtil.getCurrRegionName() !== '',
+      balance: null,
+      balanceStatus: ''
     };
   }
   componentDidMount() {
@@ -101,11 +103,27 @@ export default class GlobalHeader extends PureComponent {
         if (res.list.some(item => item.name === 'rainbond-bill')) {
           this.setState({
             showBill: true
+          }, () => {
+            this.fetchBalance()
           })
         }
       }
     })
   }
+  fetchBalance = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/getUserBalance',
+      payload: {},
+      callback: (res) => {
+       this.setState({
+          balance: res.response_data.balance / 100,
+          balanceStatus: res.response_data.status
+       })
+      }
+    });
+
+  };
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
     const { language } = this.state
@@ -233,7 +251,7 @@ export default class GlobalHeader extends PureComponent {
   }
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space = false, is_enterprise = false, customHeaderImg } = this.props;
-    const { language, treeData, isVersionUpdate, isTeamView, showBill } = this.state
+    const { language, treeData, isVersionUpdate, isTeamView, showBill, balance, balanceStatus } = this.state
     if (!currentUser) {
       return null;
     }
@@ -351,10 +369,13 @@ export default class GlobalHeader extends PureComponent {
             <div
               onClick={() => {this.handleBalanceBill()}}
               className={styles.balance}
+              style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
             >
-              <div>
-                余额 | ¥4.70
-              </div>
+              {balance != null &&
+                <div>
+                  余额 | ¥{balance}
+                </div>
+              }
             </div>
           )}
           {currentUser ? (
