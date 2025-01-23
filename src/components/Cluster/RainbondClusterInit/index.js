@@ -217,8 +217,8 @@ export default class RainbondClusterInit extends PureComponent {
           type: 'region/installCluster',
           payload: {
             value_yaml: yamls,
-            third_db: values.image == 'custom',
-            third_hub: values.database == 'custom',
+            third_db: values.database == 'custom',
+            third_hub: values.image == 'custom',
           },
           callback: res => {
             if (res && res.status_code === 200) {
