@@ -35,7 +35,6 @@ class PriceCard extends Component {
       },
       callback: (res) => {
         if (res.status_code == 200) {
-          console.log(res.response_data, "res.response_data");
           let totalPrice
           const cpuUsePrice = Number(res.response_data.cpu_price_per_core) * (cpu_use / 1000) * 24
           const memoryUsePrice = Number(res.response_data.memory_price_per_gb) * (memory_use / 1024) * 24
