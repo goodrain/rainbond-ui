@@ -14,7 +14,9 @@ class PriceCard extends Component {
       totalPrice: 0,
       cpuPrice: 0,
       memoryPrice: 0,
-      unit: '¥'
+      unit: '¥',
+      cpuUsePrice: 0,
+      memoryUsePrice: 0,
     };
   }
 
@@ -35,13 +37,17 @@ class PriceCard extends Component {
         if (res.status_code == 200) {
           console.log(res.response_data, "res.response_data");
           let totalPrice
-          totalPrice = (Number(res.response_data.cpu_price_per_core) * (cpu_use / 1000) * 24 + Number(res.response_data.memory_price_per_mb) * (memory_use / 1024) * 24).toFixed(2);
+          const cpuUsePrice = Number(res.response_data.cpu_price_per_core) * (cpu_use / 1000) * 24
+          const memoryUsePrice = Number(res.response_data.memory_price_per_gb) * (memory_use / 1024) * 24
+          totalPrice = (cpuUsePrice + memoryUsePrice).toFixed(2);
           if (section) {
             totalPrice = `${totalPrice * min_node.toFixed(2)} ~ ¥${totalPrice * max_node.toFixed(2)}`
           }
           this.setState({
             cpuPrice: res.response_data?.cpu_price_per_core,
-            memoryPrice: res.response_data?.memory_price_per_mb,
+            memoryPrice: res.response_data?.memory_price_per_gb,
+            cpuUsePrice: cpuUsePrice.toFixed(2),
+            memoryUsePrice: memoryUsePrice.toFixed(2),
             totalPrice: totalPrice
           });
         }
@@ -52,7 +58,7 @@ class PriceCard extends Component {
 
   render() {
     const { type = 'card' } = this.props;
-    const { totalPrice, cpuPrice, memoryPrice, unit } = this.state;
+    const { totalPrice, cpuPrice, memoryPrice, unit, cpuUsePrice, memoryUsePrice } = this.state;
 
     const priceDetail = (
       <div className={styles.priceDetail}>
@@ -64,28 +70,21 @@ class PriceCard extends Component {
               key: 'item',
             },
             {
-              title: '价格/小时',
+              title: '价格',
               dataIndex: 'price',
               key: 'price',
-            },
-            {
-              title: '单位',
-              dataIndex: 'unit',
-              key: 'unit',
             },
           ]}
           dataSource={[
             {
               key: '1',
-              item: <Badge color='cyan' text={formatMessage({ id: 'price.cpu' })} />,
-              price: `¥${cpuPrice}`,
-              unit: '1 Core',
+              item: <Badge color='green' text={formatMessage({ id: 'price.memory' })} />,
+              price: `¥${memoryUsePrice}`,
             },
             {
               key: '2',
-              item: <Badge color='green' text={formatMessage({ id: 'price.memory' })} />,
-              price: `¥${memoryPrice}`,
-              unit: '1 GB',
+              item: <Badge color='cyan' text={formatMessage({ id: 'price.cpu' })} />,
+              price: `¥${cpuUsePrice}`,
             },
           ]}
           pagination={false}

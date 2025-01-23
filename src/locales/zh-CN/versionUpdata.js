@@ -125,7 +125,7 @@ const versionUpdata = {
   'teamOverview.empty.button': '新建应用',
   'price.cpu': 'CPU',
   'price.memory': '内存',
-  'price.total': '预估价格(元/日)'
+  'price.total': '预估价格(每天)'
 }
 export default versionUpdata;
 

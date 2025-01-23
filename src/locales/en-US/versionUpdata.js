@@ -114,7 +114,7 @@ const versionUpdata = {
   'teamOverview.empty.button': 'Create Application',
   'price.cpu': 'CPU',
   'price.memory': 'Memory',
-  'price.total': 'Estimated Price (¥/Day)'
+  'price.total': 'Estimated Price (Day)'
 }
 
 
