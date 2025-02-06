@@ -49,14 +49,15 @@ export async function upEnterpriseCluster(params) {
 }
 
 /* 获取企业集群 */
-export async function fetchEnterpriseClusters(param) {
+export async function fetchEnterpriseClusters(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
     {
       method: 'get',
       params: {
         check_status: param.check_status || 'yes'
-      }
+      },
+      handleError
     }
   );
 }
