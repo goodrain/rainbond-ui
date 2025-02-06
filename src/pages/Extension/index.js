@@ -1,4 +1,4 @@
-import { Tabs, Card, Spin } from 'antd';
+import { Tabs, Card, Spin, Empty } from 'antd';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -30,7 +30,8 @@ export default class index extends PureComponent {
         super(props);
         this.state = {
             activeKey: '0',
-            ClustersList: []
+            ClustersList: [],
+            clustersLoading: true,  
         };
         this.socket = null;
     }
@@ -57,14 +58,18 @@ export default class index extends PureComponent {
                 if (res.status_code == 200) {
                     this.setState({
                         ClustersList: res.list,
+                        clustersLoading: false
                     })
                 }
+            },
+            handleError: res => {
+                this.setState({ clustersLoading: false, ClustersList: [] })
             }
         });
     };
 
     render() {
-        const { adminer, activeKey, ClustersList } = this.state;
+        const { adminer, activeKey, ClustersList, clustersLoading } = this.state;
         return (
             <PageHeaderLayout
                 title={formatMessage({id: 'extensionEnterprise.title'})}
@@ -72,7 +77,7 @@ export default class index extends PureComponent {
                 titleSvg={pageheaderSvg.getPageHeaderSvg('extension',18)}
                 isContent={true} 
             >   
-                {ClustersList.length > 0 ? (
+                {!clustersLoading && ClustersList.length > 0 ? (
                     <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
                         {ClustersList.map((item, index) => {
                             const { region_alias, region_name, url } = item
@@ -83,9 +88,14 @@ export default class index extends PureComponent {
                     </Tabs>
                 ):(
                     <div className={styles.spin}>
-                        <Spin />
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                     </div>   
                 )}
+                {clustersLoading && 
+                    <div className={styles.spin}>
+                        <Spin />
+                    </div>  
+                }
             </PageHeaderLayout>
         );
     }
