@@ -133,7 +133,8 @@ import {
   updateOverScore,
   getPricingConfig,
   fetchTeamDetails,
-  getUserBalance
+  getUserBalance,
+  syncData
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1107,6 +1108,12 @@ export default {
         callback(response);
       }
     },
+    *syncData({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(syncData, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    }
   },
   reducers: {
     isUpDataHeader(state, action) {

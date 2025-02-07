@@ -291,8 +291,8 @@ class Index extends PureComponent {
                       },
                       {
                         title:formatMessage({id:'componentOverview.body.tab.overview.instance.memory'}),
-                        dataIndex: 'request_memory',
-                        key: 'request_memory',
+                        dataIndex: 'limit_memory',
+                        key: 'limit_memory',
                         width: '10%',
                         render: requestMemory => (
                           <Tooltip title={requestMemory || <FormattedMessage id='componentOverview.body.tab.overview.instance.Unlimited'/>}>
@@ -304,8 +304,8 @@ class Index extends PureComponent {
                       },
                       {
                         title: 'CPU',
-                        dataIndex: 'request_cpu',
-                        key: 'request_cpu',
+                        dataIndex: 'limit_cpu',
+                        key: 'limit_cpu',
                         width: '10%',
                         render: val => (
                           <span className={styles.wordText}>

@@ -357,6 +357,7 @@ class TeamLayout extends PureComponent {
 
   getTeamOverview = () => {
     this.load();
+    this.fetchTeamDetails();
     const { dispatch, currentUser } = this.props;
     const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
     const { teamName, regionName } = this.props.match.params;
@@ -418,6 +419,23 @@ class TeamLayout extends PureComponent {
       }
     }
   }
+
+  // 获取团队详情
+  fetchTeamDetails = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchTeamDetails',
+      callback: (res) => {
+        if(res && res.bean){
+          dispatch({
+            type: 'global/syncData',
+            payload: res.bean,
+          })
+        }
+      }
+    })
+  }
+
   load = () => {
     this.queryComponentDeatil();
     const { enterpriseList, eid, teamOverviewPermission: { isAccess } } = this.state;

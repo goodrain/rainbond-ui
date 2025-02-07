@@ -1740,3 +1740,15 @@ export async function fetchTeamDetails(params, handleError) {
     }
   );
 }
+
+// 同步数据
+export async function syncData(data, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/user/sync/data`,
+    {
+      method: 'post',
+      data: JSON.stringify(data),
+      handleError
+    }
+  );
+}
