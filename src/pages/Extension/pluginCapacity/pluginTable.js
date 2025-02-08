@@ -123,13 +123,11 @@ class Index extends PureComponent {
             },
             callback: data => {
                 if (data && data.bean) {
-                    if (data?.bean?.need_authz) {
-                        this.setState({
-                            isNeedAuthz: data?.bean?.need_authz
-                        }, () => {
-                            this.handlePluginList()
-                        })
-                    }
+                    this.setState({
+                        isNeedAuthz: data?.bean?.need_authz
+                    }, () => {
+                        this.handlePluginList()
+                    })
                 }
             },
             handleError: err => {
@@ -287,7 +285,7 @@ class Index extends PureComponent {
 
     }
     render() {
-        const { pluginList, loading, defaultPluginList } = this.state
+        const { pluginList, loading, defaultPluginList, isNeedAuthz } = this.state
         const pluginSvg = (
             <svg
                 t="1671589320301"
@@ -383,7 +381,7 @@ class Index extends PureComponent {
                         })}
                     </div>
                 )}
-                {pluginList.length == 0 && !loading && (
+                {pluginList.length == 0 && !isNeedAuthz && !loading && (
                     <div style={{ marginTop: '24px', minHeight: '300px' }}>
                         {defaultPluginList.map((item) => {
                             const {
