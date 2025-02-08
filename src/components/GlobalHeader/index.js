@@ -117,7 +117,7 @@ export default class GlobalHeader extends PureComponent {
       payload: {},
       callback: (res) => {
        this.setState({
-          balance: res.response_data.balance / 100,
+          balance: res.response_data.balance / 1000000,
           balanceStatus: res.response_data.status
        })
       }
@@ -373,7 +373,7 @@ export default class GlobalHeader extends PureComponent {
             >
               {balance != null &&
                 <div>
-                  余额 | ¥{balance}
+                  ¥{balance.toFixed(2)}
                 </div>
               }
             </div>
