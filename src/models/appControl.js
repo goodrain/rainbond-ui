@@ -145,6 +145,9 @@ import {
   addReverseDependency,
   determineStorageType,
   getListFiles,
+  getKubernetes,
+  addKubernetes,
+  editKubernetes
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1197,6 +1200,24 @@ export default {
         callback(response);
       }
     },
+    *getKubernetes({ payload, callback }, { call }) {
+      const response = yield call(getKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addKubernetes({ payload, callback }, { call }) {
+      const response = yield call(addKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *editKubernetes({ payload, callback }, { call }) {
+      const response = yield call(editKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    }
   },
   reducers: {
     clearMembers(state) {
