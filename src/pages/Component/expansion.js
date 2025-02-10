@@ -156,14 +156,16 @@ export default class Index extends PureComponent {
       });
     }
   }
-  getPrice = () => {
-    const { memoryMarksObj, cpuMarksObj } = this.state;
-    const extendInfo = this.props.extendInfo;
-    const cpuValue = extendInfo?.current_cpu || 250;
-    const memoryValue = extendInfo?.current_memory || 512;
-    const mValue = memoryMarksObj[memoryValue];
-    const cValue = cpuMarksObj[cpuValue];
-    this.setState({ cpuValue: cValue, memoryValue: mValue });
+  getPrice = (bool) => {
+    const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue } = this.state;
+    if ((cpuValue == 0 && memoryValue == 0) || bool) {
+      const extendInfo = this.props.extendInfo;
+      const cpuValue = extendInfo?.current_cpu || 250;
+      const memoryValue = extendInfo?.current_memory || 512;
+      const mValue = memoryMarksObj[memoryValue];
+      const cValue = cpuMarksObj[cpuValue];
+      this.setState({ cpuValue: cValue, memoryValue: mValue });
+    }
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -816,7 +818,7 @@ export default class Index extends PureComponent {
     })
   }
   handleFromData = () => {
-    const { form, appAlias, extendInfo } = this.props;
+    const { form, appAlias, extendInfo, dispatch } = this.props;
     const { cpuMarksObj, memoryMarksObj } = this.state;
     form.validateFields((err, values) => {
       if (!err) return;
@@ -831,40 +833,95 @@ export default class Index extends PureComponent {
           return item;
         }
       });
-      vertical({
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
-        new_memory: Number(memory),
-        new_gpu: extendInfo.current_gpu,
-        new_cpu: Number(cpu)
-      }).then(data => {
-        if (data && !data.status) {
+      dispatch({
+        type: 'appControl/vertical',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appAlias,
+          new_memory: Number(memory),
+          new_gpu: extendInfo.current_gpu,
+          new_cpu: Number(cpu)
+        },
+        callback: (data) => {
           notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+
+        },
+        handleError: (err) => {
+          notification.error({
+            message: err.data.msg_show || '操作失败'
+          })
+
         }
-      });
-      horizontal({
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        new_node: values.node
-      }).then(data => {
-        if (data && !data.status) {
+      })
+      // vertical({
+      //   team_name: globalUtil.getCurrTeamName(),
+      //   app_alias: appAlias,
+      //   new_memory: Number(memory),
+      //   new_gpu: extendInfo.current_gpu,
+      //   new_cpu: Number(cpu)
+      // }).then(data => {
+      //   console.log(data);
+
+      //   if (data && !data.status) {
+      //     notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+      //   }
+      // }).catch(err => {
+      //   console.log(err);
+      // });
+      dispatch({
+        type: 'appControl/horizontal',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+          new_node: values.node
+        },
+        callback: (data) => {
           notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+        },
+        handleError: (err) => {
+          notification.error({
+            message: err.data.msg_show || '操作失败'
+          })
         }
-      });
+      })
+      // horizontal({
+      //   team_name: globalUtil.getCurrTeamName(),
+      //   app_alias: this.props.appAlias,
+      //   new_node: values.node
+      // }).then(data => {
+      //   if (data && !data.status) {
+      //     notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+      //   }
+      // }).catch(err => {
+      //   console.log(err);
+
+      // });
       this.setState({
         editBillInfo: false
       })
     })
   }
   handleMemoryChange = (value) => {
+    const { form } = this.props;
     this.setState({
       memoryValue: value
-    })
+    }, () => {
+      // 在状态更新完成后更新表单值
+      form.setFieldsValue({
+        new_memory: value
+      });
+    });
   }
   handleCpuChange = (value) => {
+    const { form } = this.props;
     this.setState({
       cpuValue: value
-    })
+    }, () => {
+      // 在状态更新完成后更新表单值
+      form.setFieldsValue({
+        new_cpu: value
+      });
+    });
   }
   getFormValues = (data, type) => {
     const { cpuMarksObj, memoryMarksObj } = this.state
@@ -922,7 +979,7 @@ export default class Index extends PureComponent {
       memoryValue,
       showBill
     } = this.state;
-    if(extendInfo && Object.keys(extendInfo).length > 0 && showBill){      
+    if (extendInfo && Object.keys(extendInfo).length > 0 && showBill) {
       this.getPrice()
     }
     if (!extendInfo) {
@@ -1035,7 +1092,7 @@ export default class Index extends PureComponent {
           />
         )}
         {/* 手动伸缩   */}
-        { this.state.showBill ? (
+        {this.state.showBill ? (
           <>
             <Card
               className={styles.clerBorder}
@@ -1043,20 +1100,39 @@ export default class Index extends PureComponent {
               title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}
               extra={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {this.state.editBillInfo && 
-                  <PriceCard
-                    key={cpuValue * memoryValue}
-                    type='title'
-                    cpu_use={this.getFormValues(cpuValue, 'cpu')}
-                    memory_use={this.getFormValues(memoryValue, 'memory')}
-                  />
+                  {this.state.editBillInfo &&
+                    <PriceCard
+                      key={cpuValue * memoryValue}
+                      type='title'
+                      cpu_use={this.getFormValues(cpuValue, 'cpu')}
+                      memory_use={this.getFormValues(memoryValue, 'memory')}
+                    />
                   }
                   {this.state.editBillInfo ?
                     <div style={{ marginLeft: 10 }}>
                       <Button type='link' onClick={this.handleFromData}>
                         确认
                       </Button>
-                      <Button type='link' onClick={() => this.setState({ editBillInfo: false })}>
+                      <Button type='link' onClick={() => {
+                        const { memoryMarksObj, cpuMarksObj } = this.state;
+                        const { form } = this.props;
+                        const extendInfo = this.props.extendInfo;
+                        const cpuValue = extendInfo?.current_cpu || 250;
+                        const memoryValue = extendInfo?.current_memory || 512;
+                        const mValue = memoryMarksObj[memoryValue];
+                        const cValue = cpuMarksObj[cpuValue];
+                        this.setState({
+                          cpuValue: cValue,
+                          memoryValue: mValue,
+                          editBillInfo: false
+                        }, () => {
+                          // 在状态更新完成后恢复表单值
+                          form.setFieldsValue({
+                            new_memory: mValue,
+                            new_cpu: cValue
+                          });
+                        });
+                      }}>
                         取消
                       </Button>
                     </div>
@@ -1068,10 +1144,10 @@ export default class Index extends PureComponent {
                 </div>
               }
             >
-              <Form hideRequiredMark className={styles.fromItem} onSubmit={this.handleFromData}>
+              <Form hideRequiredMark className={styles.fromItem} onSubmit={this.handleFromData} >
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
                   {getFieldDecorator('new_memory', {
-                    initialValue: this.state.memoryValue || 4,
+                    initialValue: memoryValue || 4,
                   })(
                     <Slider
                       disabled={!this.state.editBillInfo}
@@ -1087,7 +1163,7 @@ export default class Index extends PureComponent {
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
                   {getFieldDecorator('new_cpu', {
-                    initialValue: this.state.cpuValue || 1,
+                    initialValue: cpuValue || 1,
                   })(
                     <Slider
                       disabled={!this.state.editBillInfo}
