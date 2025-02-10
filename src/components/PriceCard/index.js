@@ -44,10 +44,10 @@ class PriceCard extends Component {
           }
           this.setState({
             cpuPrice: res.response_data?.cpu_price_per_core,
-            memoryPrice: res.response_data?.memory_price_per_gb,
-            cpuUsePrice: cpuUsePrice.toFixed(2),
-            memoryUsePrice: memoryUsePrice.toFixed(2),
-            totalPrice: totalPrice
+            memoryPrice: (res.response_data?.memory_price_per_gb / 1000000),
+            cpuUsePrice: (cpuUsePrice / 1000000).toFixed(2),
+            memoryUsePrice: (memoryUsePrice / 1000000).toFixed(2),
+            totalPrice: (totalPrice / 1000000).toFixed(2)
           });
         }
       }

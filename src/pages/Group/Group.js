@@ -616,6 +616,12 @@ export default class Index extends PureComponent {
             this.handlePromptModalClose();
           }
           this.loadTopology(false);
+        },
+        handleError: err => {
+          notification.error({
+            message: err.data.msg_show,
+          });
+          this.handlePromptModalClose();
         }
       });
     }

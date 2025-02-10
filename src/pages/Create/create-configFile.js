@@ -63,7 +63,6 @@ export default class Index extends PureComponent {
       callback: (res) => {
         if (res && res.list) {
           const showEnterprisePlugin = pluginUtile.isInstallPlugin(res.list, 'rainbond-bill');
-          console.log(showEnterprisePlugin,"=====")
           this.setState({
             showEnterprisePlugin: showEnterprisePlugin,
           },()=>{
@@ -142,8 +141,11 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('advanced_setup');
               this.handleJump(`components/${app_alias}/overview`);
             }
+          },
+          handleError: err => {
+            notification.error({ message: err.data.msg_show })
           }
-          });
+        });
       })
       
     }else{

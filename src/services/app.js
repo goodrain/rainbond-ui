@@ -231,7 +231,7 @@ export function restart(
   upgrade: 更新组件
   deploy: 构建组件
 */
-export function batchOperation(body = {}) {
+export function batchOperation(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
@@ -239,7 +239,8 @@ export function batchOperation(body = {}) {
       data: {
         action: body.action,
         service_ids: body.serviceIds
-      }
+      },
+      handleError
     }
   );
 }
@@ -251,12 +252,14 @@ export function start(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/start`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   );
 }
@@ -267,7 +270,8 @@ export function batchStart(
   body = {
     team_name,
     serviceIds
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
@@ -276,7 +280,8 @@ export function batchStart(
       data: {
         action: 'start',
         service_ids: body.serviceIds
-      }
+      },
+      handleError
     }
   );
 }
@@ -328,7 +333,8 @@ export function rollback(
     app_alias,
     deploy_version,
     upgrade_or_rollback
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/rollback`,
@@ -339,7 +345,8 @@ export function rollback(
         upgrade_or_rollback: body.upgrade_or_rollback
           ? body.upgrade_or_rollback
           : -1
-      }
+      },
+      handleError
     }
   );
 }

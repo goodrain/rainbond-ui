@@ -911,8 +911,8 @@ export default {
         callback(response);
       }
     },
-    *buildShape({ payload, callback }, { call }) {
-      const response = yield call(toBuildShape, payload);
+    *buildShape({ payload, callback, handleError }, { call }) {
+      const response = yield call(toBuildShape, payload, handleError);
       if (callback) {
         callback(response);
       }
