@@ -448,7 +448,8 @@ export function horizontal(
     team_name,
     app_alias,
     new_node
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/horizontal`,
@@ -456,7 +457,8 @@ export function horizontal(
       method: 'post',
       data: {
         new_node: body.new_node
-      }
+      },
+      handleError
     }
   );
 }
@@ -470,7 +472,8 @@ export function vertical(
     team_name,
     app_alias,
     new_memory
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vertical`,
@@ -480,7 +483,8 @@ export function vertical(
         new_memory: body.new_memory,
         new_gpu: body.new_gpu,
         new_cpu: body.new_cpu
-      }
+      },
+      handleError
     }
   );
 }
