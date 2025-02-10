@@ -1,8 +1,0 @@
-{
-  "type": "page-app",
-  "name": "rainbod-GPU",
-  "id": "rainbod-GPU",
-  "version": "1.0.0",
-  "updated": "2025-02-08",
-  "to": "/plugins/rainbod-GPU"
-}
