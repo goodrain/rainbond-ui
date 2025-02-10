@@ -187,6 +187,11 @@ export default class ComponentList extends Component {
             message: operationMap[state]
           });
         }
+      },
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
+        });
       }
     });
   };
@@ -195,6 +200,7 @@ export default class ComponentList extends Component {
     this.setState({ operationState });
   };
   handleBatchOperation = action => {
+    const { dispatch } = this.props;
     const ids = this.getSelectedKeys();
     const map = {
       stop: formatMessage({id:'notification.hint.component.putBatchStop'}),
@@ -203,18 +209,27 @@ export default class ComponentList extends Component {
       upgrade: formatMessage({id:'notification.hint.component.putBatchUpgrade'}),
       deploy: formatMessage({id:'notification.hint.component.putBatchDeploy'})
     };
-    batchOperation({
-      action,
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids && ids.join(',')
-    }).then(data => {
-      this.handleOperationState(false);
-      if (data && map[action]) {
-        notification.success({
-          message: map[action]
+    dispatch({
+      type: 'appControl/batchOperation',
+      payload: {
+        action,
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: ids && ids.join(',')
+      },
+      callback: res => {
+        this.handleOperationState(false);
+        if (res && map[action]) {
+          notification.success({
+            message: map[action]
+          });
+        }
+      },
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
         });
       }
-    });
+    })
   };
 
   handleBatchDelete = () => {

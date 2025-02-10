@@ -69,6 +69,7 @@ class Index extends PureComponent {
       })
     }
   }
+  
   handleGetKubernetes = () => {
     const teamName = globalUtil.getCurrTeamName()
     const service_alias = this.props.service_alias || ''

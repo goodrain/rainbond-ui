@@ -356,11 +356,12 @@ export async function query_app_status(params) {
   );
 }
 
-export async function startApp(params) {
+export async function startApp(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/start`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   );
 }

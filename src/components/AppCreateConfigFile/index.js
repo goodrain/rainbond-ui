@@ -336,14 +336,12 @@ class BaseInfo extends PureComponent {
     if (type == 'memory') {
       Object.keys(memoryMarksObj).forEach(item => {
         if (memoryMarksObj[item] == data) {
-          console.log(item, 'item');
           num = item
         }
       })
     }else{
       Object.keys(cpuMarksObj).forEach(item => {
         if (cpuMarksObj[item] == data) {
-          console.log(item, 'item');
           num = item
         }
       })

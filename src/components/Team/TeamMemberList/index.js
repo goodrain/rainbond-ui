@@ -179,8 +179,6 @@ export default class MemberList extends PureComponent {
         role_id: selectedRole
       },
       callback: res => {
-        console.log(res,"res");
-        
         if (res && res.status_code === 200) {
           const inviteLink = res.bean.invite_id;
           this.setState({

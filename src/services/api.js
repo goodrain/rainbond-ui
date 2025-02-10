@@ -1332,7 +1332,7 @@ export async function deleteEnterpriseUsers(params) {
 }
 
 /** 构建拓扑图 */
-export async function toBuildShape(params) {
+export async function toBuildShape(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/common_operation `,
     {
@@ -1341,7 +1341,8 @@ export async function toBuildShape(params) {
         tenantName: params.tenantName,
         group_id: params.group_id,
         action: params.action
-      }
+      },
+      handleError
     }
   );
 }

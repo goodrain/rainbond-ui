@@ -556,6 +556,11 @@ export default class CreateCheck extends React.Component {
                       this.handleJump(`components/${appAlias}/overview`);
                     }
                   }
+                },
+                handleError: err => {
+                  this.setState({ buildAppLoading: false });
+                  this.loadingBuild = false
+                  notification.error({ message: err.data.msg_show })
                 }
               })
             }
@@ -587,6 +592,11 @@ export default class CreateCheck extends React.Component {
                 this.handleJump(`components/${appAlias}/overview`);
               }
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false
+            notification.error({ message: err.data.msg_show })
           }
         })
       }
