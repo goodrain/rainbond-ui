@@ -148,7 +148,9 @@ import {
   getKubernetes,
   addKubernetes,
   editKubernetes,
-  batchOperation
+  batchOperation,
+  vertical,
+  horizontal
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1225,7 +1227,19 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    }
+    },
+    *horizontal({ payload, callback, handleError }, { call }) {
+      const response = yield call(horizontal, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *vertical({ payload, callback, handleError }, { call }) {
+      const response = yield call(vertical, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     clearMembers(state) {
