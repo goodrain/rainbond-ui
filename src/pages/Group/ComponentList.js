@@ -65,9 +65,6 @@ export default class ComponentList extends Component {
   }
   componentDidMount() {
     this.updateApp();
-    document
-      .querySelector('.ant-table-footer')
-      .setAttribute('style', 'position:absolute;background:#fff');
   }
   shouldComponentUpdate() {
     return true;
@@ -641,7 +638,7 @@ export default class ComponentList extends Component {
       </div>
     );
     return (
-      <div>
+      <div className={styles.container}>
         <Card
           style={{
             minHeight: 400
@@ -664,18 +661,20 @@ export default class ComponentList extends Component {
               </Button>
             </Form.Item>
           </Form>
-          <Table
-            pagination={pagination}
-            rowSelection={rowSelection}
-            onChange={this.handleTableChange} 
-            columns={columns}
-            loading={
-              reStartLoading || startLoading || stopLoading || tableDataLoading
-            }
-            dataSource={apps || []}
-            footer={() => footer}
-            rowKey={record => record.service_id}
-          />
+          <div className={styles.list}>
+            <Table
+              pagination={pagination}
+              rowSelection={rowSelection}
+              onChange={this.handleTableChange} 
+              columns={columns}
+              loading={
+                reStartLoading || startLoading || stopLoading || tableDataLoading
+              }
+              dataSource={apps || []}
+              rowKey={record => record.service_id}
+            />
+            {footer}
+          </div>
           {batchDeleteShow && (
             <BatchDelete
               batchDeleteApps={batchDeleteApps}
