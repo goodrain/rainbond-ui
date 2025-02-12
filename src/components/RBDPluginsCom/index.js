@@ -6,9 +6,10 @@ import PluginsUtiles from '../../utils/pulginUtils'
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";
 import styles from './index.less';
-@connect(({ user, region }) => ({
+@connect(({ user, region, global }) => ({
   currentUser: user.currentUser,
   cluster_info: region.cluster_info,
+  pluginsList: global.pluginsList
 }))
 
 export default class index extends Component {
@@ -58,7 +59,8 @@ export default class index extends Component {
               currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
               cluster_info: this.props.cluster_info,
               currentUser: this.props.currentUser,
-              token: cookie.get('token')
+              token: cookie.get('token'),
+              pluginsList: this.props.pluginsList
             }}
             globalUtile={Global}
           />
