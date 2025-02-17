@@ -167,13 +167,14 @@ export default class Index extends PureComponent {
                                 </div>
                                 <div className={styles.initDesc}>
                                     <p>
-                                        {formatMessage({ id: 'teamAdd.create.image.desc' })}
+                                        {/* {formatMessage({ id: 'teamAdd.create.image.desc' })} */}
+                                        支持从容器镜像创建应用。
                                     </p>
                                 </div>
                             </div>
                             <div className={styles.bottomContent}>
                                 <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'componentOverview.body.tab.log.container' })}</p>
-                                <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({ id: 'Vm.createVm.vm' })}</p>
+                                {/* <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({ id: 'Vm.createVm.vm' })}</p> */}
                                 {showDemo && <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                             </div>
                         </div>
@@ -207,18 +208,20 @@ export default class Index extends PureComponent {
                                     </div>
                                 </div>
                                 <div className={styles.initTitle}>
-                                    {formatMessage({ id: 'menu.team.create.upload' })}
+                                    {/* {formatMessage({ id: 'menu.team.create.upload' })} */}
+                                    Yaml
                                 </div>
                                 <div className={styles.initDesc}>
                                     <p>
-                                        {formatMessage({ id: 'teamAdd.create.upload.desc' })}
+                                        {/* {formatMessage({ id: 'teamAdd.create.upload.desc' })} */}
+                                        支持从 Kubernetes YAML创建组件
                                     </p>
                                 </div>
                             </div>
                             <div className={styles.bottomContent}>
                                 <p onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.yaml' })}</p>
-                                <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p>
-                                <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p>
+                                {/* <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p> */}
+                                {/* <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p> */}
                             </div>
                         </div>
                     </div>

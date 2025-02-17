@@ -238,7 +238,7 @@ export default class Index extends PureComponent {
               </Button>
               }
     
-              <Button
+              {/* <Button
                 style={{ marginRight: 10 }}
                 onClick={() => {
                   const { dispatch } = this.props;
@@ -251,7 +251,7 @@ export default class Index extends PureComponent {
               >
                 <Icon type="setting" />
                 插件管理
-              </Button>
+              </Button> */}
               <Button onClick={() => {
                 const { dispatch } = this.props;
                 dispatch(

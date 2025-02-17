@@ -524,7 +524,7 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
-                  {vmLoading ? (
+                  {/* {vmLoading ? (
                     <Col
                       span={8}
                       className={styles.ServiceDiv}>
@@ -557,7 +557,7 @@ export default class AddServiceComponent extends PureComponent {
                           </p>
                         </Col>
                       </Tooltip>
-                  )}
+                  )} */}
                   {imageList && 
                     imageList.length > 0 &&
                     imageList.map(item => {
@@ -595,7 +595,8 @@ export default class AddServiceComponent extends PureComponent {
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                    {formatMessage({ id: 'menu.team.create.upload' })}
+                    {/* {formatMessage({ id: 'menu.team.create.upload' })} */}
+                    Yaml
                   </p>
                 </Row>
                 <Row>
@@ -611,7 +612,7 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'appOverview.list.btn.addComponent.yaml' })}
                     </p>
                   </Col>
-                  <Col
+                  {/* <Col
                     span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
@@ -622,7 +623,7 @@ export default class AddServiceComponent extends PureComponent {
                     <p className={styles.ServiceSmallTitle}>
                       {formatMessage({ id: 'teamAdd.create.upload.uploadFiles.helm' })}
                     </p>
-                  </Col>
+                  </Col> */}
                 </Row>
               </div>
               <div className={styles.ServiceBox} style={{ marginBottom: '60px' }}>

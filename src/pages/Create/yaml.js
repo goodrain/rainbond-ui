@@ -73,14 +73,14 @@ export default class Main extends PureComponent {
         key: 'yaml',
         tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.yaml'})
       },
-      {
-        key: 'importCluster',
-        tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.k8s'})
-      },
-      {
-        key: 'helm',
-        tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
-      }
+      // {
+      //   key: 'importCluster',
+      //   tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.k8s'})
+      // },
+      // {
+      //   key: 'helm',
+      //   tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
+      // }
     ];
     
     let { type } = match.params;
@@ -100,9 +100,11 @@ export default class Main extends PureComponent {
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title={formatMessage({id: 'teamAdd.create.upload.title'})}
+        // title={formatMessage({id: 'teamAdd.create.upload.title'})}
+        title={'YAML'}
         onTabChange={this.handleTabChange}
-        content={<p>{formatMessage({id: 'teamAdd.create.upload.desc'})}</p>}
+        // content={<p>{formatMessage({id: 'teamAdd.create.upload.desc'})}</p>}
+        content={<p>支持从 Kubernetes YAML创建组件</p>}
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('yaml',18)}

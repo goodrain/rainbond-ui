@@ -1425,13 +1425,13 @@ class Main extends PureComponent {
       });
     }
 
-    if (isPlugin && method != 'vm') {
-      tabs.push({
-        key: 'plugin',
-        // tab: '插件',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.plugin'})
-      });
-    }
+    // if (isPlugin && method != 'vm') {
+    //   tabs.push({
+    //     key: 'plugin',
+    //     // tab: '插件',
+    //     tab: formatMessage({id:'componentOverview.body.tab.bar.plugin'})
+    //   });
+    // }
 
     if (isSource && method != 'vm') {
       tabs.push({

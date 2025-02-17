@@ -373,7 +373,7 @@ export default class GlobalHeader extends PureComponent {
             >
               {balance != null &&
                 <div>
-                  ¥{balance.toFixed(2)}
+                  余额 ｜ ¥{balance.toFixed(2)}
                 </div>
               }
             </div>
