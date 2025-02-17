@@ -32,14 +32,14 @@ export default class index extends Component {
     const AppPagePlugin = app[key] ? app[key] : false
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Spin size="large" tip="插件内容加载中..." />
+        <Spin size="large" />
       </div>
     ) : (
       error ? (
         <Card style={{ marginTop: 20 }}>
           <Result
             type="error"
-            title='插件加载失败'
+            title='加载失败'
             description={`错误信息：${errInfo}`}
             actions={
               <Button onClick={() => { console.log('点了一下'); }}>查看文档</Button>

@@ -97,7 +97,7 @@ export default class Index extends Component {
           <RbdPluginsCom {...this.state}/> 
           :
           <PageHeaderLayout 
-            title={plugins?.name} 
+            title={plugins?.display_name} 
             content={plugins?.description} 
             pluginSVg={plugins?.icon}
             extraContent={
