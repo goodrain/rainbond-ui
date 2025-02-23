@@ -1755,3 +1755,17 @@ export async function syncData(data, handleError) {
     }
   );
 }
+
+// 获取存储真实占用量
+export async function fetchStorageUsed(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/storage_statistics`,
+    {
+      method: 'get',
+      params: {
+        tenant_id: params.tenant_id
+      },
+      handleError
+    }
+  );
+}

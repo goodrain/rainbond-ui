@@ -68,6 +68,7 @@ export default class index extends Component {
             { loadingOverview: false, loadedOverview: true },
             () => {
               this.loadHotApp();
+              this.getStorageUsed(res.bean.team_id)
             }
           );
         } else {
@@ -79,6 +80,28 @@ export default class index extends Component {
       }
     });
   };
+
+  // 获取存储实际占用
+  getStorageUsed = (teamId) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchStorageUsed',
+      payload: {
+        tenant_id: teamId
+      },
+      callback: res => {
+        if (res) {
+          console.log(res, 'res')
+          // this.setState({
+          //   storageUsed: res.bean
+          // })
+        }
+      },
+      handleError: () => {
+      }
+    });
+  }
+
   // 关闭loading
   handleCloseLoading = () => {
     this.setState({ loadingOverview: false, loadedOverview: true });

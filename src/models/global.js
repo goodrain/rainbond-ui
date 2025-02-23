@@ -134,7 +134,8 @@ import {
   getPricingConfig,
   fetchTeamDetails,
   getUserBalance,
-  syncData
+  syncData,
+  fetchStorageUsed
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1110,6 +1111,12 @@ export default {
     },
     *syncData({ payload, callback, handleError }, { put, call }) {
       const response = yield call(syncData, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchStorageUsed({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchStorageUsed, payload, handleError);
       if (callback) {
         callback(response);
       }

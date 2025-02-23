@@ -1245,6 +1245,7 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.title': '网站标题',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias': '企业名称',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': '文档地址',
+    'enterpriseSetting.basicsSetting.basicInformation.form.label.cluster_security_limit': '集群安全限制',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': '网页图标',
     'enterpriseSetting.basicsSetting.alarm.title': '报警开关',

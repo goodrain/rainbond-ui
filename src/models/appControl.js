@@ -150,7 +150,8 @@ import {
   editKubernetes,
   batchOperation,
   vertical,
-  horizontal
+  horizontal,
+  newVertical
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1236,6 +1237,12 @@ export default {
     },
     *vertical({ payload, callback, handleError }, { call }) {
       const response = yield call(vertical, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *newVertical({ payload, callback, handleError }, { call }) {
+      const response = yield call(newVertical, payload, handleError);
       if (response && callback) {
         callback(response);
       }

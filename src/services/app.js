@@ -490,6 +490,34 @@ export function vertical(
 }
 
 /*
+  垂直升级
+  支持内存、CPU、实例数量一起修改
+*/
+export function newVertical(
+  body = {
+    team_name,
+    app_alias,
+    new_memory,
+    new_node
+  },
+  handleError
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/scaling`,
+    {
+      method: 'post',
+      data: {
+        new_memory: body.new_memory,
+        new_gpu: body.new_gpu,
+        new_cpu: body.new_cpu,
+        new_node: body.new_node
+      },
+      handleError
+    }
+  );
+}
+
+/*
   获取应用已依赖的其他应用
 */
 export function getRelationedApp(

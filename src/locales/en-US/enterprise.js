@@ -1239,6 +1239,7 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.title': 'Site title',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias': 'An enterprise name',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': 'Document address',
+    'enterpriseSetting.basicsSetting.basicInformation.form.label.cluster_security_limit': 'Cluster security',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': 'Web page icon',
     'enterpriseSetting.basicsSetting.alarm.title': 'Alarm switch',

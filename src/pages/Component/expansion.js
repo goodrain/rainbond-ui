@@ -834,68 +834,26 @@ export default class Index extends PureComponent {
         }
       });
       dispatch({
-        type: 'appControl/vertical',
+        type: 'appControl/newVertical',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: appAlias,
           new_memory: Number(memory),
           new_gpu: extendInfo.current_gpu,
-          new_cpu: Number(cpu)
-        },
-        callback: (data) => {
-          notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-
-        },
-        handleError: (err) => {
-          notification.error({
-            message: err.data.msg_show || '操作失败'
-          })
-
-        }
-      })
-      // vertical({
-      //   team_name: globalUtil.getCurrTeamName(),
-      //   app_alias: appAlias,
-      //   new_memory: Number(memory),
-      //   new_gpu: extendInfo.current_gpu,
-      //   new_cpu: Number(cpu)
-      // }).then(data => {
-      //   console.log(data);
-
-      //   if (data && !data.status) {
-      //     notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-      //   }
-      // }).catch(err => {
-      //   console.log(err);
-      // });
-      dispatch({
-        type: 'appControl/horizontal',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
+          new_cpu: Number(cpu),
           new_node: values.node
         },
         callback: (data) => {
           notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+
         },
         handleError: (err) => {
           notification.error({
             message: err.data.msg_show || '操作失败'
           })
+
         }
       })
-      // horizontal({
-      //   team_name: globalUtil.getCurrTeamName(),
-      //   app_alias: this.props.appAlias,
-      //   new_node: values.node
-      // }).then(data => {
-      //   if (data && !data.status) {
-      //     notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-      //   }
-      // }).catch(err => {
-      //   console.log(err);
-
-      // });
       this.setState({
         editBillInfo: false
       })

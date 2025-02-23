@@ -117,6 +117,7 @@ export default class EnterpriseSetting extends PureComponent {
       const doc_url = rainbondUtil.documentPlatform_url(enterprise);
       const officialDemo = rainbondUtil.officialDemoEnable(enterprise);
       const footer = rainbondInfo.footer && rainbondInfo.footer.value || '';
+      const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
       // eslint-disable-next-line no-const-assign
       infos = {
         logo: fetchLogo,
@@ -126,6 +127,7 @@ export default class EnterpriseSetting extends PureComponent {
         enterprise_alias: enterpriseTitle,
         favicon: fetchFavicon,
         footer,
+        showSecurityRestrictions
       };
     }
     return infos
