@@ -20,6 +20,7 @@ import {
   Row,
   Col,
   Icon,
+  notification
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -568,6 +569,13 @@ export default class Main extends PureComponent {
                 0}`
             )
           );
+        },
+        handleError: (err) => {
+          if(err){
+            notification.error({
+              message: err.data.msg_show
+            });
+          }
         }
       });
     }
@@ -608,8 +616,15 @@ export default class Main extends PureComponent {
                 }`
               )
             );
-          }
+          },
         });
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };
@@ -665,6 +680,13 @@ export default class Main extends PureComponent {
             );
           }
         });
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };

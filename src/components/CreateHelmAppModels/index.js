@@ -1,5 +1,5 @@
 /* eslint-disable array-callback-return */
-import { Button, Checkbox, Form, Input, Modal, Select, Tag } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, notification, Select, Tag } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -149,6 +149,13 @@ class CreateHelmAppModels extends PureComponent {
       },
       callback: () => {
         this.handleRefresh(vals);
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };
@@ -167,6 +174,13 @@ class CreateHelmAppModels extends PureComponent {
       },
       callback: () => {
         this.handleRefresh(vals);
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };

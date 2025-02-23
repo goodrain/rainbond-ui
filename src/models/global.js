@@ -583,8 +583,8 @@ export default {
         });
       }
     },
-    *CloudAppUpdateRollback({ payload, callback }, { call }) {
-      const response = yield call(getUpdateRollback, payload);
+    *CloudAppUpdateRollback({ payload, callback, handleError }, { call }) {
+      const response = yield call(getUpdateRollback, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);

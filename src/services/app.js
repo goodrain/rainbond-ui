@@ -3247,13 +3247,14 @@ export async function getRollsBackRecordDetails(body = {}) {
 }
 
 /* 应用升级记录回滚 */
-export async function rollbackUpgrade(body = {}) {
+export async function rollbackUpgrade(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback`,
     {
       method: 'post',
       noModels: body.noModels,
-      showMessage: false
+      showMessage: false,
+      handleError
     }
   );
 }

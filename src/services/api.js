@@ -378,11 +378,12 @@ export async function getApplication(body = {}) {
   );
 }
 /* 基于记录重新部署 */
-export async function getAppRedeploy(body = {}) {
+export async function getAppRedeploy(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   );
 }
@@ -542,14 +543,15 @@ export async function getUpdateRecordsInfo(body = {}) {
 }
 
 /* 查询某应用的更新记录列表 */
-export async function getUpdateRollback(body = {}) {
+export async function getUpdateRollback(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback`,
     {
       method: 'post',
       data: {
         service_ids: body.service_ids
-      }
+      },
+      handleError
     }
   );
 }

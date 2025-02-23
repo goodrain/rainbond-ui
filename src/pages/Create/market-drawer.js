@@ -18,7 +18,8 @@ import {
     Tag,
     Tooltip,
     Row,
-    Col
+    Col,
+    notification
   } from 'antd';
   import { connect } from 'dva';
   import { routerRedux } from 'dva/router';
@@ -503,6 +504,13 @@ import {
                   0}`
               )
             );
+          },
+          handleError: (err) => {
+            if(err){
+              notification.error({
+                message: err.data.msg_show
+              });
+            }
           }
         });
       });
@@ -544,6 +552,13 @@ import {
               );
             }
           });
+        },
+        handleError: (err) => {
+          if(err){
+            notification.error({
+              message: err.data.msg_show
+            });
+          }
         }
       });
     };
@@ -623,6 +638,13 @@ import {
               );
             }
           });
+        },
+        handleError: (err) => {
+          if(err){
+            notification.error({
+              message: err.data.msg_show
+            });
+          }
         }
       });
     };
