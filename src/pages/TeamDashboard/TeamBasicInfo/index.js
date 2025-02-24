@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
+import PluginUtil from '../../../utils/pulginUtils'
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
@@ -47,6 +48,7 @@ export default class index extends Component {
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: savedViewState === 'true',
       language: cookie.get('language') === 'zh-CN' ? true : false,
+      storageUsed: 0
     };
   }
   componentDidMount() {
@@ -91,13 +93,10 @@ export default class index extends Component {
       },
       callback: res => {
         if (res) {
-          console.log(res, 'res')
-          // this.setState({
-          //   storageUsed: res.bean
-          // })
+          this.setState({
+            storageUsed: res.bean.used_storage
+          })
         }
-      },
-      handleError: () => {
       }
     });
   }
@@ -369,9 +368,11 @@ export default class index extends Component {
       teamAppCreatePermission: {
         isAccess: isAppCreate
       },
-      isTableView
+      isTableView,
+      storageUsed
     } = this.state;
     const { index, currentTeamPermissionsInfo, pluginsList } = this.props;
+    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const dataSource = [];
     const columns = [
       {
@@ -498,8 +499,12 @@ export default class index extends Component {
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.disk_usage || 0 : '**'}</div>
+                  <div className={styles.basicInfoTitle}>
+                    {showStorageUsed ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})` : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`}
+                  </div>
+                  <div className={styles.basicInfoContent}>
+                    {isTeamOverview ? (showStorageUsed ? storageUsed?.value : index?.overviewInfo?.disk_usage) : '**'}
+                  </div>
                 </div>
               </Col>
             </Row>

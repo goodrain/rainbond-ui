@@ -58,7 +58,6 @@ class PriceCard extends Component {
   render() {
     const { type = 'card' } = this.props;
     const { totalPrice, cpuPrice, memoryPrice, unit, cpuUsePrice, memoryUsePrice } = this.state;
-    console.log(this.props, 'props')
     const priceDetail = (
       <div className={styles.priceDetail}>
         <Table

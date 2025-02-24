@@ -283,24 +283,25 @@ export default class Index extends PureComponent {
         />
         <Form.Item {...formItemLayout} label={formatMessage({id:'teamPlugin.create.lable.min_cpu'})}>
           {getFieldDecorator('min_cpu', {
-            initialValue: data.min_cpu || 0,
+            initialValue: data.min_cpu || 100,
             rules: [
               {
                 required: true,
                 message: formatMessage({id:'placeholder.plugin.min_cpu'})
-              },
-              {
-                pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                message: formatMessage({id:'placeholder.plugin.min_cpuMsg'})
               }
             ]
           })(
-            <Input
-              type="number"
-              min={0}
-              addonAfter="m"
-              placeholder={formatMessage({id:'placeholder.plugin.min_cpu'})}
-            />
+            <Select>
+              <Option value={50}>50m</Option>
+              <Option value={100}>100m</Option>
+              <Option value={250}>250m</Option>
+              <Option value={500}>500m</Option>
+              <Option value={1*1000}>1Core</Option>
+              <Option value={2*1000}>2Core</Option>
+              <Option value={4*1000}>4Core</Option>
+              <Option value={8*1000}>8Core</Option>
+              <Option value={16*1000}>16Core</Option>
+            </Select>
           )}
           <div style={{ color: '#999999', fontSize: '12px' }}>
           {formatMessage({id:'teamPlugin.create.pages.cpu'})}

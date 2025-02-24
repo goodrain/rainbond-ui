@@ -133,7 +133,6 @@ export default class Index extends PureComponent {
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
-        console.log(isPublic, 'isPublic')
         if(!isPublic){
           const secretObj = imgRepostoryList.find(item => item.secret_id === secretId)
           fieldsValue.user_name = secretObj.username
