@@ -450,11 +450,7 @@ export default class EnterpriseTeams extends PureComponent {
               key={`${item.region_name}region`}
               className={styles.regionShow}
               onClick={() => {
-                if (ismanagement) {
-                  this.handleJoinTeams(team_name, item.region_name);
-                } else {
-                  this.onJumpTeam(team_name, item.region_name);
-                }
+                this.onJumpTeam(team_name, item.region_name);
               }}
             >
               {item.region_alias}
@@ -919,12 +915,12 @@ export default class EnterpriseTeams extends PureComponent {
                   user_number,
                   cpu_request,
                   memory_request,
-                  storage_request,
+                  storage_request=0,
                   set_limit_memory,
                   set_limit_cpu,
                   set_limit_storage
                 } = item;
-                const memory = (memory_request == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
+                const memory = (memory_request == 0) ? 0 : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
                 const limit_memory = (set_limit_memory == 0) ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1)
                 return (
                   <Card
