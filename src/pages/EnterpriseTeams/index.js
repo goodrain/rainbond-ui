@@ -919,7 +919,7 @@ export default class EnterpriseTeams extends PureComponent {
                   user_number,
                   cpu_request,
                   memory_request,
-                  storage_request=0,
+                  storage_request,
                   set_limit_memory,
                   set_limit_cpu,
                   set_limit_storage
@@ -952,7 +952,7 @@ export default class EnterpriseTeams extends PureComponent {
                         </Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{memory}/{limit_memory}</Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{cpu_request}/{set_limit_cpu == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_cpu}</Col>
-                        <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_storage}</Col>
+                        <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : `${set_limit_storage}(GB)`}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
                       </Row>
                       <Col className={styles.bor}>
