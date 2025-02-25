@@ -951,7 +951,7 @@ export default class EnterpriseTeams extends PureComponent {
                           {this.showRegions(team_name, region_list, true)}
                         </Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{memory}/{limit_memory}</Col>
-                        <Col style={{ width: '12%', textAlign: 'center' }}>{0}/{set_limit_cpu == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_cpu}</Col>
+                        <Col style={{ width: '12%', textAlign: 'center' }}>{cpu_request}/{set_limit_cpu == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_cpu}</Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_storage}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
                       </Row>
