@@ -23,6 +23,7 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import ScrollerX from '@/components/ScrollerX';
 import copy from 'copy-to-clipboard';
 import CodeMirror from 'react-codemirror';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
@@ -1016,99 +1017,101 @@ export default class EnterpriseClusters extends PureComponent {
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 20)}
       >
-        <Card
-          extra={<Row>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              {/* <Button onClick={this.terminalCallout}icon="code">
+        <ScrollerX sm={1150}>
+          <Card
+            extra={<Row>
+              <Col span={24} style={{ textAlign: 'right' }}>
+                {/* <Button onClick={this.terminalCallout}icon="code">
                 {formatMessage({ id: 'otherEnterprise.shell.line' })}
               </Button> */}
-              <div
-                style={{
-                  display: 'inline-block',
-                  height: '40px',
-                  width: '100px',
-                  textAlign: 'center',
-                  marginLeft:14
-                }}
-                onMouseLeave={() => {
-                  this.handleIsAddClusters(false);
-                }}
-                onMouseEnter={() => {
-                  this.handleIsAddClusters(isNeedAuthz && isAdd);
-                }}
-              >
-                <Tooltip
-                  title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
-                  visible={isAddClusters}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    height: '40px',
+                    width: '100px',
+                    textAlign: 'center',
+                    marginLeft: 14
+                  }}
+                  onMouseLeave={() => {
+                    this.handleIsAddClusters(false);
+                  }}
+                  onMouseEnter={() => {
+                    this.handleIsAddClusters(isNeedAuthz && isAdd);
+                  }}
                 >
-                  <Link to={`/enterprise/${eid}/addCluster`}>
-                    <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
-                      <FormattedMessage id='enterpriseColony.button.text' />
-                    </Button>
-                  </Link>
-                </Tooltip>
-              </div>
-              <Button
-                style={{ marginLeft: '22px' }}
-                onClick={() => {
-                  this.loadClusters();
-                }}
-              >
-                <Icon type="reload" />
-              </Button>
-              {guideStep === 1 &&
-                this.props.novices &&
-                rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
-                clusters &&
-                clusters.length === 0 &&
-                this.handleNewbieGuiding({
-                  // tit: '去添加集群',
-                  tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
-                  // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
-                  desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
-                  nextStep: 2,
-                  configName: 'addCluster',
-                  isSuccess: false,
-                  conPosition: { right: '100px', bottom: '-180px' },
-                  svgPosition: { right: '170px', marginTop: '-11px' }
-                })}
-            </Col>
-          </Row>}
-        >
-          {delVisible && (
-            <ConfirmModal
-              loading={delclusterLongin}
-              title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
-              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
-              onOk={() => this.handleDelete(false)}
-              onCancel={this.cancelClusters}
-            />
-          )}
+                  <Tooltip
+                    title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
+                    visible={isAddClusters}
+                  >
+                    <Link to={`/enterprise/${eid}/addCluster`}>
+                      <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
+                        <FormattedMessage id='enterpriseColony.button.text' />
+                      </Button>
+                    </Link>
+                  </Tooltip>
+                </div>
+                <Button
+                  style={{ marginLeft: '22px' }}
+                  onClick={() => {
+                    this.loadClusters();
+                  }}
+                >
+                  <Icon type="reload" />
+                </Button>
+                {guideStep === 1 &&
+                  this.props.novices &&
+                  rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+                  clusters &&
+                  clusters.length === 0 &&
+                  this.handleNewbieGuiding({
+                    // tit: '去添加集群',
+                    tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
+                    // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
+                    desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
+                    nextStep: 2,
+                    configName: 'addCluster',
+                    isSuccess: false,
+                    conPosition: { right: '100px', bottom: '-180px' },
+                    svgPosition: { right: '170px', marginTop: '-11px' }
+                  })}
+              </Col>
+            </Row>}
+          >
+            {delVisible && (
+              <ConfirmModal
+                loading={delclusterLongin}
+                title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
+                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+                desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
+                onOk={() => this.handleDelete(false)}
+                onCancel={this.cancelClusters}
+              />
+            )}
 
-          {this.state.editClusterShow && (
-            <EditClusterInfo
-              regionInfo={regionInfo}
-              title={text}
-              eid={eid}
-              onOk={this.cancelEditClusters}
-              onCancel={this.cancelEditClusters}
+            {this.state.editClusterShow && (
+              <EditClusterInfo
+                regionInfo={regionInfo}
+                title={text}
+                eid={eid}
+                onOk={this.cancelEditClusters}
+                onCancel={this.cancelEditClusters}
+              />
+            )}
+            <Alert
+              style={{ marginBottom: '16px' }}
+              message={<FormattedMessage id='enterpriseColony.alert.message' />}
             />
-          )}
-          <Alert
-            style={{ marginBottom: '16px' }}
-            message={<FormattedMessage id='enterpriseColony.alert.message' />}
-          />
-          <Table
-            rowKey={(record, index) => index}
-            loading={clusterLoading}
-            dataSource={clusters}
-            columns={columns}
-            pagination={false}
-            onRow={this.onClickRow}
-            rowClassName={styles.rowStyle}
-          />
-        </Card>
+            <Table
+              rowKey={(record, index) => index}
+              loading={clusterLoading}
+              dataSource={clusters}
+              columns={columns}
+              pagination={false}
+              onRow={this.onClickRow}
+              rowClassName={styles.rowStyle}
+            />
+          </Card>
+        </ScrollerX>
         {kubeConfig && (
           <Modal
             visible

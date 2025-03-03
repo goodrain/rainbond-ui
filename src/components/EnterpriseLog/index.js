@@ -14,6 +14,7 @@ import appUtil from '../../utils/app';
 import download from '@/utils/download';
 import apiConfig from '../../../config/api.config'
 import History1000Log from './history1000';
+import ScrollerX from '@/components/ScrollerX';
 import styles from './Log.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
@@ -367,189 +368,191 @@ export default class Index extends PureComponent {
     } = this.state;
     const { instances, type, RbdName, region } = this.props;
     return (
-      <Card
-        style={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5, marginTop: 24 }}
-        title={
-          !type &&(
-          <Fragment>
-            {started ? (
-            <Button onClick={this.handleStop}>
-              {/* 暂停推送 */}
-              <FormattedMessage id='componentOverview.body.tab.log.push' />
-            </Button>
-            ) : (
-            <Button onClick={this.handleStart}>
-              {/* 开始推送 */}
-              <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
-            </Button>
-            )}
-          </Fragment>
-          )
-        }
-        extra={
-          <Fragment>
-            {!type ?
-            <></>
-            :
-            <Button onClick={this.downloadLogs} icon='download' type='primary' >
-              {formatMessage({ id: 'LogEnterprise.download' })}
-            </Button>
-            }
-          </Fragment>
-        }
-        bodyStyle={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
-      >
-        <Form layout="inline" name="logFilter" style={{ marginBottom: '16px', display: type ? 'flex' : "block", justifyContent: "space-between" }}>
-          {!type &&
-            <Form.Item
-              name="container"
-              label={formatMessage({ id: 'LogEnterprise.node' })}
-              style={{ marginRight: '10px' }}
-              className={styles.podCascader}
-            >
-              <Select defaultValue={instances && instances.length > 0 && instances[0].pod_name} placeholder={formatMessage({ id: 'LogEnterprise.find' })} style={{ width: 340 }} onChange={this.onChangeCascader}>
-                {instances && instances.length > 0 && instances.map(item => {
-                  const { node_name, pod_name } = item
-                  return <Option value={pod_name}>{pod_name}（{node_name}）</Option>
-                })}
-              </Select>
-            </Form.Item>
+      <ScrollerX sm={840}>
+        <Card
+          style={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5, marginTop: 24 }}
+          title={
+            !type && (
+              <Fragment>
+                {started ? (
+                  <Button onClick={this.handleStop}>
+                    {/* 暂停推送 */}
+                    <FormattedMessage id='componentOverview.body.tab.log.push' />
+                  </Button>
+                ) : (
+                  <Button onClick={this.handleStart}>
+                    {/* 开始推送 */}
+                    <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
+                  </Button>
+                )}
+              </Fragment>
+            )
           }
-        </Form>
-        <div className={styles.logStyle} ref="box">
-          {(containerLog &&
-            containerLog.length > 0 &&
-            containerLog.map((item, index) => {
-              return (
-                <div key={index}>
-                  <span
-                    style={{
-                      color: '#666666'
-                    }}
-                  >
-                    <span>{index + 1}</span>
-                  </span>
-                  <span
-                    ref="texts"
-                    style={{
-                      width: '100%',
-                      color: '#FFF'
-                    }}
-                  >
-                    <Ansi>{item}</Ansi>
-                  </span>
-                </div>
-              );
-            })) ||
-            (logs &&
-              logs.length > 0 &&
-              logs.map((log, index) => {
+          extra={
+            <Fragment>
+              {!type ?
+                <></>
+                :
+                <Button onClick={this.downloadLogs} icon='download' type='primary' >
+                  {formatMessage({ id: 'LogEnterprise.download' })}
+                </Button>
+              }
+            </Fragment>
+          }
+          bodyStyle={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
+        >
+          <Form layout="inline" name="logFilter" style={{ marginBottom: '16px', display: type ? 'flex' : "block", justifyContent: "space-between" }}>
+            {!type &&
+              <Form.Item
+                name="container"
+                label={formatMessage({ id: 'LogEnterprise.node' })}
+                style={{ marginRight: '10px' }}
+                className={styles.podCascader}
+              >
+                <Select defaultValue={instances && instances.length > 0 && instances[0].pod_name} placeholder={formatMessage({ id: 'LogEnterprise.find' })} style={{ width: 340 }} onChange={this.onChangeCascader}>
+                  {instances && instances.length > 0 && instances.map(item => {
+                    const { node_name, pod_name } = item
+                    return <Option value={pod_name}>{pod_name}（{node_name}）</Option>
+                  })}
+                </Select>
+              </Form.Item>
+            }
+          </Form>
+          <div className={styles.logStyle} ref="box">
+            {(containerLog &&
+              containerLog.length > 0 &&
+              containerLog.map((item, index) => {
                 return (
                   <div key={index}>
                     <span
                       style={{
-                        color:
-                          showHighlighted == log.substring(0, log.indexOf(':'))
-                            ? (type ? '#FFF' : '#FFFF91')
-                            : '#666666'
+                        color: '#666666'
                       }}
                     >
-                      <span>{log == '' ? '' : `${index + 1}`}</span>
+                      <span>{index + 1}</span>
                     </span>
                     <span
                       ref="texts"
                       style={{
-                        color:
-                          showHighlighted == log.substring(0, log.indexOf(':'))
-                            ? (type ? '#FFF' : '#FFFF91')
-                            : '#FFF'
+                        width: '100%',
+                        color: '#FFF'
                       }}
                     >
-                      <Ansi>{log}</Ansi>
+                      <Ansi>{item}</Ansi>
                     </span>
-
-                    {logs.length == 1 ? (
-                      <span
-                        style={{
-                          color:
-                            showHighlighted ==
-                              log.substring(0, log.indexOf(':'))
-                              ? '#FFFF91'
-                              : '#bbb',
-                          cursor: 'pointer',
-                          backgroundColor: log.substring(0, log.indexOf(':'))
-                            ? '#666'
-                            : ''
-                        }}
-                        onClick={() => {
-                          this.setState({
-                            showHighlighted:
-                              showHighlighted ==
-                                log.substring(0, log.indexOf(':'))
-                                ? ''
-                                : log.substring(0, log.indexOf(':'))
-                          });
-                        }}
-                      >
-                        <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
-                      </span>
-                    ) : logs.length > 1 &&
-                      index >= 1 &&
-                      log.substring(0, log.indexOf(':')) ==
-                      logs[index <= 0 ? index + 1 : index - 1].substring(
-                        0,
-                        logs[index <= 0 ? index + 1 : index - 1].indexOf(':')
-                      ) ? (
-                      ''
-                    ) : (type ? '' :
-                      <span
-                        style={{
-                          color:
-                            showHighlighted ==
-                              log.substring(0, log.indexOf(':'))
-                              ? '#FFFF91'
-                              : '#bbb',
-                          cursor: 'pointer',
-                          backgroundColor:
-                            index == 0 && log.substring(0, log.indexOf(':'))
-                              ? '#666'
-                              : log.substring(0, log.indexOf(':')) ==
-                                logs[
-                                  index <= 0 ? index + 1 : index - 1
-                                ].substring(
-                                  0,
-                                  logs[
-                                    index <= 0 ? index + 1 : index - 1
-                                  ].indexOf(':')
-                                )
-                                ? ''
-                                : '#666'
-                        }}
-                        onClick={() => {
-                          this.setState({
-                            showHighlighted:
-                              showHighlighted ==
-                                log.substring(0, log.indexOf(':'))
-                                ? ''
-                                : log.substring(0, log.indexOf(':'))
-                          });
-                        }}
-                      >
-                        <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
-                      </span>
-                    )}
                   </div>
                 );
-              }))}
-        </div>
-        {showHistory1000Log && (
-          <History1000Log
-            onCancel={this.hideDownHistory1000Log}
-            podName={pod_name}
-            region={region}
-          />
-        )}
-      </Card>
+              })) ||
+              (logs &&
+                logs.length > 0 &&
+                logs.map((log, index) => {
+                  return (
+                    <div key={index}>
+                      <span
+                        style={{
+                          color:
+                            showHighlighted == log.substring(0, log.indexOf(':'))
+                              ? (type ? '#FFF' : '#FFFF91')
+                              : '#666666'
+                        }}
+                      >
+                        <span>{log == '' ? '' : `${index + 1}`}</span>
+                      </span>
+                      <span
+                        ref="texts"
+                        style={{
+                          color:
+                            showHighlighted == log.substring(0, log.indexOf(':'))
+                              ? (type ? '#FFF' : '#FFFF91')
+                              : '#FFF'
+                        }}
+                      >
+                        <Ansi>{log}</Ansi>
+                      </span>
+
+                      {logs.length == 1 ? (
+                        <span
+                          style={{
+                            color:
+                              showHighlighted ==
+                                log.substring(0, log.indexOf(':'))
+                                ? '#FFFF91'
+                                : '#bbb',
+                            cursor: 'pointer',
+                            backgroundColor: log.substring(0, log.indexOf(':'))
+                              ? '#666'
+                              : ''
+                          }}
+                          onClick={() => {
+                            this.setState({
+                              showHighlighted:
+                                showHighlighted ==
+                                  log.substring(0, log.indexOf(':'))
+                                  ? ''
+                                  : log.substring(0, log.indexOf(':'))
+                            });
+                          }}
+                        >
+                          <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
+                        </span>
+                      ) : logs.length > 1 &&
+                        index >= 1 &&
+                        log.substring(0, log.indexOf(':')) ==
+                        logs[index <= 0 ? index + 1 : index - 1].substring(
+                          0,
+                          logs[index <= 0 ? index + 1 : index - 1].indexOf(':')
+                        ) ? (
+                        ''
+                      ) : (type ? '' :
+                        <span
+                          style={{
+                            color:
+                              showHighlighted ==
+                                log.substring(0, log.indexOf(':'))
+                                ? '#FFFF91'
+                                : '#bbb',
+                            cursor: 'pointer',
+                            backgroundColor:
+                              index == 0 && log.substring(0, log.indexOf(':'))
+                                ? '#666'
+                                : log.substring(0, log.indexOf(':')) ==
+                                  logs[
+                                    index <= 0 ? index + 1 : index - 1
+                                  ].substring(
+                                    0,
+                                    logs[
+                                      index <= 0 ? index + 1 : index - 1
+                                    ].indexOf(':')
+                                  )
+                                  ? ''
+                                  : '#666'
+                          }}
+                          onClick={() => {
+                            this.setState({
+                              showHighlighted:
+                                showHighlighted ==
+                                  log.substring(0, log.indexOf(':'))
+                                  ? ''
+                                  : log.substring(0, log.indexOf(':'))
+                            });
+                          }}
+                        >
+                          <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
+                        </span>
+                      )}
+                    </div>
+                  );
+                }))}
+          </div>
+          {showHistory1000Log && (
+            <History1000Log
+              onCancel={this.hideDownHistory1000Log}
+              podName={pod_name}
+              region={region}
+            />
+          )}
+        </Card>
+      </ScrollerX>
     );
   }
 }

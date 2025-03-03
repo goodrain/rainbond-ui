@@ -182,7 +182,7 @@ class EnterpriseLayout extends PureComponent {
               this.setState({
                 showEnterprisePlugin: showEnterprisePlugin
               })
-            }else{
+            } else {
               window.localStorage.setItem('showEnterprisePlugin', 'false')
             }
             const arr = this.state.pluginList
@@ -494,7 +494,8 @@ class EnterpriseLayout extends PureComponent {
       terminalStatus
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
-    const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
+    console.log(collapsed,"collapsed")
+    
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href
@@ -523,17 +524,6 @@ class EnterpriseLayout extends PureComponent {
       const showTransition = includesAdd || includesPro
       return (
         <Layout>
-          <SiderMenu
-            currentEnterprise={enterpriseInfo}
-            enterpriseList={enterpriseList}
-            currentUser={currentUser}
-            logo={fetchLogo}
-            Authorized={Authorized}
-            collapsed={collapsed}
-            location={location}
-            isMobile={this.state.isMobile}
-            onCollapse={this.handleMenuCollapse}
-          />
           <Layout>
             <GlobalHeader
               eid={eid}
@@ -571,65 +561,67 @@ class EnterpriseLayout extends PureComponent {
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
               />
-              <TransitionGroup
-                style={{
-                  height: 'calc(100vh - 64px)',
-                  overflow: 'auto',
-                  width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)'
-                }}>
-                <CSSTransition
-                  timeout={300}
-                  classNames=
-                  {{
-                    enter: 'animate__animated',
-                    enterActive: 'animate__fadeIn',
-                  }}
-                  unmountOnExit
-                  key={showTransition ? "" : this.props.location.pathname}
-                >
-                  <Content
-                    key={eid}
-                    style={{
-                      height: 'calc(100vh - 64px)',
-                      overflow: 'auto',
-                      width: '100%'
+              <div style={{ width: collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+                <TransitionGroup
+                  style={{
+                    height: 'calc(100vh - 64px)',
+                    overflow: 'auto',
+                    width: "100%"
+                  }}>
+                  <CSSTransition
+                    timeout={300}
+                    classNames=
+                    {{
+                      enter: 'animate__animated',
+                      enterActive: 'animate__fadeIn',
                     }}
-                    className={styles.bgc}
+                    unmountOnExit
+                    key={showTransition ? "" : this.props.location.pathname}
                   >
-                    {/* 报警信息 */}
-                    {isAlarm ? (
-                      alertInfo.length > 0 && alertInfo.map((item) => {
-                        return (
-                          <div className={styles.alerts}>
-                            <Alert
-                              style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
-                              message={item.annotations.description || item.annotations.summary}
-                              type="warning"
-                              showIcon
-                            />
-                          </div>
-                        )
-                      })
-                    ) :
-                      null
-                    }
-                    <div
+                    <Content
+                      key={eid}
                       style={{
-                        margin: '24px 24px 0'
+                        height: 'calc(100vh - 64px)',
+                        overflow: 'auto',
+                        width: '100%'
                       }}
+                      className={styles.bgc}
                     >
-                      <Authorized
-                        logined
-                        authority={['admin', 'user']}
-                        noMatch={<Redirect to="/user/login" />}
+                      {/* 报警信息 */}
+                      {isAlarm ? (
+                        alertInfo.length > 0 && alertInfo.map((item) => {
+                          return (
+                            <div className={styles.alerts}>
+                              <Alert
+                                style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
+                                message={item.annotations.description || item.annotations.summary}
+                                type="warning"
+                                showIcon
+                              />
+                            </div>
+                          )
+                        })
+                      ) :
+                        null
+                      }
+                      <div
+                        style={{
+                          margin: '24px 24px 0'
+                        }}
                       >
-                        {children}
-                        <CustomFooter />
-                      </Authorized>
-                    </div>
-                  </Content>
-                </CSSTransition>
-              </TransitionGroup>
+                        <Authorized
+                          logined
+                          authority={['admin', 'user']}
+                          noMatch={<Redirect to="/user/login" />}
+                        >
+                          {children}
+                          <CustomFooter />
+                        </Authorized>
+                      </div>
+                    </Content>
+                  </CSSTransition>
+                </TransitionGroup>
+              </div>
             </Layout>
           </Layout>
         </Layout>

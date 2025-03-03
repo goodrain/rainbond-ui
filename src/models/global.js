@@ -140,7 +140,7 @@ export default {
   namespace: 'global',
 
   state: {
-    collapsed: false,
+    collapsed: window.localStorage.getItem('collapsed') === 'true',
     notices: [],
     // 是否是有公有云
     isPubCloud: null,
