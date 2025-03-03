@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import ScrollerX from '@/components/ScrollerX';
 import ColonyLog from '../../../components/EnterpriseLog';
 import styles from '../index.less'
 const { TabPane } = Tabs;
@@ -82,7 +83,7 @@ class Index extends PureComponent {
         const { region, tcpUrl } = this.props;
         const { ClusterArr, instances, enClusterArr, wsurl} = this.state;
         return (
-            <>
+            <ScrollerX sm={840}>
                 <Card style={{ padding:'24px 0px'}} bodyStyle={{padding: 0}}>
                     <Tabs tabPosition='left' defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         {ClusterArr && ClusterArr.length > 0 && (wsurl != null) && ClusterArr.map((item, index) => {
@@ -92,7 +93,7 @@ class Index extends PureComponent {
                         })}
                     </Tabs>
                 </Card>
-            </>
+            </ScrollerX>
         );
     }
 }

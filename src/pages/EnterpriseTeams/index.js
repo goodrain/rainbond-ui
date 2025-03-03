@@ -26,6 +26,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import ScrollerX from '@/components/ScrollerX'
 import React, { PureComponent } from 'react';
 import WarningImg from '../../../public/images/warning.png';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -1358,7 +1359,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <div>{adminer ? managementTemas : teamInfo}</div>
+          <ScrollerX sm={1250}>{adminer ? managementTemas : teamInfo}</ScrollerX>
         )}
         <Modal
           centered
