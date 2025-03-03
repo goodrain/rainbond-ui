@@ -355,7 +355,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': 'Quota (GB)',
     'enterpriseTeamManagement.table.operation': 'Running applications',
     'enterpriseTeamManagement.table.handle': 'Operation',
-    'enterpriseTeamManagement.table.memory_total': 'Memory usage/total (MB)',
+    'enterpriseTeamManagement.table.memory_total': 'Memory usage/total (GB)',
     'enterpriseTeamManagement.table.CUP_total': 'CPU usage/total (m)',
     'enterpriseTeamManagement.table.quota_total': 'Storage usage/total (GB)',
     

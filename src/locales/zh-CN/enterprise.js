@@ -355,7 +355,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': '租户限额(GB)',
     'enterpriseTeamManagement.table.operation': '运行应用数',
     'enterpriseTeamManagement.table.handle': '操作',
-    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(MB)',
+    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(GB)',
     'enterpriseTeamManagement.table.CUP_total': 'CPU使用量/总量(m)',
     'enterpriseTeamManagement.table.quota_total': '存储使用量/总量',
 

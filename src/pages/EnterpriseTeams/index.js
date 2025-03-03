@@ -450,11 +450,7 @@ export default class EnterpriseTeams extends PureComponent {
               key={`${item.region_name}region`}
               className={styles.regionShow}
               onClick={() => {
-                if (ismanagement) {
-                  this.handleJoinTeams(team_name, item.region_name);
-                } else {
-                  this.onJumpTeam(team_name, item.region_name);
-                }
+                this.onJumpTeam(team_name, item.region_name);
               }}
             >
               {item.region_alias}
@@ -942,7 +938,7 @@ export default class EnterpriseTeams extends PureComponent {
                         type="flex"
                         align="middle"
                         className={styles.pl23}
-                        onClick={() => { this.handleJoinTeams(team_name, region_list[0].region_name); }}
+                        onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name); }}
                       >
                         <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
@@ -1037,7 +1033,7 @@ export default class EnterpriseTeams extends PureComponent {
                         type="flex"
                         align="middle"
                         className={styles.pl23}
-                        onClick={() => { this.handleJoinTeams(team_name, region_list[0].region_name); }}
+                        onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name); }}
                       >
                         <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
