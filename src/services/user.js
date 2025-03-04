@@ -297,8 +297,14 @@ export async function changePass(
 /*
 	查看当前登录用户的详情
 */
-export async function getDetail(handleError) {
-  return request(`${apiconfig.baseUrl}/console/users/details`, { handleError });
+export async function getDetail(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/details`, { 
+    method: 'get',
+    params: {
+      team_name: body.team_name
+    },
+    handleError 
+  });
 }
 
 /*

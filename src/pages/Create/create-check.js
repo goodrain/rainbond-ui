@@ -115,6 +115,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -153,6 +156,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());

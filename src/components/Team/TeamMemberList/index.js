@@ -71,7 +71,10 @@ export default class MemberList extends PureComponent {
 
   updateCurrentUser = () => {
     this.props.dispatch({
-      type: 'user/fetchCurrent'
+      type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      }
     });
   };
   hideEditAction = () => {

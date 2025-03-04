@@ -52,6 +52,9 @@ export default class SelectRegion extends PureComponent {
         this.cancelOpenRegion();
         this.props.dispatch({
           type: 'user/fetchCurrent',
+          payload: {
+            team_name: currentTeam.team_name
+          },
           callback: () => {
             this.props.dispatch(
               routerRedux.replace(

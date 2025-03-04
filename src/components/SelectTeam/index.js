@@ -60,22 +60,6 @@ export default class SelectTeam extends PureComponent {
     this.setState({ showCreateTeam: true });
   };
 
-  handleCreateTeam = values => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'teamControl/createTeam',
-      payload: values,
-      callback: () => {
-        // 获取最新的用户信息
-        dispatch({ type: 'user/fetchCurrent' });
-        notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-        this.cancelCreateTeam();
-        this.loadUserTeams();
-      }
-    });
-  };
-
   cancelCreateTeam = () => {
     this.handleOut();
     this.setState({ showCreateTeam: false });
@@ -113,16 +97,16 @@ export default class SelectTeam extends PureComponent {
       changeTeam
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
+    const currentTeamLink = `/team/${currentTeam?.team_name}/region/${currentRegion?.team_region_name}/index`;
     const currentEnterpriseTeamPageLink = this.getLoginRole(currentUser)
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
       if (teamInfo) {
         teamInfo.region.map(region => {
-          const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
+          const link = `/team/${team?.team_name}/region/${region?.team_region_name}/index`;
           const item = {
-            name: `${team.team_alias} | ${region.team_region_alias}`,
+            name: `${team?.team_alias} | ${region?.team_region_alias}`,
             link
           };
           items.push(item);
@@ -194,7 +178,7 @@ export default class SelectTeam extends PureComponent {
               <div className={style.selectButton}>
                 <div className={style.selectButtonName} style={showstyle}>
                   <span>
-                    {currentTeam.team_alias} | {currentRegion.team_region_alias}
+                    {currentTeam?.team_alias} | {currentRegion?.team_region_alias}
                   </span>
                   <Icon className={style.selectButtonArray} type="caret-down" />
                 </div>
@@ -202,18 +186,11 @@ export default class SelectTeam extends PureComponent {
             )}
             {!active && (
               <Link className={style.selectButtonLink} to={currentTeamLink}>
-                {currentTeam.team_alias} | {currentRegion.team_region_alias}
+                {currentTeam?.team_alias} | {currentRegion?.team_region_alias}
               </Link>
             )}
           </div>
         </Dropdown>
-        {showCreateTeam && (
-          <CreateTeam
-            enterprise_id={currentEnterprise.enterprise_id}
-            onOk={this.handleCreateTeam}
-            onCancel={this.cancelCreateTeam}
-          />
-        )}
       </div>
     );
   }

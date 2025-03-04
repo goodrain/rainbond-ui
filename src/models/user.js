@@ -302,8 +302,8 @@ export default {
       const response = yield call(queryUsers);
       yield put({ type: 'save', payload: response });
     },
-    *fetchCurrent({ callback, handleError }, { call, put }) {
-      const response = yield call(getDetail, handleError);
+    *fetchCurrent({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getDetail, payload, handleError);
       if (response) {
         yield put({
           type: 'saveCurrentUser',

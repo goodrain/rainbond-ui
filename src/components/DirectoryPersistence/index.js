@@ -70,6 +70,9 @@ class Index extends Component {
     fetchUserInfo = () => {
         this.props.dispatch({
             type: 'user/fetchCurrent',
+            payload: {
+                team_name: globalUtil.getCurrTeamName()
+            },
             callback: res => {
                 if (res) {
                     this.setState({
