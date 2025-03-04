@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import app from '@/locales/en-US/app';
 
 // fetch Permissions
 export async function getPermissions(body) {
@@ -1763,7 +1764,9 @@ export async function fetchStorageUsed(params, handleError) {
     {
       method: 'get',
       params: {
-        tenant_id: params.tenant_id
+        tenant_id: params.tenant_id,
+        app_id: params.app_id,
+        service_id: params.service_id
       },
       handleError
     }

@@ -87,7 +87,7 @@ export default class SelectRegion extends PureComponent {
       currentUser
     } = this.props;
     const { teamRegions, loading, showOpenRegion, visible } = this.state;
-    const currentTeamRegionLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
+    const currentTeamRegionLink = `/team/${currentTeam?.team_name}/region/${currentRegion?.team_region_name}/index`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -95,7 +95,7 @@ export default class SelectRegion extends PureComponent {
             <ul>
               {teamRegions &&
                 teamRegions.map(item => {
-                  const link = `/team/${currentTeam.team_name}/region/${item.team_region_name}/index`;
+                  const link = `/team/${currentTeam?.team_name}/region/${item.team_region_name}/index`;
                   return (
                     <li key={item.team_region_alias}>
                       <Link to={link} title={item.team_region_alias}>
