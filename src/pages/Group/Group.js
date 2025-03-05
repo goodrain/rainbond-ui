@@ -91,7 +91,7 @@ export default class Index extends PureComponent {
       archInfo: [],
       storageUsed: {
         value: 0,
-        unit: 'B'
+        unit: 'MB'
       }
     };
   }

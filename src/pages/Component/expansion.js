@@ -116,22 +116,24 @@ export default class Index extends PureComponent {
         16384: 9
       },
       cpuMarks: {
-        1: '250m',
-        2: '500m',
-        3: '1Core',
-        4: '2Core',
-        5: '4Core',
-        6: '8Core',
-        7: '16Core'
+        1: '100m',
+        2: '250m',
+        3: '500m',
+        4: '1Core',
+        5: '2Core',
+        6: '4Core',
+        7: '8Core',
+        8: '16Core'
       },
       cpuMarksObj: {
-        250: 1,
-        500: 2,
-        1000: 3,
-        2000: 4,
-        4000: 5,
-        8000: 6,
-        16000: 7
+        100: 1,
+        250: 2,
+        500: 3,
+        1000: 4,
+        2000: 5,
+        4000: 6,
+        8000: 7,
+        16000: 8
       },
       cpuValue: 0,
       memoryValue: 0
@@ -160,7 +162,7 @@ export default class Index extends PureComponent {
     const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue } = this.state;
     if ((cpuValue == 0 && memoryValue == 0) || bool) {
       const extendInfo = this.props.extendInfo;
-      const cpuValue = extendInfo?.current_cpu || 250;
+      const cpuValue = extendInfo?.current_cpu || 100;
       const memoryValue = extendInfo?.current_memory || 512;
       const mValue = memoryMarksObj[memoryValue];
       const cValue = cpuMarksObj[cpuValue];
@@ -1075,7 +1077,7 @@ export default class Index extends PureComponent {
                         const { memoryMarksObj, cpuMarksObj } = this.state;
                         const { form } = this.props;
                         const extendInfo = this.props.extendInfo;
-                        const cpuValue = extendInfo?.current_cpu || 250;
+                        const cpuValue = extendInfo?.current_cpu || 100;
                         const memoryValue = extendInfo?.current_memory || 512;
                         const mValue = memoryMarksObj[memoryValue];
                         const cValue = cpuMarksObj[cpuValue];
@@ -1128,7 +1130,7 @@ export default class Index extends PureComponent {
                       style={{ width: '500px' }}
                       marks={cpuMarks}
                       min={1}
-                      max={7}
+                      max={8}
                       step={null}
                       onChange={this.handleCpuChange}
                       tooltipVisible={false}

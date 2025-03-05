@@ -390,7 +390,8 @@ class LogList extends PureComponent {
     requestTimeRange: appControl.requestTimeRange,
     appDisk: appControl.appDisk,
     appMemory: appControl.appMemory,
-    pluginsList: teamControl.pluginsList
+    pluginsList: teamControl.pluginsList,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
@@ -424,7 +425,7 @@ export default class Index extends PureComponent {
       componentTimers: this.props.timers,
       storageUsed: {
         value: 0,
-        unit: 'B'
+        unit: 'MB'
       }
     };
     this.inerval = 5000;
@@ -748,11 +749,11 @@ export default class Index extends PureComponent {
 
   // 获取存储实际占用
   getStorageUsed = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appDetail } = this.props;
     dispatch({
       type: 'global/fetchStorageUsed',
       payload: {
-        service_id: this.props.appAlias
+        service_id: appDetail?.service?.service_id
       },
       callback: res => {
         if (res) {
