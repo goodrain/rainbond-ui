@@ -830,7 +830,6 @@ export default class Index extends PureComponent {
     const buildShared = appUtil.getCreateTypeCNByBuildSource(buildSource);
     const isLocalShared = buildShared && buildShared === '本地共享库';
     const languageType = versionLanguage || '';
-    console.log(this.state.create_status, 'create_status')
     return (
       <Fragment>
         {buildSource && (

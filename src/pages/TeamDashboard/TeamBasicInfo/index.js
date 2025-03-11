@@ -197,8 +197,8 @@ export default class index extends Component {
       if (num || unit) {
         let nums = num;
         let units = unit;
-        if (nums >= 1024) {
-          nums = num / 1024;
+        if (nums >= 1000) {
+          nums = num / 1000;
           units = 'Core';
         }
         return unit ? units : nums.toFixed(1);

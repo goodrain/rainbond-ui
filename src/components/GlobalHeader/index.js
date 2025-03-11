@@ -117,8 +117,8 @@ export default class GlobalHeader extends PureComponent {
       payload: {},
       callback: (res) => {
        this.setState({
-          balance: res.response_data.balance / 1000000,
-          balanceStatus: res.response_data.status
+          balance: res?.response_data?.balance / 1000000,
+          balanceStatus: res?.response_data?.status
        })
       }
     });
