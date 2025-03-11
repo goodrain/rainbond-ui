@@ -432,6 +432,15 @@ export default class index extends Component {
         }
         return callback();
     };
+    handleValidatorsHostsStartEnd = (_, val, callback) => {
+        const reg = /^[a-zA-Z0-9]+$/;
+        if (val && val.length > 0) {
+            if (reg.test(val)) {
+                return callback(new Error('域名不允许以数字开头和结尾'));
+            }
+        }
+        return callback();
+    };
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -522,7 +531,9 @@ export default class index extends Component {
                             rules: [
                                 { validator: this.handleValidatorsHosts },
                                 // 域名不允许填入ip
-                                { validator: this.handleValidatorsHostsIp }
+                                { validator: this.handleValidatorsHostsIp },
+                                // 不允许以数字开头和结尾
+                                { validator: this.handleValidatorsHostsStartEnd }
                             ],
                             initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
                         })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}

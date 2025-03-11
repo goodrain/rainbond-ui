@@ -213,7 +213,7 @@ const applicationMarket = {
     'applicationMarket.CreateHelmAppModels.start': '构建启动',
     //  applicationMarket>HelmForm
     'applicationMarket.HelmForm.title': '编辑{name}商店',
-    'applicationMarket.HelmForm.min': '最小长度4位',
+    'applicationMarket.HelmForm.min': '最小长度2位',
     'applicationMarket.HelmForm.max': '最大长度32位',
     'applicationMarket.HelmForm.only': '只支持小写字母开头、小写字母和数字组合',
     'applicationMarket.HelmForm.name': '仓库名称已存在',
