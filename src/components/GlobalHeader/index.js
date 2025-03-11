@@ -58,8 +58,9 @@ export default class GlobalHeader extends PureComponent {
   componentDidMount() {
     const { is_enterprise, currentUser } = this.props
     const eid = globalUtil.getCurrEnterpriseId() || currentUser?.enterprise_id
-    if (this.state.isTeamView) {
-      this.fetchPipePipeline(eid)
+    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
+    if (region_name) {
+      this.fetchPipePipeline(eid, region_name)
     }
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
@@ -91,13 +92,13 @@ export default class GlobalHeader extends PureComponent {
       }
     }
   }
-  fetchPipePipeline = (eid) => {
+  fetchPipePipeline = (eid, region_name) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
         enterprise_id: eid,
-        region_name: globalUtil.getCurrRegionName()
+        region_name: region_name
       },
       callback: res => {
         if (res.list.some(item => item.name === 'rainbond-bill')) {
@@ -125,8 +126,10 @@ export default class GlobalHeader extends PureComponent {
 
   };
   handleMenuClick = ({ key }) => {
-    const { dispatch } = this.props;
+    const { dispatch, currentUser } = this.props;
     const { language } = this.state
+    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
+    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
     if (key === 'userCenter') {
       dispatch(routerRedux.push(`/account/center/personal`));
     }
@@ -134,7 +137,7 @@ export default class GlobalHeader extends PureComponent {
       this.showChangePass();
     }
     if (key === 'bill') {
-      dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/rainbond-bill`));
+      dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
     }
     if (key === 'zh_en') {
       if (language) {
@@ -246,8 +249,10 @@ export default class GlobalHeader extends PureComponent {
     })
   };
   handleBalanceBill = () => {
-    const { dispatch } = this.props;
-    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/rainbond-bill`));
+    const { dispatch, currentUser } = this.props;
+    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
+    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
+    dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
   }
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space = false, is_enterprise = false, customHeaderImg } = this.props;
@@ -314,7 +319,7 @@ export default class GlobalHeader extends PureComponent {
       <div className={styles.uesrInfo}>
         <Menu onClick={this.handleMenuClick}>
           {MenuItems('userCenter', handleUserSvg, 1)}
-          {showBill && isTeamView && MenuItems('bill', handleBillSvg, 2)}
+          {showBill && MenuItems('bill', handleBillSvg, 2)}
           {MenuItems('zh_en', language ? cn_language : en_language, 3)}
           {!rainbondUtil.logoutEnable(rainbondInfo) &&
             MenuItems('logout', handleLogoutSvg, 4)}
@@ -365,7 +370,7 @@ export default class GlobalHeader extends PureComponent {
               {handleHandBookSvg}
             </a>
           )}
-          {showBill && isTeamView &&  (
+          {showBill &&  (
             <div
               onClick={() => {this.handleBalanceBill()}}
               className={styles.balance}
