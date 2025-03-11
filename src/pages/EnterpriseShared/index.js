@@ -792,7 +792,8 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         this.setState({
-          activeTabKey: 'local'
+          activeTabKey: 'local',
+          deleteHelmAppMarketLoading: false
         }, () => {
           this.handleCloseDeleteHelmAppMarket();
           this.getHelmMarketsTab();
