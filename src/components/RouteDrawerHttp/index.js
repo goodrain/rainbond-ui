@@ -395,8 +395,7 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        const reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-    
+        const reg = /^(?=^.{3,255}$)[a-zA-Z][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);
@@ -417,7 +416,7 @@ export default class index extends Component {
             if (isPass) {
                 callback();
             } else {
-                callback(new Error('格式不满足要求'));
+                callback(new Error('域名格式不正确,必须以字母开头'));
             }
         } else {
             return callback();
@@ -428,15 +427,6 @@ export default class index extends Component {
         if (val && val.length > 0) {
             if (reg.test(val)) {
                 return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHostIp' })));
-            }
-        }
-        return callback();
-    };
-    handleValidatorsHostsStartEnd = (_, val, callback) => {
-        const reg = /^[a-zA-Z0-9]+$/;
-        if (val && val.length > 0) {
-            if (reg.test(val)) {
-                return callback(new Error('域名不允许以数字开头和结尾'));
             }
         }
         return callback();
@@ -532,8 +522,6 @@ export default class index extends Component {
                                 { validator: this.handleValidatorsHosts },
                                 // 域名不允许填入ip
                                 { validator: this.handleValidatorsHostsIp },
-                                // 不允许以数字开头和结尾
-                                { validator: this.handleValidatorsHostsStartEnd }
                             ],
                             initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
                         })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
