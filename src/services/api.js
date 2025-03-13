@@ -1772,3 +1772,29 @@ export async function fetchStorageUsed(params, handleError) {
     }
   );
 }
+
+// 获取短信配置
+export async function getSmsConfig(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/sms-config`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 更新短信配置
+export async function updateSmsConfig(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/sms-config`,
+    {
+      method: 'put',
+      data: {
+        sms_config: params.sms_config,
+      },
+      handleError
+    }
+  );
+}
+

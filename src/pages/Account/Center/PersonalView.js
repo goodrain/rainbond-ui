@@ -8,7 +8,10 @@ import userIcon from '../../../../public/images/default_Avatar.png';
 import styles from './Info.less'
 
 @Form.create()
-@connect()
+@connect(({ global }) => ({
+  isRegist: global.isRegist,
+  rainbondInfo: global.rainbondInfo
+}))
 export default class PersonalView extends Component {
   constructor(props) {
     super(props);
@@ -105,6 +108,7 @@ export default class PersonalView extends Component {
   render() {
     const { imageUrl, userInfo, showEditUserInfoFrom, loading, showChangePassword } = this.state;
     const { getFieldDecorator } = this.props.form;
+    const isSaas = this.props.rainbondInfo?.is_saas || false;
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
@@ -123,7 +127,7 @@ export default class PersonalView extends Component {
                 </Col>
                 <Col>
                   <Button type="link" onClick={this.handleUpdateInfo}>修改基础信息</Button>
-                  <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>
+                  {!isSaas && <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>}
                 </Col>
               </Row>
             </Col>

@@ -36,7 +36,8 @@ const formItemLayouts = {
     groups: global.groups,
     createAppByDockerrunLoading: loading.effects['createApp/createAppByDockerrun'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
-    pluginsList: teamControl.pluginsList
+    pluginsList: teamControl.pluginsList,
+    rainbondInfo: global.rainbondInfo,
   }),
   null,
   null,
@@ -542,12 +543,13 @@ export default class Index extends PureComponent {
       selectedImage = false,
       imageUrl = false,
       tag = false,
+      rainbondInfo
     } = this.props;
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
     const group_id = globalUtil.getGroupID()
-
+    const isSaas = rainbondInfo?.is_saas || false;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -631,12 +633,15 @@ export default class Index extends PureComponent {
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
                 </Radio>
-                <Radio value='upload'>
-                  {formatMessage({ id: 'teamAdd.create.image.upload'})}
-                </Radio>
-                <Radio value='local'>
-                  {formatMessage({ id: 'teamAdd.create.image.local'})}
+                {!isSaas &&
+                <>
+                  <Radio value='upload'>
+                    {formatMessage({ id: 'teamAdd.create.image.upload'})}
                   </Radio>
+                  <Radio value='local'>
+                    {formatMessage({ id: 'teamAdd.create.image.local'})}
+                  </Radio>
+                </>}
                 </Radio.Group>
               ) : (
                 <Radio.Group onChange={this.handleChangeImageSource}>

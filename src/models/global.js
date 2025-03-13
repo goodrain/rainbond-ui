@@ -135,7 +135,9 @@ import {
   fetchTeamDetails,
   getUserBalance,
   syncData,
-  fetchStorageUsed
+  fetchStorageUsed,
+  getSmsConfig,
+  updateSmsConfig
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1117,6 +1119,18 @@ export default {
     },
     *fetchStorageUsed({ payload, callback, handleError }, { put, call }) {
       const response = yield call(fetchStorageUsed, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getSmsConfig({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(getSmsConfig, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updateSmsConfig({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updateSmsConfig, payload, handleError);
       if (callback) {
         callback(response);
       }
