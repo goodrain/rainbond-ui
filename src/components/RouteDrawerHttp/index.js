@@ -395,7 +395,7 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        const reg = /^(?=^.{3,255}$)[a-zA-Z][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+        const reg = /^[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);
@@ -416,7 +416,7 @@ export default class index extends Component {
             if (isPass) {
                 callback();
             } else {
-                callback(new Error('域名格式不正确,必须以字母开头'));
+                callback(new Error('域名格式不正确，必须是有效的域名格式，如：example.com'));
             }
         } else {
             return callback();
