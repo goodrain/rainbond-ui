@@ -12,7 +12,7 @@ import cookie from '../../utils/cookie';
 import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';
 import LoginComponent from './loginComponent';
-
+import LoginSmsComponent from './loginSmsComponent';
 @connect(({ global }) => ({
   isRegist: global.isRegist,
   rainbondInfo: global.rainbondInfo
@@ -21,7 +21,7 @@ export default class LoginPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      language: cookie.get('language') === 'zh-CN' ?  true : false ,
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentWillMount() {
@@ -29,37 +29,37 @@ export default class LoginPage extends Component {
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
   }
-  componentDidMount(){
+  componentDidMount() {
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
-    if(Language == null) {
-    if(lan.toLowerCase().indexOf('zh')!==-1){
-      const language = 'zh-CN'
-      cookie.set('language', language)
-      const lang = cookie.get('language')
-      setLocale('zh-CN')
-      this.setState({
-        language:true,
-      })
-    }else if(lan.toLowerCase().indexOf('en')!==-1){
-      const language = 'en-US'
-      cookie.set('language', language)
-      const lang = cookie.get('language')
-      setLocale('en-US')
-      this.setState({
-        language:false,
-      })
-    }else{
-      const language = 'zh-CN'
-      cookie.set('language', language)
-      const lang = cookie.get('language')
-      setLocale('zh-CN')
-      this.setState({
-        language:true,
-      })
-    }
-    }
+    if (Language == null) {
+      if (lan.toLowerCase().indexOf('zh') !== -1) {
+        const language = 'zh-CN'
+        cookie.set('language', language)
+        const lang = cookie.get('language')
+        setLocale('zh-CN')
+        this.setState({
+          language: true,
+        })
+      } else if (lan.toLowerCase().indexOf('en') !== -1) {
+        const language = 'en-US'
+        cookie.set('language', language)
+        const lang = cookie.get('language')
+        setLocale('en-US')
+        this.setState({
+          language: false,
+        })
+      } else {
+        const language = 'zh-CN'
+        cookie.set('language', language)
+        const lang = cookie.get('language')
+        setLocale('zh-CN')
+        this.setState({
+          language: true,
+        })
       }
+    }
+  }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
@@ -107,6 +107,22 @@ export default class LoginPage extends Component {
       }
     });
   };
+  handleSmsSubmit = values => {
+    const { dispatch, location } = this.props;
+    const query_params = new URLSearchParams(location.search);
+    const redirect = query_params.get('redirect');
+    dispatch({
+      type: 'user/smsLogin',
+      payload: values,
+      callback: () => {
+        let url = '/';
+        if (redirect) {
+          url = redirect;
+        }
+        window.location.href = url;
+      }
+    })
+  }
 
   render() {
     const { rainbondInfo } = this.props;
@@ -128,45 +144,53 @@ export default class LoginPage extends Component {
     }
     const inlineBlock = { display: 'inline-block' };
     const { language } = this.state;
+    const isSaas = rainbondInfo?.is_saas || false;
     return (
       <div className={styles.main}>
-        <LoginComponent onSubmit={this.handleSubmit} type="login" />
-        {rainbondUtil.OauthbEnable(rainbondInfo) &&
-          (oauthInfo ||
-            (oauthServicesList && oauthServicesList.length > 0)) && (
-            <div className={styles.thirdBox}>
-              <Divider>
-                <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three"/></div>
-              </Divider>
-              <Row className={styles.third}>
-                {oauthInfo && (
-                  <div className={styles.thirdCol} key={oauthInfo.client_id}>
-                    <Tooltip placement="top" title={oauthInfo.name}>
-                      <a style={inlineBlock} href={url} title={oauthInfo.name}>
-                        {icon}
-                      </a>
-                    </Tooltip>
-                  </div>
-                )}
-                {oauthServicesList.map(item => {
-                  const { name, service_id } = item;
-                  return (
-                    <div className={styles.thirdCol} key={service_id}>
-                      <Tooltip placement="top" title={name}>
-                        <a
-                          style={inlineBlock}
-                          href={oauthUtil.getAuthredictURL(item)}
-                          title={name}
-                        >
-                          {oauthUtil.getIcon(item)}
-                        </a>
-                      </Tooltip>
-                    </div>
-                  );
-                })}
-              </Row>
-            </div>
-          )}
+        {isSaas ? (
+          <LoginSmsComponent onSubmit={this.handleSmsSubmit} type="login" />
+        ) : (
+          <>
+            <LoginComponent onSubmit={this.handleSubmit} type="login" />
+            {rainbondUtil.OauthbEnable(rainbondInfo) &&
+              (oauthInfo ||
+                (oauthServicesList && oauthServicesList.length > 0)) && (
+                <div className={styles.thirdBox}>
+                  <Divider>
+                    <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three" /></div>
+                  </Divider>
+                  <Row className={styles.third}>
+                    {oauthInfo && (
+                      <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                        <Tooltip placement="top" title={oauthInfo.name}>
+                          <a style={inlineBlock} href={url} title={oauthInfo.name}>
+                            {icon}
+                          </a>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {oauthServicesList.map(item => {
+                      const { name, service_id } = item;
+                      return (
+                        <div className={styles.thirdCol} key={service_id}>
+                          <Tooltip placement="top" title={name}>
+                            <a
+                              style={inlineBlock}
+                              href={oauthUtil.getAuthredictURL(item)}
+                              title={name}
+                            >
+                              {oauthUtil.getIcon(item)}
+                            </a>
+                          </Tooltip>
+                        </div>
+                      );
+                    })}
+                  </Row>
+                </div>
+              )}
+          </>
+        )}
+
       </div>
     );
   }

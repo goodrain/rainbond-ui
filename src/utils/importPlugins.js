@@ -45,8 +45,8 @@ exposeToPlugin('react-dom', ReactDom);
 exposeToPlugin('xu-demo-data', RbdData);
 
 export async function importPluginModule(meta, regionName) {
-  const path = `/console/regions/${regionName}/static/plugins/${meta.name}`
-    // const path = '/plugins/dist/main.js'
+  // const path = '/plugins/dist/main.js'
+  const path = meta.fronted_path
   const module = await SystemJS.import(path);
   return module
 }
@@ -65,11 +65,11 @@ export function locateWithCache(load, defaultBust = initializedAt) {
   const { address } = load;
   const path = extractPath(address);
   if (!path) {
-    return `${address}?_cache=${defaultBust}`;
+    return `${address}`;
   }
   const version = cache[path];
   const bust = version || defaultBust;
-  return `${address}?_cache=${bust}`;
+  return `${address}`;
 }
 
 function extractPath(address) {

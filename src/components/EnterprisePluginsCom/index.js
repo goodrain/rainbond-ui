@@ -153,6 +153,7 @@ export default class index extends Component {
           dispatch={dispatch}
           baseInfo={baseInfo}
           reduxInfo={reduxInfo}
+          {...this.props}
           formatMessage={formatMessage}
           componentData={componentData}
         />

@@ -115,6 +115,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -153,6 +156,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -556,6 +562,11 @@ export default class CreateCheck extends React.Component {
                       this.handleJump(`components/${appAlias}/overview`);
                     }
                   }
+                },
+                handleError: err => {
+                  this.setState({ buildAppLoading: false });
+                  this.loadingBuild = false
+                  notification.error({ message: err.data.msg_show })
                 }
               })
             }
@@ -587,6 +598,11 @@ export default class CreateCheck extends React.Component {
                 this.handleJump(`components/${appAlias}/overview`);
               }
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false
+            notification.error({ message: err.data.msg_show })
           }
         })
       }

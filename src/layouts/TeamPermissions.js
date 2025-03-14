@@ -26,6 +26,9 @@ class TeamPermissions extends React.PureComponent {
     if (teamName) {
       dispatch({
         type: 'user/fetchCurrent',
+        payload: {
+          team_name: teamName
+        },
         callback: res => {
           if (res && res.status_code === 200) {
             this.handleResults(res.bean.teams, teamName);

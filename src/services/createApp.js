@@ -364,7 +364,7 @@ export function getCreateComposeCheckResult(body = {}) {
 /*
    构建应用
 */
-export function buildApp(body = {}) {
+export function buildApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
@@ -373,7 +373,8 @@ export function buildApp(body = {}) {
         is_deploy: body.is_deploy,
         nodejs_type: body.nodejs_type,
         nodejs_dependency: body.nodejs_dependency,
-      }
+      },
+      handleError
     }
   );
 }

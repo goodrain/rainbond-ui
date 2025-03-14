@@ -76,7 +76,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.allocation': 'Distribution',
     'componentOverview.body.tab.overview.memory': 'MB Memory',
     'componentOverview.body.tab.overview.occupy': 'Distribution',
-    'componentOverview.body.tab.overview.disk': 'MB Disk',
+    'componentOverview.body.tab.overview.disk': 'Disk',
     'componentOverview.body.tab.overview.version': 'Version',
     'componentOverview.body.tab.overview.not': 'Not yet',
     'componentOverview.body.tab.overview.codeVersion': 'Code Version',

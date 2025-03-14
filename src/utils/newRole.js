@@ -443,6 +443,9 @@ export default {
         let info
         dispatch({
             type: 'user/fetchCurrent',
+            payload: {
+                team_name: globalUtil.getCurrTeamName()
+            },
             callback: res => {
                 if (res && res.bean) {
                     const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());

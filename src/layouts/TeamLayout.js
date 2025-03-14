@@ -115,7 +115,6 @@ class TeamLayout extends PureComponent {
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.fetchUserInfo();
-    this.fetchGroup()
     const { teamAppCreatePermission: { isAccess } } = this.state
     if (isAccess) {
       this.getAppNames();
@@ -234,6 +233,9 @@ class TeamLayout extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -243,8 +245,11 @@ class TeamLayout extends PureComponent {
               payload: team && team.tenant_actions
             });
           }, 10)
+          const region = userUtil.hasTeamAndRegion(res.bean, globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName());
+          dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
           this.setState({
             currentTeam: team,
+            currentRegion: region
           });
 
         }
@@ -340,6 +345,9 @@ class TeamLayout extends PureComponent {
     if (teamName && regionName) {
       dispatch({
         type: 'user/fetchCurrent',
+        payload: {
+          team_name: teamName,
+        },
         callback: res => {
           if (res && res.status_code === 200) {
             this.getTeamOverview(res.bean && res.bean.user_id);
@@ -357,6 +365,7 @@ class TeamLayout extends PureComponent {
 
   getTeamOverview = () => {
     this.load();
+    this.fetchTeamDetails();
     const { dispatch, currentUser } = this.props;
     const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
     const { teamName, regionName } = this.props.match.params;
@@ -418,6 +427,23 @@ class TeamLayout extends PureComponent {
       }
     }
   }
+
+  // 获取团队详情
+  fetchTeamDetails = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchTeamDetails',
+      callback: (res) => {
+        if(res && res.bean){
+          dispatch({
+            type: 'global/syncData',
+            payload: res.bean,
+          })
+        }
+      }
+    })
+  }
+
   load = () => {
     this.queryComponentDeatil();
     const { enterpriseList, eid, teamOverviewPermission: { isAccess } } = this.state;
@@ -444,11 +470,10 @@ class TeamLayout extends PureComponent {
       payload: { team_name: teamName, region_name: regionName }
     });
     this.fetchTeamApps();
-    const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
+    this.fetchGroup()
     this.setState({
       currentEnterprise: enterpriseList[0],
       currentTeam: team,
-      currentRegion: region,
       ready: true,
       GroupShow: true
     });
@@ -684,11 +709,9 @@ class TeamLayout extends PureComponent {
       return <PageLoading />;
     }
 
-
-
     if (
-      teamName !== currentTeam.team_name ||
-      regionName !== (currentRegion && currentRegion.team_region_name)
+      teamName !== currentTeam?.team_name ||
+      regionName !== (currentRegion && currentRegion?.team_region_name)
     ) {
       this.load();
     }
@@ -776,7 +799,8 @@ class TeamLayout extends PureComponent {
         appID,
         currentTeam.tenant_actions,
         showPipeline,
-        currentUser
+        currentUser,
+        rainbondInfo
       );
     } else if (mode === 'helm') {
       menuData = getAppMenuData(
@@ -791,15 +815,14 @@ class TeamLayout extends PureComponent {
 
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
-      const hasRegion =
-        team && team.region && team.region.length && currentRegion;
+      const hasRegion = team && team.region && team.region.length && currentRegion;
       let isRegionMaintain = false;
       if (hasRegion) {
         isRegionMaintain =
           currentRegion.region_status === '3' &&
           !userUtil.isCompanyAdmin(currentUser);
       } else {
-        return <Redirect to="/" />;
+        // return <Redirect to="/" />;
       }
       const renderContent = () => {
         // 集群维护中
@@ -850,12 +873,12 @@ class TeamLayout extends PureComponent {
           <Layout>
             <GlobalHeader
               key={
-                currentEnterprise.enterprise_id +
-                currentTeam.team_name +
-                currentRegion.team_region_name +
+                currentEnterprise?.enterprise_id +
+                currentTeam?.team_name +
+                currentRegion?.team_region_name +
                 appID
               }
-              eid={currentEnterprise.enterprise_id}
+              eid={currentEnterprise?.enterprise_id}
               logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&

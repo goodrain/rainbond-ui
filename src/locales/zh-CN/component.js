@@ -77,7 +77,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.allocation': '分配',
     'componentOverview.body.tab.overview.memory': 'MB 内存',
     'componentOverview.body.tab.overview.occupy': '占用',
-    'componentOverview.body.tab.overview.disk': 'MB 磁盘',
+    'componentOverview.body.tab.overview.disk': '磁盘',
     'componentOverview.body.tab.overview.version': '版本号',
     'componentOverview.body.tab.overview.not': '暂无',
     'componentOverview.body.tab.overview.codeVersion': '代码版本',

@@ -31,7 +31,10 @@ import {
   getImageList,
   createInviteLink,
   getInviteLink,
-  acceptInvite
+  acceptInvite,
+  smsRegister,
+  smsLogin,
+  getSmsCode
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import cookie from '../utils/cookie';
@@ -193,11 +196,90 @@ export default {
         }
       }
     },
+    *smsLogin({ payload, callback }, { call, put }) {
+      const response = yield call(smsLogin, payload);
+      if (response) {
+        yield put({ type: 'changeLoginStatus', payload: response });
+        cookie.set('token', response.bean.token);
+        if (callback) {
+          callback();
+        }
+      }
+    },
+    *getSmsCode({ payload, callback }, { call, put }) {
+      const response = yield call(getSmsCode, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *smsRegister({ payload, complete }, { call, put, select }) {
+      const response = yield call(smsRegister, payload);
+      if (response) {
+        if (complete) {
+          complete(response.bean);
+        }
+        // 非常粗暴的跳转,登陆成功之后权限会变成user或admin,会自动重定向到主页 Login success after permission
+        // changes to admin or user The refresh will automatically redirect to the home
+        // page yield put(routerRedux.push('/'));
+        cookie.set('token', response.bean.token);
+        const urlParams = new URL(window.location.href);
+
+        const pathname = yield select(state => {
+          return (
+            state &&
+            state.routing &&
+            state.routing.location &&
+            state.routing.location.pathname
+          );
+        });
+        // add the parameters in the url
+        const redirect = pathname
+          ? urlParams.searchParams.get('redirect', pathname)
+          : null;
+        yield put({ type: 'registerHandle', payload: response.bean, redirect });
+        if (
+          response.status_code === 200 &&
+          response.bean &&
+          response.bean.nick_name
+        ) {
+          const redirect = window.localStorage.getItem('redirect');
+          let inviteId = '';
+          if (redirect && redirect.includes('invite')) {
+            const reg = /invite\/([^\/]+)/;
+            const match = redirect.match(reg);
+            if (match) {
+              inviteId = match[1];
+            }
+            yield put(
+              routerRedux.push({
+                pathname: `/invite/${inviteId}`,
+                state: {
+                  account: response.bean.nick_name
+                }
+              })
+            );
+          } else {
+            yield put(
+              routerRedux.push({
+                pathname: '/user/register-result',
+                state: {
+                  account: response.bean.nick_name
+                }
+              })
+            );
+          }
+
+        } else {
+          yield put(routerRedux.push('/'));
+        }
+      }
+    },
     *thirdLogin({ payload, callback }, { call, put }) {
       const response = yield call(login, payload);
 
       if (response) {
         callback && callback(response);
+        cookie.set('token', response.bean.token);
         yield put({ type: 'changeLoginStatus', payload: response });
       }
     },
@@ -302,8 +384,8 @@ export default {
       const response = yield call(queryUsers);
       yield put({ type: 'save', payload: response });
     },
-    *fetchCurrent({ callback, handleError }, { call, put }) {
-      const response = yield call(getDetail, handleError);
+    *fetchCurrent({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getDetail, payload, handleError);
       if (response) {
         yield put({
           type: 'saveCurrentUser',

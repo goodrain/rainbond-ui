@@ -255,6 +255,40 @@ export async function register(
   });
 }
 
+// 短信注册
+export async function smsRegister(body = {}) {
+  return request(`${apiconfig.baseUrl}/console/users/register-by-phone`, {
+    method: 'post',
+    data: {
+      phone: body.phone,
+      code: body.code,
+      nick_name: body.nick_name
+    }
+  });
+}
+
+// 短信登录
+export async function smsLogin(body = {}) {
+  return request(`${apiconfig.baseUrl}/console/users/login-by-phone`, {
+    method: 'post',
+    data: {
+      phone: body.phone,
+      code: body.code
+    }
+  });
+}
+
+// 获取验证码
+export async function getSmsCode(body = {}) {
+  return request(`${apiconfig.baseUrl}/console/sms/send-code`, {
+    method: 'post',
+    data: {
+      phone: body.phone,
+      purpose: body.purpose
+    }
+  });
+}
+
 /* 发送找回密码邮件 */
 export async function send_backpassword_email(
   body = {
@@ -297,8 +331,14 @@ export async function changePass(
 /*
 	查看当前登录用户的详情
 */
-export async function getDetail(handleError) {
-  return request(`${apiconfig.baseUrl}/console/users/details`, { handleError });
+export async function getDetail(body = {}, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/details`, { 
+    method: 'get',
+    params: {
+      team_name: body.team_name
+    },
+    handleError 
+  });
 }
 
 /*

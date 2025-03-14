@@ -9,6 +9,7 @@ import CertificateForm from '../../components/CertificateForm';
 import CloudBackupForm from '../../components/CloudBackupForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import ImageHubForm from '../../components/ImageHubForm';
+import SmsConfigForm from '../../components/SmsConfigForm';
 import MonitoringForm from '../../components/MonitoringForm';
 import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
 import ScrollerX from '../../components/ScrollerX';
@@ -60,7 +61,9 @@ class Infrastructure extends PureComponent {
         { key: 'alioss', name: '阿里云对象存储' },
         { key: 's3', name: 'S3' }
       ],
-      isSwitch: rainbondInfo.is_alarm.enable || false
+      isSwitch: rainbondInfo.is_alarm.enable || false,
+      openSmsConfig: false,
+      smsConfig: null
     };
   }
   componentDidMount() {
@@ -70,6 +73,7 @@ class Infrastructure extends PureComponent {
     });
     this.fetchAlarmSwitch();
     this.fetchCloudStorage()
+    this.fetchSmsConfig()
   }
 
   onRegistChange = checked => {
@@ -316,6 +320,12 @@ class Infrastructure extends PureComponent {
   handelCloseBasicInformation = () => {
     this.setState({ openBasicInformation: false });
   };
+  handelOpenSmsConfig = () => {
+    this.setState({ openSmsConfig: true });
+  }
+  handelCloseSmsConfig = () => {
+    this.setState({ openSmsConfig: false });
+  }
   handelIsOpenBasicInformation = value => {
     const {
       dispatch,
@@ -442,6 +452,55 @@ class Infrastructure extends PureComponent {
     }
     );
   }
+  // 获取短信配置
+  fetchSmsConfig = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/getSmsConfig',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: (res) => {
+        this.setState({
+          smsConfig: res.bean
+        })
+      }
+    })
+  }
+
+  // 更新短信配置
+  handelIsOpenSmsConfig = (enable, value) => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/updateSmsConfig',
+      payload: {
+        enterprise_id: eid,
+        sms_config: {
+          enable,
+          value
+        }
+      },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          this.fetchSmsConfig()
+          this.handelCloseSmsConfig()
+          notification.success({
+            message: res.msg_show
+          })
+        }
+      }
+    })
+  }
   render() {
     const {
       enterprise,
@@ -468,7 +527,6 @@ class Infrastructure extends PureComponent {
         (rainbondInfo && rainbondInfo.enterprise_alias);
       const doc_url = rainbondUtil.documentPlatform_url(rainbondInfo);
       const officialDemo = rainbondUtil.officialDemoEnable(enterprise);
-
       // eslint-disable-next-line no-const-assign
       infos = {
         logo: fetchLogo,
@@ -480,7 +538,7 @@ class Infrastructure extends PureComponent {
       };
     }
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
-
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const {
       enterpriseAdminLoading,
       showDeleteDomain,
@@ -502,7 +560,9 @@ class Infrastructure extends PureComponent {
       closeCloudBackup,
       providers,
       openBasicInformation,
-      isSwitch
+      isSwitch,
+      openSmsConfig,
+      smsConfig
     } = this.state;
     const UserRegistered = (
       <Card
@@ -525,6 +585,15 @@ class Infrastructure extends PureComponent {
           </Col>
 
           <Col span={4} style={{ textAlign: 'right' }}>
+            {this.props.isRegist && isSaas && (
+              <a
+                onClick={this.handelOpenSmsConfig}
+                style={{ marginRight: '10px' }}
+              >
+                {/* 查看配置 */}
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
+              </a>
+            )}
             <Switch
               onChange={this.onRegistChange}
               // className={styles.automaTictelescopingSwitch}
@@ -803,6 +872,16 @@ class Infrastructure extends PureComponent {
             onCancel={this.handelCloseCertificate}
             onOk={values => {
               this.createClusters(values);
+            }}
+          />
+        )}
+        {openSmsConfig && (
+          <SmsConfigForm
+            eid={eid}
+            onCancel={this.handelCloseSmsConfig}
+            data={smsConfig?.sms_config.value}
+            onOk={values => {
+              this.handelIsOpenSmsConfig(true, values);
             }}
           />
         )}

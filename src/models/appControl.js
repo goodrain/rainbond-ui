@@ -145,6 +145,13 @@ import {
   addReverseDependency,
   determineStorageType,
   getListFiles,
+  getKubernetes,
+  addKubernetes,
+  editKubernetes,
+  batchOperation,
+  vertical,
+  horizontal,
+  newVertical
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -287,44 +294,44 @@ export default {
         callback(response);
       }
     },
-    *putBatchReStart({ payload, callback }, { call }) {
-      const response = yield call(batchReStart, payload);
+    *putBatchReStart({ payload, callback, handleError }, { call }) {
+      const response = yield call(batchReStart, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putBatchStart({ payload, callback }, { call }) {
-      const response = yield call(batchStart, payload);
+    *putBatchStart({ payload, callback, handleError }, { call }) {
+      const response = yield call(batchStart, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putBbatchStop({ payload, callback }, { call }) {
-      const response = yield call(batchStop, payload);
+    *putBbatchStop({ payload, callback, handleError }, { call }) {
+      const response = yield call(batchStop, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putBatchMove({ payload, callback }, { call }) {
-      const response = yield call(batchMove, payload);
+    *putBatchMove({ payload, callback, handleError }, { call }) {
+      const response = yield call(batchMove, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putReStart({ payload, callback }, { call }) {
-      const response = yield call(restart, payload);
+    *putReStart({ payload, callback, handleError }, { call }) {
+      const response = yield call(restart, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putStart({ payload, callback }, { call }) {
-      const response = yield call(start, payload);
+    *putStart({ payload, callback, handleError }, { call }) {
+      const response = yield call(start, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *putStop({ payload, callback }, { call }) {
-      const response = yield call(stop, payload);
+    *putStop({ payload, callback, handleError }, { call }) {
+      const response = yield call(stop, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -1193,6 +1200,49 @@ export default {
     },
     *getListFiles({ payload, callback, handleError }, { call }) {
       const response = yield call(getListFiles, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getKubernetes({ payload, callback }, { call }) {
+      const response = yield call(getKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addKubernetes({ payload, callback }, { call }) {
+      const response = yield call(addKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *editKubernetes({ payload, callback }, { call }) {
+      const response = yield call(editKubernetes, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 组件批量操作
+    *batchOperation({ payload, callback, handleError }, { call }) {
+      const response = yield call(batchOperation, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *horizontal({ payload, callback, handleError }, { call }) {
+      const response = yield call(horizontal, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *vertical({ payload, callback, handleError }, { call }) {
+      const response = yield call(vertical, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *newVertical({ payload, callback, handleError }, { call }) {
+      const response = yield call(newVertical, payload, handleError);
       if (response && callback) {
         callback(response);
       }

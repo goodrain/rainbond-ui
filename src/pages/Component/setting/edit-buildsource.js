@@ -59,9 +59,9 @@ export default class ChangeBuildSource extends PureComponent {
   }
   getUrlCheck() {
     if (this.state.serverType == 'svn') {
-      return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+      return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/)[^\s]+$/gi;
     }
-    return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+    return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/)[^\s]+$/gi;
   }
   changeServerType = value => {
     const { form } = this.props;
@@ -77,6 +77,14 @@ export default class ChangeBuildSource extends PureComponent {
   checkURL = (_rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
     if (urlCheck.test(value)) {
+      callback();
+    } else {
+      callback(<FormattedMessage id='componentOverview.body.ChangeBuildSource.Illegal' />);
+    }
+  }
+
+  checkImage = (_rule, value, callback) => {
+    if (/^[^\s]+$/.test(value)) {
       callback();
     } else {
       callback(<FormattedMessage id='componentOverview.body.ChangeBuildSource.Illegal' />);
@@ -332,7 +340,8 @@ export default class ChangeBuildSource extends PureComponent {
                       {
                         max: 190,
                         message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.max' }),
-                      }
+                      },
+                      { validator: this.checkImage, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.Illegal' }), }
                     ],
                   })(<Input placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_image_name' })} />)}
                 </FormItem>

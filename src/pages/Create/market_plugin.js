@@ -536,6 +536,13 @@ export default class Main extends PureComponent {
               `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/myplugns`
             )
           );
+        },
+        handleError: (err) => {
+          if(err){
+            notification.error({
+              message: err.data.msg_show
+            });
+          }
         }
       });
     });
@@ -627,6 +634,13 @@ export default class Main extends PureComponent {
             );
           }
         });
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };
@@ -709,6 +723,13 @@ export default class Main extends PureComponent {
             );
           }
         });
+      },
+      handleError: (err) => {
+        if(err){
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };

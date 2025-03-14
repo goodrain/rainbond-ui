@@ -20,7 +20,7 @@ const login = {
     'login.registerComponent.username':'请输入用户名!',
     'login.registerComponent.min_length':'最小长度3位',
     'login.registerComponent.max_length':'最大长度24位',
-    'login.registerComponent.Only':'只支持字母、数字、_和-组合',
+    'login.registerComponent.Only':'只支持小写字母、数字、_和-组合',
     'login.registerComponent.user':'用户名',
     'login.registerComponent.input_add':'请输入邮箱地址！',
     'login.registerComponent.add_error':'邮箱地址格式错误！',

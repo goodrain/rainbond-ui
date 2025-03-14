@@ -355,9 +355,9 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': '租户限额(GB)',
     'enterpriseTeamManagement.table.operation': '运行应用数',
     'enterpriseTeamManagement.table.handle': '操作',
-    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(MB)',
+    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(GB)',
     'enterpriseTeamManagement.table.CUP_total': 'CPU使用量/总量(m)',
-    'enterpriseTeamManagement.table.quota_total': '存储使用量/总量(GB)',
+    'enterpriseTeamManagement.table.quota_total': '存储使用量/总量',
 
     // td 表体
     'enterpriseTeamManagement.table.td.role': '角色',
@@ -374,7 +374,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': '申请加入项目/团队审批中',
     'enterpriseTeamManagement.other.haveNewJoinTeam': '最新加入项目/团队',
     'enterpriseTeamManagement.other.description': '暂无项目/团队，请点击创建项目/团队进行创建',
-    'enterpriseTeamManagement.other.personal': '工作空间',
+    'enterpriseTeamManagement.other.personal': '团队空间',
 
 }
 // 集群
@@ -1245,6 +1245,7 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.title': '网站标题',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias': '企业名称',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': '文档地址',
+    'enterpriseSetting.basicsSetting.basicInformation.form.label.cluster_security_limit': '集群安全限制',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': '网页图标',
     'enterpriseSetting.basicsSetting.alarm.title': '报警开关',

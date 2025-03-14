@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import AddImage from '../../components/AddImage';
 import globalUtil from '../../utils/global';
+import PluginUtil from '../../utils/pulginUtils'
 import { pinyin } from 'pinyin-pro';
 import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
@@ -33,10 +34,10 @@ const formItemLayouts = {
 @connect(
   ({ global, loading, teamControl }) => ({
     groups: global.groups,
-    createAppByDockerrunLoading:
-      loading.effects['createApp/createAppByDockerrun'],
+    createAppByDockerrunLoading: loading.effects['createApp/createAppByDockerrun'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
-
+    pluginsList: teamControl.pluginsList,
+    rainbondInfo: global.rainbondInfo,
   }),
   null,
   null,
@@ -120,7 +121,7 @@ export default class Index extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true } = this.props;
+    const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
     const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
@@ -133,16 +134,58 @@ export default class Index extends PureComponent {
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
-        console.log(isPublic, 'isPublic')
         if(!isPublic){
           const secretObj = imgRepostoryList.find(item => item.secret_id === secretId)
           fieldsValue.user_name = secretObj.username
           fieldsValue.password = secretObj.password
         }
+        const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+        if(fieldsValue.imagefrom == 'address' && isCloudProxy){
+          fieldsValue.docker_cmd = this.processImageProxy(fieldsValue.docker_cmd)
+        }
         onSubmit(fieldsValue);
       }
     });
   };
+
+  processImageProxy = (inputImage) => {
+    if (!inputImage) return inputImage; // 空值处理
+  
+    // 定义代理域名常量
+    const PROXY_DOMAIN = 'dockerhub.rainbond.cn';
+    const OFFICIAL_REPO = 'library';
+  
+    // 先判断是否包含斜杠
+    if (inputImage.includes('/')) {
+      // 如果有斜杠，取第一个斜杠前的内容判断是否是域名
+      const firstPart = inputImage.split('/')[0];
+      
+      // 如果是docker.io，直接替换成dockerhub.rainbond.cn
+      if (firstPart === 'docker.io') {
+        return inputImage.replace('docker.io', PROXY_DOMAIN);
+      }
+      
+      const isDomain = /^([a-zA-Z0-9]+\.[a-zA-Z]+)|([a-zA-Z0-9]+:[0-9]+)|localhost/.test(firstPart);
+      if (isDomain) return inputImage;
+    }
+
+    // 拆分镜像名称和标签
+    const [imagePart, ...tagParts] = inputImage.split(':');
+    const tag = tagParts.length > 0 ? `:${tagParts.join(':')}` : ':latest';
+    
+    // 处理不同层级的镜像名称
+    const parts = imagePart.split('/');
+    switch (parts.length) {
+      case 1: // 无命名空间（如 nginx）
+        return `${PROXY_DOMAIN}/${OFFICIAL_REPO}/${imagePart}${tag}`;
+      case 2: // 包含命名空间（如 rainbond/nginx）
+        return `${PROXY_DOMAIN}/${imagePart}${tag}`;
+      default: // 多级路径视为自定义仓库
+        return `${inputImage}`;
+    }
+  }
+  
+  
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
       return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
@@ -500,12 +543,13 @@ export default class Index extends PureComponent {
       selectedImage = false,
       imageUrl = false,
       tag = false,
+      rainbondInfo
     } = this.props;
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
     const group_id = globalUtil.getGroupID()
-
+    const isSaas = rainbondInfo?.is_saas || false;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -589,12 +633,15 @@ export default class Index extends PureComponent {
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
                 </Radio>
-                <Radio value='upload'>
-                  {formatMessage({ id: 'teamAdd.create.image.upload'})}
-                </Radio>
-                <Radio value='local'>
-                  {formatMessage({ id: 'teamAdd.create.image.local'})}
+                {!isSaas &&
+                <>
+                  <Radio value='upload'>
+                    {formatMessage({ id: 'teamAdd.create.image.upload'})}
                   </Radio>
+                  <Radio value='local'>
+                    {formatMessage({ id: 'teamAdd.create.image.local'})}
+                  </Radio>
+                </>}
                 </Radio.Group>
               ) : (
                 <Radio.Group onChange={this.handleChangeImageSource}>
@@ -609,6 +656,7 @@ export default class Index extends PureComponent {
             <Form.Item 
               {...is_language} 
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
+              extra={'默认启用DockerHub镜像加速'}
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: imageUrl || '',

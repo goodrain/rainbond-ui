@@ -1,6 +1,6 @@
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-unused-expressions */
-import { List, Progress } from 'antd';
+import { List, Progress, Empty } from 'antd';
 import React, { PureComponent } from 'react';
 import WaterWave from '../Charts/WaterWave';
 import style from './index.less';
@@ -69,7 +69,7 @@ class InstanceList extends PureComponent {
     };
     return (
       <>
-        {(list||[]).map((item) => {
+        {list.length > 0 && list.map((item) => {
           return <>
             <div className={style.card}> 
               <h1>{this.showName(item.pod_name)}</h1>
@@ -81,6 +81,7 @@ class InstanceList extends PureComponent {
             </div>
           </>
         })}
+        {list.length === 0 && <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100px' }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /></div>}
       </>
 
     );
