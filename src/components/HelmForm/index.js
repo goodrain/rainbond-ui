@@ -116,7 +116,7 @@ export default class Index extends PureComponent {
     if (!name) {
       return callbacks();
     }
-    if (name.length < 4) {
+    if (name.length < 2) {
       return callbacks(`${formatMessage({id:'applicationMarket.HelmForm.min'})}`);
     }
     if (name.length > 32) {

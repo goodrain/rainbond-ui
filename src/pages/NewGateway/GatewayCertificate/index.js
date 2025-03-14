@@ -458,12 +458,12 @@ class Control extends Component {
               pageSize,
               onChange: this.onPageChange,
               current: page,
-              total: licenseList.length ,
+              total: total,
               showQuickJumper: true,
               showSizeChanger: true,
               showTotal: (total) => `共 ${total} 条`,
               onShowSizeChange: this.onPageChange,
-              hideOnSinglePage: licenseList.length<=10
+              hideOnSinglePage: total<=10
             }}
             rowKey={this.rowKey}
             dataSource={licenseList}

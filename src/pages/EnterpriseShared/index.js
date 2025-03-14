@@ -39,7 +39,7 @@ import CreateHelmAppModels from '../../components/CreateHelmAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import HelmAppMarket from '../../components/HelmAppMarket';
 import InstallStep from '../../components/Introduced/InstallStep';
-// import PlatformIntroduced from '../../components/Introduced/PlatformIntroduced';
+import ScrollerX from '@/components/ScrollerX'
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -792,7 +792,8 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         this.setState({
-          activeTabKey: 'local'
+          activeTabKey: 'local',
+          deleteHelmAppMarketLoading: false
         }, () => {
           this.handleCloseDeleteHelmAppMarket();
           this.getHelmMarketsTab();
@@ -1877,247 +1878,247 @@ export default class EnterpriseShared extends PureComponent {
         titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
         isContent={true}
       >
+        <ScrollerX sm={1200}>
+          {showMarketCloudAuth && (
+            <AuthCompany
+              eid={eid}
+              marketName={marketInfo.name}
+              title={<FormattedMessage id='applicationMarket.AuthCompany.title' />}
+              onCancel={() => {
+                this.setState({ showMarketCloudAuth: false });
+              }}
+              currStep={2}
+              isReload
+              activeTabKey={activeTabKey}
+              onCloseLogin={this.onCloseLogin}
+            />
+          )}
+          {showMarketAppDetail && (
+            <MarketAppDetailShow
+              onOk={this.hideMarketAppDetail}
+              onCancel={this.hideMarketAppDetail}
+              app={this.state.showApp}
+            />
+          )}
+          {moreTags && (
+            <TagList
+              title={<FormattedMessage id='applicationMarket.TagList.label' />}
+              onOk={this.handleCloseMoreTags}
+              onChangeCheckbox={this.onChangeCheckbox}
+              onCancel={this.handleCloseMoreTags}
+              tagLists={tagLists}
+              seeTag={seeTag}
+              checkedValues={this.state.tags}
+              componentList={componentList}
+              editorTags={editorTags}
+            />
+          )}
+          {deleteApp && (
+            <ConfirmModal
+              onOk={this.handleDeleteApp}
+              desc={formatMessage({ id: 'confirmModal.delete.app_template.desc' })}
+              subDesc={formatMessage({ id: 'confirmModal.delete.app_template.subDesc' })}
+              title={formatMessage({ id: 'confirmModal.app_template.delete.title' })}
+              onCancel={this.handleCancelDelete}
+            />
+          )}
 
-        {showMarketCloudAuth && (
-          <AuthCompany
-            eid={eid}
-            marketName={marketInfo.name}
-            title={<FormattedMessage id='applicationMarket.AuthCompany.title' />}
-            onCancel={() => {
-              this.setState({ showMarketCloudAuth: false });
-            }}
-            currStep={2}
-            isReload
-            activeTabKey={activeTabKey}
-            onCloseLogin={this.onCloseLogin}
-          />
-        )}
-        {showMarketAppDetail && (
-          <MarketAppDetailShow
-            onOk={this.hideMarketAppDetail}
-            onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
-          />
-        )}
-        {moreTags && (
-          <TagList
-            title={<FormattedMessage id='applicationMarket.TagList.label' />}
-            onOk={this.handleCloseMoreTags}
-            onChangeCheckbox={this.onChangeCheckbox}
-            onCancel={this.handleCloseMoreTags}
-            tagLists={tagLists}
-            seeTag={seeTag}
-            checkedValues={this.state.tags}
-            componentList={componentList}
-            editorTags={editorTags}
-          />
-        )}
-        {deleteApp && (
-          <ConfirmModal
-            onOk={this.handleDeleteApp}
-            desc={formatMessage({ id: 'confirmModal.delete.app_template.desc' })}
-            subDesc={formatMessage({ id: 'confirmModal.delete.app_template.subDesc' })}
-            title={formatMessage({ id: 'confirmModal.app_template.delete.title' })}
-            onCancel={this.handleCancelDelete}
-          />
-        )}
+          {installHelmApp && (
+            <CreateHelmAppModels
+              title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install' />}
+              eid={eid}
+              appTypes={appTypes}
+              appInfo={appInfo}
+              helmInfo={helmInfo}
+              onOk={this.handleupDataAppModel}
+              onCancel={this.handleCancelupDataAppModel}
+            />
+          )}
+          {deleteAppMarket && (
+            <ConfirmModal
+              onOk={this.handleDeleteAppMarket}
+              loading={deleteAppMarketLoading}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
+              title={formatMessage({ id: 'confirmModal.app_store.delete.title' })}
+              onCancel={this.handleCloseDeleteAppMarket}
+            />
+          )}
+          {deleteHelmAppMarket && (
+            <ConfirmModal
+              onOk={this.handleDeleteHelmAppMarket}
+              loading={deleteHelmAppMarketLoading}
+              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+              desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
+              title={formatMessage({ id: 'confirmModal.helm_store.delete.title' })}
+              onCancel={this.handleCloseDeleteHelmAppMarket}
+            />
+          )}
 
-        {installHelmApp && (
-          <CreateHelmAppModels
-            title={<FormattedMessage id='applicationMarket.CreateHelmAppModels.install' />}
-            eid={eid}
-            appTypes={appTypes}
-            appInfo={appInfo}
-            helmInfo={helmInfo}
-            onOk={this.handleupDataAppModel}
-            onCancel={this.handleCancelupDataAppModel}
-          />
-        )}
-        {deleteAppMarket && (
-          <ConfirmModal
-            onOk={this.handleDeleteAppMarket}
-            loading={deleteAppMarketLoading}
-            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
-            title={formatMessage({ id: 'confirmModal.app_store.delete.title' })}
-            onCancel={this.handleCloseDeleteAppMarket}
-          />
-        )}
-        {deleteHelmAppMarket && (
-          <ConfirmModal
-            onOk={this.handleDeleteHelmAppMarket}
-            loading={deleteHelmAppMarketLoading}
-            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            desc={formatMessage({ id: 'confirmModal.delete.app_store.desc' })}
-            title={formatMessage({ id: 'confirmModal.helm_store.delete.title' })}
-            onCancel={this.handleCloseDeleteHelmAppMarket}
-          />
-        )}
+          {createAppModel && (
+            <CreateAppModels
+              title={<FormattedMessage id='applicationMarket.localMarket.setup' />}
+              eid={eid}
+              onOk={this.handleCreateAppModel}
+              onCancel={this.handleCancelAppModel}
+            />
+          )}
 
-        {createAppModel && (
-          <CreateAppModels
-            title={<FormattedMessage id='applicationMarket.localMarket.setup' />}
-            eid={eid}
-            onOk={this.handleCreateAppModel}
-            onCancel={this.handleCancelAppModel}
-          />
-        )}
+          {createAppMarket && (
+            <AuthCompany
+              isHelm
+              eid={eid}
+              title={<FormattedMessage id='applicationMarket.localMarket.add_app' />}
+              onOk={this.getHelmMarketsTab}
+              onOkMarketsTab={this.getMarketsTab}
+              onCancel={this.handleCancelAppMarket}
+              currStep={1}
+            />
+          )}
+          {upAppMarket && (
+            <CreateAppMarket
+              title={<FormattedMessage id="applicationMarket.CreateAppMarket.title" />}
+              eid={eid}
+              loading={upAppMarketLoading}
+              marketInfo={marketInfo}
+              onOk={this.handleCreateAppMarket}
+              onCancel={this.handleCancelAppMarket}
+            />
+          )}
+          {upHelmAppMarket && (
+            <HelmAppMarket
+              title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{ name: helmInfo.name }} />}
+              eid={eid}
+              data={helmInfo}
+              onOk={this.handleUpHelmAppMarket}
+              onCancel={this.handleCancelHelmAppMarket}
+            />
+          )}
 
-        {createAppMarket && (
-          <AuthCompany
-            isHelm
-            eid={eid}
-            title={<FormattedMessage id='applicationMarket.localMarket.add_app' />}
-            onOk={this.getHelmMarketsTab}
-            onOkMarketsTab={this.getMarketsTab}
-            onCancel={this.handleCancelAppMarket}
-            currStep={1}
-          />
-        )}
-        {upAppMarket && (
-          <CreateAppMarket
-            title={<FormattedMessage id="applicationMarket.CreateAppMarket.title" />}
-            eid={eid}
-            loading={upAppMarketLoading}
-            marketInfo={marketInfo}
-            onOk={this.handleCreateAppMarket}
-            onCancel={this.handleCancelAppMarket}
-          />
-        )}
-        {upHelmAppMarket && (
-          <HelmAppMarket
-            title={<FormattedMessage id='applicationMarket.HelmForm.title' values={{ name: helmInfo.name }} />}
-            eid={eid}
-            data={helmInfo}
-            onOk={this.handleUpHelmAppMarket}
-            onCancel={this.handleCancelHelmAppMarket}
-          />
-        )}
+          {upDataAppModel && (
+            <CreateAppModels
+              title={<FormattedMessage id='applicationMarket.localMarket.edit_app' />}
+              eid={eid}
+              appInfo={appInfo}
+              onOk={this.handleupDataAppModel}
+              onCancel={this.handleCancelupDataAppModel}
+            />
+          )}
+          {visibles && (
+            <DeleteApp
+              appInfo={appInfo}
+              bouncedText={bouncedText}
+              onOk={this.handleOkBounced}
+              onCancel={this.handleCancelDelete}
+              onCheckedValues={this.onChangeBounced}
+            />
+          )}
 
-        {upDataAppModel && (
-          <CreateAppModels
-            title={<FormattedMessage id='applicationMarket.localMarket.edit_app' />}
-            eid={eid}
-            appInfo={appInfo}
-            onOk={this.handleupDataAppModel}
-            onCancel={this.handleCancelupDataAppModel}
-          />
-        )}
-        {visibles && (
-          <DeleteApp
-            appInfo={appInfo}
-            bouncedText={bouncedText}
-            onOk={this.handleOkBounced}
-            onCancel={this.handleCancelDelete}
-            onCheckedValues={this.onChangeBounced}
-          />
-        )}
+          {showCloudMarketAuth && (
+            <AuthCompany
+              eid={eid}
+              marketName={marketInfo.name}
+              title={<FormattedMessage id='applicationMarket.AuthCompany.title_one' />}
+              onCancel={() => {
+                this.setState({ showCloudMarketAuth: false });
+              }}
+              currStep={2}
+            />
+          )}
+          {goClusters &&
+            <Modal
+              title={formatMessage({ id: 'topology.Topological.title' })}
+              visible={goClusters}
+              onOk={this.ModalhandleOk}
+              onCancel={() => {
+                this.setState({ goClusters: false });
+              }}
+            >
+              <p>{formatMessage({ id: 'applicationMarket.localMarket.installclusters' })}</p>
+              <p>{formatMessage({ id: 'applicationMarket.localMarket.isInstallclusters' })}</p>
+            </Modal>
+          }
+          {helmInfoSwitch && marketInfoSwitch ?
+            <Tabs
+              activeKey={activeTabKey}
+              className={styles.setTabs}
+              onChange={this.onTabChange}
+              type="card"
 
-        {showCloudMarketAuth && (
-          <AuthCompany
-            eid={eid}
-            marketName={marketInfo.name}
-            title={<FormattedMessage id='applicationMarket.AuthCompany.title_one' />}
-            onCancel={() => {
-              this.setState({ showCloudMarketAuth: false });
-            }}
-            currStep={2}
-          />
-        )}
-        {goClusters &&
-          <Modal
-            title={formatMessage({ id: 'topology.Topological.title' })}
-            visible={goClusters}
-            onOk={this.ModalhandleOk}
-            onCancel={() => {
-              this.setState({ goClusters: false });
-            }}
-          >
-            <p>{formatMessage({ id: 'applicationMarket.localMarket.installclusters' })}</p>
-            <p>{formatMessage({ id: 'applicationMarket.localMarket.isInstallclusters' })}</p>
-          </Modal>
-        }
-        {helmInfoSwitch && marketInfoSwitch ?
-          <Tabs
-            activeKey={activeTabKey}
-            className={styles.setTabs}
-            onChange={this.onTabChange}
-            type="card"
-
-          >
-            {storeTabs && storeTabs.length > 0 &&
-              storeTabs.map(item => {
-                const { types } = item;
-                if (types == "local") {
-                  return <TabPane
-                    tab={
-                      <span className={styles.verticalCen}>
-                        {/* {globalUtil.fetchSvg('localMarket')} */}
-                        {/* 本地组件库 */}
-                        <FormattedMessage id="applicationMarket.localMarket.title" />
-                      </span>
-                    }
-                    key="local"
-                  >
-                    <div
-                      style={{
-                        display: 'block',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}
-                    >
-                      {localsContent}
-                    </div>
-                  </TabPane>
-                } else if (types == "marketTab") {
-                  const { ID, alias, name } = item;
-                  return (
-                    <TabPane
+            >
+              {storeTabs && storeTabs.length > 0 &&
+                storeTabs.map(item => {
+                  const { types } = item;
+                  if (types == "local") {
+                    return <TabPane
                       tab={
                         <span className={styles.verticalCen}>
-                          {alias || name}
+                          {/* {globalUtil.fetchSvg('localMarket')} */}
+                          {/* 本地组件库 */}
+                          <FormattedMessage id="applicationMarket.localMarket.title" />
                         </span>
                       }
-                      key={ID}
+                      key="local"
                     >
-                      {marketContent}
+                      <div
+                        style={{
+                          display: 'block',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {localsContent}
+                      </div>
                     </TabPane>
-                  );
-                } else {
-                  const { name } = item;
-                  return (
-                    <TabPane
-                      tab={
-                        <span className={styles.verticalCen}>
-                          {name}
-                        </span>
-                      }
-                      key={name}
+                  } else if (types == "marketTab") {
+                    const { ID, alias, name } = item;
+                    return (
+                      <TabPane
+                        tab={
+                          <span className={styles.verticalCen}>
+                            {alias || name}
+                          </span>
+                        }
+                        key={ID}
+                      >
+                        {marketContent}
+                      </TabPane>
+                    );
+                  } else {
+                    const { name } = item;
+                    return (
+                      <TabPane
+                        tab={
+                          <span className={styles.verticalCen}>
+                            {name}
+                          </span>
+                        }
+                        key={name}
+                      >
+                        {helmContent}
+                      </TabPane>
+                    );
+                  }
+                })
+              }
+              {isCreateAppStore && (
+                <TabPane
+                  tab={
+                    <Tooltip
+                      placement="top"
+                      // title="添加应用市场"
+                      title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title' />}
                     >
-                      {helmContent}
-                    </TabPane>
-                  );
-                }
-              })
-            }
-            {isCreateAppStore && (
-              <TabPane
-                tab={
-                  <Tooltip
-                    placement="top"
-                    // title="添加应用市场"
-                    title={<FormattedMessage id='applicationMarket.addMarket.tooltip.title' />}
-                  >
-                    <Icon type="plus" className={styles.addSvg} />
-                  </Tooltip>
-                }
-                key="add"
-              />
-            )}
-          </Tabs> :
-          <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
-
-        }
+                      <Icon type="plus" className={styles.addSvg} />
+                    </Tooltip>
+                  }
+                  key="add"
+                />
+              )}
+            </Tabs> :
+            <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
+          }
+        </ScrollerX>
       </PageHeaderLayout>
     );
   }

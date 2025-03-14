@@ -8,6 +8,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
+import ScrollerX from '@/components/ScrollerX';
 import cloud from '../../../utils/cloud';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ClusterList from '../../../components/ClusterMgtList';
@@ -48,7 +49,7 @@ class Index extends Component {
   }
   fetchClusterInfoList = () => {
     const { dispatch } = this.props;
-    const { eventId, clusterID,rowCluster} = this.state
+    const { eventId, clusterID, rowCluster } = this.state
     dispatch({
       type: 'region/fetchClusterInfoList',
       payload: {
@@ -86,7 +87,7 @@ class Index extends Component {
               }, () => {
                 this.fetClusterNodeList(item);
                 this.fetDashboardList(item)
-                if(item.provider == 'rke'){
+                if (item.provider == 'rke') {
                   this.fetchClusterInfoList()
                 }
               });
@@ -183,7 +184,7 @@ class Index extends Component {
           }, () => {
             this.timer = setTimeout(() => {
               this.fetClusterNodeList(item, false)
-              if(item.provider == 'rke'){
+              if (item.provider == 'rke') {
                 this.fetchClusterInfoList()
               }
             }, 5000)
@@ -316,53 +317,55 @@ class Index extends Component {
         </Row>}
         content={formatMessage({ id: 'enterpriseColony.mgt.cluster.info' })}
       >
-        <Row className={styles.titleStyle} style={{margin: '0 0 10px'}}>
-          <span>{SVG.getSvg("infoSvg", 20)}</span>
-          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
-        </Row>
-        <Row>
-          <DetectionInfo
-            rowClusterInfo={rowCluster}
-            loadClusters={this.loadClusters}
-            nodeType={nodeType}
-            showInfo={showInfo}
-          />
-        </Row>
-        <Row className={styles.titleStyle}>
-          <span>{SVG.getSvg("listSvg", 20)}</span>
-          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
-        </Row>
-        <Row>
-          <ClusterList
-            eventId={eventId}
-            rowClusterInfo={rowCluster}
-            nodeList={nodeList}
-            active={this.editClusterNodeActive}
-            showInfo={showListInfo}
-            updateCluster={this.updateCluster}
-            handleLoadClusters={() => { this.loadClusters() }}
-          />
-        </Row>
-        <Row className={styles.titleStyle}>
-          <span>{SVG.getSvg("userSvg", 20)}</span>
-          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
-        </Row>
-        <Row>
-          <DetectionResources
-            showInfo={showInfo}
-            rowClusterInfo={rowCluster}
-          />
-        </Row>
-        <Row className={styles.titleStyle}>
-          <span>{SVG.getSvg("examineSvg", 20)}</span>
-          <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
-        </Row>
-        <Row>
-          <ClusterDetection
-            dashboardList={dashboardList}
-            dashboardShow={dashboardShow}
-          />
-        </Row>
+        <ScrollerX sm={900}>
+          <Row className={styles.titleStyle} style={{ margin: '0 0 10px' }}>
+            <span>{SVG.getSvg("infoSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
+          </Row>
+          <Row>
+            <DetectionInfo
+              rowClusterInfo={rowCluster}
+              loadClusters={this.loadClusters}
+              nodeType={nodeType}
+              showInfo={showInfo}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("listSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
+          </Row>
+          <Row>
+            <ClusterList
+              eventId={eventId}
+              rowClusterInfo={rowCluster}
+              nodeList={nodeList}
+              active={this.editClusterNodeActive}
+              showInfo={showListInfo}
+              updateCluster={this.updateCluster}
+              handleLoadClusters={() => { this.loadClusters() }}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("userSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
+          </Row>
+          <Row>
+            <DetectionResources
+              showInfo={showInfo}
+              rowClusterInfo={rowCluster}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("examineSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
+          </Row>
+          <Row>
+            <ClusterDetection
+              dashboardList={dashboardList}
+              dashboardShow={dashboardShow}
+            />
+          </Row>
+        </ScrollerX>
       </PageHeaderLayout>
     );
   }

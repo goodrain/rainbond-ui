@@ -200,8 +200,7 @@ export default class index extends Component {
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.port' })} extra={<span style={{ color: 'red' }}>{this.getAccessAddress()}</span>}>
                             {getFieldDecorator('ingressPort', {
                                 rules: [
-                                    { required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' }) },
-                                    { pattern: /^3[0-1][0-9]{3}$|^32000$/, message: '端口范围 30000-32000之间' }
+                                    { required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' }) }
                                 ],
                                 initialValue: (editInfo && editInfo.nodePort) || ''
                             })(<Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' })} type='number' />)}

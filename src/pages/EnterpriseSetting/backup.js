@@ -23,6 +23,7 @@ import {
 import cookie from '../../utils/cookie';
 import download from '../../utils/download';
 import sourceUtil from '../../utils/source-unit';
+import ScrollerX from '../../components/ScrollerX';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 
@@ -217,7 +218,7 @@ export default class BackupManage extends PureComponent {
     const token = cookie.get('token');
     const uploadURL = `/console/enterprise/${eid}/upload-backups`;
     return (
-      <Fragment>
+      <ScrollerX sm={840}>
         <Card
           title={
             <Alert
@@ -292,7 +293,7 @@ export default class BackupManage extends PureComponent {
             </Form>
           </Modal>
         )}
-      </Fragment>
+      </ScrollerX>
     );
   }
 }

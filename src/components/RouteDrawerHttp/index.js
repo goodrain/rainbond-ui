@@ -398,8 +398,7 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        const reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-
+        const reg = /^[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);
@@ -420,7 +419,7 @@ export default class index extends Component {
             if (isPass) {
                 callback();
             } else {
-                callback(new Error('格式不满足要求'));
+                callback(new Error('域名格式不正确，必须是有效的域名格式，如：example.com'));
             }
         } else {
             return callback();
@@ -549,15 +548,15 @@ export default class index extends Component {
                                 rules: [
                                     { validator: this.handleValidatorsHosts },
                                     // 域名不允许填入ip
-                                    { validator: this.handleValidatorsHostsIp }
+                                    { validator: this.handleValidatorsHostsIp },
                                 ],
                                 initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
                             })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
-                            <span style={{ fontWeight: 'bold', fontSize: '16px'}}>
+                            <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                                 <a href="javascript:void(0)" onClick={this.showDescription}>
                                     {formatMessage({ id: 'popover.access_strategy.lable.analysis' })}
                                     <span style={{ textDecoration: 'underline' }}>
-                                    {currentRegion && currentRegion.tcpdomain}
+                                        {currentRegion && currentRegion.tcpdomain}
                                     </span>
                                 </a>
                             </span>
@@ -751,25 +750,6 @@ export default class index extends Component {
                                 )
                         })}
                     </Form>
-                    <div
-                        style={{
-                            position: 'absolute',
-                            right: 0,
-                            bottom: 0,
-                            width: '100%',
-                            borderTop: '1px solid #e9e9e9',
-                            padding: '10px 16px',
-                            background: '#fff',
-                            textAlign: 'right',
-                        }}
-                    >
-                        <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-                            {formatMessage({ id: 'popover.cancel' })}
-                        </Button>
-                        <Button type="primary" onClick={this.handleSubmit}>
-                            {formatMessage({ id: 'popover.confirm' })}
-                        </Button>
-                    </div>
                 </Drawer>
                 {this.state.descriptionVisible && (
                     <Modal

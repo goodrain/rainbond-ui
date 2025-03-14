@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
 import NewbieGuiding from '@/components/NewbieGuiding';
+import ScrollerX from '@/components/ScrollerX';
 import {
   Card,
   Col,
@@ -75,7 +76,7 @@ export default class EnterpriseClusters extends PureComponent {
   setProvider = value => {
     this.setState({ selectProvider: value });
   };
-  
+
   loadClusters = () => {
     const {
       dispatch,
@@ -137,7 +138,7 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          window.localStorage.setItem('event_id',res.bean.event_id)
+          window.localStorage.setItem('event_id', res.bean.event_id)
           const status = res.bean.create_status;
           let path = TOCLUSTERLIST_PATHS[status] || TOCLUSTERLIST_PATHS.initializing;
           path = path.replace('{eid}', eid).replace('{provider}', provider);
@@ -298,115 +299,117 @@ export default class EnterpriseClusters extends PureComponent {
         extraContent={extraContent}
         titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 18)}
       >
-        <Card style={{
-          marginBottom: '16px',
-          borderRadius: 5,
-        }}>
-          <Row>
-            <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure' /></h3>
-            <Divider />
-          </Row>
-          <Row>
-            <Col span={12}>
-              <div
-                onClick={() => this.toClusterList('rke')}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{globalUtil.fetchSvg('hostIcon')}</div>
-                <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.host' /></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.automatically' /></p>
+        <ScrollerX sm={840}>
+          <Card style={{
+            marginBottom: '16px',
+            borderRadius: 5,
+          }}>
+            <Row>
+              <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure' /></h3>
+              <Divider />
+            </Row>
+            <Row>
+              <Col span={12}>
+                <div
+                  onClick={() => this.toClusterList('rke')}
+                  className={styles.import}
+                >
+                  <div className={styles.importicon}>{globalUtil.fetchSvg('hostIcon')}</div>
+                  <div className={styles.importDesc}>
+                    <h3><FormattedMessage id='enterpriseColony.addCluster.host' /></h3>
+                    <p><FormattedMessage id='enterpriseColony.addCluster.automatically' /></p>
+                  </div>
                 </div>
-              </div>
-              {guideStep === 2 &&
-                clusters &&
-                clusters.length === 0 &&
-                this.handleNewbieGuiding({
-                  tit: formatMessage({ id: 'enterpriseColony.addCluster.install' }),
-                  configName: 'hostInstall',
-                  desc: formatMessage({ id: 'enterpriseColony.addCluster.common' }),
-                  nextStep: 3,
-                  svgPosition: { marginLeft: '58px' }
-                })}
-            </Col>
-            <Col span={12}>
-              <div
-                onClick={() => {
-                  this.handleInstallRegion('helm');
-                }}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{globalUtil.fetchSvg('kubernetesIcon')}</div>
-                <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.colony' /></h3>
-                  <p> <FormattedMessage id='enterpriseColony.addCluster.management' /></p>
+                {guideStep === 2 &&
+                  clusters &&
+                  clusters.length === 0 &&
+                  this.handleNewbieGuiding({
+                    tit: formatMessage({ id: 'enterpriseColony.addCluster.install' }),
+                    configName: 'hostInstall',
+                    desc: formatMessage({ id: 'enterpriseColony.addCluster.common' }),
+                    nextStep: 3,
+                    svgPosition: { marginLeft: '58px' }
+                  })}
+              </Col>
+              <Col span={12}>
+                <div
+                  onClick={() => {
+                    this.handleInstallRegion('helm');
+                  }}
+                  className={styles.import}
+                >
+                  <div className={styles.importicon}>{globalUtil.fetchSvg('kubernetesIcon')}</div>
+                  <div className={styles.importDesc}>
+                    <h3><FormattedMessage id='enterpriseColony.addCluster.colony' /></h3>
+                    <p> <FormattedMessage id='enterpriseColony.addCluster.management' /></p>
+                  </div>
                 </div>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-        <Card style={{
-          borderRadius: 5,
-        }}>
-          <Row>
-            <h3><FormattedMessage id='enterpriseColony.addCluster.service' /></h3>
-            <Divider />
-          </Row>
-          <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
-            <Col style={{ width: '33%' }}>
-              <div
-                onClick={() => {
-                  this.handleInstallRegion('aliyun');
-                }}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{globalUtil.fetchSvg('aliIcon')}</div>
-                <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.ali' /></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.manage' /></p>
+              </Col>
+            </Row>
+          </Card>
+          <Card style={{
+            borderRadius: 5,
+          }}>
+            <Row>
+              <h3><FormattedMessage id='enterpriseColony.addCluster.service' /></h3>
+              <Divider />
+            </Row>
+            <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
+              <Col style={{ width: '33%' }}>
+                <div
+                  onClick={() => {
+                    this.handleInstallRegion('aliyun');
+                  }}
+                  className={styles.import}
+                >
+                  <div className={styles.importicon}>{globalUtil.fetchSvg('aliIcon')}</div>
+                  <div className={styles.importDesc}>
+                    <h3><FormattedMessage id='enterpriseColony.addCluster.ali' /></h3>
+                    <p><FormattedMessage id='enterpriseColony.addCluster.manage' /></p>
+                  </div>
                 </div>
-              </div>
-            </Col>
-            <Col style={{ width: '33%' }}>
-              <div
-                onClick={() => {
-                  this.handleInstallRegion('huawei');
-                }}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{globalUtil.fetchSvg('huaweiIcon')}</div>
-                <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.huawei' /></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.Docking' /></p>
+              </Col>
+              <Col style={{ width: '33%' }}>
+                <div
+                  onClick={() => {
+                    this.handleInstallRegion('huawei');
+                  }}
+                  className={styles.import}
+                >
+                  <div className={styles.importicon}>{globalUtil.fetchSvg('huaweiIcon')}</div>
+                  <div className={styles.importDesc}>
+                    <h3><FormattedMessage id='enterpriseColony.addCluster.huawei' /></h3>
+                    <p><FormattedMessage id='enterpriseColony.addCluster.Docking' /></p>
+                  </div>
                 </div>
-              </div>
-            </Col>
-            <Col style={{ width: '33%' }}>
-              <div
-                onClick={() => {
-                  this.handleInstallRegion('tencent');
-                }}
-                className={styles.import}
-              >
-                <div className={styles.importicon}>{globalUtil.fetchSvg('tencentIcon')}</div>
-                <div className={styles.importDesc}>
-                  <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun' /></h3>
-                  <p><FormattedMessage id='enterpriseColony.addCluster.clusters' /></p>
+              </Col>
+              <Col style={{ width: '33%' }}>
+                <div
+                  onClick={() => {
+                    this.handleInstallRegion('tencent');
+                  }}
+                  className={styles.import}
+                >
+                  <div className={styles.importicon}>{globalUtil.fetchSvg('tencentIcon')}</div>
+                  <div className={styles.importDesc}>
+                    <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun' /></h3>
+                    <p><FormattedMessage id='enterpriseColony.addCluster.clusters' /></p>
+                  </div>
                 </div>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-        {addClusterShow && (
-          <BaseAddCluster
-            eid={eid}
-            onOk={this.addClusterOK}
-            onCancel={this.cancelAddCluster}
-          />
-        )}
-        {addCustomClusterShow && (
-          <CustomClusterAdd eid={eid} onCancel={this.cancelAddCustomCluster} />
-        )}
+              </Col>
+            </Row>
+          </Card>
+          {addClusterShow && (
+            <BaseAddCluster
+              eid={eid}
+              onOk={this.addClusterOK}
+              onCancel={this.cancelAddCluster}
+            />
+          )}
+          {addCustomClusterShow && (
+            <CustomClusterAdd eid={eid} onCancel={this.cancelAddCustomCluster} />
+          )}
+        </ScrollerX>
       </PageHeaderLayout>
     );
   }

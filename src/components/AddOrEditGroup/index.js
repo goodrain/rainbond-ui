@@ -10,6 +10,7 @@ import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import userUtil from '../../utils/user';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
@@ -86,6 +87,7 @@ export default class EditGroupName extends PureComponent {
           })
             .then(res => {
               const groupId = res && res.bean && res.bean.group_id;
+              this.fetchGroup()
               if (groupId && isGetGroups) {
                 dispatch({
                   type: 'global/fetchGroups',
@@ -116,6 +118,32 @@ export default class EditGroupName extends PureComponent {
       }
     });
   };
+
+  fetchGroup = () => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'user/fetchCurrent',
+      callback: res => {
+        if (res && res.bean) {
+         const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          this.setState({
+            currentTeam: team,
+            indexLoading: false
+          });
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
+          dispatch({
+            type: 'teamControl/fetchCurrentTeam',
+            payload: team
+          });
+        }
+      },
+    });
+  };
+
   handleLoading = appLoading => {
     this.setState({
       appLoading

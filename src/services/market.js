@@ -287,7 +287,7 @@ export async function postHelmAppStore(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/appstores`,
     {
-      method: 'post',
+      method: 'get',
       data: body,
       handleError
     }

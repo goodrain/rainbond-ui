@@ -212,7 +212,7 @@ const applicationMarket = {
     'applicationMarket.CreateHelmAppModels.start': 'Build run',
     //  applicationMarket>HelmForm
     'applicationMarket.HelmForm.title': 'Edit {name} market',
-    'applicationMarket.HelmForm.min': 'Minimum length: 4 bits',
+    'applicationMarket.HelmForm.min': 'Minimum length: 2 bits',
     'applicationMarket.HelmForm.max': 'Maximum length: 32 bits',
     'applicationMarket.HelmForm.only': 'Only the combination of lowercase letters, lowercase letters and numbers is supported',
     'applicationMarket.HelmForm.name': 'Warehouse name already exists',

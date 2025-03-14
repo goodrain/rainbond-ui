@@ -866,22 +866,10 @@ class TeamLayout extends PureComponent {
             </Authorized>
           </div>
         );
-      };
+      };      
       const isApp = mode == 'team' ? false : showMenu ? !componentID : false
       return (
         <Layout>
-          <SiderMenu
-            enterpriseList={enterpriseList}
-            currentEnterprise={currentEnterprise}
-            currentTeam={currentTeam}
-            currentUser={currentUser}
-            logo={fetchLogo}
-            Authorized={Authorized}
-            collapsed={collapsed}
-            location={location}
-            isMobile={this.state.isMobile}
-            onCollapse={this.handleMenuCollapse}
-          />
           <Layout>
             <GlobalHeader
               key={
@@ -927,64 +915,65 @@ class TeamLayout extends PureComponent {
                   showMenu={isApp}
                 />
               )}
-              {this.state.GroupShow ?
-                <TransitionGroup
-                  style={{
-                    height: 'calc(100vh - 64px)',
-                    overflow: 'auto',
-                    width: collapsed ? 'calc(100% + 416px)' : 'calc(100% + 116px)',
-                    backgroundColor: globalUtil.getPublicColor('rbd-background-color')
-                  }}>
+              <div style={{ width:(mode == 'team' || componentID) ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+                {this.state.GroupShow ?
+                  <TransitionGroup
+                    style={{
+                      height: 'calc(100vh - 64px)',
+                      overflow: 'auto',
+                      backgroundColor: globalUtil.getPublicColor('rbd-background-color')
+                    }}>
 
-                  <CSSTransition
-                    timeout={300}
-                    classNames=
-                    {{
-                      enter: 'animate__animated',
-                      enterActive: 'animate__fadeIn',
-                    }}
-                    unmountOnExit
-                    key={this.props.location.pathname}
-                  >
+                    <CSSTransition
+                      timeout={300}
+                      classNames=
+                      {{
+                        enter: 'animate__animated',
+                        enterActive: 'animate__fadeIn',
+                      }}
+                      unmountOnExit
+                      key={this.props.location.pathname}
+                    >
+                      <Content
+                        style={{
+                          height: 'calc(100vh - 64px)',
+                          overflow: 'auto',
+                          width: '100%'
+                        }}
+                      >
+                        <div
+                          style={{
+                            margin: marginShow ? !isApp ? '0px' : '24px 24px 0' : "0px"
+                          }}
+                        >
+                          {renderContent()}
+                          <CustomFooter />
+                        </div>
+                      </Content>
+                    </CSSTransition>
+                  </TransitionGroup> :
+                  (
                     <Content
                       style={{
                         height: 'calc(100vh - 64px)',
+                        background: globalUtil.getPublicColor("rbd-background-color"),
                         overflow: 'auto',
                         width: '100%'
                       }}
                     >
                       <div
                         style={{
-                          margin: marginShow ? !isApp ? '0px' : '24px 24px 0' : "0px"
+                          margin: !isApp ? '0px' : '24px 24px 0'
                         }}
                       >
                         {renderContent()}
-                        <CustomFooter />
+                        {showFooter && <CustomFooter />}
+
                       </div>
                     </Content>
-                  </CSSTransition>
-                </TransitionGroup> :
-                (
-                  <Content
-                    style={{
-                      height: 'calc(100vh - 64px)',
-                      background: globalUtil.getPublicColor("rbd-background-color"),
-                      overflow: 'auto',
-                      width: '100%'
-                    }}
-                  >
-                    <div
-                      style={{
-                        margin: !isApp ? '0px' : '24px 24px 0'
-                      }}
-                    >
-                      {renderContent()}
-                      {showFooter && <CustomFooter />}
-
-                    </div>
-                  </Content>
-                )
-              }
+                  )
+                }
+              </div>
             </Layout>
           </Layout>
         </Layout>

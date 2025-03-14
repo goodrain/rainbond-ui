@@ -121,8 +121,8 @@ export default {
         callback(response);
       }
     },
-    *fetchEnterpriseClusters({ payload, callback }, { call, put }) {
-      const response = yield call(fetchEnterpriseClusters, payload);
+    *fetchEnterpriseClusters({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(fetchEnterpriseClusters, payload, handleError);
       if (response && callback) {
         yield put({ type: 'saveClusterInfo', payload: response.list });
         callback(response);

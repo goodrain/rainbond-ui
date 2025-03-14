@@ -22,7 +22,8 @@ import { connect } from 'dva';
 import { setLocale, getLocale, } from 'umi/locale'
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { routerRedux } from 'dva/router';
-import Debounce from 'lodash-decorators/debounce';
+// import Debounce from 'lodash-decorators/debounce';
+import ScrollerX from '../ScrollerX';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/default_Avatar.png';
 import wechat from '../../../public/images/wechat.jpg';
@@ -184,11 +185,11 @@ export default class GlobalHeader extends PureComponent {
     });
   };
 
-  toggle = () => {
-    const { collapsed, onCollapse } = this.props;
-    onCollapse(!collapsed);
-  };
-  @Debounce(600)
+  // toggle = () => {
+  //   const { collapsed, onCollapse } = this.props;
+  //   onCollapse(!collapsed);
+  // };
+  // @Debounce(600)
   handleVip = () => {
     const { dispatch, eid } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
@@ -333,6 +334,7 @@ export default class GlobalHeader extends PureComponent {
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
+      <ScrollerX sm={900}>
       <Header className={styles.header}>
         <div>
           {customHeaderImg && customHeaderImg()}
@@ -453,6 +455,7 @@ export default class GlobalHeader extends PureComponent {
           </Modal>
         )}
       </Header>
+      </ScrollerX>
     );
   }
 }

@@ -11,6 +11,7 @@ import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import ScrollerX from '@/components/ScrollerX';
 import styles from './index.less'
 
 const FormItem = Form.Item;
@@ -363,7 +364,7 @@ export default class EnterpriseUsers extends PureComponent {
         content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getPageHeaderSvg('users', 18)}
       >
-        <div>
+        <ScrollerX sm={840}>
           <Card 
           className={styles.cardBody}
           title={
@@ -456,7 +457,7 @@ export default class EnterpriseUsers extends PureComponent {
             </div>
 
           </Card>
-        </div>
+        </ScrollerX>
       </PageHeaderLayout>
     );
   }

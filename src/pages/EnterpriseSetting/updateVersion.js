@@ -20,6 +20,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import ReactMarkdown from 'react-markdown';
 import EscalationState from '../../components/EscalationState'
+import ScrollerX from '../../components/ScrollerX';
 import Result from '../../components/Result'
 import styles from './index.less'
 
@@ -243,124 +244,126 @@ export default class UpdateVersion extends PureComponent {
     );
 
     return (
-      <div style={{ padding: '0' }}>
-        {handleError ?
-          <Empty />
-          :
-          <>
-            {!isShowModal &&
-              <>
-                {
-                  isShowVersionList ? (
-                    <Skeleton loading={loading} active>
-                      <Alert className={styles.alert_style} message={message} type="info" />
-                      <Collapse className={styles.panel_style} activeKey={activeKey} expandIconPosition='right' accordion onChange={this.fetchVersionDetails}>
-                        {
-                          versionList && versionList.length > 0 && (
-                            versionList.map((item, index) => {
-                              return (
-                                <Panel header={handleVersionSvg(item)} key={item} extra={formatMessage({ id: 'enterpriseSetting.updateVersion.collapse.panel.title' })}>
-                                  {
-                                    isShowContent ? (
-                                      <>
-                                        <ReactMarkdown
-                                          source={details}
-                                          className={styles.markdown}
-                                        />
-                                        <div style={{
-                                          display: 'flex',
-                                          justifyContent: 'flex-end'
-                                        }}>
-                                          <Button onClick={this.handleSumbit} type='primary'>{formatMessage({ id: 'platformUpgrade.EscalationState.goUpdata' })}</Button>
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <Spin className={styles.spin_style}></Spin>
-                                    )
-                                  }
-                                </Panel>
-                              )
-                            })
-                          )
-                        }
-                      </Collapse>
-                    </Skeleton>
+      <ScrollerX sm={840}>
+        <div style={{ padding: '0' }}>
+          {handleError ?
+            <Empty />
+            :
+            <>
+              {!isShowModal &&
+                <>
+                  {
+                    isShowVersionList ? (
+                      <Skeleton loading={loading} active>
+                        <Alert className={styles.alert_style} message={message} type="info" />
+                        <Collapse className={styles.panel_style} activeKey={activeKey} expandIconPosition='right' accordion onChange={this.fetchVersionDetails}>
+                          {
+                            versionList && versionList.length > 0 && (
+                              versionList.map((item, index) => {
+                                return (
+                                  <Panel header={handleVersionSvg(item)} key={item} extra={formatMessage({ id: 'enterpriseSetting.updateVersion.collapse.panel.title' })}>
+                                    {
+                                      isShowContent ? (
+                                        <>
+                                          <ReactMarkdown
+                                            source={details}
+                                            className={styles.markdown}
+                                          />
+                                          <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'flex-end'
+                                          }}>
+                                            <Button onClick={this.handleSumbit} type='primary'>{formatMessage({ id: 'platformUpgrade.EscalationState.goUpdata' })}</Button>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <Spin className={styles.spin_style}></Spin>
+                                      )
+                                    }
+                                  </Panel>
+                                )
+                              })
+                            )
+                          }
+                        </Collapse>
+                      </Skeleton>
+                    ) : (
+                      <>
+                        <Alert className={styles.alert_style} message={noversion} type="success" />
+                        <Descriptions bordered>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.nowVs' })}>{selsectValue?.tag_name}</Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.updatatime' })} span={2}>{selsectValue?.update_time}</Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.githubadd' })} span={3}>
+                            <a href={selsectValue?.html_url} target="_blank">
+                              {selsectValue?.html_url}
+                            </a>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.updatainfo' })}>
+                            <ReactMarkdown
+                              source={details}
+                              className={styles.markdown}
+                            />
+                          </Descriptions.Item>
+                        </Descriptions>
+                      </>
+                    )
+                  }
+                </>
+              }
+
+              {isShowModal &&
+                <>
+                  {isShowComplete === 'not_start' ? (
+                    <>
+                      <Card title={formatMessage({ id: 'platformUpgrade.EscalationState.updatadetails' })} >
+                        <Descriptions bordered title={
+                          <div className={styles.DescriptionsTitle}>
+                            {formatMessage({ id: 'platformUpgrade.EscalationState.vs' })}
+                            <span>{currentVersion}</span>
+                            {formatMessage({ id: 'platformUpgrade.EscalationState.updatatovs' })}
+                            <span>{version}</span>
+                          </div>
+                        }>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvs' })}>{selsectValue?.tag_name}</Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvsupload' })} span={2}>{selsectValue?.update_time}</Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.githubadd' })} span={3}>
+                            <a href={selsectValue?.html_url} target="_blank">
+                              {selsectValue?.html_url}
+                            </a>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvsinfo' })}>
+                            <ReactMarkdown
+                              source={details}
+                              className={styles.markdown}
+                            />
+                          </Descriptions.Item>
+                        </Descriptions>
+                      </Card>
+                      <Row justify='center' type="flex" style={{ marginTop: 24 }}>
+                        <Button type='primary' onClick={() => this.showToUpdata(true)} style={{ marginRight: 16 }}>{formatMessage({ id: 'platformUpgrade.EscalationState.updata' })}</Button>
+                        <Button onClick={this.handleCancel}>{formatMessage({ id: 'platformUpgrade.EscalationState.back' })}</Button>
+                      </Row>
+                    </>
                   ) : (
                     <>
-                      <Alert className={styles.alert_style} message={noversion} type="success" />
-                      <Descriptions bordered>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.nowVs' })}>{selsectValue?.tag_name}</Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.updatatime' })} span={2}>{selsectValue?.update_time}</Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.githubadd' })} span={3}>
-                          <a href={selsectValue?.html_url} target="_blank">
-                            {selsectValue?.html_url}
-                          </a>
-                        </Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.updatainfo' })}>
-                          <ReactMarkdown
-                            source={details}
-                            className={styles.markdown}
-                          />
-                        </Descriptions.Item>
-                      </Descriptions>
+                      <EscalationState isShowComplete={isShowComplete} complete={this.complete} />
                     </>
-                  )
-                }
-              </>
-            }
-
-            {isShowModal &&
-              <>
-                {isShowComplete === 'not_start' ? (
-                  <>
-                    <Card title={formatMessage({ id: 'platformUpgrade.EscalationState.updatadetails' })} >
-                      <Descriptions bordered title={
-                        <div className={styles.DescriptionsTitle}>
-                          {formatMessage({ id: 'platformUpgrade.EscalationState.vs' })}
-                          <span>{currentVersion}</span>
-                          {formatMessage({ id: 'platformUpgrade.EscalationState.updatatovs' })}
-                          <span>{version}</span>
-                        </div>
-                      }>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvs' })}>{selsectValue?.tag_name}</Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvsupload' })} span={2}>{selsectValue?.update_time}</Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.githubadd' })} span={3}>
-                          <a href={selsectValue?.html_url} target="_blank">
-                            {selsectValue?.html_url}
-                          </a>
-                        </Descriptions.Item>
-                        <Descriptions.Item label={formatMessage({ id: 'platformUpgrade.EscalationState.newvsinfo' })}>
-                          <ReactMarkdown
-                            source={details}
-                            className={styles.markdown}
-                          />
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Card>
-                    <Row justify='center' type="flex" style={{ marginTop: 24 }}>
-                      <Button type='primary' onClick={() => this.showToUpdata(true)} style={{ marginRight: 16 }}>{formatMessage({ id: 'platformUpgrade.EscalationState.updata' })}</Button>
-                      <Button onClick={this.handleCancel}>{formatMessage({ id: 'platformUpgrade.EscalationState.back' })}</Button>
-                    </Row>
-                  </>
-                ) : (
-                  <>
-                    <EscalationState isShowComplete={isShowComplete} complete={this.complete} />
-                  </>
-                )}
-              </>
-            }
-          </>
-        }
-        {toUpdata &&
-          <ConfirmModal
-            title={formatMessage({ id: 'platformUpgrade.EscalationState.updataplatform' })}
-            subDesc={formatMessage({ id: 'platformUpgrade.EscalationState.310' })}
-            desc={formatMessage({ id: 'platformUpgrade.EscalationState.info' })}
-            onOk={this.handleSubmitUpdata}
-            onCancel={() => this.showToUpdata(false)}
-          />
-        }
-      </div>
+                  )}
+                </>
+              }
+            </>
+          }
+          {toUpdata &&
+            <ConfirmModal
+              title={formatMessage({ id: 'platformUpgrade.EscalationState.updataplatform' })}
+              subDesc={formatMessage({ id: 'platformUpgrade.EscalationState.310' })}
+              desc={formatMessage({ id: 'platformUpgrade.EscalationState.info' })}
+              onOk={this.handleSubmitUpdata}
+              onCancel={() => this.showToUpdata(false)}
+            />
+          }
+        </div>
+      </ScrollerX>
     )
   }
 }
