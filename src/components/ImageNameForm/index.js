@@ -543,18 +543,19 @@ export default class Index extends PureComponent {
       selectedImage = false,
       imageUrl = false,
       tag = false,
-      rainbondInfo
+      rainbondInfo,
+      pluginsList
     } = this.props;
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
     const group_id = globalUtil.getGroupID()
-    const isSaas = rainbondInfo?.is_saas || false;
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts;
+    const isImageProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill')
     let arch = 'amd64'
     let archLegnth = archInfo?.length || 0
     if (archLegnth == 2) {
@@ -633,7 +634,7 @@ export default class Index extends PureComponent {
                 <Radio value='cmd'>
                   {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
                 </Radio>
-                {!isSaas &&
+                {!isImageProxy &&
                 <>
                   <Radio value='upload'>
                     {formatMessage({ id: 'teamAdd.create.image.upload'})}
@@ -656,7 +657,7 @@ export default class Index extends PureComponent {
             <Form.Item 
               {...is_language} 
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
-              extra={'默认启用DockerHub镜像加速'}
+              extra={isImageProxy ? '默认启用DockerHub镜像加速' : ''}
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: imageUrl || '',

@@ -578,7 +578,7 @@ export default class index extends Component {
                                 </a>
                             </span>
                             {showCloudBill &&
-                                <Alert 
+                                <Alert
                                     message={
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div>使用自定义域名需要完成备案</div>
@@ -586,8 +586,8 @@ export default class index extends Component {
                                                 <Button icon="question-circle">域名备案帮助</Button>
                                             </Popover>
                                         </div>
-                                    } 
-                                    type="info" 
+                                    }
+                                    type="info"
                                 />
                             }
                         </Form.Item>
@@ -780,6 +780,25 @@ export default class index extends Component {
                                 )
                         })}
                     </Form>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            borderTop: '1px solid #e9e9e9',
+                            padding: '10px 16px',
+                            background: '#fff',
+                            textAlign: 'right',
+                        }}
+                    >
+                        <Button onClick={this.onClose} style={{ marginRight: 8 }}>
+                            {formatMessage({ id: 'popover.cancel' })}
+                        </Button>
+                        <Button type="primary" onClick={this.handleSubmit}>
+                            {formatMessage({ id: 'popover.confirm' })}
+                        </Button>
+                    </div>
                 </Drawer>
                 {this.state.descriptionVisible && (
                     <Modal
