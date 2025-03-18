@@ -300,9 +300,11 @@ export default class GlobalRouter extends PureComponent {
     });
   };
   toggleCollapsed = () => {
+    const {onCollapse} = this.props
     this.setState({
       collapsed: !this.state.collapsed,
     },()=>{
+      onCollapse && onCollapse(this.state.collapsed)
       window.localStorage.setItem('collapsed', this.state.collapsed);
     });
   };

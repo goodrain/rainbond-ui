@@ -109,7 +109,7 @@ export default class Index extends PureComponent {
         const { rainbondInfo } = this.props
         const { rainStoreTab, language, localist, teamAppCreatePermission: { isAccess } } = this.state
         const showDemo = rainbondInfo?.official_demo?.enable
-        const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
+        const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
         if (!isAccess) {
             return roleUtil.noPermission()
         }

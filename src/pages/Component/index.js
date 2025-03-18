@@ -34,6 +34,7 @@ import { rollback } from '../../services/app';
 import appUtil from '../../utils/app';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
 import appStatusUtil from '../../utils/appStatus-util';
+import ScrollerX from '../../components/ScrollerX';
 import {
   createApp,
   createComponent,
@@ -64,7 +65,7 @@ import ComponentPlugin from './componentPlugin'
 import ThirdPartyServices from './ThirdPartyServices';
 import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -82,7 +83,7 @@ class MoveGroup extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.group_id === currGroup) {
-        notification.warning({ message: formatMessage({id:'notification.warn.cannot_select'}) });
+        notification.warning({ message: formatMessage({ id: 'notification.warn.cannot_select' }) });
         return;
       }
       this.props.onOk(fieldsValue);
@@ -95,7 +96,7 @@ class MoveGroup extends PureComponent {
     const initValue = currGroup.toString();
     return (
       <Modal
-        title={<FormattedMessage id="componentOverview.MoveGroup.edit"/>}
+        title={<FormattedMessage id="componentOverview.MoveGroup.edit" />}
         visible
         className={styless.TelescopicModal}
         onOk={this.handleSubmit}
@@ -109,7 +110,7 @@ class MoveGroup extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message:formatMessage({id:'componentOverview.MoveGroup.edit'})
+                  message: formatMessage({ id: 'componentOverview.MoveGroup.edit' })
                 }
               ]
             })(
@@ -152,21 +153,21 @@ class EditName extends PureComponent {
   };
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(`${formatMessage({id:'componentOverview.EditName.input_en_name'})}` ));
+      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.input_en_name' })}`));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
           new Error(
-            `${formatMessage({id:'componentOverview.EditName.only'})}`
+            `${formatMessage({ id: 'componentOverview.EditName.only' })}`
           )
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error( `${formatMessage({id:'componentOverview.EditName.Cannot'})}` ));
+      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.Cannot' })}`));
     }
   };
   render() {
@@ -183,7 +184,7 @@ class EditName extends PureComponent {
     const { getFieldDecorator } = form;
     return (
       <Modal
-        title={title || <FormattedMessage id='componentOverview.EditName.edit'/>}
+        title={title || <FormattedMessage id='componentOverview.EditName.edit' />}
         visible
         className={styless.TelescopicModal}
         confirmLoading={loading}
@@ -191,31 +192,31 @@ class EditName extends PureComponent {
         onCancel={this.onCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem  label={<FormattedMessage id="componentOverview.EditName.name"/>}>
+          <FormItem label={<FormattedMessage id="componentOverview.EditName.name" />}>
             {getFieldDecorator('service_cname', {
               initialValue: name || '',
               rules: [
                 {
                   required: true,
-                  message:formatMessage({id:'componentOverview.EditName.not_null'})
+                  message: formatMessage({ id: 'componentOverview.EditName.not_null' })
                 },
                 {
                   max: 24,
-                  message:formatMessage({id:'componentOverview.EditName.max'})
+                  message: formatMessage({ id: 'componentOverview.EditName.max' })
                 }
               ]
             })(
               <Input
                 placeholder={
-                  title ?  formatMessage({id:'componentOverview.EditName.input_new_name'}) : formatMessage({id:'componentOverview.EditName.input_new_app_name'})
+                  title ? formatMessage({ id: 'componentOverview.EditName.input_new_name' }) : formatMessage({ id: 'componentOverview.EditName.input_new_app_name' })
                 }
               />
             )}
           </FormItem>
           {/* 集群组件名称 */}
           <FormItem
-            label={<FormattedMessage id="componentOverview.EditName.en_name"/>}
-            extra={formatMessage({id:'componentOverview.EditName.close'})}
+            label={<FormattedMessage id="componentOverview.EditName.en_name" />}
+            extra={formatMessage({ id: 'componentOverview.EditName.close' })}
           >
             {getFieldDecorator('k8s_component_name', {
               initialValue: k8sComponentName || '',
@@ -225,7 +226,7 @@ class EditName extends PureComponent {
                   validator: this.handleValiateNameSpace
                 }
               ]
-            })(<Input placeholder={formatMessage({id:'componentOverview.EditName.placeholder'})}disabled={!isDisabled} />)}
+            })(<Input placeholder={formatMessage({ id: 'componentOverview.EditName.placeholder' })} disabled={!isDisabled} />)}
           </FormItem>
         </Form>
       </Modal>
@@ -285,7 +286,7 @@ class Main extends PureComponent {
       promptModal: null,
       websocketURL: '',
       componentTimer: true,
-      tabsShow:false,
+      tabsShow: false,
       routerSwitch: true,
       componentPermissions: this.props?.componentPermissions || {},
     };
@@ -429,7 +430,7 @@ class Main extends PureComponent {
       }
       if (err && err.data && err.data.msg_show) {
         notification.warning({
-          message: formatMessage({id:'notification.warn.error'}),
+          message: formatMessage({ id: 'notification.warn.error' }),
           description: err.data.msg_show
         });
       }
@@ -464,7 +465,7 @@ class Main extends PureComponent {
   loadBuildState = (appDetail, val) => {
     const { team_name, serviceAlias } = this.fetchParameter();
     const { dispatch } = this.props;
-    if(val){
+    if (val) {
       this.setState({
         BuildState: null
       });
@@ -475,21 +476,21 @@ class Main extends PureComponent {
       appDetail.service.service_source === 'market' &&
       appDetail.service.service_alias
     ) {
-        dispatch({
-          type: 'appControl/getBuildInformation',
-          payload: {
-            team_name,
-            app_alias: appDetail.service.service_alias
-          },
-          callback: res => {
-            if (res && res.status_code === 200) {
-              this.setState({
-                BuildState:
-                  res.list && res.list.length > 0 ? res.list.length : null
-              });
-            }
+      dispatch({
+        type: 'appControl/getBuildInformation',
+        payload: {
+          team_name,
+          app_alias: appDetail.service.service_alias
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            this.setState({
+              BuildState:
+                res.list && res.list.length > 0 ? res.list.length : null
+            });
           }
-        });
+        }
+      });
     }
   };
   fetchPrefixUrl = () => {
@@ -514,16 +515,16 @@ class Main extends PureComponent {
       callback: appDetail => {
         this.handlePermissions(appDetail);
         this.fetchAppDetail();
-        if(val){
-          this.loadBuildState(appDetail,val);
-        }else{
+        if (val) {
+          this.loadBuildState(appDetail, val);
+        } else {
           this.loadBuildState(appDetail);
         }
         if (appDetail.service.service_source) {
           this.setState({
             isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
             tabsShow: true,
-          },()=>{
+          }, () => {
             this.setState({
               routerSwitch: false
             })
@@ -538,16 +539,16 @@ class Main extends PureComponent {
             appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
-            setTimeout(()=>{
+            setTimeout(() => {
               this.setState({
                 routerSwitch: false
               })
-            },100)
+            }, 100)
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-              this.setState({
-                routerSwitch: false
-              })
-              serviceAlias &&
+            this.setState({
+              routerSwitch: false
+            })
+            serviceAlias &&
               dispatch(
                 routerRedux.replace(
                   `${prefixUrl}create/create-check/${serviceAlias}`
@@ -630,7 +631,7 @@ class Main extends PureComponent {
     });
     const { build_upgrade, dispatch, appDetail } = this.props;
     if (this.state.actionIng) {
-      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
@@ -647,7 +648,7 @@ class Main extends PureComponent {
         if (res) {
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
-          notification.success({ message: formatMessage({id:'notification.success.deployment'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
           const child = this.getChildCom();
 
           if (child && child.onLogPush) {
@@ -668,7 +669,7 @@ class Main extends PureComponent {
   };
   handleRollback = datas => {
     if (this.state.actionIng) {
-      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
@@ -679,8 +680,8 @@ class Main extends PureComponent {
       deploy_version: datas.build_version
         ? datas.build_version
         : datas.deploy_version
-        ? datas.deploy_version
-        : '',
+          ? datas.deploy_version
+          : '',
       upgrade_or_rollback: datas.upgrade_or_rollback
         ? datas.upgrade_or_rollback
         : -1
@@ -689,9 +690,9 @@ class Main extends PureComponent {
         notification.success({
           message: datas.upgrade_or_rollback
             ? datas.upgrade_or_rollback == 1
-              ? formatMessage({id:'notification.success.upgrade'})
-              : formatMessage({id:'notification.success.rollback'})
-            : formatMessage({id:'notification.success.rollback'})
+              ? formatMessage({ id: 'notification.success.upgrade' })
+              : formatMessage({ id: 'notification.success.rollback' })
+            : formatMessage({ id: 'notification.success.rollback' })
         });
         const child = this.getChildCom();
         if (child && child.onAction) {
@@ -802,7 +803,7 @@ class Main extends PureComponent {
             group_id
           },
           callback: res => {
-            notification.success({ message: formatMessage({id:'notification.success.takeEffect'}) });
+            notification.success({ message: formatMessage({ id: 'notification.success.takeEffect' }) });
           }
         });
         this.handleUpDataHeader();
@@ -843,7 +844,7 @@ class Main extends PureComponent {
             team_name
           }
         });
-        notification.success({ message: formatMessage({id:'notification.warn.restart'}) });
+        notification.success({ message: formatMessage({ id: 'notification.warn.restart' }) });
       }
     });
   };
@@ -859,17 +860,17 @@ class Main extends PureComponent {
       this.setState({ showreStartTips: false });
     }
     if (actionIng) {
-      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
     const operationMap = {
-      putReStart: formatMessage({id:'notification.success.operationRestart'}),
-      putStart: formatMessage({id:'notification.success.operationStart'}),
-      putStop: formatMessage({id:'notification.success.operationClose'}),
-      putUpdateRolling: formatMessage({id:'notification.success.operationUpdata'})
+      putReStart: formatMessage({ id: 'notification.success.operationRestart' }),
+      putStart: formatMessage({ id: 'notification.success.operationStart' }),
+      putStop: formatMessage({ id: 'notification.success.operationClose' }),
+      putUpdateRolling: formatMessage({ id: 'notification.success.operationUpdata' })
     };
     const { team_name, app_alias } = this.fetchParameter();
-    
+
     dispatch({
       type: `appControl/${state}`,
       payload: {
@@ -907,7 +908,7 @@ class Main extends PureComponent {
       },
       callback: data => {
         if (data) {
-          notification.info({ message: formatMessage({id:'notification.success.modified'}) });
+          notification.info({ message: formatMessage({ id: 'notification.success.modified' }) });
         }
       }
     });
@@ -917,9 +918,9 @@ class Main extends PureComponent {
     const { group_id } = this.fetchParameter();
     this.props.form.validateFields((err, fieldsValue) => {
       if (!err) {
-        if(key === 'build'){
+        if (key === 'build') {
           this.handleDeploy(fieldsValue.group_version);
-        } else if(key === 'upgrade'){
+        } else if (key === 'upgrade') {
           dispatch(
             routerRedux.push(`${this.fetchPrefixUrl()}apps/${group_id}/upgrade`)
           );
@@ -927,7 +928,7 @@ class Main extends PureComponent {
       }
     });
   };
-  handleVm = () =>{
+  handleVm = () => {
     const { appDetail, dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
     const { status } = this.state;
@@ -940,13 +941,13 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({id:'Vm.createVm.handleSuccess'}) });
+          notification.success({ message: formatMessage({ id: 'Vm.createVm.handleSuccess' }) });
         }
       },
       handleError: err => {
-          notification.warning({
-            message: formatMessage({id:'notification.warn.error'}),
-          });
+        notification.warning({
+          message: formatMessage({ id: 'notification.warn.error' }),
+        });
       }
     });
   }
@@ -1020,12 +1021,12 @@ class Main extends PureComponent {
       promptModal === 'stop'
         ? 'putStop'
         : promptModal === 'start'
-        ? 'putStart'
-        : promptModal === 'restart'
-        ? 'putReStart'
-        : promptModal === 'rolling'
-        ? 'putUpdateRolling'
-        : '';
+          ? 'putStart'
+          : promptModal === 'restart'
+            ? 'putReStart'
+            : promptModal === 'rolling'
+              ? 'putUpdateRolling'
+              : '';
     this.handleOperation(parameter);
   };
   toWebConsole = () => {
@@ -1041,7 +1042,7 @@ class Main extends PureComponent {
     const {
       appDetail,
     } = this.props;
-    const { status, groupDetail, loadingDetail, componentPermissions, componentPermissions: { isRestart, isStop, isDelete, isEdit }  } = this.state;
+    const { status, groupDetail, loadingDetail, componentPermissions, componentPermissions: { isRestart, isStop, isDelete, isEdit } } = this.state;
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
     const isHelm =
       groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
@@ -1082,23 +1083,23 @@ class Main extends PureComponent {
                   }}
                 >
                   {/* 重启 */}
-                  <FormattedMessage id='componentOverview.header.left.reset'/>
+                  <FormattedMessage id='componentOverview.header.left.reset' />
                 </a>
-              ):isStop &&
-              status &&
-              status.status &&
-              status.status === 'succeeded' ? (
+              ) : isStop &&
+                status &&
+                status.status &&
+                status.status === 'succeeded' ? (
                 <a
                   onClick={() => {
                     this.handleDropClick('restart');
                   }}
                 >
                   {/* 重启 */}
-                  <FormattedMessage id='componentOverview.header.left.reset'/>
+                  <FormattedMessage id='componentOverview.header.left.reset' />
                 </a>
               ) : null}
               {status && status.status && !appDetail.is_third && isRestart && <Divider type="vertical" />}
-                  
+
               {status && status.status && isStop && !appStatusUtil.canStart(status) ? (
                 <span>
                   <a
@@ -1114,7 +1115,7 @@ class Main extends PureComponent {
                     }}
                   >
                     {/* 关闭 */}
-                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
+                    <FormattedMessage id='componentOverview.header.left.turnoff' />
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1130,7 +1131,7 @@ class Main extends PureComponent {
                     }}
                   >
                     {/* 关闭 */}
-                    <FormattedMessage id='componentOverview.header.left.turnoff'/>
+                    <FormattedMessage id='componentOverview.header.left.turnoff' />
                   </a>
                   <Divider type="vertical" />
                 </span>
@@ -1146,7 +1147,7 @@ class Main extends PureComponent {
                   }}
                 >
                   {/* 修改所属应用 */}
-                  <FormattedMessage id='componentOverview.header.left.edit'/>
+                  <FormattedMessage id='componentOverview.header.left.edit' />
                 </a>
               )}
               {status && status.status && isEdit && !loadingDetail && !isHelm && (
@@ -1154,19 +1155,19 @@ class Main extends PureComponent {
               )}
               {status && status.status && isDelete && (
                 (status.status === 'running' && appDetail?.service?.extend_method === 'cronjob') ?
-                <></>
-                :
-                <a
-                  onClick={() => {
-                    this.handleDropClick('deleteApp');
-                  }}
-                  style={{
-                    cursor: 'pointer'
-                  }}
-                >
-                  {/* 删除 */}
-                  <FormattedMessage id='componentOverview.header.left.delete'/>
-                </a>
+                  <></>
+                  :
+                  <a
+                    onClick={() => {
+                      this.handleDropClick('deleteApp');
+                    }}
+                    style={{
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {/* 删除 */}
+                    <FormattedMessage id='componentOverview.header.left.delete' />
+                  </a>
               )}
             </div>
           </div>
@@ -1194,7 +1195,7 @@ class Main extends PureComponent {
       buildInformationLoading,
       pluginList
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList,"Component")
+    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")
     const {
       BuildList,
       componentTimer,
@@ -1227,19 +1228,19 @@ class Main extends PureComponent {
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
-    const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update'/> : <FormattedMessage id='componentOverview.header.right.update.roll'/>;
+    const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
-      start:  formatMessage({id:'componentOverview.header.right.start'}),
-      restart: formatMessage({id:'componentOverview.header.left.reset'}),
-      stop: formatMessage({id:'componentOverview.header.left.turnoff'}),
-      deploy: formatMessage({id:'componentOverview.header.right.build'}),
+      start: formatMessage({ id: 'componentOverview.header.right.start' }),
+      restart: formatMessage({ id: 'componentOverview.header.left.reset' }),
+      stop: formatMessage({ id: 'componentOverview.header.left.turnoff' }),
+      deploy: formatMessage({ id: 'componentOverview.header.right.build' }),
       rolling: upDataText
     };
     if (routerSwitch) {
       return null;
     }
-    if(appDetail && appDetail.service && appDetail.service.service_cname){
-      window.sessionStorage.setItem("name",JSON.stringify(appDetail.service.service_cname))
+    if (appDetail && appDetail.service && appDetail.service.service_cname) {
+      window.sessionStorage.setItem("name", JSON.stringify(appDetail.service.service_cname))
     }
     const {
       serviceAlias,
@@ -1267,35 +1268,35 @@ class Main extends PureComponent {
             }}
           >
             {/* 启动 */}
-            <FormattedMessage id='componentOverview.header.right.start'/>
+            <FormattedMessage id='componentOverview.header.right.start' />
           </Button>
         )}
         {
-          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复":'挂起'}</Button>
+          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
         }
         {method != 'vm' ? (
-        isVisitWebTerminal && !isShowThirdParty && (
-          <Button>
-            <Link
-              to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
-              target="_blank"
-            >
-              {/* Web终端 */}
-              <FormattedMessage id='componentOverview.header.right.web'/>
-            </Link>
-          </Button>
-        )
-        ) :(
+          isVisitWebTerminal && !isShowThirdParty && (
+            <Button>
+              <Link
+                to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
+                target="_blank"
+              >
+                {/* Web终端 */}
+                <FormattedMessage id='componentOverview.header.right.web' />
+              </Link>
+            </Button>
+          )
+        ) : (
           appDetail.vm_url &&
           <Button>
-            <a href={appDetail.vm_url} target='_blank'><FormattedMessage id='componentOverview.header.right.web'/></a>
+            <a href={appDetail.vm_url} target='_blank'><FormattedMessage id='componentOverview.header.right.web' /></a>
           </Button>
         )}
         {method != 'vm' ? (
           isShowThirdParty ? (
             ''
           ) : this.state.BuildState && isConstruct ? (
-            <Tooltip title={<FormattedMessage id='componentOverview.isShowThirdParty.New_version'/>}>
+            <Tooltip title={<FormattedMessage id='componentOverview.isShowThirdParty.New_version' />}>
               <Button
                 onClick={this.handleOpenBuild}
                 loading={buildInformationLoading}
@@ -1304,11 +1305,11 @@ class Main extends PureComponent {
                   className={styles.badge}
                   status="success"
                   text=""
-                  count={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
-                  title={<FormattedMessage id='componentOverview.isShowThirdParty.updata'/>}
+                  count={<FormattedMessage id='componentOverview.isShowThirdParty.updata' />}
+                  title={<FormattedMessage id='componentOverview.isShowThirdParty.updata' />}
                 />
                 {/* 构建 */}
-                <FormattedMessage id='componentOverview.header.right.build'/>
+                <FormattedMessage id='componentOverview.header.right.build' />
               </Button>
             </Tooltip>
           ) : status && status.status === 'undeploy' && isConstruct ? (
@@ -1317,7 +1318,7 @@ class Main extends PureComponent {
               loading={buildInformationLoading}
             >
               {/* 构建 */}
-              <FormattedMessage id='componentOverview.header.right.build'/>
+              <FormattedMessage id='componentOverview.header.right.build' />
             </Button>
           ) : (
             isConstruct && (
@@ -1326,20 +1327,20 @@ class Main extends PureComponent {
                 loading={buildInformationLoading}
               >
                 {/* 构建 */}
-                <FormattedMessage id='componentOverview.header.right.build'/>
+                <FormattedMessage id='componentOverview.header.right.build' />
               </Button>
             )
           )
-        ):(
+        ) : (
           ""
         )}
-        {method != 'vm' ? ( 
-        status.status === 'undeploy' ||
-        status.status === 'closed' ||
-        status.status === 'stopping' ||
-        status.status === 'succeeded'
-          ? ''
-          : isUpdate && (
+        {method != 'vm' ? (
+          status.status === 'undeploy' ||
+            status.status === 'closed' ||
+            status.status === 'stopping' ||
+            status.status === 'succeeded'
+            ? ''
+            : isUpdate && (
               <Button
                 onClick={() => {
                   this.handleOpenHelpfulHints('rolling');
@@ -1348,7 +1349,7 @@ class Main extends PureComponent {
                 {upDataText}
               </Button>
             )
-        ):(
+        ) : (
           ""
         )}
         {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
@@ -1368,13 +1369,13 @@ class Main extends PureComponent {
       {
         key: 'overview',
         // tab: '总览',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
 
       },
       {
         key: 'log',
         // tab: '日志',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.log'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.log' })
       }
     ];
 
@@ -1382,14 +1383,14 @@ class Main extends PureComponent {
       tabs.push({
         key: 'expansion',
         // tab: '伸缩',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.expansion'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' })
       });
     }
-    if(isServiceMonitor){
+    if (isServiceMonitor) {
       tabs.push({
         key: 'monitor',
         // tab: '监控',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.monitor'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' })
       });
     }
 
@@ -1397,7 +1398,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'environmentConfiguration',
         // tab: '环境配置',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.environmentConfiguration'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' })
       });
     }
 
@@ -1405,7 +1406,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'relation',
         // tab: '依赖',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.relation'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.relation' })
       });
     }
 
@@ -1413,7 +1414,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'mnt',
         // tab: '存储',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.mnt'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.mnt' })
       });
     }
 
@@ -1421,7 +1422,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'port',
         // tab: '端口',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' })
       });
     }
 
@@ -1429,7 +1430,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'plugin',
         // tab: '插件',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.plugin'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.plugin' })
       });
     }
 
@@ -1437,7 +1438,7 @@ class Main extends PureComponent {
       tabs.push({
         key: 'resource',
         // tab: '构建源',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.resource'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.resource' })
       });
     }
 
@@ -1445,11 +1446,11 @@ class Main extends PureComponent {
       tabs.push({
         key: 'setting',
         // tab: '其他设置',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.setting'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.setting' })
       });
     }
-    if(CompluginList && CompluginList.length>0){
-      CompluginList.forEach( item =>{
+    if (CompluginList && CompluginList.length > 0) {
+      CompluginList.forEach(item => {
         tabs.push({
           key: item.name,
           tab: item.display_name
@@ -1458,50 +1459,50 @@ class Main extends PureComponent {
     }
     const tabList = isShowThirdParty
       ? [
-          {
-            key: 'thirdPartyServices',
-            // tab: '总览',
-            tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
-          },
-          {
-            key: 'port',
-            // tab: '端口',
-            tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
-          },
-          {
-            key: 'connectionInformation',
-            // tab: '连接信息',
-            tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
-          },
-          {
-            key: 'members',
-            // tab: '更多设置',
-            tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
-          }
-        ]
+        {
+          key: 'thirdPartyServices',
+          // tab: '总览',
+          tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
+        },
+        {
+          key: 'port',
+          // tab: '端口',
+          tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' })
+        },
+        {
+          key: 'connectionInformation',
+          // tab: '连接信息',
+          tab: formatMessage({ id: 'componentOverview.body.tab.bar.connectionInformation' })
+        },
+        {
+          key: 'members',
+          // tab: '更多设置',
+          tab: formatMessage({ id: 'componentOverview.body.tab.bar.members' })
+        }
+      ]
       : tabs;
-    const  overviewTabs=[
+    const overviewTabs = [
       {
-      key: 'overview',
-      // tab: '总览',
-      tab: formatMessage({id:'componentOverview.body.tab.bar.overview'})
+        key: 'overview',
+        // tab: '总览',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
       },
       {
         key: 'port',
         // tab: '端口',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.port'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' })
       },
       {
         key: 'connectionInformation',
         // tab: '连接信息',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.connectionInformation'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.connectionInformation' })
       },
       {
         key: 'members',
         // tab: '更多设置',
-        tab: formatMessage({id:'componentOverview.body.tab.bar.members'})
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.members' })
       }
-  ]
+    ]
     // const { service_source, language } = this.state;
     const map = {
       thirdPartyServices: ThirdPartyServices,
@@ -1519,8 +1520,8 @@ class Main extends PureComponent {
       resource: Resource,
       setting: Setting,
     };
-    if(CompluginList && CompluginList.length>0){
-      CompluginList.forEach( item =>{
+    if (CompluginList && CompluginList.length > 0) {
+      CompluginList.forEach(item => {
         map[item.name] = ComponentPlugin
       })
     }
@@ -1561,67 +1562,67 @@ class Main extends PureComponent {
       }
     );
     return (
-      <ResumeContext.Provider value = {{loadBuildState: this.loadDetail }}>
-      <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-        action={action}
-        title={this.renderTitle(componentName)}
-        onTabChange={this.handleTabChange}
-        tabActiveKey={type}
-        tabList={tabsShow ? tabList : overviewTabs}
-      >
-        {this.state.showMarketAppDetail && (
-          <MarketAppDetailShow
-            onOk={this.hideMarketAppDetail}
-            onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
-          />
-        )}
+      <ResumeContext.Provider value={{ loadBuildState: this.loadDetail }}>
+        <PageHeaderLayout
+          breadcrumbList={breadcrumbList}
+          action={action}
+          title={this.renderTitle(componentName)}
+          onTabChange={this.handleTabChange}
+          tabActiveKey={type}
+          tabList={tabsShow ? tabList : overviewTabs}
+        >
+          {this.state.showMarketAppDetail && (
+            <MarketAppDetailShow
+              onOk={this.hideMarketAppDetail}
+              onCancel={this.hideMarketAppDetail}
+              app={this.state.showApp}
+            />
+          )}
 
-        {promptModal && (
+          {promptModal && (
+            <Modal
+              title={<FormattedMessage id="componentOverview.promptModal.tips" />}
+              visible={promptModal}
+              className={styless.TelescopicModal}
+              onOk={this.handleJumpAgain}
+              onCancel={this.handleOffHelpfulHints}
+              confirmLoading={
+                promptModal === 'restart'
+                  ? reStartLoading
+                  : promptModal === 'stop'
+                    ? stopLoading
+                    : promptModal === 'start'
+                      ? startLoading
+                      : promptModal === 'deploy'
+                        ? deployLoading
+                        : promptModal === 'rolling'
+                          ? updateRollingLoading
+                          : !promptModal
+              }
+            >
+              <p style={{ textAlign: 'center' }}>
+                <FormattedMessage id="componentOverview.promptModal.determine" />{codeObj[promptModal]}<FormattedMessage id="componentOverview.promptModal.Current" />
+              </p>
+            </Modal>
+          )}
           <Modal
-            title={<FormattedMessage id="componentOverview.promptModal.tips"/>}
-            visible={promptModal}
+            title={[<span><FormattedMessage id="componentOverview.promptModal.Upgrade" /></span>]}
             className={styless.TelescopicModal}
-            onOk={this.handleJumpAgain}
-            onCancel={this.handleOffHelpfulHints}
-            confirmLoading={
-              promptModal === 'restart'
-                ? reStartLoading
-                : promptModal === 'stop'
-                ? stopLoading
-                : promptModal === 'start'
-                ? startLoading
-                : promptModal === 'deploy'
-                ? deployLoading
-                : promptModal === 'rolling'
-                ? updateRollingLoading
-                : !promptModal
-            }
-          >
-            <p style={{ textAlign: 'center' }}>
-            <FormattedMessage id="componentOverview.promptModal.determine"/>{codeObj[promptModal]}<FormattedMessage id="componentOverview.promptModal.Current"/>
-            </p>
-          </Modal>
-        )}
-        <Modal
-          title={[<span><FormattedMessage id="componentOverview.promptModal.Upgrade"/></span>]}
-          className={styless.TelescopicModal}
-          visible={this.state.visibleBuild}
-          onOk={this.handleOkBuild}
-          onCancel={this.handleCancelBuild}
-          afterClose={() => {
-            this.setState({ BuildList: [] });
-          }}
-          footer={
-            BuildList && BuildList.length > 0 && isConstruct
-              ? [
+            visible={this.state.visibleBuild}
+            onOk={this.handleOkBuild}
+            onCancel={this.handleCancelBuild}
+            afterClose={() => {
+              this.setState({ BuildList: [] });
+            }}
+            footer={
+              BuildList && BuildList.length > 0 && isConstruct
+                ? [
                   <Button
                     onClick={() => {
                       this.handleCancelBuild();
                     }}
                   >
-                    <FormattedMessage id="componentOverview.promptModal.cancel"/>
+                    <FormattedMessage id="componentOverview.promptModal.cancel" />
                   </Button>,
                   <Button
                     type="primary"
@@ -1630,16 +1631,16 @@ class Main extends PureComponent {
                       this.handleOkBuild('upgrade');
                     }}
                   >
-                    <FormattedMessage id="componentOverview.promptModal.build"/>
+                    <FormattedMessage id="componentOverview.promptModal.build" />
                   </Button>
                 ]
-              : isConstruct && [
+                : isConstruct && [
                   <Button
                     onClick={() => {
                       this.handleCancelBuild();
                     }}
                   >
-                    <FormattedMessage id="componentOverview.promptModal.cancel"/>
+                    <FormattedMessage id="componentOverview.promptModal.cancel" />
                   </Button>,
                   <Button
                     type="primary"
@@ -1648,114 +1649,114 @@ class Main extends PureComponent {
                       this.handleOkBuild('build');
                     }}
                   >
-                    <FormattedMessage id="componentOverview.promptModal.Force_build"/>
+                    <FormattedMessage id="componentOverview.promptModal.Force_build" />
                   </Button>
                 ]
-          }
-        >
-          <div>
-            {BuildList && BuildList.length > 0 && isUpdate ? (
-              <Form onSubmit={this.handleOkBuild}>
+            }
+          >
+            <div>
+              {BuildList && BuildList.length > 0 && isUpdate ? (
+                <Form onSubmit={this.handleOkBuild}>
+                  <Alert
+                    message={[
+                      <span> <FormattedMessage id="componentOverview.promptModal.app" /></span>,
+                      <a
+                        onClick={() => {
+                          this.hideMarketOpenAppDetail();
+                        }}
+                      >
+                        {this.state.BuildText}
+                      </a>,
+                      <span><FormattedMessage id="componentOverview.promptModal.app_build" /></span>
+                    ]}
+                    type="success"
+                    style={{ marginBottom: '5px' }}
+                  />
+                  <Form.Item {...formItemLayout} label="">
+                    {getFieldDecorator('group_version', {
+                      initialValue: BuildList[0],
+                      rules: [{ required: true, message: formatMessage({ id: 'componentOverview.promptModal.choice' }) }]
+                    })(
+                      <RadioGroup>
+                        {BuildList.map((item, index) => {
+                          return (
+                            <div>
+                              <FormattedMessage id="componentOverview.promptModal.version" />&nbsp;
+                              <Radio key={index} value={item}>
+                                <a>{item}</a><FormattedMessage id="componentOverview.promptModal.updata" />
+                              </Radio>
+                            </div>
+                          );
+                        })}
+                      </RadioGroup>
+                    )}
+                  </Form.Item>
+                </Form>
+              ) : (
                 <Alert
-                  message={[
-                    <span> <FormattedMessage id="componentOverview.promptModal.app"/></span>,
-                    <a
-                      onClick={() => {
-                        this.hideMarketOpenAppDetail();
-                      }}
-                    >
-                      {this.state.BuildText}
-                    </a>,
-                    <span><FormattedMessage id="componentOverview.promptModal.app_build"/></span>
-                  ]}
+                  message={<FormattedMessage id="componentOverview.promptModal.cloud" />}
                   type="success"
                   style={{ marginBottom: '5px' }}
                 />
-                <Form.Item {...formItemLayout} label="">
-                  {getFieldDecorator('group_version', {
-                    initialValue: BuildList[0],
-                    rules: [{ required: true,  message:formatMessage({id:'componentOverview.promptModal.choice'})}]
-                  })(
-                    <RadioGroup>
-                      {BuildList.map((item, index) => {
-                        return (
-                          <div>
-                            <FormattedMessage id="componentOverview.promptModal.version"/>&nbsp;
-                            <Radio key={index} value={item}>
-                              <a>{item}</a><FormattedMessage id="componentOverview.promptModal.updata"/>
-                            </Radio>
-                          </div>
-                        );
-                      })}
-                    </RadioGroup>
-                  )}
-                </Form.Item>
-              </Form>
-            ) : (
-              <Alert
-                message={<FormattedMessage id="componentOverview.promptModal.cloud"/>}
-                type="success"
-                style={{ marginBottom: '5px' }}
-              />
-            )}
-          </div>
-        </Modal>
+              )}
+            </div>
+          </Modal>
 
-        {Com ? (
-          <Com
-            method={method}
-            groupDetail={groupDetail}
-            // appPermissions={appPermissions}
-            componentPermissions={componentPermissions}
-            timers={componentTimer}
-            status={status}
-            ref={this.saveRef}
-            {...this.props.match.params}
-            {...this.props}
-            onshowDeployTips={msg => {
-              this.handleshowDeployTips(msg);
-            }}
-            onshowRestartTips={msg => {
-              this.handleshowRestartTips(msg);
-            }}
-            socket={this.socket}
-            onChecked={this.handleChecked}
-          />
-        ) : (
-          <FormattedMessage id="componentOverview.promptModal.error"/>
-        )}
+          {Com ? (
+            <Com
+              method={method}
+              groupDetail={groupDetail}
+              // appPermissions={appPermissions}
+              componentPermissions={componentPermissions}
+              timers={componentTimer}
+              status={status}
+              ref={this.saveRef}
+              {...this.props.match.params}
+              {...this.props}
+              onshowDeployTips={msg => {
+                this.handleshowDeployTips(msg);
+              }}
+              onshowRestartTips={msg => {
+                this.handleshowRestartTips(msg);
+              }}
+              socket={this.socket}
+              onChecked={this.handleChecked}
+            />
+          ) : (
+            <FormattedMessage id="componentOverview.promptModal.error" />
+          )}
 
-        {showDeleteApp && (
-          <ConfirmModal
-            onOk={this.handleDeleteApp}
-            onCancel={this.cancelDeleteApp}
-            loading={deleteAppLoading}
-            title={<FormattedMessage id='confirmModal.assembly.delete.title'/>}
-            desc={<FormattedMessage id='confirmModal.assembly.delete.desc'/>}
-            subDesc={<FormattedMessage id='confirmModal.assembly.delete.subDesc'/>}
-          />
-        )}
-        {showEditName && (
-          <EditName
-            loading={editNameLoading}
-            name={componentName}
-            onOk={this.handleEditName}
-            onCancel={this.hideEditName}
-            title={<FormattedMessage id="componentOverview.EditName.title"/>}
-            k8sComponentName={k8sComponentName}
-            isEditEnglishName={status.status}
-          />
-        )}
-        {showMoveGroup && (
-          <MoveGroup
-            loading={moveGroupLoading}
-            currGroup={group_id}
-            groups={groups}
-            onOk={this.handleMoveGroup}
-            onCancel={this.hideMoveGroup}
-          />
-        )}
-      </PageHeaderLayout>
+          {showDeleteApp && (
+            <ConfirmModal
+              onOk={this.handleDeleteApp}
+              onCancel={this.cancelDeleteApp}
+              loading={deleteAppLoading}
+              title={<FormattedMessage id='confirmModal.assembly.delete.title' />}
+              desc={<FormattedMessage id='confirmModal.assembly.delete.desc' />}
+              subDesc={<FormattedMessage id='confirmModal.assembly.delete.subDesc' />}
+            />
+          )}
+          {showEditName && (
+            <EditName
+              loading={editNameLoading}
+              name={componentName}
+              onOk={this.handleEditName}
+              onCancel={this.hideEditName}
+              title={<FormattedMessage id="componentOverview.EditName.title" />}
+              k8sComponentName={k8sComponentName}
+              isEditEnglishName={status.status}
+            />
+          )}
+          {showMoveGroup && (
+            <MoveGroup
+              loading={moveGroupLoading}
+              currGroup={group_id}
+              groups={groups}
+              onOk={this.handleMoveGroup}
+              onCancel={this.hideMoveGroup}
+            />
+          )}
+        </PageHeaderLayout>
       </ResumeContext.Provider>
     );
   }
@@ -1785,7 +1786,7 @@ export default class Index extends PureComponent {
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
-  componentDidMount() { 
+  componentDidMount() {
 
   }
   flash = () => {
@@ -1806,6 +1807,10 @@ export default class Index extends PureComponent {
     if (!this.state.show) {
       return null;
     }
-    return <Main {...this.props} {...this.state} handlePermissions={this.handlePermissions}/>;
+    return (
+      <ScrollerX sm={1040}>
+        <Main {...this.props} {...this.state} handlePermissions={this.handlePermissions} />
+      </ScrollerX>
+    )
   }
 }

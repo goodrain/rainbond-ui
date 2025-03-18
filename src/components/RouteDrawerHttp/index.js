@@ -1,10 +1,11 @@
 import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip, Modal } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip, Modal, Alert, Popover } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import teamUtil from '../../utils/team';
+import PluginUtil from '../../utils/pulginUtils';
 import ServiceInput from '../ServiceInput';
 import ServiceInputK8s from '../ServiceInputK8s'
 import GatewayPluginsFrom from '../GatewayPluginsFrom'
@@ -13,6 +14,7 @@ import DAinput from '../DAinput';
 import DAHosts from '../DAHosts'
 import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
+import Wechat from '../../../public/images/wechat.jpg'
 const { Option } = Select;
 @Form.create()
 
@@ -21,6 +23,7 @@ const { Option } = Select;
     groups: global.groups,
     currentTeam: teamControl.currentTeam,
     currentEnterprise: enterprise.currentEnterprise,
+    pluginsList: teamControl.pluginsList
 }))
 
 export default class index extends Component {
@@ -398,8 +401,7 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        const reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-
+        const reg = /^[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);
@@ -420,7 +422,7 @@ export default class index extends Component {
             if (isPass) {
                 callback();
             } else {
-                callback(new Error('格式不满足要求'));
+                callback(new Error('域名格式不正确，必须是有效的域名格式，如：example.com'));
             }
         } else {
             return callback();
@@ -454,7 +456,8 @@ export default class index extends Component {
             groups,
             editInfo,
             appID,
-            currUser
+            currUser,
+            pluginsList
         } = this.props;
         const {
             serviceComponentList,
@@ -534,6 +537,19 @@ export default class index extends Component {
         const containerPorts =
             portList && portList.length > 0 && portList[0].container_port;
         const isOk = !(componentLoading || portLoading);
+        const content = (
+            <div className={styles.popoverContent}>
+                <img src={Wechat} alt="domainRecord" />
+                <p>联系我们获取备案帮助</p>
+            </div>
+        )
+        const popoverTitle = (
+            <div className={styles.popoverTitle}>
+                <div>域名备案帮助</div>
+                <p>根据相关法规，使用自定义域名前需完成备案。我们可以协助您快速完成备案流程。</p>
+            </div>
+        )
+        const showCloudBill = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
         return (
             <div>
                 <Drawer
@@ -549,18 +565,31 @@ export default class index extends Component {
                                 rules: [
                                     { validator: this.handleValidatorsHosts },
                                     // 域名不允许填入ip
-                                    { validator: this.handleValidatorsHostsIp }
+                                    { validator: this.handleValidatorsHostsIp },
                                 ],
                                 initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
                             })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
-                            <span style={{ fontWeight: 'bold', fontSize: '16px'}}>
+                            <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                                 <a href="javascript:void(0)" onClick={this.showDescription}>
                                     {formatMessage({ id: 'popover.access_strategy.lable.analysis' })}
                                     <span style={{ textDecoration: 'underline' }}>
-                                    {currentRegion && currentRegion.tcpdomain}
+                                        {currentRegion && currentRegion.tcpdomain}
                                     </span>
                                 </a>
                             </span>
+                            {showCloudBill &&
+                                <Alert
+                                    message={
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>使用自定义域名需要完成备案</div>
+                                            <Popover content={content} title={popoverTitle}>
+                                                <Button icon="question-circle">域名备案帮助</Button>
+                                            </Popover>
+                                        </div>
+                                    }
+                                    type="info"
+                                />
+                            }
                         </Form.Item>
                         <Row>
                             <Col>

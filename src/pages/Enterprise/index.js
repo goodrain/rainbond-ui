@@ -25,6 +25,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import ScrollerX from '@/components/ScrollerX';
 import moment from 'moment';
 import AddTeam from '../../../public/images/addTeam.png';
 import Arrow from '../../../public/images/arrow.png';
@@ -1534,7 +1535,7 @@ export default class Enterprise extends PureComponent {
     } = this.state;
     const { rainbondInfo } = this.props;
     return (
-      <div>
+      <ScrollerX sm={1100}>
         {this.renderContent()}
         {rainbondInfo &&
           rainbondInfo.is_public &&
@@ -1558,22 +1559,7 @@ export default class Enterprise extends PureComponent {
             onCancel={this.cancelConsulting}
           />
         )}
-        {/* 安装集群成功的弹窗 */}
-        {/* {eid &&
-          isNewbieGuide &&
-          showClusterIntroduced &&
-          clusters &&
-          clusters.length &&
-          clusters[0].status === '1' && (
-            <InstallStep
-              isCluster
-              onCancel={this.handleClusterIntroduced}
-              eid={eid}
-              onStartInstall={this.onStartInstall}
-              onViewInstance={this.onViewInstance}
-            />
-          )} */}
-      </div>
+      </ScrollerX>
     );
   }
 }

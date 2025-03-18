@@ -12,6 +12,7 @@ import ImageHubForm from '../../components/ImageHubForm';
 import SmsConfigForm from '../../components/SmsConfigForm';
 import MonitoringForm from '../../components/MonitoringForm';
 import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
+import ScrollerX from '../../components/ScrollerX';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
@@ -1035,7 +1036,11 @@ export default class Index extends PureComponent {
   render() {
     const { enterprise } = this.props;
     if (enterprise) {
-      return <Infrastructure {...this.props} />;
+      return (
+        <ScrollerX sm={840}>
+          <Infrastructure {...this.props} />
+        </ScrollerX>
+      );
     }
     return null;
   }

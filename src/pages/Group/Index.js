@@ -6,6 +6,7 @@ import { Spin } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import Group from './Group';
+import ScrollerX from '@/components/ScrollerX';
 import Helm from './Helm';
 
 @connect(
@@ -46,7 +47,7 @@ export default class Index extends PureComponent {
       return roleUtil.noPermission()
     }
     return (
-      <Fragment>
+      <ScrollerX sm={1040}>
         {JSON.stringify(groupDetail) === '{}' ? (
           <Group {...this.props} {...this.state} />
         ) : groupDetail.app_type === 'helm' ? (
@@ -54,7 +55,7 @@ export default class Index extends PureComponent {
         ) : (
           <Group {...this.props} {...this.state} />
         )}
-      </Fragment>
+      </ScrollerX>
     );
   }
 }

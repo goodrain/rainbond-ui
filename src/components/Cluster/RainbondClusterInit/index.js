@@ -146,6 +146,14 @@ export default class RainbondClusterInit extends PureComponent {
     const { ipArray } = this.state;
     form.validateFields((err, values) => {
       let dataObj = {
+        operator: {
+          env: [
+            {
+              name: 'DISABLE_LOG',
+              value: 'true'
+            }
+          ]
+        },
         Component:{rbd_app_ui:{enable: false}},
         Cluster: {
           rainbondImageRepository: 'registry.cn-hangzhou.aliyuncs.com/goodrain',

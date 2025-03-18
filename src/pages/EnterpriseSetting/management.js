@@ -17,6 +17,7 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
+import ScrollerX from '../../components/ScrollerX';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 @connect(({ user, loading, global }) => ({
@@ -323,7 +324,7 @@ export default class Management extends PureComponent {
     );
 
     return (
-      <Fragment>
+      <ScrollerX sm={840}>
         {showAddAdmin && (
           <AddAdmin
             eid={eid}
@@ -349,7 +350,7 @@ export default class Management extends PureComponent {
         ) : (
           managementAdmin
         )}
-      </Fragment>
+      </ScrollerX>
     );
   }
 }
