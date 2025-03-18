@@ -41,6 +41,7 @@ import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import color from '../../../config/theme'
 import styles from './Index.less';
+import region from '@/models/region';
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
@@ -678,7 +679,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'global/fetchStorageUsed',
       payload: {
-        app_id: appID
+        app_id: appID,
+        region_name: globalUtil.getCurrRegionName(),
       },
       callback: res => {
         if (res) {
