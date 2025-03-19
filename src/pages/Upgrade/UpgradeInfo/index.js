@@ -15,7 +15,8 @@ import {
   Row,
   Select,
   Spin,
-  Tooltip
+  Tooltip,
+  notification
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -630,6 +631,9 @@ export default class AppList extends PureComponent {
         }
       },
       handleError: err => {
+        notification.error({
+          message: err.data.msg_show
+        })
         handleAPIError(err);
         this.getUpgradeRecordsInfo();
       }

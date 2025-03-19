@@ -134,6 +134,13 @@ export default class Index extends PureComponent {
                     window.sessionStorage.removeItem('advanced_setup');
                     this.handleJump(`components/${app_alias}/overview`);
                   }
+                },
+                handleError: err => {
+                  this.setState({ buildAppLoading: false });
+                  this.loadingBuild = false;
+                  notification.error({ 
+                    message: err.msg_show || err.data?.msg_show || '操作失败'
+                  });
                 }
               })
             }
@@ -162,6 +169,13 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('advanced_setup');
               this.handleJump(`components/${app_alias}/overview`);
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false;
+            notification.error({ 
+              message: err.msg_show || err.data?.msg_show || '操作失败'
+            });
           }
         })
       }

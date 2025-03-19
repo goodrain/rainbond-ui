@@ -341,6 +341,13 @@ export default class AppExporter extends PureComponent {
               }
             });
           }
+        },
+        handleError: (err) => {
+          if(err){
+            notification.error({
+              message: err.data.msg_show
+            });
+          }
         }
       });
     } else {

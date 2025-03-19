@@ -115,6 +115,9 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('advanced_setup');
               this.handleJump(`components/${app_alias}/overview`);
             }
+          },
+          handleError: err => {
+            notification.error({ message: err.data.msg_show })
           }
         });
       })

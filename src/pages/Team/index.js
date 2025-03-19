@@ -173,7 +173,12 @@ export default class Index extends PureComponent {
         ...data
       },
       callback: () => {
-        this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.props.dispatch({ 
+          type: 'user/fetchCurrent',
+          payload: {
+            team_name: globalUtil.getCurrTeamName()
+          }
+         });
         this.loadOverview();
         this.hideEditName();
         this.handleUpDataHeader();

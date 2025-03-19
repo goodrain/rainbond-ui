@@ -26,7 +26,8 @@ const versionUpdata = {
   'versionUpdata_6_1.serviceNum': 'Component Number (pcs)',
   'versionUpdata_6_1.cpuUsage': 'CPU Usage',
   'versionUpdata_6_1.memoryUsage': 'Memory Usage',
-  'versionUpdata_6_1.diskUsage': 'Storage Usage (GB)',
+  'versionUpdata_6_1.storageUsage': 'Storage Usage',
+  'versionUpdata_6_1.diskUsage': 'Storage allocation',
   'versionUpdata_6_1.appList': 'Application List',
   'versionUpdata_6_1.appList.table': 'List View',
   'versionUpdata_6_1.appList.card': 'Card View',
@@ -111,7 +112,10 @@ const versionUpdata = {
   'versionUpdata_6_1.createComponent': 'Create Component',
   'versionUpdata_6_1.confirmCreate': 'Confirm Create',
   'teamOverview.empty.description': 'No applications yet, create your first one now',
-  'teamOverview.empty.button': 'Create Application'
+  'teamOverview.empty.button': 'Create Application',
+  'price.cpu': 'CPU',
+  'price.memory': 'Memory',
+  'price.total': 'Estimated Price (Day)'
 }
 
 

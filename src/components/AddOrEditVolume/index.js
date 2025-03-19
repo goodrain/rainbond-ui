@@ -11,7 +11,10 @@ import {
   Select
 } from 'antd';
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import pluginUtil from '../../utils/plugin';
+import pluginUtils from '../../utils/pulginUtils';
+import PriceCard from '../../components/PriceCard';
 import cookie from '../../utils/cookie';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
@@ -20,24 +23,36 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @Form.create()
+@connect(
+  ({ rbdPlugin }) => ({
+    pluginList: rbdPlugin.pluginList
+  }),
+  null,
+  null,
+  { pure: false, withRef: true }
+)
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       volumeCapacityValidation: {},
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      volume_type: ''
+      volume_type: '',
+      showBill: pluginUtils.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
     };
   }
   componentDidMount = () => {
     const { data } = this.props;
-    if (data && data.volume_type) {
+    if(this.state.showBill){
       this.setState({
-        volume_type: data.volume_type
+        volume_type: 'volcengine'
       })
-      // this.setVolumeCapacityValidation(data.volume_type);
-    } else {
-      // this.setVolumeCapacityValidation('share-file');
+    }else{
+      if (data && data.volume_type) {
+        this.setState({
+          volume_type: data.volume_type
+        })
+      }
     }
   };
   // eslint-disable-next-line react/sort-comp
@@ -173,6 +188,7 @@ export default class AddVolumes extends PureComponent {
       defaultVolumeCapacity = volumeCapacityValidation.default;
     }
 
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -272,7 +288,7 @@ export default class AddVolumes extends PureComponent {
           {method != 'vm' &&
             <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
-                initialValue: data.volume_type || "memoryfs",
+                initialValue:  this.state.showBill ? 'volcengine' : data.volume_type || "memoryfs",
               })(
                 <RadioGroup onChange={this.handleChange}>
                   {volumeOpts.map(item => {
@@ -315,6 +331,9 @@ export default class AddVolumes extends PureComponent {
                 />
               )}
             </FormItem>
+          }
+          {volume_type == 'volcengine' && this.state.showBill &&
+            <PriceCard type="Alert" />
           }
         </Form>
         <div

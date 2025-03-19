@@ -659,6 +659,11 @@ class Main extends PureComponent {
           }
         }
         this.handleOffHelpfulHints();
+      },
+      handleError: err => {
+        this.handleCancelBuild();
+        notification.error({ message: err.data.msg_show });
+        this.handleOffHelpfulHints();
       }
     });
   };
@@ -882,6 +887,10 @@ class Main extends PureComponent {
             child.onAction(res.bean);
           }
         }
+        this.handleOffHelpfulHints();
+      },
+      handleError: err => {
+        notification.error({ message: err.data.msg_show });
         this.handleOffHelpfulHints();
       }
     });

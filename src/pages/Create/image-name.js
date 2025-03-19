@@ -7,7 +7,11 @@ import globalUtil from "../../utils/global";
 import ImageNameForm from "../../components/ImageNameForm";
 import TopUpHints from '../../components/TopUpHints';
 
-@connect(({ user, global }) => ({ currUser: user.currentUser, groups: global.groups }))
+@connect(({ user, global }) => ({ 
+  currUser: user.currentUser, 
+  groups: global.groups,
+  rainbondInfo: global.rainbondInfo,
+}))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -20,7 +24,11 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    this.handleGetImageRepositories()
+    const { rainbondInfo } = this.props
+    const isSaas = rainbondInfo?.is_saas || false;
+    if(!isSaas) {
+      this.handleGetImageRepositories()
+    }
   }
   handleGetImageRepositories = () => {
     const { dispatch } = this.props

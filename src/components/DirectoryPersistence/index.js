@@ -70,6 +70,9 @@ class Index extends Component {
     fetchUserInfo = () => {
         this.props.dispatch({
             type: 'user/fetchCurrent',
+            payload: {
+                team_name: globalUtil.getCurrTeamName()
+            },
             callback: res => {
                 if (res) {
                     this.setState({
@@ -686,7 +689,6 @@ class Index extends Component {
                 this.updateTree();
             }
         } catch (error) {
-            console.log(error,"error");
             notification.error({
                 message: '创建文件夹失败',
                 description: error.message || '网络请求失败，请检查网络连接'

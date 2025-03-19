@@ -94,8 +94,8 @@ export default class SelectApp extends PureComponent {
       currentApp,
       visible
     } = this.state;
-    const teamName = currentTeam.team_name;
-    const regionName = currentRegion.team_region_name;
+    const teamName = currentTeam?.team_name;
+    const regionName = currentRegion?.team_region_name;
     const currentTeamAppsPageLink = `/team/${teamName}/region/${regionName}/apps`;
     // const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const isCreateApp = true;

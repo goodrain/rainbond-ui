@@ -65,9 +65,6 @@ export default class ComponentList extends Component {
   }
   componentDidMount() {
     this.updateApp();
-    document
-      .querySelector('.ant-table-footer')
-      .setAttribute('style', 'position:absolute;background:#fff');
   }
   shouldComponentUpdate() {
     return true;
@@ -187,6 +184,11 @@ export default class ComponentList extends Component {
             message: operationMap[state]
           });
         }
+      },
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
+        });
       }
     });
   };
@@ -195,6 +197,7 @@ export default class ComponentList extends Component {
     this.setState({ operationState });
   };
   handleBatchOperation = action => {
+    const { dispatch } = this.props;
     const ids = this.getSelectedKeys();
     const map = {
       stop: formatMessage({id:'notification.hint.component.putBatchStop'}),
@@ -203,18 +206,27 @@ export default class ComponentList extends Component {
       upgrade: formatMessage({id:'notification.hint.component.putBatchUpgrade'}),
       deploy: formatMessage({id:'notification.hint.component.putBatchDeploy'})
     };
-    batchOperation({
-      action,
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids && ids.join(',')
-    }).then(data => {
-      this.handleOperationState(false);
-      if (data && map[action]) {
-        notification.success({
-          message: map[action]
+    dispatch({
+      type: 'appControl/batchOperation',
+      payload: {
+        action,
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: ids && ids.join(',')
+      },
+      callback: res => {
+        this.handleOperationState(false);
+        if (res && map[action]) {
+          notification.success({
+            message: map[action]
+          });
+        }
+      },
+      handleError: err => {
+        notification.error({
+          message: err.data.msg_show
         });
       }
-    });
+    })
   };
 
   handleBatchDelete = () => {
@@ -371,7 +383,6 @@ export default class ComponentList extends Component {
       onChange: this.onSelectChange
     };
     const pagination = {
-      hideOnSinglePage: total <= 10,
       showQuickJumper: true,
       showTotal: (total) => `共 ${total} 条`,
       pageSize,
@@ -626,7 +637,7 @@ export default class ComponentList extends Component {
       </div>
     );
     return (
-      <div>
+      <div className={styles.container}>
         <Card
           style={{
             minHeight: 400
@@ -649,18 +660,20 @@ export default class ComponentList extends Component {
               </Button>
             </Form.Item>
           </Form>
-          <Table
-            pagination={pagination}
-            rowSelection={rowSelection}
-            onChange={this.handleTableChange} 
-            columns={columns}
-            loading={
-              reStartLoading || startLoading || stopLoading || tableDataLoading
-            }
-            dataSource={apps || []}
-            footer={() => footer}
-            rowKey={record => record.service_id}
-          />
+          <div className={styles.list}>
+            <Table
+              pagination={pagination}
+              rowSelection={rowSelection}
+              onChange={this.handleTableChange} 
+              columns={columns}
+              loading={
+                reStartLoading || startLoading || stopLoading || tableDataLoading
+              }
+              dataSource={apps || []}
+              rowKey={record => record.service_id}
+            />
+            {footer}
+          </div>
           {batchDeleteShow && (
             <BatchDelete
               batchDeleteApps={batchDeleteApps}

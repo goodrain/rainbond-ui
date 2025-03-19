@@ -355,7 +355,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': 'Quota (GB)',
     'enterpriseTeamManagement.table.operation': 'Running applications',
     'enterpriseTeamManagement.table.handle': 'Operation',
-    'enterpriseTeamManagement.table.memory_total': 'Memory usage/total (MB)',
+    'enterpriseTeamManagement.table.memory_total': 'Memory usage/total (GB)',
     'enterpriseTeamManagement.table.CUP_total': 'CPU usage/total (m)',
     'enterpriseTeamManagement.table.quota_total': 'Storage usage/total (GB)',
     
@@ -374,7 +374,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': 'Applying to join the project/team for approval',
     'enterpriseTeamManagement.other.haveNewJoinTeam': 'Newly joined project/team',
     'enterpriseTeamManagement.other.description': 'There is no project/team, please create or join',
-    'enterpriseTeamManagement.other.personal': 'Workspace',
+    'enterpriseTeamManagement.other.personal': 'Team space',
 }
 // 集群
 const enterpriseColony = {
@@ -1239,6 +1239,7 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.title': 'Site title',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias': 'An enterprise name',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': 'Document address',
+    'enterpriseSetting.basicsSetting.basicInformation.form.label.cluster_security_limit': 'Cluster security',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': 'Web page icon',
     'enterpriseSetting.basicsSetting.alarm.title': 'Alarm switch',

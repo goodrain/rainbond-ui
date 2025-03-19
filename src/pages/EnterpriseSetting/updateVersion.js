@@ -228,7 +228,6 @@ export default class UpdateVersion extends PureComponent {
   render() {
     const { isShowVersionList, activeKey, loading, versionList, details, isShowContent, isShowModal, isShowComplete, submit_version, isShowModalClose, isShowModalFooter, selsectValue, toUpdata, handleError } = this.state
     const { rainbondInfo } = this.props
-    console.log(handleError, 'handleError');
     const currentVersion = rainbondInfo.version.value.split('-')[0]
     const message = <p className={styles.noversion}>{formatMessage({ id: 'platformUpgrade.EscalationState.nowVersionis' })}<span>{currentVersion}</span> {formatMessage({ id: 'platformUpgrade.EscalationState.read' })}</p>
     const version = selsectValue?.tag_name.split('-')[0]

@@ -20,11 +20,12 @@ import {
   Row,
   Col,
   Icon,
+  notification
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
@@ -38,6 +39,7 @@ import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
+import PluginUtil from '../../utils/pulginUtils';
 import CommandMarket from './command-market';
 import sourceUtil from '../../utils/source-unit';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -54,7 +56,8 @@ const { TabPane } = Tabs;
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
-    groups: global.groups
+    groups: global.groups,
+    pluginsList: teamControl.pluginsList
   }),
   null,
   null,
@@ -95,8 +98,8 @@ export default class Main extends PureComponent {
       helmCreate: null,
       showCreate: null,
       scope,
-      scopeMax: (this.props.match && this.props.match.params && this.props.match.params.keyword) ? 
-      (this.props.match && this.props.match.params && this.props.match.params.keyword) : (scopeMax  || 'localApplication'),
+      scopeMax: (this.props.match && this.props.match.params && this.props.match.params.keyword) ?
+        (this.props.match && this.props.match.params && this.props.match.params.keyword) : (scopeMax || 'localApplication'),
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
@@ -106,13 +109,13 @@ export default class Main extends PureComponent {
       localAppTab: [
         {
           key: 'localApplication',
-          tab: formatMessage({id:'popover.applicationMarket.local'})
+          tab: formatMessage({ id: 'popover.applicationMarket.local' })
         },
       ],
-      commandTab:[
+      commandTab: [
         {
           key: 'command',
-          tab: formatMessage({id:'teamAdd.create.market.command'})
+          tab: formatMessage({ id: 'teamAdd.create.market.command' })
         }
       ],
       rainStoreTab: [],
@@ -131,16 +134,22 @@ export default class Main extends PureComponent {
       },
       addAppLoading: false,
       archInfo: [],
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
-
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
+      cpuPrice: 0,
+      memoryPrice: 0,
+      currentVersionInfo: {}
     };
     this.mount = false;
   }
   componentWillMount() {
   }
   componentDidMount() {
-    const {teamAppCreatePermission:{isAccess}} = this.state;
-    if(isAccess){
+    const { teamAppCreatePermission: { isAccess } } = this.state;
+    const { pluginsList } = this.props
+    if (PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill')) {
+      this.fetchPrices()
+    }
+    if (isAccess) {
       this.mount = true;
       this.handleArchCpuInfo();
       this.getMarketsTab();
@@ -153,6 +162,24 @@ export default class Main extends PureComponent {
       type: 'global/fetchGroups',
       payload: {
         team_name: globalUtil.getCurrTeamName()
+      }
+    });
+  };
+
+  fetchPrices = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/getPricingConfig',
+      payload: {
+        region_name: globalUtil.getCurrRegionName() || ''
+      },
+      callback: (res) => {
+        if (res.status_code == 200) {
+          this.setState({
+            cpuPrice: res.response_data?.cpu_price_per_core / 1000000 || 0,
+            memoryPrice: res.response_data?.memory_price_per_gb / 1000000 || 0
+          });
+        }
       }
     });
   };
@@ -173,9 +200,9 @@ export default class Main extends PureComponent {
         if (res && res.bean) {
           this.setState({
             archInfo: res.list.length == 2 ? '' : res.list[0]
-          },()=>{
+          }, () => {
             this.getApps();
-          })  
+          })
         }
       }
     });
@@ -288,7 +315,7 @@ export default class Main extends PureComponent {
         }
         this.setState({
           rainStoreTab: rainStores,
-          marketInfoSwitch:true
+          marketInfoSwitch: true
         });
         if (scopeMax && scopeMax !== 'localApplication') {
           this.handleTabMaxChange(scopeMax);
@@ -320,7 +347,7 @@ export default class Main extends PureComponent {
             }
             this.setState({
               helmStoreTab: helmStores,
-              helmInfoSwitch:true
+              helmInfoSwitch: true
             });
           }
         }
@@ -364,14 +391,14 @@ export default class Main extends PureComponent {
               });
               setHelmPag.total = arr.length;
               helmList =
-              arr.length > helmPageSize ? arr.splice((helmPage - 1) * helmPageSize, helmPageSize) : arr;
+                arr.length > helmPageSize ? arr.splice((helmPage - 1) * helmPageSize, helmPageSize) : arr;
             } else {
               helmList = res.splice(helmPage > 1 ? (helmPage - 1) * helmPageSize : 0, helmPageSize);
             }
           }
           this.setState({
             helmLoading: false,
-            isSpincloudList:false,
+            isSpincloudList: false,
             helmList,
             helmPag: setHelmPag
           });
@@ -437,7 +464,7 @@ export default class Main extends PureComponent {
       }
     );
   };
-  hanldeHelmPageChange = (page,pageSize) => {
+  hanldeHelmPageChange = (page, pageSize) => {
     const { helmPag, scopeMax } = this.state;
     const paginfo = Object.assign({}, helmPag, { page, pageSize });
     this.setState(
@@ -478,7 +505,7 @@ export default class Main extends PureComponent {
           this.getApps('reset');
         } else if (key.indexOf('Helm-') > -1) {
           this.getHelmAppStore(key.slice(5));
-        } else if(key != 'command') {
+        } else if (key != 'command') {
           this.getCloudRecommendApps('reset');
         }
       }
@@ -488,7 +515,11 @@ export default class Main extends PureComponent {
   showCreate = app => {
     const { handleType } = this.state;
     if (handleType) {
-      this.setState({ installBounced: app });
+      const versions = app.versions_info || app.versions
+      this.setState({
+        installBounced: app,
+        currentVersionInfo: versions[0]
+      });
     } else {
       this.setState({ showCreate: app });
     }
@@ -523,54 +554,61 @@ export default class Main extends PureComponent {
       if (err) return;
       if (scopeMax.indexOf('Helm-') > -1) {
         const obj = {
-          app_store_name: currentKey.substr(currentKey.indexOf("-")+1),
+          app_store_name: currentKey.substr(currentKey.indexOf("-") + 1),
           app_template_name: installBounced.name,
           is_deploy: is_deploy,
           version: Value.group_version
         }
-        window.sessionStorage.setItem("appinfo",JSON.stringify(obj))
+        window.sessionStorage.setItem("appinfo", JSON.stringify(obj))
         dispatch(
           routerRedux.push(
             `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-              0}/helminstall?installPath=market`
+            0}/helminstall?installPath=market`
           )
         );
-      } else{
-      dispatch({
-        type: 'createApp/installApp',
-        payload: {
-          team_name: teamName,
-          group_id: groupId || 0,
-          app_id: installBounced.app_id,
-          is_deploy,
-          group_key: installBounced.ID,
-          app_version: Value.group_version,
-          marketName: currentKey,
-          install_from_cloud: scopeMax !== 'localApplication'
-        },
-        callback: () => {
-          // 刷新左侧按钮
-          dispatch({
-            type: 'global/fetchGroups',
-            payload: {
-              team_name: teamName
-            }
-          });
+      } else {
+        dispatch({
+          type: 'createApp/installApp',
+          payload: {
+            team_name: teamName,
+            group_id: groupId || 0,
+            app_id: installBounced.app_id,
+            is_deploy,
+            group_key: installBounced.ID,
+            app_version: Value.group_version,
+            marketName: currentKey,
+            install_from_cloud: scopeMax !== 'localApplication'
+          },
+          callback: () => {
+            // 刷新左侧按钮
+            dispatch({
+              type: 'global/fetchGroups',
+              payload: {
+                team_name: teamName
+              }
+            });
 
-          // 关闭弹框
-          this.setState({ installBounced: false, is_deploy: true });
-          if (handleType && refreshCurrent) {
-            refreshCurrent();
-          }
-          dispatch(
-            routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+            // 关闭弹框
+            this.setState({ installBounced: false, is_deploy: true });
+            if (handleType && refreshCurrent) {
+              refreshCurrent();
+            }
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
                 0}`
-            )
-          );
-        }
-      });
-    }
+              )
+            );
+          },
+          handleError: (err) => {
+            if (err) {
+              notification.error({
+                message: err.data.msg_show
+              });
+            }
+          }
+        });
+      }
     });
   };
   handleCreate = (vals, is_deploy) => {
@@ -603,13 +641,19 @@ export default class Main extends PureComponent {
             this.onCancelCreate();
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
-                  vals.group_id
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
                 }`
               )
             );
-          }
+          },
         });
+      },
+      handleError: (err) => {
+        if (err) {
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };
@@ -618,12 +662,12 @@ export default class Main extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
     this.setState({ helmInstallLoading: true });
     vals.is_deploy = is_deploy;
-    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
+    window.sessionStorage.setItem("appinfo", JSON.stringify(vals))
     dispatch(
-    routerRedux.push(
-      `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id}/helminstall?installPath=market`
-    )
-  );
+      routerRedux.push(
+        `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id}/helminstall?installPath=market`
+      )
+    );
   };
   handleCloudCreate = (vals, is_deploy) => {
     this.setState({
@@ -658,13 +702,19 @@ export default class Main extends PureComponent {
             this.setState({ is_deploy: true });
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                  vals.group_id
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
                 }`
               )
             );
           }
         });
+      },
+      handleError: (err) => {
+        if (err) {
+          notification.error({
+            message: err.data.msg_show
+          });
+        }
       }
     });
   };
@@ -708,7 +758,7 @@ export default class Main extends PureComponent {
           background: '#fff',
           padding: handleType ? '0 20px 20px' : '20px ',
           border: '1px solid #e8e8e8',
-          borderRadius:5
+          borderRadius: 5
         }}
       >
         {tabList.map(item => {
@@ -734,10 +784,10 @@ export default class Main extends PureComponent {
     const title = item => (
       <div
         title={item.app_name || item.name || ''}
-        style={{display:'flex',alignItems:'center'}}
+        style={{ display: 'flex', alignItems: 'center' }}
       >
         <div
-          style={{ 
+          style={{
             maxWidth: '170px',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
@@ -748,25 +798,25 @@ export default class Main extends PureComponent {
             onClick={() => {
               this.showMarketAppDetail(item);
             }}
-            style={{ 
+            style={{
               marginRight: '12px',
             }}
           >
-            {item.app_name || item.name} 
+            {item.app_name || item.name}
           </a>
         </div>
         <div>
-        {item.arch && 
-          item.arch.length > 0 && 
-            item.arch.map((item)=>{
+          {item.arch &&
+            item.arch.length > 0 &&
+            item.arch.map((item) => {
               return <Tag>{item}</Tag>
-          })}
+            })}
         </div>
       </div>
     );
     const versionBox = (
       <div title={item.version} className={PluginStyles.cardVersionStyle}>
-        <span>{formatMessage({id:'otherApp.marketDrawer.edition'})}</span>
+        <span>{formatMessage({ id: 'otherApp.marketDrawer.edition' })}</span>
         <div className={PluginStyles.overScroll}>
           <div>
             {item.versions_info &&
@@ -802,7 +852,7 @@ export default class Main extends PureComponent {
       </div>
     );
     const fastactions = [
-      <Tooltip title={isInstall ? formatMessage({id:'otherApp.marketDrawer.click'}) : formatMessage({id:'otherApp.marketDrawer.not'})}>
+      <Tooltip title={isInstall ? formatMessage({ id: 'otherApp.marketDrawer.click' }) : formatMessage({ id: 'otherApp.marketDrawer.not' })}>
         <div
           onClick={() => {
             if (isInstall) {
@@ -819,18 +869,18 @@ export default class Main extends PureComponent {
     ];
     const defaultActions = isInstall
       ? [
-          <span
-            onClick={() => {
-              if (type === 'helm') {
-                this.handleHelmIntall(item);
-              } else {
-                this.showCreate(item);
-              }
-            }}
-          >
-            {formatMessage({id:'button.install'})}
-          </span>
-        ]
+        <span
+          onClick={() => {
+            if (type === 'helm') {
+              this.handleHelmIntall(item);
+            } else {
+              this.showCreate(item);
+            }
+          }}
+        >
+          {formatMessage({ id: 'button.install' })}
+        </span>
+      ]
       : [];
     const appIcon = require('../../../public/images/app_icon.jpg');
     return (
@@ -893,7 +943,7 @@ export default class Main extends PureComponent {
                     {versionBox}
                     {!cloud && (
                       <div className={PluginStyles.memoryStyle}>
-                        <span> {formatMessage({id:'otherApp.marketDrawer.Memory'})}</span>
+                        <span> {formatMessage({ id: 'otherApp.marketDrawer.Memory' })}</span>
                         {sourceUtil.unit(item.min_memory || 128, 'MB')}
                       </div>
                     )}
@@ -930,53 +980,54 @@ export default class Main extends PureComponent {
     const { installBounced, app_name: appName, } = this.state;
     const versionList = installBounced.versions_info || installBounced.versions;
     for (let index = 0; index < groups.length; index++) {
-      if(groups[index].group_id == groupId){
+      if (groups[index].group_id == groupId) {
         var selectAppName = groups[index].group_name
         break;
       }
     }
-    
+
     return (
       <Form
         onSubmit={this.handleInstallBounced}
         layout="horizontal"
         hideRequiredMark
       >
-      <Form.Item {...formItemLayout} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
-            {getFieldDecorator('group_id', {
-              initialValue: selectAppName ||'',
-              rules: [{ required: true, message: formatMessage({id: 'placeholder.select'}) }]
-            })(
-              <Select
-                // getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({id: 'placeholder.appName'})}
-                style={{
-                  display: 'inline-block',
-                  width: 284,
-                  marginRight: 10
-                }}
-                disabled={true}
-              >
-                {(groups || []).map(group => {
-                  return (
-                    <Option value={group.group_id}>{group.group_name}</Option>
-                  );
-                })}
-              </Select>
-            )}
-          </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id:'otherApp.marketDrawer.Select_version'})}>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
+          {getFieldDecorator('group_id', {
+            initialValue: selectAppName || '',
+            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+          })(
+            <Select
+              // getPopupContainer={triggerNode => triggerNode.parentNode}
+              placeholder={formatMessage({ id: 'placeholder.appName' })}
+              style={{
+                display: 'inline-block',
+                width: 284,
+                marginRight: 10
+              }}
+              disabled={true}
+            >
+              {(groups || []).map(group => {
+                return (
+                  <Option value={group.group_id}>{group.group_name}</Option>
+                );
+              })}
+            </Select>
+          )}
+        </Form.Item>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'otherApp.marketDrawer.Select_version' })}>
           {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
             rules: [
               {
                 required: true,
-                message: formatMessage({id:'otherApp.marketDrawer.input_version'})
+                message: formatMessage({ id: 'otherApp.marketDrawer.input_version' })
               }
             ]
           })(
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
+              onChange={this.onChangeVersion}
               style={{ width: '284px' }}
             >
               {versionList.map(item => {
@@ -986,35 +1037,38 @@ export default class Main extends PureComponent {
                     value={item.version || item.app_version}
                   >
                     {item.version || item.app_version}
-                    {item.arch && 
-                    <Tag 
-                      color="blue" 
-                      style={{ marginLeft: '8px', lineHeight: '18px' }}
-                    >
-                      {item.arch}
-                    </Tag>}
+                    {item.arch &&
+                      <Tag
+                        color="blue"
+                        style={{ marginLeft: '8px', lineHeight: '18px' }}
+                      >
+                        {item.arch}
+                      </Tag>}
                   </Option>
                 );
               })}
             </Select>
           )}
+          <div style={{ fontSize: '14px', color: '#8C8C8C' }}>
+            {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
+          </div>
         </Form.Item>
-        <Form.Item {...formItemLayout} label={formatMessage({id:'teamOther.CreateAppFromHelmForm.note'})} style={{display:'none'}}>
-            {getFieldDecorator('note', {
-              initialValue: (versionList[0] && versionList[0].description) ? versionList[0].description : '',
-              rules: [
-                {
-                  max: 255,
-                  message: formatMessage({id:'teamOther.CreateAppFromHelmForm.max_length'})
-                }
-              ]
-            })(
-              <Input.TextArea
-                placeholder={formatMessage({id:'teamOther.CreateAppFromHelmForm.note_app'})}
-                style={{ width: '284px' }}
-              />
-            )}
-          </Form.Item>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromHelmForm.note' })} style={{ display: 'none' }}>
+          {getFieldDecorator('note', {
+            initialValue: (versionList[0] && versionList[0].description) ? versionList[0].description : '',
+            rules: [
+              {
+                max: 255,
+                message: formatMessage({ id: 'teamOther.CreateAppFromHelmForm.max_length' })
+              }
+            ]
+          })(
+            <Input.TextArea
+              placeholder={formatMessage({ id: 'teamOther.CreateAppFromHelmForm.note_app' })}
+              style={{ width: '284px' }}
+            />
+          )}
+        </Form.Item>
       </Form>
     );
   };
@@ -1025,6 +1079,21 @@ export default class Main extends PureComponent {
     });
   };
 
+
+  onChangeVersion = value => {
+    const { installBounced } = this.state;
+    if (installBounced) {
+      const versions = installBounced.versions_info || installBounced.versions;
+      const currentVersionInfo = versions.find(
+        item => item.version === value || item.app_version === value
+      ) || {};
+      this.setState({
+        selectedVersion: value,
+        currentVersionInfo
+      });
+    }
+  };
+  
   render() {
     const {
       loading,
@@ -1033,6 +1102,7 @@ export default class Main extends PureComponent {
       currentRegionName,
       isHelm = true,
       isAddMarket,
+      pluginsList
     } = this.props;
     const {
       handleType,
@@ -1071,11 +1141,14 @@ export default class Main extends PureComponent {
       helmInfoSwitch,
       marketInfoSwitch,
       archInfo,
-      teamAppCreatePermission:{isAccess}
+      teamAppCreatePermission: { isAccess },
+      cpuPrice,
+      memoryPrice
     } = this.state;
-    if(!isAccess){
+    if (!isAccess) {
       return roleUtil.noPermission()
     }
+    const showSaaSPrice = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const keyword = this.props.match && this.props.match.params && this.props.match.params.keyword || '';
     const dockerSvg = globalUtil.fetchSvg('dockerSvg');
     const setHideOnSinglePage = !!moreState;
@@ -1094,7 +1167,7 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      onChange:this.hanldeCloudPageChange,
+      onChange: this.hanldeCloudPageChange,
       showQuickJumper: true,
       showSizeChanger: true,
       showTotal: (total) => `共 ${total} 条`,
@@ -1106,7 +1179,7 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : helmPag.page,
       pageSize: moreState ? 3 : helmPag.pageSize,
       total: moreState ? 1 : helmPag.total,
-      onChange:this.hanldeHelmPageChange,
+      onChange: this.hanldeHelmPageChange,
       showQuickJumper: true,
       showSizeChanger: true,
       showTotal: (total) => `共 ${total} 条`,
@@ -1116,7 +1189,7 @@ export default class Main extends PureComponent {
     };
     let isInstall = true;
 
-    const marketTab = [...localAppTab, ...rainStoreTab, ...helmStoreTab,...commandTab];
+    const marketTab = [...localAppTab, ...rainStoreTab, ...helmStoreTab, ...commandTab];
 
     if (marketTab && marketTab.length > 0) {
       const arr = marketTab.filter(item => {
@@ -1142,7 +1215,7 @@ export default class Main extends PureComponent {
             zIndex: 99
           }}
         >
-          <a onClick={this.loadMore}>{formatMessage({id:'otherApp.marketDrawer.more'})}</a>
+          <a onClick={this.loadMore}>{formatMessage({ id: 'otherApp.marketDrawer.more' })}</a>
         </div>
       );
     //本地组件库
@@ -1159,10 +1232,10 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              {formatMessage({id:'notification.market.hint.null_app1'})}
+              {formatMessage({ id: 'notification.market.hint.null_app1' })}
               <br />
               <br />
-              {formatMessage({id:'notification.market.hint.null_app2'})}
+              {formatMessage({ id: 'notification.market.hint.null_app2' })}
             </p>
           )
         }}
@@ -1227,44 +1300,44 @@ export default class Main extends PureComponent {
       <div
       >
         {scopeMax != 'command' &&
-        <span id="searchWrap" style={{ display: 'inline-block' }}>
-          <Input.Search
-            // eslint-disable-next-line react/no-string-refs
-            ref="searchs"
-            placeholder={formatMessage({id:'placeholder.group_name'})}
-            enterButton={formatMessage({id:'button.search'})}
-            size="large"
-            // value={defaultValue}
-            onChange={event => {
-              this.setState({
-                app_name: event.target.value,
-                cloudApp_name: event.target.value
-              });
-            }}
-            // defaultValue={defaultValue}
-            onSearch={this.handleSearch}
-            style={{
-              width: 450
-            }}
-          />
-        </span>}
+          <span id="searchWrap" style={{ display: 'inline-block' }}>
+            <Input.Search
+              // eslint-disable-next-line react/no-string-refs
+              ref="searchs"
+              placeholder={formatMessage({ id: 'placeholder.group_name' })}
+              enterButton={formatMessage({ id: 'button.search' })}
+              size="large"
+              // value={defaultValue}
+              onChange={event => {
+                this.setState({
+                  app_name: event.target.value,
+                  cloudApp_name: event.target.value
+                });
+              }}
+              // defaultValue={defaultValue}
+              onSearch={this.handleSearch}
+              style={{
+                width: 450
+              }}
+            />
+          </span>}
       </div>
     );
 
     const tabAllList = [
       {
         key: '',
-        tab: formatMessage({id:'popover.applicationMarket.all'})
+        tab: formatMessage({ id: 'popover.applicationMarket.all' })
       }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: formatMessage({id:'popover.applicationMarket.company'})
+        tab: formatMessage({ id: 'popover.applicationMarket.company' })
       },
       {
         key: 'team',
-        tab: formatMessage({id:'popover.applicationMarket.team'})
+        tab: formatMessage({ id: 'popover.applicationMarket.team' })
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
@@ -1275,7 +1348,7 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: formatMessage({id:'otherApp.marketDrawer.creat'}) });
+    breadcrumbList.push({ title: formatMessage({ id: 'otherApp.marketDrawer.creat' }) });
     const group_id = globalUtil.getGroupID()
     const SpinBox = (
       <div
@@ -1288,14 +1361,13 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
-
     return (
       <div>
         {authorizations && (
           <AuthCompany
             eid={currentEnterprise.enterprise_id}
             marketName={authorizations}
-            title={formatMessage({id:'otherApp.marketDrawer.store'})}
+            title={formatMessage({ id: 'otherApp.marketDrawer.store' })}
             onCancel={() => {
               this.setState({ authorizations: false });
             }}
@@ -1317,8 +1389,8 @@ export default class Main extends PureComponent {
               handleType
                 ? this.handleCreate
                 : scopeMax == 'localApplication'
-                ? this.handleCreate
-                : this.handleCloudCreate
+                  ? this.handleCreate
+                  : this.handleCloudCreate
             }
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
@@ -1335,7 +1407,7 @@ export default class Main extends PureComponent {
         )}
         {handleType && installBounced && (
           <Modal
-            title={formatMessage({id:'confirmModal.install.app.desc'})}
+            title={formatMessage({ id: 'confirmModal.install.app.desc' })}
             className={styles.TelescopicModal}
             visible={installBounced}
             onOk={this.handleInstallBounced}
@@ -1343,33 +1415,77 @@ export default class Main extends PureComponent {
               this.setState({ installBounced: false });
             }}
             footer={
-              <div>
-                <Button
-                  onClick={() => {
-                    this.setState({
-                      installBounced: false,
-                      is_deploy: true
-                    });
-                  }}
-                >
-                  {formatMessage({id:'button.cancel'})}
-                </Button>
-                <Button
-                  onClick={this.handleInstallBounced}
-                  type="primary"
-                  style={{ marginRight: '5px' }}
-                  loading={loading.effects['createApp/installApp']}
-                >
-                  {formatMessage({id:'button.install'})}
-                </Button>
-                <Radio
-                  size="small"
-                  onClick={this.renderSuccessOnChange}
-                  checked={isDeploy}
-                >
-                  {formatMessage({id:'button.build_start'})}
-                </Radio>
-              </div>
+              showSaaSPrice ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Radio
+                      size="small"
+                      onClick={this.renderSuccessOnChange}
+                      checked={isDeploy}
+                    >
+                    {formatMessage({ id: 'button.build_start' })}
+                  </Radio>
+                    <span style={{ color: '#8C8C8C', fontSize: '14px' }}>
+                      预估(每天)
+                      <span style={{ color: '#F5A623', fontSize: '16px', fontWeight: 500, marginLeft: '4px' }}>
+                        ¥{(
+                          // CPU费用：毫核转核心 * 每小时价格 * 24小时
+                          ((this.state.currentVersionInfo?.cpu || 0) / 1000 * cpuPrice * 24) +
+                          // 内存费用：MB转换为GB * 每小时价格 * 24小时
+                          ((this.state.currentVersionInfo?.memory || 0) / 1024 * memoryPrice * 24)
+                        ).toFixed(2)}
+                      </span>
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button onClick={() => {
+                      this.setState({
+                        installBounced: false,
+                        is_deploy: true
+                      });
+                    }}>
+                      {formatMessage({ id: "button.cancel" })}
+                    </Button>
+                    <Button
+                      onClick={this.handleInstallBounced}
+                      type="primary"
+                      style={{ marginRight: '5px' }}
+                      loading={loading.effects['createApp/installApp']}
+                    >
+                      {formatMessage({ id: 'button.install' })}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <Button
+                    onClick={() => {
+                      this.setState({
+                        installBounced: false,
+                        is_deploy: true
+                      });
+                    }}
+                  >
+                    {formatMessage({ id: 'button.cancel' })}
+                  </Button>
+                  <Button
+                    onClick={this.handleInstallBounced}
+                    type="primary"
+                    style={{ marginRight: '5px' }}
+                    loading={loading.effects['createApp/installApp']}
+                  >
+                    {formatMessage({ id: 'button.install' })}
+                  </Button>
+                  <Radio
+                    size="small"
+                    onClick={this.renderSuccessOnChange}
+                    checked={isDeploy}
+                  >
+                    {formatMessage({ id: 'button.build_start' })}
+                  </Radio>
+                </div>
+              )
+
             }
           >
             {installBounced.describe && (
@@ -1385,8 +1501,8 @@ export default class Main extends PureComponent {
             {this.renderFormComponent()}
           </Modal>
         )}
-        
-        {marketTab && marketTab.length > 0 && isAddMarket ?(
+
+        {marketTab && marketTab.length > 0 && isAddMarket ? (
           <div>
             <PageHeaderComponent
               isAddMarket={this.props.isAddMarket}
@@ -1402,13 +1518,13 @@ export default class Main extends PureComponent {
                 <Alert
                   message={
                     <div>
-                      {formatMessage({id:'notification.market.hint.null_app5'})}
+                      {formatMessage({ id: 'notification.market.hint.null_app5' })}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        {formatMessage({id:'notification.market.hint.null_app6'})}
+                        {formatMessage({ id: 'notification.market.hint.null_app6' })}
                       </a>
                     </div>
                   }
@@ -1417,7 +1533,7 @@ export default class Main extends PureComponent {
                 />
               )}
               {scopeMax.indexOf('Helm-') > -1 && isHelm ? (
-                <div style={{paddingBottom:15}}>{helmLoading ? SpinBox : helmCardList}</div>
+                <div style={{ paddingBottom: 15 }}>{helmLoading ? SpinBox : helmCardList}</div>
               ) : scopeMax === 'localApplication' ? (
                 <div
                   style={{
@@ -1429,7 +1545,7 @@ export default class Main extends PureComponent {
                     padding: '12px'
                   }}
                 >
-                  
+
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : scopeMax === 'command' ? (
@@ -1443,7 +1559,7 @@ export default class Main extends PureComponent {
                     padding: '12px'
                   }}
                 >
-                  <CommandMarket {...this.props} archInfo={archInfo}/>
+                  <CommandMarket {...this.props} archInfo={archInfo} />
                 </div>
               ) : (
                 <div>
@@ -1474,11 +1590,11 @@ export default class Main extends PureComponent {
               {mores}
             </PageHeaderComponent>
           </div>
-        ):(
+        ) : (
           <div>
             <PageHeaderMarket
-              title={formatMessage({id:'teamPlugin.btn.marketAdd'})}
-              titleSvg={pageheaderSvg.getPageHeaderSvg('market',18)}
+              title={formatMessage({ id: 'teamPlugin.btn.marketAdd' })}
+              titleSvg={pageheaderSvg.getPageHeaderSvg('market', 18)}
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
@@ -1493,26 +1609,26 @@ export default class Main extends PureComponent {
               isFooter={!!handleType}
               action={
                 <Button onClick={() => {
-                    const { dispatch } = this.props;
-                    dispatch(
-                        routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
-                    );
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+                  );
                 }} type="default">
-                    <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+                  <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
                 </Button>
-            }
+              }
             >
               {scopeMax !== 'localApplication' && !isInstall && (
                 <Alert
                   message={
                     <div>
-                      {formatMessage({id:'notification.market.hint.null_app5'})}
+                      {formatMessage({ id: 'notification.market.hint.null_app5' })}
                       <a
                         onClick={() => {
                           this.handleCertification(scopeMax);
                         }}
                       >
-                        {formatMessage({id:'notification.market.hint.null_app6'})}
+                        {formatMessage({ id: 'notification.market.hint.null_app6' })}
                       </a>
                     </div>
                   }
@@ -1534,7 +1650,7 @@ export default class Main extends PureComponent {
                 >
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
-              ): scopeMax === 'command' ? (
+              ) : scopeMax === 'command' ? (
                 <div
                   style={{
                     marginBottom:
@@ -1544,9 +1660,9 @@ export default class Main extends PureComponent {
                       '40px'
                   }}
                 >
-                  <CommandMarket {...this.props} archInfo={archInfo}/>
+                  <CommandMarket {...this.props} archInfo={archInfo} />
                 </div>
-              ) :  helmInfoSwitch && marketInfoSwitch ? (
+              ) : helmInfoSwitch && marketInfoSwitch ? (
                 <div>
                   {isSpincloudList && isSpincloudList !== -1 ? (
                     SpinBox
@@ -1570,7 +1686,7 @@ export default class Main extends PureComponent {
                     </div>
                   )}
                 </div>
-              ): (<div>{SpinBox}</div>)}
+              ) : (<div>{SpinBox}</div>)}
               {mores}
             </PageHeaderMarket>
           </div>

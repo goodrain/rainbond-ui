@@ -451,11 +451,7 @@ export default class EnterpriseTeams extends PureComponent {
               key={`${item.region_name}region`}
               className={styles.regionShow}
               onClick={() => {
-                if (ismanagement) {
-                  this.handleJoinTeams(team_name, item.region_name);
-                } else {
-                  this.onJumpTeam(team_name, item.region_name);
-                }
+                this.onJumpTeam(team_name, item.region_name);
               }}
             >
               {item.region_alias}
@@ -925,7 +921,7 @@ export default class EnterpriseTeams extends PureComponent {
                   set_limit_cpu,
                   set_limit_storage
                 } = item;
-                const memory = (memory_request == 0) ? formatMessage({ id: 'componentOverview.body.tab.overview.unlimited' }) : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
+                const memory = (memory_request == 0) ? 0 : memory_request % 1024 == 0 ? (memory_request / 1024) : (memory_request / 1024).toFixed(1)
                 const limit_memory = (set_limit_memory == 0) ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_memory % 1024 == 0 ? (set_limit_memory / 1024) : (set_limit_memory / 1024).toFixed(1)
                 return (
                   <Card
@@ -943,7 +939,7 @@ export default class EnterpriseTeams extends PureComponent {
                         type="flex"
                         align="middle"
                         className={styles.pl23}
-                        onClick={() => { this.handleJoinTeams(team_name, region_list[0].region_name); }}
+                        onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name); }}
                       >
                         <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>
@@ -953,7 +949,7 @@ export default class EnterpriseTeams extends PureComponent {
                         </Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{memory}/{limit_memory}</Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{cpu_request}/{set_limit_cpu == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_cpu}</Col>
-                        <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_storage}</Col>
+                        <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : `${set_limit_storage}(GB)`}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
                       </Row>
                       <Col className={styles.bor}>
@@ -1038,7 +1034,7 @@ export default class EnterpriseTeams extends PureComponent {
                         type="flex"
                         align="middle"
                         className={styles.pl23}
-                        onClick={() => { this.handleJoinTeams(team_name, region_list[0].region_name); }}
+                        onClick={() => { this.onJumpTeam(team_name, region_list[0].region_name); }}
                       >
                         <Col style={{ color: globalUtil.getPublicColor(), fontWeight: '600', width: '13%', textAlign: 'center', fontSize: '16px' }}>{team_alias}</Col>
                         <Col style={{ width: '9%', textAlign: 'center' }}>{owner_name}</Col>

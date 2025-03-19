@@ -130,7 +130,14 @@ import {
   fetchVersionData,
   updateVersion,
   fetchOverScore,
-  updateOverScore
+  updateOverScore,
+  getPricingConfig,
+  fetchTeamDetails,
+  getUserBalance,
+  syncData,
+  fetchStorageUsed,
+  getSmsConfig,
+  updateSmsConfig
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -579,8 +586,8 @@ export default {
         });
       }
     },
-    *CloudAppUpdateRollback({ payload, callback }, { call }) {
-      const response = yield call(getUpdateRollback, payload);
+    *CloudAppUpdateRollback({ payload, callback, handleError }, { call }) {
+      const response = yield call(getUpdateRollback, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);
@@ -907,8 +914,8 @@ export default {
         callback(response);
       }
     },
-    *buildShape({ payload, callback }, { call }) {
-      const response = yield call(toBuildShape, payload);
+    *buildShape({ payload, callback, handleError }, { call }) {
+      const response = yield call(toBuildShape, payload, handleError);
       if (callback) {
         callback(response);
       }
@@ -1082,6 +1089,48 @@ export default {
     },
     *updateOverScore({ payload, callback, handleError }, { put, call }) {
       const response = yield call(updateOverScore, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getPricingConfig({ callback }, { call }) {
+      const response = yield call(getPricingConfig);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchTeamDetails({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchTeamDetails, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getUserBalance({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(getUserBalance, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *syncData({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(syncData, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchStorageUsed({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchStorageUsed, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getSmsConfig({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(getSmsConfig, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updateSmsConfig({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updateSmsConfig, payload, handleError);
       if (callback) {
         callback(response);
       }

@@ -1,0 +1,66 @@
+.priceCard {
+  :global {
+    .ant-card-body {
+      padding: 16px;
+    }
+  }
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.priceTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: @rbd-sub-title-size;
+  color: @rbd-sub-title-color;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.amount {
+  margin-left: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  color: @rbd-warning-status;
+}
+
+.priceDetail {
+  padding: 8px 0;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.priceItem {
+  :global {
+    .ant-badge-status-text {
+      color: @rbd-content-color-secondary;
+      font-weight: 600;
+    }
+  }
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: @rbd-content-size;
+    color: @rbd-content-color;
+  line-height: @rbd-content-line-height;
+  font-weight: 600;
+
+  &>span:last-of-type {
+    margin-bottom: 0;
+    margin-left: 16px;
+
+  }
+}

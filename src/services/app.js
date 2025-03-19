@@ -231,7 +231,7 @@ export function restart(
   upgrade: 更新组件
   deploy: 构建组件
 */
-export function batchOperation(body = {}) {
+export function batchOperation(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
@@ -239,7 +239,8 @@ export function batchOperation(body = {}) {
       data: {
         action: body.action,
         service_ids: body.serviceIds
-      }
+      },
+      handleError
     }
   );
 }
@@ -251,12 +252,14 @@ export function start(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/start`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   );
 }
@@ -267,7 +270,8 @@ export function batchStart(
   body = {
     team_name,
     serviceIds
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
@@ -276,7 +280,8 @@ export function batchStart(
       data: {
         action: 'start',
         service_ids: body.serviceIds
-      }
+      },
+      handleError
     }
   );
 }
@@ -328,7 +333,8 @@ export function rollback(
     app_alias,
     deploy_version,
     upgrade_or_rollback
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/rollback`,
@@ -339,7 +345,8 @@ export function rollback(
         upgrade_or_rollback: body.upgrade_or_rollback
           ? body.upgrade_or_rollback
           : -1
-      }
+      },
+      handleError
     }
   );
 }
@@ -441,7 +448,8 @@ export function horizontal(
     team_name,
     app_alias,
     new_node
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/horizontal`,
@@ -449,7 +457,8 @@ export function horizontal(
       method: 'post',
       data: {
         new_node: body.new_node
-      }
+      },
+      handleError
     }
   );
 }
@@ -463,7 +472,8 @@ export function vertical(
     team_name,
     app_alias,
     new_memory
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vertical`,
@@ -473,7 +483,36 @@ export function vertical(
         new_memory: body.new_memory,
         new_gpu: body.new_gpu,
         new_cpu: body.new_cpu
-      }
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  垂直升级
+  支持内存、CPU、实例数量一起修改
+*/
+export function newVertical(
+  body = {
+    team_name,
+    app_alias,
+    new_memory,
+    new_node
+  },
+  handleError
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/scaling`,
+    {
+      method: 'post',
+      data: {
+        new_memory: body.new_memory,
+        new_gpu: body.new_gpu,
+        new_cpu: body.new_cpu,
+        new_node: body.new_node
+      },
+      handleError
     }
   );
 }
@@ -3236,13 +3275,14 @@ export async function getRollsBackRecordDetails(body = {}) {
 }
 
 /* 应用升级记录回滚 */
-export async function rollbackUpgrade(body = {}) {
+export async function rollbackUpgrade(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.appID}/upgrade-records/${body.record_id}/rollback`,
     {
       method: 'post',
       noModels: body.noModels,
-      showMessage: false
+      showMessage: false,
+      handleError
     }
   );
 }
