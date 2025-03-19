@@ -334,7 +334,6 @@ export default class GlobalHeader extends PureComponent {
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
-      <ScrollerX sm={900}>
       <Header className={styles.header}>
         <div>
           {customHeaderImg && customHeaderImg()}
@@ -455,7 +454,6 @@ export default class GlobalHeader extends PureComponent {
           </Modal>
         )}
       </Header>
-      </ScrollerX>
     );
   }
 }

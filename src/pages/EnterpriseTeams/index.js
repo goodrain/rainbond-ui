@@ -1355,7 +1355,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <ScrollerX sm={1250}>{adminer ? managementTemas : teamInfo}</ScrollerX>
+          <ScrollerX sm={1100}>{adminer ? managementTemas : teamInfo}</ScrollerX>
         )}
         <Modal
           centered

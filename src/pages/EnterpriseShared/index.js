@@ -1872,13 +1872,14 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     return (
-      <PageHeaderLayout
-        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}
-        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content" />}
-        titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
-        isContent={true}
-      >
-        <ScrollerX sm={1200}>
+      <ScrollerX sm={1200}>
+
+        <PageHeaderLayout
+          title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}
+          content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content" />}
+          titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
+          isContent={true}
+        >
           {showMarketCloudAuth && (
             <AuthCompany
               eid={eid}
@@ -2118,8 +2119,9 @@ export default class EnterpriseShared extends PureComponent {
             </Tabs> :
             <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
           }
-        </ScrollerX>
-      </PageHeaderLayout>
+        </PageHeaderLayout>
+      </ScrollerX>
+
     );
   }
 }
