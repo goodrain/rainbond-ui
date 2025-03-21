@@ -1766,7 +1766,8 @@ export async function fetchStorageUsed(params, handleError) {
       params: {
         tenant_id: params.tenant_id,
         app_id: params.app_id,
-        service_id: params.service_id
+        service_id: params.service_id,
+        region_name: params.region_name
       },
       handleError
     }
