@@ -388,16 +388,18 @@ export default class AppPublishList extends PureComponent {
                   dataIndex: 'scope',
                   align: 'center',
                   render: (val, data) => {
+                    const {currentUser} = this.props;
+                    const isEnterpriseAdmin = currentUser.is_enterprise_admin;
                     const storeName =
                       data && data.scope_target && data.scope_target.store_name;
                     const marketAddress = `/enterprise/${currentEnterprise.enterprise_id}/shared/local`;
                     switch (val) {
                       case '':
-                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.market' })}</Link>;
+                        return isEnterpriseAdmin ? <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.market' })}</Link> : <span>{formatMessage({ id: 'appPublish.table.scope.market' })}</span>;
                       case 'team':
-                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.team_market' })}</Link>;
+                        return isEnterpriseAdmin ? <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.team_market' })}</Link> : <span>{formatMessage({ id: 'appPublish.table.scope.team_market' })}</span>;
                       case 'enterprise':
-                        return <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.enterprise_market' })}</Link>;
+                        return isEnterpriseAdmin ? <Link to={marketAddress}>{formatMessage({ id: 'appPublish.table.scope.enterprise_market' })}</Link> : <span>{formatMessage({ id: 'appPublish.table.scope.enterprise_market' })}</span>;
                       default:
                         return (
                           <p style={{ marginBottom: 0 }}>

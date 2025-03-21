@@ -43,7 +43,7 @@ export default class EventList extends PureComponent {
   }
   componentDidMount() {
     this.loadEvents();
-    this.loadJoinUsers();
+    // this.loadJoinUsers();
     this.loadRoles();
   }
   loadEvents = () => {
@@ -242,7 +242,7 @@ export default class EventList extends PureComponent {
     return (
       <div>
         <Row gutter={24}>
-          <Col md={12} sm={24}>
+          <Col md={24} sm={24}>
             <Card
               bodyStyle={{
                 paddingTop: 12
@@ -261,7 +261,7 @@ export default class EventList extends PureComponent {
               </List>
             </Card>
           </Col>
-          <Col md={12} sm={24}>
+          {/* <Col md={12} sm={24}>
             <Card
               bodyStyle={{
                 paddingTop: 12
@@ -307,7 +307,7 @@ export default class EventList extends PureComponent {
                 ]}
               />
             </Card>
-          </Col>
+          </Col> */}
         </Row>
         {joinSettingShow && (
           <Modal

@@ -1315,7 +1315,7 @@ export default class Index extends PureComponent {
             className={styles.clearCard}
             title={<FormattedMessage id='componentOverview.body.Expansion.flex' />}
             extra={
-              automaticTelescopic &&
+              automaticTelescopic && this.state.showBill &&
               <PriceCard
                 key={(rulesList && rulesList.length > 0 && rulesList[0].min_replicas) * (rulesList && rulesList.length > 0 && rulesList[0].max_replicas)}
                 type='title'
