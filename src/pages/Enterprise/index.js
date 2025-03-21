@@ -1310,7 +1310,9 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.clusterVersion}>
                             <p>
                               <span className={language ? enterpriseStyles.versionName : enterpriseStyles.versionName_en}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}:</span>
-                              <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
+                              <Tooltip title={rbd_version}>
+                                <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
+                              </Tooltip>
                             </p>
                             <p>
                               <span className={language ? enterpriseStyles.k8sName : enterpriseStyles.k8sName_en}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>

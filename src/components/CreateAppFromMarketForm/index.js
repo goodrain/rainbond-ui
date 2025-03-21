@@ -160,6 +160,7 @@ export default class Index extends PureComponent {
       showCreate.versions.length > 0 &&
       showCreate.versions;
     const group_id = globalUtil.getGroupID()
+    const islocal = showCreate?.source === 'local'
     const showSaaSPrice = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
 
     return (
@@ -171,7 +172,7 @@ export default class Index extends PureComponent {
         onOk={this.handleSubmit}
         title={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.title' })}
         footer={
-          showSaaSPrice ?
+          showSaaSPrice && !islocal ?
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Radio
@@ -289,9 +290,12 @@ export default class Index extends PureComponent {
                 )}
               </Col>
             </Row>
-            <div style={{ marginBottom: '-18px', fontSize: '14px', color: '#8C8C8C' }}>
-              {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
-            </div>
+            {!islocal && 
+                        <div style={{ marginBottom: '-18px', fontSize: '14px', color: '#8C8C8C' }}>
+                        {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
+                      </div>
+            }
+
           </Form.Item>
 
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.app' })}>

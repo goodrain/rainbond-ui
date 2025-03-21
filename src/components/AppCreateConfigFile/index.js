@@ -337,7 +337,7 @@ class BaseInfo extends PureComponent {
           num = item
         }
       })
-    }else{
+    } else {
       Object.keys(cpuMarksObj).forEach(item => {
         if (cpuMarksObj[item] == data) {
           num = item
@@ -370,7 +370,7 @@ class BaseInfo extends PureComponent {
       height: '30px',
       lineHeight: '30px'
     };
-    
+
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -618,14 +618,16 @@ class BaseInfo extends PureComponent {
                 )
             }
           </Col>
-          <Col span={6}>
-            <PriceCard
-              key={cpuValue * memoryValue}
-              type='card'
-              cpu_use={this.getFormValues(cpuValue, 'cpu')}
-              memory_use={this.getFormValues(memoryValue, 'memory')}
-            />
-          </Col>
+          {showEnterprisePlugin && (
+            <Col span={6}>
+              <PriceCard
+                key={cpuValue * memoryValue}
+                type='card'
+                cpu_use={this.getFormValues(cpuValue, 'cpu')}
+                memory_use={this.getFormValues(memoryValue, 'memory')}
+              />
+            </Col>
+          )}
         </Row>
       </Card>
     );
