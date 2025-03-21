@@ -104,26 +104,24 @@ class BaseInfo extends PureComponent {
       isCpu: (props.appDetail.service.min_cpu == 0) ? false : true,
       setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
       memoryMarks: {
-        1: '64M',
-        2: '128M',
-        3: '256M',
-        4: '512M',
-        5: '1G',
-        6: '2G',
-        7: '4G',
-        8: '8G',
-        9: '16G'
+        1: '128M',
+        2: '256M',
+        3: '512M',
+        4: '1G',
+        5: '2G',
+        6: '4G',
+        7: '8G',
+        8: '16G'
       },
       memoryMarksObj: {
-        64: 1,
-        128: 2,
-        256: 3,
-        512: 4,
-        1024: 5,
-        2048: 6,
-        4096: 7,
-        8192: 8,
-        16384: 9
+        128: 1,
+        256: 2,
+        512: 3,
+        1024: 4,
+        2048: 5,
+        4096: 6,
+        8192: 7,
+        16384: 8
       },
       cpuMarks: {
         1: '100m',
@@ -133,7 +131,6 @@ class BaseInfo extends PureComponent {
         5: '2Core',
         6: '4Core',
         7: '8Core',
-        8: '16Core'
       },
       cpuMarksObj: {
         100: 1,
@@ -143,7 +140,6 @@ class BaseInfo extends PureComponent {
         2000: 5,
         4000: 6,
         8000: 7,
-        16000: 8
       },
       cpuValue: 0,
       memoryValue: 0
@@ -493,7 +489,7 @@ class BaseInfo extends PureComponent {
                           style={{ width: '500px' }}
                           marks={memoryMarks}
                           min={1}
-                          max={9}
+                          max={8}
                           step={null}
                           onChange={this.handleMemoryChange}
                           tooltipVisible={false}
@@ -518,7 +514,7 @@ class BaseInfo extends PureComponent {
                           style={{ width: '500px' }}
                           marks={cpuMarks}
                           min={1}
-                          max={8}
+                          max={7}
                           step={null}
                           onChange={this.handleCpuChange}
                           tooltipVisible={false}
