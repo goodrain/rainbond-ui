@@ -137,7 +137,8 @@ import {
   syncData,
   fetchStorageUsed,
   getSmsConfig,
-  updateSmsConfig
+  updateSmsConfig,
+  fetchClusterUsed
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1131,6 +1132,12 @@ export default {
     },
     *updateSmsConfig({ payload, callback, handleError }, { put, call }) {
       const response = yield call(updateSmsConfig, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchClusterUsed({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchClusterUsed, payload, handleError);
       if (callback) {
         callback(response);
       }

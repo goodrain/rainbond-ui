@@ -18,7 +18,8 @@ const { Option } = Select;
 @connect(({ user, global, teamControl }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  currentTeam: teamControl.currentTeam
+  currentTeam: teamControl.currentTeam,
+  allAppNames: teamControl.allAppNames
 }))
 class AppShareInstall extends PureComponent {
   constructor(props) {
@@ -26,7 +27,6 @@ class AppShareInstall extends PureComponent {
     const { appInfo } = this.props;
     this.state = {
       userTeamList: [],
-      appName: '',
       groups: [],
       addGroup: false,
       showAddTeam: false,
@@ -81,10 +81,15 @@ class AppShareInstall extends PureComponent {
    */
   handleSubmit = () => {
     const { form, appInfo, onOk } = this.props;
-    const { region_name } = this.state
+    const { region_name, installType } = this.state
 
     form.validateFields((err, fieldsValue) => {
-      onOk(fieldsValue, region_name)
+      if(!err){
+        if(fieldsValue.install_type === 'new'){
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.group_name)
+        }
+        onOk(fieldsValue, region_name)
+      }
     });
   };
   /**
@@ -169,11 +174,11 @@ class AppShareInstall extends PureComponent {
   // 生成英文名
   generateEnglishName = (name) => {
     if (name != undefined && name != '') {
-      const { appNames } = this.props;
+      const { allAppNames } = this.props;
       const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
-      if (appNames && appNames.length > 0) {
-        const isExist = appNames.some(item => item === cleanedPinyinName);
+      if (allAppNames && allAppNames.length > 0) {
+        const isExist = allAppNames.some(item => item === cleanedPinyinName);
         if (isExist) {
           const random = Math.floor(Math.random() * 10000);
           return `${cleanedPinyinName}${random}`;
@@ -205,11 +210,10 @@ class AppShareInstall extends PureComponent {
   };
 
   render() {
-    const { eid, title, appInfo, form, teaName, regionName, isShare } = this.props;
+    const { eid, title, appInfo, form, teaName, regionName, isShare, appName } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       userTeamList,
-      appName,
       groups,
       addGroup,
       showAddTeam,
@@ -312,39 +316,23 @@ class AppShareInstall extends PureComponent {
               )}
             </FormItem>
             {installType === 'new' && (
-              <>
-                <FormItem {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
-                  {getFieldDecorator('group_name', {
-                    initialValue: '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
-                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
-                </FormItem>
-                <FormItem
-                  {...formItemLayout}
-                  label={'英文名称'}
-                >
-                  {getFieldDecorator('k8s_app', {
-                    initialValue: this.generateEnglishName(form.getFieldValue('group_name')),
-                    rules: [
-                      {
-                        required: true,
-                        validator: this.handleValiateNameSpace
-                      }
-                    ]
-                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
-                </FormItem>
-              </>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
+                {getFieldDecorator('group_name', {
+                  initialValue: appName || '',
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                    {
+                      max: 24,
+                      message: formatMessage({ id: 'placeholder.max24' })
+                    }
+                  ]
+                })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+              </FormItem>
             )}
             {installType === 'existing' && (
               <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app' />}>
                 {getFieldDecorator('group_id', {
-                  initialValue: Number(group_id),
+                  initialValue: Number(group_id) || '',
                   rules: [
                     {
                       required: true,

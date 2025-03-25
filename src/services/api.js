@@ -1799,3 +1799,17 @@ export async function updateSmsConfig(params, handleError) {
   );
 }
 
+// 获取集群实际使用量
+export async function fetchClusterUsed(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/monitor/query`,
+    {
+      method: 'get',
+      params: {
+        query: params.query,
+        region_name: params.regionName,
+      },
+      handleError
+    }
+  );
+}

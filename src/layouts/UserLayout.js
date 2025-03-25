@@ -125,7 +125,7 @@ class UserLayout extends React.PureComponent {
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
                 <h2>欢迎回来</h2>
-                <p>优秀选择的伙伴</p>
+                <p>开启平台之旅</p>
                 <div className={styles.loginForm}>
                   {children}
                 </div>

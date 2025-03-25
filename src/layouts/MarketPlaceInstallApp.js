@@ -17,6 +17,19 @@ export default class MarketPlaceInstallApp extends Component {
   }
   componentDidMount() {
     this.fetchAppInfo();
+    this.getAppNames();
+  }
+
+  // 获取当前团队下的所有应用名称
+  getAppNames = () => {
+    const { dispatch, currUser } = this.props;
+    const teamName = currUser.teams[0]?.team_name;
+    dispatch({
+      type: 'teamControl/fetchAppNames',
+      payload: {
+        team_name: teamName
+      }
+    });
   }
 
   // 查询应用市场应用的详情
@@ -144,6 +157,7 @@ export default class MarketPlaceInstallApp extends Component {
           <AppShareInstall
             title={`确定要安装${appName}吗？`}
             eid={eid}
+            appName={appName}
             teamName={teamName}
             regionName={regionName}
             appInfo={appInfo}
