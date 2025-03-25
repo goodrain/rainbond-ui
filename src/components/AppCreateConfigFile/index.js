@@ -300,14 +300,30 @@ class BaseInfo extends PureComponent {
     })
   }
   handleMemoryChange = (value) => {
+    const newCpuValue = value == 1 ? 1 
+      : value == 2 ? 1 
+      : value == 3 ? 2 
+      : value == 4 ? 3 
+      : value == 5 ? 4 
+      : value == 6 ? 4 
+      : value == 7 ? 5 
+      : 6;
+
     this.setState({
-      memoryValue: value
-    })
+      memoryValue: value,
+      cpuValue: newCpuValue
+    }, () => {
+      // 更新表单中的 CPU 值
+      const { form } = this.props;
+      form.setFieldsValue({
+        min_cpu: newCpuValue
+      });
+    });
   }
   handleCpuChange = (value) => {
     this.setState({
       cpuValue: value
-    })
+    });
   }
   checkNum = (value, type) => {
     const { memoryMarksObj, cpuMarksObj } = this.state
@@ -325,8 +341,9 @@ class BaseInfo extends PureComponent {
           num = item
         }
       })
+
     }
-    return num || 1
+    return num || 2
   }
   getFormValues = (data, type) => {
     const { cpuMarksObj, memoryMarksObj } = this.state
@@ -370,7 +387,7 @@ class BaseInfo extends PureComponent {
       height: '30px',
       lineHeight: '30px'
     };
-
+    console.log(cpuValue, 'cpuValue')
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -498,7 +515,7 @@ class BaseInfo extends PureComponent {
                     </Form.Item>
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
                       {getFieldDecorator('min_cpu', {
-                        initialValue: cpuValue || 1,
+                        initialValue: cpuValue || 2,
                         rules: [
                           {
                             required: true,

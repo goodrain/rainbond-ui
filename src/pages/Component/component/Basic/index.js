@@ -51,7 +51,7 @@ class Index extends PureComponent {
       showStorageUsed,
       storageUsed
     } = this.props;
-    const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
+    const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
         {!isThird && status && Object.keys(status).length >0 ? (
@@ -117,7 +117,7 @@ class Index extends PureComponent {
                                 {setMemory}
                               </span>
                             </Tooltip>
-                            {memory !== 0 && <FormattedMessage id='componentOverview.body.tab.overview.memory'/>}
+                            {(memory !== 0 || showStorageUsed) &&<FormattedMessage id='componentOverview.body.tab.overview.memory'/>}
                           </Fragment>
                         )}
                       </a>

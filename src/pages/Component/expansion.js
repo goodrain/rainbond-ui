@@ -860,12 +860,22 @@ export default class Index extends PureComponent {
   }
   handleMemoryChange = (value) => {
     const { form } = this.props;
+    const newCpuValue = value == 1 ? 1 
+      : value == 2 ? 1 
+      : value == 3 ? 2 
+      : value == 4 ? 3 
+      : value == 5 ? 4 
+      : value == 6 ? 4 
+      : value == 7 ? 5 
+      : 6;
     this.setState({
-      memoryValue: value
+      memoryValue: value,
+      cpuValue: newCpuValue
     }, () => {
       // 在状态更新完成后更新表单值
       form.setFieldsValue({
-        new_memory: value
+        new_memory: value,
+        new_cpu: newCpuValue
       });
     });
   }
@@ -1120,7 +1130,7 @@ export default class Index extends PureComponent {
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
                   {getFieldDecorator('new_cpu', {
-                    initialValue: cpuValue || 1,
+                    initialValue: cpuValue || 2,
                   })(
                     <Slider
                       disabled={!this.state.editBillInfo}
