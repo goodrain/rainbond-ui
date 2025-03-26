@@ -111,7 +111,10 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading: true,
       isNeedAuthz: false,
       authorizationCode: '',
-      hasNewVs: true
+      hasNewVs: true,
+      typeStatusCpu: false,
+      typeStatusMemory: false,
+
     };
   }
   componentWillMount() {
@@ -125,7 +128,7 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     this.loading();
     this.handleGetEnterpriseAuthorization();
-    this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
+    this.interval = setInterval(() => this.handleAppAlertInfo(), 5000);
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
@@ -241,7 +244,26 @@ export default class Enterprise extends PureComponent {
                 }
               }
             })
-
+            dispatch({
+              type: 'global/fetchClusterUsed',
+              payload: {
+                  query: `(sum(node_memory_MemTotal_bytes) - sum(node_memory_MemAvailable_bytes)) / 1024 / 1024 /1024`,
+                  regionName: region_name,
+              },
+              callback: res => {
+                item.memory_used = res?.result[0]?.value[1]
+              }
+            })
+            dispatch({
+              type: 'global/fetchClusterUsed',
+              payload: {
+                  query: `(1 - avg(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * sum(machine_cpu_cores)`,
+                  regionName: region_name,
+              },
+              callback: res => {
+                item.cpu_used = res?.result[0]?.value[1]
+              }
+            })
             item.key = `cluster${indexs}`;
             clusters.push(item);
             return item;
@@ -836,6 +858,20 @@ export default class Enterprise extends PureComponent {
     dispatch(routerRedux.push(`/enterprise/${eid}/setting?type=updateVersion`));
   }
 
+
+  handleClickStatus = (type) => {
+    if(type === 'cpu'){
+      this.setState({
+        typeStatusCpu: !this.state.typeStatusCpu
+      })
+    } else {
+      this.setState({
+        typeStatusMemory: !this.state.typeStatusMemory
+      })
+    }
+    
+  }
+
   renderContent = () => {
     const { rainbondInfo, navigation_status, form } = this.props;
     const {
@@ -867,7 +903,9 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading,
       isNeedAuthz,
       authorizationCode,
-      hasNewVs
+      hasNewVs,
+      typeStatusCpu,
+      typeStatusMemory,
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -997,6 +1035,25 @@ export default class Enterprise extends PureComponent {
           d="M965.694 933.837H142.041A44.757 44.757 0 0 1 97.016 889.5c0-20.134 13.96-36.473 32.638-41.88a55.994 55.994 0 0 1-30.299-22.053 53.962 53.962 0 0 1-4.64-51.852l82.189-191.186a33.06 33.06 0 0 1 8.169-11.89l448.721-442.047a133.773 133.773 0 0 1 94.385-38.468c35.514 0 68.996 13.654 94.231 38.43a129.86 129.86 0 0 1 39.005 93.004 129.63 129.63 0 0 1-39.005 92.812L373.46 756.611a36.013 36.013 0 0 1-12.004 7.862l-191.838 80.693h796.077c24.776 0 44.988 19.867 44.988 44.335 0 24.43-20.212 44.336-44.988 44.336zM786.283 221.559a56.378 56.378 0 0 0-17.105-40.462 58.104 58.104 0 0 0-75.363-5.523l80.924 79.735c7.363-9.742 11.544-21.401 11.544-33.75z m-64.164 86.752l-82.112-80.923-369.754 364.193 82.112 80.923L722.12 308.311zM288.51 714.538l-60.865-59.982-45.026 104.433 105.89-44.45z"
           p-id="14618"
           fill={globalUtil.getPublicColor()}
+        >
+        </path>
+      </svg>
+    )
+    const switchSvg = (
+      <svg 
+        t="1742901521152" 
+        class="icon" 
+        viewBox="0 0 1024 1024" 
+        version="1.1" 
+        xmlns="http://www.w3.org/2000/svg" 
+        p-id="6350" 
+        width="18" 
+        height="18"
+      >
+        <path 
+          d="M716.245333 183.210667a42.496 42.496 0 0 0-60.330666 0 43.050667 43.050667 0 0 0 0 60.672l137.088 137.770666H128.213333a42.88 42.88 0 0 0 0 85.76h767.573334a42.88 42.88 0 0 0 27.050666-76.16c-1.024-1.28-2.133333-2.56-3.328-3.712l-203.264-204.330666z m179.541334 459.136a42.88 42.88 0 0 0 0-85.76H128.213333a42.88 42.88 0 0 0-27.008 76.202666c0.981333 1.28 2.133333 2.517333 3.285334 3.669334l203.264 204.330666a42.496 42.496 0 0 0 60.330666 0c16.64-16.768 16.64-43.946667 0-60.672l-137.088-137.770666h664.789334z" 
+          p-id="6351"
+          fill="#a8a8a8"
         >
         </path>
       </svg>
@@ -1273,10 +1330,17 @@ export default class Enterprise extends PureComponent {
                   services_status,
                   node_ready,
                   region_id,
-                  run_pod_number
+                  run_pod_number,
+                  memory_used,
+                  cpu_used
                 } = item
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
+
+                // CPU实际使用百分比
+                const percentCpu = ((cpu_used / total_cpu) * 100).toFixed(2);
+                // 内存实际使用百分比
+                const percentMemory = ((memory_used / (total_memory / 1024)) * 100).toFixed(2);
                 // 内存使用率
                 const memoryUsed = ((used_memory / total_memory) * 100).toFixed(2);
                 // CPU总量
@@ -1327,12 +1391,20 @@ export default class Enterprise extends PureComponent {
                         </div>
                         <div className={enterpriseStyles.content_right}>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core</p>
-                            <Charts keys={'upcpu' + `${index}`} svalue={cpuUsed || 0} cname="CPU" swidth='200px' sheight='120px' />
+                            <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div></p>
+                            {typeStatusCpu ? (
+                              <Charts keys={'upcpu1' + `${index}`} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={'CPU使用量'} swidth='200px' sheight='120px' />
+                            ) : (
+                              <Charts keys={'upcpu2' + `${index}`} usedValue={used_cpu}  svalue={cpuUsed} cname={'CPU分配量'} swidth='200px' sheight='120px' />
+                            )}
                           </div>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit}</p>
-                            <Charts keys={'memory' + `${index}`} svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
+                            <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit} <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div></p>
+                            {typeStatusMemory ? (
+                              <Charts keys={'memory1' + `${index}`} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={'内存使用量'} swidth='200px' sheight='120px' />
+                            ) : (
+                              <Charts keys={'memory2' + `${index}`} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={'内存分配量'} swidth='200px' sheight='120px' />
+                            )}
                           </div>
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>

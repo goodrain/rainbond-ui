@@ -1,17 +1,18 @@
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, Modal, Select } from 'antd';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
-
+const { Option } = Select;
 @Form.create()
 export default class ImageHubForm extends PureComponent {
   constructor(props){
     super(props);
     this.state= {
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      selectedProvider: props?.data?.provider || 'volcano'
     }
     
   }
@@ -24,10 +25,16 @@ export default class ImageHubForm extends PureComponent {
       }
     });
   };
+
+  // 处理短信服务提供商变化
+  handleProviderChange = (value) => {
+    this.setState({ selectedProvider: value });
+  }
+  
   render() {
     const { title, onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
-    const {language} = this.state;
+    const { language, selectedProvider } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -59,13 +66,29 @@ export default class ImageHubForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-
+          <Form.Item {...is_language} label={'AccessKey'}>
+            {getFieldDecorator('provider', {
+              initialValue: data.provider || '',
+            })(
+              <Select onChange={this.handleProviderChange} >
+                <Option value='volcano'>火山云</Option>
+                <Option value='aliyun'>阿里云</Option>
+              </Select>
+            )}
+          </Form.Item>
+          {selectedProvider === 'volcano' && (
+            <Form.Item {...is_language} label={'消息组ID'}>
+              {getFieldDecorator('sms_account', {
+                initialValue: data.sms_account || '',
+              })(<Input placeholder='请输入消息组ID'/>)}
+            </Form.Item>
+          )}
           <Form.Item {...is_language} label={'AccessKey'}>
             {getFieldDecorator('access_key', {
               initialValue: data.access_key || '',
             })(<Input placeholder='请输入AccessKey'/>)}
           </Form.Item>
-          <Form.Item {...is_language} label={'AccessKey'}>
+          <Form.Item {...is_language} label={'AccessSecret'}>
             {getFieldDecorator('access_secret', {
               initialValue: data.access_secret || '',
             })(<Input placeholder='请输入AccessSecret'/>)}
