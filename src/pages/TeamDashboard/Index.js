@@ -253,7 +253,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <Icon type="setting" />
-                插件管理
+                {formatMessage({ id: 'global.fetchAccessText.plugin' })}
               </Button>
               <Button onClick={() => {
                 const { dispatch } = this.props;

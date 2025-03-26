@@ -115,6 +115,15 @@ export default class WebConsole extends PureComponent {
             ClustersList: res.list,
           }, () => {
             const { ClustersList } = this.state
+            const reg = /region_name=([^\/]+)/;
+            const hash = window.location.hash || window.location.pathname || '';
+            const regionName = hash.match(reg);
+            if(regionName && regionName[1] ){
+              const regionId = ClustersList.find(item => item.region_name === regionName[1]).region_id
+              if(regionId){
+                this.onSelect(regionName[1], regionId)
+              }
+            }
           })
         }
       }

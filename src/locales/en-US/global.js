@@ -32,16 +32,16 @@ const global = {
     'global.fetchGovernanceMode.ISTIO_SERVICE_MESH':'Istio Governance ',
 
     // fetchTime
-    'global.fetchTime.day':' {num} day',
-    'global.fetchTime.hour':' {num} hours',
-    'global.fetchTime.minute':' {num} minutes',
-    'global.fetchTime.second':' {num} seconds',
-    'global.fetchTime.second.one':'1 seconds',
-    'global.fetchTime.day.ago':' {num} days ago',
-    'global.fetchTime.hour.ago':' {num} hours ago',
-    'global.fetchTime.minute.ago':' {num} minutes ago',
-    'global.fetchTime.second.ago':' {num} seconds before',
-    'global.fetchTime.second.ago.one':'1 second before',
+    'global.fetchTime.day':'{num}d ',
+    'global.fetchTime.hour':'{num}h ',
+    'global.fetchTime.minute':'{num}m ',
+    'global.fetchTime.second':'{num}s ',
+    'global.fetchTime.second.one':'1s ',
+    'global.fetchTime.day.ago':'{num}d ago ',
+    'global.fetchTime.hour.ago':'{num}h ago ',
+    'global.fetchTime.minute.ago':'{num}m ago ',
+    'global.fetchTime.second.ago':'{num}s ago ',
+    'global.fetchTime.second.ago.one':'1s ago ',
 
     // fetchInstanceReasons
     'global.fetchInstanceReasons.UnknownContainerStatuses':'Unknown container state',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
@@ -309,7 +309,7 @@ export default class index extends Component {
                       <div className={styles.updateTime}>
                         {item.update_time &&
                           moment(item.update_time).fromNow()}
-                        <FormattedMessage id="teamOverview.update" />
+                        &nbsp;<FormattedMessage id="teamOverview.update" />
                       </div>
                     </div>
                     <div className={styles.btn}>
@@ -449,11 +449,17 @@ export default class index extends Component {
           const appOverviewPermission = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${record.group_id}`)
           const isAppCreate = appOverviewPermission?.isCreate
           return <>
-            {isAppCreate && <a onClick={() => {
+            {isAppCreate && 
+            <>
+            <a onClick={() => {
               this.props.dispatch(
                 routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${record.group_id}`)
               )
-            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}</a>}
+            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}
+            </a>
+            <Divider type="vertical" />
+            </>
+            }
             <a
               onClick={() => {
                 const { dispatch } = this.props;
@@ -546,7 +552,7 @@ export default class index extends Component {
                     style={{ width: 300, marginRight: 10 }}
                   />
                   <Select
-                    style={{ width: '140px', marginRight: 10 }}
+                    style={{ width: this.state.language ? '140px' : '170px', marginRight: 10 }}
                     placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                     defaultValue={1}
                     onChange={this.handleSortChange}

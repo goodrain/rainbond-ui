@@ -7,6 +7,7 @@ import styles from './index.less';
 import HostAddress from '../HostAddress';
 import DAHosts from '../DAHosts'
 import NewHeader from '../NewHeader'
+import cookie from '@/utils/cookie';
 const { Option } = Select;
 @Form.create()
 
@@ -46,6 +47,7 @@ export default class index extends Component {
             schemeType: 'http',
             passHostType: '',
             loadbalancerType: 'roundrobin',
+            language: cookie.get('language') === 'zh-CN' ? true : false
         };
     }
     componentWillMount() {
@@ -264,11 +266,11 @@ export default class index extends Component {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 3 }
+                sm: { span: this.state.language ? 3 : 6 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 }
+                sm: { span: this.state.language ? 18 : 15 }
             }
         };
         const formItemLayouts = {
@@ -383,10 +385,7 @@ export default class index extends Component {
                             initialValue: (editInfo && editInfo.retries) || null
                         })(<InputNumber placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.retryCount'})} style={{ width: "30%" }} addonAfter="次" />)}
                     </Form.Item>
-                    <Row>
-                        <Col span={3} style={{ height: 64, textAlign: 'end', marginTop: 10 }}>{formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.balancing'})}</Col>
-                        <Col span={6}>
-                            <Form.Item  {...formItemLayouts} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.balancingType'})} >
+                    <Form.Item  {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.balancingType'})} >
                                 {getFieldDecorator('loadbalancerType', {
                                     initialValue: (editInfo && editInfo.loadbalancer && editInfo.loadbalancer.type) || 'roundrobin'
                                 })(
@@ -394,6 +393,7 @@ export default class index extends Component {
                                         getPopupContainer={triggerNode => triggerNode.parentNode}
                                         placeholder={ formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.selectType'})}
                                         onChange={(val) => { this.setState({ loadbalancerType: val }) }}
+                                        style={{ width: "30%" }}
                                     >
                                         <Option value="chash">chash</Option>
                                         <Option value="roundrobin">roundrobin</Option>
@@ -402,24 +402,21 @@ export default class index extends Component {
                                     </Select>
                                 )}
                             </Form.Item>
-                        </Col>
                         {loadbalancerType === 'chash' && (
                             <>
-                            <Col span={6}>
-                                <Form.Item {...formItemLayouts} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.value'})} >
+                                <Form.Item {...formItemLayout} label={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.value'})} >
                                     {getFieldDecorator('loadbalancerHashOn', {
                                         initialValue: (editInfo && editInfo.loadbalancer && editInfo.loadbalancer.key) || 'remote_addr'
-                                    })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.selectValue'})} style={{ width: "100%" }} />)}
+                                    })(<Input placeholder={formatMessage({id:'teamNewGateway.NewGateway.ServiceDrawer.selectValue'})} style={{ width: "30%" }} />)}
                                 </Form.Item>
-                            </Col>
-                            <Col span={8}>
-                                <Form.Item {...formItemLayoutsHash} label='hashOn' >
+                                <Form.Item {...formItemLayout} label='hashOn' >
                                     {getFieldDecorator('hashOn', {
                                         initialValue: (editInfo && editInfo.loadbalancer && editInfo.loadbalancer.hashOn) || 'vars'
                                     })(
                                         <Select
                                             getPopupContainer={triggerNode => triggerNode.parentNode}
                                             placeholder={'请选择hashOn'}
+                                            style={{ width: "30%" }}
                                         >
                                             <Option value="vars">vars</Option>
                                             <Option value="header">header</Option>
@@ -429,10 +426,8 @@ export default class index extends Component {
                                         </Select>
                                     )}
                                 </Form.Item>
-                            </Col>
                             </>
                         )}
-                    </Row>
                 </Form>
                 <div
                     style={{

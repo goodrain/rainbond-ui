@@ -141,7 +141,7 @@ class Index extends PureComponent {
                               </span>
                             </Tooltip>
                             {/* MB 磁盘 */}
-                            {showStorageUsed ? storageUsed?.unit : 'MB'}
+                            {showStorageUsed ? storageUsed?.unit : 'MB'}&nbsp;
                             {formatMessage({id:'componentOverview.body.tab.overview.disk'})}
                           </Fragment>
                         )}

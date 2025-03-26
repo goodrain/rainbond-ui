@@ -691,3 +691,57 @@ export function fetchDeleteTcpService(params) {
   );
 }
 
+// 获取自动签发证书列表
+export async function getAutomaticIssuanceCertList(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/cert-manager`,
+    {
+      method: 'get',
+      params: {
+        region_app_id: params.region_app_id
+      },
+      handleError
+    }
+  );
+}
+
+// 开启自动签发
+export async function openAutomaticIssuance(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/cert-manager`,
+    {
+      method: 'post',
+      data: {
+        route_name: params.route_name,
+        domains: params.domains,
+        region_app_id: params.region_app_id
+      },
+      handleError
+    }
+  );
+}
+
+// 关闭自动签发
+export async function closeAutomaticIssuance(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/cert-manager`,
+    { 
+      method: 'delete',
+      params: {
+        route_name: params.route_name
+      },
+      handleError
+    }
+  );
+}
+
+// 检查是否安装自动签发证书功能
+export async function checkAutomaticIssuanceCert(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/cert-manager/check`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}

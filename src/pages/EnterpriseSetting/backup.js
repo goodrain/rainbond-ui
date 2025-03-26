@@ -220,12 +220,6 @@ export default class BackupManage extends PureComponent {
     return (
       <ScrollerX sm={840}>
         <Card
-          title={
-            <Alert
-              type="info"
-              message={<FormattedMessage id='enterpriseSetting.BackupManage.alert.message' />}
-              style={{width:500}}
-            />}
           extra={
             <>
               <Upload
@@ -253,6 +247,11 @@ export default class BackupManage extends PureComponent {
             </>
           }
         >
+           <Alert
+              type="info"
+              message={<FormattedMessage id='enterpriseSetting.BackupManage.alert.message' />}
+              style={{width: "90%",marginBottom: "20px"}}
+            />
           <Table
             loading={backupLoading}
             rowKey={(record, index) => index}

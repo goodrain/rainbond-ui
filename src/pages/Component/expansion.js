@@ -1068,7 +1068,7 @@ export default class Index extends PureComponent {
                   {this.state.editBillInfo ?
                     <div style={{ marginLeft: 10 }}>
                       <Button type='link' onClick={this.handleFromData}>
-                        确认
+                        {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                       </Button>
                       <Button type='link' onClick={() => {
                         const { memoryMarksObj, cpuMarksObj } = this.state;
@@ -1090,12 +1090,12 @@ export default class Index extends PureComponent {
                           });
                         });
                       }}>
-                        取消
+                        {formatMessage({ id: 'appPublish.table.btn.cancel' })}
                       </Button>
                     </div>
                     :
                     <Button type='link' onClick={() => this.setState({ editBillInfo: true })}>
-                      修改
+                      {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
                     </Button>
                   }
                 </div>

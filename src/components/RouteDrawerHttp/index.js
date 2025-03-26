@@ -15,6 +15,7 @@ import DAHosts from '../DAHosts'
 import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
 import Wechat from '../../../public/images/wechat.jpg'
+import cookie from '@/utils/cookie';
 const { Option } = Select;
 @Form.create()
 
@@ -56,6 +57,7 @@ export default class index extends Component {
             showPlugin: false,
             serviceComponentList: [],
             descriptionVisible: false,
+            language:cookie.get('language') === 'zh-CN' ? true : false
         };
     }
     componentWillMount() {
@@ -471,16 +473,17 @@ export default class index extends Component {
             selsectRewrite,
             serviceLoading,
             serviceList,
-            showPlugin
+            showPlugin,
+            language
         } = this.state
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 3 }
+                sm: { span: language ? 3 : 5 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 }
+                sm: { span: language ? 18 : 16 }
             }
         };
         const formItemLayouts = {
@@ -540,13 +543,13 @@ export default class index extends Component {
         const content = (
             <div className={styles.popoverContent}>
                 <img src={Wechat} alt="domainRecord" />
-                <p>联系我们获取备案帮助</p>
+                <p>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.contact' })}</p>
             </div>
         )
         const popoverTitle = (
             <div className={styles.popoverTitle}>
-                <div>域名备案帮助</div>
-                <p>根据相关法规，使用自定义域名前需完成备案。我们可以协助您快速完成备案流程。</p>
+                <div>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.domain' })}</div>
+                <p>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.law' })}</p>
             </div>
         )
         const showCloudBill = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
@@ -581,9 +584,9 @@ export default class index extends Component {
                                 <Alert
                                     message={
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>使用自定义域名需要完成备案</div>
+                                            <div>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.filing' })}</div>
                                             <Popover content={content} title={popoverTitle}>
-                                                <Button icon="question-circle">域名备案帮助</Button>
+                                                <Button icon="question-circle">{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.filingHelp' })}</Button>
                                             </Popover>
                                         </div>
                                     }
@@ -701,8 +704,8 @@ export default class index extends Component {
                                                 <Form.Item {...formItemLayout} label={
                                                     <>
 
-                                                        <Tooltip placement="top" title="权重值为1-100">
-                                                            {formatMessage({ id: 'popover.newComponent.componentName' })}<Icon type="question-circle" />
+                                                        <Tooltip placement="top" title={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.weight' })}>
+                                                            {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.component' })}<Icon type="question-circle" />
                                                         </Tooltip>
 
                                                     </>

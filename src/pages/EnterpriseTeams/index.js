@@ -206,7 +206,7 @@ export default class EnterpriseTeams extends PureComponent {
       total={Number(this.state.total)}
       onChange={this.onPageChangeTeam}
       showQuickJumper
-      showTotal={total => `共 ${total} 条`}
+      showTotal={total => this.state.language ? `共 ${total} 条` : `Total ${total} items`}
       showSizeChanger
       onShowSizeChange={this.onPageChangeTeam}
       hideOnSinglePage={this.state.total <= 10}
@@ -950,7 +950,7 @@ export default class EnterpriseTeams extends PureComponent {
                         <Col style={{ width: '12%', textAlign: 'center' }}>{memory}/{limit_memory}</Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{cpu_request}/{set_limit_cpu == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : set_limit_cpu}</Col>
                         <Col style={{ width: '12%', textAlign: 'center' }}>{storage_request}/{set_limit_storage == 0 ? formatMessage({ id: 'appOverview.no_limit' }) : `${set_limit_storage}(GB)`}</Col>
-                        <Col style={{ width: '9%', textAlign: 'center' }}>{running_apps}</Col>
+                        <Col style={{ width: '12%', textAlign: 'center' }}>{running_apps}</Col>
                       </Row>
                       <Col className={styles.bor}>
                         <Dropdown
@@ -1355,7 +1355,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <ScrollerX sm={1100}>{adminer ? managementTemas : teamInfo}</ScrollerX>
+          <ScrollerX sm={1300}>{adminer ? managementTemas : teamInfo}</ScrollerX>
         )}
         <Modal
           centered

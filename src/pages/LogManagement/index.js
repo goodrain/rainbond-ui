@@ -31,20 +31,31 @@ export default class EnterpriseSetting extends PureComponent {
         super(props);
         this.state = {
             activeKey: 'consoleLog',
-            ClustersList: []
+            ClustersList: [],
+            regionActiveKey: '0'
         };
         this.socket = null;
     }
     componentDidMount() {
         this.handleLoadEnterpriseClusters()
+        const { location } = this.props;
+        const params = new URLSearchParams(location.search);
+        const type = params.get('type');
+        const region = params.get('region');
+        const action = params.get('action');
+        if (type == 'consoleLog') {
+            this.setState({ activeKey: 'consoleLog' });
+        }else if(type !== 'consoleLog' && region){
+            this.setState({ activeKey: region });
+        }
+        if (action) {
+            this.setState({ regionActiveKey: action });
+        }
     }
 
     onChange = key => {
         this.setState({ activeKey: key });
     };
-    callback = (key) => {
-
-    }
     // 获取企业的集群信息
     handleLoadEnterpriseClusters = () => {
         const { dispatch } = this.props;
@@ -65,7 +76,7 @@ export default class EnterpriseSetting extends PureComponent {
     };
 
     render() {
-        const { adminer, activeKey, ClustersList } = this.state;
+        const { adminer, activeKey, ClustersList, regionActiveKey } = this.state;
         const eid = global.getCurrEnterpriseId();
         return (
             <PageHeaderLayout
@@ -80,8 +91,8 @@ export default class EnterpriseSetting extends PureComponent {
                     </TabPane>
                     {ClustersList.map((item, index) => {
                         const { region_alias, region_name, url, region_id } = item
-                        return <TabPane tab={`${region_alias} ${formatMessage({id:'LogEnterprise.title'})}`} key={index} className={styles.logInfoStyle}>
-                                    <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid}/>
+                        return <TabPane tab={`${region_alias} ${formatMessage({id:'LogEnterprise.title'})}`} key={region_name} className={styles.logInfoStyle}>
+                                    <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid} regionActiveKey={regionActiveKey}/>
                                 </TabPane>
                     })}
 

@@ -147,9 +147,9 @@ export default class LoginPage extends Component {
     const isSaas = rainbondInfo?.is_saas || false;
     return (
       <div className={styles.main}>
-        {isSaas ? (
+        {/* {isSaas ? (
           <LoginSmsComponent onSubmit={this.handleSmsSubmit} type="login" />
-        ) : (
+        ) : ( */}
           <>
             <LoginComponent onSubmit={this.handleSubmit} type="login" />
             {rainbondUtil.OauthbEnable(rainbondInfo) &&
@@ -189,7 +189,7 @@ export default class LoginPage extends Component {
                 </div>
               )}
           </>
-        )}
+        {/* )} */}
 
       </div>
     );
