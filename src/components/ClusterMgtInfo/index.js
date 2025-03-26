@@ -662,17 +662,28 @@ class Index extends Component {
                 <Col span={15}>
                   <Button
                     onClick={this.handleEdit}
+                    icon="edit"
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.edit' />
                   </Button>
                   <Button
                     onClick={this.importEven}
+                    icon='download'
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.import' />
                   </Button>
+                  <Link
+                    to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
+                    target="_blank"
+                  >
+                    <Button icon="code">
+                      {formatMessage({ id: 'otherEnterprise.shell.line' })}
+                    </Button>
+                  </Link>
                   {rowClusterInfo.scope != 'default' && (
                     <Button
                       onClick={() => this.delEven('delete')}
+                      icon="delete"
                     >
                       <FormattedMessage id='enterpriseColony.table.handle.delete' />
                     </Button>

@@ -1418,7 +1418,7 @@ const platformUpgrade = {
     'platformUpgrade.index.have':'有',
     'platformUpgrade.index.new':'新',
     'platformUpgrade.index.ban':'版',
-    'platformUpgrade.index.ben':'本',
+    'platformUpgrade.index.ben':'本 !',
     'platformUpgrade.index.info':'企业版授权信息',
     'platformUpgrade.index.AuthorizationCode':'授权码：',
     'platformUpgrade.index.Authorizationtime':'授权时间：',

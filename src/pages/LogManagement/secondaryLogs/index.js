@@ -18,11 +18,19 @@ class Index extends PureComponent {
             instances: [],
             logs:[],
             wsurl: null,
+            regionActiveKey: '0'
         }
     }
     componentDidMount() {
-        this.fetchInstanceInfo();
-        this.fetchUpClusters();
+        const { regionActiveKey } = this.props;
+        const { enClusterArr } = this.state;
+        const index = enClusterArr.findIndex(item => item === regionActiveKey);
+        this.setState({
+            regionActiveKey: index !== -1 ? `${index}` : '0'
+        },()=>{
+            this.fetchInstanceInfo();
+            this.fetchUpClusters();
+        })
     }
     // 获取编辑集群信息 获取当前集群的websocket通信地址
     fetchUpClusters = () => {
@@ -46,6 +54,7 @@ class Index extends PureComponent {
     // 请求所有日志
     fetchInstanceInfo = () => {
         const { dispatch, region } = this.props;
+        const { regionActiveKey } = this.state;
         dispatch({
             type: 'region/fetchClusterLogInfo',
             payload: {
@@ -59,8 +68,8 @@ class Index extends PureComponent {
                 }
                 this.setState({
                     list: list
-                }, () => {
-                    this.callback(0);
+                }, () => {                    
+                    this.callback(regionActiveKey);
                 });
             }
         });
@@ -76,6 +85,7 @@ class Index extends PureComponent {
         })
         this.setState({
             instances: arr,
+            regionActiveKey: key
         })
 
     }
@@ -85,7 +95,7 @@ class Index extends PureComponent {
         return (
             <ScrollerX sm={840}>
                 <Card style={{ padding:'24px 0px'}} bodyStyle={{padding: 0}}>
-                    <Tabs tabPosition='left' defaultActiveKey="0" onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
+                    <Tabs tabPosition='left' activeKey={this.state.regionActiveKey} onChange={this.callback}  destroyInactiveTabPane className={styles.tabsStyle}>
                         {ClusterArr && ClusterArr.length > 0 && (wsurl != null) && ClusterArr.map((item, index) => {
                             return <TabPane tab={item} key={index} >
                                         <ColonyLog region={region} instances={instances} RbdName={enClusterArr[index]} tcpUrl={wsurl} key={instances && instances.length>0 && instances[0].pod_name}/>

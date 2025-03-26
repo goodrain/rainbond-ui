@@ -46,6 +46,10 @@ import {
     fetchEditTcpService,
     fetchDeleteTcpService,
     getTeamGatewayData,
+    getAutomaticIssuanceCertList,
+    openAutomaticIssuance,
+    closeAutomaticIssuance,
+    checkAutomaticIssuanceCert
 } from '../services/gateWay';
 
 export default {
@@ -379,6 +383,30 @@ export default {
         },
         *fetchDeleteTcpService({ callback, payload, handleError }, { call }) {
             const response = yield call(fetchDeleteTcpService, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getAutomaticIssuanceCertList({ callback, payload, handleError }, { call }) {
+            const response = yield call(getAutomaticIssuanceCertList, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *openAutomaticIssuance({ callback, payload, handleError }, { call }) {
+            const response = yield call(openAutomaticIssuance, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *closeAutomaticIssuance({ callback, payload, handleError }, { call }) {
+            const response = yield call(closeAutomaticIssuance, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *checkAutomaticIssuanceCert({ callback, payload, handleError }, { call }) {
+            const response = yield call(checkAutomaticIssuanceCert, payload, handleError);
             if (callback) {
                 callback(response)
             }

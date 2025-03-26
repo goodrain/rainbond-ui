@@ -1078,7 +1078,7 @@ export default class EnterpriseShared extends PureComponent {
                   {pic ? <img src={pic} alt="" /> : defaulAppImg}
                 </div>
               </Col>
-              <Col span={13} className={styles.tits}>
+              <Col span={12} className={styles.tits}>
                 <div>
                   <p>
                     <a
@@ -1151,7 +1151,7 @@ export default class EnterpriseShared extends PureComponent {
                 )}
               </Col>
               <Col
-                span={1}
+                span={2}
                 className={styles.tags}
                 style={{ justifyContent: 'center' }}
               >
@@ -1824,14 +1824,14 @@ export default class EnterpriseShared extends PureComponent {
     const helmContent = (
       <div style={{ padding: '0px 24px' }}>
         <Row style={contentStyle}>
-          <Col span={19} style={contentLeftStyle}>
+          <Col span={16} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
               placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>
-          <Col span={5} style={rightStyle} className={styles.btns}>
+          <Col span={8} style={rightStyle} className={styles.btns}>
             {helmOperation}
           </Col>
         </Row>

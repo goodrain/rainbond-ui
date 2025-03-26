@@ -351,7 +351,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.ServiceDrawer.retry':'重试',
   'teamNewGateway.NewGateway.ServiceDrawer.retryCount':'重试次数',
 
-  'teamNewGateway.NewGateway.ServiceDrawer.balancing':'负载均衡：',
+  'teamNewGateway.NewGateway.ServiceDrawer.balancing':'负载均衡',
   'teamNewGateway.NewGateway.ServiceDrawer.balancingType':'类型',
   'teamNewGateway.NewGateway.ServiceDrawer.selectType':'请选择负载均衡类型',
   'teamNewGateway.NewGateway.ServiceDrawer.value':'值',
@@ -373,7 +373,32 @@ const teamGateway = {
   'teamNewGateway.NewGateway.TCP.selectService': '选择服务',
   'teamNewGateway.NewGateway.TCP.name': '服务名称：',
   'teamNewGateway.NewGateway.TCP.ports': '端口号：',
+  'teamNewGateway.NewGateway.TCP.component': '组件名称',
+  'teamNewGateway.NewGateway.TCP.weight': '权重值为1-100',
+  'teamNewGateway.NewGateway.TCP.contact': '联系我们获取备案帮助',
+  'teamNewGateway.NewGateway.TCP.domain': '域名备案帮助',
+  'teamNewGateway.NewGateway.TCP.law': '根据相关法规，使用自定义域名前需完成备案。我们可以协助您快速完成备案流程。',
+  'teamNewGateway.NewGateway.TCP.filing': '使用自定义域名需要完成备案',
+  'teamNewGateway.NewGateway.TCP.filingHelp': '域名备案帮助',
+  'teamNewGateway.NewGateway.TCP.targetHost': '目标主机',
+  'teamNewGateway.NewGateway.TCP.weight': '权重',
+  'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': '手动签发',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': '自动签发',
+  'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': '检测到未安装',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': '自动签发证书',
+  'teamNewGateway.NewGateway.AutomaticIssuance.domain': '域名',
+  'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': '过期时间',
+  'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': '签发状态',
+  'teamNewGateway.NewGateway.AutomaticIssuance.issued': '已签发',
+  'teamNewGateway.NewGateway.AutomaticIssuance.notIssued': '未签发',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoRenew': '自动续签',
+  'teamNewGateway.NewGateway.AutomaticIssuance.yes': '是',
+  'teamNewGateway.NewGateway.AutomaticIssuance.no': '否',
+  'teamNewGateway.NewGateway.AutomaticIssuance.issueDetail': '签发详情',
+  'teamNewGateway.NewGateway.AutomaticIssuance.detail': '详情',
+  'teamNewGateway.NewGateway.AutomaticIssuance.viewDetail': '查看详情',
 }
+
 
 const teamPlugin = {
   'teamPlugin.title':'我的插件',
@@ -760,5 +785,9 @@ const gatewayplugin = {
   'gatewayplugin.proxy-rewrite.headers.remove': '移除请求头。格式为 ["name", ...]。',
   'gatewayplugin.proxy-rewrite.headers.remove_input': '请输入要移除的请求头',
   'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe': '使用 real_request_uri（nginx 中的原始 $request_uri）绕过 URI 规范化。启用它被认为是不安全的，因为它会绕过所有 URI 规范化步骤。',
+  'teamGateway.strategy.table.searchTips': '支持域名/组件名称搜索',
+  'teamGateway.strategy.table.autoIssue': '自动签发证书',
+  'teamGateway.strategy.table.accessAddress': '访问地址',
+  'teamGateway.strategy.table.openPort': '开放端口',
 }
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);

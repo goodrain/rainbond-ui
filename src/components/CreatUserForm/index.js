@@ -189,7 +189,7 @@ class CreateUserForm extends PureComponent {
               )}
             </FormItem>
           )}
-          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.phone'})}>
+          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.phone'})} style={{display: 'none'}}>
             {getFieldDecorator('phone', {
               initialValue: (userInfo && userInfo.phone) || '',
               rules: [

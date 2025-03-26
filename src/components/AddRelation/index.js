@@ -160,9 +160,9 @@ export default class AddRelation extends PureComponent {
               value={this.state.condition}
               onChange={this.handleConditionChange}
             >
-              <Option value=""><FormattedMessage id='componentOverview.body.addRelation.option'/></Option>
-              <Option value="group_name"><FormattedMessage id='componentOverview.body.addRelation.group_name'/></Option>
-              <Option value="service_name"><FormattedMessage id='componentOverview.body.addRelation.service_name'/></Option>
+              <Option value="" style={{textAlign:'left'}}><FormattedMessage id='componentOverview.body.addRelation.option'/></Option>
+              <Option value="group_name" style={{textAlign:'left'}}><FormattedMessage id='componentOverview.body.addRelation.group_name'/></Option>
+              <Option value="service_name" style={{textAlign:'left'}}><FormattedMessage id='componentOverview.body.addRelation.service_name'/></Option>
             </Select>
           </FormItem>
           <FormItem>

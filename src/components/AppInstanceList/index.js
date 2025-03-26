@@ -74,7 +74,7 @@ class InstanceList extends PureComponent {
             <div className={style.card}> 
               <h1>{this.showName(item.pod_name)}</h1>
               <h2>{this.getContainerMem(item.container)}</h2>
-              <h3>运行内存</h3>
+              <h3>{formatMessage({ id: 'componentOverview.body.Expansion.InstanceList.memory' })}</h3>
               <div>
               <Progress percent={this.getContainerMem(item.container, true)} size="small" showInfo={false}strokeColor='#161616'/>
               </div>

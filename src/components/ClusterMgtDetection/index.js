@@ -12,6 +12,7 @@ import {
     Descriptions,
     Modal
 } from 'antd';
+import { Link } from 'umi';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import SVG from '../../utils/pageHeaderSvg'
@@ -21,7 +22,9 @@ import Item from 'antd/lib/list/Item';
 import { loadRegionConfig } from '@/services/cloud';
 
 const { Panel } = Collapse;
-@connect()
+@connect(({ user }) => ({
+    user: user.currentUser
+  }))
 
 class Index extends Component {
     constructor(props) {
@@ -125,6 +128,31 @@ class Index extends Component {
             showPodSwitch: false,
         })
     }
+    renderPodlog = (pod_name) => {
+        const eid = globalUtil.getCurrEnterpriseId();
+        const { region } = this.props
+        
+        // 判断podname
+        switch (pod_name) {
+            case 'rbd-app-ui':
+                return <div>
+                    <Link to={`/enterprise/${eid}/logs?type=consoleLog`}>
+                        {formatMessage({ id: 'LogEnterprise.title' })}
+                    </Link>
+                </div>;
+            case 'rbd-api':
+            case 'rbd-gateway':
+            case 'rbd-worker':
+            case 'rbd-chaos':
+                return <div>
+                    <Link to={`/enterprise/${eid}/logs?type=clusterLog&region=${region}&action=${pod_name}`}>
+                        {formatMessage({ id: 'LogEnterprise.title' })}
+                    </Link>
+                </div>;
+            default:
+                return null;
+        }
+    }
     render() {
         const { dashboardList, dashboardShow } = this.props
         const { activeKey, activePod, showPodSwitch, modalTitle } = this.state
@@ -209,8 +237,12 @@ class Index extends Component {
                 className: styles.columnMoney,
                 width: '25%',
                 render: (item, row) => {
-                    return <div style={{ color: globalUtil.getPublicColor(), cursor: 'pointer' }} onClick={() => this.showActivePod(row)}>
+                    const { name } = row                   
+                    return <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                    {this.renderPodlog(name)}
+                    <div style={{ color: globalUtil.getPublicColor(), cursor: 'pointer' }} onClick={() => this.showActivePod(row)}>
                         {formatMessage({ id: 'enterpriseColony.mgt.cluster.pod' })}
+                    </div>
                     </div>
                 }
             },

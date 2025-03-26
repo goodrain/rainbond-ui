@@ -125,7 +125,7 @@ class Headers extends Component {
                                         this.onNameChange(e.target.value, index);
                                     }}
                                     value={item.key || ''}
-                                    placeholder={'目标主机'}
+                                    placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.targetHost'})}
                                 />
                             </Col>
                             
@@ -139,7 +139,7 @@ class Headers extends Component {
                                         this.onValueChange(val, index);
                                     }}
                                     value={item.value||''}
-                                    placeholder={'权重'}
+                                    placeholder={formatMessage({id:'teamNewGateway.NewGateway.TCP.weight'})}
                                 />
                             </Col>
                             <Col span={3} style={{ textAlign: 'center', marginLeft: 10 }}>

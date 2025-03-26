@@ -384,7 +384,7 @@ export default class ComponentList extends Component {
     };
     const pagination = {
       showQuickJumper: true,
-      showTotal: (total) => `共 ${total} 条`,
+      showTotal: (total) => `${ language ? `共 ${total} 条` : `Total ${total} items` }`,
       pageSize,
       current,
       total,

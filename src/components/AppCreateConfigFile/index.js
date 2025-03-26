@@ -387,7 +387,6 @@ class BaseInfo extends PureComponent {
       height: '30px',
       lineHeight: '30px'
     };
-    console.log(cpuValue, 'cpuValue')
     const formItemLayout = {
       labelCol: {
         xs: {
