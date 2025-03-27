@@ -516,7 +516,7 @@ class EnterpriseLayout extends PureComponent {
     };
     const customHeader = () => {
       return (
-        <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }} onClick={this.onJumpPersonal}>
+        <Link style={{ color: '#fff', fontSize: '14px', fontWeight: 'bolder' }} onClick={this.onJumpPersonal}>
           {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
         </Link>
       )

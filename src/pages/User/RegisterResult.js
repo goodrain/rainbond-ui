@@ -128,6 +128,7 @@ export default class Register extends Component {
     const { location, user, rainbondInfo } = this.props
     const { eid, is_admin, regionName } = this.state
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
+    const isSaas = rainbondInfo?.is_saas || false;
     const actions = (
       <div className={styles.actions}>
         <Button size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}><FormattedMessage id="login.RegisterResult.back" /></Button>
@@ -143,6 +144,7 @@ export default class Register extends Component {
           </div>
         }
         description=""
+        cloudDesc={isSaas ? "恭喜您获得5积分免费额度" : ''}
         actions={actions}
         style={{ margin: '50px 0' }}
       />
