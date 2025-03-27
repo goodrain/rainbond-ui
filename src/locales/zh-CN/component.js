@@ -1117,6 +1117,11 @@ const componentOther = {
     'componentOther.relationMnt.select_com': '请选择组件',
     'componentOther.relationMnt.file_name': '请输入配置文件名称或路径搜索',
     'componentOther.relationMnt.name': '按名称/路径搜索：',
+    'componentOther.relationMnt.desc': '表格列出了所有将被注入到依赖此组件的外部组件中的环境变量。',
+    'componentOther.relationMnt.desc_relation': '表格列出了当前组件所依赖的其他外部组件，它们是当前组件的依赖项。',
+    'componentOther.relationMnt.desc_reverse': '表格列出了当前组件被其他外部组件所依赖的情况，它们是依赖于当前组件的外部组件。',
+    'componentOther.relationMnt.desc_reverse_relation': '被外部组件依赖',
+
 }
 
 export default Object.assign({}, componentOverview, componentOther);

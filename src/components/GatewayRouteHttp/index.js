@@ -11,7 +11,8 @@ import {
     notification,
     Popconfirm,
     Tag,
-    Tooltip
+    Tooltip,
+    Switch
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import RouteDrawerHttp from '../RouteDrawerHttp';
@@ -176,6 +177,54 @@ export default class index extends Component {
             this.getTableData();
         })
     }
+    handleAutomaticIssuance = (record) => {
+        const { dispatch } = this.props;
+        if (record.enabled) {
+            dispatch({
+                type: 'gateWay/closeAutomaticIssuance',
+                payload: {
+                    teamName: globalUtil.getCurrTeamName(),
+                    route_name: record.name,
+                },
+                callback: res => {
+                if(res && res.status_code == 200) {
+                        notification.success({
+                            message: formatMessage({ id: 'notification.success.succeeded' }),
+                        });
+                        this.getTableData()
+                    }
+                },
+                handleError: (err) => {
+                    notification.error({
+                        message: formatMessage({ id: 'notification.error.edit' }),
+                    });
+                }
+            })
+        } else {
+            dispatch({
+                type: 'gateWay/openAutomaticIssuance',
+                payload: {
+                teamName: globalUtil.getCurrTeamName(),
+                region_app_id: record.region_app_id,
+                route_name: record.name,
+                domains: record.match.hosts,
+            },
+            callback: res => {
+                if(res && res.status_code == 200) {
+                    notification.success({
+                        message: formatMessage({ id: 'notification.success.succeeded' }),
+                    });
+                    this.getTableData()
+                }
+            },
+            handleError: (err) => {
+                notification.error({
+                    message: formatMessage({ id: 'notification.error.edit' }),
+                });
+            }
+        })
+    }
+    }
     render() {
         const {
             routeDrawer,
@@ -272,6 +321,18 @@ export default class index extends Component {
                 ),
             },
         ];
+        if(this.props.existsAutomaticIssuanceCert) {
+            columns.push(
+                {
+                    title: formatMessage({ id: 'teamGateway.strategy.table.autoIssue' }),
+                    dataIndex: 'enabled',
+                    key: 'enabled',
+                    render: (text, record) => (
+                        <Switch checked={record.enabled} onChange={() => this.handleAutomaticIssuance(record)}/>
+                    )
+                }
+            )
+        }
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -302,7 +363,7 @@ export default class index extends Component {
                         <Row>
                             <Col span={8}>
                                 <Input.Search
-                                    placeholder="支持域名/组件名称搜索"
+                                    placeholder={formatMessage({ id: 'teamGateway.strategy.table.searchTips' })}
                                     onSearch={this.handleSearch}
                                     style={{ width: '100%' }}
                                     allowClear

@@ -235,7 +235,7 @@ class Headers extends Component {
                                     placeholder={'权重'}
                                 />
                             </Col>
-                            <Col span={3} style={{ textAlign: 'center', marginLeft: 10 }}>
+                            <Col span={4} style={{ textAlign: 'center', marginLeft: 10 }}>
                                 <Icon
                                     type={first ? 'plus-circle' : 'minus-circle'}
                                     style={{ fontSize: '20px' }}

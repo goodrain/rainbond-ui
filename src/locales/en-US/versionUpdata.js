@@ -17,13 +17,13 @@ const versionUpdata = {
   'versionUpdata_6_1.wizard': 'Wizard',
   'versionUpdata_6_1.appName': 'Application Name',
   'versionUpdata_6_1.status': 'Status',
-  'versionUpdata_6_1.servicesNum': 'Component Number (pcs)',
+  'versionUpdata_6_1.servicesNum': 'Total Components',
   'versionUpdata_6_1.memory': 'Memory(GB)',
   'versionUpdata_6_1.disk': 'Storage(GB)',
   'versionUpdata_6_1.updateTime': 'Update Time',
   'versionUpdata_6_1.action': 'Action',
-  'versionUpdata_6_1.appNum': 'Application Number (pcs)',
-  'versionUpdata_6_1.serviceNum': 'Component Number (pcs)',
+  'versionUpdata_6_1.appNum': 'Total Applications',
+  'versionUpdata_6_1.serviceNum': 'Total Components',
   'versionUpdata_6_1.cpuUsage': 'CPU Usage',
   'versionUpdata_6_1.memoryUsage': 'Memory Usage',
   'versionUpdata_6_1.storageUsage': 'Storage Usage',
@@ -45,7 +45,7 @@ const versionUpdata = {
   'versionUpdata_6_1.setting': 'Setting',
   'versionUpdata_6_1.createSuccess': 'Create Application Success',
   'versionUpdata_6_1.addComponent': 'Add Component',
-  'versionUpdata_6_1.addComponent.card': 'Component',
+  'versionUpdata_6_1.addComponent.card': 'Add',
   'versionUpdata_6_1.manage': 'Manage',
   'versionUpdata_6_1.createComponent': 'Create Component from Container',
   'versionUpdata_6_1.addPrivateGit': 'Add Private Git Repository',
@@ -115,7 +115,8 @@ const versionUpdata = {
   'teamOverview.empty.button': 'Create Application',
   'price.cpu': 'CPU',
   'price.memory': 'Memory',
-  'price.total': 'Estimated Price (Day)'
+  'price.total': 'Estimated Price (Day)',
+  'versionUpdata_6_1.teamManage.invite.modal.submit': 'Generate Invitation Link',
 }
 
 

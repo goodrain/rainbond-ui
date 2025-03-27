@@ -70,9 +70,9 @@
         //证书管理
         'popover.manage.certificate.title.add':'Add certificate',
         'popover.manage.certificate.title.edit':'Edit certificate',
-        'popover.manage.certificate.label.name':'Name certificate',
+        'popover.manage.certificate.label.name':'Certificate name',
         'popover.manage.certificate.label.kind':'Certificate type',
-        'popover.manage.certificate.label.public':'Public Cert',
+        'popover.manage.certificate.label.public':'Public Key',
         'popover.manage.certificate.label.private':'Private Key',
         'popover.manage.certificate.label.server':'Server Certificate',
 

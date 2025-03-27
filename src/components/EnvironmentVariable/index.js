@@ -720,7 +720,7 @@ class EnvironmentVariable extends React.Component {
           loading={loading}
           title={<>
             {isConfigPort ?  null : title}
-            {!isConfigPort && <span className={styles.desc}>表格列出了所有将被注入到依赖此组件的外部组件中的环境变量。</span>}
+            {!isConfigPort && <span className={styles.desc}>{formatMessage({ id: 'componentOther.relationMnt.desc' })}</span>}
           </>}
           extra={type === 'Outer' && addButton}
         >

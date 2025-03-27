@@ -569,7 +569,7 @@ class EnterpriseLayout extends PureComponent {
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
               />
-              <div style={{ width: collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+              <div style={{ width:showMenu? collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)' : '100%', }}>
                 <TransitionGroup
                   style={{
                     height: 'calc(100vh - 64px)',

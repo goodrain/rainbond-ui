@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import GatewayRouteHttp from '../../../components/GatewayRouteHttp';
 import GatewayRouteTcp from '../../../components/GatewayRouteTcp';
 import pluginUtils from '../../../utils/pulginUtils';
+import globalUtil from '../../../utils/global';
 const { TabPane } = Tabs;
 @connect(({ rbdPlugin, user }) => ({
     pluginList: rbdPlugin.pluginList,
@@ -19,6 +20,7 @@ export default class index extends Component {
         this.state = {
             tableKey: "http",
             showTcp: false,
+            existsAutomaticIssuanceCert: false
         };
     }
     componentDidMount() {
@@ -27,12 +29,30 @@ export default class index extends Component {
         this.setState({
             showTcp: isInstall,
         })
+        this.checkAutomaticIssuanceCert();
     }
-
+    checkAutomaticIssuanceCert = () => {
+        this.props.dispatch({
+          type: 'gateWay/checkAutomaticIssuanceCert',
+          payload: {
+            teamName: globalUtil.getCurrTeamName(),
+          },
+          callback: (res) => {    
+            console.log(1111);
+                    
+            if(res && res.status_code == 200) {
+              this.setState({
+                existsAutomaticIssuanceCert: res.bean.exists,
+              });
+            }
+          }
+        });
+      }
     render() {
         const {
             tableKey,
             showTcp,
+            existsAutomaticIssuanceCert
         } = this.state;
         const { appID, open, operationPermissions, onTabChange, permission, currentUser } = this.props;
         return (
@@ -46,6 +66,7 @@ export default class index extends Component {
                             type={tableKey}
                             appID={appID}
                             permission={permission}
+                            existsAutomaticIssuanceCert={existsAutomaticIssuanceCert}
                         />
                     </TabPane>
                     {(currentUser.is_enterprise_admin || !showTcp) && (
