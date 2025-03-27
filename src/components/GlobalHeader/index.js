@@ -430,6 +430,13 @@ export default class GlobalHeader extends PureComponent {
                 </a>
               </Popover>
             )}
+            <a
+              className={styles.action}
+              style={{ verticalAlign: '-7px', color: '#fff' }}
+              onClick={() => this.handleMenuCN(language ? 'en-US' : 'zh-CN')}
+            >
+              {languageSvg()}
+            </a>
             {currentUser ? (
               <Dropdown overlay={menu}>
                 <span className={`${styles.action} ${styles.account}`}>
