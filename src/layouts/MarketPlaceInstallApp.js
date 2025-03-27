@@ -27,7 +27,8 @@ export default class MarketPlaceInstallApp extends Component {
     dispatch({
       type: 'teamControl/fetchAppNames',
       payload: {
-        team_name: teamName
+        team_name: teamName,
+        region_name: currUser.teams[0]?.region[0]?.team_region_name,
       }
     });
   }

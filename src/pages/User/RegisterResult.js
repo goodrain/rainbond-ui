@@ -114,6 +114,8 @@ export default class Register extends Component {
   }
   onRouterLink = (eid, firstRegist, regionName)=>{
     const { dispatch } = this.props;
+    const redirect = window.localStorage.getItem('redirect');
+    const redirectUrl = decodeURIComponent(redirect);
     if(firstRegist){
       if(regionName){
         dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
@@ -121,7 +123,14 @@ export default class Register extends Component {
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
     }else{
-      dispatch(routerRedux.replace(this.getLoginRole(this.state.currUser)))
+      if(redirectUrl && redirect.includes('marketplace/install')){
+        const url = new URL(redirectUrl);
+        const result = url.hash.replace(/^#/, '');
+        dispatch(routerRedux.replace(result))
+        window.localStorage.removeItem('redirect');
+      } else {
+        dispatch(routerRedux.replace(this.getLoginRole(this.state.currUser)))
+      }
     }
   }
   render() {

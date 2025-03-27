@@ -797,6 +797,10 @@ export async function fetchAppNames (params, handleError) {
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/app_names`,
     {
       method: 'get',
+      data: {
+        region_name: params.region_name,
+        team_name: params.team_name
+      },
       handleError
     }
   );
