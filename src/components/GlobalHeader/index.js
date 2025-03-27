@@ -278,12 +278,6 @@ export default class GlobalHeader extends PureComponent {
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
       </svg>
     );
-    const handleHandBookSvg = (
-      <svg t="1741836491769" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2679" width="20" height="20">
-        <path d="M537.152 414.72h-288.64a29.44 29.44 0 0 1-26.24-30.72 29.44 29.44 0 0 1 26.24-32h288.64a29.44 29.44 0 0 1 26.24 32 29.44 29.44 0 0 1-26.24 30.72z m209.92 165.76h-498.56a32.64 32.64 0 0 1 0-64h498.56a32.64 32.64 0 0 1 0 64z m0 165.76h-498.56a32.64 32.64 0 0 1 0-64h498.56a32.64 32.64 0 0 1 0 64z" fill="#ffffff" p-id="2680"></path>
-        <path d="M192.832 0a128 128 0 0 0-128 128v768a128 128 0 0 0 128 128h640a128 128 0 0 0 128-128l7.04-670.72L748.992 0h-556.16z m512 64l192 192h-160.64a31.36 31.36 0 0 1-31.36-31.36V64z m128 896h-640a64 64 0 0 1-64-64V128a64 64 0 0 1 64-64h448v192a64 64 0 0 0 64 64h192v576a64 64 0 0 1-64 64z" fill="#ffffff" p-id="2681"></path>
-      </svg>
-    )
     const handleBillSvg = () => (
       <svg t="1736330635739" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5523" width="16" height="16"><path d="M793.1904 742.4H220.5696a20.48 20.48 0 1 1 0-40.96h572.6208a20.48 20.48 0 0 1 0 40.96z" p-id="5524"></path><path d="M856.2688 952.32H157.4912A105.2672 105.2672 0 0 1 51.2 848.1792V175.8208A105.2672 105.2672 0 0 1 157.4912 71.68h698.7776A105.2672 105.2672 0 0 1 962.56 175.8208v672.3584A105.2672 105.2672 0 0 1 856.2688 952.32zM156.672 112.64A64 64 0 0 0 92.16 175.8208v672.3584A64 64 0 0 0 156.672 911.36h700.416a64 64 0 0 0 64.512-63.1808V175.8208A64 64 0 0 0 857.088 112.64z" p-id="5525"></path><path d="M777.4208 460.8H635.6992a20.48 20.48 0 1 1 0-40.96h141.7216a20.48 20.48 0 1 1 0 40.96M417.5872 386.4576H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96M417.5872 472.064H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96" p-id="5526"></path><path d="M325.2224 555.3152a20.48 20.48 0 0 1-20.48-20.48V365.4656a20.48 20.48 0 1 1 40.96 0v169.3696a20.48 20.48 0 0 1-20.48 20.48" p-id="5527"></path><path d="M323.7888 389.12a20.48 20.48 0 0 1-18.2272-11.264l-93.0816-184.32a20.48 20.48 0 0 1 36.5568-18.432l93.0816 184.32a20.48 20.48 0 0 1-9.1136 27.5456 19.7632 19.7632 0 0 1-9.216 2.2528" p-id="5528"></path><path d="M329.6256 386.048a19.6608 19.6608 0 0 1-9.728-2.4576 20.48 20.48 0 0 1-8.2944-27.7504l92.9792-172.544A20.48 20.48 0 0 1 440.32 202.752l-92.16 172.544a20.48 20.48 0 0 1-18.0224 10.752" p-id="5529"></path></svg>
     )
@@ -293,8 +287,33 @@ export default class GlobalHeader extends PureComponent {
         </path>
       </svg>
     )
+    const handleHandBookSvg = (
+      <svg
+        t="1742968884083"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="1660"
+        width="18"
+        height="18"
+      >
+        <path
+          d="M512 80c238.588 0 432 193.412 432 432s-193.412 432-432 432S80 750.588 80 512 273.412 80 512 80z m0 64c-203.24 0-368 164.76-368 368s164.76 368 368 368 368-164.76 368-368-164.76-368-368-368z"
+          fill="#fff"
+          p-id="1661"
+        >
+        </path>
+        <path
+          d="M549.84 630.16v-12.24c0-17.28 3.6-33.12 11.52-47.52 6.48-12.96 16.56-25.92 30.24-37.44 33.84-29.52 54-48.24 60.48-56.16 18-23.04 27.36-52.56 27.36-87.84 0-43.2-14.4-77.76-43.2-102.96-28.8-25.92-66.24-38.16-112.32-38.16-53.28 0-95.04 15.12-125.28 46.08-30.24 30.24-45.36 71.28-45.36 123.84h75.6c0-31.68 6.48-56.16 19.44-73.44 14.4-20.88 38.16-30.96 70.56-30.96 25.92 0 46.8 7.2 61.2 21.6 13.68 14.4 20.88 33.84 20.88 59.04 0 18.72-7.2 36-20.16 52.56l-12.24 13.68c-44.64 39.6-72 69.12-81.36 89.28-10.08 18.72-14.4 41.76-14.4 68.4v12.24h77.04zM510.96 772c14.4 0 27.36-5.04 37.44-14.4 10.08-10.08 15.84-22.32 15.84-37.44 0-15.12-5.04-27.36-15.12-36.72-10.08-10.08-23.04-14.4-38.16-14.4-14.4 0-27.36 4.32-37.44 14.4-10.08 9.36-15.12 21.6-15.12 36.72 0 14.4 5.04 26.64 15.12 36.72 10.08 10.08 23.04 15.12 37.44 15.12z"
+          fill="#fff"
+          p-id="1662"
+        >
+        </path>
+      </svg>
+    )
     const serviceSvg = (
-      <svg t="1741835955770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15593" width="22" height="22">
+      <svg t="1741835955770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15593" width="18" height="18">
         <path d="M916.507 356.287C864.846 185.304 706.096 60.801 518.257 60.801c-186.801 0-344.841 123.132-397.389 292.66-56.372 11.351-98.906 62.383-98.906 123.631 0 61.327 42.645 112.412 99.125 123.674 0.072 0.231 0.139 0.465 0.211 0.696h0.526c2.92 13.385 14.833 23.409 29.093 23.409 16.45 0 29.785-13.335 29.785-29.784a29.644 29.644 0 0 0-4.18-15.216c-9.837-32.643-15.154-67.245-15.154-103.095 0-197.104 159.785-356.89 356.889-356.89s356.891 159.785 356.891 356.89c0 161.485-107.262 297.905-254.42 341.942-12.588-20.766-35.402-34.643-61.458-34.643h-90.349c-39.665 0-71.82 32.155-71.82 71.819 0 39.665 32.155 71.82 71.82 71.82h90.349c31.864 0 58.866-20.76 68.26-49.487 137.905-37.449 247.34-144.043 288.762-280.266 50.824-15.378 87.927-63.668 87.927-120.87-0.001-57.121-36.999-105.356-87.712-120.804z" p-id="15594" fill="#ffffff"></path>
         <path d="M724.255 579.373c0-17.332-14.051-31.385-31.385-31.385-13.486 0-24.983 8.509-29.424 20.448h-0.041c-26.547 56.372-83.862 95.397-150.302 95.397-66.438 0-123.753-39.025-150.3-95.397h-0.07c-4.44-11.939-15.937-20.448-29.423-20.448-17.334 0-31.386 14.053-31.386 31.385a31.258 31.258 0 0 0 7.266 20.08c37.359 74.791 114.625 126.165 203.914 126.165 89.318 0 166.605-51.409 203.95-126.241a31.254 31.254 0 0 0 7.201-20.004z" fill="#ffffff" p-id="15595"></path>
       </svg>
@@ -330,7 +349,7 @@ export default class GlobalHeader extends PureComponent {
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Header className={styles.header}>
-        <div>
+        <div className={styles.left}>
           {customHeaderImg && customHeaderImg()}
           {customHeader && customHeader()}
         </div>
@@ -338,7 +357,7 @@ export default class GlobalHeader extends PureComponent {
           {showBill && (
             <a
               className={styles.platform}
-              style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight: '14px' }}
+              style={{ color: '#fff', fontSize: '14px', fontWeight: 'bolder', marginRight: '14px' }}
               href='https://hub.grapps.cn/marketplace'
               target='_blank'
             >
@@ -347,7 +366,7 @@ export default class GlobalHeader extends PureComponent {
           )}
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link className={styles.platform} style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight: '14px' }} to={`/enterprise/${eid}/index`}>
+            <Link className={styles.platform} style={{ color: '#fff', fontSize: '14px', fontWeight: 'bolder', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}
@@ -369,69 +388,64 @@ export default class GlobalHeader extends PureComponent {
               </a>
             </Popconfirm>
           )}
-          {showBill && (
-            <div
-              onClick={() => { this.handleBalanceBill() }}
-              className={styles.balance}
-              style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
-            >
-              {balance != null &&
-                <div>
-                  余额 ｜ ¥{balance.toFixed(2)}
-                </div>
-              }
-            </div>
-          )}
-          {platformUrl && (
-            <a
-              className={styles.action}
-              style={{ verticalAlign: '-7px', color: '#fff' }}
-              href={docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {handleHandBookSvg}
-            </a>
-          )}
-          <a
-            className={styles.action}
-            style={{ verticalAlign: '-7px', color: '#fff' }}
-            onClick={() => this.handleMenuCN(language ? 'en-US' : 'zh-CN')}
-          >
-            {languageSvg()}
-          </a>
-          {showBill && (
-            <Popover
-              content={
-                <div>
-                  <img style={{ width: '120px', height: '120px' }} src={wechat} alt='客服' />
-                </div>
-              }
-            >
-              <a
-                className={styles.action}
-                style={{ verticalAlign: '-7px', color: '#fff' }}
-                rel="noopener noreferrer"
+          <div className={styles.iconContainer}>
+            {showBill && balance != null && (
+              <div
+                onClick={() => { this.handleBalanceBill() }}
+                className={styles.balance}
+                style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
               >
-                {serviceSvg}
-              </a>
-            </Popover>
-          )}
-          {currentUser ? (
-            <Dropdown overlay={menu}>
-              <span className={`${styles.action} ${styles.account}`}>
-                <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
-                <span className={styles.name}>{currentUser.user_name}</span>
-              </span>
-            </Dropdown>
-          ) : (
-            <Spin
-              size="small"
-              style={{
-                marginLeft: 8
-              }}
-            />
-          )}
+                <div className={styles.balanceTitle}>余额</div>
+                <div className={styles.balanceNum}>¥{balance.toFixed(2)}</div>
+              </div>
+            )}
+            {platformUrl && (
+              <Tooltip title={'帮助文档'}>
+                <a
+                  className={styles.action}
+                  style={{ verticalAlign: '-7px', color: '#fff' }}
+                  href={docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {handleHandBookSvg}
+                </a>
+              </Tooltip>
+            )}
+            {showBill && (
+              <Popover
+                content={
+                  <div className={styles.wechat}>
+                    <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={wechat} alt='客服' />
+                    <p>添加客服微信获取帮助</p>
+                  </div>
+                }
+              >
+                <a
+                  className={styles.action}
+                  style={{ verticalAlign: '-7px', color: '#fff' }}
+                  rel="noopener noreferrer"
+                >
+                  {serviceSvg}
+                </a>
+              </Popover>
+            )}
+            {currentUser ? (
+              <Dropdown overlay={menu}>
+                <span className={`${styles.action} ${styles.account}`}>
+                  <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
+                  {/* <span className={styles.name}>{currentUser.user_name}</span> */}
+                </span>
+              </Dropdown>
+            ) : (
+              <Spin
+                size="small"
+                style={{
+                  marginLeft: 8
+                }}
+              />
+            )}
+          </div>
         </div>
         {/* change password */}
         {this.state.showChangePassword && (

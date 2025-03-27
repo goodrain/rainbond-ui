@@ -89,7 +89,7 @@ class UserLayout extends React.PureComponent {
               <div className={styles.saasLeftContent}>
                 <div className={styles.introSection}>
                   <h1>Rainbond Cloud</h1>
-                  <p className={styles.subTitle}>无需学习Kubernetes，像管理手机APP一样管理企业应用</p>
+                  <p className={styles.subTitle}>即时部署，应用轻松扩展，实现开发者自助，无需平台运维工程师</p>
                 </div>
                 <div className={styles.featureList}>
                   <div className={styles.featureItem}>
@@ -97,7 +97,7 @@ class UserLayout extends React.PureComponent {
                       {globalUtil.fetchSvg('loginCloud1')}
                     </div>
                     <div className={styles.featureContent}>
-                      <h3>企业级护航</h3>
+                      <h3>高可用性</h3>
                       <p>SLA 99.95% 可用性承诺，技术支持</p>
                     </div>
                   </div>
@@ -115,8 +115,8 @@ class UserLayout extends React.PureComponent {
                       {globalUtil.fetchSvg('loginCloud3')}
                     </div>
                     <div className={styles.featureContent}>
-                      <h3>快速部署业务</h3>
-                      <p>整合资源，工程师代运维，专注业务开发</p>
+                      <h3>开箱即用</h3>
+                      <p>整合资源，无需运维，专注业务开发</p>
                     </div>
                   </div>
                 </div>
@@ -124,13 +124,13 @@ class UserLayout extends React.PureComponent {
             </div>
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
-                <h2>欢迎回来</h2>
+                <h2>欢迎登录Rainbond Cloud</h2>
                 <p>开启平台之旅</p>
                 <div className={styles.loginForm}>
                   {children}
                 </div>
                 <div className={styles.loginFooter}>
-                登录即表示您同意我们的 <Link to="/help">用户协议</Link> 和 <Link to="/privacy">隐私声明</Link>
+                登录即表示您同意我们的 <a target='_blank' href="https://www.rainbond.com/server">服务协议</a> 和 <a target='_blank' href="https://www.rainbond.com/privacy">隐私条款</a>
                 </div>
               </div>
             </div>

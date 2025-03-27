@@ -9,6 +9,7 @@ export default function Result({
   type,
   title,
   description,
+  cloudDesc,
   isGoBack,
   linkPath,
   extra,
@@ -27,6 +28,7 @@ export default function Result({
       <div className={styles.icon}>{iconMap[type]}</div>
       <div className={styles.title}>{title}</div>
       {description && <div className={styles.description}>{description}</div>}
+      {cloudDesc && <div className={styles.cloudDesc}>{cloudDesc}</div>}
       {isGoBack && <Link to={linkPath}>去授权</Link>}
       {extra && <div className={styles.extra}>{extra}</div>}
       {actions && <div className={styles.actions}>{actions}</div>}
