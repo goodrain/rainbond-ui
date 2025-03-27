@@ -41,7 +41,7 @@ const login = {
     'login.registerComponent.use':'使用已有账户登录',
     'login.registerComponent.be_careful':'请注意：注册使用即同意产品发行版用户许可协议。',
     'login.RegisterResult.your':'你的账户：',
-    'login.RegisterResult.back':'返回首页',
+    'login.RegisterResult.back':'注册完成',
     'login.RegisterResult.success':'注册成功',
     'login.Third.authentication':'第三方认证中...',
     'login.Third.wait_for':'此过程可能比较耗时，请耐心等待',

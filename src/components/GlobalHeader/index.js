@@ -357,7 +357,7 @@ export default class GlobalHeader extends PureComponent {
           {showBill && (
             <a
               className={styles.platform}
-              style={{ color: '#fff', fontSize: '14px', fontWeight: 'bolder', marginRight: '14px' }}
+              style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight: '14px' }}
               href='https://hub.grapps.cn/marketplace'
               target='_blank'
             >
@@ -366,7 +366,7 @@ export default class GlobalHeader extends PureComponent {
           )}
           {/* 平台管理 */}
           {currentUser.is_enterprise_admin && (
-            <Link className={styles.platform} style={{ color: '#fff', fontSize: '14px', fontWeight: 'bolder', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
+            <Link className={styles.platform} style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
               <FormattedMessage id="GlobalHeader.platform" />
             </Link>
           )}

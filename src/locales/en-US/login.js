@@ -42,7 +42,7 @@ const login = {
     'login.registerComponent.use':'Log in with an existing account',
     'login.registerComponent.be_careful':'Please note: by registering for use, you agree to the user license agreement of the product distribution.',
     'login.RegisterResult.your':'Your account:',
-    'login.RegisterResult.back':'Back to home',
+    'login.RegisterResult.back':'Register complete',
     'login.RegisterResult.success':'login was successful',
     'login.Third.authentication':'Third party authentication in progress...',
     'login.Third.wait_for':'This process may be time consuming, please wait patiently',
