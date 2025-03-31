@@ -789,5 +789,28 @@ const gatewayplugin = {
   'teamGateway.strategy.table.autoIssue': '自动签发证书',
   'teamGateway.strategy.table.accessAddress': '访问地址',
   'teamGateway.strategy.table.openPort': '开放端口',
+  // cors
+  'gatewayplugin.cors.title': 'CORS 插件可以让你轻松启用跨域资源共享。',
+  'gatewayplugin.cors.allow_origins': '允许跨域访问的源。使用 scheme://host:port 格式,例如 https://somedomain.com:8081。如果有多个源,用逗号分隔。如果 allow_credential 设为 false,可以使用 * 允许所有源。如果 allow_credential 设为 true,可以使用 ** 强制允许所有源,但这会带来安全隐患。',
+  'gatewayplugin.cors.allow_methods': '允许跨域的请求方法。例如 GET、POST。使用逗号分隔多个方法。如果 allow_credential 设为 false,可以使用 * 允许所有方法。如果 allow_credential 设为 true,可以使用 ** 强制允许所有方法,但这会带来安全隐患。',
+  'gatewayplugin.cors.allow_headers': '允许在跨域请求中携带的请求头。使用逗号分隔多个请求头。如果 allow_credential 设为 false,可以使用 * 允许所有请求头。如果 allow_credential 设为 true,可以使用 ** 强制允许所有请求头,但这会带来安全隐患。',
+  'gatewayplugin.cors.expose_headers': '允许在跨域响应中暴露的响应头。使用逗号分隔多个响应头。如果 allow_credential 设为 false,可以使用 * 允许所有响应头。如果未指定,插件将不会修改 Access-Control-Expose-Headers 头。更多详情请参考 MDN 上的 Access-Control-Expose-Headers 文档。',
+  'gatewayplugin.cors.max_age': '结果缓存的最大时间(秒)。如果在此时间限制内,浏览器将检查缓存的结果。设置为 -1 可禁用缓存。注意最大值取决于浏览器。更多详情请参考 Access-Control-Max-Age 文档。',
+  'gatewayplugin.cors.allow_credentials': '设置为 true 时,允许请求包含凭据(如 cookie)。根据 CORS 规范,如果设置为 true,则其他属性不能使用 * 来允许所有值。',
+  'gatewayplugin.cors.allow_origins_by_regex': '使用正则表达式匹配允许跨域的源。例如 [".*\\.test\\.com$"] 可以匹配 test.com 的所有子域名。设置指定范围后,只有该范围内的域名被允许,无论 allow_origins 如何设置。',
+  'gatewayplugin.cors.allow_origins_by_metadata': '从插件元数据中的 allow_origins 引用允许跨域的源。例如,如果在插件元数据中设置了 "allow_origins": {"EXAMPLE": "https://example.com"},则可以使用 ["EXAMPLE"] 来允许该源的跨域访问。',
+  // real-ip
+  'gatewayplugin.real-ip.title': 'real-ip 插件用于从 X-Forwarded-For 头获取真实的客户端 IP 地址。',
+  'gatewayplugin.real-ip.source': '从 APISIX 的视角动态设置客户端的 IP 地址和可选的端口,或客户端的主机名。',
+  'gatewayplugin.real-ip.trusted_addresses': '动态设置 set_real_ip_from 字段。',
+  'gatewayplugin.real-ip.recursive': '如果禁用递归搜索,匹配受信任地址的原始客户端地址将被配置源中发送的最后一个地址替换。如果启用递归搜索,匹配受信任地址的原始客户端地址将被配置源中发送的最后一个非受信任地址替换。',
+  // redirect
+  'gatewayplugin.redirect.title': 'redirect 插件可用于配置重定向。',
+  'gatewayplugin.redirect.http_to_https': '当设置为 true 且请求为 HTTP 时,将使用 301 状态码重定向到相同 URI 的 HTTPS。注意原始 URI 中的查询字符串也会包含在 Location 头中。',
+  'gatewayplugin.redirect.uri': '要重定向到的 URI。可以包含 Nginx 变量。例如 /test/index.html、$uri/index.html、${uri}/index.html、https://example.com/foo/bar。如果引用不存在的变量名,将替换为空字符串。',
+  'gatewayplugin.redirect.regex_uri': '使用正则表达式匹配客户端 URL 并重定向。如果不匹配,请求将转发到上游。uri 和 regex_uri 只能同时使用其中之一。例如 ["^/iresty/(.)/(.)/(.*)", "/$1-$2-$3"],第一个元素是匹配的正则表达式,第二个元素是重定向的 URI。APISIX 目前只支持一个 regex_uri,所以 regex_uri 数组的长度为 2。',
+  'gatewayplugin.redirect.ret_code': 'HTTP 响应状态码。',
+  'gatewayplugin.redirect.encode_uri': '设置为 true 时,Location 头中的 URI 将按照 RFC3986 进行编码。',
+  'gatewayplugin.redirect.append_query_string': '设置为 true 时,将原始请求中的查询字符串添加到 Location 头。如果配置的 uri 或 regex_uri 已包含查询字符串,则请求中的查询字符串将用 & 附加到其后。如果你已经处理了查询字符串(例如使用 Nginx 变量 $request_uri),请不要使用此选项以避免重复。',
 }
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);

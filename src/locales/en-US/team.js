@@ -780,6 +780,29 @@ const gatewayplugin = {
   'teamGateway.strategy.table.autoIssue': 'Auto issue certificate',
   'teamGateway.strategy.table.accessAddress': 'Access address',
   'teamGateway.strategy.table.openPort': 'Open port',
+  // cors
+  'gatewayplugin.cors.title': 'The cors Plugins lets you enable CORS easily.',
+  'gatewayplugin.cors.allow_origins': 'Origins to allow CORS. Use the scheme://host:port format. For example, https://somedomain.com:8081. If you have multiple origins, use a , to list them. If allow_credential is set to false, you can enable CORS for all origins by using *. If allow_credential is set to true, you can forcefully allow CORS on all origins by using ** but it will pose some security issues.',
+  'gatewayplugin.cors.allow_methods': 'Request methods to enable CORS on. For example GET, POST. Use , to add multiple methods. If allow_credential is set to false, you can enable CORS for all methods by using *. If allow_credential is set to true, you can forcefully allow CORS on all methods by using ** but it will pose some security issues.',
+  'gatewayplugin.cors.allow_headers': 'Headers in the request allowed when accessing a cross-origin resource. Use , to add multiple headers. If allow_credential is set to false, you can enable CORS for all request headers by using *. If allow_credential is set to true, you can forcefully allow CORS on all request headers by using ** but it will pose some security issues.',
+  'gatewayplugin.cors.expose_headers': 'Headers in the response allowed when accessing a cross-origin resource. Use , to add multiple headers. If allow_credential is set to false, you can enable CORS for all response headers by using *. If not specified, the plugin will not modify the Access-Control-Expose-Headers header. See Access-Control-Expose-Headers - MDN for more details.',
+  'gatewayplugin.cors.max_age': 'Maximum time in seconds the result is cached. If the time is within this limit, the browser will check the cached result. Set to -1 to disable caching. Note that the maximum value is browser dependent. See Access-Control-Max-Age for more details.',
+  'gatewayplugin.cors.allow_credentials': 'When set to true, allows requests to include credentials like cookies. According to CORS specification, if you set this to true, you cannot use ' * ' to allow all for the other attributes.',
+  'gatewayplugin.cors.allow_origins_by_regex': 'allow_origins_by_regex	array	False	nil	Regex to match origins that allow CORS. For example, [".*\.test.com$"] can match all subdomains of test.com. When set to specified range, only domains in this range will be allowed, no matter what allow_origins is.',
+  'gatewayplugin.cors.allow_origins_by_metadata': 'Origins to enable CORS referenced from allow_origins set in the Plugin metadata. For example, if "allow_origins": {"EXAMPLE": "https://example.com"} is set in the Plugin metadata, then ["EXAMPLE"] can be used to allow CORS on the origin https://example.com.',
+  // real-ip
+  'gatewayplugin.real-ip.title': 'The real-ip plugin is used to get the real client IP address from the X-Forwarded-For header.',
+  'gatewayplugin.real-ip.source': 'Dynamically sets the client\'s IP address and an optional port, or the client\'s host name, from APISIX\'s view.',
+  'gatewayplugin.real-ip.trusted_addresses': 'Dynamically sets the set_real_ip_from field.',
+  'gatewayplugin.real-ip.recursive': 'If recursive search is disabled, the original client address that matches one of the trusted addresses is replaced by the last address sent in the configured source. If recursive search is enabled, the original client address that matches one of the trusted addresses is replaced by the last non-trusted address sent in the configured source.',
+  // redirect
+  'gatewayplugin.redirect.title': 'The redirect Plugin can be used to configure redirects.',
+  'gatewayplugin.redirect.http_to_https': 'When set to true and the request is HTTP, it will be redirected to HTTPS with the same URI with a 301 status code. Note the querystring from the raw URI will also be contained in the Location header.',
+  'gatewayplugin.redirect.uri': 'URI to redirect to. Can contain Nginx variables. For example, /test/index.html, $uri/index.html, ${uri}/index.html, https://example.com/foo/bar. If you refer to a variable name that doesn\'t exist, instead, it will be replaced with an empty string.',
+  'gatewayplugin.redirect.regex_uri': 'Match the URL from client with a regular expression and redirect. If it doesn\'t match, the request will be forwarded to the Upstream. Only either of uri or regex_uri can be used at a time. For example, [" ^/iresty/(.)/(.)/(.*)", "/$1-$2-$3"], where the first element is the regular expression to match and the second element is the URI to redirect to. APISIX only support one regex_uri currently, so the length of the regex_uri array is 2.',   
+  'gatewayplugin.redirect.ret_code': 'HTTP response code.',
+  'gatewayplugin.redirect.encode_uri': 'When set to true the URI in the Location header will be encoded as per RFC3986.',
+  'gatewayplugin.redirect.append_query_string': 'When set to true, adds the query string from the original request to the Location header. If the configured uri or regex_uri already contains a query string, the query string from the request will be appended to it with an &. Do not use this if you have already handled the query string (for example, with an Nginx variable $request_uri) to avoid duplicates.',
 }
 
 
