@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table, Row, Popover, Button } from 'antd';
+import { Table, Row, Button, Modal } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -14,6 +14,8 @@ export default class AutomaticIssuance extends Component {
     super(props);
     this.state = {
       dataSource: [],
+      isModalVisible: false,
+      currentDetail: ''
     };
   }
   componentDidMount() {
@@ -37,13 +39,26 @@ export default class AutomaticIssuance extends Component {
       }
     });
   }
+  showModal = (detail) => {
+    this.setState({
+      isModalVisible: true,
+      currentDetail: detail
+    });
+  };
+
+  handleModalClose = () => {
+    this.setState({
+      isModalVisible: false,
+      currentDetail: ''
+    });
+  };
 
 
   render() {
-    const { dataSource } = this.state;
+    const { dataSource, isModalVisible, currentDetail } = this.state;
     const columns = [
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.domain'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.domain' }),
         dataIndex: 'domains',
         render: (text, record) => {
           return text.map((item, index) => {
@@ -58,7 +73,7 @@ export default class AutomaticIssuance extends Component {
         }
       },
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime' }),
         dataIndex: 'expiry_date',
         render: (text, record) => {
           if (record.status == "True") {
@@ -69,32 +84,40 @@ export default class AutomaticIssuance extends Component {
         }
       },
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus' }),
         dataIndex: 'status',
         render: (text, record) => {
-          return text == "True" ? formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.issued'}) : formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.notIssued'});
+          return text == "True" ? formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.issued' }) : formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.notIssued' });
         }
       },
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoRenew'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.autoRenew' }),
         dataIndex: 'auto_renew',
         render: (text, record) => {
-          return text ? formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.yes'}) : formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.no'});
+          return text ? formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.yes' }) : formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.no' });
         }
       },
       {
-        title: formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.issueDetail'}),
+        title: formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.issueDetail' }),
         dataIndex: 'issue_detail',
         render: (text, record) => {
-          return <Popover content={text} title={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detail'})} trigger="hover">
-            <Button>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.viewDetail'})}</Button>
-          </Popover>
+          return <Button onClick={() => this.showModal(text)}>
+          {formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.viewDetail'})}
+        </Button>
         }
       },
     ]
     return (
       <div>
         <Table columns={columns} dataSource={dataSource} />
+        <Modal
+          title={formatMessage({ id: 'teamNewGateway.NewGateway.AutomaticIssuance.detail' })}
+          visible={isModalVisible}
+          onCancel={this.handleModalClose}
+          footer={null}
+        >
+          <div>{currentDetail}</div>
+        </Modal>
       </div>
     )
   }
