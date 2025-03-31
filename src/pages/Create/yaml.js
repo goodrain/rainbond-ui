@@ -59,7 +59,7 @@ export default class Main extends PureComponent {
       currentRegionName
     } = this.props;
     const { teamAppCreatePermission:{isAccess} } = this.state;
-    const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
+    const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
     if(!isAccess){
       return roleUtil.noPermission()
     }

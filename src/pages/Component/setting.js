@@ -690,7 +690,7 @@ export default class Index extends React.Component {
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout
-    const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
+    const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
     const appsetting_formItemLayout = {
       wrapperCol: {
         span: 24
