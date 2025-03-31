@@ -58,7 +58,7 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     });
   }
 
-  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && (currentUser.is_enterprise_admin || rainbondInfo?.security_restrictions?.enable)) {
+  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: getMenuSvg.getSvg('backup'),
@@ -66,7 +66,7 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
       authority: ['admin', 'user']
     });
   }
-  if (isAppResources && (currentUser.is_enterprise_admin || rainbondInfo?.security_restrictions?.enable)) {
+  if (isAppResources && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.k8s' }),
       icon: getMenuSvg.getSvg('kubenetes'),
