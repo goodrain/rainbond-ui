@@ -174,7 +174,7 @@ export default class Index extends PureComponent {
                             </div>
                             <div className={styles.bottomContent}>
                                 <p onClick={() => this.onClickLinkCreate('image', 'custom')}>{formatMessage({ id: 'componentOverview.body.tab.log.container' })}</p>
-                                {showSecurityRestrictions && <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({ id: 'Vm.createVm.vm' })}</p>}
+                                {/* {showSecurityRestrictions && <p onClick={() => this.onClickLinkCreate('vm', 'VirtualMachine')}>{formatMessage({ id: 'Vm.createVm.vm' })}</p>} */}
                                 {showDemo && <p onClick={() => this.onClickLinkCreate('image', 'ImageNameDemo')}>{formatMessage({ id: 'teamAdd.create.code.demo' })}</p>}
                             </div>
                         </div>

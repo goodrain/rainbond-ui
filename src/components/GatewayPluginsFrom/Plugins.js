@@ -381,7 +381,7 @@ const pluginSystem = {
                             describe: formatMessage({ id: 'gatewayplugin.proxy-rewrite.headers.add' }),
                             placeholder: '',
                             FromType: 'input_arr',
-                            value: undefined,
+                            value: value?.headers?.add|| undefined,
                             defaultValue: undefined,
                             rules: []
                         },
@@ -391,7 +391,7 @@ const pluginSystem = {
                             describe: formatMessage({ id: 'gatewayplugin.proxy-rewrite.headers.set' }),
                             placeholder: '',
                             FromType: 'input_arr',
-                            value: undefined,
+                            value: value?.headers?.set|| undefined,
                             defaultValue: undefined,
                             rules: []
                         },
@@ -401,7 +401,7 @@ const pluginSystem = {
                             describe: formatMessage({ id: 'gatewayplugin.proxy-rewrite.headers.remove' }),
                             placeholder: formatMessage({ id: 'gatewayplugin.proxy-rewrite.headers.remove_input' }),
                             FromType: 'input_arr',
-                            value: undefined,
+                            value: value?.headers?.remove|| undefined,
                             defaultValue: undefined,
                             rules: []
                         },
@@ -410,7 +410,7 @@ const pluginSystem = {
                             type: 'boolean',
                             describe: formatMessage({ id: 'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe' }),
                             FromType: 'switch',
-                            value: value.use_real_request_uri_unsafe || undefined,
+                            value: value.use_real_request_uri_unsafe || false,
                             defaultValue: false,
                             rules: []
                         },
@@ -425,7 +425,7 @@ const pluginSystem = {
                             name: 'allow_origins',
                             type: 'string',
                             FromType: 'input',
-                            value: value.allow_origins || undefined,
+                            value: value.allow_origins || '*',
                             defaultValue: '*',
                             describe: formatMessage({ id: 'gatewayplugin.cors.allow_origins' }),
                             rules: []
@@ -434,7 +434,7 @@ const pluginSystem = {
                             name: 'allow_methods',
                             type: 'string',
                             FromType: 'input',
-                            value: value.allow_methods || undefined,
+                            value: value.allow_methods || '*',
                             defaultValue: '*',
                             describe: formatMessage({ id: 'gatewayplugin.cors.allow_methods' }),
                             rules: []
@@ -443,7 +443,7 @@ const pluginSystem = {
                             name: 'allow_headers',
                             type: 'string',
                             FromType: 'input',
-                            value: value.allow_headers || undefined,
+                            value: value.allow_headers || "*",
                             defaultValue: '*',
                             describe: formatMessage({ id: 'gatewayplugin.cors.allow_headers' }),
                             rules: []
@@ -453,7 +453,7 @@ const pluginSystem = {
                             type: 'string',
                             FromType: 'input',
                             value: value.expose_headers || undefined,
-                            defaultValue: '*',
+                            defaultValue: undefined,
                             describe: formatMessage({ id: 'gatewayplugin.cors.expose_headers' }),
                             rules: []
                         },
@@ -461,7 +461,7 @@ const pluginSystem = {
                             name: 'max_age',
                             type: 'integer',
                             FromType: 'input',
-                            value: value.max_age || undefined,
+                            value: value.max_age || 5,
                             defaultValue: 5,
                             describe: formatMessage({ id: 'gatewayplugin.cors.max_age' }),
                             rules: []
@@ -470,7 +470,7 @@ const pluginSystem = {
                             name: 'allow_credentials',
                             type: 'boolean',
                             FromType: 'switch',
-                            value: value.allow_credentials || undefined,
+                            value: value.allow_credentials || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.cors.allow_credentials' }),
                             rules: []
@@ -504,10 +504,10 @@ const pluginSystem = {
                             name: 'source',
                             type: 'string',
                             FromType: 'input',
-                            value: value.source || undefined,
-                            defaultValue: undefined,
+                            value: value.source || 'arg_realip',
+                            defaultValue: 'arg_realip',
                             describe: formatMessage({ id: 'gatewayplugin.real-ip.source' }),
-                            rules: []
+                            rules: [{ required: true, message: '请填写源地址' },]
                         },
                         {
                             name: 'trusted_addresses',
@@ -522,7 +522,7 @@ const pluginSystem = {
                             name: 'recursive',
                             type: 'boolean',
                             FromType: 'switch',
-                            value: value.recursive || undefined,
+                            value: value.recursive || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.real-ip.recursive' }),
                             rules: []
@@ -538,7 +538,7 @@ const pluginSystem = {
                             name: 'http_to_https',
                             type: 'boolean',
                             FromType: 'switch',
-                            value: value.http_to_https || undefined,
+                            value: value.http_to_https || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.redirect.http_to_https' }),
                             rules: []
@@ -547,8 +547,8 @@ const pluginSystem = {
                             name: 'uri',
                             type: 'string',
                             FromType: 'input',
-                            value: value.uri || undefined,
-                            defaultValue: undefined,
+                            value: value.uri || '',
+                            defaultValue: '',
                             describe: formatMessage({ id: 'gatewayplugin.redirect.uri' }),
                             rules: []
                         },
@@ -565,7 +565,7 @@ const pluginSystem = {
                             name: 'ret_code',
                             type: 'integer',
                             FromType: 'input',
-                            value: value.ret_code || undefined,
+                            value: value.ret_code || 302,
                             defaultValue: 302,
                             describe: formatMessage({ id: 'gatewayplugin.redirect.ret_code' }),
                             rules: []
@@ -574,7 +574,7 @@ const pluginSystem = {
                             name: 'encode_uri',
                             type: 'boolean',
                             FromType: 'switch',
-                            value: value.encode_uri || undefined,
+                            value: value.encode_uri || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.redirect.encode_uri' }),
                             rules: []
@@ -583,7 +583,7 @@ const pluginSystem = {
                             name: 'append_query_string',
                             type: 'boolean',
                             FromType: 'switch',
-                            value: value.append_query_string || undefined,
+                            value: value.append_query_string || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.redirect.append_query_string' }),
                             rules: []

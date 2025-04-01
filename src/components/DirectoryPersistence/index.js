@@ -275,8 +275,7 @@ class Index extends Component {
         }
     }
     // 鼠标点击
-    folderClick = (data) => {
-        // 判断data数据是否有孩子，如果没有就加载，如果有就
+    folderClick = (data) => {        
         if (data && data.children && data.children.length > 0) {
             this.setState({
                 expandedKeys: [...this.state.expandedKeys, ...[`${data.key}`]],
@@ -290,6 +289,7 @@ class Index extends Component {
             this.setState({
                 expandedKeys: [...this.state.expandedKeys, ...[`${data.key}`]],
                 selectedKeys: [`${data.key}`],
+                showData: [],
                 dowloadArr: []
             }, () => {
                 this.getPath()

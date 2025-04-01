@@ -7,18 +7,40 @@ import topLogo from '../../public/topLogo1.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
+import { setLocale, getLocale } from 'umi/locale'
 import CustomFooter from './CustomFooter';
+import cookie from '../utils/cookie';
 import styles from './UserLayout.less';
 
 class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isRender: false
+      isRender: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
+    let lan = navigator.systemLanguage || navigator.language;
+    const Language = cookie.get('language')
+    if (Language == null) {
+      if (lan.toLowerCase().indexOf('zh') !== -1) {
+        const language = 'zh-CN'
+        cookie.set('language', language)
+        setLocale('zh-CN')
+        this.setState({
+          language: true,
+        })
+      } else {
+        const language = 'en-US'
+        cookie.set('language', language)
+        setLocale('en-US')
+        this.setState({
+          language: false,
+        })
+      }
+    }
     // 初始化 获取RainbondInfo信息
     dispatch({
       type: 'global/fetchRainbondInfo',
@@ -72,7 +94,7 @@ class UserLayout extends React.PureComponent {
   render() {
     const { rainbondInfo, children } = this.props;
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
-    const { isRender } = this.state;
+    const { isRender, language } = this.state;
     const login_image = rainbondInfo && rainbondInfo.login_image && rainbondInfo.login_image.value || topLogo;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo) || logo;
     const isEnterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
