@@ -57,7 +57,7 @@ export default class index extends Component {
             showPlugin: false,
             serviceComponentList: [],
             descriptionVisible: false,
-            language:cookie.get('language') === 'zh-CN' ? true : false
+            language: cookie.get('language') === 'zh-CN' ? true : false
         };
     }
     componentWillMount() {
@@ -114,6 +114,21 @@ export default class index extends Component {
             form.validateFields((err, values) => {
                 if (!err) {
                     const { name, ...config } = values;
+                    if (values.name == 'proxy-rewrite') {
+                        let bool = true;
+                        if (Object.keys(config.headers).length !== 0) {
+                            Object.keys(config.headers).forEach(key => {
+                                if (config.headers[key] === undefined || config.headers[key] === null || config.headers[key] === '' || config.headers[key] === {}) {
+                                    delete config.headers[key];
+                                } else {
+                                    bool = false;
+                                }
+                            })
+                        }
+                        if (bool) {
+                            delete config.headers;
+                        }
+                    }
                     plugins.push({ name: values.name, secretRef: '', enable: true, config: config })
                 }
             });
@@ -761,6 +776,7 @@ export default class index extends Component {
                                     <Row key={index}>
                                         <Col span={22}>
                                             <GatewayPluginsFrom
+                                                pluginName={this.state.values.map(item=>item.name)}
                                                 wrappedComponentRef={formRef => (this.state.formRefs[index] = formRef)}
                                                 info={item}
                                                 formItemLayout={formItemLayouts}

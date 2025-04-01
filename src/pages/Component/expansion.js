@@ -1169,7 +1169,7 @@ export default class Index extends PureComponent {
           </>
         ) : (
           <Card className={styles.clerBorder} border={false} title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}>
-            {!enableGPU && (
+            {/* {!enableGPU && (
               <Alert
                 style={{ marginBottom: '16px' }}
                 type="warning"
@@ -1184,7 +1184,7 @@ export default class Index extends PureComponent {
                   </a>
                 </>}
               />
-            )}
+            )} */}
             <Form layout="inline" hideRequiredMark className={styles.fromItem}>
               <Row gutter={16}>
                 <Col lg={8} md={8} sm={24}>
@@ -1209,7 +1209,7 @@ export default class Index extends PureComponent {
                   </Form.Item>
                   {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.algorithm' })}`)}
                 </Col>
-                <Col lg={8} md={8} sm={24}>
+                <Col lg={8} md={8} sm={24} style={{display: 'none'}}>
                   <Form.Item
                     labelCol={language ? { span: 6 } : { span: 8 }}
                     wrapperCol={language ? { span: 18 } : { span: 16 }}

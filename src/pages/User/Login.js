@@ -36,26 +36,16 @@ export default class LoginPage extends Component {
       if (lan.toLowerCase().indexOf('zh') !== -1) {
         const language = 'zh-CN'
         cookie.set('language', language)
-        const lang = cookie.get('language')
         setLocale('zh-CN')
         this.setState({
           language: true,
         })
-      } else if (lan.toLowerCase().indexOf('en') !== -1) {
+      } else {
         const language = 'en-US'
         cookie.set('language', language)
-        const lang = cookie.get('language')
         setLocale('en-US')
         this.setState({
           language: false,
-        })
-      } else {
-        const language = 'zh-CN'
-        cookie.set('language', language)
-        const lang = cookie.get('language')
-        setLocale('zh-CN')
-        this.setState({
-          language: true,
         })
       }
     }
