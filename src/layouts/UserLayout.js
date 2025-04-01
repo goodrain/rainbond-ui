@@ -4,6 +4,7 @@ import React from 'react';
 import cloud from '../../public/cloud.png';
 import logo from '../../public/logoLogin.png';
 import topLogo from '../../public/topLogo1.png';
+import enlogo from '../../public/login_en.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
@@ -163,7 +164,7 @@ class UserLayout extends React.PureComponent {
             </div>
             <div className={styles.content}>
               <div className={styles.left}>
-                <img src={login_image}></img>
+                <img src={language ? login_image : enlogo}></img>
               </div>
               <div className={styles.right}>
                 {children}
