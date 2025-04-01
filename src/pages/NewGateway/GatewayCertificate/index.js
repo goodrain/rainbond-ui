@@ -8,7 +8,9 @@ import AutomaticIssuance from './AutomaticIssuance';
 
 
 const { TabPane } = Tabs;
-@connect()
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo
+}))
 export default class indexs extends Component {
   constructor(props) {
     super(props);
@@ -40,6 +42,8 @@ export default class indexs extends Component {
   }
   render() {
     const { existsAutomaticIssuanceCert } = this.state;
+    const platformUrl = this.props.rainbondInfo.document.enable && this.props.rainbondInfo.document.value.platform_url;
+
     return (
       <Tabs defaultActiveKey={this.state.activeKey} onChange={this.onChange}>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue'})} key="1">
@@ -47,7 +51,7 @@ export default class indexs extends Component {
         </TabPane>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue'})} key="2">
           {existsAutomaticIssuanceCert ? <AutomaticIssuance {...this.props}/> : <div style={{textAlign: 'center',margin: '100px 0'}}>
-            <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href="https://www.rainbond.com/docs/v5/user-docs/api-gateway/api-gateway-certificate-management/" target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
+            <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href={`${platformUrl}docs/how-to-guides/app-ops/cert-manager`} target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
           </div>}
         </TabPane>
       </Tabs>
