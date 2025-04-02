@@ -623,7 +623,7 @@ class EnterpriseLayout extends PureComponent {
                           noMatch={<Redirect to="/user/login" />}
                         >
                           {children}
-                          <CustomFooter />
+                         {showMenu && <CustomFooter />}
                         </Authorized>
                       </div>
                     </Content>

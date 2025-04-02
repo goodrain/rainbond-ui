@@ -20,8 +20,8 @@ import {
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import PluginSystem from './Plugins'
-import DApvcinput from '../../components/DApvcinput';
-import DAHosts from '../../components/DAHosts'
+import DApvcinput from './components/DApvcinput';
+import DAHosts from './components/DAHosts'
 import styles from './index.less'
 
 @Form.create()
@@ -36,6 +36,7 @@ export default class index extends Component {
         };
     }
     componentDidMount() {
+        console.log(this.props.pluginName,"this.props.pluginName");
     }
     handleSelectChange = (val) => {
         this.setState({
@@ -61,7 +62,7 @@ export default class index extends Component {
                         >
                             {PluginList && PluginList.map(item => {
                                 const { name, message } = item
-                                return <Option key={name} value={name}>
+                                return <Option key={name} value={name} disabled={this.props.pluginName.includes(name)}>
                                     <Tooltip placement="right" title={message}>
                                         <span style={{ width: "100%" }}>{name}</span>
                                     </Tooltip>
@@ -101,6 +102,22 @@ export default class index extends Component {
                     </Form.Item>
                 )
             case 'input_arr':
+                const initValue = value || defaultValue;
+                let objectValue = [];
+                if(type === 'object'){
+                    if(initValue && Object.keys(initValue).length > 0){
+                        Object.keys(initValue).forEach(key=>{
+                            objectValue.push({
+                                key: key,
+                                value: initValue[key]
+                            })
+                        })
+                    }else{
+                        objectValue = undefined;
+                    }
+                }else{
+                    objectValue = initValue;
+                }
                 return (
                     <Form.Item label=
                         {
@@ -113,7 +130,7 @@ export default class index extends Component {
                         }
                         {...formItemLayout}>
                         {getFieldDecorator(name, {
-                            initialValue: value || defaultValue,
+                            initialValue: objectValue,
                             rules: [...rules]
                         })(type === 'object' ? <DApvcinput sourcedata='object' setspan={11} setright={true}/> : <DAHosts setspan={22} setSvgSpan={1} hostPlaceholder={placeholder}/>)}
                     </Form.Item>
@@ -124,7 +141,6 @@ export default class index extends Component {
                         {
                             <span>
                                 {name}
-
                                 <Tooltip placement="top" title={describe} >
                                     <Icon type="question-circle" style={{ marginLeft: 4 }} />
                                 </Tooltip>
@@ -136,6 +152,7 @@ export default class index extends Component {
                             rules: [...rules]
                         })(
                             <Select
+                                mode={ name == 'method' ? 'multiple' : ''}
                                 style={{ width: '100%' }}
                                 placeholder={placeholder}
                             >
@@ -178,7 +195,6 @@ export default class index extends Component {
 
     render() {
         const { PluginData } = this.state;
-
         return (
             <Card style={{marginBottom:12}}>
                 <Form onSubmit={this.handleSubmit} >

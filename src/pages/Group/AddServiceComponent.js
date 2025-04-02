@@ -525,7 +525,7 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
-                  {showSecurityRestrictions &&
+                  {/* {showSecurityRestrictions &&
                   <>
                   {vmLoading ? (
                     <Col
@@ -561,7 +561,7 @@ export default class AddServiceComponent extends PureComponent {
                         </Col>
                       </Tooltip>
                   )}
-                  </>}
+                  </>} */}
                   {imageList && 
                     imageList.length > 0 &&
                     imageList.map(item => {

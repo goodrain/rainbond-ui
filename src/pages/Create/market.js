@@ -975,7 +975,7 @@ export default class Main extends PureComponent {
         span: 19
       }
     };
-    const { form, groups, groupId } = this.props;
+    const { form, groups, groupId, pluginsList } = this.props;
     const { getFieldDecorator } = form;
     const { installBounced, app_name: appName, } = this.state;
     const versionList = installBounced.versions_info || installBounced.versions;
@@ -985,7 +985,7 @@ export default class Main extends PureComponent {
         break;
       }
     }
-
+    const showSaaSPrice = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     return (
       <Form
         onSubmit={this.handleInstallBounced}
@@ -1049,9 +1049,11 @@ export default class Main extends PureComponent {
               })}
             </Select>
           )}
-          <div style={{ fontSize: '14px', color: '#8C8C8C' }}>
-            {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
-          </div>
+          {showSaaSPrice && (
+            <div style={{ fontSize: '14px', color: '#8C8C8C' }}>
+              {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
+            </div>
+          )}
         </Form.Item>
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromHelmForm.note' })} style={{ display: 'none' }}>
           {getFieldDecorator('note', {

@@ -240,7 +240,7 @@ export default class RegisterComponent extends Component {
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
         </FormItem>
         {/* 手机号 */}
-        <FormItem>
+        {/* <FormItem>
           {getFieldDecorator('phone', {
             rules: [
               { required: true, message: formatMessage({ id: 'login.registerComponent.phone' }) },
@@ -250,7 +250,7 @@ export default class RegisterComponent extends Component {
               }
             ],
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.phone' })} />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem>
           <Button
             size="large"
