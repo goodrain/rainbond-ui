@@ -126,8 +126,8 @@ export default class PersonalView extends Component {
                   {userInfo.user_name}
                 </Col>
                 <Col>
-                  <Button type="link" onClick={this.handleUpdateInfo}>修改基础信息</Button>
-                  {!isSaas && <Button type="link" onClick={this.handleUpdatePassword}>修改密码</Button>}
+                  <Button type="link" onClick={this.handleUpdateInfo}>{formatMessage({ id: 'versionUpdata_6_1.editBaseUserInfo' })}</Button>
+                  {!isSaas && <Button type="link" onClick={this.handleUpdatePassword}>{formatMessage({ id: 'versionUpdata_6_1.editPassword' })}</Button>}
                 </Col>
               </Row>
             </Col>

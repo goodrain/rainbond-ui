@@ -1398,9 +1398,9 @@ export default class Enterprise extends PureComponent {
                               {isSaas && <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div>}
                             </p>
                             {typeStatusCpu ? (
-                              <Charts keys={'upcpu1' + `${index}`} unit={'Core'} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={'已使用'} swidth='200px' sheight='120px' />
+                              <Charts keys={'upcpu1' + `${index}`} unit={'Core'} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={`${formatMessage({id:'enterpriseColony.mgt.node.used'})}`} swidth='200px' sheight='120px' />
                             ) : (
-                              <Charts keys={'upcpu2' + `${index}`} unit={'Core'} usedValue={used_cpu}  svalue={cpuUsed} cname={'已分配'} swidth='200px' sheight='120px' />
+                              <Charts keys={'upcpu2' + `${index}`} unit={'Core'} usedValue={used_cpu}  svalue={cpuUsed} cname={`${formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})}`} swidth='200px' sheight='120px' />
                             )}
                           </div>
                           <div className={enterpriseStyles.content_data}>
@@ -1411,9 +1411,9 @@ export default class Enterprise extends PureComponent {
                               {isSaas && <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div>}
                             </p>
                             {typeStatusMemory ? (
-                              <Charts keys={'memory1' + `${index}`} unit={'GB'} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={'已使用'} swidth='200px' sheight='120px' />
+                              <Charts keys={'memory1' + `${index}`} unit={'GB'} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={`${formatMessage({id:'enterpriseColony.mgt.node.used'})}`} swidth='200px' sheight='120px' />
                             ) : (
-                              <Charts keys={'memory2' + `${index}`} unit={'GB'} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={'已分配'} swidth='200px' sheight='120px' />
+                              <Charts keys={'memory2' + `${index}`} unit={'GB'} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={`${formatMessage({id:'enterpriseColony.mgt.cluster.assigned'})}`} swidth='200px' sheight='120px' />
                             )}
                           </div>
                           <div className={enterpriseStyles.node}>

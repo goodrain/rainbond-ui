@@ -618,7 +618,7 @@ export default class index extends Component {
                     });
                   }}>
                   <Empty
-                    description={'开始部署您的应用'}
+                    description={formatMessage({ id: 'teamOverview.startDeploy' })}
                   />
                 </div>}
             </Card>
