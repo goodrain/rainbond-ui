@@ -917,6 +917,7 @@ export default class Enterprise extends PureComponent {
         ? rainbondInfo.version.value
         : '';
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const cloudSvg = (
       <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="160" height="144">
         <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35828"></path>
@@ -1391,19 +1392,28 @@ export default class Enterprise extends PureComponent {
                         </div>
                         <div className={enterpriseStyles.content_right}>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div></p>
+                            <p>
+                              {formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}:
+                              <span>{cpuTotal || 0}</span>Core 
+                              {isSaas && <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div>}
+                            </p>
                             {typeStatusCpu ? (
-                              <Charts keys={'upcpu1' + `${index}`} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={'CPU使用量'} swidth='200px' sheight='120px' />
+                              <Charts keys={'upcpu1' + `${index}`} unit={'Core'} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={'已使用'} swidth='200px' sheight='120px' />
                             ) : (
-                              <Charts keys={'upcpu2' + `${index}`} usedValue={used_cpu}  svalue={cpuUsed} cname={'CPU分配量'} swidth='200px' sheight='120px' />
+                              <Charts keys={'upcpu2' + `${index}`} unit={'Core'} usedValue={used_cpu}  svalue={cpuUsed} cname={'已分配'} swidth='200px' sheight='120px' />
                             )}
                           </div>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit} <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div></p>
+                            <p>
+                              {formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: 
+                              <span>{memoryTotal || 0}</span>
+                              {memoryTotalUnit} 
+                              {isSaas && <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div>}
+                            </p>
                             {typeStatusMemory ? (
-                              <Charts keys={'memory1' + `${index}`} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={'内存使用量'} swidth='200px' sheight='120px' />
+                              <Charts keys={'memory1' + `${index}`} unit={'GB'} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={'已使用'} swidth='200px' sheight='120px' />
                             ) : (
-                              <Charts keys={'memory2' + `${index}`} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={'内存分配量'} swidth='200px' sheight='120px' />
+                              <Charts keys={'memory2' + `${index}`} unit={'GB'} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={'已分配'} swidth='200px' sheight='120px' />
                             )}
                           </div>
                           <div className={enterpriseStyles.node}>
