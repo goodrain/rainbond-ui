@@ -36,7 +36,7 @@ export default class CustomFooter extends Component {
           <DefaultFooter
             style={{ background: 'none' }}
             className={styles.customFooter}
-            copyright={rainbondInfo?.footer?.enable && rainbondInfo?.footer?.value || new Date().getFullYear() + `${formatMessage({ id: 'CustomFooter.goodrain' })}`}
+            copyright={rainbondInfo?.footer?.enable && rainbondInfo?.footer?.value || new Date().getFullYear() + ` ${formatMessage({ id: 'CustomFooter.goodrain' })}`}
             links={[
               {
                 key: 'Rainbond',
@@ -53,7 +53,7 @@ export default class CustomFooter extends Component {
               {
                 key: 'community',
                 title: formatMessage({ id: 'CustomFooter.community' }),
-                href: (cookie.get('language') === 'zh-CN' ? true : false) ? 'https://www.rainbond.com/community/support' : 'https://www.rainbond.com/en/community/support/',
+                href: (cookie.get('language') === 'zh-CN' ? true : false) ? 'https://www.rainbond.com/docs/support' : 'https://www.rainbond.com/en/docs/support/',
                 blankTarget: true
               },
               {
