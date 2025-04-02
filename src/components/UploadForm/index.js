@@ -79,7 +79,7 @@ class UploadForm extends PureComponent {
     const uploadButton = (
       <div style={uploadBtnStyle}>
         <Icon type="plus" />
-        <div className="ant-upload-text">上传图标</div>
+        <div className="ant-upload-text">{formatMessage({id:'teamOverview.uploadIcon'})}</div>
       </div>
     );
     return (
@@ -89,7 +89,7 @@ class UploadForm extends PureComponent {
           rules: [
             {
               required,
-              message: message || '请上传图标'
+              message: message || formatMessage({id:'teamOverview.uploadIcon'})
             }
           ]
         })(

@@ -548,6 +548,13 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.example': 'Examples:',
     'componentOverview.body.DirectoryPersistence.return': 'Back',
     'componentOverview.body.DirectoryPersistence.file': 'Document management',
+    'componentOverview.body.DirectoryPersistence.uploadFile': 'Upload file',
+    'componentOverview.body.DirectoryPersistence.uploadFolder': 'Upload folder',
+    'componentOverview.body.DirectoryPersistence.createFolder': 'Create folder',
+    'componentOverview.body.DirectoryPersistence.upload': 'Upload',
+    'componentOverview.body.DirectoryPersistence.createFolderPath': 'Will create a folder in the following path:',
+    'componentOverview.body.DirectoryPersistence.inputFolderName': 'Please enter the folder name',
+    'componentOverview.body.DirectoryPersistence.path': 'Path:',
     // tabs栏>Port
     'componentOverview.body.Port.message': 'If the port configuration information is changed, restart the component for the change to take effect. Make sure the port list matches the ports your program is listening to. Unable to access',
     'componentOverview.body.Port.troubleshoot': 'You can check according to the following ideas.',

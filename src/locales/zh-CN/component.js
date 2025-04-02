@@ -558,6 +558,13 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.example': '实例:',
     'componentOverview.body.DirectoryPersistence.return': '返回上一级',
     'componentOverview.body.DirectoryPersistence.file': '文件管理',
+    'componentOverview.body.DirectoryPersistence.uploadFile': '上传文件',
+    'componentOverview.body.DirectoryPersistence.uploadFolder': '上传文件夹',
+    'componentOverview.body.DirectoryPersistence.createFolder': '新建文件夹',
+    'componentOverview.body.DirectoryPersistence.upload': '上传',
+    'componentOverview.body.DirectoryPersistence.createFolderPath': '将在以下路径创建文件夹：',
+    'componentOverview.body.DirectoryPersistence.inputFolderName': '请输入文件夹名称',
+    'componentOverview.body.DirectoryPersistence.path': '路径：',
     // tabs栏>Port
     'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效；请确保端口列表与你的程序监听端口保持一致。无法访问',
     'componentOverview.body.Port.troubleshoot': '按以下思路排查。',

@@ -249,7 +249,7 @@ class AppShareInstall extends PureComponent {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>
               <div>
                 <span style={{ color: '#8C8C8C', fontSize: '14px' }}>
-                  预估(每天)
+                  {formatMessage({id:'teamOverview.estimate'})}
                   <span style={{ color: '#F5A623', fontSize: '16px', fontWeight: 500, marginLeft: '4px' }}>
                     ¥{(
                       // CPU费用：毫核转核心 * 每小时价格 * 24小时
@@ -261,8 +261,8 @@ class AppShareInstall extends PureComponent {
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <Button onClick={() => { this.handleBackHome() }}>返回首页</Button>
-                <Button loading={isShare} type="primary" onClick={this.handleSubmit}>安装</Button>
+                <Button onClick={() => { this.handleBackHome() }}>{formatMessage({id:'teamOverview.backHome'})}</Button>
+                <Button loading={isShare} type="primary" onClick={this.handleSubmit}>{formatMessage({id:'teamOverview.install'})}</Button>
               </div>
             </div>
           }
@@ -278,40 +278,40 @@ class AppShareInstall extends PureComponent {
             </p>
           )}
           <Form onSubmit={this.handleSubmit} layout="horizontal">
-            <FormItem {...formItemLayout} label={'版本'}>
+            <FormItem {...formItemLayout} label={formatMessage({id:'teamOverview.version'})}>
               {getFieldDecorator('version', {
                 initialValue: appInfo?.versions && appInfo?.versions[0]?.app_version || '',
                 rules: [
                   {
                     required: true,
-                    message: '请选择版本'
+                    message: formatMessage({id:'teamOverview.selectVersion'})
                   }
                 ]
               })(
-                <Select onChange={this.onChangeVersion} placeholder={'请选择版本'}>
+                <Select onChange={this.onChangeVersion} placeholder={formatMessage({id:'teamOverview.selectVersion'})}>
                   {appInfo?.versions?.map((item) => {
                     return <Option value={item.app_version}>{item.app_version}</Option>
                   })}
                 </Select>
               )}
               <div style={{ fontSize: '14px', color: '#8C8C8C', marginBottom: '-10px' }}>
-                {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
+                {`${formatMessage({id:'teamOverview.resourceOccupied'})}:  CPU ${this.state.currentVersionInfo?.cpu}m / ${formatMessage({id:'teamOverview.memory'})} ${this.state.currentVersionInfo?.memory}MB`}
               </div>
             </FormItem>
 
-            <FormItem {...formItemLayout} label={'类型'}>
+            <FormItem {...formItemLayout} label={formatMessage({id:'teamOverview.type'})}>
               {getFieldDecorator('install_type', {
                 initialValue: 'new',
                 rules: [
                   {
                     required: true,
-                    message: '请选择类型'
+                    message: formatMessage({id:'teamOverview.selectType'})
                   }
                 ]
               })(
                 <Radio.Group onChange={(value) => this.setState({ installType: value.target.value })} buttonStyle="solid">
-                  <Radio.Button value="new">新建应用</Radio.Button>
-                  <Radio.Button value="existing">已有应用</Radio.Button>
+                  <Radio.Button value="new">{formatMessage({id:'teamOverview.createApp'})}</Radio.Button>
+                  <Radio.Button value="existing">{formatMessage({id:'teamOverview.hasApp'})}</Radio.Button>
                 </Radio.Group>
               )}
             </FormItem>

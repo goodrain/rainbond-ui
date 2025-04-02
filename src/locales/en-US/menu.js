@@ -56,6 +56,11 @@ const CustomFooter = {
   'GlobalHeader.close':'Do you want to turn off the novice boot function, or fail to turn it on after turning it off?',
   'GlobalHeader.manual':'Platform User Manual',
   'GlobalHeader.new':'Newbie guide',
+  'GlobalHeader.help':'Help document',
+  'GlobalHeader.market':'Application Market',
+  'GlobalHeader.balance':'Balance',
+  'GlobalHeader.account':'Account Center',
+
 }
 
 

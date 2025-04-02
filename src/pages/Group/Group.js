@@ -1254,7 +1254,6 @@ export default class Index extends PureComponent {
                 }}
                 style={{
                   height: "100%",
-                  width: "30%",
                   color: type !== 'list' ? '' : globalUtil.getPublicColor('rbd-sub-title-color'),
                   fontWeight: 'bold',
                   lineHeight: '60px',

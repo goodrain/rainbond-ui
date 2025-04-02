@@ -210,12 +210,12 @@ export const volumeTypeObj = {
   "config-file": "配置文件"
 };
 
-export function getVolumeTypeShowName(volumeOpts, volume_type) {
+export function getVolumeTypeShowName(volumeOpts, volume_type, language = true) {
   let showName = null;
   volumeOpts &&
     volumeOpts.map(item => {
       if (item.volume_type == volume_type && item.name_show) {
-        showName = item.name_show;
+        showName = language ?item.name_show : item.volume_type;
       }
     });
   if (showName) {
