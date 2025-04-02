@@ -31,6 +31,19 @@ const teamOverview = {
   'teamOverview.loadOverview':'Reload',
   'teamOverview.runAppNums': 'Running：{ number }',
   'teamOverview.notRunAppNums': 'Not running：{ number }',
+  'teamOverview.startDeploy':'Start deploying your application',
+  'teamOverview.uploadIcon':'Upload icon',
+  'teamOverview.estimate':'Estimate (per day)',
+  'teamOverview.backHome':'Back to home',
+  'teamOverview.install':'Install',
+  'teamOverview.version':'Version',
+  'teamOverview.selectVersion':'Select version',
+  'teamOverview.type':'Type',
+  'teamOverview.selectType':'Select type',
+  'teamOverview.createApp':'Create app',
+  'teamOverview.hasApp':'Has app',
+  'teamOverview.resourceOccupied':'Resource occupied',
+  'teamOverview.memory':'Memory',
   
 }
 

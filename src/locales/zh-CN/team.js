@@ -29,6 +29,19 @@ const teamOverview = {
   'teamOverview.loadOverview':'重新加载',
   'teamOverview.runAppNums': '运行：{ number }个',
   'teamOverview.notRunAppNums': '未运行：{ number }个',
+  'teamOverview.startDeploy':'开始部署您的应用',
+  'teamOverview.uploadIcon':'上传图标',
+  'teamOverview.estimate':'预估(每天)',
+  'teamOverview.backHome':'返回首页',
+  'teamOverview.install':'安装',
+  'teamOverview.version':'版本',
+  'teamOverview.selectVersion':'请选择版本',
+  'teamOverview.type':'类型',
+  'teamOverview.selectType':'请选择类型',
+  'teamOverview.createApp':'新建应用',
+  'teamOverview.hasApp':'已有应用',
+  'teamOverview.resourceOccupied':'资源占用',
+  'teamOverview.memory':'内存',
 }
 
 //团队下的应用

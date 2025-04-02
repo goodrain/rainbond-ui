@@ -744,10 +744,10 @@ class Index extends Component {
         const uploadMenu = (
             <Menu onClick={this.handleUploadMenuClick}>
                 <Menu.Item key="file">
-                    <Icon type="file" /> 上传文件
+                    <Icon type="file" /> {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.uploadFile' })}
                 </Menu.Item>
                 <Menu.Item key="folder">
-                    <Icon type="folder" /> 上传文件夹
+                    <Icon type="folder" /> {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.uploadFolder' })}
                 </Menu.Item>
             </Menu>
         );
@@ -777,7 +777,7 @@ class Index extends Component {
                         <div className={styles.footerBtnGroup}>
                             <div className={styles.leftBtns}>
                                 <Button type="primary" onClick={this.createFolder}>
-                                    <Icon type="folder-add" /> 新建文件夹
+                                    <Icon type="folder-add" /> {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.createFolder' })}
                                 </Button>
                             </div>
                             <div className={styles.rightBtns}>
@@ -792,7 +792,7 @@ class Index extends Component {
                                 </Upload>
                                 <Dropdown overlay={uploadMenu} placement="topCenter" disabled={this.state.uploading}>
                                     <Button type="primary" loading={this.state.uploading}>
-                                        <Icon type="upload" /> 上传 {!this.state.uploading && <Icon type="down" />}
+                                        <Icon type="upload" /> {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.upload' })} {!this.state.uploading && <Icon type="down" />}
                                     </Button>
                                 </Dropdown>
                                 <Button type="primary" onClick={this.fileDownload}>
@@ -826,7 +826,7 @@ class Index extends Component {
                                     <Row>
                                         <Col span={20}>
                                             <div className={styles.path}>
-                                                路径：{upLoadPath}
+                                                {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.path' })}{upLoadPath}
                                             </div>
                                         </Col>
                                         <Col span={4} style={{textAlign:'right'}}>
@@ -893,20 +893,20 @@ class Index extends Component {
 
                 </Modal>
                 <Modal
-                    title="新建文件夹"
+                    title={formatMessage({ id: 'componentOverview.body.DirectoryPersistence.createFolder' })}
                     visible={createFolderVisible}
                     onOk={this.handleCreateFolder}
                     onCancel={this.handleCreateFolderCancel}
                     confirmLoading={createFolderLoading}
                 >
                     <div style={{ marginBottom: 16 }}>
-                        <div style={{ marginBottom: 8 }}>将在以下路径创建文件夹：</div>
+                        <div style={{ marginBottom: 8 }}>{formatMessage({ id: 'componentOverview.body.DirectoryPersistence.createFolderPath' })}</div>
                         <div style={{ background: '#f5f5f5', padding: 8, wordBreak: 'break-all' }}>
                             {this.state.path ? `${this.state.hostPath}/${this.state.path}` : this.state.hostPath}
                         </div>
                     </div>
                     <Input
-                        placeholder="请输入文件夹名称"
+                        placeholder={formatMessage({ id: 'componentOverview.body.DirectoryPersistence.inputFolderName' })}
                         value={folderName}
                         onChange={this.handleFolderNameChange}
                     />

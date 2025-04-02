@@ -318,7 +318,7 @@ export default class GlobalHeader extends PureComponent {
         <path d="M724.255 579.373c0-17.332-14.051-31.385-31.385-31.385-13.486 0-24.983 8.509-29.424 20.448h-0.041c-26.547 56.372-83.862 95.397-150.302 95.397-66.438 0-123.753-39.025-150.3-95.397h-0.07c-4.44-11.939-15.937-20.448-29.423-20.448-17.334 0-31.386 14.053-31.386 31.385a31.258 31.258 0 0 0 7.266 20.08c37.359 74.791 114.625 126.165 203.914 126.165 89.318 0 166.605-51.409 203.95-126.241a31.254 31.254 0 0 0 7.201-20.004z" fill="#ffffff" p-id="15595"></path>
       </svg>
     )
-    const docsUrl = (rainbondInfo?.document?.enable && `${rainbondInfo?.document?.value?.platform_url}docs/tutorial/via-rainbond-deploy-sourceandmiddleware`) || (language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/')
+    const docsUrl = (rainbondInfo?.document?.enable && `${rainbondInfo?.document?.value?.platform_url}${language ? 'docs/tutorial/via-rainbond-deploy-sourceandmiddleware' : 'en/docs/tutorial/via-rainbond-deploy-sourceandmiddleware'}`) || (language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/')
     const MenuItems = (key, component, text) => {
       return (
         <Menu.Item key={key}>
@@ -329,7 +329,7 @@ export default class GlobalHeader extends PureComponent {
             }}
           />
           {text == 1 && <FormattedMessage id="GlobalHeader.core" />}
-          {text == 2 && '账户中心'}
+          {text == 2 && <FormattedMessage id="GlobalHeader.account" />}
           {text == 3 && <FormattedMessage id="GlobalHeader.language" />}
           {text == 4 && <FormattedMessage id="GlobalHeader.exit" />}
         </Menu.Item>
@@ -361,7 +361,7 @@ export default class GlobalHeader extends PureComponent {
               href='https://hub.grapps.cn/marketplace'
               target='_blank'
             >
-              应用市场
+              <FormattedMessage id="GlobalHeader.market" />
             </a>
           )}
           {/* 平台管理 */}
@@ -395,12 +395,12 @@ export default class GlobalHeader extends PureComponent {
                 className={styles.balance}
                 style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
               >
-                <div className={styles.balanceTitle}>余额</div>
+                <div className={styles.balanceTitle}>{formatMessage({ id: 'GlobalHeader.balance' })}</div>
                 <div className={styles.balanceNum}>¥{balance.toFixed(2)}</div>
               </div>
             )}
             {platformUrl && (
-              <Tooltip title={'帮助文档'}>
+              <Tooltip title={formatMessage({ id: 'GlobalHeader.help' })}>
                 <a
                   className={styles.action}
                   style={{ verticalAlign: '-7px', color: '#fff' }}

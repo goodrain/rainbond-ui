@@ -114,6 +114,8 @@ export default class index extends Component {
             form.validateFields((err, values) => {
                 if (!err) {
                     const { name, ...config } = values;
+                    // 递归循环所有config，将undefined、null、''、{}删除
+                    const newConfig = this.recursiveDelete(config);
                     if (values.name == 'proxy-rewrite') {
                         let bool = true;
                         if (Object.keys(config.headers).length !== 0) {
@@ -223,6 +225,37 @@ export default class index extends Component {
             }
         });
     };
+    /**
+     * 递归删除对象中的undefined、null、''、{}
+     * @param {Object} obj 需要删除的对象
+     * @returns {Object} 删除后的对象
+     */
+    recursiveDelete=(obj)=>{
+        if (obj === null || obj === undefined || obj === '') {
+            return null;
+        }
+        if (typeof obj === 'object') {
+            for (const key in obj) {
+                if (obj[key] === undefined || obj[key] === null || obj[key] === '') {
+                    delete obj[key];
+                } else if (Array.isArray(obj[key])) {
+                    if (obj[key].length === 1 && (obj[key][0] === null || obj[key][0] === undefined || obj[key][0] === '')) {
+                        delete obj[key];
+                    }
+                } else {
+                    obj[key] = this.recursiveDelete(obj[key]);
+                }
+            }
+        }
+        // regex_uri: [null] 这种情况需要删除
+        if (Array.isArray(obj)) {
+            if (obj.length === 1 && obj[0] === null) {
+                return null;
+            }
+        }
+
+        return obj;
+    }
     // 获取访问令牌token
     fetchInfo = () => {
         const { dispatch } = this.props
