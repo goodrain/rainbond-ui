@@ -109,7 +109,7 @@ class ClusterProgressQuery extends PureComponent {
                         {msg}
                         {!enterpriseEdition && (
                           <>
-                            <a target="_blank" href="https://www.rainbond.com/community/support" style={{ padding: 0 }}>
+                            <a target="_blank" href="https://www.rainbond.com/docs/support" style={{ padding: 0 }}>
                               <FormattedMessage id='enterpriseColony.ClusterProgressQuery.ding' />
                             </a >
                             <FormattedMessage id='enterpriseColony.ClusterProgressQuery.support' />
