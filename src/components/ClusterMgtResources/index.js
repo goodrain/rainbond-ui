@@ -98,10 +98,10 @@ class Index extends Component {
                             <div className={styles.chartsStyle}>
 
                                 <div>
-                                    <Charts keys={'upcpu' + `${1}`} svalue={cpuUsed} cname="CPU" swidth='200px' sheight='120px' />
+                                    <Charts keys={'upcpu' + `${1}`} unit={'Core'} svalue={cpuUsed} usedValue={used_cpu} cname="CPU" swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
-                                    <Charts keys={'upcpu' + `${2}`} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
+                                    <Charts keys={'upcpu' + `${2}`} unit={'GB'} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} usedValue={(used_memory / 1024).toFixed(2)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
                                 </div>
                                 <div>
                                     <p>
