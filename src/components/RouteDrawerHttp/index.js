@@ -147,6 +147,15 @@ export default class index extends Component {
                     },
                     plugins: plugins,
                 };
+
+                // 添加timeout配置，只有在有值时才添加，并且直接使用's'作为单位
+                if (values.connect || values.send || values.read) {
+                    data.timeout = {};
+                    if (values.connect) data.timeout.connect = `${values.connect}s`;
+                    if (values.send) data.timeout.send = `${values.send}s`;
+                    if (values.read) data.timeout.read = `${values.read}s`;
+                }
+
                 if (editInfo && Object.keys(editInfo).length > 0) {
                     const splitString = editInfo.name.split("|")[0];
                     data.name = splitString
@@ -449,11 +458,26 @@ export default class index extends Component {
         const reg = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
         if (val && val.length > 0) {
             if (reg.test(val)) {
-                return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHostIp' })));
+                return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.TCP.contact' })));
             }
         }
         return callback();
     };
+
+    convertTimeToSeconds = (timeStr) => {
+        if (!timeStr) return 60; // 默认值60秒
+        
+        let totalSeconds = 0;
+        const hours = timeStr.match(/(\d+)h/);
+        const minutes = timeStr.match(/(\d+)m/);
+        const seconds = timeStr.match(/(\d+)s/);
+        
+        if (hours) totalSeconds += parseInt(hours[1]) * 3600;
+        if (minutes) totalSeconds += parseInt(minutes[1]) * 60;
+        if (seconds) totalSeconds += parseInt(seconds[1]);
+        
+        return totalSeconds;
+    }
 
     /** 介绍域名说明 */
     showDescription = () => {
@@ -672,6 +696,37 @@ export default class index extends Component {
                                         rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced' }) }],
                                         initialValue: (editInfo && editInfo.match && editInfo.match.exprs && this.handleExprs(editInfo.match.exprs)) || []
                                     })(<NewHeader />)}
+                                </Form.Item>
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Timeout' })}>
+                                    <Row gutter={8}>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.connectTime' })}>
+                                                {getFieldDecorator('connect', {
+                                                    initialValue: editInfo?.timeout?.connect ? this.convertTimeToSeconds(editInfo.timeout.connect) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.connect' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.sendTime' })}>
+                                                {getFieldDecorator('send', {
+                                                    initialValue: editInfo?.timeout?.send ? this.convertTimeToSeconds(editInfo.timeout.send) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.send' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.readTime' })}>
+                                                {getFieldDecorator('read', {
+                                                    initialValue: editInfo?.timeout?.read ? this.convertTimeToSeconds(editInfo.timeout.read) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.read' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                    </Row>
                                 </Form.Item>
                             </Fragment>
                         )}
