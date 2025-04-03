@@ -31,6 +31,19 @@ const teamOverview = {
   'teamOverview.loadOverview':'Reload',
   'teamOverview.runAppNums': 'Running：{ number }',
   'teamOverview.notRunAppNums': 'Not running：{ number }',
+  'teamOverview.startDeploy':'Start deploying your application',
+  'teamOverview.uploadIcon':'Upload icon',
+  'teamOverview.estimate':'Estimate (per day)',
+  'teamOverview.backHome':'Back to home',
+  'teamOverview.install':'Install',
+  'teamOverview.version':'Version',
+  'teamOverview.selectVersion':'Select version',
+  'teamOverview.type':'Type',
+  'teamOverview.selectType':'Select type',
+  'teamOverview.createApp':'Create app',
+  'teamOverview.hasApp':'Has app',
+  'teamOverview.resourceOccupied':'Resource occupied',
+  'teamOverview.memory':'Memory',
   
 }
 
@@ -129,7 +142,7 @@ const teamAdd = {
 
   //market
   'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',
-  'teamAdd.create.market.market':'External application market (100+)',
+  'teamAdd.create.market.market':'Application market (100+)',
   'teamAdd.create.market.command':'Command line installation',
   //third
   'teamAdd.create.third.title':'Adding Third Party Component',
@@ -316,6 +329,13 @@ const teamGateway = {
   'teamNewGateway.NewGateway.RouteDrawer.IP': 'Source IP',
   'teamNewGateway.NewGateway.RouteDrawer.InputIP': 'Enter source IP',
   'teamNewGateway.NewGateway.RouteDrawer.Advanced': 'Advanced',
+  'teamNewGateway.NewGateway.RouteDrawer.Timeout':'Timeout Setting',
+  'teamNewGateway.NewGateway.RouteDrawer.connect':'Connection Timeout',
+  'teamNewGateway.NewGateway.RouteDrawer.send':'Send Timeout',
+  'teamNewGateway.NewGateway.RouteDrawer.read':'Read Timeout',
+  'teamNewGateway.NewGateway.RouteDrawer.connectTime':'Set connection timeout',
+  'teamNewGateway.NewGateway.RouteDrawer.sendTime':'Set send timeout',
+  'teamNewGateway.NewGateway.RouteDrawer.readTime':'Set read timeout',
   'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced': 'Enter advanced conditions',
   'teamNewGateway.NewGateway.RouteDrawer.priority': 'Priority',
   'teamNewGateway.NewGateway.RouteDrawer.InputPriority': 'Enter priority',
@@ -377,7 +397,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': 'Manual issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': 'Automatic issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': 'Detect not installed',
-  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Automatic issuance certificate',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',
   'teamNewGateway.NewGateway.AutomaticIssuance.domain': 'Domain name',
   'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': 'Expired time',
   'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': 'Issue status',

@@ -126,7 +126,11 @@ const versionUpdata = {
   'teamOverview.empty.button': '新建应用',
   'price.cpu': 'CPU',
   'price.memory': '内存',
-  'price.total': '预估价格(每天)'
+  'price.total': '预估价格(每天)',
+  'versionUpdata_6_1.uploadAvatar': '上传头像',
+  'versionUpdata_6_1.editBaseUserInfo': '修改基础信息',
+  'versionUpdata_6_1.editPassword': '修改密码',
+  'versionUpdata_6_1.AccesstokenForm.placeholder': '若不选择则为不限制过期时间',
 }
 export default versionUpdata;
 

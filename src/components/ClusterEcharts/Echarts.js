@@ -26,7 +26,7 @@ export default class Chart extends Component {
   };
 
   updateChart = () => {
-    const { keys, svalue, cname, usedValue } = this.props
+    const { keys, svalue, cname, usedValue, unit } = this.props
     // 2. options配置项
     var datas = {
       value: svalue,
@@ -190,23 +190,23 @@ export default class Chart extends Component {
           detail: {
             show: true,
             offsetCenter: [50, 51], //显示数值的位置
-            color: '#444',
+            color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
             fontSize: 16,
             rich: {
               value: {
                 fontSize: 16,
                 lineHeight: 10,
-                color: '#666',
+                color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
                 fontWeight: "400",
               },
               company: {
                 fontSize: 10,
                 lineHeight: 20,
-                color: '#666',
+                color: svalue > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
               },
             },
             valueAnimation: true,
-            formatter: "{value}GB",
+            formatter: `{value}${unit}`,
           },
           pointer: {
             show: false

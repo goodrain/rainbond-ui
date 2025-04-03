@@ -86,7 +86,7 @@ export default class index extends Component {
     const uploadButton = (
       <div>
         <Icon type={this.state.loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">上传头像</div>
+        <div className="ant-upload-text">{formatMessage({ id: 'versionUpdata_6_1.uploadAvatar' })}</div>
       </div>
     );
     const token = cookie.get('token');

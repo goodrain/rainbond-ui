@@ -860,14 +860,14 @@ export default class Index extends PureComponent {
   }
   handleMemoryChange = (value) => {
     const { form } = this.props;
-    const newCpuValue = value == 1 ? 1 
-      : value == 2 ? 1 
-      : value == 3 ? 2 
-      : value == 4 ? 3 
-      : value == 5 ? 4 
-      : value == 6 ? 4 
-      : value == 7 ? 5 
-      : 6;
+    const newCpuValue = value == 1 ? 1
+      : value == 2 ? 1
+        : value == 3 ? 2
+          : value == 4 ? 3
+            : value == 5 ? 4
+              : value == 6 ? 4
+                : value == 7 ? 5
+                  : 6;
     this.setState({
       memoryValue: value,
       cpuValue: newCpuValue
@@ -1209,7 +1209,7 @@ export default class Index extends PureComponent {
                   </Form.Item>
                   {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.algorithm' })}`)}
                 </Col>
-                <Col lg={8} md={8} sm={24} style={{display: 'none'}}>
+                <Col lg={8} md={8} sm={24} style={{ display: 'none' }}>
                   <Form.Item
                     labelCol={language ? { span: 6 } : { span: 8 }}
                     wrapperCol={language ? { span: 18 } : { span: 16 }}
@@ -1270,9 +1270,7 @@ export default class Index extends PureComponent {
                   </Form.Item>
                   {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.dispatch' })}`)}
                 </Col>
-              </Row>
-              {method != 'vm' &&
-                <Row gutter={16}>
+                {method != 'vm' &&
                   <Col lg={8} md={8} sm={24}>
                     <Form.Item
                       label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
@@ -1310,8 +1308,8 @@ export default class Index extends PureComponent {
                     {descBox(`${formatMessage({ id: 'componentOverview.body.Expansion.initialValue' })}`)}
 
                   </Col>
-                </Row>
-              }
+                }
+              </Row>
             </Form>
           </Card>
         )

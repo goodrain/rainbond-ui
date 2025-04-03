@@ -29,6 +29,19 @@ const teamOverview = {
   'teamOverview.loadOverview':'重新加载',
   'teamOverview.runAppNums': '运行：{ number }个',
   'teamOverview.notRunAppNums': '未运行：{ number }个',
+  'teamOverview.startDeploy':'开始部署您的应用',
+  'teamOverview.uploadIcon':'上传图标',
+  'teamOverview.estimate':'预估(每天)',
+  'teamOverview.backHome':'返回首页',
+  'teamOverview.install':'安装',
+  'teamOverview.version':'版本',
+  'teamOverview.selectVersion':'请选择版本',
+  'teamOverview.type':'类型',
+  'teamOverview.selectType':'请选择类型',
+  'teamOverview.createApp':'新建应用',
+  'teamOverview.hasApp':'已有应用',
+  'teamOverview.resourceOccupied':'资源占用',
+  'teamOverview.memory':'内存',
 }
 
 //团队下的应用
@@ -129,7 +142,7 @@ const teamAdd = {
 
   //market
   'teamAdd.create.market.desc':'从本地组件库或应用商店一键安装应用。',
-  'teamAdd.create.market.market':'外部应用市场（100+）',
+  'teamAdd.create.market.market':'应用市场（100+）',
   'teamAdd.create.market.command':'命令行安装',
   //third
   'teamAdd.create.third.title':'添加第三方组件',
@@ -319,6 +332,13 @@ const teamGateway = {
   'teamNewGateway.NewGateway.RouteDrawer.IP':'来源IP',
   'teamNewGateway.NewGateway.RouteDrawer.InputIP':'请输入来源IP',
   'teamNewGateway.NewGateway.RouteDrawer.Advanced':'高级条件',
+  'teamNewGateway.NewGateway.RouteDrawer.Timeout':'超时设置',
+  'teamNewGateway.NewGateway.RouteDrawer.connect':'连接超时',
+  'teamNewGateway.NewGateway.RouteDrawer.send':'发送超时',
+  'teamNewGateway.NewGateway.RouteDrawer.read':'读取超时',
+  'teamNewGateway.NewGateway.RouteDrawer.connectTime':'设置连接的超时时间',
+  'teamNewGateway.NewGateway.RouteDrawer.sendTime':'设置发送的超时时间',
+  'teamNewGateway.NewGateway.RouteDrawer.readTime':'设置读取的超时时间',
   'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced':'请填写高级条件',
   'teamNewGateway.NewGateway.RouteDrawer.priority':'优先级',
   'teamNewGateway.NewGateway.RouteDrawer.InputPriority':'请填写优先级',
@@ -385,7 +405,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': '手动签发',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': '自动签发',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': '检测到未安装',
-  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': '自动签发证书',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',
   'teamNewGateway.NewGateway.AutomaticIssuance.domain': '域名',
   'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': '过期时间',
   'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': '签发状态',

@@ -148,7 +148,7 @@ export default class RegisterComponent extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist &&
-          <Divider >平台信息</Divider>
+          <Divider >{formatMessage({ id: 'platformUpgrade.index.platforminfo' })}</Divider>
         }
         {firstRegist && (
           <FormItem {...formItemLayout}>

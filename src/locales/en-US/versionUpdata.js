@@ -41,7 +41,7 @@ const versionUpdata = {
   'versionUpdata_6_1.content4': 'Through build source detection, it can identify code language, image properties and other information, and automatically select the appropriate way to complete the build.',
   'versionUpdata_6_1.check': 'Build Source Detection',
   'versionUpdata_6_1.create': 'Create Component',
-  'versionUpdata_6_1.create.content': 'Supports creating components from the application market, image deployment, source code deployment, and Yaml, Helm等多种创建方式。',
+  'versionUpdata_6_1.create.content': 'Supports creating components from the application market, image deployment, source code deployment, and Yaml, Helm, Such as a variety of creation methods.',
   'versionUpdata_6_1.setting': 'Setting',
   'versionUpdata_6_1.createSuccess': 'Create Application Success',
   'versionUpdata_6_1.addComponent': 'Add Component',
@@ -117,6 +117,12 @@ const versionUpdata = {
   'price.memory': 'Memory',
   'price.total': 'Estimated Price (Day)',
   'versionUpdata_6_1.teamManage.invite.modal.submit': 'Generate Invitation Link',
+  'versionUpdata_6_1.editUserInfo': 'Edit Personal Information',
+  'versionUpdata_6_1.uploadAvatar': 'Upload Avatar',
+  'versionUpdata_6_1.editBaseUserInfo': 'Edit Base User Info',
+  'versionUpdata_6_1.editPassword': 'Edit Password',
+  'versionUpdata_6_1.AccesstokenForm.placeholder': 'If not selected, it will not be limited by the expiration time',
+
 }
 
 
