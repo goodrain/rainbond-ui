@@ -47,7 +47,7 @@ export default class indexs extends Component {
         </TabPane>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue'})} key="2">
           {existsAutomaticIssuanceCert ? <AutomaticIssuance {...this.props}/> : <div style={{textAlign: 'center',margin: '100px 0'}}>
-            <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href="https://www.rainbond.com/docs/v5/user-docs/api-gateway/api-gateway-certificate-management/" target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
+            <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href="https://www.rainbond.com/docs/how-to-guides/app-ops/cert-manager" target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
           </div>}
         </TabPane>
       </Tabs>

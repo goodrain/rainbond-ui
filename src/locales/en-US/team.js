@@ -397,7 +397,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': 'Manual issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': 'Automatic issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': 'Detect not installed',
-  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Automatic issuance certificate',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',
   'teamNewGateway.NewGateway.AutomaticIssuance.domain': 'Domain name',
   'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': 'Expired time',
   'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': 'Issue status',

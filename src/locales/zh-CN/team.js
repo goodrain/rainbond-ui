@@ -405,7 +405,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': '手动签发',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': '自动签发',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': '检测到未安装',
-  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': '自动签发证书',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',
   'teamNewGateway.NewGateway.AutomaticIssuance.domain': '域名',
   'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': '过期时间',
   'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': '签发状态',
