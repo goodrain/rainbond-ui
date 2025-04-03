@@ -142,7 +142,7 @@ const teamAdd = {
 
   //market
   'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',
-  'teamAdd.create.market.market':'External application market (100+)',
+  'teamAdd.create.market.market':'Application market (100+)',
   'teamAdd.create.market.command':'Command line installation',
   //third
   'teamAdd.create.third.title':'Adding Third Party Component',
