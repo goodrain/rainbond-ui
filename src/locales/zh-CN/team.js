@@ -142,7 +142,7 @@ const teamAdd = {
 
   //market
   'teamAdd.create.market.desc':'从本地组件库或应用商店一键安装应用。',
-  'teamAdd.create.market.market':'外部应用市场（100+）',
+  'teamAdd.create.market.market':'应用市场（100+）',
   'teamAdd.create.market.command':'命令行安装',
   //third
   'teamAdd.create.third.title':'添加第三方组件',
