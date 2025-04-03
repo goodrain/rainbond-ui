@@ -27,7 +27,7 @@ const versionUpdata = {
   'versionUpdata_6_1.cpuUsage': 'CPU Usage',
   'versionUpdata_6_1.memoryUsage': 'Memory Usage',
   'versionUpdata_6_1.storageUsage': 'Storage Usage',
-  'versionUpdata_6_1.diskUsage': 'Storage allocation',
+  'versionUpdata_6_1.diskUsage': 'Storage Allocation',
   'versionUpdata_6_1.appList': 'Application List',
   'versionUpdata_6_1.appList.table': 'List View',
   'versionUpdata_6_1.appList.card': 'Card View',
