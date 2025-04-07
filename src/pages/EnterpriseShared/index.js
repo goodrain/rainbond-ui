@@ -2119,14 +2119,9 @@ export default class EnterpriseShared extends PureComponent {
             </Tabs> :
             <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
           }
-<<<<<<< HEAD
-        </ScrollerX>
-      </PageHeaderLayout>
-=======
         </PageHeaderLayout>
       </ScrollerX>
 
->>>>>>> ccb80aa0b345f4d1816becc686fcc059607e5ce6
     );
   }
 }
