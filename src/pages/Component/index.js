@@ -452,7 +452,7 @@ class Main extends PureComponent {
     const { app_alias } = this.fetchParameter();
 
     dispatch(
-      routerRedux.push(`${this.fetchPrefixUrl()}components/${app_alias}/${key}`)
+      routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}?type=components&componentID=${app_alias}&tab=${key}`)
     );
   };
 
@@ -1800,7 +1800,7 @@ export default class Index extends PureComponent {
     }
     return (
       <ScrollerX sm={1040}>
-        <Main {...this.props} {...this.state} handlePermissions={this.handlePermissions} />
+        <Main {...this.props} {...this.state}  />
       </ScrollerX>
     )
   }

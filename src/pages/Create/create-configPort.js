@@ -93,7 +93,7 @@ export default class Index extends PureComponent {
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false
-    const { isDeploy } = this.state;
+    const { isDeploy, appDetail } = this.state;
     this.setState({ buildAppLoading: true }, () => {
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
         const obj = {
@@ -132,7 +132,8 @@ export default class Index extends PureComponent {
                     window.sessionStorage.removeItem('codeLanguage');
                     window.sessionStorage.removeItem('packageNpmOrYarn');
                     window.sessionStorage.removeItem('advanced_setup');
-                    this.handleJump(`components/${app_alias}/overview`);
+                    // this.handleJump(`components/${app_alias}/overview`);
+                    this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
                   }
                 }
               })
@@ -160,7 +161,8 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('codeLanguage');
               window.sessionStorage.removeItem('packageNpmOrYarn');
               window.sessionStorage.removeItem('advanced_setup');
-              this.handleJump(`components/${app_alias}/overview`);
+              // this.handleJump(`components/${app_alias}/overview`);
+              this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
             }
           }
         })

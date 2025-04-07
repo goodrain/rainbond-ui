@@ -500,7 +500,7 @@ import {
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                  0}`
+                  0}/overview`
               )
             );
           }
@@ -539,7 +539,7 @@ import {
                 routerRedux.push(
                   `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
                     vals.group_id
-                  }`
+                  }/overview`
                 )
               );
             }
@@ -618,7 +618,7 @@ import {
                 routerRedux.push(
                   `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                     vals.group_id
-                  }`
+                  }/overview`
                 )
               );
             }

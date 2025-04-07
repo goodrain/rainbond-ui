@@ -271,7 +271,7 @@ export default class CreateCheck extends PureComponent {
           routerRedux.replace(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
               params.group_id
-            }`
+            }/overview`
           )
         );
       }

@@ -164,8 +164,8 @@ export default class Index extends PureComponent {
                   dataIndex: 'service_cname',
                   render: (val, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.service_alias
-                        }/overview`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.group_id
+                        }/overview?type=components&componentID=${data.service_alias}&tab=overview`}
                     >
                       {val}
                     </Link>
@@ -178,7 +178,7 @@ export default class Index extends PureComponent {
                   render: (val, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.group_id
-                        }`}
+                        }/overview`}
                     >
                       {val}
                     </Link>

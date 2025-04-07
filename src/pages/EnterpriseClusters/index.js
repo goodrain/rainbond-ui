@@ -588,7 +588,7 @@ export default class EnterpriseClusters extends PureComponent {
             if (isNext && groupId && teamName && clusters) {
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}/overview`
                 )
               );
             }

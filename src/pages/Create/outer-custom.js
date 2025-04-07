@@ -79,6 +79,9 @@ export default class Index extends PureComponent {
     });
   };
   render() {
+    const { groupId } = this.props;
+    console.log(groupId, 'groupId');
+    
     return (
       <Card>
         <TopUpHints />

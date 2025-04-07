@@ -84,17 +84,14 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const arch = this.props.archInfo
+    const arch = this.props.archInfo    
     return (
-      <Card>
+      <Card bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
         <TopUpHints />
         <div
           className={styles.formWrap}
           style={{
-            width:
-              this.props.handleType && this.props.handleType === 'Service'
-                ? 'auto'
-                : '600px'
+            width:'600px'
           }}
         >
           <CodeCustomForm onSubmit={this.handleSubmit} {...this.props} />

@@ -924,7 +924,7 @@ class TeamLayout extends PureComponent {
                           }}
                         >
                           {renderContent()}
-                          <CustomFooter />
+                          {/* <CustomFooter /> */}
                         </div>
                       </Content>
                     </CSSTransition>

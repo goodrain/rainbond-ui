@@ -677,9 +677,9 @@ class Mnt extends PureComponent {
                 render: (v, data) => {
                   return (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.dep_app_alias
-                      }/overview`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                        data.dep_group_id
+                      }/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`}
                     >
                       {v}
                     </Link>
@@ -696,7 +696,7 @@ class Mnt extends PureComponent {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                         data.dep_group_id
-                      }`}
+                      }/overview`}
                     >
                       {v}
                     </Link>
@@ -838,9 +838,9 @@ class Relation extends PureComponent {
               render: (val, data) => {
                 return (
                   <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                      data.service_alias
-                    }/overview`}
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                      globalUtil.getAppID()
+                    }/overview?type=components&componentID=${data.service_alias}&tab=overview`}
                   >
                     {val}
                   </Link>

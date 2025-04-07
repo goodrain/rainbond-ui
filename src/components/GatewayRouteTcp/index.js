@@ -197,11 +197,7 @@ export default class index extends Component {
     jump = (val) =>{
     const { dispatch } = this.props;
     const componentsID = val.split('-')[0];
-    dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${componentsID}/overview`
-        )
-      );
+    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${componentsID}&tab=overview`));
     }
     onPageChange = (page_num, page_size) => {
         this.setState({

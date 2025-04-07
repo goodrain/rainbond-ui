@@ -47,15 +47,12 @@ export default class Index extends PureComponent {
   render() {
     const code = decodeURIComponent(this.props.match && this.props.match.params && this.props.match.params.code || '');
     return (
-      <Card>
+      <Card bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
         <TopUpHints />
         <div
           className={styles.formWrap}
           style={{
-            width:
-              this.props.handleType && this.props.handleType === 'Service'
-                ? 'auto'
-                : '600px',
+            width: '600px',
           }}
         >
           <CodeDemoForm

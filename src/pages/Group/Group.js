@@ -418,7 +418,7 @@ export default class Index extends PureComponent {
             this.props.dispatch(
               routerRedux.push(
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${list[0].group_id
-                }`
+                }/overview`
               )
             );
           }
@@ -733,16 +733,16 @@ export default class Index extends PureComponent {
           <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
               <span>{currApp.group_name || '-'}</span>
-              {isEdit && 
-                            <Icon
-                            style={{
-                              cursor: 'pointer',
-                              marginLeft: '5px',
-                              marginRight: '12px'
-                            }}
-                            onClick={this.toEdit}
-                            type="edit"
-                          />
+              {isEdit &&
+                <Icon
+                  style={{
+                    cursor: 'pointer',
+                    marginLeft: '5px',
+                    marginRight: '12px'
+                  }}
+                  onClick={this.toEdit}
+                  type="edit"
+                />
               }
             </div>
             {resources.status && (

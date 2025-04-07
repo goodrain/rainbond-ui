@@ -565,7 +565,7 @@ export default class Main extends PureComponent {
           dispatch(
             routerRedux.push(
               `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
+                0}/overview`
             )
           );
         }
@@ -605,7 +605,7 @@ export default class Main extends PureComponent {
               routerRedux.push(
                 `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
                   vals.group_id
-                }`
+                }/overview`
               )
             );
           }
@@ -660,7 +660,7 @@ export default class Main extends PureComponent {
               routerRedux.push(
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                   vals.group_id
-                }`
+                }/overview`
               )
             );
           }
@@ -1390,6 +1390,7 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderComponent
               isAddMarket={this.props.isAddMarket}
+              noMargin={this.props.noMargin}
               isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
@@ -1455,7 +1456,7 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{
                           padding: '12px',
-                          marginBottom: !moreState ? '40px' : '0px'
+                          marginBottom: !moreState ? '160px' : '0px'
                         }}
                       >
                         {isSpincloudList !== -1 && cloudCardList}

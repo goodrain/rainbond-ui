@@ -378,14 +378,18 @@ export default [
             authority: ['admin', 'user'],
             title: '应用网关'
           },
-
+          // {
+          //   path: '/team/:teamName/region/:regionName/apps/:appID',
+          //   component: './Group/Overview',
+          //   name: 'Groups',
+          //   authority: ['admin', 'user']
+          // },
           {
-            path: '/team/:teamName/region/:regionName/apps/:appID',
-            component: './Group/Index',
+            path: '/team/:teamName/region/:regionName/apps/:appID/overview',
+            component: './Group/Overview',
             name: 'Groups',
             authority: ['admin', 'user']
           },
-          
           {
             path: '/team/:teamName/region/:regionName/apps/:appID/helminstall',
             component: './Group/Helm',
@@ -421,13 +425,13 @@ export default [
             name: 'WebConsole',
             authority: ['admin', 'user']
           },
-          {
-            path:
-              '/team/:teamName/region/:regionName/components/:appAlias/:type?',
-            component: './Component',
-            name: 'Component',
-            authority: ['admin', 'user']
-          },
+          // {
+          //   path:
+          //     '/team/:teamName/region/:regionName/components/:appAlias/:type?',
+          //   component: './Component',
+          //   name: 'Component',
+          //   authority: ['admin', 'user']
+          // },
 
           {
             path:

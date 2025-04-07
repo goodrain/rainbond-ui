@@ -22,7 +22,7 @@ export function createApp(list, currentTeam, regionNmae, currentApp) {
   if (currentApp) {
     list.push({
       title: currentApp.appName,
-      href: `/team/${currentTeam.team_name}/region/${regionNmae}/apps/${currentApp.appID}`,
+      href: `/team/${currentTeam.team_name}/region/${regionNmae}/apps/${currentApp.appID}/overview`,
     });
   }
   return list;

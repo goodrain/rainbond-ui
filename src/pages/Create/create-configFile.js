@@ -116,7 +116,8 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('codeLanguage');
               window.sessionStorage.removeItem('packageNpmOrYarn');
               window.sessionStorage.removeItem('advanced_setup');
-              this.handleJump(`components/${app_alias}/overview`);
+              // this.handleJump(`components/${app_alias}/overview`);
+              this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
             }
           }
           });

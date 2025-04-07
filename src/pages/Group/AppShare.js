@@ -856,7 +856,7 @@ export default class Main extends PureComponent {
       callback: () => {
         dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/overview`
           )
         );
       }

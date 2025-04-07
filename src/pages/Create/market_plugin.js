@@ -654,7 +654,7 @@ export default class Main extends PureComponent {
               dispatch(
                 routerRedux.push(
                   `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${res.bean.ID
-                  }`
+                  }/overview`
                 )
               );
             }

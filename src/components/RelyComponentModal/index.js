@@ -39,9 +39,9 @@ class RelyComponentModal extends PureComponent {
               render: (data, item) => (
                 <Tooltip title={data} key={data}>
                   <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                      item.service_alias
-                    }/overview`}
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                      globalUtil.getAppID()
+                    }/overview?type=components&componentID=${item.service_alias}&tab=overview`}
                     title={data}
                   >
                     <span>{data}</span>

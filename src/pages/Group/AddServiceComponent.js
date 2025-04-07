@@ -352,31 +352,9 @@ export default class AddServiceComponent extends PureComponent {
       marginRight: 8
     };
     return (
-      <div>
-        <Button
-          type="primary"
-          onClick={this.toAddService}
-          style={{
-            marginLeft: '12px',
-            // color: globalUtil.getPublicColor('rbd-content-color'),
-            // borderColor: '#D9D9D9',
-            // background: '#fff'
-          }}
-        >
-          <Icon type="plus" />
-          {formatMessage({ id: 'appOverview.btn.addComponent' })}
-        </Button>
-        <Drawer
-          title={formatMessage({ id: 'appOverview.btn.addComponent' })}
-          placement="right"
-          onClose={this.cancelAddService}
-          visible={toAddService}
-          maskClosable={false}
-          width={550}
-          style={{ display: isDrawer ? 'block' : 'none' }}
-        >
+        <div style={{width:'100%',height:'100%', overflow:'auto'}}>
           {ServiceComponentOnePage && (
-            <div style={{ marginTop: '-12px' }}>
+            <div style={{ display: 'flex', flexWrap:'wrap',width:'100%', gap:'5%'}}>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
@@ -385,7 +363,7 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
                 <Row type="flex">
                   <Col
-                    span={4}
+                    span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
                       this.handleServiceComponent(false, 'custom');
@@ -397,7 +375,7 @@ export default class AddServiceComponent extends PureComponent {
                     </p>
                   </Col>
                   <Col
-                    span={4}
+                    span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
                       this.handleServiceComponent(false, 'jwar');
@@ -409,7 +387,7 @@ export default class AddServiceComponent extends PureComponent {
                     </p>
                   </Col>
                   <Col
-                    span={4}
+                    span={8}
                     className={styles.ServiceDiv}
                     onClick={() => {
                       this.handleServiceComponent(false, 'codeDemo');
@@ -427,7 +405,7 @@ export default class AddServiceComponent extends PureComponent {
                       return (
                         <Col
                           key={id}
-                          span={4}
+                          span={8}
                           className={styles.ServiceDiv}
                           onClick={() => {
                             this.setState(
@@ -625,7 +603,7 @@ export default class AddServiceComponent extends PureComponent {
                   </Col>
                 </Row>
               </div>
-              <div className={styles.ServiceBox} style={{ marginBottom: '60px' }}>
+              <div className={styles.ServiceBox}>
                 <ThirdParty content={this.getValue.bind(this)} groupId={groupId}  />
               </div>
             </div>
@@ -699,6 +677,7 @@ export default class AddServiceComponent extends PureComponent {
           }
           {ServiceComponentTwoPage === 'market' && (
             <Market
+              noMargin={true}
               {...MarketParameter}
               isHelm={true}
               cancelAddService={this.cancelAddService}
@@ -712,8 +691,8 @@ export default class AddServiceComponent extends PureComponent {
           )}
           <div
             style={{
-              position: 'absolute',
-              bottom: 0,
+              position: 'fixed',
+              bottom: 100,
               width: '100%',
               borderTop: '1px solid #e8e8e8',
               padding: '10px 16px',
@@ -735,7 +714,6 @@ export default class AddServiceComponent extends PureComponent {
               {formatMessage({ id: 'popover.cancel' })}
             </Button>
           </div>
-        </Drawer>
       </div>
     );
   }

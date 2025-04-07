@@ -207,15 +207,12 @@ export default class Index extends PureComponent {
     );
     const { errorInfo, errorShow, BtnLoading, showaddStoreVisible } = this.state
     return (
-      <Card key={`${showaddStoreVisible}`}>
+      <Card key={`${showaddStoreVisible}`} bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
         <TopUpHints />
         <div
           className={styles.formWrap}
           style={{
-            width:
-              this.props.handleType && this.props.handleType === "Service"
-                ? "auto"
-                : "600px"
+            width: "600px"
           }}
         >
           <HelmCmdForm

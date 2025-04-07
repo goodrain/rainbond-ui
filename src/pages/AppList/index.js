@@ -215,7 +215,7 @@ export default class AppList extends PureComponent {
                     return (
                       <Link
                         className={styles.verticalCen}
-                        to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
+                        to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/overview`}
                       >
                         {globalUtil.fetchSvg(
                           data.app_type === 'helm' ? 'HelmSvg' : 'localMarket'

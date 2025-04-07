@@ -160,7 +160,7 @@ export default class index extends Component {
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
         const ComponentID = serviceName.slice(-8);
-        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/components/${ComponentID}/overview`));
+        dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${ComponentID}&tab=overview`));
     }
     onPageChange = (page_num, page_size) => {
         this.setState({

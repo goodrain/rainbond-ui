@@ -15,6 +15,7 @@ import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/newRole';
 import Yaml from './yaml-yaml';
 import Helm from './helm-cmd';
+import OuterCustom from './outer-custom';
 
 
 @connect(
@@ -65,7 +66,8 @@ export default class Main extends PureComponent {
     const map = {
       yaml: Yaml,
       importCluster: ImportCluster,
-      helm: Helm
+      helm: Helm,
+      outerCustom: OuterCustom
     };
 
     const tabList = [
@@ -80,6 +82,10 @@ export default class Main extends PureComponent {
       {
         key: 'helm',
         tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
+      },
+      {
+        key: 'outerCustom',
+        tab: formatMessage({id:'appOverview.list.table.btn.third_party'})
       }
     ];
     
@@ -122,6 +128,7 @@ export default class Main extends PureComponent {
             {...this.props}
             type={this.props.match.params.type}
             tabList={tabList}
+            groupId={group_id}
           />
         ) : (
           <>

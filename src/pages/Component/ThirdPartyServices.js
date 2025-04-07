@@ -57,7 +57,6 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
-    this.routeSwitch()
     this.handleGetList();
   }
 
@@ -66,15 +65,9 @@ export default class Index extends PureComponent {
     return {
       team_name: globalUtil.getCurrTeamName(),
       region_name: globalUtil.getCurrRegionName(),
-      app_alias: appAlias
+      app_alias: globalUtil.getSlidePanelComponentID()
     };
   };
-  routeSwitch = () => {
-    const { dispatch } = this.props
-    const { team_name, region_name, app_alias } = this.fetchParameter();
-    dispatch(routerRedux.replace(`/team/${team_name}/region/${region_name}/components/${app_alias}/thirdPartyServices`))
-  }
-
   showConfirm = () => {
     const { dispatch } = this.props;
     const { team_name, region_name, app_alias } = this.fetchParameter();
@@ -85,7 +78,7 @@ export default class Index extends PureComponent {
       onOk() {
         dispatch(
           routerRedux.push(
-            `/team/${team_name}/region/${region_name}/components/${app_alias}/port`
+            `/team/${team_name}/region/${region_name}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=port`
           )
         );
       },
