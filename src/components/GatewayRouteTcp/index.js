@@ -242,7 +242,7 @@ export default class index extends Component {
                 ),
             },
             {
-                title: '访问地址',
+                title: formatMessage({ id: 'teamGateway.strategy.table.accessAddress' }),
                 dataIndex: 'address',
                 key: 'address',
                 render: (text, record) => (
@@ -252,7 +252,7 @@ export default class index extends Component {
                 ),
             },
             {
-                title: '开放端口',
+                title: formatMessage({ id: 'teamGateway.strategy.table.openPort' }),
                 dataIndex: 'nodePort',
                 key: 'nodePort',
                 render: (text, record) => (

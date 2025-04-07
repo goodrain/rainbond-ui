@@ -135,6 +135,13 @@ export default class Index extends PureComponent {
                     // this.handleJump(`components/${app_alias}/overview`);
                     this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
                   }
+                },
+                handleError: err => {
+                  this.setState({ buildAppLoading: false });
+                  this.loadingBuild = false;
+                  notification.error({ 
+                    message: err.msg_show || err.data?.msg_show || '操作失败'
+                  });
                 }
               })
             }
@@ -164,6 +171,13 @@ export default class Index extends PureComponent {
               // this.handleJump(`components/${app_alias}/overview`);
               this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false;
+            notification.error({ 
+              message: err.msg_show || err.data?.msg_show || '操作失败'
+            });
           }
         })
       }

@@ -1028,7 +1028,7 @@ export default class EnterpriseClusters extends PureComponent {
                   style={{
                     display: 'inline-block',
                     height: '40px',
-                    width: '100px',
+                    width: '120px',
                     textAlign: 'center',
                     marginLeft: 14
                   }}

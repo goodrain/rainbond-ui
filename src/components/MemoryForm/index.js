@@ -27,7 +27,7 @@ class Index extends PureComponent {
     return (
       <FormItem label={labelName} labelCol={labelCol} wrapperCol={wrapperCol}>
         {getFieldDecorator(setkey, {
-          initialValue: initialValue || 0,
+          initialValue: initialValue || 32,
           rules: [
             {
               required: true,
@@ -42,7 +42,6 @@ class Index extends PureComponent {
               this.handleOnchange(setkey, values);
             }}
           >
-            <Option value={0}>{formatMessage({id:'appOverview.no_limit'})}</Option>
             <Option value={32}>32M</Option>
             <Option value={64}>64M</Option>
             <Option value={128}>128M</Option>

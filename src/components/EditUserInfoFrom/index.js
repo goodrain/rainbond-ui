@@ -27,8 +27,10 @@ export default class index extends Component {
   }
   handleOk = () => {
     const {imageUrl} = this.state
+    const {userInfo} = this.props
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        values.email = userInfo.email
         values.logo = imageUrl
         this.props.onOk(values,'info');
       }
@@ -84,7 +86,7 @@ export default class index extends Component {
     const uploadButton = (
       <div>
         <Icon type={this.state.loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">上传头像</div>
+        <div className="ant-upload-text">{formatMessage({ id: 'versionUpdata_6_1.uploadAvatar' })}</div>
       </div>
     );
     const token = cookie.get('token');
@@ -116,7 +118,7 @@ export default class index extends Component {
               ],
             })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.name.placeholder' })} />)}
           </Form.Item>
-          <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.email' })}>
+          {/* <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.email' })}>
             {getFieldDecorator(`email`, {
               initialValue: userInfo.email || '',
               rules: [
@@ -130,7 +132,7 @@ export default class index extends Component {
                 }
               ],
             })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.email.placeholder' })} />)}
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label={formatMessage({ id: 'versionUpdata_6_1.avatar' })}>
             {getFieldDecorator(`logo`, {
               initialValue: userInfo.logo || imageUrl,

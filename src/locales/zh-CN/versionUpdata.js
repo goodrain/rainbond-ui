@@ -26,7 +26,8 @@ const versionUpdata = {
   'versionUpdata_6_1.serviceNum': '组件数量（个）',
   'versionUpdata_6_1.cpuUsage': 'CPU使用量',
   'versionUpdata_6_1.memoryUsage': '内存使用量',
-  'versionUpdata_6_1.diskUsage': '存储使用量 (GB)',
+  'versionUpdata_6_1.diskUsage': '存储分配量',
+  'versionUpdata_6_1.storageUsage': '存储使用量',
   'versionUpdata_6_1.appList': '应用列表',
   'versionUpdata_6_1.appList.table': '列表视图',
   'versionUpdata_6_1.appList.card': '卡片视图',
@@ -122,7 +123,14 @@ const versionUpdata = {
   'versionUpdata_6_1.teamManage.invite.modal.title': '邀请链接生成',
   'versionUpdata_6_1.teamManage.invite.modal.copy': '复制邀请链接',
   'teamOverview.empty.description': '暂无应用，快来创建你的第一个应用吧',
-  'teamOverview.empty.button': '新建应用'
+  'teamOverview.empty.button': '新建应用',
+  'price.cpu': 'CPU',
+  'price.memory': '内存',
+  'price.total': '预估价格(每天)',
+  'versionUpdata_6_1.uploadAvatar': '上传头像',
+  'versionUpdata_6_1.editBaseUserInfo': '修改基础信息',
+  'versionUpdata_6_1.editPassword': '修改密码',
+  'versionUpdata_6_1.AccesstokenForm.placeholder': '若不选择则为不限制过期时间',
 }
 export default versionUpdata;
 

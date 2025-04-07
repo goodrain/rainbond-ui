@@ -514,6 +514,13 @@ class EnterpriseLayout extends PureComponent {
         </div>
       );
     };
+    const customHeader = () => {
+      return (
+        <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }} onClick={this.onJumpPersonal}>
+          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
+        </Link>
+      )
+    }
     const layout = () => {
       const { rainbondInfo } = this.props
       const isAlarm = rainbondInfo && rainbondInfo.is_alarm && rainbondInfo.is_alarm.enable
@@ -539,6 +546,7 @@ class EnterpriseLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeaderImg={customHeaderImg}
+              customHeader={customHeader}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
@@ -561,7 +569,7 @@ class EnterpriseLayout extends PureComponent {
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
               />
-              <div style={{ width: collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+              <div style={{ width:showMenu? collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)' : '100%', }}>
                 <TransitionGroup
                   style={{
                     height: 'calc(100vh - 64px)',
@@ -615,7 +623,7 @@ class EnterpriseLayout extends PureComponent {
                           noMatch={<Redirect to="/user/login" />}
                         >
                           {children}
-                          <CustomFooter />
+                         {showMenu && <CustomFooter />}
                         </Authorized>
                       </div>
                     </Content>

@@ -60,6 +60,7 @@ export default class Main extends PureComponent {
       currentRegionName
     } = this.props;
     const { teamAppCreatePermission:{isAccess} } = this.state;
+    const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
     if(!isAccess){
       return roleUtil.noPermission()
     }
@@ -76,19 +77,22 @@ export default class Main extends PureComponent {
         tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.yaml'})
       },
       {
-        key: 'importCluster',
-        tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.k8s'})
-      },
-      {
-        key: 'helm',
-        tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
-      },
-      {
         key: 'outerCustom',
         tab: formatMessage({id:'appOverview.list.table.btn.third_party'})
       }
     ];
-    
+    if(showSecurityRestrictions){
+      tabList.push(
+        {
+          key: 'importCluster',
+          tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.k8s'})
+        },
+        {
+          key: 'helm',
+          tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.helm'})
+        }
+      )
+    }
     let { type } = match.params;
     type = type.split('?')[0];
     if (!type) {
@@ -103,12 +107,13 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({ title: '创建组件' });
     const group_id = globalUtil.getGroupID()
+   
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
-        title={formatMessage({id: 'teamAdd.create.upload.title'})}
+        title={showSecurityRestrictions ? formatMessage({id: 'teamAdd.create.upload.title'}) : 'YAML'}
         onTabChange={this.handleTabChange}
-        content={<p>{formatMessage({id: 'teamAdd.create.upload.desc'})}</p>}
+        content={<p>{showSecurityRestrictions ? formatMessage({id: 'teamAdd.create.upload.desc'}) : '支持从 Kubernetes YAML创建组件'}</p>}
         tabActiveKey={type}
         tabList={tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('yaml',18)}

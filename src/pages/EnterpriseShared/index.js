@@ -792,7 +792,8 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         this.setState({
-          activeTabKey: 'local'
+          activeTabKey: 'local',
+          deleteHelmAppMarketLoading: false
         }, () => {
           this.handleCloseDeleteHelmAppMarket();
           this.getHelmMarketsTab();
@@ -1077,7 +1078,7 @@ export default class EnterpriseShared extends PureComponent {
                   {pic ? <img src={pic} alt="" /> : defaulAppImg}
                 </div>
               </Col>
-              <Col span={13} className={styles.tits}>
+              <Col span={12} className={styles.tits}>
                 <div>
                   <p>
                     <a
@@ -1150,7 +1151,7 @@ export default class EnterpriseShared extends PureComponent {
                 )}
               </Col>
               <Col
-                span={1}
+                span={2}
                 className={styles.tags}
                 style={{ justifyContent: 'center' }}
               >
@@ -1823,14 +1824,14 @@ export default class EnterpriseShared extends PureComponent {
     const helmContent = (
       <div style={{ padding: '0px 24px' }}>
         <Row style={contentStyle}>
-          <Col span={19} style={contentLeftStyle}>
+          <Col span={16} style={contentLeftStyle}>
             <Search
               style={{ width: '400px' }}
               placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchHelmMarket}
             />
           </Col>
-          <Col span={5} style={rightStyle} className={styles.btns}>
+          <Col span={8} style={rightStyle} className={styles.btns}>
             {helmOperation}
           </Col>
         </Row>
@@ -1871,13 +1872,14 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     return (
-      <PageHeaderLayout
-        title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}
-        content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content" />}
-        titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
-        isContent={true}
-      >
-        <ScrollerX sm={1200}>
+      <ScrollerX sm={1200}>
+
+        <PageHeaderLayout
+          title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}
+          content={<FormattedMessage id="applicationMarket.PageHeaderLayout.content" />}
+          titleSvg={pageheaderSvg.getPageHeaderSvg('shareAlt', 20)}
+          isContent={true}
+        >
           {showMarketCloudAuth && (
             <AuthCompany
               eid={eid}
@@ -2117,8 +2119,14 @@ export default class EnterpriseShared extends PureComponent {
             </Tabs> :
             <Spin style={{ height: 500, width: '100%', padding: '200px' }} />
           }
+<<<<<<< HEAD
         </ScrollerX>
       </PageHeaderLayout>
+=======
+        </PageHeaderLayout>
+      </ScrollerX>
+
+>>>>>>> ccb80aa0b345f4d1816becc686fcc059607e5ce6
     );
   }
 }

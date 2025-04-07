@@ -6,7 +6,6 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/newRole'
 import globalUtil from '../../utils/global'
@@ -487,7 +486,6 @@ export default class Index extends PureComponent {
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
       </>
-      //   </PageHeaderLayout>
     );
   }
 }

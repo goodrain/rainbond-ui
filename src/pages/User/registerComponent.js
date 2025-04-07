@@ -148,7 +148,7 @@ export default class RegisterComponent extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {firstRegist &&
-          <Divider >平台信息</Divider>
+          <Divider >{formatMessage({ id: 'platformUpgrade.index.platforminfo' })}</Divider>
         }
         {firstRegist && (
           <FormItem {...formItemLayout}>
@@ -177,7 +177,7 @@ export default class RegisterComponent extends Component {
                 message: formatMessage({ id: 'login.registerComponent.max_length' })
               },
               {
-                pattern: /^[a-zA-Z0-9_\-]+$/,
+                pattern: /^[a-z][a-z0-9_\-]*$/,
                 message: formatMessage({ id: 'login.registerComponent.Only' })
               }
             ]
@@ -240,7 +240,7 @@ export default class RegisterComponent extends Component {
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.mailbox' })} />)}
         </FormItem>
         {/* 手机号 */}
-        <FormItem>
+        {/* <FormItem>
           {getFieldDecorator('phone', {
             rules: [
               { required: true, message: formatMessage({ id: 'login.registerComponent.phone' }) },
@@ -250,7 +250,7 @@ export default class RegisterComponent extends Component {
               }
             ],
           })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.phone' })} />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem>
           <Button
             size="large"

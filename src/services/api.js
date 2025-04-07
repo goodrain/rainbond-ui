@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import app from '@/locales/en-US/app';
 
 // fetch Permissions
 export async function getPermissions(body) {
@@ -353,7 +354,7 @@ export async function getService(body = {}) {
 }
 // https://console.goodrain.com/console/teams/23ehgni5/apps/gr3698ab/monitor/query_range?query=sum(ceil(increase(app_request%7Bservice_id%3D%22dde947ccc8cc6fe46c734dddd13698ab%22,method%3D%22total%22%7D[1m])%2F12))
 /*
-	 获取应用吞吐率监控数据(一段时间内数据)
+   获取应用吞吐率监控数据(一段时间内数据)
 */
 export async function getDomainTime(body = {}) {
   return request(
@@ -378,11 +379,12 @@ export async function getApplication(body = {}) {
   );
 }
 /* 基于记录重新部署 */
-export async function getAppRedeploy(body = {}) {
+export async function getAppRedeploy(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   );
 }
@@ -542,14 +544,15 @@ export async function getUpdateRecordsInfo(body = {}) {
 }
 
 /* 查询某应用的更新记录列表 */
-export async function getUpdateRollback(body = {}) {
+export async function getUpdateRollback(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback`,
     {
       method: 'post',
       data: {
         service_ids: body.service_ids
-      }
+      },
+      handleError
     }
   );
 }
@@ -625,7 +628,7 @@ export function getRainbondInfo(handleError) {
 /*
    获取云帮的公共报警信息
 */
-export function getRainbondAlert(params,handleError) {
+export function getRainbondAlert(params, handleError) {
   return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/alerts`, {
     method: 'get',
     handleError
@@ -1088,7 +1091,7 @@ export async function queryOauthInfo(body) {
     {
       method: 'get',
       params: {
-        system: body.system 
+        system: body.system
       }
     }
   );
@@ -1332,7 +1335,7 @@ export async function deleteEnterpriseUsers(params) {
 }
 
 /** 构建拓扑图 */
-export async function toBuildShape(params) {
+export async function toBuildShape(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/common_operation `,
     {
@@ -1341,7 +1344,8 @@ export async function toBuildShape(params) {
         tenantName: params.tenantName,
         group_id: params.group_id,
         action: params.action
-      }
+      },
+      handleError
     }
   );
 }
@@ -1383,7 +1387,7 @@ export async function toSearchTenant(params) {
 }
 
 /** 应用报警信息 */
-export async function fetchAppAlertInfo(params,handleError) {
+export async function fetchAppAlertInfo(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/service_alarm`,
     {
@@ -1400,7 +1404,7 @@ export async function createShellPod(params) {
     {
       method: 'post',
       data: {
-        region_name :  params.region_name
+        region_name: params.region_name
       }
     }
   );
@@ -1412,8 +1416,8 @@ export async function deleteShellPod(params) {
     {
       method: 'DELETE',
       data: {
-        region_name : params.region_name,
-        pod_name : params.pod_name
+        region_name: params.region_name,
+        pod_name: params.pod_name
       }
     }
   );
@@ -1438,7 +1442,7 @@ export async function getAbilitiesList(body) {
   );
 }
 // 能力编辑
-export async function abilitiesEdit(body,handleError) {
+export async function abilitiesEdit(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/abilities/${body.ability_id}`,
     {
@@ -1588,7 +1592,7 @@ export async function fetchAllVersion(body, handleError) {
       handleError
     }
   );
-} 
+}
 // 获取某个主机版本详情
 export async function fetchVersionDetails(body, handleError) {
   return request(
@@ -1600,7 +1604,7 @@ export async function fetchVersionDetails(body, handleError) {
   );
 }
 // 获取某个主机版本data
-export async function fetchVersionData(body,handleError) {
+export async function fetchVersionData(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/update/versions/${body.version}/images`,
     {
@@ -1608,7 +1612,7 @@ export async function fetchVersionData(body,handleError) {
       handleError
     }
   );
-} 
+}
 
 // 更新某个主机版本
 export async function updateVersion(body, handleError) {
@@ -1707,6 +1711,104 @@ export async function updateOverScore(params, handleError) {
     {
       method: 'put',
       data: params,
+      handleError
+    }
+  );
+}
+// 获取定价配置
+export async function getPricingConfig() {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/pricing`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+// 获取定价配置
+export async function getUserBalance() {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/user/account/financial`,
+    {
+      method: 'get'
+    }
+  );
+}
+// 获取团队详情
+export async function fetchTeamDetails(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/users/team_details`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 同步数据
+export async function syncData(data, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/api/v1/user/sync/data`,
+    {
+      method: 'post',
+      data: JSON.stringify(data),
+      handleError
+    }
+  );
+}
+
+// 获取存储真实占用量
+export async function fetchStorageUsed(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/storage_statistics`,
+    {
+      method: 'get',
+      params: {
+        tenant_id: params.tenant_id,
+        app_id: params.app_id,
+        service_id: params.service_id,
+        region_name: params.region_name
+      },
+      handleError
+    }
+  );
+}
+
+// 获取短信配置
+export async function getSmsConfig(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/sms-config`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 更新短信配置
+export async function updateSmsConfig(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/sms-config`,
+    {
+      method: 'put',
+      data: {
+        sms_config: params.sms_config,
+      },
+      handleError
+    }
+  );
+}
+
+// 获取集群实际使用量
+export async function fetchClusterUsed(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/monitor/query`,
+    {
+      method: 'get',
+      params: {
+        query: params.query,
+        region_name: params.regionName,
+      },
       handleError
     }
   );

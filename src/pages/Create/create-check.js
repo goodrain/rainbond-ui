@@ -115,6 +115,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -153,6 +156,9 @@ export default class CreateCheck extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -559,6 +565,11 @@ export default class CreateCheck extends React.Component {
                       this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
                     }
                   }
+                },
+                handleError: err => {
+                  this.setState({ buildAppLoading: false });
+                  this.loadingBuild = false
+                  notification.error({ message: err.data.msg_show })
                 }
               })
             }
@@ -590,6 +601,11 @@ export default class CreateCheck extends React.Component {
                 this.handleJump(`components/${appAlias}/overview`);
               }
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false
+            notification.error({ message: err.data.msg_show })
           }
         })
       }
@@ -1238,6 +1254,8 @@ export default class CreateCheck extends React.Component {
   renderSuccessInfo = () => {
     const { imageAddress, codeLanguage, serviceInfo, packageLange, Directory, ports } = this.state
     const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
+    console.log(serviceInfo,"serviceInfo");
+    
     return serviceInfo.map((item, index) => {
       if (typeof item.value === 'string' && item.type == 'language') {
         const parts = item.value.split(",");
@@ -1324,7 +1342,7 @@ export default class CreateCheck extends React.Component {
                 fontWeight: 'bold'
               }}
             >
-              {item.key}：
+              {item.key == '源码信息' ? this.state.language ? item.key : formatMessage({ id: 'confirmModal.check.appShare.title.sourceCode' }) : item.key}：
             </span>
             {item.value}
           </div>
@@ -1669,7 +1687,7 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}{' '}
               {formatMessage({ id: 'componentCheck.tooltip.title.p9' })}{' '}
               <a
-                href={`${platform_url}docs/use-manual/component-create/language-support/`}
+                href={`${platform_url}${this.state.language? 'docs/how-to-guides/app-deploy/source-code/springboot' :'en/docs/how-to-guides/app-deploy/source-code/springboot'}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

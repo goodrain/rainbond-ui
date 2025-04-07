@@ -68,7 +68,7 @@ if (token) {
 const uploadButton = (
   <div>
     <Icon type="plus" />
-    <div className="ant-upload-text">上传图标</div>
+    <div className="ant-upload-text">{formatMessage({id:'teamOverview.uploadIcon'})}</div>
   </div>
 );
 

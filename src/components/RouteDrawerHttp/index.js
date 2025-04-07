@@ -1,8 +1,11 @@
 import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip } from 'antd';
-import globalUtil from '../../utils/global';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip, Modal, Alert, Popover } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import globalUtil from '../../utils/global';
+import userUtil from '../../utils/user';
+import teamUtil from '../../utils/team';
+import PluginUtil from '../../utils/pulginUtils';
 import ServiceInput from '../ServiceInput';
 import ServiceInputK8s from '../ServiceInputK8s'
 import GatewayPluginsFrom from '../GatewayPluginsFrom'
@@ -11,6 +14,8 @@ import DAinput from '../DAinput';
 import DAHosts from '../DAHosts'
 import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
+import Wechat from '../../../public/images/wechat.jpg'
+import cookie from '@/utils/cookie';
 const { Option } = Select;
 @Form.create()
 
@@ -19,6 +24,7 @@ const { Option } = Select;
     groups: global.groups,
     currentTeam: teamControl.currentTeam,
     currentEnterprise: enterprise.currentEnterprise,
+    pluginsList: teamControl.pluginsList
 }))
 
 export default class index extends Component {
@@ -50,6 +56,8 @@ export default class index extends Component {
             formRefs: [],
             showPlugin: false,
             serviceComponentList: [],
+            descriptionVisible: false,
+            language: cookie.get('language') === 'zh-CN' ? true : false
         };
     }
     componentWillMount() {
@@ -106,6 +114,23 @@ export default class index extends Component {
             form.validateFields((err, values) => {
                 if (!err) {
                     const { name, ...config } = values;
+                    // 递归循环所有config，将undefined、null、''、{}删除
+                    const newConfig = this.recursiveDelete(config);
+                    if (values.name == 'proxy-rewrite') {
+                        let bool = true;
+                        if (Object.keys(config.headers).length !== 0) {
+                            Object.keys(config.headers).forEach(key => {
+                                if (config.headers[key] === undefined || config.headers[key] === null || config.headers[key] === '' || config.headers[key] === {}) {
+                                    delete config.headers[key];
+                                } else {
+                                    bool = false;
+                                }
+                            })
+                        }
+                        if (bool) {
+                            delete config.headers;
+                        }
+                    }
                     plugins.push({ name: values.name, secretRef: '', enable: true, config: config })
                 }
             });
@@ -124,6 +149,15 @@ export default class index extends Component {
                     },
                     plugins: plugins,
                 };
+
+                // 添加timeout配置，只有在有值时才添加，并且直接使用's'作为单位
+                if (values.connect || values.send || values.read) {
+                    data.timeout = {};
+                    if (values.connect) data.timeout.connect = `${values.connect}s`;
+                    if (values.send) data.timeout.send = `${values.send}s`;
+                    if (values.read) data.timeout.read = `${values.read}s`;
+                }
+
                 if (editInfo && Object.keys(editInfo).length > 0) {
                     const splitString = editInfo.name.split("|")[0];
                     data.name = splitString
@@ -191,6 +225,37 @@ export default class index extends Component {
             }
         });
     };
+    /**
+     * 递归删除对象中的undefined、null、''、{}
+     * @param {Object} obj 需要删除的对象
+     * @returns {Object} 删除后的对象
+     */
+    recursiveDelete=(obj)=>{
+        if (obj === null || obj === undefined || obj === '') {
+            return null;
+        }
+        if (typeof obj === 'object') {
+            for (const key in obj) {
+                if (obj[key] === undefined || obj[key] === null || obj[key] === '') {
+                    delete obj[key];
+                } else if (Array.isArray(obj[key])) {
+                    if (obj[key].length === 1 && (obj[key][0] === null || obj[key][0] === undefined || obj[key][0] === '')) {
+                        delete obj[key];
+                    }
+                } else {
+                    obj[key] = this.recursiveDelete(obj[key]);
+                }
+            }
+        }
+        // regex_uri: [null] 这种情况需要删除
+        if (Array.isArray(obj)) {
+            if (obj.length === 1 && obj[0] === null) {
+                return null;
+            }
+        }
+
+        return obj;
+    }
     // 获取访问令牌token
     fetchInfo = () => {
         const { dispatch } = this.props
@@ -395,15 +460,14 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        const reg = /^(?=^.{3,255}$)[a-zA-Z0-9*][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-    
+        const reg = /^[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);
             if (uniqueValues.size !== val.length) {
                 return callback(new Error('域名不能重复'));
             }
-    
+
             // 检查格式
             val.some(item => {
                 if (item !== '' && reg.test(item)) {
@@ -413,11 +477,11 @@ export default class index extends Component {
                     return true; // 终止循环
                 }
             });
-    
+
             if (isPass) {
                 callback();
             } else {
-                callback(new Error('格式不满足要求'));
+                callback(new Error('域名格式不正确，必须是有效的域名格式，如：example.com'));
             }
         } else {
             return callback();
@@ -427,10 +491,37 @@ export default class index extends Component {
         const reg = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
         if (val && val.length > 0) {
             if (reg.test(val)) {
-                return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHostIp' })));
+                return callback(new Error(formatMessage({ id: 'teamNewGateway.NewGateway.TCP.contact' })));
             }
         }
         return callback();
+    };
+
+    convertTimeToSeconds = (timeStr) => {
+        if (!timeStr) return 60; // 默认值60秒
+        
+        let totalSeconds = 0;
+        const hours = timeStr.match(/(\d+)h/);
+        const minutes = timeStr.match(/(\d+)m/);
+        const seconds = timeStr.match(/(\d+)s/);
+        
+        if (hours) totalSeconds += parseInt(hours[1]) * 3600;
+        if (minutes) totalSeconds += parseInt(minutes[1]) * 60;
+        if (seconds) totalSeconds += parseInt(seconds[1]);
+        
+        return totalSeconds;
+    }
+
+    /** 介绍域名说明 */
+    showDescription = () => {
+        this.setState({
+            descriptionVisible: true
+        });
+    };
+    handleOk_description = () => {
+        this.setState({
+            descriptionVisible: false
+        });
     };
     render() {
         const { getFieldDecorator } = this.props.form;
@@ -438,7 +529,9 @@ export default class index extends Component {
             visible,
             groups,
             editInfo,
-            appID
+            appID,
+            currUser,
+            pluginsList
         } = this.props;
         const {
             serviceComponentList,
@@ -452,16 +545,17 @@ export default class index extends Component {
             selsectRewrite,
             serviceLoading,
             serviceList,
-            showPlugin
+            showPlugin,
+            language
         } = this.state
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 3 }
+                sm: { span: language ? 3 : 5 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 }
+                sm: { span: language ? 18 : 16 }
             }
         };
         const formItemLayouts = {
@@ -484,6 +578,16 @@ export default class index extends Component {
             { label: 'PATCH', value: 'PATCH' },
             { label: 'TRACE', value: 'TRACE' },
         ];
+
+        let currentRegion = '';
+        const currTeam = userUtil.getTeamByTeamName(
+            currUser && currUser,
+            globalUtil.getCurrTeamName()
+        );
+        const currRegionName = globalUtil.getCurrRegionName();
+        if (currTeam) {
+            currentRegion = teamUtil.getRegionByName(currTeam, currRegionName);
+        }
         const appKey = appID && { key: appID };
         let appKeys = {};
         if (groupSelect === 'k8s') {
@@ -508,234 +612,335 @@ export default class index extends Component {
         const containerPorts =
             portList && portList.length > 0 && portList[0].container_port;
         const isOk = !(componentLoading || portLoading);
+        const content = (
+            <div className={styles.popoverContent}>
+                <img src={Wechat} alt="domainRecord" />
+                <p>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.contact' })}</p>
+            </div>
+        )
+        const popoverTitle = (
+            <div className={styles.popoverTitle}>
+                <div>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.domain' })}</div>
+                <p>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.law' })}</p>
+            </div>
+        )
+        const showCloudBill = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
         return (
-            <Drawer
-                title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
-                width={700}
-                onClose={this.onClose}
-                visible={visible}
-                bodyStyle={{ paddingBottom: 80 }}
-            >
-                <Form hideRequiredMark onSubmit={this.handleSubmit}>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
-                        {getFieldDecorator('hosts', {
-                            rules: [
-                                { validator: this.handleValidatorsHosts },
-                                // 域名不允许填入ip
-                                { validator: this.handleValidatorsHostsIp }
-                            ],
-                            initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
-                        })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
-                    </Form.Item>
-                    <Row>
-                        <Col>
-                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.path' })}>
-                                {getFieldDecorator('paths', {
-                                    // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPath'}) }],
-                                    initialValue: (editInfo && editInfo.match && editInfo.match.paths) || []
-                                })(<DAPath hostPlaceholder={'/*'} />)}
-                            </Form.Item>
-                        </Col>
-                        <Col style={{ position: 'absolute', right: 0, top: '5%' }}>
-                            {
-                                !showMateMore ?
-                                    <Button
-                                        type="link"
-                                        className={styles.buttonStyle}
-                                        onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
-                                    >
-                                        {formatMessage({ id: "enterpriseOverview.team.more" })}
-                                        {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
-                                    </Button>
-                                    :
-                                    <Button
-                                        type="link"
-                                        className={styles.buttonStyle}
-                                        onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
-                                    >
-                                        {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
-                                        {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
-                                    </Button>
-                            }
-                        </Col>
-                    </Row>
-                    {showMateMore && (
-                        <Fragment>
-                            <Form.Item {...formItemLayout} label="Method" >
-                                {getFieldDecorator('methods',
-                                    { initialValue: (editInfo && editInfo.match && editInfo.match.methods && editInfo.match.methods.length > 0) ? editInfo.match.methods : ["GET", "POST", "PUT", "DELETE", "OPTIONS", 'HEAD', 'PATCH', "TRACE"] },
-                                )(
-                                    <Select
-                                        mode="multiple"
-                                        style={{ width: '100%' }}
-                                        placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.method' })}
-                                    >
-                                        {MethodOptions.map(item => (
-                                            <Option key={item.value} value={item.value}>
-                                                {item.label}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                )}
-                            </Form.Item>
-
-                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.IP' })}>
-                                {getFieldDecorator('remoteAddrs', {
-                                    // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputIP'}) }],
-                                    initialValue: (editInfo && editInfo.match && editInfo.match.remoteAddrs) || []
-                                })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputIP' })} />)}
-                            </Form.Item>
-                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Advanced' })}>
-                                {getFieldDecorator('exprs', {
-                                    rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced' }) }],
-                                    initialValue: (editInfo && editInfo.match && editInfo.match.exprs && this.handleExprs(editInfo.match.exprs)) || []
-                                })(<NewHeader />)}
-                            </Form.Item>
-                        </Fragment>
-                    )}
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.source' })} >
-                        {getFieldDecorator('type',
-                            { initialValue: groupSelect },
-                        )(
-                            <Radio.Group onChange={this.groupChange}>
-                                <Radio value="k8s"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.default' })}</Radio>
-                                <Radio value="advanced"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}</Radio>
-                            </Radio.Group>,
-                        )}
-                    </Form.Item>
-                    {groupSelect == 'k8s' ? (
-                        <Fragment>
-                            <Skeleton loading={serviceComponentLoading} active>
-                                <Fragment>
-                                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
-                                        {getFieldDecorator('group_id', {
-                                            rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
-                                            initialValue: appKey || appKeys || undefined
-                                        })(
-                                            <Select
-                                                getPopupContainer={triggerNode => triggerNode.parentNode}
-                                                labelInValue
-                                                disabled={appID}
-                                                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                                                onChange={this.handleServices}
-                                            >
-                                                {(groups || []).map(group => {
-                                                    return (
-                                                        <Option
-                                                            value={`${group.group_id}`}
-                                                            key={group.group_id}
-                                                        >
-                                                            {group.group_name}
-                                                        </Option>
-                                                    );
-                                                })}
-                                            </Select>
-                                        )}
-                                    </Form.Item>
-                                    {(serviceComponentList && serviceComponentList.length > 0) &&
-                                        <Skeleton loading={componentLoading}>
-                                            <Form.Item {...formItemLayout} label={
-                                                <>
-                                                    
-                                                    <Tooltip placement="top" title="权重值为1-100">
-                                                    {formatMessage({ id: 'popover.newComponent.componentName' })}<Icon type="question-circle" />
-                                                    </Tooltip>
-
-                                                </>
-                                            }
-                                            >
-                                                {getFieldDecorator('comListInfo', {
-                                                    rules: [{ validator: this.handleValidators }],
-                                                    initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
-                                                })(
-                                                    <ServiceInputK8s comList={serviceComponentList} />
-                                                )}
-                                            </Form.Item>
-                                        </Skeleton>
-                                    }
-                                </Fragment>
-                            </Skeleton>
-                        </Fragment>
-                    ) : (
-                        <Fragment>
-                            <Skeleton loading={serviceLoading} active key="upstreams">
-                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.service' })}>
-                                    {getFieldDecorator('upstreams', {
-                                        rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputService' }) }],
-                                        initialValue: (editInfo && editInfo.upstreams && this.handleService(editInfo.upstreams, "upstreams")) || []
-                                    })(<ServiceInput comList={serviceList} type="upstreams" onClickEven={() => { this.props.onTabChange('service', true) }} />)}
-                                </Form.Item>
-                            </Skeleton>
-                        </Fragment>
-                    )}
-                    <Form.Item {...formItemLayout} label="websocket">
-                        {getFieldDecorator('websocket', {
-                            valuePropName: 'checked',
-                            initialValue: (editInfo && editInfo.websocket) || false
-                        })(<Switch />)}
-                    </Form.Item>
-                    <Button
-                        onClick={() => {
-                            this.setState({
-                                showPlugin: !this.state.showPlugin
-                            })
-                        }}
-                        style={{ marginBottom: 12 }}
-                        type={showPlugin ? "" : "primary"}
-                    >
-                        {showPlugin ? formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Plugin' }) : formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.addPlugin' })}
-                    </Button>
-
-                    {showPlugin && this.state.values.map((item, index) => {
-                        const { name, enable, config, secretRef } = item
-                        const first = index === 0;
-                        if (name)
-                            return (
-                                <Row key={index}>
-                                    <Col span={22}>
-                                        <GatewayPluginsFrom
-                                            wrappedComponentRef={formRef => (this.state.formRefs[index] = formRef)}
-                                            info={item}
-                                            formItemLayout={formItemLayouts}
-                                        />
-                                    </Col>
-                                    <Col span={2}>
-                                        <Icon
-                                            type={first ? 'plus-circle' : 'minus-circle'}
-                                            style={{ fontSize: '20px', marginLeft: 20 }}
-                                            onClick={() => {
-                                                if (first) {
-                                                    this.add();
-                                                } else {
-                                                    this.remove(index);
-                                                }
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                            )
-                    })}
-                </Form>
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: 0,
-                        bottom: 0,
-                        width: '100%',
-                        borderTop: '1px solid #e9e9e9',
-                        padding: '10px 16px',
-                        background: '#fff',
-                        textAlign: 'right',
-                    }}
+            <div>
+                <Drawer
+                    title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
+                    width={700}
+                    onClose={this.onClose}
+                    visible={visible}
+                    bodyStyle={{ paddingBottom: 80 }}
                 >
-                    <Button onClick={this.onClose} style={{ marginRight: 8 }}>
-                        {formatMessage({ id: 'popover.cancel' })}
-                    </Button>
-                    <Button type="primary" onClick={this.handleSubmit}>
-                        {formatMessage({ id: 'popover.confirm' })}
-                    </Button>
-                </div>
-            </Drawer>
+                    <Form hideRequiredMark onSubmit={this.handleSubmit}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
+                            {getFieldDecorator('hosts', {
+                                rules: [
+                                    { validator: this.handleValidatorsHosts },
+                                    // 域名不允许填入ip
+                                    { validator: this.handleValidatorsHostsIp },
+                                ],
+                                initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
+                            })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
+                            <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                                <a href="javascript:void(0)" onClick={this.showDescription}>
+                                    {formatMessage({ id: 'popover.access_strategy.lable.analysis' })}
+                                    <span style={{ textDecoration: 'underline' }}>
+                                        {currentRegion && currentRegion.tcpdomain}
+                                    </span>
+                                </a>
+                            </span>
+                            {showCloudBill &&
+                                <Alert
+                                    message={
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.filing' })}</div>
+                                            <Popover content={content} title={popoverTitle}>
+                                                <Button icon="question-circle">{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.filingHelp' })}</Button>
+                                            </Popover>
+                                        </div>
+                                    }
+                                    type="info"
+                                />
+                            }
+                        </Form.Item>
+                        <Row>
+                            <Col>
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.path' })}>
+                                    {getFieldDecorator('paths', {
+                                        // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputPath'}) }],
+                                        initialValue: (editInfo && editInfo.match && editInfo.match.paths) || []
+                                    })(<DAPath hostPlaceholder={'/*'} />)}
+                                </Form.Item>
+                            </Col>
+                            <Col style={{ position: 'absolute', right: 0, top: '5%' }}>
+                                {
+                                    !showMateMore ?
+                                        <Button
+                                            type="link"
+                                            className={styles.buttonStyle}
+                                            onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
+                                        >
+                                            {formatMessage({ id: "enterpriseOverview.team.more" })}
+                                            {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
+                                        </Button>
+                                        :
+                                        <Button
+                                            type="link"
+                                            className={styles.buttonStyle}
+                                            onClick={() => { this.setState({ showMateMore: !this.state.showMateMore }) }}
+                                        >
+                                            {formatMessage({ id: 'appPublish.table.btn.release_cancel' })}
+                                            {globalUtil.fetchSvg('gatewayMore', "#3d54c4", 10)}
+                                        </Button>
+                                }
+                            </Col>
+                        </Row>
+                        {showMateMore && (
+                            <Fragment>
+                                <Form.Item {...formItemLayout} label="Method" >
+                                    {getFieldDecorator('methods',
+                                        { initialValue: (editInfo && editInfo.match && editInfo.match.methods && editInfo.match.methods.length > 0) ? editInfo.match.methods : ["GET", "POST", "PUT", "DELETE", "OPTIONS", 'HEAD', 'PATCH', "TRACE"] },
+                                    )(
+                                        <Select
+                                            mode="multiple"
+                                            style={{ width: '100%' }}
+                                            placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.method' })}
+                                        >
+                                            {MethodOptions.map(item => (
+                                                <Option key={item.value} value={item.value}>
+                                                    {item.label}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.IP' })}>
+                                    {getFieldDecorator('remoteAddrs', {
+                                        // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputIP'}) }],
+                                        initialValue: (editInfo && editInfo.match && editInfo.match.remoteAddrs) || []
+                                    })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputIP' })} />)}
+                                </Form.Item>
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Advanced' })}>
+                                    {getFieldDecorator('exprs', {
+                                        rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputAdvanced' }) }],
+                                        initialValue: (editInfo && editInfo.match && editInfo.match.exprs && this.handleExprs(editInfo.match.exprs)) || []
+                                    })(<NewHeader />)}
+                                </Form.Item>
+                                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Timeout' })}>
+                                    <Row gutter={8}>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.connectTime' })}>
+                                                {getFieldDecorator('connect', {
+                                                    initialValue: editInfo?.timeout?.connect ? this.convertTimeToSeconds(editInfo.timeout.connect) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.connect' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.sendTime' })}>
+                                                {getFieldDecorator('send', {
+                                                    initialValue: editInfo?.timeout?.send ? this.convertTimeToSeconds(editInfo.timeout.send) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.send' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Tooltip title={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.readTime' })}>
+                                                {getFieldDecorator('read', {
+                                                    initialValue: editInfo?.timeout?.read ? this.convertTimeToSeconds(editInfo.timeout.read) : 60
+                                                })(
+                                                    <Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.read' })} addonAfter="s" />
+                                                )}
+                                            </Tooltip>
+                                        </Col>
+                                    </Row>
+                                </Form.Item>
+                            </Fragment>
+                        )}
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.source' })} >
+                            {getFieldDecorator('type',
+                                { initialValue: groupSelect },
+                            )(
+                                <Radio.Group onChange={this.groupChange}>
+                                    <Radio value="k8s"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.default' })}</Radio>
+                                    <Radio value="advanced"> {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}</Radio>
+                                </Radio.Group>,
+                            )}
+                        </Form.Item>
+                        {groupSelect == 'k8s' ? (
+                            <Fragment>
+                                <Skeleton loading={serviceComponentLoading} active>
+                                    <Fragment>
+                                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
+                                            {getFieldDecorator('group_id', {
+                                                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
+                                                initialValue: appKey || appKeys || undefined
+                                            })(
+                                                <Select
+                                                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                                                    labelInValue
+                                                    disabled={appID}
+                                                    placeholder={formatMessage({ id: 'placeholder.appName' })}
+                                                    onChange={this.handleServices}
+                                                >
+                                                    {(groups || []).map(group => {
+                                                        return (
+                                                            <Option
+                                                                value={`${group.group_id}`}
+                                                                key={group.group_id}
+                                                            >
+                                                                {group.group_name}
+                                                            </Option>
+                                                        );
+                                                    })}
+                                                </Select>
+                                            )}
+                                        </Form.Item>
+                                        {(serviceComponentList && serviceComponentList.length > 0) &&
+                                            <Skeleton loading={componentLoading}>
+                                                <Form.Item {...formItemLayout} label={
+                                                    <>
+
+                                                        <Tooltip placement="top" title={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.weight' })}>
+                                                            {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.component' })}<Icon type="question-circle" />
+                                                        </Tooltip>
+
+                                                    </>
+                                                }
+                                                >
+                                                    {getFieldDecorator('comListInfo', {
+                                                        rules: [{ validator: this.handleValidators }],
+                                                        initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
+                                                    })(
+                                                        <ServiceInputK8s comList={serviceComponentList} />
+                                                    )}
+                                                </Form.Item>
+                                            </Skeleton>
+                                        }
+                                    </Fragment>
+                                </Skeleton>
+                            </Fragment>
+                        ) : (
+                            <Fragment>
+                                <Skeleton loading={serviceLoading} active key="upstreams">
+                                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.service' })}>
+                                        {getFieldDecorator('upstreams', {
+                                            rules: [{ required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputService' }) }],
+                                            initialValue: (editInfo && editInfo.upstreams && this.handleService(editInfo.upstreams, "upstreams")) || []
+                                        })(<ServiceInput comList={serviceList} type="upstreams" onClickEven={() => { this.props.onTabChange('service', true) }} />)}
+                                    </Form.Item>
+                                </Skeleton>
+                            </Fragment>
+                        )}
+                        <Form.Item {...formItemLayout} label="websocket">
+                            {getFieldDecorator('websocket', {
+                                valuePropName: 'checked',
+                                initialValue: (editInfo && editInfo.websocket) || false
+                            })(<Switch />)}
+                        </Form.Item>
+                        <Button
+                            onClick={() => {
+                                this.setState({
+                                    showPlugin: !this.state.showPlugin
+                                })
+                            }}
+                            style={{ marginBottom: 12 }}
+                            type={showPlugin ? "" : "primary"}
+                        >
+                            {showPlugin ? formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.Plugin' }) : formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.addPlugin' })}
+                        </Button>
+
+                        {showPlugin && this.state.values.map((item, index) => {
+                            const { name, enable, config, secretRef } = item
+                            const first = index === 0;
+                            if (name)
+                                return (
+                                    <Row key={index}>
+                                        <Col span={22}>
+                                            <GatewayPluginsFrom
+                                                pluginName={this.state.values.map(item=>item.name)}
+                                                wrappedComponentRef={formRef => (this.state.formRefs[index] = formRef)}
+                                                info={item}
+                                                formItemLayout={formItemLayouts}
+                                            />
+                                        </Col>
+                                        <Col span={2}>
+                                            <Icon
+                                                type={first ? 'plus-circle' : 'minus-circle'}
+                                                style={{ fontSize: '20px', marginLeft: 20 }}
+                                                onClick={() => {
+                                                    if (first) {
+                                                        this.add();
+                                                    } else {
+                                                        this.remove(index);
+                                                    }
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
+                                )
+                        })}
+                    </Form>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            borderTop: '1px solid #e9e9e9',
+                            padding: '10px 16px',
+                            background: '#fff',
+                            textAlign: 'right',
+                        }}
+                    >
+                        <Button onClick={this.onClose} style={{ marginRight: 8 }}>
+                            {formatMessage({ id: 'popover.cancel' })}
+                        </Button>
+                        <Button type="primary" onClick={this.handleSubmit}>
+                            {formatMessage({ id: 'popover.confirm' })}
+                        </Button>
+                    </div>
+                </Drawer>
+                {this.state.descriptionVisible && (
+                    <Modal
+                        closable={false}
+                        title={formatMessage({ id: 'popover.access_strategy.modal.domain' })}
+                        visible={this.state.descriptionVisible}
+                        onOk={this.handleOk_description}
+                        footer={[
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={this.handleOk_description}
+                            >
+                                {formatMessage({ id: 'popover.confirm' })}
+                            </Button>
+                        ]}
+                        zIndex={9999}
+                    >
+                        <ul className={styles.ulStyle}>
+                            <li>
+                                {formatMessage({ id: 'popover.access_strategy.lable.li1' })}
+                            </li>
+                            <li>
+                                {formatMessage({ id: 'popover.access_strategy.lable.li2' })}
+                                （{currentRegion && currentRegion.team_region_alias}）
+                                {formatMessage({ id: 'popover.access_strategy.lable.li4' })}
+                                {currentRegion && currentRegion.tcpdomain}
+                            </li>
+                            <li>
+                                {formatMessage({ id: 'popover.access_strategy.lable.li3' })}
+                            </li>
+                        </ul>
+                    </Modal>
+                )}
+            </div>
         )
     }
 }

@@ -173,7 +173,7 @@ export default function request(url, options) {
       if (error.response) {
         const { response } = error;
         // 请求已发出，但服务器响应的状态码不在 2xx 范围
-
+        
         let resData = {};
         try {
           resData = error.response.data;
@@ -236,10 +236,10 @@ export default function request(url, options) {
         if (isNext) {
           // Service maturity
           if (code >= 20001 && code <= 20003) {
-            handleStoreDispatch('global/showOrders', {
-              code
-            });
-            return;
+            if (newOptions.handleError) {
+              newOptions.handleError(response);
+            }
+            return
           }
           // 10406: Cluster resource shortage
           // 10413: Insufficient tenant resources

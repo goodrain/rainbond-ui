@@ -53,6 +53,13 @@ export default [
         name: 'Invite',
         authority: ['admin', 'user'],
       },
+      // 应用市场安装
+      {
+        path: '/marketplace/install/:appId',
+        component: '../layouts/MarketPlaceInstallApp',
+        name: 'MarketPlaceInstallApp',
+        authority: ['admin', 'user'],
+      },
       // 企业
       {
         path: '/enterprise/:eid',

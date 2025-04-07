@@ -363,6 +363,7 @@ class Index extends Component {
             <ClusterDetection
               dashboardList={dashboardList}
               dashboardShow={dashboardShow}
+              region={rowCluster.region_name}
             />
           </Row>
         </ScrollerX>

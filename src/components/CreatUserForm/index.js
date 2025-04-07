@@ -129,7 +129,7 @@ class CreateUserForm extends PureComponent {
                     message: formatMessage({id:'placeholder.max24'})
                   },
                   {
-                    pattern: /^[a-zA-Z0-9_\-]+$/,
+                    pattern: /^[a-z][a-z0-9_\-]*$/,
                     message: formatMessage({id:'placeholder.createUser.real_nameMsg'})
                   }
                 ]
@@ -189,7 +189,7 @@ class CreateUserForm extends PureComponent {
               )}
             </FormItem>
           )}
-          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.phone'})}>
+          <FormItem {...is_language} label={formatMessage({id:'enterpriseUser.form.label.phone'})} style={{display: 'none'}}>
             {getFieldDecorator('phone', {
               initialValue: (userInfo && userInfo.phone) || '',
               rules: [

@@ -111,7 +111,10 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading: true,
       isNeedAuthz: false,
       authorizationCode: '',
-      hasNewVs: true
+      hasNewVs: true,
+      typeStatusCpu: false,
+      typeStatusMemory: false,
+
     };
   }
   componentWillMount() {
@@ -125,7 +128,7 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     this.loading();
     this.handleGetEnterpriseAuthorization();
-    this.interval = setInterval(() => this.handleAppAlertInfo(), 15000);
+    this.interval = setInterval(() => this.handleAppAlertInfo(), 5000);
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
@@ -241,7 +244,26 @@ export default class Enterprise extends PureComponent {
                 }
               }
             })
-
+            dispatch({
+              type: 'global/fetchClusterUsed',
+              payload: {
+                  query: `(sum(node_memory_MemTotal_bytes) - sum(node_memory_MemAvailable_bytes)) / 1024 / 1024 /1024`,
+                  regionName: region_name,
+              },
+              callback: res => {
+                item.memory_used = res?.result[0]?.value[1]
+              }
+            })
+            dispatch({
+              type: 'global/fetchClusterUsed',
+              payload: {
+                  query: `(1 - avg(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * sum(machine_cpu_cores)`,
+                  regionName: region_name,
+              },
+              callback: res => {
+                item.cpu_used = res?.result[0]?.value[1]
+              }
+            })
             item.key = `cluster${indexs}`;
             clusters.push(item);
             return item;
@@ -836,6 +858,20 @@ export default class Enterprise extends PureComponent {
     dispatch(routerRedux.push(`/enterprise/${eid}/setting?type=updateVersion`));
   }
 
+
+  handleClickStatus = (type) => {
+    if(type === 'cpu'){
+      this.setState({
+        typeStatusCpu: !this.state.typeStatusCpu
+      })
+    } else {
+      this.setState({
+        typeStatusMemory: !this.state.typeStatusMemory
+      })
+    }
+    
+  }
+
   renderContent = () => {
     const { rainbondInfo, navigation_status, form } = this.props;
     const {
@@ -867,7 +903,9 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading,
       isNeedAuthz,
       authorizationCode,
-      hasNewVs
+      hasNewVs,
+      typeStatusCpu,
+      typeStatusMemory,
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -879,6 +917,7 @@ export default class Enterprise extends PureComponent {
         ? rainbondInfo.version.value
         : '';
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const cloudSvg = (
       <svg t="1610274780071" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="35827" width="160" height="144">
         <path className={styleSvg.icon_path} stroke={globalUtil.getPublicColor()} stroke-width="3" d="M722.944 501.76h173.568c13.312 0 24.576-10.752 24.576-24.576 0-13.312-10.752-24.576-24.576-24.576h-173.568c-27.136 0-53.76 9.216-75.264 25.088L296.96 734.72c-3.072 2.048-6.144 3.584-9.728 4.096-8.704 1.024-17.408 1.536-26.112 1.536-39.424-1.536-75.776-18.432-102.912-48.128-27.136-30.208-40.448-69.12-37.376-109.056 5.12-69.632 55.808-123.392 121.344-132.608 1.536 29.184 7.68 57.344 18.944 84.48 4.096 9.216 12.8 15.36 22.528 15.36 3.072 0 6.144-0.512 9.216-2.048 12.288-5.12 18.432-19.456 13.312-31.744-10.24-25.088-15.36-51.712-15.36-78.848C290.816 323.584 384 230.4 498.176 230.4c92.672 0 174.592 61.952 199.68 151.04 3.584 12.8 17.408 20.48 30.208 16.896 12.8-3.584 20.48-17.408 16.896-30.208-30.72-110.08-132.096-186.88-246.784-186.88-129.024 0-236.032 95.744-253.44 219.648-93.184 8.192-165.888 82.432-173.056 178.688-3.584 52.736 14.336 105.984 50.176 145.408 35.84 39.936 84.48 62.464 137.728 64.512H266.24c9.728 0 18.944-0.512 28.672-2.048 11.776-1.536 23.04-6.656 32.256-13.312l350.72-257.024c12.288-9.728 28.672-15.36 45.056-15.36zM897.024 740.352h-301.568c-13.312 0-24.576 10.752-24.576 24.576 0 13.312 10.752 24.576 24.576 24.576h301.568c13.312 0 24.576-10.752 24.576-24.576 0-13.824-11.264-24.576-24.576-24.576z" fill={globalUtil.getPublicColor()} p-id="35828"></path>
@@ -1001,6 +1040,25 @@ export default class Enterprise extends PureComponent {
         </path>
       </svg>
     )
+    const switchSvg = (
+      <svg 
+        t="1742901521152" 
+        class="icon" 
+        viewBox="0 0 1024 1024" 
+        version="1.1" 
+        xmlns="http://www.w3.org/2000/svg" 
+        p-id="6350" 
+        width="18" 
+        height="18"
+      >
+        <path 
+          d="M716.245333 183.210667a42.496 42.496 0 0 0-60.330666 0 43.050667 43.050667 0 0 0 0 60.672l137.088 137.770666H128.213333a42.88 42.88 0 0 0 0 85.76h767.573334a42.88 42.88 0 0 0 27.050666-76.16c-1.024-1.28-2.133333-2.56-3.328-3.712l-203.264-204.330666z m179.541334 459.136a42.88 42.88 0 0 0 0-85.76H128.213333a42.88 42.88 0 0 0-27.008 76.202666c0.981333 1.28 2.133333 2.517333 3.285334 3.669334l203.264 204.330666a42.496 42.496 0 0 0 60.330666 0c16.64-16.768 16.64-43.946667 0-60.672l-137.088-137.770666h664.789334z" 
+          p-id="6351"
+          fill="#a8a8a8"
+        >
+        </path>
+      </svg>
+    )
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -1108,11 +1166,10 @@ export default class Enterprise extends PureComponent {
                       <Tooltip placement="top" title={formatMessage({id:'platformUpgrade.index.clicktoupload'})}>
                       {updataSvg}
                       <div className={enterpriseStyles.jumpText}>
-                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}</span>
-                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}</span>
-                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}</span>
-                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}</span>
-                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char5}`}>！</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}&nbsp;</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}&nbsp;</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}&nbsp;</span>
+                        <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}&nbsp;</span>
                       </div>
                       </Tooltip>
                     </div>) : (
@@ -1274,10 +1331,17 @@ export default class Enterprise extends PureComponent {
                   services_status,
                   node_ready,
                   region_id,
-                  run_pod_number
+                  run_pod_number,
+                  memory_used,
+                  cpu_used
                 } = item
                 // CPU使用率
                 const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
+
+                // CPU实际使用百分比
+                const percentCpu = ((cpu_used / total_cpu) * 100).toFixed(2);
+                // 内存实际使用百分比
+                const percentMemory = ((memory_used / (total_memory / 1024)) * 100).toFixed(2);
                 // 内存使用率
                 const memoryUsed = ((used_memory / total_memory) * 100).toFixed(2);
                 // CPU总量
@@ -1310,7 +1374,9 @@ export default class Enterprise extends PureComponent {
                           <div className={enterpriseStyles.clusterVersion}>
                             <p>
                               <span className={language ? enterpriseStyles.versionName : enterpriseStyles.versionName_en}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}:</span>
-                              <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
+                              <Tooltip title={rbd_version}>
+                                <span className={language ? enterpriseStyles.version : enterpriseStyles.version_en}>{rbd_version || '-'}</span>
+                              </Tooltip>
                             </p>
                             <p>
                               <span className={language ? enterpriseStyles.k8sName : enterpriseStyles.k8sName_en}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>
@@ -1326,12 +1392,29 @@ export default class Enterprise extends PureComponent {
                         </div>
                         <div className={enterpriseStyles.content_right}>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}: <span>{cpuTotal || 0}</span>Core</p>
-                            <Charts keys={'upcpu' + `${index}`} svalue={cpuUsed || 0} cname="CPU" swidth='200px' sheight='120px' />
+                            <p>
+                              {formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}:
+                              <span>{cpuTotal || 0}</span>Core 
+                              {isSaas && <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div>}
+                            </p>
+                            {typeStatusCpu ? (
+                              <Charts keys={'upcpu1' + `${index}`} unit={'Core'} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.used' })} swidth='200px' sheight='120px' />
+                            ) : (
+                              <Charts keys={'upcpu2' + `${index}`} unit={'Core'} usedValue={used_cpu}  svalue={cpuUsed} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })} swidth='200px' sheight='120px' />
+                            )}
                           </div>
                           <div className={enterpriseStyles.content_data}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: <span>{memoryTotal || 0}</span>{memoryTotalUnit}</p>
-                            <Charts keys={'memory' + `${index}`} svalue={memoryUsed || 0} cname={formatMessage({ id: 'enterpriseOverview.overview.memory' })} swidth='200px' sheight='120px' />
+                            <p>
+                              {formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: 
+                              <span>{memoryTotal || 0}</span>
+                              {memoryTotalUnit} 
+                              {isSaas && <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div>}
+                            </p>
+                            {typeStatusMemory ? (
+                              <Charts keys={'memory1' + `${index}`} unit={'GB'} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.used' })} swidth='200px' sheight='120px' />
+                            ) : (
+                              <Charts keys={'memory2' + `${index}`} unit={'GB'} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })} swidth='200px' sheight='120px' />
+                            )}
                           </div>
                           <div className={enterpriseStyles.node}>
                             <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>

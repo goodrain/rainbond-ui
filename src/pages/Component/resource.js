@@ -507,8 +507,8 @@ export default class Index extends PureComponent {
             } else {
               if(res.bean && res.bean.service_info){
                 res.bean.service_info.map((item)=>{
-                  if (item.type == 'language') {
-                    const parts = item.value.split(",");
+                  if (item.type == 'language' && res.bean.check_status != 'failure') {
+                    const parts = item?.value?.split(",");
                     this.setState({
                       codeLang: parts[0]
                     })
@@ -1193,7 +1193,7 @@ export default class Index extends PureComponent {
                     this.state.service_info.map(item => {
                       let languageArr = []
                       if (item.type == 'language') {
-                        languageArr = item.value.split(",");
+                        languageArr = item?.value?.split(",");
                       }
                       return item.type == 'language' ? (
                         <p style={{ textAlign: 'center', fontSize: '14px' }}>

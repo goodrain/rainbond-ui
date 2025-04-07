@@ -35,8 +35,8 @@ export default class SelectComponent extends PureComponent {
       dispatch({
         type: 'application/fetchApps',
         payload: {
-          team_name: currentTeam.team_name,
-          region_name: currentRegion.team_region_name,
+          team_name: currentTeam?.team_name,
+          region_name: currentRegion?.team_region_name,
           group_id: currentAppID,
           page: 1,
           page_size: -1,

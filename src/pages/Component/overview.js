@@ -15,6 +15,7 @@ import dateUtil from '../../utils/date-util';
 import globalUtil from '../../utils/global';
 import LogSocket from '../../utils/logSocket';
 import regionUtil from '../../utils/region';
+import PluginUtil from '../../utils/pulginUtils'
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
@@ -381,14 +382,16 @@ class LogList extends PureComponent {
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(
-  ({ user, appControl }) => ({
+  ({ user, appControl, teamControl }) => ({
     currUser: user.currentUser,
     appRequest: appControl.appRequest,
     appRequestRange: appControl.appRequestRange,
     requestTime: appControl.requestTime,
     requestTimeRange: appControl.requestTimeRange,
     appDisk: appControl.appDisk,
-    appMemory: appControl.appMemory
+    appMemory: appControl.appMemory,
+    pluginsList: teamControl.pluginsList,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
@@ -419,7 +422,11 @@ export default class Index extends PureComponent {
       status: '',
       isopenLog: false,
       buildSource: null,
-      componentTimers: this.props.timers
+      componentTimers: this.props.timers,
+      storageUsed: {
+        value: 0,
+        unit: 'MB'
+      }
     };
     this.inerval = 5000;
   }
@@ -460,6 +467,7 @@ export default class Index extends PureComponent {
   load = () => {
     this.fetchPods(true);
     this.fetchOperationLog(true);
+    this.getStorageUsed();
   };
   closeTimer = () => {
     if (this.fetchOperationLogTimer) {
@@ -739,8 +747,26 @@ export default class Index extends PureComponent {
     });
   };
 
+  // 获取存储实际占用
+  getStorageUsed = () => {
+    const { dispatch, appDetail } = this.props;
+    dispatch({
+      type: 'global/fetchStorageUsed',
+      payload: {
+        service_id: appDetail?.service?.service_id
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            storageUsed: res.bean.used_storage
+          })
+        }
+      }
+    });
+  }
+
   render() {
-    const { status, componentPermissions, socket, appDetail, method } = this.props;
+    const { status, componentPermissions, socket, appDetail, method, pluginsList } = this.props;
     const {
       resourcesLoading,
       logList,
@@ -759,8 +785,10 @@ export default class Index extends PureComponent {
       current_version,
       pages,
       pageSize,
-      total
+      total,
+      storageUsed
     } = this.state;
+    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     return (
       <Fragment>
         <Basic
@@ -777,6 +805,8 @@ export default class Index extends PureComponent {
           more={more}
           socket={socket && socket}
           method={method}
+          showStorageUsed={showStorageUsed}
+          storageUsed={storageUsed}
         />
         
         {more && (

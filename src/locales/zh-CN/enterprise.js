@@ -213,7 +213,7 @@ const applicationMarket = {
     'applicationMarket.CreateHelmAppModels.start': '构建启动',
     //  applicationMarket>HelmForm
     'applicationMarket.HelmForm.title': '编辑{name}商店',
-    'applicationMarket.HelmForm.min': '最小长度4位',
+    'applicationMarket.HelmForm.min': '最小长度2位',
     'applicationMarket.HelmForm.max': '最大长度32位',
     'applicationMarket.HelmForm.only': '只支持小写字母开头、小写字母和数字组合',
     'applicationMarket.HelmForm.name': '仓库名称已存在',
@@ -355,9 +355,9 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.table.quota': '租户限额(GB)',
     'enterpriseTeamManagement.table.operation': '运行应用数',
     'enterpriseTeamManagement.table.handle': '操作',
-    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(MB)',
+    'enterpriseTeamManagement.table.memory_total': '内存使用量/总量(GB)',
     'enterpriseTeamManagement.table.CUP_total': 'CPU使用量/总量(m)',
-    'enterpriseTeamManagement.table.quota_total': '存储使用量/总量(GB)',
+    'enterpriseTeamManagement.table.quota_total': '存储使用量/总量',
 
     // td 表体
     'enterpriseTeamManagement.table.td.role': '角色',
@@ -374,7 +374,7 @@ const enterpriseTeamManagement = {
     'enterpriseTeamManagement.other.examine': '申请加入项目/团队审批中',
     'enterpriseTeamManagement.other.haveNewJoinTeam': '最新加入项目/团队',
     'enterpriseTeamManagement.other.description': '暂无项目/团队，请点击创建项目/团队进行创建',
-    'enterpriseTeamManagement.other.personal': '工作空间',
+    'enterpriseTeamManagement.other.personal': '团队空间',
 
 }
 // 集群
@@ -1245,6 +1245,7 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.basicInformation.form.label.title': '网站标题',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.enterprise_alias': '企业名称',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.doc_url': '文档地址',
+    'enterpriseSetting.basicsSetting.basicInformation.form.label.cluster_security_limit': '集群安全限制',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.logo': 'LOGO',
     'enterpriseSetting.basicsSetting.basicInformation.form.label.favicon': '网页图标',
     'enterpriseSetting.basicsSetting.alarm.title': '报警开关',
@@ -1417,7 +1418,7 @@ const platformUpgrade = {
     'platformUpgrade.index.have':'有',
     'platformUpgrade.index.new':'新',
     'platformUpgrade.index.ban':'版',
-    'platformUpgrade.index.ben':'本',
+    'platformUpgrade.index.ben':'本 !',
     'platformUpgrade.index.info':'企业版授权信息',
     'platformUpgrade.index.AuthorizationCode':'授权码：',
     'platformUpgrade.index.Authorizationtime':'授权时间：',

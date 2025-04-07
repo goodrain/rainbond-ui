@@ -32,6 +32,7 @@ import { batchOperation } from '../../services/app';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import PluginUtil from '../../utils/pulginUtils'
 import sourceUtil from '../../utils/source-unit';
 import AddServiceComponent from './AddServiceComponent';
 import AppJoinMode from './AppJoinMode';
@@ -40,6 +41,7 @@ import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import color from '../../../config/theme'
 import styles from './Index.less';
+import region from '@/models/region';
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
@@ -51,7 +53,8 @@ import styles from './Index.less';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  novices: global.novices
+  novices: global.novices,
+  pluginsList: teamControl.pluginsList
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -86,7 +89,11 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       isOperator: true,
       resourceList: [],
-      archInfo: []
+      archInfo: [],
+      storageUsed: {
+        value: 0,
+        unit: 'MB'
+      }
     };
   }
 
@@ -95,6 +102,7 @@ export default class Index extends PureComponent {
     this.handleArchCpuInfo();
     this.handleWaitLevel();
     this.handleGroupAllResource()
+    this.getStorageUsed()
   }
 
   componentWillUnmount() {
@@ -616,6 +624,12 @@ export default class Index extends PureComponent {
             this.handlePromptModalClose();
           }
           this.loadTopology(false);
+        },
+        handleError: err => {
+          notification.error({
+            message: err.data.msg_show,
+          });
+          this.handlePromptModalClose();
         }
       });
     }
@@ -658,6 +672,26 @@ export default class Index extends PureComponent {
       });
     }
   };
+
+  // 获取存储实际占用
+  getStorageUsed = () => {
+    const { dispatch, appID } = this.props;
+    dispatch({
+      type: 'global/fetchStorageUsed',
+      payload: {
+        app_id: appID,
+        region_name: globalUtil.getCurrRegionName(),
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            storageUsed: res.bean.used_storage
+          })
+        }
+      }
+    });
+  }
+
   render() {
     const {
       groupDetail,
@@ -688,7 +722,8 @@ export default class Index extends PureComponent {
         isEdit,
         isConstruct,
         isCopy
-      }
+      },
+      pluginsList
     } = this.props;
     const {
       currApp,
@@ -716,9 +751,10 @@ export default class Index extends PureComponent {
       iframeHeight,
       language,
       resourceList,
-      archInfo
+      archInfo,
+      storageUsed
     } = this.state;
-
+    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
       restart: formatMessage({ id: 'appOverview.list.table.restart' }),
@@ -861,7 +897,7 @@ export default class Index extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>{formatMessage({ id: 'appOverview.disk' })}</div>
-                <div>{`${sourceUtil.unit(resources.disk || 0, 'KB')}`}</div>
+                <div>{showStorageUsed ? `${storageUsed?.value}${storageUsed?.unit}` : sourceUtil.unit(resources.disk || 0, 'KB')}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>{formatMessage({ id: 'appOverview.componentNum' })}</div>
@@ -1218,7 +1254,6 @@ export default class Index extends PureComponent {
                 }}
                 style={{
                   height: "100%",
-                  width: "30%",
                   color: type !== 'list' ? '' : globalUtil.getPublicColor('rbd-sub-title-color'),
                   fontWeight: 'bold',
                   lineHeight: '60px',

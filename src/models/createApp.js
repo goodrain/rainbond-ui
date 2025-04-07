@@ -173,8 +173,8 @@ export default {
         });
       }
     },
-    *buildApps({ payload, callback }, { call }) {
-      const data = yield call(buildApp, payload);
+    *buildApps({ payload, callback, handleError }, { call }) {
+      const data = yield call(buildApp, payload, handleError);
       if (data && callback) {
         callback(data);
       }

@@ -125,6 +125,9 @@ export default class Index extends PureComponent {
 
     dispatch({
       type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
       callback: res => {
         if (res && res.bean) {
          const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
@@ -214,7 +217,7 @@ export default class Index extends PureComponent {
             <div className={styles.left}>
               <Dropdown overlay={this.generateMenu()} placement="bottomLeft">
                 <div className={styles.teamName}>
-                  {this.state.currentTeam.team_alias}
+                  {this.state.currentTeam?.team_alias}
                   <Icon type="down" className={styles.downIcon} />
                 </div>
               </Dropdown>
@@ -250,7 +253,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <Icon type="setting" />
-                插件管理
+                {formatMessage({ id: 'global.fetchAccessText.plugin' })}
               </Button>
               <Button onClick={() => {
                 const { dispatch } = this.props;
@@ -266,7 +269,7 @@ export default class Index extends PureComponent {
             </div>
           </div>
           <div className={styles.content}>
-            <TeamBasicInfo />
+            <TeamBasicInfo pluginsList={pluginsList} />
           </div>
         </Spin>
       </div>

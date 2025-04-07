@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
+import PluginUtil from '../../../utils/pulginUtils'
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
@@ -47,6 +48,7 @@ export default class index extends Component {
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: savedViewState === 'true',
       language: cookie.get('language') === 'zh-CN' ? true : false,
+      storageUsed: 0
     };
   }
   componentDidMount() {
@@ -68,6 +70,7 @@ export default class index extends Component {
             { loadingOverview: false, loadedOverview: true },
             () => {
               this.loadHotApp();
+              this.getStorageUsed(res.bean.team_id)
             }
           );
         } else {
@@ -79,6 +82,25 @@ export default class index extends Component {
       }
     });
   };
+
+  // 获取存储实际占用
+  getStorageUsed = (teamId) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchStorageUsed',
+      payload: {
+        tenant_id: teamId
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            storageUsed: res.bean.used_storage
+          })
+        }
+      }
+    });
+  }
+
   // 关闭loading
   handleCloseLoading = () => {
     this.setState({ loadingOverview: false, loadedOverview: true });
@@ -175,8 +197,8 @@ export default class index extends Component {
       if (num || unit) {
         let nums = num;
         let units = unit;
-        if (nums >= 1024) {
-          nums = num / 1024;
+        if (nums >= 1000) {
+          nums = num / 1000;
           units = 'Core';
         }
         return unit ? units : nums.toFixed(1);
@@ -287,7 +309,7 @@ export default class index extends Component {
                       <div className={styles.updateTime}>
                         {item.update_time &&
                           moment(item.update_time).fromNow()}
-                        <FormattedMessage id="teamOverview.update" />
+                        &nbsp;<FormattedMessage id="teamOverview.update" />
                       </div>
                     </div>
                     <div className={styles.btn}>
@@ -346,9 +368,11 @@ export default class index extends Component {
       teamAppCreatePermission: {
         isAccess: isAppCreate
       },
-      isTableView
+      isTableView,
+      storageUsed
     } = this.state;
     const { index, currentTeamPermissionsInfo, pluginsList } = this.props;
+    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const dataSource = [];
     const columns = [
       {
@@ -425,11 +449,17 @@ export default class index extends Component {
           const appOverviewPermission = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${record.group_id}`)
           const isAppCreate = appOverviewPermission?.isCreate
           return <>
-            {isAppCreate && <a onClick={() => {
+            {isAppCreate && 
+            <>
+            <a onClick={() => {
               this.props.dispatch(
                 routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${record.group_id}`)
               )
-            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}</a>}
+            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}
+            </a>
+            <Divider type="vertical" />
+            </>
+            }
             <a
               onClick={() => {
                 const { dispatch } = this.props;
@@ -475,8 +505,12 @@ export default class index extends Component {
               </Col>
               <Col span={4}>
                 <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.disk_usage || 0 : '**'}</div>
+                  <div className={styles.basicInfoTitle}>
+                    {showStorageUsed ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})` : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`}
+                  </div>
+                  <div className={styles.basicInfoContent}>
+                    {isTeamOverview ? (showStorageUsed ? storageUsed?.value : index?.overviewInfo?.disk_usage) : '**'}
+                  </div>
                 </div>
               </Col>
             </Row>
@@ -518,7 +552,7 @@ export default class index extends Component {
                     style={{ width: 300, marginRight: 10 }}
                   />
                   <Select
-                    style={{ width: '140px', marginRight: 10 }}
+                    style={{ width: this.state.language ? '140px' : '170px', marginRight: 10 }}
                     placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                     defaultValue={1}
                     onChange={this.handleSortChange}
@@ -584,7 +618,7 @@ export default class index extends Component {
                     });
                   }}>
                   <Empty
-                    description={'开始部署您的应用'}
+                    description={formatMessage({ id: 'teamOverview.startDeploy' })}
                   />
                 </div>}
             </Card>

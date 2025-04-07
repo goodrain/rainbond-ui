@@ -45,3 +45,170 @@
   background-size: 100% 100%;
   background-image: linear-gradient(to bottom right, #d6e4ff 10%, #f0f5ff 20%, #fff 40%, #f0f5ff 80%, #d6e4ff 90%);
 }
+
+.saasContainer {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+.saasLeft {
+  flex: 1;
+  padding: 48px 64px;
+  background: linear-gradient(-35deg, #020617 0%, #1e293b 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .saasLeftContent {
+    width: 60%;
+    // .logoSection {
+    //   margin-bottom: 80px;
+      
+    //   .appLogo {
+    //     width: 64px;
+    //     height: 64px;
+    //   }
+    // }
+  
+    .introSection {
+      margin-bottom: 80px;
+  
+      h1 {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 16px;
+        color: #fff;
+      }
+  
+      .subTitle {
+        font-size: 20px;
+        line-height: 1.6;
+        color: #cbd5e1;
+      }
+    }
+  
+    .featureList {
+      .featureItem {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+  
+        .iconWrapper {
+          width: 48px;
+          height: 48px;
+          border-radius: 24px;
+          background: rgba(59, 130, 246, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 16px;
+  
+          .featureIcon {
+            font-size: 24px;
+            color: #fff;
+          }
+        }
+  
+        .featureContent {
+          h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 8px;
+          }
+  
+          p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            line-height: 1.6;
+          }
+        }
+      }
+    }
+  }
+  
+}
+
+.saasRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.saasLoginBox {
+  width: 100%;
+  padding: 0 20px;
+
+  h2 {
+    font-size: 32px;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  p {
+    color: #4b5563;
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 14px;
+  }
+}
+
+.loginForm {
+  display: flex;
+  justify-content: center;
+  :global {
+    .ant-input {
+      height: 40px;
+      border-radius: 4px;
+    }
+    .ant-btn {
+      width: 100%;
+      height: 40px;
+      border-radius: 4px;
+    }
+    .ant-checkbox-wrapper {
+      color: #666;
+      font-size: 14px;
+    }
+  }
+}
+
+.loginLinks {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  span {
+    color: #666;
+  }
+  a {
+    color: #1890ff;
+    margin-left: 4px;
+  }
+}
+
+.loginFooter {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  a {
+    color: #1890ff;
+  }
+}

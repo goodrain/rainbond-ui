@@ -829,7 +829,7 @@
         'placeholder.oauth.favicon':'请上传33 ✖️ 33的图片',
         'placeholder.createUser.user_name':'请填写用户名!',
         'placeholder.createUser.min3':'最小长度3位',
-        'placeholder.createUser.real_nameMsg':'只支持字母、数字、_和-组合',
+        'placeholder.createUser.real_nameMsg':'只支持小写字母、数字、_和-组合',
         'placeholder.createUser.real_name':'请填写姓名!',
         'placeholder.createUser.email':'请填写邮箱！',
         'placeholder.createUser.password':'请填写密码',

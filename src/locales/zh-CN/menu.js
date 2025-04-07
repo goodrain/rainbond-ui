@@ -59,6 +59,10 @@ const CustomFooter = {
   'GlobalHeader.close':'是否要关闭新手引导功能、关闭后并无法开启此功能?',
   'GlobalHeader.manual':'使用手册',
   'GlobalHeader.new':'新手引导',
+  'GlobalHeader.help':'帮助文档',
+  'GlobalHeader.market':'应用市场',
+  'GlobalHeader.balance':'余额',
+  'GlobalHeader.account':'账户中心',
 }
 
 

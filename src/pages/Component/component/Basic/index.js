@@ -47,9 +47,11 @@ class Index extends PureComponent {
       dataList,
       buildSource,
       isThird,
-      method
+      method,
+      showStorageUsed,
+      storageUsed
     } = this.props;
-    const setMemory = memory === 0 ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
+    const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
         {!isThird && status && Object.keys(status).length >0 ? (
@@ -115,7 +117,7 @@ class Index extends PureComponent {
                                 {setMemory}
                               </span>
                             </Tooltip>
-                            {memory !== 0 && <FormattedMessage id='componentOverview.body.tab.overview.memory'/>}
+                            {(memory !== 0 || showStorageUsed) &&<FormattedMessage id='componentOverview.body.tab.overview.memory'/>}
                           </Fragment>
                         )}
                       </a>
@@ -127,7 +129,7 @@ class Index extends PureComponent {
                         <FormattedMessage id='componentOverview.body.tab.overview.occupy'/>
                         {!resourcesLoading && (
                           <Fragment>
-                            <Tooltip title={numeral(disk).format('0,0')}>
+                            <Tooltip title={showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0')}>
                               <span
                                 style={{
                                   color: globalUtil.getPublicColor('rbd-content-color'),
@@ -135,11 +137,12 @@ class Index extends PureComponent {
                                   minWidth: '80px'
                                 }}
                               >
-                                {numeral(disk).format('0,0')}
+                                {showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0')}
                               </span>
                             </Tooltip>
                             {/* MB 磁盘 */}
-                            <FormattedMessage id='componentOverview.body.tab.overview.disk'/>
+                            {showStorageUsed ? storageUsed?.unit : 'MB'}&nbsp;
+                            {formatMessage({id:'componentOverview.body.tab.overview.disk'})}
                           </Fragment>
                         )}
                       </a>

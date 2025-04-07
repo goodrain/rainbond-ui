@@ -627,7 +627,7 @@ export default class Index extends PureComponent {
               routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
             );
           }} type="default">
-              <Icon type="home" />插件管理
+              <Icon type="home" />{formatMessage({ id: 'global.fetchAccessText.plugin' })}
           </Button>
         }
       >

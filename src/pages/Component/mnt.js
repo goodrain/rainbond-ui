@@ -23,6 +23,7 @@ import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import cookie from '@/utils/cookie';
 
 @connect(
   ({ user, appControl }) => ({
@@ -53,7 +54,8 @@ export default class Index extends PureComponent {
       mntPage: 1,
       mntPageSize: 5,
       mntTotal: 0,
-      DirectoryPersistenceShow: false
+      DirectoryPersistenceShow: false,
+      language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
 
@@ -76,8 +78,8 @@ export default class Index extends PureComponent {
     this.setState({ toDeleteVolume: null });
   };
   getVolumeTypeShowName = volume_type => {
-    const { volumeOpts } = this.state;
-    return getVolumeTypeShowName(volumeOpts, volume_type);
+    const { volumeOpts, language } = this.state;    
+    return getVolumeTypeShowName(volumeOpts, volume_type, language);
   };
   handleOpenRelyComponent = relyComponentList => {
     this.setState({

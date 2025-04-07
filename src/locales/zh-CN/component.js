@@ -77,7 +77,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.allocation': '分配',
     'componentOverview.body.tab.overview.memory': 'MB 内存',
     'componentOverview.body.tab.overview.occupy': '占用',
-    'componentOverview.body.tab.overview.disk': 'MB 磁盘',
+    'componentOverview.body.tab.overview.disk': '磁盘',
     'componentOverview.body.tab.overview.version': '版本号',
     'componentOverview.body.tab.overview.not': '暂无',
     'componentOverview.body.tab.overview.codeVersion': '代码版本',
@@ -558,6 +558,13 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.example': '实例:',
     'componentOverview.body.DirectoryPersistence.return': '返回上一级',
     'componentOverview.body.DirectoryPersistence.file': '文件管理',
+    'componentOverview.body.DirectoryPersistence.uploadFile': '上传文件',
+    'componentOverview.body.DirectoryPersistence.uploadFolder': '上传文件夹',
+    'componentOverview.body.DirectoryPersistence.createFolder': '新建文件夹',
+    'componentOverview.body.DirectoryPersistence.upload': '上传',
+    'componentOverview.body.DirectoryPersistence.createFolderPath': '将在以下路径创建文件夹：',
+    'componentOverview.body.DirectoryPersistence.inputFolderName': '请输入文件夹名称',
+    'componentOverview.body.DirectoryPersistence.path': '路径：',
     // tabs栏>Port
     'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效；请确保端口列表与你的程序监听端口保持一致。无法访问',
     'componentOverview.body.Port.troubleshoot': '按以下思路排查。',
@@ -1117,6 +1124,11 @@ const componentOther = {
     'componentOther.relationMnt.select_com': '请选择组件',
     'componentOther.relationMnt.file_name': '请输入配置文件名称或路径搜索',
     'componentOther.relationMnt.name': '按名称/路径搜索：',
+    'componentOther.relationMnt.desc': '表格列出了所有将被注入到依赖此组件的外部组件中的环境变量。',
+    'componentOther.relationMnt.desc_relation': '表格列出了当前组件所依赖的其他外部组件，它们是当前组件的依赖项。',
+    'componentOther.relationMnt.desc_reverse': '表格列出了当前组件被其他外部组件所依赖的情况，它们是依赖于当前组件的外部组件。',
+    'componentOther.relationMnt.desc_reverse_relation': '被外部组件依赖',
+
 }
 
 export default Object.assign({}, componentOverview, componentOther);

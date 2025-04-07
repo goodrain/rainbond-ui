@@ -12,7 +12,8 @@ import {
   Table,
   Tooltip,
   Select,
-  AutoComplete
+  AutoComplete,
+  Slider
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -42,6 +43,7 @@ import sourceUtil from '../../utils/source';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
+import PriceCard from '../../components/PriceCard';
 import styles from './setting.less';
 
 const RadioButton = Radio.Button;
@@ -100,34 +102,92 @@ class BaseInfo extends PureComponent {
       isComponentType: methods !== 'stateless_multiple' ? true : false,
       isMemory: (props.appDetail.service.min_memory == 0) ? false : true,
       isCpu: (props.appDetail.service.min_cpu == 0) ? false : true,
-      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M'
+      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
+      memoryMarks: {
+        1: '128M',
+        2: '256M',
+        3: '512M',
+        4: '1G',
+        5: '2G',
+        6: '4G',
+        7: '8G',
+        8: '16G'
+      },
+      memoryMarksObj: {
+        128: 1,
+        256: 2,
+        512: 3,
+        1024: 4,
+        2048: 5,
+        4096: 6,
+        8192: 7,
+        16384: 8
+      },
+      cpuMarks: {
+        1: '100m',
+        2: '250m',
+        3: '500m',
+        4: '1Core',
+        5: '2Core',
+        6: '4Core',
+        7: '8Core',
+      },
+      cpuMarksObj: {
+        100: 1,
+        250: 2,
+        500: 3,
+        1000: 4,
+        2000: 5,
+        4000: 6,
+        8000: 7,
+      },
+      cpuValue: 0,
+      memoryValue: 0
     };
   }
   componentDidMount() {
-    const { onRefCpu } = this.props
+    const { onRefCpu, appDetail } = this.props
+
+    this.setState({
+      cpuValue: this.checkNum(appDetail.service.min_cpu, 'cpu'),
+      memoryValue: this.checkNum(appDetail.service.min_memory, 'memory')
+    })
     if (onRefCpu) {
       this.props.onRefCpu(this)
     }
   }
 
   handleSubmitCpu = () => {
-    const { setUnit } = this.state
-    const { form, onSubmit } = this.props;
+    const { setUnit, memoryMarksObj, cpuMarksObj } = this.state
+    const { form, onSubmit, showEnterprisePlugin } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
-        if (fieldsValue.change_memory && fieldsValue.min_memory) {
-          if (setUnit) {
-            const memoryNum = setUnit == "G" ? fieldsValue.min_memory * 1024 : fieldsValue.min_memory
-            fieldsValue.min_memory = memoryNum
-          } else {
-            const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
-            fieldsValue.min_memory = memoryNum
-          }
+        if (showEnterprisePlugin) {
+          Object.keys(memoryMarksObj).forEach(item => {
+            if (memoryMarksObj[item] == fieldsValue.min_memory) {
+              fieldsValue.min_memory = item
+            }
+          })
+          Object.keys(cpuMarksObj).forEach(item => {
+            if (cpuMarksObj[item] == fieldsValue.min_cpu) {
+              fieldsValue.min_cpu = item
+            }
+          })
         } else {
-          fieldsValue.min_memory = 0
-        }
-        if (!fieldsValue.change_cpu) {
-          fieldsValue.min_cpu = 0
+          if (fieldsValue.change_memory && fieldsValue.min_memory) {
+            if (setUnit) {
+              const memoryNum = setUnit == "G" ? fieldsValue.min_memory * 1024 : fieldsValue.min_memory
+              fieldsValue.min_memory = memoryNum
+            } else {
+              const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
+              fieldsValue.min_memory = memoryNum
+            }
+          } else {
+            fieldsValue.min_memory = 0
+          }
+          if (!fieldsValue.change_cpu) {
+            fieldsValue.min_cpu = 0
+          }
         }
         if (!fieldsValue.extend) {
           fieldsValue.extend_method = 'stateless_multiple'
@@ -239,10 +299,73 @@ class BaseInfo extends PureComponent {
       isMemory: e.target.value
     })
   }
+  handleMemoryChange = (value) => {
+    const newCpuValue = value == 1 ? 1 
+      : value == 2 ? 1 
+      : value == 3 ? 2 
+      : value == 4 ? 3 
+      : value == 5 ? 4 
+      : value == 6 ? 4 
+      : value == 7 ? 5 
+      : 6;
 
+    this.setState({
+      memoryValue: value,
+      cpuValue: newCpuValue
+    }, () => {
+      // 更新表单中的 CPU 值
+      const { form } = this.props;
+      form.setFieldsValue({
+        min_cpu: newCpuValue
+      });
+    });
+  }
+  handleCpuChange = (value) => {
+    this.setState({
+      cpuValue: value
+    });
+  }
+  checkNum = (value, type) => {
+    const { memoryMarksObj, cpuMarksObj } = this.state
+    let num = 0
+    if (type == 'memory') {
+      Object.keys(memoryMarksObj).forEach(item => {
+        if (item == value) {
+          num = memoryMarksObj[item]
+        }
+      })
+    }
+    if (type == 'cpu') {
+      Object.keys(cpuMarksObj).forEach(item => {
+        if (cpuMarksObj[item] == value) {
+          num = item
+        }
+      })
+
+    }
+    return num || 2
+  }
+  getFormValues = (data, type) => {
+    const { cpuMarksObj, memoryMarksObj } = this.state
+    let num = 0
+    if (type == 'memory') {
+      Object.keys(memoryMarksObj).forEach(item => {
+        if (memoryMarksObj[item] == data) {
+          num = item
+        }
+      })
+    } else {
+      Object.keys(cpuMarksObj).forEach(item => {
+        if (cpuMarksObj[item] == data) {
+          num = item
+        }
+      })
+    }
+    return num
+  }
   render() {
-    const { appDetail, form } = this.props;
-    const { is_flag, setUnit, isComponentType, isMemory, isCpu } = this.state
+    const { appDetail, form, showEnterprisePlugin } = this.props;
+    const { is_flag, setUnit, isComponentType, isMemory, isCpu, memoryMarks, cpuMarks, cpuValue, memoryValue } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -289,165 +412,239 @@ class BaseInfo extends PureComponent {
           marginBottom: 16
         }}
       >
-        <Form.Item style={{ marginTop: '6px' }} {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.extend_method' })}>
-          {getFieldDecorator('extend', {
-            initialValue: method !== 'stateless_multiple' ? true : false,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.setting.extend_method' })
-              }
-            ]
-          })(
-            <RadioGroup onChange={this.RadioChangeComponentType}>
-              <RadioButton key='default' value={false}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Stateless_type' })}
-              </RadioButton>
-              <RadioButton key='rest' value={true}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Other_types' })}
-              </RadioButton>
-            </RadioGroup>
-          )}
-        </Form.Item>
-        {isComponentType && <Form.Item style={{ paddingLeft: '160px' }} {...formItemLayout}>
-          {getFieldDecorator('extend_method', {
-            initialValue: extendMethods,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.setting.extend_method' })
-              }
-            ]
-          })(
-            <RadioGroup>
-              {globalUtil.getSupportComponentTyps().map(item => {
-                return (
-                  <Radio key={item.type} onChange={this.onChecks} style={radioStyle} value={item.type}>
-                    {item.desc}
-                  </Radio>
-                );
-              })}
-            </RadioGroup>
-          )}
-        </Form.Item>}
-        {is_flag && <Form.Item {...formItemLayout}>
-          {getFieldDecorator('schedule', {
-            initialValue: '0 * * * *',
-            rules: [
-              {
-                required: false,
-                message: formatMessage({ id: 'placeholder.setting.schedule' })
-              }
-            ]
-          })(
-            <Row className={styles.selectRow} type="flex" style={{ margin: '14px 0px', marginTop: '-20px' }}>
-              <div style={{ marginLeft: '160px', fontWeight: 'bolder', marginTop: '-4px' }}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.schedule' })}
-              </div>
-              <AutoComplete
-                defaultValue={'0 * * * *'}
-              >
-                {(arrOption.length > 0)
-                  ? arrOption.map((item) => {
-                    const res = (
-                      <AutoComplete.Option value={item.value}>
-                        {item.name}
-                      </AutoComplete.Option>
+        <Row>
+          <Col span={18}>
+            <Form.Item style={{ marginTop: '6px' }} {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.extend_method' })}>
+              {getFieldDecorator('extend', {
+                initialValue: method !== 'stateless_multiple' ? true : false,
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.setting.extend_method' })
+                  }
+                ]
+              })(
+                <RadioGroup onChange={this.RadioChangeComponentType}>
+                  <RadioButton key='default' value={false}>
+                    {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Stateless_type' })}
+                  </RadioButton>
+                  <RadioButton key='rest' value={true}>
+                    {formatMessage({ id: 'componentCheck.advanced.setup.deploy_attr.Other_types' })}
+                  </RadioButton>
+                </RadioGroup>
+              )}
+            </Form.Item>
+            {isComponentType && <Form.Item style={{ paddingLeft: '160px' }} {...formItemLayout}>
+              {getFieldDecorator('extend_method', {
+                initialValue: extendMethods,
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.setting.extend_method' })
+                  }
+                ]
+              })(
+                <RadioGroup>
+                  {globalUtil.getSupportComponentTyps().map(item => {
+                    return (
+                      <Radio key={item.type} onChange={this.onChecks} style={radioStyle} value={item.type}>
+                        {item.desc}
+                      </Radio>
                     );
-                    return res;
-                  })
-                  : null}
-              </AutoComplete>
-            </Row>
-          )}
-        </Form.Item>
-        }
-        <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
-          {getFieldDecorator('change_memory', {
-            initialValue: isMemory,
-            rules: [
-              {
-                required: true,
-              }
-            ]
-          })(
-            <RadioGroup onChange={this.RadioGroupChangeMemory}>
-              <RadioButton key='noLimitMemory' value={false}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
-              </RadioButton>
-              <RadioButton key='limitMemory' value={true}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
-              </RadioButton>
-            </RadioGroup>
-          )}
-        </Form.Item>
-        {isMemory && <Form.Item style={{ paddingLeft: '149px' }}  {...formItemLayout}>
-          {getFieldDecorator('min_memory', {
-            initialValue: `${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` || 0,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.setting.min_memory' })
-              }
-            ]
-          })(
-            <Input
-              style={{ width: '200px', marginTop: '3px', marginLeft: '12px' }}
-              type="number"
-              addonAfter={
-                <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.selectAfterChange}>
-                  <Option value="M">M</Option>
-                  <Option value="G">G</Option>
-                </Select>
-              }
-            />
-          )}
+                  })}
+                </RadioGroup>
+              )}
+            </Form.Item>}
+            {is_flag && <Form.Item {...formItemLayout}>
+              {getFieldDecorator('schedule', {
+                initialValue: '0 * * * *',
+                rules: [
+                  {
+                    required: false,
+                    message: formatMessage({ id: 'placeholder.setting.schedule' })
+                  }
+                ]
+              })(
+                <Row className={styles.selectRow} type="flex" style={{ margin: '14px 0px', marginTop: '-20px' }}>
+                  <div style={{ marginLeft: '160px', fontWeight: 'bolder', marginTop: '-4px' }}>
+                    {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.schedule' })}
+                  </div>
+                  <AutoComplete
+                    defaultValue={'0 * * * *'}
+                  >
+                    {(arrOption.length > 0)
+                      ? arrOption.map((item) => {
+                        const res = (
+                          <AutoComplete.Option value={item.value}>
+                            {item.name}
+                          </AutoComplete.Option>
+                        );
+                        return res;
+                      })
+                      : null}
+                  </AutoComplete>
+                </Row>
+              )}
+            </Form.Item>
+            }
+            {
+              showEnterprisePlugin ?
+                (
+                  <>
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
+                      {getFieldDecorator('min_memory', {
+                        initialValue: memoryValue || 1,
+                        rules: [
+                          {
+                            required: true,
+                            message: formatMessage({ id: 'placeholder.setting.min_memory' })
+                          }
+                        ]
+                      })(
+                        <Slider
+                          style={{ width: '500px' }}
+                          marks={memoryMarks}
+                          min={1}
+                          max={8}
+                          step={null}
+                          onChange={this.handleMemoryChange}
+                          tooltipVisible={false}
+                        />
+                      )}
+                    </Form.Item>
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
+                      {getFieldDecorator('min_cpu', {
+                        initialValue: cpuValue || 2,
+                        rules: [
+                          {
+                            required: true,
+                            message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                          },
+                          {
+                            pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                            message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
+                          }
+                        ]
+                      })(
+                        <Slider
+                          style={{ width: '500px' }}
+                          marks={cpuMarks}
+                          min={1}
+                          max={7}
+                          step={null}
+                          onChange={this.handleCpuChange}
+                          tooltipVisible={false}
+                        />
+                      )}
+                    </Form.Item>
+                  </>
+                ) : (
+                  <>
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
+                      {getFieldDecorator('change_memory', {
+                        initialValue: isMemory,
+                        rules: [
+                          {
+                            required: true,
+                          }
+                        ]
+                      })(
+                        <RadioGroup onChange={this.RadioGroupChangeMemory}>
+                          <RadioButton key='noLimitMemory' value={false}>
+                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
+                          </RadioButton>
+                          <RadioButton key='limitMemory' value={true}>
+                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
+                          </RadioButton>
+                        </RadioGroup>
+                      )}
+                    </Form.Item>
+                    {
+                      isMemory && <Form.Item style={{ paddingLeft: '149px' }}  {...formItemLayout}>
+                        {getFieldDecorator('min_memory', {
+                          initialValue: `${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` || 0,
+                          rules: [
+                            {
+                              required: true,
+                              message: formatMessage({ id: 'placeholder.setting.min_memory' })
+                            }
+                          ]
+                        })(
+                          <Input
+                            style={{ width: '200px', marginTop: '3px', marginLeft: '12px' }}
+                            type="number"
+                            addonAfter={
+                              <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.selectAfterChange}>
+                                <Option value="M">M</Option>
+                                <Option value="G">G</Option>
+                              </Select>
+                            }
+                          />
+                        )}
 
-        </Form.Item>}
-        <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
-          {getFieldDecorator('change_cpu', {
-            initialValue: isCpu,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
-              }
-            ]
-          })(
-            <RadioGroup onChange={this.RadioGroupChangeCpu}>
-              <RadioButton key='noLimitCpu' value={false}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
-              </RadioButton>
-              <RadioButton key='limitCpu' value={true}>
-                {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
-              </RadioButton>
-            </RadioGroup>
+                      </Form.Item>
+                    }
+                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
+                      {getFieldDecorator('change_cpu', {
+                        initialValue: isCpu,
+                        rules: [
+                          {
+                            required: true,
+                            message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                          }
+                        ]
+                      })(
+                        <RadioGroup onChange={this.RadioGroupChangeCpu}>
+                          <RadioButton key='noLimitCpu' value={false}>
+                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
+                          </RadioButton>
+                          <RadioButton key='limitCpu' value={true}>
+                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
+                          </RadioButton>
+                        </RadioGroup>
+                      )}
+                    </Form.Item>
+                    {
+                      isCpu && <Form.Item {...formItemLayout} style={{ paddingLeft: '160px' }} >
+                        {getFieldDecorator('min_cpu', {
+                          initialValue: minCpu || 0,
+                          rules: [
+                            {
+                              required: true,
+                              message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                            },
+                            {
+                              pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                              message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
+                            }
+                          ]
+                        })(
+                          <Input
+                            style={{ width: '200px' }}
+                            type="number"
+                            min={0}
+                            addonAfter="m"
+                            placeholder={formatMessage({ id: 'placeholder.plugin.min_cpu' })}
+                            onChange={this.inputChange}
+                          />
+                        )}
+                      </Form.Item>
+                    }
+                  </>
+                )
+            }
+          </Col>
+          {showEnterprisePlugin && (
+            <Col span={6}>
+              <PriceCard
+                key={cpuValue * memoryValue}
+                type='card'
+                cpu_use={this.getFormValues(cpuValue, 'cpu')}
+                memory_use={this.getFormValues(memoryValue, 'memory')}
+              />
+            </Col>
           )}
-        </Form.Item>
-        {isCpu && <Form.Item {...formItemLayout} style={{ paddingLeft: '160px' }} >
-          {getFieldDecorator('min_cpu', {
-            initialValue: minCpu || 0,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
-              },
-              {
-                pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
-              }
-            ]
-          })(
-            <Input
-              style={{ width: '200px' }}
-              type="number"
-              min={0}
-              addonAfter="m"
-              placeholder={formatMessage({ id: 'placeholder.plugin.min_cpu' })}
-              onChange={this.inputChange}
-            />
-          )}
-        </Form.Item>}
+        </Row>
       </Card>
     );
   }
@@ -462,23 +659,23 @@ class VirtualMachineBaseInfo extends PureComponent {
     this.state = {
       memoryList: [
         {
-          text: formatMessage({id:'Vm.createVm.2g'}),
+          text: formatMessage({ id: 'Vm.createVm.2g' }),
           value: 2048
         },
         {
-          text: formatMessage({id:'Vm.createVm.4g'}),
+          text: formatMessage({ id: 'Vm.createVm.4g' }),
           value: 1024 * 4
         },
         {
-          text: formatMessage({id:'Vm.createVm.8g'}),
+          text: formatMessage({ id: 'Vm.createVm.8g' }),
           value: 1024 * 8
         },
         {
-          text: formatMessage({id:'Vm.createVm.16g'}),
+          text: formatMessage({ id: 'Vm.createVm.16g' }),
           value: 1024 * 16
         },
         {
-          text: formatMessage({id:'Vm.createVm.Custom'}),
+          text: formatMessage({ id: 'Vm.createVm.Custom' }),
           value: "custom"
         }
       ],
@@ -490,7 +687,7 @@ class VirtualMachineBaseInfo extends PureComponent {
   }
 
   componentDidMount() {
-    const { onRefCpu } = this.props
+    const { onRefCpu, appDetail } = this.props
     if (onRefCpu) {
       this.props.onRefCpu(this)
     }
@@ -605,8 +802,8 @@ class VirtualMachineBaseInfo extends PureComponent {
       >
         <Form.Item
           {...formItemLayout}
-          label={formatMessage({id:'Vm.createVm.specification'})}
-          extra={memoryValue == "custom" && formatMessage({id:'Vm.createVm.distribution'})}
+          label={formatMessage({ id: 'Vm.createVm.specification' })}
+          extra={memoryValue == "custom" && formatMessage({ id: 'Vm.createVm.distribution' })}
         >
           {getFieldDecorator('min_memory', {
             initialValue: memoryValue || 0,
@@ -650,7 +847,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         {memoryValue == "custom" &&
           <Form.Item
             {...formItemLayout}
-            label={formatMessage({id:'Vm.createVm.memory'})}
+            label={formatMessage({ id: 'Vm.createVm.memory' })}
           >
             {getFieldDecorator('memory_value', {
               initialValue: (`${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
@@ -672,7 +869,7 @@ class VirtualMachineBaseInfo extends PureComponent {
               />)}
           </Form.Item>
         }
-        <Form.Item {...formItemLayout} label={formatMessage({id:'Vm.createVm.disk'})}>
+        <Form.Item {...formItemLayout} label={formatMessage({ id: 'Vm.createVm.disk' })}>
           {getFieldDecorator('disk_cap', {
             initialValue: (`${disk_cap % 1024 == 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
             rules: [
@@ -755,7 +952,8 @@ class RenderDeploy extends PureComponent {
       // componentPermissions: { isDeploytype, isSource },
       handleBuildSwitch,
       handleEditInfo,
-      handleEditRuntime
+      handleEditRuntime,
+      showEnterprisePlugin
     } = this.props;
     const isDeploytype = true;
     const isSource = true;
@@ -770,9 +968,9 @@ class RenderDeploy extends PureComponent {
           <>
 
             {method == 'vm' ? (
-              <VirtualMachineBaseInfo onRefCpu={this.onRefCpu} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} appDetail={appDetail} />
+              <VirtualMachineBaseInfo onRefCpu={this.onRefCpu} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} appDetail={appDetail} showEnterprisePlugin={showEnterprisePlugin} />
             ) : (
-              <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} />
+              <BaseInfo onRefCpu={this.onRefCpu} appDetail={appDetail} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} showEnterprisePlugin={showEnterprisePlugin} />
             )}
           </>
         )}
@@ -837,7 +1035,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { appDetail, handleBuildSwitch, handleEditInfo, handleEditRuntime } = this.props;
+    const { appDetail, handleBuildSwitch, handleEditInfo, handleEditRuntime, showEnterprisePlugin } = this.props;
     const { type, componentPermissions, language } = this.state;
     return (
       <div>
@@ -860,6 +1058,7 @@ export default class Index extends PureComponent {
               // componentPermissions={componentPermissions}
               handleBuildSwitch={handleBuildSwitch}
               handleEditRuntime={handleEditRuntime}
+              showEnterprisePlugin={showEnterprisePlugin}
               onRef={this.onRef}
             />
           </div>

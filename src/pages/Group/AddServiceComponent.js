@@ -316,6 +316,7 @@ export default class AddServiceComponent extends PureComponent {
       hubType
     } = this.state;
     const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
+    const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
     const JarWar_svg = globalUtil.fetchSvg('soft');
@@ -502,6 +503,8 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'teamAdd.create.code.demo' })}
                     </p>
                   </Col>
+                  {/* {showSecurityRestrictions &&
+                  <>
                   {vmLoading ? (
                     <Col
                       span={8}
@@ -536,6 +539,7 @@ export default class AddServiceComponent extends PureComponent {
                         </Col>
                       </Tooltip>
                   )}
+                  </>} */}
                   {imageList && 
                     imageList.length > 0 &&
                     imageList.map(item => {
@@ -573,7 +577,7 @@ export default class AddServiceComponent extends PureComponent {
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>
-                    {formatMessage({ id: 'menu.team.create.upload' })}
+                    {showSecurityRestrictions ? formatMessage({ id: 'menu.team.create.upload' }) : 'Yaml'}
                   </p>
                 </Row>
                 <Row>
@@ -589,6 +593,7 @@ export default class AddServiceComponent extends PureComponent {
                       {formatMessage({ id: 'appOverview.list.btn.addComponent.yaml' })}
                     </p>
                   </Col>
+                  {showSecurityRestrictions && 
                   <Col
                     span={8}
                     className={styles.ServiceDiv}
@@ -600,7 +605,7 @@ export default class AddServiceComponent extends PureComponent {
                     <p className={styles.ServiceSmallTitle}>
                       {formatMessage({ id: 'teamAdd.create.upload.uploadFiles.helm' })}
                     </p>
-                  </Col>
+                  </Col>}
                 </Row>
               </div>
               <div className={styles.ServiceBox}>

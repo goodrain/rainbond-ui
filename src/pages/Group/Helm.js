@@ -369,6 +369,11 @@ export default class Index extends PureComponent {
           }
         })
       },
+      handleError: (err) => {
+        notification.error({
+          message: err.data.msg_show
+        });
+      }
     });
   };
   // 结束升级任务
@@ -820,7 +825,10 @@ export default class Index extends PureComponent {
           this.jump();
         }
       },
-      handleError: () => {
+      handleError: (err) => {
+        notification.error({
+          message: err.data.msg_show
+        });
         this.setState({
           status: 4,
           showConfig: false

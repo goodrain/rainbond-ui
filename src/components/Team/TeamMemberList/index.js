@@ -71,7 +71,10 @@ export default class MemberList extends PureComponent {
 
   updateCurrentUser = () => {
     this.props.dispatch({
-      type: 'user/fetchCurrent'
+      type: 'user/fetchCurrent',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      }
     });
   };
   hideEditAction = () => {
@@ -179,8 +182,6 @@ export default class MemberList extends PureComponent {
         role_id: selectedRole
       },
       callback: res => {
-        console.log(res,"res");
-        
         if (res && res.status_code === 200) {
           const inviteLink = res.bean.invite_id;
           this.setState({

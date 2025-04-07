@@ -14,9 +14,11 @@ import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
+import pluginUtile from '../../utils/pulginUtils';
 
 @connect(
-  ({ loading, teamControl }) => ({
+  ({ loading, teamControl, user }) => ({
+    currUser: user.currentUser,
     buildAppsLoading: loading.effects['createApp/buildApps'],
     deleteAppLoading: loading.effects['appControl/deleteApp'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
@@ -33,11 +35,12 @@ export default class Index extends PureComponent {
     this.state = {
       // appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
-      handleBuildSwitch: false
+      handleBuildSwitch: false,
+      showEnterprisePlugin: false,
     };
   }
   componentDidMount() {
-    this.loadDetail();
+    this.isShowEnterprisePlugin()
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -52,6 +55,26 @@ export default class Index extends PureComponent {
       type
     );
   };
+  isShowEnterprisePlugin = () => {
+    const { dispatch, currUser } = this.props;
+    dispatch({
+      type: 'global/getPluginList',
+      payload: { enterprise_id: currUser.enterprise_id, region_name: globalUtil.getCurrRegionName() },
+      callback: (res) => {
+        if (res && res.list) {
+          const showEnterprisePlugin = pluginUtile.isInstallPlugin(res.list, 'rainbond-bill');
+          this.setState({
+            showEnterprisePlugin: showEnterprisePlugin,
+          },()=>{
+            this.loadDetail()
+          })
+        }
+      },
+      handleError: () => {
+        this.setState({ showEnterprisePlugin: false, pluginLoading: false });
+      },
+    });
+  }
   loadDetail = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias } = this.fetchParameter();
@@ -119,8 +142,11 @@ export default class Index extends PureComponent {
               // this.handleJump(`components/${app_alias}/overview`);
               this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
             }
+          },
+          handleError: err => {
+            notification.error({ message: err.data.msg_show })
           }
-          });
+        });
       })
       
     }else{
@@ -248,7 +274,8 @@ export default class Index extends PureComponent {
     const {
       showDelete,
       // appPermissions: { isDelete },
-      handleBuildSwitch
+      handleBuildSwitch,
+      showEnterprisePlugin
     } = this.state;
     const isDelete = true;
     const appDetail = this.state.appDetail || {};
@@ -266,6 +293,7 @@ export default class Index extends PureComponent {
           <AppConfigFile
             updateDetail={this.loadDetail}
             appDetail={appDetail}
+            showEnterprisePlugin={showEnterprisePlugin}
             handleBuildSwitch={this.handleBuildSwitch}
             handleEditInfo={this.handleEditInfo}
             handleEditRuntime={this.handleEditRuntime}

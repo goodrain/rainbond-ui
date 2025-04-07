@@ -7,6 +7,7 @@ import rainbondUtil from '../../utils/rainbond';
 import logo from '../../../public/logoLogin.png';
 import styles from './Register.less';
 import RegisterComponent from './registerComponent';
+import RegisterSmsComponent from './registerSmsComponent';
 
 @connect(({ user, global }) => ({
   register: user.register,
@@ -42,7 +43,17 @@ export default class Register extends Component {
       }
     });
   };
-
+  handleSmsSubmit = values => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/smsRegister',
+      payload: values,
+      complete: data => {
+        console.log('Register Success')
+        
+      }
+    });
+  };
   render() {
     const { isRegist, dispatch, rainbondInfo } = this.props;
     if (!isRegist) {
@@ -50,9 +61,11 @@ export default class Register extends Component {
       return null;
     }
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
+    const isSaas = rainbondInfo?.is_saas || false;
     return (
       <div className={styles.main}>
-        <RegisterComponent onSubmit={this.handleSubmit} type="register" />
+        {(firstRegist || !isSaas) && <RegisterComponent onSubmit={this.handleSubmit} type="register" />}
+        {isSaas && !firstRegist && <RegisterSmsComponent onSubmit={this.handleSmsSubmit} type="register" />}
       </div>
     );
   }

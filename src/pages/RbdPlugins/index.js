@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spin, Card, Button } from 'antd';
+import { Spin, Card, Button, Icon } from 'antd';
 import { connect } from 'dva';
 import { importAppPagePlugin } from '../../utils/importPlugins';
 import { getRainbondInfo } from '../../services/api';
@@ -7,6 +7,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
+import { routerRedux } from 'dva/router';
+import { formatMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 
 @connect(({ user, teamControl, global }) => ({
@@ -94,7 +96,24 @@ export default class Index extends Component {
           isCom ? 
           <RbdPluginsCom {...this.state}/> 
           :
-          <PageHeaderLayout title={plugins?.name} content={plugins?.description} pluginSVg={plugins?.icon}>
+          <PageHeaderLayout 
+            title={plugins?.display_name} 
+            content={plugins?.description} 
+            pluginSVg={plugins?.icon}
+            extraContent={
+              Global.getCurrTeamName() && 
+              <Button onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                      routerRedux.push({
+                        pathname: `/team/${Global.getCurrTeamName()}/region/${Global.getCurrRegionName()}/index`,
+                      })
+                  );
+              }} type="default">
+                  <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+              </Button>
+            }
+          >
             <RbdPluginsCom {...this.state}/>
           </PageHeaderLayout>
         ) : (

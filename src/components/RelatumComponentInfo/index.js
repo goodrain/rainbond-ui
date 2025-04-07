@@ -129,8 +129,8 @@ export default class Index extends PureComponent {
       <Fragment>
          <Card
           title={<>
-            <span>{'被外部组件依赖'}</span>
-            <span className={styles.desc}>表格列出了当前组件被其他外部组件所依赖的情况，它们是依赖于当前组件的外部组件。</span>
+            <span>{formatMessage({ id: 'componentOther.relationMnt.desc_reverse_relation' })}</span>
+            <span className={styles.desc}>{formatMessage({ id: 'componentOther.relationMnt.desc_reverse' })}</span>
           </>}
           extra={
             <Button onClick={this.showAddRelation}>

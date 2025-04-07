@@ -39,7 +39,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @connect(
-  ({ user, appControl, teamControl, rbdPlugin }) => ({
+  ({ user, appControl, teamControl, rbdPlugin, global }) => ({
     currUser: user.currentUser,
     startProbe: appControl.startProbe,
     runningProbe: appControl.runningProbe,
@@ -50,6 +50,7 @@ const RadioGroup = Radio.Group;
     teamControl,
     appControl,
     pluginList: rbdPlugin.pluginList,
+    rainbondInfo: global.rainbondInfo,
   }),
   null,
   null,
@@ -84,7 +85,6 @@ export default class Index extends React.Component {
       env_name: '',
       loading: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      showKubernetes: pluginUtils.isInstallPlugin(this.props?.pluginList, 'rainbond-bill'),
     };
   }
   componentDidMount() {
@@ -644,13 +644,14 @@ export default class Index extends React.Component {
       componentPermissions: { isOtherSetting },
       appDetail,
       method,
-      currUser
+      currUser,
+      rainbondInfo
     } = this.props;
     if(!isOtherSetting){
       return role.noPermission()
     }
     const extend_methods = this.props && this.props.baseInfo && this.props.baseInfo.extend_method || 'stateless_multiple'
-    const { viewStartHealth, tags, tabData, isShow, loading, language, showKubernetes } = this.state;
+    const { viewStartHealth, tags, tabData, isShow, loading, language } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -689,6 +690,7 @@ export default class Index extends React.Component {
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout
+    const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
     const appsetting_formItemLayout = {
       wrapperCol: {
         span: 24
@@ -852,7 +854,7 @@ export default class Index extends React.Component {
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
             />
           )}
-          {(currUser.is_enterprise_admin || !showKubernetes) && (
+          {(currUser.is_enterprise_admin || showSecurityRestrictions) && (
             <Kubernetes
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
               extend_method={appDetail.service.extend_method}
