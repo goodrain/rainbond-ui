@@ -199,8 +199,8 @@ const componentOverview = {
     // tabs栏>Monitor>历史>CustomChartz组件>RangeChart
     'componentOverview.body.tab.monitor.history.containerMem.title': '内存使用量',
     'componentOverview.body.tab.monitor.history.containerMem.label': '内存（MB）',
-    'componentOverview.body.tab.monitor.history.containerCpu.title': 'CPU使用率',
-    'componentOverview.body.tab.monitor.history.containerCpu.label': 'CPU使用率（%）',
+    'componentOverview.body.tab.monitor.history.containerCpu.title': 'CPU使用量',
+    'componentOverview.body.tab.monitor.history.containerCpu.label': 'CPU使用量（m）',
     'componentOverview.body.tab.monitor.history.containerNetR.title': '传入流量',
     'componentOverview.body.tab.monitor.history.containerNetR.label': '流量（KB/s）',
     'componentOverview.body.tab.monitor.history.containerNetT.title': '传出流量',

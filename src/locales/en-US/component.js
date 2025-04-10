@@ -198,8 +198,8 @@ const componentOverview = {
     // tabs栏>Monitor>历史>CustomChartz组件>RangeChart
     'componentOverview.body.tab.monitor.history.containerMem.title': 'Memory Usage',
     'componentOverview.body.tab.monitor.history.containerMem.label': 'Memory (MB)',
-    'componentOverview.body.tab.monitor.history.containerCpu.title': 'CPU Utilization Rate',
-    'componentOverview.body.tab.monitor.history.containerCpu.label': 'CPU Utilization Rate（%）',
+    'componentOverview.body.tab.monitor.history.containerCpu.title': 'CPU Usage',
+    'componentOverview.body.tab.monitor.history.containerCpu.label': 'CPU Usage (m)',
     'componentOverview.body.tab.monitor.history.containerNetR.title': 'Incoming Traffic',
     'componentOverview.body.tab.monitor.history.containerNetR.label': 'Traffic (KB / s)',
     'componentOverview.body.tab.monitor.history.containerNetT.title': 'Outgoing Traffic',

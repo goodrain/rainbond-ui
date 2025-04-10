@@ -126,7 +126,7 @@ export default class RangeChart extends PureComponent {
         case 'containerMem':
           return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}) by (pod, namespace) / 1024 / 1024`;
         case 'containerCpu':
-          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}[5m])) by (pod,namespace) * 100`;
+          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}[5m])) by (pod,namespace) * 1000`;
         case 'containerNetR':
           return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])) by (pod, namespace) / 1024`;
         case 'containerNetT':
@@ -157,11 +157,11 @@ export default class RangeChart extends PureComponent {
           unit: ' MB'
       }
       case 'containerCpu':
-        // return { title: 'CPU使用率', label: 'CPU使用率（%）', unit: '%' };
+        // return { title: 'CPU使用量', label: 'CPU使用量（m）', unit: 'm' };
         return { 
           title: formatMessage({id:'componentOverview.body.tab.monitor.history.containerCpu.title'}),
           label: formatMessage({id:'componentOverview.body.tab.monitor.history.containerCpu.label'}),
-          unit: '%'
+          unit: 'm'
       }
       case 'containerNetR':
         // return { title: '传入流量', label: '流量（KB/s）', unit: ' KB/s' };
