@@ -1081,6 +1081,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.cluster.assignedCpu': '已分配CPU(Core)',
     'enterpriseColony.mgt.cluster.assignedMemory': '已分配内存(GB)',
     'enterpriseColony.mgt.cluster.assigned': '已分配',
+    'enterpriseColony.mgt.cluster.used': '已使用',
     'enterpriseColony.mgt.cluster.edit': '操作',
     'enterpriseColony.mgt.cluster.dispatch': '调度',
     'enterpriseColony.mgt.cluster.banDispatch': '禁止调度',

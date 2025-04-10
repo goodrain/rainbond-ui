@@ -30,7 +30,6 @@ export default class AutomaticIssuance extends Component {
         region_app_id: this.props?.groupDetail?.region_app_id
       },
       callback: res => {
-        console.log(res, "res");
         if (res && res?.list.length > 0) {
           this.setState({
             dataSource: res.list

@@ -36,7 +36,7 @@ export default class index extends Component {
         };
     }
     componentDidMount() {
-        console.log(this.props.pluginName,"this.props.pluginName");
+        
     }
     handleSelectChange = (val) => {
         this.setState({

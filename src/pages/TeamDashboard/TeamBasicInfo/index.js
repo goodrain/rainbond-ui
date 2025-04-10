@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
 import { connect } from 'dva';
 import Result from '../../../components/Result';
-import AddGroup from '../../../components/AddOrEditGroup';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import newRole from '@/utils/newRole';
@@ -10,6 +9,8 @@ import globalUtil from '../../../utils/global';
 import PluginUtil from '../../../utils/pulginUtils'
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
+import userUtil from '../../../utils/user';
+import { pinyin } from 'pinyin-pro';
 import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
@@ -206,25 +207,105 @@ export default class index extends Component {
       return num;
     };
   }
-  // 新建应用
-  handleAddGroup = (groupId, groups) => {
+
+  fetchGroup = () => {
     const { dispatch } = this.props;
-    this.setState({
-      addGroup: false
-    }, () => {
-      newRole.refreshPermissionsInfo()
-      notification.success({
-        message: formatMessage({ id: 'versionUpdata_6_1.createSuccess' })
-      })
-      dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${groupId}`))
-    })
+    dispatch({
+      type: 'user/fetchCurrent',
+      callback: res => {
+        if (res && res.bean) {
+         const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          this.setState({
+            currentTeam: team,
+            indexLoading: false
+          });
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
+          dispatch({
+            type: 'teamControl/fetchCurrentTeam',
+            payload: team
+          });
+        }
+      },
+    });
+  };
+
+  fetchTeamApps = (data) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+      },
+      callback: (res) => {
+        if (res) {
+          newRole.refreshPermissionsInfo();
+          const groupId = data.group_id || '';
+          dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${groupId}`));
+        }
+      }
+    });
+  };
+
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if(name != undefined && name != ''){
+      const { appNames } = this.props;
+      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (appNames && appNames.length > 0) {
+        const isExist = appNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);          
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
   }
-  // 取消新建应用
-  cancelAddApp = () => {
-    this.setState({
-      addGroup: false
-    })
-  }
+  // 新建应用
+  handleAddGroup = () => {
+    const { dispatch } = this.props;
+    const { teamHotAppList, language } = this.state;
+
+    // Generate random 4 letters
+    const generateRandomLetters = () => {
+      const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+      return Array.from({ length: 4 }, () => letters.charAt(Math.floor(Math.random() * letters.length))).join('');
+    };
+
+    // Set base name based on language
+    const baseName = language ? '未命名' : 'Untitled';
+    
+    // Check if there are any groups with the base name
+    const hasBaseNameGroup = teamHotAppList.some(item => item.group_name.includes(baseName));
+    
+    // Generate final name
+    const name = hasBaseNameGroup ? `${baseName}-${generateRandomLetters()}` : baseName;
+    const k8sName = this.generateEnglishName(name);
+    dispatch({
+      type: "application/addGroup",
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        group_name: name,
+        k8s_app: k8sName,
+        note: ''
+      },
+      callback: (res) => {
+        if (res) {
+          this.fetchGroup()
+          this.fetchTeamApps(res);
+        }
+      }
+    });
+  };
+
   // 获取行样式
   getRowClassName = (record) => {
     switch (record.status) {
@@ -567,11 +648,7 @@ export default class index extends Component {
                   {isAppCreate && (
                     <Button
                       type="primary"
-                      onClick={() => {
-                        this.setState({
-                          addGroup: true,
-                        });
-                      }}
+                      onClick={() => {this.handleAddGroup()}}
                     >
                       {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
                     </Button>
@@ -612,11 +689,7 @@ export default class index extends Component {
               {!appListLoading && teamHotAppList.length == 0 &&
                 <div
                   className={styles.appListEmpty}
-                  onClick={() => {
-                    this.setState({
-                      addGroup: true,
-                    });
-                  }}>
+                  onClick={() => {this.handleAddGroup()}}>
                   <Empty
                     description={formatMessage({ id: 'teamOverview.startDeploy' })}
                   />
@@ -638,7 +711,6 @@ export default class index extends Component {
             />
           </div>
         )}
-        {addGroup && <AddGroup onCancel={this.cancelAddApp} onOk={this.handleAddGroup} />}
       </>
     );
   }

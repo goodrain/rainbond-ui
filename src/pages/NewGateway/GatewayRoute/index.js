@@ -38,8 +38,6 @@ export default class index extends Component {
             teamName: globalUtil.getCurrTeamName(),
           },
           callback: (res) => {    
-            console.log(1111);
-                    
             if(res && res.status_code == 200) {
               this.setState({
                 existsAutomaticIssuanceCert: res.bean.exists,
