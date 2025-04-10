@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
-import { Spin, notification } from 'antd';
+import { Spin, notification, Button } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import AppShareInstall from '@/components/AppShareInstall';
+import Exception from '@/components/Exception';
+import { Link } from 'dva/router';
+import newRole from '@/utils/newRole';
 import cookie from '@/utils/cookie';
 @connect(({ user }) => ({
   currUser: user.currentUser,
@@ -12,7 +15,8 @@ export default class MarketPlaceInstallApp extends Component {
     super(props);
     this.state = {
       appInfo: false,
-      isShare: false
+      isShare: false,
+      loading: true
     };
   }
   componentDidMount() {
@@ -52,8 +56,14 @@ export default class MarketPlaceInstallApp extends Component {
           const appInfo = res.list.find(item => item.app_id === this.props?.match?.params?.appId);
           this.setState({
             appInfo: appInfo,
+            loading: false
           })
         }
+      },
+      handleError: () => {
+        this.setState({
+          loading: false
+        })
       }
     })
   }
@@ -75,6 +85,7 @@ export default class MarketPlaceInstallApp extends Component {
       },
       callback: (res) => {
         if(res && res.group_id){
+          newRole.refreshPermissionsInfo()
           this.installShareApp(teamName, regionName, values, res.group_id)
         }
       },
@@ -146,27 +157,53 @@ export default class MarketPlaceInstallApp extends Component {
 
   render() {
     const { currUser } = this.props;
-    const { appInfo, isShare } = this.state;
+    const { appInfo, isShare, loading } = this.state;
     const eid = currUser.enterprise_id;
     const teams = currUser.teams;
     const teamName = this.props.currUser.teams[0]?.team_name;
     const regionName = this.props.currUser.teams[0]?.region[0]?.team_region_name;
     const appName = this.props?.location?.query?.app_name;
-    return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {appInfo &&
+
+    if (loading) {
+      return (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Spin />
+        </div>
+      );
+    }
+
+    if (appInfo) {
+      return (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <AppShareInstall
-            title={`确定要安装${appName}吗？`}
             eid={eid}
-            appName={appName}
-            teamName={teamName}
-            regionName={regionName}
+            teams={teams}
             appInfo={appInfo}
             isShare={isShare}
+            teamName={teamName}
+            regionName={regionName}
+            onCancel={this.handleCancel}
             onOk={this.handleInstallApp}
           />
+        </div>
+      );
+    }
+
+    return (
+      <Exception
+        type="404"
+        title="未找到应用"
+        desc={
+          <p style={{ color: '#666' }}>
+            抱歉，未找到与"{appName}"相关的应用信息
+          </p>
         }
-      </div>
-    )
+        actions={
+          <Link to="/">
+            <Button type="primary">返回首页</Button>
+          </Link>
+        }
+      />
+    );
   }
 }

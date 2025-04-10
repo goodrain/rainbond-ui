@@ -1595,13 +1595,13 @@ export default class Main extends PureComponent {
         ) : (
           <div>
             <PageHeaderMarket
-              title={formatMessage({ id: 'teamPlugin.btn.marketAdd' })}
+              title={formatMessage({ id: 'menu.team.create.market' })}
               titleSvg={pageheaderSvg.getPageHeaderSvg('market', 18)}
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}
               extraContent={handleType ? (!moreState ? mainSearch : '') : mainSearch}
-              content="应用市场安装是部署应用的一种方式，支持通过本地组件库、开源应用商店和Helm应用商店等方式一键安装应用。"
+              content={formatMessage({ id: 'teamAdd.create.market.desc' })}
               tabList={marketTab}
               helmInfoSwitch={helmInfoSwitch}
               marketInfoSwitch={marketInfoSwitch}

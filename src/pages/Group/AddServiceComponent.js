@@ -316,7 +316,7 @@ export default class AddServiceComponent extends PureComponent {
       hubType
     } = this.state;
     const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
-    const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
+    const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
     const codeSvg = globalUtil.fetchSvg('codeSvg');
     const docker_svg = globalUtil.fetchSvg('docker_svg');
     const JarWar_svg = globalUtil.fetchSvg('soft');

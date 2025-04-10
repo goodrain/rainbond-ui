@@ -95,11 +95,11 @@ const teamAdd = {
   'teamAdd.create.code.href':'View code',
   'teamAdd.create.code.demo2048':'2048 small game',
   'teamAdd.create.code.demoStatic':'Static Web：hello world !',
-  'teamAdd.create.code.selectDemo':'Selection example',
+  'teamAdd.create.code.selectDemo':'Select Example',
   // image
   'teamAdd.create.image.title':'Create components from the Docker image',
   'teamAdd.create.image.desc':'Applications can be created from containers and virtual machines',
-  'teamAdd.create.image.tabImage':'DockerImage',
+  'teamAdd.create.image.tabImage':'Container Image',
   'teamAdd.create.image.DockerRun':'Docker Run',
   'teamAdd.create.image.docker_cmd':'Command',
   'teamAdd.create.image.upload':'Upload',
@@ -141,7 +141,7 @@ const teamAdd = {
   'teamAdd.create.upload.TeamWizard.yaml':'Yaml',
 
   //market
-  'teamAdd.create.market.desc':'Install apps with one click from local component libraries or app stores.',
+  'teamAdd.create.market.desc':'Install apps with one click from local market or app stores.',
   'teamAdd.create.market.market':'Application market (100+)',
   'teamAdd.create.market.command':'Command line installation',
   //third
@@ -397,7 +397,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': 'Manual issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': 'Automatic issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': 'Detect not installed',
-  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Automatic issuance certificate',
+  'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',
   'teamNewGateway.NewGateway.AutomaticIssuance.domain': 'Domain name',
   'teamNewGateway.NewGateway.AutomaticIssuance.expiredTime': 'Expired time',
   'teamNewGateway.NewGateway.AutomaticIssuance.issueStatus': 'Issue status',
