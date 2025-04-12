@@ -177,12 +177,11 @@ export default class MarketPlaceInstallApp extends Component {
         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <AppShareInstall
             eid={eid}
-            teams={teams}
             appInfo={appInfo}
             isShare={isShare}
             teamName={teamName}
+            appName={appName}
             regionName={regionName}
-            onCancel={this.handleCancel}
             onOk={this.handleInstallApp}
           />
         </div>
