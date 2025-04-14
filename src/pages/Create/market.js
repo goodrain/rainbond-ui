@@ -1418,15 +1418,8 @@ export default class Main extends PureComponent {
             }}
             footer={
               showSaaSPrice ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Radio
-                      size="small"
-                      onClick={this.renderSuccessOnChange}
-                      checked={isDeploy}
-                    >
-                    {formatMessage({ id: 'button.build_start' })}
-                  </Radio>
                     <span style={{ color: '#8C8C8C', fontSize: '14px' }}>
                       预估(每天)
                       <span style={{ color: '#F5A623', fontSize: '16px', fontWeight: 500, marginLeft: '4px' }}>

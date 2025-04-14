@@ -1813,3 +1813,48 @@ export async function fetchClusterUsed(params, handleError) {
     }
   );
 }
+
+// 获取新手引导配置
+export async function fetchUserNewbieGuideConfig(handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/custom_configs`, {
+    method: 'get',
+    handleError
+  });
+}
+
+// 更新新手引导配置
+export async function putUserNewbieGuideConfig(body, handleError) {
+  return request(`${apiconfig.baseUrl}/console/users/custom_configs`, {
+    method: 'put',
+    data: body.arr,
+    handleError
+  });
+}
+
+export async function fetchLoginLogs(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/login-events`,
+    {
+      method: 'get',
+      params: param
+    }
+  );
+}
+
+export async function fetchOperationLogs(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/operation-logs`,
+    {
+      method: 'get',
+      params: {
+        operation_type: param.operation_type,
+        page: param.page,
+        page_size: param.page_size,
+        username: param.name,
+        start_time: param.start_time,
+        end_time: param.end_time,
+        query: param.query
+      }
+    }
+  );
+}

@@ -114,6 +114,7 @@ class TeamLayout extends PureComponent {
     this.fetchLicenses();
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
+    this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
     const { teamAppCreatePermission: { isAccess } } = this.state
     if (isAccess) {
@@ -308,6 +309,12 @@ class TeamLayout extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchNewbieGuideConfig'
+    });
+  };
+  getUserNewbieGuideConfig = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchUserNewbieGuideConfig'
     });
   };
   // get enterprise list

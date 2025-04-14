@@ -1425,5 +1425,47 @@ const platformUpgrade = {
     'platformUpgrade.index.updataAuthorization': 'Update authorization code',
 }
 
+//审计
+const auditEnterprise = {
+    'auditEnterprise.title':'Audit log',
+    'auditEnterprise.desc':'Queries that track account operations can be used for security analysis, resource change tracking, and compliance auditing.',
+    'auditEnterprise.tabs.operation_log':'ULog',
+    'auditEnterprise.tabs.Login_log':'ConLog',
+    'auditEnterprise.tabs.operation_log.th.user':'User',
+    'auditEnterprise.tabs.operation_log.th.type':'Operation type',
+    'auditEnterprise.tabs.operation_log.th.time':'Operation time',
+    'auditEnterprise.tabs.operation_log.th.service_cname':'Component name',
+    'auditEnterprise.tabs.operation_log.th.content':'Operation context',
+    'auditEnterprise.tabs.operation_log.th.appName':'App name',
+    'auditEnterprise.tabs.operation_log.th.detail':'Operation details',
+    'auditEnterprise.tabs.operation_log.th.operation.content':'Please enter the operation content',
+    'auditEnterprise.tabs.operation_log.th.select.user':'Please select user',
+    'auditEnterprise.tabs.operation_log.th.select.component':'Please select the component',
+    'auditEnterprise.tabs.operation_log.th.select.app':'Please select Application',
+    'auditEnterprise.tabs.operation_log.th.select.operation_type':'Please select the operation type',
+    'auditEnterprise.tabs.operation_log.th.reach':'to',
+    'auditEnterprise.tabs.operation_log.th.query':'Query',
+    'auditEnterprise.tabs.operation_log.th.allComponent':'All components',
+    'auditEnterprise.tabs.operation_log.th.allApp':'All App',
+    'auditEnterprise.tabs.operation_log.th.allType':'All type',
+    'auditEnterprise.tabs.operation_log.th.allUser':'All user',
+    'auditEnterprise.tabs.operation_log.th.real_name.username':'Account:',
+    'auditEnterprise.tabs.operation_log.th.real_name.email':'Email:',
+    'auditEnterprise.tabs.Login_log.th.client_ip':'Client IP',
+    'auditEnterprise.tabs.Login_log.th.login_time':'Login time',
+    'auditEnterprise.tabs.Login_log.th.user_agent':'Login equipment',
+    'auditEnterprise.tabs.Login_log.th.duration':'Active time',
+    'auditEnterprise.tabs.Login_log.th.hour':' Hour',
+    'auditEnterprise.tabs.Login_log.th.minute':' Minute',
+    'auditEnterprise.tabs.Login_log.th.second':' Second',
+    'auditEnterprise.tabs.Login_log.th.current':'Current version',
+    'auditEnterprise.tabs.Login_log.th.history':'History version',
+    'auditEnterprise.tabs.Login_log.th.config_file':'configuration files',
+    'auditEnterprise.tabs.Login_log.th.key':'Variable name',
+    'auditEnterprise.tabs.Login_log.th.value':'Variable value',
+    'auditEnterprise.tabs.operation_log.th.search':'Search',
+    'auditEnterprise.tabs.operation_log.th.select.time':'Select time',
+    'auditEnterprise.tabs.operation_log.th.select.type':'Select type',
+}
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade, auditEnterprise);

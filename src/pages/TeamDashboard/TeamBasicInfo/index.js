@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
 import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import NewbieGuiding from '../../../components/NewbieGuiding';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
 import PluginUtil from '../../../utils/pulginUtils'
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
+import userUtil from '../../../utils/user';
+import { pinyin } from 'pinyin-pro';
 import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
@@ -33,6 +36,12 @@ export default class index extends Component {
   constructor(props) {
     super(props);
     const savedViewState = window.localStorage.getItem('isTableView');
+    const { noviceGuide, rainbondInfo } = props;
+    // 检查是否已完成新手引导
+    const hasCompletedGuide = noviceGuide && noviceGuide.some(item => item.key === 'teamOverview' && item.value == 'True');
+    // 检查是否显示新手引导
+    const shouldShowGuide = rainbondInfo?.is_saas === true && !hasCompletedGuide;
+
     this.state = {
       page: 1,
       page_size: 12,
@@ -48,12 +57,121 @@ export default class index extends Component {
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: savedViewState === 'true',
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      storageUsed: 0
+      storageUsed: 0,
+      guideStep: shouldShowGuide ? 'team-overview' : ''
     };
   }
   componentDidMount() {
     const { teamOverviewPermission, teamAppCreatePermission } = this.state;
+    const { noviceGuide } = this.props;
     this.loadOverview();
+
+    // 初始化第一个高亮
+    setTimeout(() => {
+      const currentTarget = document.querySelector(`[data-guide="${this.state.guideStep}"]`);
+      if (currentTarget) {
+        currentTarget.style.position = 'relative';
+        currentTarget.style.zIndex = '1000';
+        currentTarget.style.backgroundColor = '#fff';
+      }
+    }, 1000);
+  }
+
+  handleGuideStep = (step) => {
+    this.setState({ guideStep: step });
+    if (step === 'close' || (!step && this.state.guideStep === 'create-app')) {
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'global/putUserNewbieGuideConfig',
+        payload: {
+          arr: [{ key: 'teamOverview', value: true }]
+        },
+        callback: () => {
+          this.getUserNewbieGuideConfig();
+        }
+      });
+    }
+    // 触发全局事件
+    window.dispatchEvent(new CustomEvent('guideStepChange', { detail: step }));
+  }
+  getUserNewbieGuideConfig = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchUserNewbieGuideConfig'
+    });
+  };
+  componentDidUpdate(prevProps, prevState) {
+    const { guideStep } = this.state;
+    const { noviceGuide } = this.props;
+
+    // 检查 noviceGuide 是否变化
+    if (prevProps.noviceGuide !== noviceGuide) {
+      const hasCompletedGuide = noviceGuide && noviceGuide.some(item => item.key === 'teamOverview' && item.value === true);
+      if (hasCompletedGuide && guideStep) {
+        this.setState({ guideStep: '' });
+      }
+    }
+
+    if (prevState.guideStep !== guideStep) {
+      // 移除之前的遮罩和高亮
+      const prevOverlay = document.getElementById('guide-overlay');
+      if (prevOverlay) {
+        prevOverlay.remove();
+      }
+      const prevTarget = document.querySelector(`[data-guide="${prevState.guideStep}"]`);
+      if (prevTarget) {
+        prevTarget.style.position = '';
+        prevTarget.style.zIndex = '';
+      }
+
+      // 添加新的遮罩和高亮
+      setTimeout(() => {
+        const currentTarget = document.querySelector(`[data-guide="${guideStep}"]`);
+        if (currentTarget) {
+          // 高亮目标元素
+          currentTarget.style.position = 'relative';
+          currentTarget.style.zIndex = '1000';
+        }
+      }, 100);
+    }
+  }
+
+  renderGuide = () => {
+    const { guideStep } = this.state;
+    const guideInfo = {
+      'team-overview': {
+        tit: '团队基本信息',
+        desc: '这里展示了团队的基本信息和资源使用情况，包括应用数量、组件数量、CPU使用量、内存使用量和存储使用量等重要指标。',
+        nextStep: 'team-setting',
+        svgPosition: { top: '250px', left: '300px' },
+        conPosition: { top: '260px', left: '320px' }
+      },
+      'team-setting': {
+        tit: '团队设置',
+        desc: '团队名称是系统根据用户名自动生成的，您可以在团队设置中修改团队名称、邀请新成员加入团队、设置角色权限等。',
+        prevStep: 'team-overview',
+        nextStep: 'create-app',
+        svgPosition: { top: '80px', right: '30px' },
+        conPosition: { top: '60px', right: '80px' }
+      },
+      'create-app': {
+        tit: '创建新应用',
+        desc: '点击此处开启部署向导，您可一键安装应用市场精选应用，快速体验开箱即用的便捷；也可灵活选择源码构建（支持绑定私有Git仓库）、镜像部署（对接自有镜像库）或YAML编排。',
+        prevStep: 'team-setting',
+        isSuccess: true,
+        svgPosition: { top: '330px', right: '30px' },
+        conPosition: { top: '340px', right: '40px' }
+      }
+    };
+    return guideStep && guideInfo[guideStep] ? (
+      <NewbieGuiding
+        {...guideInfo[guideStep]}
+        totals={5}
+        handleClose={() => this.handleGuideStep('close')}
+        handlePrev={() => this.handleGuideStep(guideInfo[guideStep].prevStep)}
+        handleNext={() => this.handleGuideStep(guideInfo[guideStep].nextStep)}
+      />
+    ) : null;
   }
   // 获取团队下的基本信息
   loadOverview = () => {
@@ -225,6 +343,7 @@ export default class index extends Component {
       addGroup: false
     })
   }
+
   // 获取行样式
   getRowClassName = (record) => {
     switch (record.status) {
@@ -474,46 +593,49 @@ export default class index extends Component {
 
     return (
       <>
+        {this.renderGuide()}
         {(index?.overviewInfo?.region_health || loadingOverview) && (
           <>
-            <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.appNum' })}</div>
-                  <div className={styles.basicInfoContent}>
-                    {isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'}
+            <div data-guide="team-overview">
+              <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
+                <Col span={4}>
+                  <div className={styles.basicInfo}>
+                    <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.appNum' })}</div>
+                    <div className={styles.basicInfoContent}>
+                      {isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'}
+                    </div>
                   </div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.serviceNum' })}</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>
-                    {showStorageUsed ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})` : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`}
+                </Col>
+                <Col span={4}>
+                  <div className={styles.basicInfo}>
+                    <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.serviceNum' })}</div>
+                    <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'}</div>
                   </div>
-                  <div className={styles.basicInfoContent}>
-                    {isTeamOverview ? (showStorageUsed ? storageUsed?.value : index?.overviewInfo?.disk_usage) : '**'}
+                </Col>
+                <Col span={4}>
+                  <div className={styles.basicInfo}>
+                    <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
+                    <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0 : '**'}</div>
                   </div>
-                </div>
-              </Col>
-            </Row>
+                </Col>
+                <Col span={4}>
+                  <div className={styles.basicInfo}>
+                    <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
+                    <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0 : '**'}</div>
+                  </div>
+                </Col>
+                <Col span={4}>
+                  <div className={styles.basicInfo}>
+                    <div className={styles.basicInfoTitle}>
+                      {showStorageUsed ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})` : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`}
+                    </div>
+                    <div className={styles.basicInfoContent}>
+                      {isTeamOverview ? (showStorageUsed ? storageUsed?.value : index?.overviewInfo?.disk_usage) : '**'}
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </div>
             <Card
               title={
                 <div>
@@ -572,6 +694,7 @@ export default class index extends Component {
                           addGroup: true,
                         });
                       }}
+                      data-guide="create-app"
                     >
                       {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
                     </Button>
