@@ -11,8 +11,6 @@ import globalUtil from '../../../utils/global';
 import PluginUtil from '../../../utils/pulginUtils'
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
-import userUtil from '../../../utils/user';
-import { pinyin } from 'pinyin-pro';
 import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
@@ -343,7 +341,6 @@ export default class index extends Component {
       addGroup: false
     })
   }
-
   // 获取行样式
   getRowClassName = (record) => {
     switch (record.status) {
