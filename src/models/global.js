@@ -138,7 +138,11 @@ import {
   fetchStorageUsed,
   getSmsConfig,
   updateSmsConfig,
-  fetchClusterUsed
+  fetchClusterUsed,
+  fetchUserNewbieGuideConfig,
+  putUserNewbieGuideConfig,
+  fetchLoginLogs,
+  fetchOperationLogs
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -155,6 +159,7 @@ export default {
     // 当前团队和集群的群组
     groups: null,
     novices: null,
+    noviceGuide: null,
     currTeam: '',
     currRegion: '',
     // 云帮平台信息
@@ -1141,7 +1146,38 @@ export default {
       if (callback) {
         callback(response);
       }
-    }
+    },
+    *fetchUserNewbieGuideConfig({ callback, handleError }, { put, call }) {
+      const response = yield call(fetchUserNewbieGuideConfig, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+      yield put({
+        type: 'saveUserNewbieGuideConfig',
+        payload: response.list || []
+      });
+    },
+    *putUserNewbieGuideConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(putUserNewbieGuideConfig, payload, handleError);
+      if (response) {
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *fetchLoginLogs({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchLoginLogs, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchOperationLogs({ payload, callback }, { call }) {
+      const response = yield call(fetchOperationLogs, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+
   },
   reducers: {
     isUpDataHeader(state, action) {
@@ -1221,6 +1257,12 @@ export default {
       return {
         ...state,
         novices: payload
+      };
+    },
+    saveUserNewbieGuideConfig(state, { payload }) {
+      return {
+        ...state,
+        noviceGuide: payload
       };
     },
     saveGroups(state, { payload }) {
