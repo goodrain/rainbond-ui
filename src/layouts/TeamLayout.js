@@ -117,6 +117,9 @@ class TeamLayout extends PureComponent {
     this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
     const { teamAppCreatePermission: { isAccess } } = this.state
+    if(this.props.rainbondInfo?.is_saas){
+      this.getUserNewbieGuideConfig();
+    }
     if (isAccess) {
       this.getAppNames();
     }
