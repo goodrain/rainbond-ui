@@ -1,0 +1,47 @@
+.floatStyle {
+  position: fixed;
+  right: 2px;
+  bottom: 4%;
+  transform: translateY(-50%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.iconBox {
+  width: 54px;
+  height: 54px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 8px;
+  background: #4c4c5f;
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.iconBoxHover {
+  transform: scale(1.12) rotate(-10deg);
+  box-shadow: 0 4px 16px rgba(76,76,95,0.18);
+}
+.qrBox {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: float-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.qrImgStyle {
+  width: 120px;
+  height: 120px;
+}

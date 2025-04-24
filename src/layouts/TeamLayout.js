@@ -35,6 +35,7 @@ import roleUtil from '../utils/newRole';
 import userUtil from '../utils/user';
 import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
+import CustomerServiceFloat from '../components/CustomerServiceFloat';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
@@ -1018,6 +1019,7 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
+        {rainbondInfo?.is_saas && <CustomerServiceFloat />}
       </Fragment>
     );
   }
