@@ -19,9 +19,7 @@ export default class PageHeader extends PureComponent {
       this.props.onTabChange(key);
     }
   };
-  handleClose = () => {
-    console.log(11111);
-    
+  handleClose = () => {    
     this.props.dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`

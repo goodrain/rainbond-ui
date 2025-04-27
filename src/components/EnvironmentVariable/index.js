@@ -519,7 +519,7 @@ class EnvironmentVariable extends React.Component {
         title: formatMessage({id:'componentOverview.body.tab.env.table.column.attr_name'}),
         dataIndex: 'attr_name',
         key: '1',
-        width: '30%',
+        width: '28%',
         editable: true,
         render: v => this.handleDiv(v)
       },
@@ -527,7 +527,7 @@ class EnvironmentVariable extends React.Component {
         title: formatMessage({id:'componentOverview.body.tab.env.table.column.attr_value'}),
         dataIndex: 'attr_value',
         key: '2',
-        width: '30%',
+        width: '28%',
         editable: true,
         render: (v, item) => {
           const isHidden = isAttrNameList.includes(item.ID);
@@ -552,7 +552,7 @@ class EnvironmentVariable extends React.Component {
         title: formatMessage({id:'componentOverview.body.tab.env.table.column.name'}),
         dataIndex: 'name',
         key: '3',
-        width: '25%',
+        width: '24%',
         editable: true,
         render: v => this.handleDiv(v)
       }
@@ -563,7 +563,7 @@ class EnvironmentVariable extends React.Component {
         title: formatMessage({id:'componentOverview.body.tab.env.table.column.action'}),
         dataIndex: 'action',
         key: '4',
-        width: '15%',
+        width: '20%',
         render: (v, data) => {
           const { editingID } = this.state;
           const editable = this.isEditing(data);

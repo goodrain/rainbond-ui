@@ -161,7 +161,6 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
-        console.log(res, 'res');
         this.setState({
           resources: res.list,
           appStatusConfig: true
@@ -540,7 +539,7 @@ export default class app extends Component {
         )),
         <Dropdown key="more" overlay={menu}>
           <Button>
-            更多 <Icon type="down" />
+            {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
           </Button>
         </Dropdown>
       ];

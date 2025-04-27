@@ -258,6 +258,16 @@ const global = {
     }
     return '';
   },
+  // 获取地址栏传参tab
+  getSlidePanelTab() {
+    const reg = /tab=([^\&]+)/;
+    const hash = window.location.hash || window.location.pathname || '';
+    const match = hash.match(reg);
+    if (match) {
+      return match[1];
+    }
+    return '';
+  },
   // 获取地址栏传参group_id
   getGroupID() {
     const reg = /group_id=([^\&]+)/;

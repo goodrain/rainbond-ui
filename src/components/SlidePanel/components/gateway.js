@@ -113,8 +113,8 @@ export default class Gateway extends Component {
               tabList={this.handleTabList()}
               onTabChange={this.handleTabChange}
               tabActiveKey={this.state.tabKey}
-              content={'访问控制支持设置集群外访问组件的方式，包括使用HTTP域名访问或IP+Port访问，同时支持目标服务以及域名证书的管理。'}
-              title='网关访问策略管理'
+              content={formatMessage({ id: 'versionUpdata_6_2.gateway.desc' })}
+              title={formatMessage({ id: 'teamGateway.strategy.title' })}
             />
             <div className={styles.content}>
               {this.renderContent()}

@@ -235,7 +235,7 @@ class Control extends Component {
                     breadcrumbList={breadcrumbList}
                     tabList={this.handleTabList(isGateway)}
                     onTabChange={this.handleTabChange}
-                    content={'访问控制支持设置集群外访问组件的方式，包括使用HTTP域名访问或IP+Port访问，同时支持目标服务以及域名证书的管理。'}
+                    content={formatMessage({ id: 'versionUpdata_6_2.gateway.desc' })}
                 >
                     {this.renderContent()}
                 </PageHeaderLayout>

@@ -523,11 +523,12 @@ export default class Index extends React.Component {
 
   updateComponentDetail = () => {
     const { teamName } = this.props.match.params;
+    const teamNames = globalUtil.getCurrTeamName();
     const { appAlias } = this.props;
     this.props.dispatch({
       type: 'appControl/fetchDetail',
       payload: {
-        team_name: teamName,
+        team_name: teamName || teamNames,
         app_alias: appAlias
       },
       callback: appDetail => {

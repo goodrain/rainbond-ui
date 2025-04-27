@@ -60,11 +60,8 @@ import Members from '../../../pages/Component/members';
 import Mnt from '../../../pages/Component/mnt';
 import Monitor from '../../../pages/Component/monitor';
 import Overview from '../../../pages/Component/overview';
-import Plugin from '../../../pages/Component/plugin';
-import Port from '../../../pages/Component/port';
-import Relation from '../../../pages/Component/relation';
-import Resource from '../../../pages/Component/resource';
-import Setting from '../../../pages/Component/setting';
+import advancedSettings from '../../../pages/Component/advancedSettings';
+import port from '../../../pages/Component/port';
 import ComponentPlugin from '../../../pages/Component/componentPlugin'
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
 import PluginUtile from '../../../utils/pulginUtils'
@@ -444,14 +441,14 @@ class Main extends PureComponent {
     }, times);
   };
 
-  handleTabChange = key => {
+  handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
     this.setState({
       activeTab: key
     }, () => {
       dispatch(
-        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}?type=components&componentID=${app_alias}&tab=${key}`)
+        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${key}`)
       );
     })
   };
@@ -514,6 +511,7 @@ class Main extends PureComponent {
       },
       callback: appDetail => {
         this.fetchAppDetail();
+        const haveTabKey = globalUtil.getSlidePanelTab();
         if (val) {
           this.loadBuildState(appDetail, val);
         } else {
@@ -526,7 +524,7 @@ class Main extends PureComponent {
           }, () => {
             this.setState({
               routerSwitch: false,
-              activeTab: this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview'
+              activeTab: haveTabKey ? haveTabKey : this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview'
             })
           });
         }
@@ -1358,7 +1356,7 @@ class Main extends PureComponent {
         isOtherSetting
       }
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")
+    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")    
     const {
       BuildList,
       componentTimer,
@@ -1392,7 +1390,7 @@ class Main extends PureComponent {
           action={<Spin />}
           {...this.props.pageHeader}
           title='-'
-          content='组件的各类参数配置，以及组件的启动、停止、重启、删除等操作'
+          content={formatMessage({ id: 'versionUpdata_6_2.componentSettings.desc' })}
         />
         <div style={{ marginTop: 40 }}>
           <Skeleton active />
@@ -1426,104 +1424,78 @@ class Main extends PureComponent {
     const action = status && status.status && this.checkPermissions();
 
     // 定义基础tabs配置
-    const getBaseTabs = (formatMessage) => [
+    const getBaseTabs = () => [
       {
         key: 'overview',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' }),
-        auth: true // 基础tab无需权限
+        auth: true 
       },
-      // {
-      //   key: 'log',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.log' }),
-      //   auth: true
-      // }
+      {
+        key: 'log',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.log' }),
+        auth: true
+      }
     ];
 
     // 定义扩展tabs配置 
-    const getExtendTabs = (formatMessage, method) => [
-      // {
-      //   key: 'expansion',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' }),
-      //   auth: 'isTelescopic',
-      //   condition: (appDetail) =>
-      //     appDetail?.service?.extend_method !== 'job' &&
-      //     appDetail?.service?.extend_method !== 'cronjob'
-      // },
-      // {
-      //   key: 'monitor',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
-      //   auth: 'isServiceMonitor'
-      // },
-      // {
-      //   key: 'environmentConfiguration',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' }),
-      //   auth: 'isEnv',
-      //   condition: () => method !== 'vm'
-      // },
-      // {
-      //   key: 'relation',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.relation' }),
-      //   auth: 'isRely'
-      // },
-      // {
-      //   key: 'mnt',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.mnt' }),
-      //   auth: 'isStorage'
-      // },
-      // {
-      //   key: 'port',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' }),
-      //   auth: 'isPort'
-      // },
-      // {
-      //   key: 'plugin',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.plugin' }),
-      //   auth: 'isPlugin',
-      //   condition: () => method !== 'vm'
-      // },
-      // {
-      //   key: 'resource',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.resource' }),
-      //   auth: 'isSource',
-      //   condition: () => method !== 'vm'
-      // },
-      // {
-      //   key: 'setting',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.setting' }),
-      //   auth: 'isOtherSetting'
-      // }
+    const getExtendTabs = (method) => [
+      {
+        key: 'expansion',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' }),
+        auth: ['isTelescopic'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method !== 'job' &&
+          appDetail?.service?.extend_method !== 'cronjob'
+      },
+      {
+        key: 'monitor',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
+        auth: ['isServiceMonitor']
+      },
+      {
+        key: 'environmentConfiguration',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' }),
+        auth: ['isEnv'],
+        condition: () => method !== 'vm'
+      },
+      {
+        key: 'advancedSettings',
+        tab: formatMessage({ id: 'versionUpdata_6_2.advancedSettings' }),
+        auth: ['isRely','isStorage','isPort','isPlugin','isSource','isOtherSetting']
+      }
     ];
 
     // 定义第三方服务tabs
     const getThirdPartyTabs = (formatMessage) => [
-      // {
-      //   key: 'thirdPartyServices',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
-      // },
-      // {
-      //   key: 'port',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' })
-      // },
-      // {
-      //   key: 'connectionInformation',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.connectionInformation' })
-      // },
-      // {
-      //   key: 'members',
-      //   tab: formatMessage({ id: 'componentOverview.body.tab.bar.members' })
-      // }
+      {
+        key: 'thirdPartyServices',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
+      },
+      {
+        key: 'port',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.port' })
+      },
+      {
+        key: 'connectionInformation',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.connectionInformation' })
+      },
+      {
+        key: 'members',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.members' })
+      }
     ];
 
     // 获取基础tabs
-    const tabs = getBaseTabs(formatMessage);
+    const tabs = getBaseTabs();
 
     // 添加扩展tabs(根据权限)
     if (!isShowThirdParty) {
-      const extendTabs = getExtendTabs(formatMessage, method);
+      const extendTabs = getExtendTabs(method);
       extendTabs.forEach(tab => {
         // 检查权限和条件
+        const hasPermission = !tab.auth || tab.auth.some(perm => permissions[perm]);
         if (
-          (!tab.auth || permissions[tab.auth]) &&
+          hasPermission &&
           (!tab.condition || tab.condition(appDetail))
         ) {
           tabs.push(tab);
@@ -1531,14 +1503,14 @@ class Main extends PureComponent {
       });
 
       // 添加插件tabs
-      // if (CompluginList?.length > 0) {
-      //   CompluginList.forEach(item => {
-      //     tabs.push({
-      //       key: item.name,
-      //       tab: item.display_name
-      //     });
-      //   });
-      // }
+      if (CompluginList?.length > 0) {
+        CompluginList.forEach(item => {
+          tabs.push({
+            key: item.name,
+            tab: item.display_name
+          });
+        });
+      }
     }
 
     // 最终的tabList
@@ -1569,20 +1541,16 @@ class Main extends PureComponent {
       overview: isShowThirdParty ? ThirdPartyServices : Overview,
       monitor: Monitor,
       log: Log,
+      port: port,
       expansion: Expansion,
       environmentConfiguration: EnvironmentConfiguration,
-      relation: Relation,
-      mnt: Mnt,
-      port: Port,
-      plugin: Plugin,
-      resource: Resource,
-      setting: Setting,
+      advancedSettings: advancedSettings
     };
-    // if (CompluginList && CompluginList.length > 0) {
-    //   CompluginList.forEach(item => {
-    //     map[item.name] = ComponentPlugin
-    //   })
-    // }
+    if (CompluginList && CompluginList.length > 0) {
+      CompluginList.forEach(item => {
+        map[item.name] = ComponentPlugin
+      })
+    }
     const Com = map[activeTab];
     const formItemLayout = {
       labelCol: {
@@ -1598,6 +1566,7 @@ class Main extends PureComponent {
       teamName: globalUtil.getCurrTeamName(),
       type: activeTab
     }
+    
     return (
       <ResumeContext.Provider value={{ loadBuildState: this.loadDetail }}>
         <PageHeader
@@ -1607,7 +1576,7 @@ class Main extends PureComponent {
           onTabChange={this.handleTabChange}
           tabActiveKey={activeTab}
           tabList={tabsShow ? tabList : overviewTabs}
-          content='组件的各类参数配置，以及组件的启动、停止、重启、删除等操作'
+          content={formatMessage({ id: 'versionUpdata_6_2.componentSettings.desc' })}
         />
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
@@ -1743,7 +1712,6 @@ class Main extends PureComponent {
           width: '100%',
           height: 'calc(100% - 150px)',
           overflow: 'auto',
-          // 隐藏滚动条
           scrollbarWidth: 'none',
           '-ms-overflow-style': 'none',
           '&::-webkit-scrollbar': {
