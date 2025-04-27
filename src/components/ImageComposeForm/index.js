@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-import GlobalUtil from '../../utils/global';
+import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 
@@ -29,11 +29,18 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    
+    const group_id = globalUtil.getGroupID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
+        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
+        }
+        if(group_id){
+          fieldsValue.group_id = group_id
+        }
+        if(!fieldsValue.k8s_app || !fieldsValue.group_name){
+          fieldsValue.group_name = fieldsValue.service_cname
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
         }
         onSubmit(fieldsValue);
       }
@@ -42,31 +49,31 @@ export default class Index extends PureComponent {
   // 团队命名空间的检验
   handleValiateNameSpace = (_, value, callback) => {
     if (!value) {
-      return callback(new Error(formatMessage({id: 'placeholder.appEngName'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.appEngName' })));
     }
     if (value && value.length <= 32) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(
-          formatMessage({id: 'placeholder.nameSpaceReg'})
+          formatMessage({ id: 'placeholder.nameSpaceReg' })
         );
       }
       callback();
     }
     if (value.length > 32) {
-      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
+      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if(name != undefined){
+    if (name != undefined) {
       const { appNames } = this.props;
-      const pinyinName = pinyin(name, {toneType: 'none'}).replace(/\s/g, '');
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
       if (appNames && appNames.length > 0) {
         const isExist = appNames.some(item => item === cleanedPinyinName);
         if (isExist) {
-          const random = Math.floor(Math.random() * 10000);          
+          const random = Math.floor(Math.random() * 10000);
           return `${cleanedPinyinName}${random}`;
         }
         return cleanedPinyinName;
@@ -101,14 +108,14 @@ export default class Index extends PureComponent {
       groups
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const {language } = this.state;
+    const { language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
-    const group_id = GlobalUtil.getGroupID()
+    const group_id = globalUtil.getGroupID()
     let arch = 'amd64'
     let archLegnth = archInfo.length
-    if(archLegnth == 2){
+    if (archLegnth == 2) {
       arch = 'amd64'
-    }else if(archInfo.length == 1){
+    } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -120,27 +127,33 @@ export default class Index extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.form.appName'})}>
-              {getFieldDecorator('group_id', {
-                initialValue: data.group_name || Number(group_id) || '',
-                rules: [{ required: true, message: formatMessage({id: 'placeholder.appName'}) }]
-              })(
-                <Select
-                showSearch
-                filterOption={(input, option) => 
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                disabled={group_id}
-                onChange={this.fetchComponentNames}
-              >
-                {(groups || []).map(group => (
-                  <Option value={group.group_id}>{group.group_name}</Option>
-                ))}
-              </Select>
-              )}
-            </Form.Item>
+            {!group_id &&
+              <>
+                <Form.Item
+                  label={formatMessage({ id: 'popover.newApp.appName' })}
+                  {...formItemLayout}
+                >
+                  {getFieldDecorator('group_name', {
+                    initialValue: '',
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                      {
+                        max: 24,
+                        message: formatMessage({ id: 'placeholder.max24' })
+                      }
+                    ]
+                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                  {getFieldDecorator('k8s_app', {
+                    initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                      { validator: this.handleValiateNameSpace }
+                    ]
+                  })(<Input placehol1der={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                </Form.Item>
+              </>}
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
               formItemLayout={is_language}
@@ -148,68 +161,68 @@ export default class Index extends PureComponent {
               // width="594px"
               getFieldDecorator={getFieldDecorator}
               name="yaml_content"
-              label={formatMessage({id: 'teamAdd.create.image.config'})}
-              message={formatMessage({id: 'placeholder.yaml_content'})}
+              label={formatMessage({ id: 'teamAdd.create.image.config' })}
+              message={formatMessage({ id: 'placeholder.yaml_content' })}
               mode="yaml"
               data={data.yaml_content || ''}
             />
 
-            <Form.Item {...is_language} label={formatMessage({id: 'teamAdd.create.image.notice'})}>
-              {formatMessage({id: 'teamAdd.create.image.configHint'})}{' '}
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.notice' })}>
+              {formatMessage({ id: 'teamAdd.create.image.configHint' })}{' '}
               <a
                 onClick={() => {
                   this.setState({ showUsernameAndPass: true });
                 }}
                 href="javascript:;"
               >
-                {formatMessage({id: 'teamAdd.create.image.hint2'})}
+                {formatMessage({ id: 'teamAdd.create.image.hint2' })}
               </a>
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
               {...is_language}
-              label={formatMessage({id: 'teamAdd.create.form.user'})}
+              label={formatMessage({ id: 'teamAdd.create.form.user' })}
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({id: 'placeholder.user_name'}) }]
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.user_name' }) }]
               })(
                 <Input
                   style={{ maxWidth: 300 }}
                   autoComplete="off"
-                  placeholder={formatMessage({id: 'placeholder.user_name'})}
+                  placeholder={formatMessage({ id: 'placeholder.user_name' })}
                 />
               )}
             </Form.Item>
             <Form.Item
               style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
               {...is_language}
-              label={formatMessage({id: 'teamAdd.create.form.password'})}
+              label={formatMessage({ id: 'teamAdd.create.form.password' })}
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({id: 'placeholder.password'}) }]
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password' }) }]
               })(
                 <Input
                   autoComplete="new-password"
                   type="password"
                   style={{ maxWidth: 300 }}
-                  placeholder={formatMessage({id: 'placeholder.password'})}
+                  placeholder={formatMessage({ id: 'placeholder.password' })}
                 />
               )}
             </Form.Item>
-           {archLegnth == 2 &&
-          <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
-            {getFieldDecorator('arch', {
-              initialValue: arch,
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
-            })(
-              <Radio.Group>
-                <Radio value='amd64'>amd64</Radio>
-                <Radio value='arm64'>arm64</Radio>
-              </Radio.Group>
-            )}
-          </Form.Item>}
+            {archLegnth == 2 &&
+              <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                {getFieldDecorator('arch', {
+                  initialValue: arch,
+                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                })(
+                  <Radio.Group>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </Radio.Group>
+                )}
+              </Form.Item>}
             {showSubmitBtn ? (
               <Form.Item
                 wrapperCol={{
@@ -226,7 +239,7 @@ export default class Index extends PureComponent {
                   type="primary"
                   loading={createAppByCompose}
                 >
-                  {formatMessage({id: 'teamAdd.create.btn.create'})}
+                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
                 </Button>
               </Form.Item>
             ) : null}

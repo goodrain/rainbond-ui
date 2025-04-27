@@ -154,7 +154,7 @@ export default class Index extends PureComponent {
         const { dispatch, currentEnterprise } = this.props
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
-        const group_id = this.props.location.query.group_id;
+        const group_id = this.props.location.query.group_id || '';
         if (type == 'import') {
             dispatch(
                 routerRedux.push( `/team/${teamName}/region/${regionName}/shared/${link}?group_id=${group_id}`)

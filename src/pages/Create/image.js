@@ -210,7 +210,7 @@ export default class Main extends PureComponent {
       type = 'custom';
     }
     const Com = map[type];
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getGroupID() || ''
     return (
       <PageHeaderLayout
         title={formatMessage({ id: 'versionUpdata_6_1.createComponent' })}

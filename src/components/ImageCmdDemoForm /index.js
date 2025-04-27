@@ -75,12 +75,13 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, handleType, archInfo } = this.props;
+    const group_id = globalUtil.getGroupID()
     const isService = handleType && handleType === 'Service';
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (!isService) {
           fieldsValue.k8s_app = "appDockerDemo"
-          fieldsValue.is_demo = false
+          fieldsValue.is_demo = group_id ? false : true
         }
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
@@ -167,13 +168,13 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : Number(group_id),
+              initialValue: group_id ? Number(group_id) : language ? "镜像构建示例" : "Source sample application",
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
-                disabled={!!isService || group_id}
+                disabled={true}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -255,16 +256,13 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
                       loading={createAppByDockerrunLoading}
-                      disabled={!isCreate}
                     >
                       {formatMessage({ id: 'teamAdd.create.btn.create' })}
                     </Button>
-                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

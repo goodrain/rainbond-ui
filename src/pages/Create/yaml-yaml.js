@@ -7,6 +7,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeYamlForm from '../../components/CodeYamlForm';
 import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/newRole';
 import styles from './Index.less';
 
 @connect(({ user, global }) => ({
@@ -54,35 +55,60 @@ export default class Index extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
-  handleSubmit = value => {
+  handleSubmit = (value, event_id)=> {
     const teamName = globalUtil.getCurrTeamName();
-    const username = value.username_1;
-    const password = value.password_1;
-    delete value.username_1;
-    delete value.password_1;
-    this.props.dispatch({
-      type: 'createApp/createAppByCode',
-      payload: {
-        team_name: teamName,
-        code_from: 'gitlab_manual',
-        ...value,
-        username,
-        password
-      },
-      callback: data => {
-        if (data) {
-          const appAlias = data.bean.service_alias;
-          this.props.handleType && this.props.handleType === 'Service'
-            ? this.props.handleServiceGetData(appAlias)
-            : this.props.dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
-                )
-              );
-        }
-      }
-    });
+    const regionName = globalUtil.getCurrRegionName();
+    const { dispatch, groups } = this.props
+    // 获取 groups 中的
+    if(!value.group_name){
+      const group = groups.find(item => item.group_id == value.group_id)
+      value.group_name = group.group_name
+    }
+    dispatch(
+      routerRedux.push(
+        `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}&group_name=${value.group_name}`
+      )
+    );
   };
+
+  // 创建新应用
+  installApp = (vals, event_id) => {
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    dispatch({
+      type: 'application/addGroup',
+      payload: {
+        region_name: regionName,
+        team_name: teamName,
+        group_name: vals.group_name,
+        k8s_app: vals.k8s_app,
+        note: '',
+      },
+      callback: (res) => {
+        if(res && res.group_id){
+          roleUtil.refreshPermissionsInfo()
+          vals.group_id = res.group_id
+          vals.group_name = res.group_name
+          this.handleSubmit(vals, event_id)
+        }
+      },
+      handleError: () => {
+        
+      }
+    })
+  }
+
+  handleInstallApp = (value, event_id) => {
+    if (value.group_id) {
+      // 已有应用
+      this.handleSubmit(value, event_id)
+    } else {
+      // 新建应用再创建组件
+      this.installApp(value, event_id)
+    }
+  };
+
   render() {
     return (
       <Card>
@@ -96,7 +122,7 @@ export default class Index extends PureComponent {
                 : '600px'
           }}
         >
-          <CodeYamlForm onSubmit={this.handleSubmit} {...this.props} />
+          <CodeYamlForm onSubmit={this.handleInstallApp} {...this.props} />
         </div>
       </Card>
     );

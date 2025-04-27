@@ -271,7 +271,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: '创建组件' });
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getGroupID() || '';
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
