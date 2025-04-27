@@ -484,7 +484,7 @@ export default class TcpTable extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 record.group_id
-              }/`}
+              }/overview`}
             >
               {text}
             </Link>

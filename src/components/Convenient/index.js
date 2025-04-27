@@ -90,7 +90,7 @@ export default class Convenient extends PureComponent {
         if (item.ID === appName) {
           const { group_name, tenant_name, region_name, ID } = item;
           name = group_name;
-          result = `/team/${tenant_name}/region/${region_name}/apps/${ID}`;
+          result = `/team/${tenant_name}/region/${region_name}/apps/${ID}/overview`;
         }
       });
     } else if (

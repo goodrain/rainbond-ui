@@ -810,7 +810,7 @@ class Index extends PureComponent {
                     ) : (
                       <Col span={4}>{item.name}:</Col>
                     )}
-                    <Col span={18}>{
+                    <Col span={16}>{
                       item.name &&
                       (item.name == "nodeSelector" || item.name == "labels" || item.name == "annotations") &&
                       item.attribute_value.length > 0 &&
@@ -859,7 +859,7 @@ class Index extends PureComponent {
                         <span style={{ paddingTop: "6px" }}> {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {item.attribute_value} </span>
                       }
                     </Col>
-                    <Col span={2}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit' /></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={() => this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete' /></span></Col>
+                    <Col span={3}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit' /></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={() => this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete' /></span></Col>
                   </Row>
                 })
               ) : (

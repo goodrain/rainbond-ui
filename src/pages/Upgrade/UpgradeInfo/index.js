@@ -822,7 +822,7 @@ export default class AppList extends PureComponent {
       selectVersion,
       isAppOrComponent
     } = this.state;
-    const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`;
+    const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/overview`;
     const formItemLayout = {
       labelCol: {
         xs: { span: 6 },

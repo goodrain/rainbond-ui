@@ -842,7 +842,7 @@ export default class Index extends PureComponent {
     window.sessionStorage.setItem('updata', JSON.stringify(true))
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`
       )
     )
   }

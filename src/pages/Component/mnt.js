@@ -633,8 +633,9 @@ export default class Index extends PureComponent {
                     width: '10%',
                     render: (v, data) => (
                       <Link
-                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                          }/overview`}
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                          }/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`
+                        }
                       >
                         {v}
                       </Link>
@@ -648,7 +649,7 @@ export default class Index extends PureComponent {
                     render: (v, data) => (
                       <Link
                         to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                          }`}
+                          }/overview`}
                       >
                         {v}
                       </Link>

@@ -69,7 +69,7 @@ export default class Index extends PureComponent {
           ? this.props.cancelAddService()
           : this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${value.group_id}/overview`
               )
             );
       }
@@ -78,15 +78,12 @@ export default class Index extends PureComponent {
   render() {
     const arch = this.props.archInfo
     return (
-      <Card>
+      <Card bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
         <TopUpHints />
         <div
           className={styles.formWrap}
           style={{
-            width:
-              this.props.handleType && this.props.handleType === 'Service'
-                ? 'auto'
-                : '600px'
+            width:'600px'
           }}
         >
           <CommandMarketForm onSubmit={this.handleSubmit} {...this.props} />

@@ -1,0 +1,261 @@
+@import '~antd/lib/style/themes/default.less';
+
+.headerBox {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+}
+
+.icons:hover {
+  background: @primary-color;
+}
+.verticalCen {
+  display: flex;
+  align-items: center;
+  svg {
+    margin: 0;
+  }
+}
+.icons {
+  background: #d8d8d8;
+
+  i {
+    color: #ffffff;
+    font-size: 28px;
+  }
+
+  cursor: pointer;
+  width: 33px;
+  line-height: 98px;
+  text-align: center;
+}
+.tabsStyle{
+  margin: 10px 0px 0;
+  background: #fff;
+  height: 51px;
+  .tabs {
+
+    overflow: visible !important;
+    :global{
+      .ant-tabs-nav-container {
+        height: 38px !important;
+      }
+      .ant-tabs-nav{
+        &>div:nth-of-type(1){
+          display: flex !important;
+        }
+      }
+      .ant-tabs-tab{
+        height: 38px !important;
+        background-color: #fff !important;
+        margin-right: 0px !important;
+        border-radius: 0 !important;
+        border: 1px solid #E2E2E2 !important;
+        border-left: none !important;
+        box-sizing: border-box;
+      }
+      .ant-tabs-tab:first-child{
+        border-left: 1px solid #E2E2E2 !important;
+      }
+      .ant-tabs-bar{
+        margin: 0;
+      }
+      .ant-tabs-nav-container{
+        overflow: visible !important;
+      }
+      .ant-tabs-tab-active{
+        color: @primary-color !important;
+        // background-color: #f9f9f9 !important;
+      }
+      .ant-tabs-nav-scroll{
+        overflow: visible !important;
+      }
+      .ant-tabs-nav-container-scrolling{
+        overflow: visible !important;
+      }
+    }
+  }
+}
+.pageHeader {
+  background-color: @rbd-background-color;
+  padding: 16px;
+  position: relative;
+  .close {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    padding: 0;
+    border-radius: 50%;
+    background-color:@rbd-background-color;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color:@primary-color;
+  }
+  .detail {
+    display: flex;
+  }
+
+  .row {
+    display: flex;
+  }
+
+  .breadcrumb {
+    margin-bottom: 16px;
+  }
+
+  .tabs {
+    margin: 0 0 -17px -8px;
+
+    :global {
+      .ant-tabs-bar {
+        border-bottom: @border-width-base @border-style-base @border-color-split;
+      }
+    }
+  }
+
+
+  .title {
+    font-size: @rbd-sub-title-size;
+    line-height: @rbd-sub-title-line-height;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.65);
+    letter-spacing: 0;
+    margin-bottom: 0em;
+    display: flex;
+    align-items: center;
+  }
+  .title_svg{
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .action {
+    margin-left: 56px;
+    min-width: 266px;
+
+    :global {
+      .ant-btn-group:not(:last-child),
+      .ant-btn:not(:last-child) {
+        margin-right: 8px;
+      }
+
+      .ant-btn-group > .ant-btn {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .content {
+    font-size: @rbd-auxiliary-size;
+    color: @rbd-auxiliary-color-secondary !important;
+    letter-spacing: 0;
+    line-height: 23px;
+    line-height: @rbd-auxiliary-line-height;
+  }
+
+  .title,
+  .action,
+  .content,
+  .extraContent,
+  .main {
+    flex: auto;
+  }
+
+  // .title{
+  //   margin-bottom: 0;
+  // }
+  .content{
+    margin-bottom: 0;
+    p{
+      margin-bottom: 0;
+    }
+  }
+  .logo {
+    margin-bottom: 10px;
+  }
+
+  .action,
+  .extraContent {
+    text-align: right;
+    float: right;
+  }
+
+  .extraContent {
+    min-width: 242px;
+  }
+}
+.Plugin_Icon{
+  margin-right: 6px;
+  img{
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media screen and (max-width: @screen-xl) {
+  .pageHeader {
+    .extraContent {
+      margin-left: 44px;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .pageHeader {
+    .extraContent {
+      margin-left: 20px;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .pageHeader {
+    .row {
+      display: block;
+    }
+
+    .action,
+    .extraContent {
+      margin-left: 0;
+      text-align: left;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-sm) {
+  .pageHeader {
+    .detail {
+      display: block;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-xs) {
+  .pageHeader {
+    .action {
+      :global {
+        .ant-btn-group,
+        .ant-btn {
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .ant-btn-group > .ant-btn {
+          display: inline-block;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+.title_style{
+  font-size: 16px;
+  color: @rbd-sub-title-color;
+  line-height: 32px;
+  font-weight: 600;
+  margin: 0 12px 0 6px;
+}

@@ -176,7 +176,7 @@ class Index extends PureComponent {
         } else if (value.app_id == '-1') {
             notification.warning({ message: formatMessage({ id: 'notification.warn.not_team' }) })
         } else {
-            dispatch(routerRedux.push(`/team/${value.team_name}/region/${regionName}/apps/${value.app_id}`))
+            dispatch(routerRedux.push(`/team/${value.team_name}/region/${regionName}/apps/${value.app_id}/overview`))
         }
     }
 

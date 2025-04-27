@@ -27,7 +27,7 @@ function convertBundleIntoReact(
   bundle: AnserJsonEntry,
   key: number
 ) {
-  const style: { backgroundColor?: string; color?: string } = {};
+  const style: { backgroundColor?: string; color?: string; textIndent?: string } = {};
   if (bundle.bg) {
     style.backgroundColor = `rgb(${bundle.bg})`;
   }
@@ -39,7 +39,7 @@ function convertBundleIntoReact(
       style.textIndent =
         bundle.content.indexOf('') !== 0
           ? `${bundle.content.indexOf('') * 2}em`
-          : '2em';
+          : '0';
     }
   }
 

@@ -917,7 +917,8 @@ export default class Index extends PureComponent {
         notAllowScaling = true;
       }
     }
-    const { teamName, regionName } = this.props.match.params;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
     const { getFieldDecorator, getFieldValue } = form;
     const {
       page_num,

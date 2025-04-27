@@ -218,7 +218,7 @@ export default class PageHeader extends PureComponent {
             const { key, tab } = item;
             return (
               <Col
-                style={{width:'20%'}}
+                style={{width:'30%'}}
                 {...activeKeyProps}
                 className={styles.ServiceDiv}
                 onClick={this.handleTitleList.bind(this, item)}
@@ -233,7 +233,6 @@ export default class PageHeader extends PureComponent {
                       ? 'command_drawer_store'
                       : 'openSource_drawer_store'
                   )}
-                  {/* {!(key === 'localApplication') && key.indexOf('Helm-') > -1 && <img src={helm} alt="" />} */}
                 <p className={styles.ServiceSmallTitle}>{tab}</p>
               </Col>
             );

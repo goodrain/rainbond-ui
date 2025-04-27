@@ -254,6 +254,10 @@ export default class Index extends PureComponent {
         const { rainbondInfo } = this.props
         const { rainStoreTab, language, localist, teamAppCreatePermission: { isAccess } } = this.state
         const showDemo = rainbondInfo?.official_demo?.enable
+        const type = this.props.location.query.type;
+        const group_id = this.props.location.query.group_id;
+        console.log(type, 'type');
+        
         const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
         if (!isAccess) {
             return roleUtil.noPermission()
@@ -267,16 +271,30 @@ export default class Index extends PureComponent {
                     content={formatMessage({id:'versionUpdata_6_1.create.content'})}
                     titleSvg={pageheaderSvg.getPageHeaderSvg("component", 18)}
                     extraContent={
-                        <Button onClick={() => {
-                            const { dispatch } = this.props;
-                            dispatch(
-                                routerRedux.push({
-                                    pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
-                                })
-                            );
-                        }} type="default">
-                            <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
-                        </Button>
+                        type === 'app' ? (
+                            <Button onClick={() => {
+                                const { dispatch } = this.props;
+                                dispatch(
+                                    routerRedux.push({
+                                        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/overview`,
+                                    })
+                                );
+                            }} type="default">
+                                <Icon type="home" />{formatMessage({ id: 'appGateway.table.app' })}
+                            </Button>
+                        ) :(
+                            <Button onClick={() => {
+                                const { dispatch } = this.props;
+                                dispatch(
+                                    routerRedux.push({
+                                        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
+                                    })
+                                );
+                            }} type="default">
+                                <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+                            </Button>
+                        )
+
                     }
                 >
                     <div className={styles.overviewBox}>
@@ -365,6 +383,8 @@ export default class Index extends PureComponent {
                                 <p data-guide="yaml" onClick={() => this.onClickLinkCreate('yaml', 'yaml')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.yaml' })}</p>
                                 {showSecurityRestrictions && <p onClick={() => this.onClickLinkCreate('yaml', 'helm')}>{formatMessage({ id: 'teamAdd.create.upload.TeamWizard.helm' })}</p>}
                                 {showSecurityRestrictions && <p onClick={() => this.onClickLinkCreate('yaml', 'importCluster')}>{formatMessage({ id: 'teamAdd.create.upload.uploadFiles.k8s.text' })}</p>}
+                                <p onClick={() => this.onClickLinkCreate('yaml', 'outerCustom')}>{formatMessage({ id: 'appOverview.list.table.btn.third_party' })}</p>
+
                             </div>
                         </div>
                     </div>

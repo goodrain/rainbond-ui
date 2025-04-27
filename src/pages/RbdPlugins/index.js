@@ -63,7 +63,7 @@ export default class Index extends Component {
     } = this.props;
     let pluginId= ''
     if(isCom){
-      pluginId = Global.getComponentPluginType()
+      pluginId = Global.getSlidePanelTab()
     }else{
       pluginId = match.params.pluginId
     }

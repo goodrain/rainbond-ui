@@ -272,8 +272,8 @@ export default class Index extends PureComponent {
                 return (
                   <Tooltip title={v}>
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                        }/overview`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                        }/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`}
                     >
                       <span
                         style={{
@@ -298,7 +298,7 @@ export default class Index extends PureComponent {
                   <Tooltip title={v}>
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }`}
+                        }/overview`}
                     >
                       <span
                         style={{

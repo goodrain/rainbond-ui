@@ -588,27 +588,21 @@ export default class Main extends PureComponent {
               }
             });
 
-            // 关闭弹框
-            this.setState({ installBounced: false, is_deploy: true });
-            if (handleType && refreshCurrent) {
-              refreshCurrent();
-            }
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
-              )
-            );
-          },
-          handleError: (err) => {
-            if (err) {
-              notification.error({
-                message: err.data.msg_show
-              });
-            }
+          // 关闭弹框
+          this.setState({ installBounced: false, is_deploy: true });
+          if (handleType && refreshCurrent) {
+            refreshCurrent();
           }
-        });
-      }
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                0}/overview`
+            )
+          );
+        }
+        
+      });
+    }
     });
   };
   handleCreate = (vals, is_deploy) => {
@@ -641,8 +635,9 @@ export default class Main extends PureComponent {
             this.onCancelCreate();
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
-                }`
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  vals.group_id
+                }/overview`
               )
             );
           },
@@ -702,8 +697,9 @@ export default class Main extends PureComponent {
             this.setState({ is_deploy: true });
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
-                }`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  vals.group_id
+                }/overview`
               )
             );
           }
@@ -1501,6 +1497,7 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderComponent
               isAddMarket={this.props.isAddMarket}
+              noMargin={this.props.noMargin}
               isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
@@ -1566,7 +1563,7 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{
                           padding: '12px',
-                          marginBottom: !moreState ? '40px' : '0px'
+                          marginBottom: !moreState ? '160px' : '0px'
                         }}
                       >
                         {isSpincloudList !== -1 && cloudCardList}

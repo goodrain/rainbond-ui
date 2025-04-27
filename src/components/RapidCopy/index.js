@@ -279,7 +279,7 @@ export default class Index extends PureComponent {
           setTimeout(()=>{
             dispatch(
               routerRedux.push(
-                `/team/${tar_team_name}/region/${tar_region_name}/apps/${tar_group_id}`
+                `/team/${tar_team_name}/region/${tar_region_name}/apps/${tar_group_id}/overview`
               )
             );
           },1000)

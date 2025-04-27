@@ -4,7 +4,7 @@ import Global from '@/utils/global';
 
 
 export default class componentPlugin extends Component {
-  render() {
+  render() {    
     return (
       <div>
         <RbdPlugins isCom={true} key={Global.getComponentPluginType()}/>

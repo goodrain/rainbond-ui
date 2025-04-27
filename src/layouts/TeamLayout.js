@@ -135,7 +135,8 @@ class TeamLayout extends PureComponent {
     if (urlParams) {
       const bool = urlParams.href.includes("/helminstall");
       const webconsole = urlParams.href.includes("/webconsole");
-      if (webconsole) {
+      const overview = urlParams.href.includes("/overview");
+      if (overview) {
         this.setState({
           showFooter: false
         })
@@ -958,7 +959,7 @@ class TeamLayout extends PureComponent {
                           }}
                         >
                           {renderContent()}
-                          <CustomFooter />
+                          {showFooter && <CustomFooter />}
                         </div>
                       </Content>
                     </CSSTransition>
@@ -979,7 +980,6 @@ class TeamLayout extends PureComponent {
                       >
                         {renderContent()}
                         {showFooter && <CustomFooter />}
-
                       </div>
                     </Content>
                   )
