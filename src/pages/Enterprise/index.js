@@ -668,11 +668,11 @@ export default class Enterprise extends PureComponent {
   onJumpAlert = (key, team, region, group, component) => {
     const { dispatch } = this.props;
     if (key == 'component') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/components/${component}/overview`));
+      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}/overview?type=components&componentID=${component}&tab=overview`));
     } else if (key == 'team') {
       dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
     } else {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}`));
+      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}/overview`));
     }
   }
   //集群状态

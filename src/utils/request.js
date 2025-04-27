@@ -248,7 +248,8 @@ export default function request(url, options) {
             const AppID = globalUtil.getAppID(url);
             if (TEAM_NAME && REGION_NAME && AppID) {
               push(
-                `/team/${TEAM_NAME}/region/${REGION_NAME}/components/${AppID}/overview`
+                `/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`
+                
               );
             }
             const tipMap = {

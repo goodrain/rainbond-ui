@@ -79,7 +79,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     const { handleType, groupId } = this.props;
-    if (handleType && handleType === 'Service') {
+    if (groupId) {
       this.fetchComponentNames(Number(groupId));
     }
   }
@@ -380,7 +380,7 @@ export default class Index extends PureComponent {
 
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id,
+              initialValue: Number(groupId),
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
@@ -404,7 +404,7 @@ export default class Index extends PureComponent {
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}
-                disabled={!!isService}
+                disabled={true}
                 onChange={this.fetchComponentNames}
               >
                 {(groups || []).map(group => (
@@ -414,9 +414,6 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {isService ? null : showCreateGroup ? (
-              <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamAdd.create.third.createNewApp' })}</Button>
-            ) : null}
           </Form.Item>
 
           <FormItem {...is_language} label={formatMessage({ id: 'teamAdd.create.third.componentRegister' })}>

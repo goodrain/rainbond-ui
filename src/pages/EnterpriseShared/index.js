@@ -1373,7 +1373,7 @@ export default class EnterpriseShared extends PureComponent {
             if (isNext && groupId && teamName) {
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}/overview`
                 )
               );
             }

@@ -171,9 +171,9 @@ export default class EventList extends PureComponent {
         create_time,
         target
       } = item;
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-        item.service_alias
-      }/overview`;
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+        globalUtil.getAppID()
+      }/overview?type=components&componentID=${item.service_alias}&tab=overview`;
       return (
         <List.Item key={item.ID}>
           <List.Item.Meta

@@ -649,7 +649,7 @@ export default class Index extends PureComponent {
                 <Link
                   to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                     data.app_id
-                  }`}
+                  }/overview`}
                 >
                   {val}
                 </Link>
@@ -674,9 +674,9 @@ export default class Index extends PureComponent {
                 val
               ) : val ? (
                 <Link
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                    data.service_alias
-                  }/overview`}
+                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                    data.app_id
+                  }/overview?type=components&componentID=${data.service_alias}&tab=overview`}
                 >
                   {val}
                 </Link>

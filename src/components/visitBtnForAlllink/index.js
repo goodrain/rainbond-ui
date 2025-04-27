@@ -112,7 +112,7 @@ export default class Index extends PureComponent {
           {type === 'link' ? (
             <a style={{ fontSize: '14px' }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
           ) : (
-            <Button type="primary"><FormattedMessage id='componentOverview.header.right.visit'/></Button>
+            <Button type={type}><FormattedMessage id='componentOverview.header.right.visit'/></Button>
           )}
         </Dropdown>
       </Tooltip>

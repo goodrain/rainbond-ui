@@ -494,7 +494,7 @@ export default class Index extends PureComponent {
                           onClick={() => {
                             dispatch(
                               routerRedux.push(
-                                `/team/${teamName}/region/${regionName}/apps/${item.group_id}`
+                                `/team/${teamName}/region/${regionName}/apps/${item.group_id}/overview`
                               )
                             );
                           }}

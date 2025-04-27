@@ -414,7 +414,7 @@ export default class index extends Component {
                   className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
                   onClick={() => {
                     dispatch(routerRedux.push(
-                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`
+                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/overview`
                     ));
                   }}
                 >
@@ -506,7 +506,7 @@ export default class index extends Component {
             className={styles.appName}
             onClick={() => {
               const { dispatch } = this.props;
-              dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}`))
+              dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}/overview`))
             }}
           >
             {text}
@@ -585,7 +585,7 @@ export default class index extends Component {
             <a
               onClick={() => {
                 const { dispatch } = this.props;
-                dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}`))
+                dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}/overview`))
               }}>
               {formatMessage({ id: 'versionUpdata_6_1.manage' })}
             </a>

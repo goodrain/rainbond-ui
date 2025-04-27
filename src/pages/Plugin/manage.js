@@ -853,9 +853,9 @@ export default class Index extends PureComponent {
                 render: (v, data) => {
                   return (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.service_alias
-                      }/overview`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                        globalUtil.getAppID()
+                      }/overview?type=components&componentID=${data.service_alias}&tab=overview`}
                     >
                       {v}
                     </Link>
@@ -872,9 +872,9 @@ export default class Index extends PureComponent {
                 render: (v, data) => {
                   return (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                        data.service_alias
-                      }/plugin`}
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                        globalUtil.getAppID()
+                      }/overview?type=plugins&pluginID=${data.plugin_id}&tab=plugin`}
                     >
                       {formatMessage({id:'teamOther.manage.look'})}
                     </Link>

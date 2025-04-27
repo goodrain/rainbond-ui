@@ -494,7 +494,7 @@ export default class Index extends React.Component {
     dispatch(
       // 跳转组件
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${item.service_alias}/environmentConfiguration`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${item.service_alias}&tab=environmentConfiguration`
       )
     );
   }
@@ -697,7 +697,7 @@ export default class Index extends React.Component {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }`}
+                        }/overview`}
                     >
                       {v}
                     </Link>

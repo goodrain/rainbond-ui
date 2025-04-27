@@ -332,8 +332,8 @@ export default class Index extends PureComponent {
   };
   getParams() {
     return {
-      group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId
+      group_id: globalUtil.getAppID(),
+      compose_id: globalUtil.getSlidePanelComponentID(),
     };
   }
   onChangeBuildSource = () => {
@@ -824,7 +824,8 @@ export default class Index extends PureComponent {
       }
     };
 
-    const { teamName, regionName } = match.params;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
     const { getFieldDecorator } = form;
     const versionLanguage = buildSource ? buildSource.language : '';
     const buildShared = appUtil.getCreateTypeCNByBuildSource(buildSource);

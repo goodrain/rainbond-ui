@@ -73,6 +73,8 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
+    const appID = globalUtil.getAppID();
+    const componentID = globalUtil.getSlidePanelComponentID();
     const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function () {
@@ -98,7 +100,32 @@ class Index extends React.Component {
         });
         return topologicalAddress;
       };
-
+      window.getServiceAlias = function () {
+        return componentID;
+      };
+      window.clickBackground = function () {
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${appID}/overview`
+          )
+        )
+      };
+      window.clickNode = function (nodeid, componentID) {
+        console.log(nodeid,componentID,"nodeid,appAlias_parent");
+        if(nodeid == 'The Internet'){
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=gateway`
+            )
+          )
+        }else{  
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
+            )
+          )
+        }
+      }
       window.iframeGetTenantName = function () {
         return teamName;
       };

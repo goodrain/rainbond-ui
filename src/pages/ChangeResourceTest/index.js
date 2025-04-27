@@ -197,7 +197,7 @@ class Index extends PureComponent {
                         deploymentLoading: false,
                     })
                     dispatch(routerRedux.push(
-                        `/team/${teamName}/region/${regionName}/apps/${groupId}`
+                        `/team/${teamName}/region/${regionName}/apps/${groupId}/overview`
                     ))
                 }
             })
@@ -215,7 +215,7 @@ class Index extends PureComponent {
                             deploymentLoading: false,
                         })
                         dispatch(routerRedux.push(
-                            `/team/${teamName}/region/${regionName}/apps/${groupId}`
+                            `/team/${teamName}/region/${regionName}/apps/${groupId}/overview`
                         ))
                     }
 
