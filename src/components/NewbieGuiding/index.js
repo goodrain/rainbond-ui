@@ -74,7 +74,7 @@ class Index extends PureComponent {
     const { isEffect, isEnableNewbieGuide } = this.state;
 
     const isNext = rainbondUtil.handleNewbie(novices, configName);
-    return isEnableNewbieGuide && isNext ? (
+    return isNext ? (
       <Fragment>
         {isCoverScreen && <div className={styles.coverScreen} />}
         {showSvg && (

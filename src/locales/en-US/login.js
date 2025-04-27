@@ -21,7 +21,7 @@ const login = {
     'login.registerComponent.username':'enter one user name!',
     'login.registerComponent.min_length':'Minimum length: 3 bits',
     'login.registerComponent.max_length':'Maximum length: 24 bits',
-    'login.registerComponent.Only':'Only letters, numbers_ And - combination',
+    'login.registerComponent.Only':'Only letters, numbers And - combination',
     'login.registerComponent.user':'Username',
     'login.registerComponent.input_add':'Please enter email address!',
     'login.registerComponent.add_error':'Email address format error!',

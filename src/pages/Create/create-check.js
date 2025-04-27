@@ -1254,7 +1254,6 @@ export default class CreateCheck extends React.Component {
   renderSuccessInfo = () => {
     const { imageAddress, codeLanguage, serviceInfo, packageLange, Directory, ports } = this.state
     const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
-    console.log(serviceInfo,"serviceInfo");
     
     return serviceInfo.map((item, index) => {
       if (typeof item.value === 'string' && item.type == 'language') {

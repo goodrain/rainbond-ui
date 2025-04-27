@@ -1078,10 +1078,10 @@ export default class Index extends PureComponent {
                   }
                   {this.state.editBillInfo ?
                     <div style={{ marginLeft: 10 }}>
-                      <Button type='link' onClick={this.handleFromData}>
+                      <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData}>
                         {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                       </Button>
-                      <Button type='link' onClick={() => {
+                      <Button icon='close-circle' onClick={() => {
                         const { memoryMarksObj, cpuMarksObj } = this.state;
                         const { form } = this.props;
                         const extendInfo = this.props.extendInfo;
@@ -1105,7 +1105,7 @@ export default class Index extends PureComponent {
                       </Button>
                     </div>
                     :
-                    <Button type='link' onClick={() => this.setState({ editBillInfo: true })}>
+                    <Button icon='edit' onClick={() => this.setState({ editBillInfo: true })}>
                       {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
                     </Button>
                   }

@@ -43,6 +43,7 @@ const { Option } = Select;
   currentEnterprise: enterprise.currentEnterprise,
   loading,
   pluginsList: teamControl.pluginsList,
+  noviceGuide: global.noviceGuide
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -209,7 +210,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { currentTeam } = this.state
-    const { pluginsList } = this.props;
+    const { pluginsList, noviceGuide } = this.props;
     return (
       <div className={styles.container} key={this.state.loading}>
         <Spin spinning={this.state.loading}>
@@ -255,21 +256,24 @@ export default class Index extends PureComponent {
                 <Icon type="setting" />
                 {formatMessage({ id: 'global.fetchAccessText.plugin' })}
               </Button>
-              <Button onClick={() => {
-                const { dispatch } = this.props;
-                dispatch(
-                  routerRedux.push({
-                    pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/team`,
-                  })
-                );
-              }}>
+              <Button 
+                data-guide="team-setting"
+                onClick={() => {
+                  const { dispatch } = this.props;
+                  dispatch(
+                    routerRedux.push({
+                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/team`,
+                    })
+                  );
+                }}
+              >
                 <Icon type="setting" />
                 {formatMessage({id:'versionUpdata_6_1.setting'})}
               </Button>
             </div>
           </div>
           <div className={styles.content}>
-            <TeamBasicInfo pluginsList={pluginsList} />
+            <TeamBasicInfo noviceGuide={noviceGuide} pluginsList={pluginsList} />
           </div>
         </Spin>
       </div>

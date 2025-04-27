@@ -494,8 +494,6 @@ class EnterpriseLayout extends PureComponent {
       terminalStatus
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
-    console.log(collapsed,"collapsed")
-    
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href

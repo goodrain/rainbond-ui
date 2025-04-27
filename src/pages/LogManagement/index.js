@@ -12,6 +12,7 @@ import dateUtil from '../../utils/date-util';
 import global from '../../utils/global';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import LogInfo from '../../components/EnterpriseLog'
+import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 import styles from './index.less'
 const { TabPane } = Tabs;
 
@@ -54,7 +55,13 @@ export default class EnterpriseSetting extends PureComponent {
     }
 
     onChange = key => {
+        const { dispatch } = this.props;
+        const { ClustersList } = this.state;
         this.setState({ activeKey: key });
+        if (key == 'Operation' || key == 'login') {
+            dispatch(routerRedux.push(`/enterprise/${global.getCurrEnterpriseId()}/logs?regionName=${ClustersList[0].region_name}`));
+        }
+        
     };
     // 获取企业的集群信息
     handleLoadEnterpriseClusters = () => {
@@ -95,7 +102,20 @@ export default class EnterpriseSetting extends PureComponent {
                                     <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid} regionActiveKey={regionActiveKey}/>
                                 </TabPane>
                     })}
-
+                    <TabPane tab={<div>操作日志</div>} key="Operation">
+                        <EnterprisePluginsPage
+                            key="Operation"
+                            type="Operation"
+                            componentData={{ eid: eid}}
+                        />
+                    </TabPane>
+                    <TabPane tab={<div>登录日志</div>} key="login">
+                        <EnterprisePluginsPage
+                            key="login"
+                            type="login"
+                            componentData={{ eid: eid}}
+                        />
+                    </TabPane>
                 </Tabs>
             </PageHeaderLayout>
         );

@@ -35,6 +35,7 @@ import roleUtil from '../utils/newRole';
 import userUtil from '../utils/user';
 import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
+import CustomerServiceFloat from '../components/CustomerServiceFloat';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
@@ -114,8 +115,12 @@ class TeamLayout extends PureComponent {
     this.fetchLicenses();
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
+    this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
     const { teamAppCreatePermission: { isAccess } } = this.state
+    if(this.props.rainbondInfo?.is_saas){
+      this.getUserNewbieGuideConfig();
+    }
     if (isAccess) {
       this.getAppNames();
     }
@@ -309,6 +314,12 @@ class TeamLayout extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchNewbieGuideConfig'
+    });
+  };
+  getUserNewbieGuideConfig = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchUserNewbieGuideConfig'
     });
   };
   // get enterprise list
@@ -1008,6 +1019,7 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
+        {rainbondInfo?.is_saas && <CustomerServiceFloat />}
       </Fragment>
     );
   }

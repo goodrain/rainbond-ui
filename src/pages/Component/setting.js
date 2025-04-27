@@ -804,24 +804,26 @@ export default class Index extends React.Component {
 
                     {JSON.stringify(startProbe) != '{}' &&
                       appProbeUtil.isStartProbeStart(startProbe) ? (
-                      <a
+                      <Button
                         onClick={() => {
                           this.handleStartProbeStart(false);
                         }}
                         style={{ fontSize: '14px', fontWeight: 400 }}
+                        icon='stop'
                       >
                         <FormattedMessage id='componentOverview.body.setting.Disable' />
-                      </a>
+                      </Button>
                     ) : (
                       JSON.stringify(startProbe) != '{}' && (
-                        <a
+                        <Button
                           onClick={() => {
                             this.handleStartProbeStart(true);
                           }}
                           style={{ fontSize: '14px', fontWeight: 400 }}
+                          icon='play-square'
                         >
                           <FormattedMessage id='componentOverview.body.setting.Enable' />
-                        </a>
+                        </Button>
                       )
                     )}
                   </div>

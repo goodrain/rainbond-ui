@@ -49,8 +49,6 @@ class Index extends Component {
         } = rowClusterInfo
         // CPU使用率
         const cpuUsed = total_cpu == 0 ? 0 : ((used_cpu / total_cpu) * 100).toFixed(2);
-        console.log(cpuUsed, 'cpuUsed');
-        
         // 内存使用率
         const memoryUsed = total_memory == 0 ? 0 : ((used_memory / total_memory) * 100).toFixed(2);
         // 存储使用量

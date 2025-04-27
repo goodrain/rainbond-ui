@@ -111,7 +111,6 @@ class UserLayout extends React.PureComponent {
             <div className={styles.saasLeft}>
               <div className={styles.saasLeftContent}>
                 <div className={styles.introSection}>
-                  <h1>Rainbond Cloud</h1>
                   <p className={styles.subTitle}>即时部署，应用轻松扩展，实现开发者自助，无需平台运维工程师</p>
                 </div>
                 <div className={styles.featureList}>
@@ -140,6 +139,15 @@ class UserLayout extends React.PureComponent {
                     <div className={styles.featureContent}>
                       <h3>开箱即用</h3>
                       <p>整合资源，无需运维，专注业务开发</p>
+                    </div>
+                  </div>
+                  <div className={styles.featureItem}>
+                    <div className={styles.iconWrapper}>
+                      {globalUtil.fetchSvg('loginCloud3')}
+                    </div>
+                    <div className={styles.featureContent}>
+                      <h3>应用市场</h3>
+                      <p>上百款应用即点即用，涵盖AI、博客、低代码等类型</p>
                     </div>
                   </div>
                 </div>
