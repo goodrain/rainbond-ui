@@ -611,13 +611,16 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleCreate = (vals, is_deploy) => {
+  handleCreate = (vals, is_deploy, group_id) => {
     this.setState({
       addAppLoading: true
     });
     const { dispatch } = this.props;
     const { showCreate: app, currentKey } = this.state;
     const teamName = globalUtil.getCurrTeamName();
+    if(group_id){
+      vals.group_id = group_id
+    }
     dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -669,13 +672,15 @@ export default class Main extends PureComponent {
       )
     );
   };
-  handleCloudCreate = (vals, is_deploy) => {
+  handleCloudCreate = (vals, is_deploy, group_id) => {
     this.setState({
       addAppLoading: true
     });
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
-
+    if(group_id){
+      vals.group_id = group_id
+    }
     this.props.dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -718,6 +723,51 @@ export default class Main extends PureComponent {
       }
     });
   };
+
+  // 创建新应用
+  installApp = (vals) => {
+    const { handleType, scopeMax } = this.state;
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    dispatch({
+      type: 'application/addGroup',
+      payload: {
+        region_name: regionName,
+        team_name: teamName,
+        group_name: vals.group_name,
+        k8s_app: vals.k8s_app,
+        note: '',
+      },
+      callback: (res) => {
+        if(res && res.group_id){
+          roleUtil.refreshPermissionsInfo()
+          if(handleType || scopeMax == 'localApplication'){
+            this.handleCreate(vals, true, res.group_id)
+          } else {
+            this.handleCloudCreate(vals, true, res.group_id)
+          }
+        }
+      },
+      handleError: () => {
+        this.setState({
+          isShare: false
+        })
+      }
+    })
+  }
+  handleInstallApp = (vals, is_deploy) => {
+    const { handleType, scopeMax } = this.state;
+    if(vals.install_type == 'new'){
+      this.installApp(vals)
+    } else {
+      if(handleType || scopeMax == 'localApplication'){
+        this.handleCreate(vals, true)
+      } else {
+        this.handleCloudCreate(vals, true)
+      }
+    }
+  }
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
@@ -1387,13 +1437,7 @@ export default class Main extends PureComponent {
         {showCreate && (
           <CreateAppFromMarketForm
             disabled={loading.effects['createApp/installApp']}
-            onSubmit={
-              handleType
-                ? this.handleCreate
-                : scopeMax == 'localApplication'
-                  ? this.handleCreate
-                  : this.handleCloudCreate
-            }
+            onSubmit={this.handleInstallApp}
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
             addAppLoading={addAppLoading}

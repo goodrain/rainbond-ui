@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -58,7 +58,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.handleJarWarUpload()
     const group_id = globalUtil.getGroupID()
-    if(group_id){
+    if (group_id) {
       this.setState({
         creatComPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
       })
@@ -71,33 +71,25 @@ export default class Index extends PureComponent {
   //表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch, archInfo } = this.props;
+    const { form, dispatch, archInfo, onSubmit } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
+    const group_id = globalUtil.getGroupID()
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
       if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
         value.arch = archInfo[0]
       }
+      if(group_id){
+        value.group_id = group_id
+      }
+      if(!value.k8s_app || !value.group_name){
+        value.group_name = value.service_cname
+        value.k8s_app = this.generateEnglishName(value.service_cname)
+      }
       if (existFileList.length > 0) {
-        dispatch({
-          type: "createApp/createJarWarFormSubmit",
-          payload: {
-            region_name: regionName,
-            team_name: teamName,
-            event_id,
-            ...value
-          },
-          callback: (data) => {
-            const appAlias = data && data.bean.service_alias
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/create/create-check/${appAlias}?event_id=${event_id}`
-              )
-            );
-          },
-        });
+        onSubmit(value, event_id)
       } else {
         this.loop = true
         this.handleJarWarUploadStatus()
@@ -334,33 +326,6 @@ export default class Index extends PureComponent {
       <>
         <div className={styles.yaml_container}>
           <Form onSubmit={this.handleSubmit}>
-            <Form.Item  {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
-              {getFieldDecorator('group_id', {
-                initialValue: Number(group_id),
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.group_name' })
-                  }
-                ]
-              })(
-                <Select
-                  onChange={this.handleChange}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  disabled={group_id}
-                >
-                  {(groups || []).map(group => (
-                    <Option value={group.group_id}>{group.group_name}</Option>
-                  ))}
-                </Select>
-              )}
-              {/* <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button> */}
-            </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
                 rules: [
@@ -464,6 +429,45 @@ export default class Index extends PureComponent {
                   </Radio.Group>
                 )}
               </Form.Item>}
+
+            {!group_id && <>
+              <Divider />
+              <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
+                <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
+                  高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+                </Button>
+              </div>
+              {this.state.showAdvanced && (
+                <div className="advanced-settings" style={{ marginTop: 0, padding: '24px 16px 16px 16px', border: '1px solid #ececec', boxShadow: 'none' }}>
+                  <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                  <Form.Item
+                    label={formatMessage({ id: 'popover.newApp.appName' })}
+                    {...formItemLayout}
+                    style={{ marginBottom: 0 }}
+                  >
+                    {getFieldDecorator('group_name', {
+                      initialValue: this.props.form.getFieldValue('service_cname') || '',
+                      rules: [
+                        { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                        {
+                          max: 24,
+                          message: formatMessage({ id: 'placeholder.max24' })
+                        }
+                      ]
+                    })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                  </Form.Item>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                    {getFieldDecorator('k8s_app', {
+                      initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                      rules: [
+                        { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                        { validator: this.handleValiateNameSpace }
+                      ]
+                    })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                  </Form.Item>
+                </div>
+              )}
+            </>}
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -473,11 +477,9 @@ export default class Index extends PureComponent {
                 }
               }}
             >
-              <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
-                <Button type="primary" htmlType="submit" disabled={!isCreate}>
+                <Button type="primary" htmlType="submit">
                   {formatMessage({ id: 'teamAdd.create.btn.create' })}
                 </Button>
-              </Tooltip>
             </Form.Item>
           </Form>
         </div>

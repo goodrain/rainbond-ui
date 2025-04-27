@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Modal, Radio, Select, Tag, Tooltip, Row, Col, Card } from 'antd';
+import { Button, Form, Modal, Radio, Select, Tag, Tooltip, Row, Col, Card, Input } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -7,6 +7,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';
 import role from '../../utils/newRole'
+import { pinyin } from 'pinyin-pro';
 import styles from '../CreateTeam/index.less';
 
 const { Option } = Select;
@@ -41,7 +42,8 @@ export default class Index extends PureComponent {
       selectedVersion: initialVersion,
       currentVersionInfo: versions.length > 0 ? versions[0] : {},
       cpuPrice: 0,
-      memoryPrice: 0
+      memoryPrice: 0,
+      installType: 'new'
     };
   }
   componentDidMount() {
@@ -89,14 +91,38 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 生成英文名
+    generateEnglishName = (name) => {
+      if (name != undefined && name != '') {
+        const { allAppNames } = this.props;
+        const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+        const cleanedPinyinName = pinyinName.toLowerCase();
+        if (allAppNames && allAppNames.length > 0) {
+          const isExist = allAppNames.some(item => item === cleanedPinyinName);
+          if (isExist) {
+            const random = Math.floor(Math.random() * 10000);
+            return `${cleanedPinyinName}${random}`;
+          }
+          return cleanedPinyinName;
+        }
+        return cleanedPinyinName;
+      }
+      return ''
+    }
+  
   handleSubmit = e => {
     e.preventDefault();
     const { is_deploy } = this.state;
     const { form, onSubmit } = this.props;
+    const group_id = globalUtil.getGroupID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        if(group_id){
+          fieldsValue.group_id = group_id
+        }else if(fieldsValue.install_type === 'new'){
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.group_name)
+        }
         onSubmit(fieldsValue, is_deploy);
-        this.setState({ is_deploy: true });
       }
     });
   };
@@ -145,7 +171,8 @@ export default class Index extends PureComponent {
       creatComPermission: { isCreate }, 
       creatAppPermisson: { isAccess },
       cpuPrice,
-      memoryPrice
+      memoryPrice,
+      installType
     } = this.state
     const data = this.props.data || {};
     const versionsInfo =
@@ -162,7 +189,6 @@ export default class Index extends PureComponent {
     const group_id = globalUtil.getGroupID()
     const islocal = showCreate?.source === 'local'
     const showSaaSPrice = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
-
     return (
       <Modal
         className={styles.TelescopicModal}
@@ -189,44 +215,43 @@ export default class Index extends PureComponent {
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <Button onClick={onCancel}>{formatMessage({ id: "button.cancel" })}</Button>
-                <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                   <Button
                     onClick={this.handleSubmit}
                     type="primary"
                     loading={addAppLoading || disabled}
-                    disabled={!isCreate}
+                    // disabled={!isCreate}
                   >
                     {formatMessage({ id: 'button.install' })}
                   </Button>
-                </Tooltip>
               </div>
             </div>
             :
             [
               <Button onClick={onCancel}>{formatMessage({ id: "button.cancel" })}</Button>,
-              <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
+              // <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                 <Button
                   onClick={this.handleSubmit}
                   type="primary"
                   style={{ marginRight: '5px' }}
                   loading={addAppLoading || disabled}
-                  disabled={!isCreate}
                 >
                   {formatMessage({ id: 'button.install' })}
                 </Button>
-              </Tooltip>
-              ,
-              <Radio
-                size="small"
-                onClick={this.renderSuccessOnChange}
-                checked={this.state.is_deploy}
-              >
-                {formatMessage({ id: 'button.build_start' })}
-              </Radio>
+              // </Tooltip>
             ]
         }
       >
-        <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
+        {showCreate?.describe && (
+          <p
+            style={{
+              background: 'rgba(22, 184, 248, 0.1)',
+              padding: '8px'
+            }}
+          >
+            {showCreate.describe}
+          </p>
+        )}
+        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.install' })}>
             <Row>
               <Col span={24}>
@@ -283,14 +308,74 @@ export default class Index extends PureComponent {
               </Col>
             </Row>
             {!islocal && 
-                        <div style={{ marginBottom: '-18px', fontSize: '14px', color: '#8C8C8C' }}>
-                        {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
-                      </div>
+              <div style={{ marginBottom: '-18px', fontSize: '14px', color: '#8C8C8C' }}>
+                {`资源占用:  CPU ${this.state.currentVersionInfo?.cpu}m / 内存 ${this.state.currentVersionInfo?.memory}MB`}
+              </div>
             }
-
           </Form.Item>
-
-          <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.app' })}>
+          {!group_id && <>
+          <Form.Item {...formItemLayout} label={formatMessage({id:'teamOverview.type'})}>
+              {getFieldDecorator('install_type', {
+                initialValue: 'new',
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({id:'teamOverview.selectType'})
+                  }
+                ]
+              })(
+                <Radio.Group onChange={(value) => this.setState({ installType: value.target.value })} buttonStyle="solid">
+                  <Radio.Button value="new">{formatMessage({id:'teamOverview.createApp'})}</Radio.Button>
+                  <Radio.Button value="existing">{formatMessage({id:'teamOverview.hasApp'})}</Radio.Button>
+                </Radio.Group>
+              )}
+            </Form.Item>
+            {installType === 'new' && (
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appName' })}>
+                {getFieldDecorator('group_name', {
+                  initialValue: showCreate?.app_name || '',
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                    {
+                      max: 24,
+                      message: formatMessage({ id: 'placeholder.max24' })
+                    }
+                  ]
+                })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+              </Form.Item>
+            )}
+            {installType === 'existing' && (
+              <Form.Item {...formItemLayout} label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app' />}>
+                {getFieldDecorator('group_id', {
+                  initialValue: Number(group_id) || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'applicationMarket.CreateHelmAppModels.input_app' })
+                    }
+                  ]
+                })(
+                  <Select
+                    placeholder={formatMessage({ id: 'applicationMarket.CreateHelmAppModels.input_name' })}
+                    style={{
+                      display: 'inline-block'
+                    }}
+                  >
+                    {(groups || []).map(group => (
+                      <Option key={group.group_id} value={group.group_id}>
+                        {group.group_name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+                <div className={styles.conformDesc}>
+                  <FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install' />
+                </div>
+              </Form.Item>
+            )}
+            </>
+          }
+          {/* <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamOther.CreateAppFromMarketForm.app' })}>
             {getFieldDecorator('group_id', {
               initialValue: data.groupd_id || Number(group_id),
               rules: [
@@ -318,7 +403,7 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-          </Form.Item>
+          </Form.Item> */}
           {this.state.addGroup && (
             <AddGroup
               group_name={showCreate.app_name || ''}

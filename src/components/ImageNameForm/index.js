@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Row, Col, Spin, Empty } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Row, Col, Spin, Empty, Divider } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -68,7 +68,8 @@ export default class Index extends PureComponent {
       warehouseImageTags: [],
       checkedValues: '',
       domain: '',
-      creatComPermission: {}
+      creatComPermission: {},
+      showAdvanced: false
     };
   }
   componentWillMount() {
@@ -123,6 +124,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
     const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
+    const group_id = globalUtil.getGroupID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
@@ -142,6 +144,13 @@ export default class Index extends PureComponent {
         const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
         if(fieldsValue.imagefrom == 'address' && isCloudProxy){
           fieldsValue.docker_cmd = this.processImageProxy(fieldsValue.docker_cmd)
+        }
+        if(group_id){
+          fieldsValue.group_id = group_id
+        }
+        if(!fieldsValue.k8s_app || !fieldsValue.group_name){
+          fieldsValue.group_name = fieldsValue.service_cname
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
         }
         onSubmit(fieldsValue);
       }
@@ -203,6 +212,7 @@ export default class Index extends PureComponent {
       return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
     }
   };
+
   handleValiateCmd = (_, value, callback) => {
     if (!value) {
       return callback(new Error(formatMessage({ id: 'placeholder.docker_cmd' })));
@@ -238,6 +248,7 @@ export default class Index extends PureComponent {
       }
     });
   };
+
   // 生成英文名
   generateEnglishName = (name) => {
     if (name != undefined) {
@@ -256,6 +267,7 @@ export default class Index extends PureComponent {
     }
     return ''
   }
+
   handleJarWarUpload = () => {
     const { dispatch } = this.props
     const teamName = globalUtil.getCurrTeamName()
@@ -566,32 +578,6 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
-            {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({ id: 'placeholder.select' })
-                }
-              ]
-            })(
-              <Select
-                showSearch
-                filterOption={(input, option) => 
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                disabled={!!isService || group_id}
-                onChange={this.fetchComponentNames}
-              >
-                {(groups || []).map(group => (
-                  <Option value={group.group_id}>{group.group_name}</Option>
-                ))}
-              </Select>
-            )}
-          </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
@@ -808,34 +794,71 @@ export default class Index extends PureComponent {
               </a>
             </div>
           }
-          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
-            <Form.Item
-              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.form.user' })}
+          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && (
+            <div
+              className="userpass-card"
+              style={{
+                margin: '24px 0 0 0',
+                background: '#fafbfc',
+                border: '1px solid #e6e6e6',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px #f0f1f2',
+                padding: 24,
+                display: this.state.showUsernameAndPass ? 'block' : 'none',
+                maxWidth: 500
+              }}
             >
-              {getFieldDecorator('user_name', {
-                initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
-              })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-            </Form.Item>
-            <Form.Item
-              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.form.password' })}
-            >
-              {getFieldDecorator('password', {
-                initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
-              })(
-                <Input
-                  autoComplete="new-password"
-                  type="password"
-                  placeholder={formatMessage({ id: 'placeholder.password_1' })}
-                />
-              )}
-            </Form.Item>
-          </>}
+              <div style={{ fontWeight: 500, fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center' }}>
+                <Icon type="user" style={{ marginRight: 8, color: '#1890ff' }} />
+                {formatMessage({ id: 'teamAdd.create.form.user' })}
+              </div>
+              <Form.Item style={{ marginBottom: 18 }}>
+                {getFieldDecorator('user_name', {
+                  initialValue: data.user_name || '',
+                  rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+                })(
+                  <Input
+                    autoComplete="off"
+                    placeholder={formatMessage({ id: 'placeholder.username_1' })}
+                    style={{
+                      borderRadius: 6,
+                      height: 40,
+                      fontSize: 15,
+                      boxShadow: '0 1px 3px #f0f1f2',
+                      border: '1px solid #e6e6e6',
+                      transition: 'border 0.2s, box-shadow 0.2s'
+                    }}
+                  />
+                )}
+              </Form.Item>
+              <div className="advanced-divider" style={{ margin: '12px 0' }} />
+              <div style={{ fontWeight: 500, fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center' }}>
+                <Icon type="lock" style={{ marginRight: 8, color: '#1890ff' }} />
+                {formatMessage({ id: 'teamAdd.create.form.password' })}
+              </div>
+              <Form.Item style={{ marginBottom: 0 }}>
+                {getFieldDecorator('password', {
+                  initialValue: data.password || '',
+                  rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
+                })(
+                  <Input
+                    autoComplete="new-password"
+                    type="password"
+                    placeholder={formatMessage({ id: 'placeholder.password_1' })}
+                    style={{
+                      borderRadius: 6,
+                      height: 40,
+                      fontSize: 15,
+                      boxShadow: '0 1px 3px #f0f1f2',
+                      border: '1px solid #e6e6e6',
+                      transition: 'border 0.2s, box-shadow 0.2s'
+                    }}
+                  />
+                )}
+              </Form.Item>
+            </div>
+          )}
+
           {archLegnth == 2 &&
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
@@ -848,6 +871,45 @@ export default class Index extends PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>}
+          {!group_id && <>
+            <Divider />
+            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
+              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
+                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+              </Button>
+            </div>
+            {this.state.showAdvanced && (
+              <div className="advanced-settings" style={{ marginTop: 0, padding: '24px 16px 16px 16px', border: '1px solid #ececec', boxShadow: 'none' }}>
+                <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                <Form.Item
+                  label={formatMessage({ id: 'popover.newApp.appName' })}
+                  colon={false}
+                  {...formItemLayout}
+                  style={{ marginBottom: 0 }}
+                >
+                  {getFieldDecorator('group_name', {
+                    initialValue: this.props.form.getFieldValue('service_cname') || '',
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                      {
+                        max: 24,
+                        message: formatMessage({ id: 'placeholder.max24' })
+                      }
+                    ]
+                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                  {getFieldDecorator('k8s_app', {
+                    initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                      { validator: this.handleValiateNameSpace }
+                    ]
+                  })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                </Form.Item>
+              </div>
+            )}
+          </>}
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
@@ -862,29 +924,26 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {isService && ButtonGroupState
+             {isService && ButtonGroupState
                 ? this.props.handleServiceBotton(
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByDockerrunLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                  </Button>,
-                  false
-                )
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByDockerrunLoading}
+                    >
+                     {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
+                    </Button>,
+                    false
+                  )
                 : !handleType && (
-                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByDockerrunLoading}
-                    disabled={!isCreate}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
-                  </Tooltip>
-                )}
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByDockerrunLoading}
+                    >
+                      {formatMessage({id: 'teamAdd.create.btn.create'})}
+                    </Button>
+                  )}
             </Form.Item>
           ) : null}
         </Form>

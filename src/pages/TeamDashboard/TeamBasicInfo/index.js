@@ -335,6 +335,12 @@ export default class index extends Component {
       dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${groupId}`))
     })
   }
+  // 跳转到向导页
+  onJumpToWizard = () => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard`))
+  }
+  
   // 取消新建应用
   cancelAddApp = () => {
     this.setState({
@@ -687,9 +693,7 @@ export default class index extends Component {
                     <Button
                       type="primary"
                       onClick={() => {
-                        this.setState({
-                          addGroup: true,
-                        });
+                        this.onJumpToWizard()
                       }}
                       data-guide="create-app"
                     >

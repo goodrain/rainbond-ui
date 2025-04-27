@@ -11,6 +11,7 @@ import role from '@/utils/newRole';
 import globalUtil from '../../utils/global'
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
+import { pinyin } from 'pinyin-pro';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -54,7 +55,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.handleJarWarUpload()
     const group_id = globalUtil.getGroupID()
-    if(group_id){
+    if (group_id) {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
       })
@@ -67,18 +68,18 @@ export default class Index extends PureComponent {
   //表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch } = this.props;
+    const { form, dispatch, onSubmit } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
+    const group_id = globalUtil.getGroupID()
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
+      if (group_id) {
+        value.group_id = group_id
+      }
       if (existFileList.length > 0) {
-        dispatch(
-          routerRedux.push(
-            `/team/${teamName}/region/${regionName}/importMessageYaml?event_id=${event_id}&group_id=${value.group_id}&group_name=${groupName}`
-          )
-        );
+        onSubmit(value,event_id)
       } else {
         this.loop = true
         this.handleJarWarUploadStatus()
@@ -88,6 +89,25 @@ export default class Index extends PureComponent {
       }
     });
   };
+
+   // 生成英文名
+   generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
 
   handleChange = (values) => {
     const { dispatch, groups } = this.props;
@@ -117,7 +137,7 @@ export default class Index extends PureComponent {
     role.refreshPermissionsInfo(groupId, false, this.callbcak)
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
+  callbcak = (val) => {
     this.setState({ creatComPermission: val })
   }
   handleJarWarUpload = () => {
@@ -253,38 +273,36 @@ export default class Index extends PureComponent {
       }
     };
     const group_id = globalUtil.getGroupID()
-
     return (
       <>
         <div className={styles.yaml_container}>
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-            <Form.Item label={formatMessage({ id: 'teamAdd.create.form.appName' })} style={{ display: 'flex' }}>
-              {getFieldDecorator('group_id', {
-                initialValue: Number(group_id),
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.group_name' })
-                  }
-                ]
-              })(
-                <Select
-                  onChange={this.handleChange}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({ id: 'placeholder.appName' })}
-                  disabled={group_id}
-                >
-                  {(groups || []).map(group => (
-                    <Option value={group.group_id}>{group.group_name}</Option>
-                  ))}
-                </Select>
-              )}
-              {/* <Button onClick={this.onAddGroup}>{formatMessage({ id: 'teamApply.createApp' })}</Button> */}
-            </Form.Item>
+            {!group_id && <>
+              <Form.Item
+                label={formatMessage({ id: 'popover.newApp.appName' })}
+                {...formItemLayout}
+              >
+                {getFieldDecorator('group_name', {
+                  initialValue: this.props.form.getFieldValue('service_cname') || '',
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                    {
+                      max: 24,
+                      message: formatMessage({ id: 'placeholder.max24' })
+                    }
+                  ]
+                })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+              </Form.Item>
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                {getFieldDecorator('k8s_app', {
+                  initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                    { validator: this.handleValiateNameSpace }
+                  ]
+                })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+              </Form.Item>
+            </>}
             <Form.Item
               label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
               extra={formatMessage({ id: 'teamAdd.create.upload.uploadYaml' })}
@@ -343,11 +361,9 @@ export default class Index extends PureComponent {
                 }
               }}
             >
-              <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
-                <Button type="primary" htmlType="submit" disabled={!isCreate}>
-                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                </Button>
-              </Tooltip>
+              <Button type="primary" htmlType="submit">
+                {formatMessage({ id: 'teamAdd.create.btn.create' })}
+              </Button>
             </Form.Item>
           </Form>
         </div>
