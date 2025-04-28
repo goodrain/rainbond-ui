@@ -66,8 +66,12 @@ const login = {
     'login.system':'云原生应用管理系统',
     'login.registerComponent.confirmPassword':'请确认密码',
     'login.registerComponent.passwordMismatch': '两次输入的密码不一致，请重新输入',
-    'login.registerComponent.phone':'请输入手机号',
+    'login.registerComponent.phone':'手机号',
+    'login.registerComponent.iphone':'请输入手机号',
     'login.registerComponent.phone_error':'手机号格式错误！',
+    'login.registerComponent.smslink':'来源',
+    'login.registerComponent.smsusers':'用户',
+    'login.registerComponent.smsphone':'手机号',
 }
 
 export default Object.assign({}, login);

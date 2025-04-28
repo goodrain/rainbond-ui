@@ -241,6 +241,7 @@ const utils ={
 'utils.request.connection_timedout':'The connection to Yunshi timed out. Please check the network',
 'utils.request.Insufficient_resources':'If the cluster resources are insufficient, contact the enterprise administrator to add resources',
 'utils.request.Exceeding_limit':'The memory used by the team exceeds the quota. Please contact your enterprise administrator to increase the quota',
+'utils.request.Exceeding_limit_cloud':'The memory used by the team exceeds the default quota. Please contact your enterprise administrator to increase the quota',
 'utils.request.Build_failed':'Build failed. Please rebuild',
 'utils.request.warning':'Warning',
 

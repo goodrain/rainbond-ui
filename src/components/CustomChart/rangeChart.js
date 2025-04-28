@@ -115,7 +115,8 @@ export default class RangeChart extends PureComponent {
       const {
         service_id: serviceId,
         service_alias: serviceAlias,
-        k8s_component_name: serviceCname
+        k8s_component_name: serviceCname,
+        namespace: namespace
       } = appDetail.service;
       const { k8s_app: groupName } = this.props.curAppDetail;
       const isState = globalUtil.isStateComponent(
@@ -124,13 +125,13 @@ export default class RangeChart extends PureComponent {
       const parameter = isState ? serviceAlias : serviceId;
       switch (T) {
         case 'containerMem':
-          return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}) by (pod, namespace) / 1024 / 1024`;
+          return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}",namespace="${namespace}"}) by (pod, namespace) / 1024 / 1024`;
         case 'containerCpu':
-          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}"}[5m])) by (pod,namespace) * 1000`;
+          return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}",namespace="${namespace}"}[5m])) by (pod,namespace) * 1000`;
         case 'containerNetR':
-          return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m])) by (pod, namespace) / 1024`;
+          return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m])) by (pod, namespace) / 1024`;
         case 'containerNetT':
-          return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*"}[1m]) by (pod, namespace) / 1024`;
+          return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m]) by (pod, namespace) / 1024`;
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
         case 'throughput':

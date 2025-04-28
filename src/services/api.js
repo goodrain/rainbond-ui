@@ -1858,3 +1858,12 @@ export async function fetchOperationLogs(param) {
     }
   );
 }
+
+export async function fetchUserSource(params) {
+  return request(`${apiconfig.baseUrl}/console/user_source`, {
+    method: 'get',
+    params: {
+      content: params.content
+    }
+  });
+}

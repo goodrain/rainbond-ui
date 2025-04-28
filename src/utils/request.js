@@ -251,13 +251,8 @@ export default function request(url, options) {
                 `/team/${TEAM_NAME}/region/${REGION_NAME}/components/${AppID}/overview`
               );
             }
-            const tipMap = {
-              10406: `${formatMessage({id:'utils.request.Insufficient_resources'})}`,
-              10413: `${formatMessage({id:'utils.request.Exceeding_limit'})}`,
-              20800: `${formatMessage({id:'utils.request.Build_failed'})}`
-            };
             handleStoreDispatch('global/showMemoryTip', {
-              message: tipMap[code]
+              message: code
             });
             return;
           }
