@@ -123,7 +123,7 @@ export default class Register extends Component {
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
     }else{
-      if(redirectUrl && redirect.includes('marketplace/install')){
+      if(redirectUrl && redirect && redirect.includes('marketplace/install')){
         const url = new URL(redirectUrl);
         const result = url.hash.replace(/^#/, '');
         dispatch(routerRedux.replace(result))
