@@ -53,7 +53,6 @@ export default class Register extends Component {
       },
       callback: data => {
         window.localStorage.removeItem('link');
-        window.localStorage.removeItem('redirect');
       }
     })
   }
