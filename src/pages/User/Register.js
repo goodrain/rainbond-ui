@@ -67,7 +67,7 @@ export default class Register extends Component {
         ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
         ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
       `;
-    } else if(redirect.includes('app_name')) {
+    } else if(redirect && redirect.includes('app_name')) {
       const hashPart = redirect.split('#')[1];
       const queryPart = hashPart.split('?')[1];
       const urlSearchParams = new URLSearchParams(queryPart);
@@ -77,8 +77,13 @@ export default class Register extends Component {
         ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
         ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
       `;
-    } 
-    
+    } else {
+      content = `
+        ${formatMessage({ id: 'login.registerComponent.smslink'})}:${'cloud'}
+        ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
+        ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
+      `;
+    }
     dispatch({
       type: 'user/smsRegister',
       payload: values,
