@@ -51,7 +51,10 @@ class UserLayout extends React.PureComponent {
           const { query } = this.props.location;
           const isLogin = this.props.location.pathname === '/user/login';
           if (isLogin) {
-            const { redirect } = query;
+            const { redirect, link } = query;
+            if (link) {
+              window.localStorage.setItem('link', link);
+            }
             if (redirect) {
               window.localStorage.setItem('redirect', redirect);
             }

@@ -242,6 +242,7 @@ const utils ={
 'utils.request.connection_timedout':'与云市连接超时,请检查网络',
 'utils.request.Insufficient_resources':'集群资源不足,请联系企业管理员增加资源',
 'utils.request.Exceeding_limit':'团队使用内存已超过限额，请联系企业管理员增加限额',
+'utils.request.Exceeding_limit_cloud':'团队使用内存已超过默认限额，充值后解除默认限额',
 'utils.request.Build_failed':'构建失败,请重新构建',
 'utils.request.warning':'警告',
 
