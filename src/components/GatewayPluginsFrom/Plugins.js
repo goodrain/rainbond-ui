@@ -31,6 +31,10 @@ const pluginSystem = {
             {
                 name: 'redirect',
                 message: formatMessage({ id: 'gatewayplugin.redirect.title' }),
+            },
+            {
+                name: 'client-control',
+                message: formatMessage({ id: 'gatewayplugin.client_control.title' }),
             }
         ]
     },
@@ -586,6 +590,22 @@ const pluginSystem = {
                             value: value.append_query_string || false,
                             defaultValue: false,
                             describe: formatMessage({ id: 'gatewayplugin.redirect.append_query_string' }),
+                            rules: []
+                        }
+                    ]
+                }
+            ),
+            "client-control": (
+                {
+                    name: 'client-control',
+                    config: [
+                        {
+                            name: 'max_body_size',
+                            type: 'integer',
+                            FromType: 'input',
+                            value: value.max_body_size || false,
+                            defaultValue: false,
+                            describe: formatMessage({ id: 'gatewayplugin.client_control.max_body_size' }),
                             rules: []
                         }
                     ]

@@ -111,7 +111,6 @@ class Index extends React.Component {
         )
       };
       window.clickNode = function (nodeid, componentID) {
-        console.log(nodeid,componentID,"nodeid,appAlias_parent");
         if(nodeid == 'The Internet'){
           dispatch(
             routerRedux.push(

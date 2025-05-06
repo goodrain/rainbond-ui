@@ -62,6 +62,7 @@ import Monitor from '../../../pages/Component/monitor';
 import Overview from '../../../pages/Component/overview';
 import advancedSettings from '../../../pages/Component/advancedSettings';
 import port from '../../../pages/Component/port';
+import relation from '../../../pages/Component/relation'
 import ComponentPlugin from '../../../pages/Component/componentPlugin'
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
 import PluginUtile from '../../../utils/pulginUtils'
@@ -1459,9 +1460,14 @@ class Main extends PureComponent {
         condition: () => method !== 'vm'
       },
       {
+        key: 'relation',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.relation' }),
+        auth: ['isRely']
+      },
+      {
         key: 'advancedSettings',
         tab: formatMessage({ id: 'versionUpdata_6_2.advancedSettings' }),
-        auth: ['isRely','isStorage','isPort','isPlugin','isSource','isOtherSetting']
+        auth: ['isStorage','isPort','isPlugin','isSource','isOtherSetting']
       }
     ];
 
@@ -1542,6 +1548,7 @@ class Main extends PureComponent {
       monitor: Monitor,
       log: Log,
       port: port,
+      relation: relation,
       expansion: Expansion,
       environmentConfiguration: EnvironmentConfiguration,
       advancedSettings: advancedSettings

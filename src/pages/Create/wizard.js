@@ -256,7 +256,6 @@ export default class Index extends PureComponent {
         const showDemo = rainbondInfo?.official_demo?.enable
         const type = this.props.location.query.type;
         const group_id = this.props.location.query.group_id;
-        console.log(type, 'type');
         
         const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
         if (!isAccess) {

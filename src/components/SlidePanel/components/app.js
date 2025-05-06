@@ -71,6 +71,9 @@ export default class app extends Component {
     this.fetchAppDetailState();
     this.getOperator();
   };
+  componentWillUnmount() {
+    this.closeTimer();
+  }
   // 获取集群架构信息
   handleArchCpuInfo = () => {
     const { dispatch } = this.props;
@@ -593,6 +596,13 @@ export default class app extends Component {
       }
     });
   };
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: { isUpData: true }
+    });
+  };
   /** 构建拓扑图 */
   handleTopology = code => {
     this.setState({
@@ -628,7 +638,7 @@ export default class app extends Component {
         type: 'global/buildShape',
         payload: {
           tenantName: globalUtil.getCurrTeamName(),
-          group_id: this.getGroupId(),
+          group_id: globalUtil.getAppID(),
           action: code
         },
         callback: res => {

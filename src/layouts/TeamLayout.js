@@ -107,7 +107,8 @@ class TeamLayout extends PureComponent {
       isNode: false,
       isTime: false,
       isNeedAuthz: false,
-      showFooter: true
+      showFooter: true,
+      showHeader: true
     };
   }
 
@@ -136,6 +137,15 @@ class TeamLayout extends PureComponent {
       const bool = urlParams.href.includes("/helminstall");
       const webconsole = urlParams.href.includes("/webconsole");
       const overview = urlParams.href.includes("/overview");
+      if (webconsole) {
+        this.setState({
+          showHeader: false
+        })
+      } else {
+        this.setState({
+          showHeader: true
+        })
+      }
       if (overview) {
         this.setState({
           showFooter: false
@@ -676,7 +686,8 @@ class TeamLayout extends PureComponent {
       isNode,
       isTime,
       isNeedAuthz,
-      showFooter
+      showFooter,
+      showHeader
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -781,22 +792,24 @@ class TeamLayout extends PureComponent {
           />
         );
       }
-      return (
-        <AppHeader
-          handleClick={this.GroupShow}
-          teamName={teamName}
-          currentEnterprise={currentEnterprise}
-          currentTeam={currentTeam}
-          currentRegion={currentRegion}
-          regionName={regionName}
-          appID={appID}
-          nobleIcon={BillingFunction && nobleIcon}
-          currentComponent={currentComponent}
-          componentID={componentID}
-          upDataHeader={upDataHeader}
-          changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
-        />
-      );
+      if(showHeader){
+        return (
+          <AppHeader
+            handleClick={this.GroupShow}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+            regionName={regionName}
+            appID={appID}
+            nobleIcon={BillingFunction && nobleIcon}
+            currentComponent={currentComponent}
+            componentID={componentID}
+            upDataHeader={upDataHeader}
+            changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
+          />
+        );
+      }
     }
     let menuData = getMenuData(
       teamName,

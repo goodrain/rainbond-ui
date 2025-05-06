@@ -1536,6 +1536,7 @@ export default class Index extends PureComponent {
           />
         )}
 
+
         {toEdit && (
           <EditGroupName
             isAddGroup={false}

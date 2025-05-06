@@ -111,7 +111,13 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ service_cname: val, k8s_component_name: val, docker_cmd: val == "mysql" ? 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d dockerhub.rainbond.cn/library/mysql:5.7.42' : val == "nginx" ? 'docker run --name nginx -d -p 80:80 dockerhub.rainbond.cn/library/nginx:alpine' : 'docker run --name redis -d dockerhub.rainbond.cn/library/redis:7.0.11' })
     this.setState({
-      dockerRun: val == "mysql" ? 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d dockerhub.rainbond.cn/library/mysql:5.7.42' : val == "nginx" ? 'docker run --name nginx -d -p 80:80 dockerhub.rainbond.cn/library/nginx:alpine' : 'docker run --name redis -d dockerhub.rainbond.cn/library/redis:7.0.11',
+      dockerRun: val == "mysql" ? 
+      'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d dockerhub.rainbond.cn/library/mysql:5.7.42' 
+      : 
+      val == "nginx" ? 
+      'docker run --name nginx -d -p 80:80 dockerhub.rainbond.cn/library/nginx:alpine' 
+      : 
+      'docker run --name redis -d dockerhub.rainbond.cn/library/redis:7.0.11',
       demoName: val
     })
   }

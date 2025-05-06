@@ -9,11 +9,12 @@ import {
   Modal,
   notification,
   Select,
-  Table
+  Table,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
@@ -36,10 +37,11 @@ export default class ApplicationGovernance extends PureComponent {
       isFlag: (this.props.mode == 'KUBERNETES_NATIVE_SERVICE' || this.props.mode == 'BUILD_IN_SERVICE_MESH') ? true : false,
       action: '',
       newFlag: false,
+      listLoading: true
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.handleGovernanceModelList()
   }
   //获取治理模式列表
@@ -53,11 +55,12 @@ export default class ApplicationGovernance extends PureComponent {
       },
       callback: res => {
         this.setState({
-          list: res.list
+          list: res.list,
+          listLoading: false
         })
       },
       handleError: err => {
-        
+
       }
     });
   };
@@ -128,11 +131,11 @@ export default class ApplicationGovernance extends PureComponent {
         action: action,
       },
       callback: (res) => {
-        if(res.bean.governance_cr && action == 'create'){
+        if (res.bean.governance_cr && action == 'create') {
           this.handleCreateKubernetes(res.bean.governance_cr)
-        }else if(res.bean.governance_cr && action == 'update'){
+        } else if (res.bean.governance_cr && action == 'update') {
           this.handleUpdateKubernetes(res.bean.governance_cr)
-        }else{
+        } else {
           this.handleDeleteKubernetes()
         }
         onOk();
@@ -147,7 +150,7 @@ export default class ApplicationGovernance extends PureComponent {
   };
   handleNotification = () => {
     notification.success({
-      message: formatMessage({id: 'notification.hint.component.change'}),
+      message: formatMessage({ id: 'notification.hint.component.change' }),
       duration: '3'
     });
   };
@@ -208,7 +211,7 @@ export default class ApplicationGovernance extends PureComponent {
           if (res && res.bean && !res.bean.is_valid) {
             callback(); // +
           } else {
-            throw new Error(formatMessage({id: 'placeholder.govern.is_valid'}));
+            throw new Error(formatMessage({ id: 'placeholder.govern.is_valid' }));
           }
         }
       });
@@ -232,71 +235,71 @@ export default class ApplicationGovernance extends PureComponent {
     this.setState({
       governName: value
     })
-    if(value == 'BUILD_IN_SERVICE_MESH' || value == 'KUBERNETES_NATIVE_SERVICE'){
+    if (value == 'BUILD_IN_SERVICE_MESH' || value == 'KUBERNETES_NATIVE_SERVICE') {
       this.setState({
         newFlag: true
-      },()=>{
-        const { isFlag, newFlag} = this.state
-        if(isFlag){
-          if(isFlag == newFlag){
+      }, () => {
+        const { isFlag, newFlag } = this.state
+        if (isFlag) {
+          if (isFlag == newFlag) {
             this.setState({
               action: ''
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
-          }else{
+          } else {
             this.setState({
               action: 'create'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
           }
-        }else{
-          if(isFlag == newFlag){
+        } else {
+          if (isFlag == newFlag) {
             this.setState({
               action: 'update'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
-          }else{
+          } else {
             this.setState({
               action: 'delete'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
           }
         }
       })
-    }else{
+    } else {
       this.setState({
         newFlag: false
-      },()=>{
-        const { isFlag, newFlag} = this.state
-        if(isFlag){
-          if(isFlag == newFlag){
+      }, () => {
+        const { isFlag, newFlag } = this.state
+        if (isFlag) {
+          if (isFlag == newFlag) {
             this.setState({
               action: 'update'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
-          }else{
+          } else {
             this.setState({
               action: 'create'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
           }
-        }else{
-          if(isFlag == newFlag){
+        } else {
+          if (isFlag == newFlag) {
             this.setState({
               action: 'update'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
-          }else{
+          } else {
             this.setState({
               action: 'delete'
-            },()=>{
+            }, () => {
               this.getActionValue()
             })
           }
@@ -322,10 +325,10 @@ export default class ApplicationGovernance extends PureComponent {
         governance_cr: yamlValue,
       },
       callback: res => {
-        
+
       },
       handleError: err => {
-        
+
       }
     });
   };
@@ -340,10 +343,10 @@ export default class ApplicationGovernance extends PureComponent {
         governance_cr: yamlValue,
       },
       callback: res => {
-        
+
       },
       handleError: err => {
-        
+
       }
     });
   };
@@ -357,10 +360,10 @@ export default class ApplicationGovernance extends PureComponent {
         app_id: appID,
       },
       callback: res => {
-        
+
       },
       handleError: err => {
-        
+
       }
     });
   };
@@ -369,20 +372,20 @@ export default class ApplicationGovernance extends PureComponent {
     const { list } = this.state
     return (
       <div style={{ marginTop: '10px' }}>
-      {list.map((item)=>{
-        return item.name == governName ? item.description : ''
-      })}
+        {list.map((item) => {
+          return item.name == governName ? item.description : ''
+        })}
       </div>
     )
   }
-  blurInput = (e, id) =>{
+  blurInput = (e, id) => {
     const { ServiceNameList } = this.state;
     const arr = [];
-    ServiceNameList.map((item,index)=>{
-      if(item.service_id == id){
+    ServiceNameList.map((item, index) => {
+      if (item.service_id == id) {
         item.k8s_service_name = e.target.value
         arr.push(item)
-      }else{
+      } else {
         arr.push(item)
       }
     })
@@ -399,19 +402,19 @@ export default class ApplicationGovernance extends PureComponent {
       governanceLoading,
       mode
     } = this.props;
-    const { step, ServiceNameList, btnConfig, list, action, governName } = this.state;
+    const { step, ServiceNameList, btnConfig, list, action, governName, listLoading } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
     return (
       <Modal
-        title={formatMessage({id: 'confirmModal.app.govern.title'})}
+        title={formatMessage({ id: 'confirmModal.app.govern.title' })}
         visible
         confirmLoading={loading || checkK8sLoading || governanceLoading}
         onOk={this.handleSubmit}
         onCancel={this.handleOnCancel}
         width={800}
         footer={[
-          <Button onClick={this.handleOnCancel}> 
-          {formatMessage({id: 'popover.cancel'})}
+          <Button onClick={this.handleOnCancel}>
+            {formatMessage({ id: 'popover.cancel' })}
           </Button>,
           <Button
             type="primary"
@@ -419,13 +422,13 @@ export default class ApplicationGovernance extends PureComponent {
             loading={loading || checkK8sLoading || governanceLoading}
             onClick={this.handleSubmit}
           >
-            {formatMessage({id: 'popover.confirm'})}
+            {formatMessage({ id: 'popover.confirm' })}
           </Button>
         ]}
       >
         <Alert
           style={{ marginBottom: '20px' }}
-          message={formatMessage({id: 'confirmModal.app.govern.alert.msg'})}
+          message={formatMessage({ id: 'confirmModal.app.govern.alert.msg' })}
           type="info"
           showIcon
         />
@@ -438,7 +441,7 @@ export default class ApplicationGovernance extends PureComponent {
               dataSource={ServiceNameList || []}
               columns={[
                 {
-                  title: formatMessage({id: 'confirmModal.app.govern.label.name_port'}),
+                  title: formatMessage({ id: 'confirmModal.app.govern.label.name_port' }),
                   dataIndex: 'service_alias',
                   width: 200,
                   render: (_, data) => (
@@ -448,7 +451,7 @@ export default class ApplicationGovernance extends PureComponent {
                   )
                 },
                 {
-                  title: formatMessage({id: 'confirmModal.app.govern.label.alias'}),
+                  title: formatMessage({ id: 'confirmModal.app.govern.label.alias' }),
                   dataIndex: 'port_alias',
                   width: 200,
                   render: (val, data) => (
@@ -460,7 +463,7 @@ export default class ApplicationGovernance extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({id: 'placeholder.copy.not_null'})
+                              message: formatMessage({ id: 'placeholder.copy.not_null' })
                             }
                           ]
                         }
@@ -469,7 +472,7 @@ export default class ApplicationGovernance extends PureComponent {
                   )
                 },
                 {
-                  title: formatMessage({id: 'confirmModal.app.govern.label.DNS'}),
+                  title: formatMessage({ id: 'confirmModal.app.govern.label.DNS' }),
                   dataIndex: 'k8s_service_name',
                   width: 200,
                   render: (val, data) => (
@@ -481,26 +484,26 @@ export default class ApplicationGovernance extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({id: 'placeholder.copy.not_null'})
+                              message: formatMessage({ id: 'placeholder.copy.not_null' })
                             },
                             {
                               max: 63,
-                              message: formatMessage({id: 'placeholder.max63'})
+                              message: formatMessage({ id: 'placeholder.max63' })
                             },
                             {
                               pattern: /^[a-z]([-a-z0-9]*[a-z0-9])?$/,
-                              message: formatMessage({id: 'placeholder.k8s_service_name.msg'})
+                              message: formatMessage({ id: 'placeholder.k8s_service_name.msg' })
                             }
                           ]
                         }
-                        )(<Input size="small" onBlur={(e)=>{this.blurInput(e, data.service_id)}}/>)}
+                      )(<Input size="small" onBlur={(e) => { this.blurInput(e, data.service_id) }} />)}
                     </FormItem>
                   )
                 }
               ]}
             />
           ) : (
-            <div>
+            <Spin spinning={listLoading}>
               <FormItem
                 labelCol={{
                   xs: {
@@ -514,14 +517,14 @@ export default class ApplicationGovernance extends PureComponent {
                   xs: { span: 14, offset: 0 },
                   sm: { span: 8 }
                 }}
-                label={formatMessage({id: 'confirmModal.app.govern.label.change'})}
+                label={formatMessage({ id: 'confirmModal.app.govern.label.change' })}
               >
                 {getFieldDecorator('governance_mode', {
                   initialValue: mode || 'KUBERNETES_NATIVE_SERVICE',
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id: 'placeholder.copy.not_null'})
+                      message: formatMessage({ id: 'placeholder.copy.not_null' })
                     }
                   ]
                 })(
@@ -552,21 +555,21 @@ export default class ApplicationGovernance extends PureComponent {
                 <label
                   htmlFor="governance_mode"
                   className="ant-form-item-required"
-                  title={formatMessage({id: 'confirmModal.app.govern.label.mode'})}
+                  title={formatMessage({ id: 'confirmModal.app.govern.label.mode' })}
                 >
-                  {formatMessage({id: 'confirmModal.app.govern.label.mode'})}
+                  {formatMessage({ id: 'confirmModal.app.govern.label.mode' })}
                 </label>
 
-                
-                  {/* {type === 'KUBERNETES_NATIVE_SERVICE'
+
+                {/* {type === 'KUBERNETES_NATIVE_SERVICE'
                     ? formatMessage({id: 'confirmModal.app.govern.label.service'})
                     : type === 'BUILD_IN_SERVICE_MESH'
                     ? formatMessage({id: 'confirmModal.app.govern.label.serviceMesh'})
                     : '-'} */}
-                    {this.handleFindDesc(governName)}
-                
+                {this.handleFindDesc(governName)}
+
               </div>
-            </div>
+            </Spin>
           )}
         </Form>
       </Modal>
