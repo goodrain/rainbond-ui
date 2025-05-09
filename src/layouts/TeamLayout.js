@@ -585,7 +585,7 @@ class TeamLayout extends PureComponent {
   };
 
   handleMenuCollapse = collapsed => {
-    const { dispatch } = this.props;
+    const { dispatch } = this.props;    
     dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: collapsed
@@ -748,6 +748,7 @@ class TeamLayout extends PureComponent {
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
+      this.handleMenuCollapse(true);
       // return <PageLoading />;
     } else if (
       currentComponent &&
@@ -938,6 +939,7 @@ class TeamLayout extends PureComponent {
                   menuData={menuData}
                   pathname={pathname}
                   showMenu={isApp}
+                  isAppOverview
                 />
               )}
               <div style={{ width:(mode == 'team' || componentID) ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>

@@ -155,13 +155,14 @@ export default class Index extends PureComponent {
         const teamName = globalUtil.getCurrTeamName();
         const regionName = globalUtil.getCurrRegionName();
         const group_id = this.props.location.query.group_id || '';
+        const isAppOverview = this.props.location?.query?.type || '';
         if (type == 'import') {
             dispatch(
-                routerRedux.push( `/team/${teamName}/region/${regionName}/shared/${link}?group_id=${group_id}`)
+                routerRedux.push( `/team/${teamName}/region/${regionName}/shared/${link}?group_id=${group_id}&type=${isAppOverview}`)
             );
         } else {
             dispatch(
-                routerRedux.push( `/team/${teamName}/region/${regionName}/create/${type}/${link}?group_id=${group_id}`)
+                routerRedux.push( `/team/${teamName}/region/${regionName}/create/${type}/${link}?group_id=${group_id}&type=${isAppOverview}`)
             );
         }
     }
@@ -279,7 +280,7 @@ export default class Index extends PureComponent {
                                     })
                                 );
                             }} type="default">
-                                <Icon type="home" />{formatMessage({ id: 'appGateway.table.app' })}
+                                <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
                             </Button>
                         ) :(
                             <Button onClick={() => {
@@ -290,7 +291,7 @@ export default class Index extends PureComponent {
                                     })
                                 );
                             }} type="default">
-                                <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.home' })}
+                                <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
                             </Button>
                         )
 

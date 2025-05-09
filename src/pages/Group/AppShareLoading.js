@@ -344,7 +344,7 @@ export default class shareCheck extends PureComponent {
       payload: this.getParams(),
       callback: () => {
         this.hideShowDelete();
-        this.handJump();
+        this.handJump('/overview');
       },
       handleError: err => {
         this.handleError(err);

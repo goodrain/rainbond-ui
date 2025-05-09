@@ -297,6 +297,16 @@ export default class AppPublishList extends PureComponent {
         title={formatMessage({ id: 'appPublish.title' })}
         content={formatMessage({ id: 'appPublish.desc' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`)
+            );
+          }} icon="home">
+            {formatMessage({ id: 'menu.app.dashboard' })}
+          </Button>
+        }
       >
         <Card
           loading={loading}

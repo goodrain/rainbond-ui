@@ -1409,6 +1409,7 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
+    const isAppOverview = this.props.location?.query?.type || '';
     return (
       <div>
         {authorizations && (
@@ -1647,10 +1648,10 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
                   );
                 }} type="default">
-                  <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+                  <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
                 </Button>
               }
             >

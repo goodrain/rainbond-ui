@@ -487,7 +487,7 @@ export default class app extends Component {
   renderOperations(operations) {
     let content = [];
     // 处理按钮逻辑
-    if (operations.length <= 5) {
+    if (operations.length <= 4) {
       content = operations.map((op, index) => (
         op.type === 'button' ? (
           <Button
@@ -506,8 +506,8 @@ export default class app extends Component {
         )
       ));
     } else {
-      const mainButtons = operations.slice(0, 4);
-      const dropdownButtons = operations.slice(4);
+      const mainButtons = operations.slice(0, 3);
+      const dropdownButtons = operations.slice(3);
       const menu = (
         <Menu>
           {dropdownButtons.map(op => (
@@ -736,6 +736,92 @@ export default class app extends Component {
       )
     );
   };
+  // 高级设置按钮
+  handleAdvancedSettings = () => {
+    const {
+      permissions: {
+        appPermissions: {
+          isAppOverview,
+          isAppRelease,
+          isAppUpgrade,
+          isAppGatewayMonitor,
+          isAppRouteManage,
+          isAppTargetServices,
+          isAppCertificate,
+          isAppResources,
+          isAppConfigGroup,
+        },
+      }
+    } = this.props;
+    const allOperations = [
+      {
+        type: 'button',
+        key: 'isAppRelease',
+        text: formatMessage({ id: 'menu.app.publish' }),
+        onClick: () => this.handleJump('publish'),
+        disabled: !isAppRelease
+      },
+      {
+        type: 'button',
+        key: 'isAppGatewayMonitor',
+        text: formatMessage({ id: 'menu.app.gateway' }),
+        onClick: () => this.handleJump('gateway'),
+        disabled: !(isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate)
+      },
+      {
+        type: 'button',
+        key: 'isAppUpgrade',
+        text: formatMessage({ id: 'menu.app.upgrade' }),
+        onClick: () => this.handleJump('upgrade'),
+        disabled: !isAppUpgrade
+      },
+      {
+        type: 'button',
+        key: 'isAppResources',
+        text: formatMessage({ id: 'menu.app.k8s' }),
+        onClick: () => this.handleJump('asset'),
+        disabled: !isAppResources
+      },
+      {
+        type: 'button',
+        key: 'isAppConfigGroup',
+        text: formatMessage({ id: 'menu.app.configgroups' }),
+        onClick: () => this.handleJump('configgroups'),
+        disabled: !isAppConfigGroup
+      }
+    ]
+    // 根据权限过滤按钮
+    const filteredOperations = allOperations.filter(op => {
+      if (op.disabled) {
+        return this.props[op.key];
+      }
+      return true;
+    });
+    // 如果按钮数量大于1，则显示下拉菜单
+    if (filteredOperations.length > 1) {
+      return (
+        <Dropdown overlay={<Menu>
+          {filteredOperations.map(op => (
+            <Menu.Item key={op.key} onClick={op.onClick}>{op.text}</Menu.Item>  
+          ))}
+        </Menu>} trigger={['click']}
+
+        >
+          <Button style={{ marginLeft: 10 }}>
+            {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}
+            <Icon type="down" />
+          </Button>
+        </Dropdown>
+      );
+    }
+    return (
+      <>
+        {filteredOperations.map(op => (
+          <Button key={op.key} onClick={op.onClick} style={{ marginLeft: 10 }}>{op.text}</Button>
+        ))} 
+      </>
+    );
+  };
   render() {
     const {
       currApp,
@@ -815,6 +901,7 @@ export default class app extends Component {
           </div>
           <div className={styles.header_right}>
             {this.checkPermissions()}
+            {this.handleAdvancedSettings()}
           </div>
         </div>
         {addComponentOrAppDetail && (
