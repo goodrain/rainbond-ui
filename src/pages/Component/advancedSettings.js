@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'dva'
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { Menu, Row } from 'antd';
-import relation from './relation'
 import mnt from './mnt'
 import port from './port'
 import plugin from './plugin'
@@ -40,7 +39,7 @@ export default class advancedSettings extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      activeTab: ['relation']
+      activeTab: ['mnt']
     }
   }
   changeMenu = (key) => {    
@@ -65,11 +64,6 @@ export default class advancedSettings extends Component {
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const tabs = [];
     const getExtendTabs = (method) => [
-      {
-        key: 'relation',
-        tab: formatMessage({ id: 'componentOverview.body.tab.bar.relation' }),
-        auth: ['isRely']
-      },
       {
         key: 'mnt',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.mnt' }),
@@ -109,7 +103,6 @@ export default class advancedSettings extends Component {
       }
     });
     const map = {
-      relation: relation,
       mnt: mnt,
       port: port,
       plugin: plugin,

@@ -90,7 +90,6 @@ export default class Overview extends Component {
       },
       callback: data => {
         if (data && data.status_code === 200) {
-          console.log(data.list);
           this.setState({
             apps: data.list || [],
             tableDataLoading: false
@@ -130,7 +129,6 @@ export default class Overview extends Component {
 
   handleComponentOverview = (k8s_service_name) => {
     const { dispatch } = this.props;
-    console.log(k8s_service_name, 'k8s_service_name');
     this.setState({
       addComponentOrAppDetail: '',
       type: 'AppShape'

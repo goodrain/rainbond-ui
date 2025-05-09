@@ -24,8 +24,9 @@ const getIcon = icon => {
   return icon;
 };
 
-@connect(({ loading }) => ({
-  viewLoading: loading.effects['user/addCollectionView']
+@connect(({ loading, global }) => ({
+  viewLoading: loading.effects['user/addCollectionView'],
+  collapsed: global.collapsed
 }))
 export default class GlobalRouter extends PureComponent {
   constructor(props) {
@@ -34,7 +35,7 @@ export default class GlobalRouter extends PureComponent {
     this.state = {
       collectionVisible: false,
       openKeys: this.getDefaultCollapsedSubMenus(props),
-      collapsed: window.localStorage.getItem('collapsed') === 'true' ? true : false,
+      collapsed: this.props.collapsed,
     };
   }
 
@@ -309,14 +310,13 @@ export default class GlobalRouter extends PureComponent {
     });
   };
   render() {
-    const { showMenu, viewLoading, pathname, menuData } = this.props;
+    const { showMenu, viewLoading, pathname, menuData, isAppOverview } = this.props;
     const { openKeys, collectionVisible } = this.state;
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
-    
     return (
       <div
         style={{
@@ -327,9 +327,11 @@ export default class GlobalRouter extends PureComponent {
         }}
         
       >
-        <p onClick={this.toggleCollapsed} className={styles.menuStyle}>
-        <Icon type={this.state.collapsed ? 'right' : 'left'} />
-        </p>
+        {!isAppOverview && (
+          <p onClick={this.toggleCollapsed} className={styles.menuStyle}>
+            <Icon type={this.state.collapsed ? 'right' : 'left'} />
+          </p>
+        )}
         {/* {collectionVisible && (
           <CollectionView
             title={formatMessage({ id: 'sidecar.collection.add' })}

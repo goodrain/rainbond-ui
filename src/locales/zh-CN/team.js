@@ -832,5 +832,8 @@ const gatewayplugin = {
   'gatewayplugin.redirect.ret_code': 'HTTP 响应状态码。',
   'gatewayplugin.redirect.encode_uri': '设置为 true 时,Location 头中的 URI 将按照 RFC3986 进行编码。',
   'gatewayplugin.redirect.append_query_string': '设置为 true 时,将原始请求中的查询字符串添加到 Location 头。如果配置的 uri 或 regex_uri 已包含查询字符串,则请求中的查询字符串将用 & 附加到其后。如果你已经处理了查询字符串(例如使用 Nginx 变量 $request_uri),请不要使用此选项以避免重复。',
+  // client-control
+  'gatewayplugin.client_control.title': 'client-control 插件能够通过设置客户端请求体大小的上限来动态地控制 NGINX 处理客户端的请求。',
+  'gatewayplugin.client_control.max_body_size': '设置客户端请求体的最大上限，动态调整 client_max_body_size 的大小，单位为字节。当设置 max_body_size 为 0 时，将不会对客户端请求体大小进行检查。'
 }
 export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);

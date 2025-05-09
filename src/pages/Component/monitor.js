@@ -148,13 +148,7 @@ export default class Index extends PureComponent {
               paddingTop: 8,
             }}
           >
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appDetail && appDetail.service && appDetail.service.group_id
-                }/overview?type=components&componentID=${appDetail && appDetail.service && appDetail.service.service_alias}&tab=plugins`}
-            >
-              {/* 去开通 */}
-              <FormattedMessage id='componentOverview.body.tab.monitor.open' />
-            </Link>
+            请前往 组件高级设置 > 插件 开通
           </p>
         </div>
       </Card>

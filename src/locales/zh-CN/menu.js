@@ -33,13 +33,13 @@ const teamMenu = {
 }
 const appMenu = {
   'menu.app.dashboard': '应用总览',
-  'menu.app.publish': '发布应用',
+  'menu.app.publish': '应用模板',
   'menu.app.backup': '应用备份',
-  'menu.app.gateway': '网关管理',
+  'menu.app.gateway': '应用网关',
   'menu.app.configgroups': '应用配置',
   'menu.app.upgrade': '应用升级',
   'menu.app.dynamic': '应用动态',
-  'menu.app.k8s': '资源管理',
+  'menu.app.k8s': 'k8s资源',
   'menu.app.gray': '灰度发布',
 };
 

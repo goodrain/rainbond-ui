@@ -823,6 +823,9 @@ const gatewayplugin = {
   'gatewayplugin.redirect.ret_code': 'HTTP response code.',
   'gatewayplugin.redirect.encode_uri': 'When set to true the URI in the Location header will be encoded as per RFC3986.',
   'gatewayplugin.redirect.append_query_string': 'When set to true, adds the query string from the original request to the Location header. If the configured uri or regex_uri already contains a query string, the query string from the request will be appended to it with an &. Do not use this if you have already handled the query string (for example, with an Nginx variable $request_uri) to avoid duplicates.',
+  // client-control
+  'gatewayplugin.client_control.title': 'The client-control Plugin can be used to dynamically control the behavior of NGINX to handle a client request, by setting the max size of the request body.',
+  'gatewayplugin.client_control.max_body_size': 'Set the maximum limit for the client request body and dynamically adjust the size of client_max_body_size, measured in bytes. If you set the max_body_size to 0, then the size of the client\'s request body will not be checked.'
 }
 
 

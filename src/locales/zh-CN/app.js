@@ -18,7 +18,7 @@ const appOverview = {
   'appOverview.config': '配置组',
   'appOverview.btn.update':'更新',
   'appOverview.btn.build':'构建',
-  'appOverview.btn.copy':'快速复制',
+  'appOverview.btn.copy':'复制',
   'appOverview.btn.visit':'访问',
   'appOverview.btn.start':'启动',
   'appOverview.btn.stop':'停用',
