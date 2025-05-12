@@ -140,7 +140,7 @@ export default class Register extends Component {
     const isSaas = rainbondInfo?.is_saas || false;
     const actions = (
       <div className={styles.actions}>
-        <Button type='primary' size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}>{isSaas ? '去部署体验' :<FormattedMessage id="login.RegisterResult.back" />}</Button>
+        <Button type='primary' size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}>{isSaas ? '开始免费试用' :<FormattedMessage id="login.RegisterResult.back" />}</Button>
       </div>
     );
     return (
@@ -153,7 +153,7 @@ export default class Register extends Component {
           </div>
         }
         description=""
-        cloudDesc={isSaas ? "恭喜您获得5免费额度, 去安装应用吧!" : ''}
+        cloudDesc={isSaas ? "点击下方按钮, 去安装应用吧!" : ''}
         actions={actions}
         style={{ margin: '50px 0' }}
       />
