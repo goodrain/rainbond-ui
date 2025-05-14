@@ -222,8 +222,8 @@ const componentOverview = {
     'componentOverview.body.tab.monitor.TraceShow.close': 'Close',
     'componentOverview.body.tab.monitor.TraceShow.notDependent': 'The current component does not rely on Pinpoint service, please rely on Pinpoint service first',
     // tabs栏>Monitor>CustomMonitor
-    'componentOverview.body.tab.monitor.CustomMonitor.add': 'Add chart',
-    'componentOverview.body.tab.monitor.CustomMonitor.import': 'One click Import',
+    'componentOverview.body.tab.monitor.CustomMonitor.add': 'Add',
+    'componentOverview.body.tab.monitor.CustomMonitor.import': 'Import',
     'componentOverview.body.tab.monitor.CustomMonitor.delete': 'Batch delete',
     'componentOverview.body.tab.monitor.CustomMonitor.point': 'Management monitoring point',
     'componentOverview.body.tab.monitor.CustomMonitor.noBusiness': 'There is no business monitoring diagram. Please add it first. ',
@@ -1116,6 +1116,7 @@ const componentOther = {
     'componentOther.relationMnt.desc_relation': 'The table lists other external components that depend on the current component, which are the dependencies of the current component.',
     'componentOther.relationMnt.desc_reverse': 'The table lists the situation where the current component is depended on by other external components, which are the external components that depend on the current component.',
     'componentOther.relationMnt.desc_reverse_relation': 'Depend on me',
+    'componentOverview.body.tab.monitor.analysis_desc': 'Please go to Component Advanced Settings > Plugins to activate',
  }
 
 export default Object.assign({}, componentOverview, componentOther);

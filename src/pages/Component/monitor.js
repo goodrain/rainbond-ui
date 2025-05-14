@@ -148,7 +148,7 @@ export default class Index extends PureComponent {
               paddingTop: 8,
             }}
           >
-            请前往 组件高级设置 > 插件 开通
+            {formatMessage({ id: 'componentOverview.body.tab.monitor.analysis_desc' })}
           </p>
         </div>
       </Card>
