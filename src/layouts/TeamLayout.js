@@ -749,6 +749,7 @@ class TeamLayout extends PureComponent {
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
+      this.handleMenuCollapse(true);
       // return <PageLoading />;
     } else if (
       currentComponent &&
