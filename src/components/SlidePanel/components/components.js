@@ -771,7 +771,7 @@ class Main extends PureComponent {
           }
         });
         dispatch(
-          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}`)
+          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}/overview`)
         );
       }
     });
