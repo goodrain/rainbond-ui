@@ -118,6 +118,7 @@ class TeamLayout extends PureComponent {
     this.getNewbieGuideConfig();
     this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
+    this.handleMenuCollapse(true);
     const { teamAppCreatePermission: { isAccess } } = this.state
     if(this.props.rainbondInfo?.is_saas){
       this.getUserNewbieGuideConfig();
