@@ -7,12 +7,16 @@ export default class CustomerServiceFloat extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      hover: false
+      hover: false,
+      showDialog: true
     };
   }
 
   handleMouseEnter = () => {
-    this.setState({ hover: true });
+    this.setState({ 
+      hover: true,
+      showDialog: false
+    });
   };
 
   handleMouseLeave = () => {
@@ -20,27 +24,32 @@ export default class CustomerServiceFloat extends Component {
   };
 
   render() {
-    const { hover } = this.state;
+    const { hover, showDialog } = this.state;
     return (
       <div className={styles.floatStyle}>
+      <div className={styles.dialogBox + (hover ? ' ' + styles.hidden : '')}>
+        <div className={styles.dialogContent}>获取帮助</div>
+        <div className={styles.dialogArrow}></div>
+      </div>
+      
+      <div
+        className={styles.iconBox + (hover ? ' ' + styles.iconBoxHover : '')}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
+      >
+        {globalUtil.fetchSvg('serviceSvg', '#fff', 32)}
+      </div>
+      {hover && (
         <div
-          className={styles.iconBox + (hover ? ' ' + styles.iconBoxHover : '')}
+          className={styles.qrBox}
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}
         >
-          {globalUtil.fetchSvg('serviceSvg', '#fff', 32)}
+          <img src={wechat} alt="联系客服获取支持" className={styles.qrImgStyle} />
+          <div style={{ marginTop: 8, color: '#333', fontSize: 14 }}>联系客服获取支持</div>
         </div>
-        {hover && (
-          <div
-            className={styles.qrBox}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-          >
-            <img src={wechat} alt="联系客服获取支持" className={styles.qrImgStyle} />
-            <div style={{ marginTop: 8, color: '#333', fontSize: 14 }}>联系客服获取支持</div>
-          </div>
-        )}
-      </div>
+      )}
+    </div>
     );
   }
 }
