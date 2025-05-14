@@ -107,6 +107,8 @@ class AccountLayout extends PureComponent {
     } else {
       if (currUser?.is_enterprise_admin) {
         return `/enterprise/${currUser?.enterprise_id}/index`
+      } else {
+        return `/account/center/personal`
       }
     }
   }
