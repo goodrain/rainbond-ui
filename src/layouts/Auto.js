@@ -32,8 +32,8 @@ export default class Auto extends Component {
       if (currUser?.is_enterprise_admin) {
         dispatch(routerRedux.push(`/enterprise/${currUser?.enterprise_id}/index`))
       } else {
-        cookie.remove()
-        dispatch(routerRedux.push(`/user/login`))
+        // cookie.remove()
+        dispatch(routerRedux.push(`/account/center/personal`))
       }
     }
   }
