@@ -1019,7 +1019,7 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
-        {rainbondInfo?.is_saas && <CustomerServiceFloat />}
+        {rainbondInfo?.is_saas && <CustomerServiceFloat  />}
       </Fragment>
     );
   }
