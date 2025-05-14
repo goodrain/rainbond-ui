@@ -1128,6 +1128,7 @@ const componentOther = {
     'componentOther.relationMnt.desc_relation': '表格列出了当前组件所依赖的其他外部组件，它们是当前组件的依赖项。',
     'componentOther.relationMnt.desc_reverse': '表格列出了当前组件被其他外部组件所依赖的情况，它们是依赖于当前组件的外部组件。',
     'componentOther.relationMnt.desc_reverse_relation': '被外部组件依赖',
+    'componentOverview.body.tab.monitor.analysis_desc': '请前往 组件高级设置 > 插件 开通',
 
 }
 
