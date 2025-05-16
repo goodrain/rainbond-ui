@@ -133,10 +133,20 @@ export default class Overview extends Component {
       addComponentOrAppDetail: '',
       type: 'AppShape'
     })
-    dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${k8s_service_name}&tab=overview`
-      ))
+    const app = this.state.apps.find(app => app.service_alias === k8s_service_name);
+    if (app.status === "creating") {
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${k8s_service_name}`
+        )
+      )
+    } else {
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${k8s_service_name}&tab=overview`
+        ))
+    }
+
   }
   changeType = (type) => {
     this.setState({
@@ -211,16 +221,17 @@ export default class Overview extends Component {
         {this.renderAppHeader()}
         {isDev ? (
           <>
-              <ComponentList
-                apps={apps}
-                onComponentClick={this.handleComponentOverview}
-              />
+            <ComponentList
+              apps={apps}
+              onComponentClick={this.handleComponentOverview}
+            />
           </>
         ) : (
           <>
             <AppShape
               iframeHeight={'calc(100vh - 108px)'}
               group_id={globalUtil.getAppID()}
+              apps={apps}
             />
             {type == 'EditorTopology' && (
               <div

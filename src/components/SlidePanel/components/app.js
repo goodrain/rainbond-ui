@@ -804,8 +804,7 @@ export default class app extends Component {
           {filteredOperations.map(op => (
             <Menu.Item key={op.key} onClick={op.onClick}>{op.text}</Menu.Item>  
           ))}
-        </Menu>} trigger={['click']}
-
+        </Menu>}
         >
           <Button style={{ marginLeft: 10 }}>
             {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}

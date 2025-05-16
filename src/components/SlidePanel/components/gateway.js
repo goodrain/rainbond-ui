@@ -64,11 +64,11 @@ export default class Gateway extends Component {
   renderContent = () => {
     const { open } = this.state;
     const { routePermission, certificatePermission, argetServicesPermission } = this.props.permissions;
-    
+    const appID = globalUtil.getAppID();
     const contentMap = {
-      certificate: <GatewayCertificate open={open} permission={certificatePermission} />,
-      route: <GatewayRoute open={open} onTabChange={this.handleTabChange} permission={routePermission} />,
-      service: <GatewayService open={open} permission={argetServicesPermission} />
+      certificate: <GatewayCertificate open={open} permission={certificatePermission} appID={appID}/>,
+      route: <GatewayRoute open={open} onTabChange={this.handleTabChange} permission={routePermission} appID={appID}/>,
+      service: <GatewayService open={open} permission={argetServicesPermission} appID={appID}/>
     };
 
     return contentMap[this.state.tabKey] || null;
