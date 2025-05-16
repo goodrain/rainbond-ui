@@ -495,7 +495,7 @@ class Main extends PureComponent {
     const { team_name, region_name } = this.fetchParameter();
     return `/team/${team_name}/region/${region_name}/`;
   };
-  loadDetail = (val) => {
+  loadDetail = (val) => {    
     const { dispatch } = this.props;
     const {
       app_alias,

@@ -129,6 +129,7 @@ export default class Index extends PureComponent {
         notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
+        document.getElementById('myframe').contentWindow.location.reload(true);
       }
     });
   };
@@ -140,7 +141,8 @@ export default class Index extends PureComponent {
       dep_service_id: app.service_id
     }).then(data => {
       if (data) {
-        this.loadRelationedApp();
+        this.loadRelationedApp();        
+        document.getElementById('myframe').contentWindow.location.reload(true);
       }
     });
   };
