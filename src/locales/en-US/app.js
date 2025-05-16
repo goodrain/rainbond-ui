@@ -2,6 +2,7 @@
 
 //应用总览
 const appOverview = {
+  'appOverview.app_detail': 'Application Details',
   'appOverview.memory': 'Memory Usage',
   'appOverview.cpu': 'CPU Usage',
   'appOverview.disk': 'Disk Usage',

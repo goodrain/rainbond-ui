@@ -15,7 +15,7 @@ class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      language : cookie.get('language') === 'zh-CN' ? true : false,
+      language : cookie.get('language') === 'zh-CN',
     };
   }
   componentDidMount() {}
@@ -51,6 +51,8 @@ class Index extends PureComponent {
       showStorageUsed,
       storageUsed
     } = this.props;
+    console.log(language,"language");
+    
     const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
       <Row gutter={24}>
@@ -70,7 +72,7 @@ class Index extends PureComponent {
                     color: globalUtil.fetchStateColor(status && status.status)
                   }}
                 >
-                  {(status && language  ?  this.titleCase(status.status_cn) :  this.titleCase(status.status)) || ''}
+                  {((status && language ) ?  this.titleCase(status.status_cn) :  this.titleCase(status.status)) || ''}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>

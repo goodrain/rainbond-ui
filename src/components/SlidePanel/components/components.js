@@ -1313,7 +1313,7 @@ class Main extends PureComponent {
         )),
         <Dropdown key="more" overlay={menu}>
           <Button>
-            更多 <Icon type="down" />
+            {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
           </Button>
         </Dropdown>
       ];
