@@ -476,7 +476,6 @@ export default class app extends Component {
         type: 'button',
         text: <FormattedMessage id="appOverview.list.table.delete" defaultMessage="删除" />,
         show: isDelete,
-        disabled: BtnDisabled,
         onClick: () => this.toDelete()
       }
     ]
