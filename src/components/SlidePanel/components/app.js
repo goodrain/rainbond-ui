@@ -474,9 +474,8 @@ export default class app extends Component {
       {
         key: 'delete',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.delete" defaultMessage="删除" />,
+        text: <FormattedMessage id="appOverview.list.table.delete" defaultMessage="删除" />,
         show: isDelete,
-        disabled: BtnDisabled,
         onClick: () => this.toDelete()
       }
     ]
@@ -804,8 +803,7 @@ export default class app extends Component {
           {filteredOperations.map(op => (
             <Menu.Item key={op.key} onClick={op.onClick}>{op.text}</Menu.Item>  
           ))}
-        </Menu>} trigger={['click']}
-
+        </Menu>}
         >
           <Button style={{ marginLeft: 10 }}>
             {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}

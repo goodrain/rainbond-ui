@@ -4,6 +4,7 @@
 import { Button, Card, Icon, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import AddRelation from '../../components/AddRelation';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
@@ -120,6 +121,7 @@ export default class Index extends PureComponent {
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddRelation = (ids) => {
+    const { dispatch } = this.props;
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -129,18 +131,31 @@ export default class Index extends PureComponent {
         notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
+        // 获取当前时间戳
+        const timestamp = new Date().getTime();
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+          ))
       }
     });
   };
 
   handleRemoveRelationed = app => {
+    const { dispatch } = this.props;
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
       dep_service_id: app.service_id
     }).then(data => {
       if (data) {
-        this.loadRelationedApp();
+        this.loadRelationedApp();        
+        // 获取当前时间戳
+        const timestamp = new Date().getTime();
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+          ))
       }
     });
   };

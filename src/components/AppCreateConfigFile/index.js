@@ -153,8 +153,8 @@ class BaseInfo extends PureComponent {
     const { onRefCpu, appDetail, showEnterprisePlugin } = this.props
     if (!showEnterprisePlugin) {
       this.setState({
-        memoryMarks: { 0: '不限制', ...this.state.memoryMarks, 9:'32G' },
-        cpuMarks: { 0: '不限制', ...this.state.cpuMarks, 8:'16Core' },
+        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9:'32G' },
+        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8:'16Core' },
         memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
         cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
         memorySliderMax: 9,

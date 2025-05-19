@@ -495,7 +495,7 @@ class Main extends PureComponent {
     const { team_name, region_name } = this.fetchParameter();
     return `/team/${team_name}/region/${region_name}/`;
   };
-  loadDetail = (val) => {
+  loadDetail = (val) => {    
     const { dispatch } = this.props;
     const {
       app_alias,
@@ -771,7 +771,7 @@ class Main extends PureComponent {
           }
         });
         dispatch(
-          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}`)
+          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}/overview`)
         );
       }
     });
@@ -1313,7 +1313,7 @@ class Main extends PureComponent {
         )),
         <Dropdown key="more" overlay={menu}>
           <Button>
-            更多 <Icon type="down" />
+            {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
           </Button>
         </Dropdown>
       ];
