@@ -117,6 +117,7 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidMount() {
+    this.handleMenuCollapse(false);
     this.getEnterpriseList();
     this.handleLoadEnterpriseClusters();
     const urlParams = new URL(window.location.href);
