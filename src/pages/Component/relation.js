@@ -131,9 +131,11 @@ export default class Index extends PureComponent {
         notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
+        // 获取当前时间戳
+        const timestamp = new Date().getTime();
         dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=true`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
           ))
       }
     });
@@ -148,9 +150,11 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         this.loadRelationedApp();        
+        // 获取当前时间戳
+        const timestamp = new Date().getTime();
         dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=true`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
           ))
       }
     });
