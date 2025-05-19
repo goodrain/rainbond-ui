@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
           duration: '3'
         });
         this.setState({ buildState: false });
-        this.handleJump(`apps/${groupId}`);
+        this.handleJump(`apps/${groupId}/overview`);
       }
     });
   };

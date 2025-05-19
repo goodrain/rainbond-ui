@@ -149,11 +149,13 @@ class TeamLayout extends PureComponent {
       }
       if (overview) {
         this.setState({
-          showFooter: false
+          showFooter: false,
+          overflow: 'hidden'
         })
       } else {
         this.setState({
-          showFooter: true
+          showFooter: true,
+          overflow: 'auto'
         })
       }
       if (bool) {
@@ -688,7 +690,8 @@ class TeamLayout extends PureComponent {
       isTime,
       isNeedAuthz,
       showFooter,
-      showHeader
+      showHeader,
+      overflow
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
@@ -948,10 +951,9 @@ class TeamLayout extends PureComponent {
                   <TransitionGroup
                     style={{
                       height: 'calc(100vh - 64px)',
-                      overflow: 'auto',
+                      overflow: overflow || 'auto',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
-
                     <CSSTransition
                       timeout={300}
                       classNames=
@@ -965,7 +967,7 @@ class TeamLayout extends PureComponent {
                       <Content
                         style={{
                           height: 'calc(100vh - 64px)',
-                          overflow: 'auto',
+                          overflow: overflow || 'auto',
                           width: '100%'
                         }}
                       >
