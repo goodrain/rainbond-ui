@@ -51,7 +51,6 @@ class Index extends PureComponent {
       showStorageUsed,
       storageUsed
     } = this.props;
-    console.log(language,"language");
     
     const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
