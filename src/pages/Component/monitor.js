@@ -35,7 +35,7 @@ export default class Index extends PureComponent {
   componentWillMount() {
     this.fetchBaseInfo();
     const { method } = this.props;
-    if(method == 'vm'){
+    if (method == 'vm') {
       this.setState({ showMenu: 'resource' });
     }
   }
@@ -148,13 +148,7 @@ export default class Index extends PureComponent {
               paddingTop: 8,
             }}
           >
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appDetail && appDetail.service && appDetail.service.service_alias
-                }/plugin`}
-            >
-              {/* 去开通 */}
-              <FormattedMessage id='componentOverview.body.tab.monitor.open' />
-            </Link>
+            {formatMessage({ id: 'componentOverview.body.tab.monitor.analysis_desc' })}
           </p>
         </div>
       </Card>
@@ -168,7 +162,7 @@ export default class Index extends PureComponent {
       appDetail,
       componentPermissions: { isServiceMonitor },
       method
-    } = this.props;
+    } = this.props;    
     const defaultShow = ['resource'];
     const enablePM =
       appDetail &&
@@ -176,13 +170,13 @@ export default class Index extends PureComponent {
       appDetail.service.language &&
       appDetail.service.language.toLowerCase().indexOf('java') > -1;
     return (
-      <Row>
-        <Col span={4}>
-          <div style={{ paddingRight: '16px' }}>
+      <>
+        <Row>
             <Menu
               onSelect={this.changeMenu}
               defaultSelectedKeys={defaultShow}
-              style={{ height: '590px', border: '1px solid #e8e8e8', borderRadius: 5 }}
+              style={{ paddingBottom: 10, border:0 }}
+              mode="horizontal"
             >
               <Menu.Item key="resource">
                 {/* 资源监控 */}
@@ -193,7 +187,7 @@ export default class Index extends PureComponent {
                   {/* 性能分析 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
                 </Menu.Item>}
-              
+
               {enablePM && method != 'vm' &&
                 <Menu.Item key="trace">
                   {/* 链路追踪 */}
@@ -205,15 +199,15 @@ export default class Index extends PureComponent {
                   <FormattedMessage id='componentOverview.body.tab.monitor.business' />
                 </Menu.Item>}
             </Menu>
-          </div>
-        </Col>
-        <Col span={20}>
+        </Row>
+        <Row>
           {showMenu === 'pm' && this.renderPM()}
           {showMenu === 'trace' && <TraceShow />}
           {showMenu === 'resource' && <ResourceShow />}
           {showMenu === 'custom' && <CustomMonitor appDetail={appDetail} />}
-        </Col>
-      </Row>
+        </Row>
+      </>
+
     );
   }
 }

@@ -557,9 +557,12 @@ export default class CreateCheck extends React.Component {
                     if (ServiceGetData && isDeploy) {
                       refreshCurrent();
                     } else if (appDetail.service_source === 'third_party') {
-                      this.handleJump(`components/${appAlias}/thirdPartyServices`);
+                      // this.handleJump(`components/${appAlias}/thirdPartyServices`);
+                      // group_id
+                      this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
                     } else {
-                      this.handleJump(`components/${appAlias}/overview`);
+                      // this.handleJump(`components/${appAlias}/overview`);
+                      this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
                     }
                   }
                 },

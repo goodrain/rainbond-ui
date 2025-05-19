@@ -793,7 +793,16 @@ export default class AppList extends PureComponent {
         title={formatMessage({ id: 'appUpgrade.title' })}
         content={formatMessage({ id: 'appUpgrade.desc' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg('upgrade', 18)}
-        extraContent={null}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`)
+            );
+          }} icon="home">
+            {formatMessage({ id: 'menu.app.dashboard' })}
+          </Button>
+        }
       >
         <div
           style={loadingDetail ? {} : {

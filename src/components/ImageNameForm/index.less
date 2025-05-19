@@ -40,6 +40,70 @@
   padding: 0 24px;
   border: 1px solid #d9d9d9;
 }
+.advanced-settings {
+  margin: 36px auto 0 auto;
+  background: #f8fafc;
+  border: 1.5px dashed #e5eaf3;
+  border-radius: 12px;
+  box-shadow: none;
+  padding: 36px 36px 20px 36px;
+  position: relative;
+  max-width: 900px;
+  min-width: 420px;
+  .ant-form-item {
+    margin-bottom: 30px;
+    label {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: left;
+      min-width: 110px;
+      color: #222;
+      display: inline-block;
+    }
+  }
+  .ant-input {
+    background: #fff;
+    border-radius: 8px;
+    font-size: 18px;
+    height: 60px;
+    border: 1.5px solid #e5eaf3;
+    transition: border 0.2s, box-shadow 0.2s;
+    &:focus {
+      border-color: #1890ff;
+      box-shadow: 0 2px 8px #e6f7ff;
+    }
+  }
+}
+.advanced-divider {
+  border: none;
+  border-top: 1.5px solid #e5eaf3;
+  margin: 18px 0 18px 0;
+}
+.advanced-btn {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 20px;
+  margin-bottom: 0;
+  margin-left: 0;
+  .ant-btn {
+    border-radius: 16px;
+    padding: 0 28px;
+    font-weight: 500;
+    background: #f4f8ff;
+    color: #1890ff;
+    border: 1px solid #e6e6e6;
+    transition: all 0.2s;
+    &:hover {
+      background: #e6f7ff;
+      color: #40a9ff;
+      border-color: #91d5ff;
+      box-shadow: 0 2px 8px #e6f7ff;
+    }
+  }
+}
+
+  
+
 .public{
   display: flex;
   margin-bottom: 24px;

@@ -418,6 +418,7 @@ export default class EnterpriseShared extends PureComponent {
     };
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
     const group_id = globalUtil.getGroupID()
+    const isAppOverview = this.props.location?.query?.type || '';
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='applicationMarket.Offline.import' />}
@@ -427,10 +428,10 @@ export default class EnterpriseShared extends PureComponent {
           <Button onClick={() => {
               const { dispatch } = this.props;
               dispatch(
-                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
               );
           }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+            <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
           </Button>
       }
       >

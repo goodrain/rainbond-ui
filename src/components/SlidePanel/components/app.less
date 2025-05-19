@@ -1,0 +1,211 @@
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .header_container {
+    height: 60px;
+    width: 100%;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background-color: #ffffff;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+
+    .header_left {
+      .header_left_title {
+        display: flex;
+        align-items: center;
+
+        .header_left_title_icon {
+          margin-right: 8px;
+        }
+
+        .header_left_title_name {
+          font-size: 16px;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .header_right {
+      .header_right_title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      :global {
+        .ant-dropdown-menu-item{
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.content_container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.animatedContainer {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.animatedContainer.exit {
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none; // 防止动画过程中的交互
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+.add_component_container {
+  width: 100%;
+  height: 100%;
+}
+
+.app_detail_container {
+  width: 100%;
+  height: 100%;
+  padding: 50px 24px 0 24px;
+
+  :global {
+    .ant-col-6 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &>span:nth-of-type(1) {
+        font-size: @rbd-content-size;
+        color: @rbd-content-color-secondary;
+        line-height: @rbd-content-line-height;
+        margin-right: 8px;
+      }
+
+      &>span:nth-of-type(2) {
+        font-size: @rbd-content-size;
+        color: @rbd-content-color;
+        line-height: @rbd-content-line-height;
+      }
+    }
+  }
+
+  .app_detail_container_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    &>div {
+      width: 18%;
+      height: 140px;
+      padding: 16px;
+
+      
+      &>div:nth-of-type(1) {
+        height: 30%;
+        display: flex;
+        align-items: center;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-auxiliary-color-secondary;
+        line-height: @rbd-sub-title-line-height;
+        font-weight: 600;
+
+      }
+      &>div:nth-of-type(2) {
+        height: 70%;
+        display: flex;
+        align-items: end;
+
+        &>p {
+          width: 50%;
+          font-size: @rbd-display-size;
+          color: @rbd-display-color;
+          line-height: @rbd-display-line-height;
+          margin-right: 8px;
+          font-weight: 600;
+          margin-bottom: 0;
+          &>span {
+            font-size: @rbd-sub-title-size;
+            color: @rbd-auxiliary-color-secondary;
+            line-height: @rbd-sub-title-line-height;
+            margin-left: 6px;
+          }
+        }
+        &>div:nth-of-type(1) {
+          width: 50%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+    }
+  }
+  .app_resource_container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    &>div {
+      width: 18%;
+      height: 140px;
+      padding: 16px;
+      border-radius: 5px;
+      border: 1px solid #e8e8e8;
+      text-align: center;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      cursor: pointer;
+      &>p {
+        font-size: @rbd-sub-title-size;
+        color: @rbd-auxiliary-color-secondary;
+        line-height: @rbd-sub-title-line-height;
+        margin-bottom: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+      &>h6 {
+        font-size: @rbd-title-big-size;
+        color: @primary-color;
+        line-height: @rbd-title-big-line-height;
+        margin-bottom: 0;
+        font-weight: 800;
+      }
+    }
+    
+  }
+}

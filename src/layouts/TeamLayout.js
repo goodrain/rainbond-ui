@@ -107,7 +107,8 @@ class TeamLayout extends PureComponent {
       isNode: false,
       isTime: false,
       isNeedAuthz: false,
-      showFooter: true
+      showFooter: true,
+      showHeader: true
     };
   }
 
@@ -117,6 +118,7 @@ class TeamLayout extends PureComponent {
     this.getNewbieGuideConfig();
     this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
+    this.handleMenuCollapse(true);
     const { teamAppCreatePermission: { isAccess } } = this.state
     if(this.props.rainbondInfo?.is_saas){
       this.getUserNewbieGuideConfig();
@@ -135,13 +137,25 @@ class TeamLayout extends PureComponent {
     if (urlParams) {
       const bool = urlParams.href.includes("/helminstall");
       const webconsole = urlParams.href.includes("/webconsole");
+      const overview = urlParams.href.includes("/overview");
       if (webconsole) {
         this.setState({
-          showFooter: false
+          showHeader: false
         })
       } else {
         this.setState({
-          showFooter: true
+          showHeader: true
+        })
+      }
+      if (overview) {
+        this.setState({
+          showFooter: false,
+          overflow: 'hidden'
+        })
+      } else {
+        this.setState({
+          showFooter: true,
+          overflow: 'auto'
         })
       }
       if (bool) {
@@ -163,6 +177,10 @@ class TeamLayout extends PureComponent {
       if (code || image || yaml || outer) {
         this.setState({
           GroupShow: false
+        })
+      }else{
+        this.setState({
+          GroupShow: true
         })
       }
       const isPipeline = urlParams.href.includes("Pipeline");
@@ -574,7 +592,7 @@ class TeamLayout extends PureComponent {
   };
 
   handleMenuCollapse = collapsed => {
-    const { dispatch } = this.props;
+    const { dispatch } = this.props;    
     dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: collapsed
@@ -675,9 +693,10 @@ class TeamLayout extends PureComponent {
       isNode,
       isTime,
       isNeedAuthz,
-      showFooter
-    } = this.state;
-
+      showFooter,
+      showHeader,
+      overflow
+    } = this.state;  
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     if (isNeedAuthz) {
@@ -736,6 +755,11 @@ class TeamLayout extends PureComponent {
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
+      this.handleMenuCollapse(true);
+      this.setState({
+        overflow: 'hidden',
+        GroupShow: true
+      });
       // return <PageLoading />;
     } else if (
       currentComponent &&
@@ -780,22 +804,24 @@ class TeamLayout extends PureComponent {
           />
         );
       }
-      return (
-        <AppHeader
-          handleClick={this.GroupShow}
-          teamName={teamName}
-          currentEnterprise={currentEnterprise}
-          currentTeam={currentTeam}
-          currentRegion={currentRegion}
-          regionName={regionName}
-          appID={appID}
-          nobleIcon={BillingFunction && nobleIcon}
-          currentComponent={currentComponent}
-          componentID={componentID}
-          upDataHeader={upDataHeader}
-          changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
-        />
-      );
+      if(showHeader){
+        return (
+          <AppHeader
+            handleClick={this.GroupShow}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+            regionName={regionName}
+            appID={appID}
+            nobleIcon={BillingFunction && nobleIcon}
+            currentComponent={currentComponent}
+            componentID={componentID}
+            upDataHeader={upDataHeader}
+            changeTeam={() => { setTimeout(() => { this.fetchPipePipeline(eid) }, 10); this.fetchGroup() }}
+          />
+        );
+      }
     }
     let menuData = getMenuData(
       teamName,
@@ -880,8 +906,7 @@ class TeamLayout extends PureComponent {
       };      
       const isApp = mode == 'team' ? false : showMenu ? !componentID : false
       return (
-        <Layout>
-          <Layout>
+          <Layout key={overflow}>
             <GlobalHeader
               key={
                 currentEnterprise?.enterprise_id +
@@ -924,6 +949,7 @@ class TeamLayout extends PureComponent {
                   menuData={menuData}
                   pathname={pathname}
                   showMenu={isApp}
+                  isAppOverview
                 />
               )}
               <div style={{ width:(mode == 'team' || componentID) ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
@@ -931,10 +957,9 @@ class TeamLayout extends PureComponent {
                   <TransitionGroup
                     style={{
                       height: 'calc(100vh - 64px)',
-                      overflow: 'auto',
+                      overflow: overflow || 'auto',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
-
                     <CSSTransition
                       timeout={300}
                       classNames=
@@ -948,7 +973,7 @@ class TeamLayout extends PureComponent {
                       <Content
                         style={{
                           height: 'calc(100vh - 64px)',
-                          overflow: 'auto',
+                          overflow: overflow || 'auto',
                           width: '100%'
                         }}
                       >
@@ -958,7 +983,7 @@ class TeamLayout extends PureComponent {
                           }}
                         >
                           {renderContent()}
-                          <CustomFooter />
+                          {showFooter && <CustomFooter />}
                         </div>
                       </Content>
                     </CSSTransition>
@@ -979,7 +1004,6 @@ class TeamLayout extends PureComponent {
                       >
                         {renderContent()}
                         {showFooter && <CustomFooter />}
-
                       </div>
                     </Content>
                   )
@@ -987,7 +1011,6 @@ class TeamLayout extends PureComponent {
               </div>
             </Layout>
           </Layout>
-        </Layout>
       );
     };
 

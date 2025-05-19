@@ -1,5 +1,5 @@
 import { connect } from 'dva';
-import { Spin } from 'antd';
+import { Spin, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -280,6 +280,16 @@ export default class AppGatewayList extends PureComponent {
           tabActiveKey={isGateway ? this.state.tabKeys : this.state.tabKey}
           tabList={this.handleTabList(isGateway)}
           onTabChange={this.handleTabChange}
+          extraContent={
+            <Button onClick={() => {
+              const { dispatch } = this.props;
+              dispatch(
+                routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`)
+              );
+            }} icon="home">
+              {formatMessage({ id: 'menu.app.dashboard' })}
+            </Button>
+          }
         >
           {this.renderContent()}
         </PageHeaderLayout>

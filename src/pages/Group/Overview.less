@@ -1,0 +1,123 @@
+.container {
+  width: 100%;
+  height: calc(100vh - 100px);
+  position: relative;
+  background-color: rgb(240, 245, 255);
+  background-image: radial-gradient(rgba(12, 12, 12, 0.1) 1.5px, transparent 0);
+  background-size: 30px 30px;
+  background-position: -5px -5px;
+}
+
+.iconContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.clickableIcon {
+  cursor: pointer;
+}
+
+.hiddenIcon {
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease-in-out;
+  visibility: hidden;
+}
+
+.visibleIcon {
+  cursor: pointer;
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease-in-out;
+  visibility: visible;
+}
+
+.componentMenu {
+  position: absolute;
+  top: 120px;
+  left: 0;
+  width: 200px;
+}
+
+.headerWrapper {
+  width: 100%;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+  position: relative;
+  will-change: transform, opacity;
+  perspective: 1000px;
+}
+
+.headerShow {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.headerHide {
+  opacity: 0;
+  transform: translateY(-100%) scale(0.95);
+  filter: blur(4px);
+}
+
+.topoBtn {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  background-color: rgba(238, 238, 244, 0.9);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.content_container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 60px);
+  background: #fff;
+  z-index: 2;
+}
+
+.animatedContainer {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.exit {
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none; // 防止动画过程中的交互
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}

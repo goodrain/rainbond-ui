@@ -103,6 +103,10 @@ class BaseInfo extends PureComponent {
       isMemory: (props.appDetail.service.min_memory == 0) ? false : true,
       isCpu: (props.appDetail.service.min_cpu == 0) ? false : true,
       setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
+      memorySliderMin: 1,
+      memorySliderMax: 8,
+      cpuSliderMin: 1,
+      cpuSliderMax: 7,
       memoryMarks: {
         1: '128M',
         2: '256M',
@@ -146,12 +150,25 @@ class BaseInfo extends PureComponent {
     };
   }
   componentDidMount() {
-    const { onRefCpu, appDetail } = this.props
-
-    this.setState({
-      cpuValue: this.checkNum(appDetail.service.min_cpu, 'cpu'),
-      memoryValue: this.checkNum(appDetail.service.min_memory, 'memory')
-    })
+    const { onRefCpu, appDetail, showEnterprisePlugin } = this.props
+    if (!showEnterprisePlugin) {
+      this.setState({
+        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9:'32G' },
+        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8:'16Core' },
+        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
+        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
+        memorySliderMax: 9,
+        memorySliderMin: 0,
+        cpuSliderMax: 8,
+        cpuSliderMin: 0
+      })
+    }
+    setTimeout(() => {
+      this.setState({
+        cpuValue: this.checkNum(appDetail.service.min_cpu, 'cpu'),
+        memoryValue: this.checkNum(appDetail.service.min_memory, 'memory')
+      })
+    }, 10)
     if (onRefCpu) {
       this.props.onRefCpu(this)
     }
@@ -162,7 +179,6 @@ class BaseInfo extends PureComponent {
     const { form, onSubmit, showEnterprisePlugin } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
-        if (showEnterprisePlugin) {
           Object.keys(memoryMarksObj).forEach(item => {
             if (memoryMarksObj[item] == fieldsValue.min_memory) {
               fieldsValue.min_memory = item
@@ -173,22 +189,6 @@ class BaseInfo extends PureComponent {
               fieldsValue.min_cpu = item
             }
           })
-        } else {
-          if (fieldsValue.change_memory && fieldsValue.min_memory) {
-            if (setUnit) {
-              const memoryNum = setUnit == "G" ? fieldsValue.min_memory * 1024 : fieldsValue.min_memory
-              fieldsValue.min_memory = memoryNum
-            } else {
-              const memoryNum = sourceUtil.getUnit(512) == "G" ? Number(fieldsValue.min_memory * 1024) : Number(fieldsValue.min_memory)
-              fieldsValue.min_memory = memoryNum
-            }
-          } else {
-            fieldsValue.min_memory = 0
-          }
-          if (!fieldsValue.change_cpu) {
-            fieldsValue.min_cpu = 0
-          }
-        }
         if (!fieldsValue.extend) {
           fieldsValue.extend_method = 'stateless_multiple'
         }
@@ -300,15 +300,19 @@ class BaseInfo extends PureComponent {
     })
   }
   handleMemoryChange = (value) => {
-    const newCpuValue = value == 1 ? 1 
-      : value == 2 ? 1 
-      : value == 3 ? 2 
-      : value == 4 ? 3 
-      : value == 5 ? 4 
-      : value == 6 ? 4 
-      : value == 7 ? 5 
-      : 6;
-
+    const memoryToCpuMap = {
+      0: 0,
+      1: 1,
+      2: 1,
+      3: 2,
+      4: 3,
+      5: 4,
+      6: 5,
+      7: 6,
+      8: 7,
+      9: 8
+    };
+    const newCpuValue = memoryToCpuMap[value] !== undefined ? memoryToCpuMap[value] : 8;
     this.setState({
       memoryValue: value,
       cpuValue: newCpuValue
@@ -337,13 +341,13 @@ class BaseInfo extends PureComponent {
     }
     if (type == 'cpu') {
       Object.keys(cpuMarksObj).forEach(item => {
-        if (cpuMarksObj[item] == value) {
-          num = item
+        if (item == value) {
+          num = cpuMarksObj[item]
         }
       })
 
     }
-    return num || 2
+    return num
   }
   getFormValues = (data, type) => {
     const { cpuMarksObj, memoryMarksObj } = this.state
@@ -365,7 +369,21 @@ class BaseInfo extends PureComponent {
   }
   render() {
     const { appDetail, form, showEnterprisePlugin } = this.props;
-    const { is_flag, setUnit, isComponentType, isMemory, isCpu, memoryMarks, cpuMarks, cpuValue, memoryValue } = this.state
+    const { 
+      is_flag, 
+      setUnit, 
+      isComponentType, 
+      isMemory, 
+      isCpu, 
+      memoryMarks, 
+      cpuMarks, 
+      cpuValue, 
+      memoryValue, 
+      memorySliderMax, 
+      memorySliderMin, 
+      cpuSliderMax, 
+      cpuSliderMin 
+    } = this.state
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
@@ -487,152 +505,55 @@ class BaseInfo extends PureComponent {
               )}
             </Form.Item>
             }
-            {
-              showEnterprisePlugin ?
-                (
-                  <>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
-                      {getFieldDecorator('min_memory', {
-                        initialValue: memoryValue || 1,
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'placeholder.setting.min_memory' })
-                          }
-                        ]
-                      })(
-                        <Slider
-                          style={{ width: '500px' }}
-                          marks={memoryMarks}
-                          min={1}
-                          max={8}
-                          step={null}
-                          onChange={this.handleMemoryChange}
-                          tooltipVisible={false}
-                        />
-                      )}
-                    </Form.Item>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
-                      {getFieldDecorator('min_cpu', {
-                        initialValue: cpuValue || 2,
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
-                          },
-                          {
-                            pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                            message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
-                          }
-                        ]
-                      })(
-                        <Slider
-                          style={{ width: '500px' }}
-                          marks={cpuMarks}
-                          min={1}
-                          max={7}
-                          step={null}
-                          onChange={this.handleCpuChange}
-                          tooltipVisible={false}
-                        />
-                      )}
-                    </Form.Item>
-                  </>
-                ) : (
-                  <>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
-                      {getFieldDecorator('change_memory', {
-                        initialValue: isMemory,
-                        rules: [
-                          {
-                            required: true,
-                          }
-                        ]
-                      })(
-                        <RadioGroup onChange={this.RadioGroupChangeMemory}>
-                          <RadioButton key='noLimitMemory' value={false}>
-                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
-                          </RadioButton>
-                          <RadioButton key='limitMemory' value={true}>
-                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
-                          </RadioButton>
-                        </RadioGroup>
-                      )}
-                    </Form.Item>
-                    {
-                      isMemory && <Form.Item style={{ paddingLeft: '149px' }}  {...formItemLayout}>
-                        {getFieldDecorator('min_memory', {
-                          initialValue: `${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` || 0,
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'placeholder.setting.min_memory' })
-                            }
-                          ]
-                        })(
-                          <Input
-                            style={{ width: '200px', marginTop: '3px', marginLeft: '12px' }}
-                            type="number"
-                            addonAfter={
-                              <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.selectAfterChange}>
-                                <Option value="M">M</Option>
-                                <Option value="G">G</Option>
-                              </Select>
-                            }
-                          />
-                        )}
 
-                      </Form.Item>
-                    }
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
-                      {getFieldDecorator('change_cpu', {
-                        initialValue: isCpu,
-                        rules: [
-                          {
-                            required: true,
-                            message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
-                          }
-                        ]
-                      })(
-                        <RadioGroup onChange={this.RadioGroupChangeCpu}>
-                          <RadioButton key='noLimitCpu' value={false}>
-                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.noLimit' })}
-                          </RadioButton>
-                          <RadioButton key='limitCpu' value={true}>
-                            {formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.customize' })}
-                          </RadioButton>
-                        </RadioGroup>
-                      )}
-                    </Form.Item>
-                    {
-                      isCpu && <Form.Item {...formItemLayout} style={{ paddingLeft: '160px' }} >
-                        {getFieldDecorator('min_cpu', {
-                          initialValue: minCpu || 0,
-                          rules: [
-                            {
-                              required: true,
-                              message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
-                            },
-                            {
-                              pattern: new RegExp(/^[0-9]\d*$/, 'g'),
-                              message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
-                            }
-                          ]
-                        })(
-                          <Input
-                            style={{ width: '200px' }}
-                            type="number"
-                            min={0}
-                            addonAfter="m"
-                            placeholder={formatMessage({ id: 'placeholder.plugin.min_cpu' })}
-                            onChange={this.inputChange}
-                          />
-                        )}
-                      </Form.Item>
-                    }
-                  </>
-                )
-            }
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
+              {getFieldDecorator('min_memory', {
+                initialValue: memoryValue,
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.setting.min_memory' })
+                  }
+                ]
+              })(
+                <Slider
+                  style={{ width: '500px' }}
+                  marks={memoryMarks}
+                  min={memorySliderMin}
+                  max={memorySliderMax}
+                  step={null}
+                  defaultValue={memoryValue}
+                  onChange={this.handleMemoryChange}
+                  tooltipVisible={false}
+                />
+              )}
+            </Form.Item>
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
+              {getFieldDecorator('min_cpu', {
+                initialValue: cpuValue,
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'placeholder.plugin.min_cpu' })
+                  },
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                    message: formatMessage({ id: 'placeholder.plugin.min_cpuMsg' })
+                  }
+                ]
+              })(
+                <Slider
+                  style={{ width: '500px' }}
+                  marks={cpuMarks}
+                  min={cpuSliderMin}
+                  max={cpuSliderMax}
+                  step={null}
+                  defaultValue={cpuValue}
+                  onChange={this.handleCpuChange}
+                  tooltipVisible={false}
+                />
+              )}
+            </Form.Item>
           </Col>
           {showEnterprisePlugin && (
             <Col span={6}>

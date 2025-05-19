@@ -5,6 +5,7 @@ import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from "../../utils/global"
 import roleUtil from '../../utils/newRole';
@@ -457,6 +458,16 @@ class Index extends PureComponent {
         title={formatMessage({ id: 'addKubenetesResource.title' })}
         content={formatMessage({ id: 'addKubenetesResource.desc' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg('kubenetes', 18)}
+        extraContent={
+          <Button onClick={() => {
+            const { dispatch } = this.props;
+            dispatch(
+              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`)
+            );
+          }} icon="home">
+            {formatMessage({ id: 'menu.app.dashboard' })}
+          </Button>
+        }
       >
         <Card
           className={styles.CardStyle}

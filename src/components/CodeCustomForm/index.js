@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip, Divider } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -144,6 +144,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
+    const group_id = globalUtil.getGroupID()
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
@@ -155,6 +156,13 @@ export default class Index extends PureComponent {
       if (fieldsValue.subdirectories && fieldsValue.server_type !== 'svg') {
         // eslint-disable-next-line no-param-reassign
         fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
+      }
+      if(group_id){
+        fieldsValue.group_id = group_id
+      }
+      if(!fieldsValue.k8s_app || !fieldsValue.group_name){
+        fieldsValue.group_name = fieldsValue.service_cname
+        fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
       }
       if (onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
@@ -334,28 +342,6 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
-            {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.appName' }) }]
-            })(
-              <Select
-                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                showSearch
-                filterOption={(input, option) =>
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-                disabled={!!isService || group_id}
-                onChange={this.fetchComponentNames}
-              >
-                {(groups || []).map(group => (
-                  <Option key={group.group_id} value={group.group_id}>
-                    {group.group_name}
-                  </Option>
-                ))}
-              </Select>
-            )}
-          </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -457,7 +443,44 @@ export default class Index extends PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>}
-
+            {!group_id && <>
+            <Divider />
+            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
+              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
+                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+              </Button>
+            </div>
+            {this.state.showAdvanced && (
+              <div className="advanced-settings" style={{ marginTop: 0, padding: '24px 16px 16px 16px', border: '1px solid #ececec', boxShadow: 'none' }}>
+                <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                <Form.Item
+                  label={formatMessage({ id: 'popover.newApp.appName' })}
+                  {...formItemLayout}
+                  style={{ marginBottom: 0 }}
+                >
+                  {getFieldDecorator('group_name', {
+                    initialValue: this.props.form.getFieldValue('service_cname') || '',
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                      {
+                        max: 24,
+                        message: formatMessage({ id: 'placeholder.max24' })
+                      }
+                    ]
+                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                  {getFieldDecorator('k8s_app', {
+                    initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                      { validator: this.handleValiateNameSpace }
+                    ]
+                  })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                </Form.Item>
+              </div>
+            )}
+          </>}
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
@@ -481,16 +504,13 @@ export default class Index extends PureComponent {
                   false
                 )
                 : !handleType && (
-                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
                       loading={createAppByCodeLoading}
-                      disabled={!isCreate}
                     >
                       {formatMessage({ id: 'teamAdd.create.btn.create' })}
                     </Button>
-                  </Tooltip>
                 )}
             </Form.Item>
           ) : null}

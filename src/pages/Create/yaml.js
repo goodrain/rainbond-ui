@@ -15,10 +15,12 @@ import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/newRole';
 import Yaml from './yaml-yaml';
 import Helm from './helm-cmd';
+import OuterCustom from './outer-custom';
 
 
 @connect(
-  ({ teamControl, global, enterprise }) => ({
+  ({ teamControl, global, enterprise, user }) => ({
+    currentUser: user.currentUser,
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
@@ -34,11 +36,13 @@ export default class Main extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
+      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
+      region_id: this.props.currentTeam?.region[0]?.region_id,
+      eid: this.props.currentUser?.enterprise_id
     }
   }
   componentWillMount() {
-
+    
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
@@ -66,13 +70,18 @@ export default class Main extends PureComponent {
     const map = {
       yaml: Yaml,
       importCluster: ImportCluster,
-      helm: Helm
+      helm: Helm,
+      outerCustom: OuterCustom
     };
 
     const tabList = [
       {
         key: 'yaml',
         tab: formatMessage({id:'teamAdd.create.upload.uploadFiles.yaml'})
+      },
+      {
+        key: 'outerCustom',
+        tab: formatMessage({id:'appOverview.list.table.btn.third_party'})
       }
     ];
     if(showSecurityRestrictions){
@@ -101,7 +110,7 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({ title: '创建组件' });
     const group_id = globalUtil.getGroupID()
-   
+    const isAppOverview = this.props.location?.query?.type || '';
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -115,18 +124,21 @@ export default class Main extends PureComponent {
           <Button onClick={() => {
               const { dispatch } = this.props;
               dispatch(
-                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
               );
           }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+            <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
           </Button>
       }
       >
         {Com ? (
           <Com
+            eid={this.state.eid}
+            region_id={this.state.region_id}
             {...this.props}
             type={this.props.match.params.type}
             tabList={tabList}
+            groupId={group_id}
           />
         ) : (
           <>

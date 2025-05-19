@@ -23,7 +23,7 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
       icon: getMenuSvg.getSvg('dashboard'),
-      path: `team/${teamName}/region/${regionName}/apps/${appID}`,
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/overview`,
       authority: ['admin', 'user']
     }
   ];

@@ -123,7 +123,7 @@ import {
             dispatch(
               // 跳转应用
               routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${nodeDetails.app_id}`
+                `/team/${teamName}/region/${regionName}/apps/${nodeDetails.app_id}/overview`
               )
             );
           }else{

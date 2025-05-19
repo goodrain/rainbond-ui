@@ -99,7 +99,7 @@ export default class SelectApp extends PureComponent {
     const currentTeamAppsPageLink = `/team/${teamName}/region/${regionName}/apps`;
     // const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const isCreateApp = true;
-    const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}`;
+    const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -122,7 +122,7 @@ export default class SelectApp extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {teamApps.map(item => {
-                const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}`;
+                const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}/overview`;
                 return (
                   <li key={item.group_id} onClick={this.handleClickApp}>
                     <Link to={link} title={item.group_name}>

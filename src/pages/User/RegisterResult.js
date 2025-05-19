@@ -109,6 +109,8 @@ export default class Register extends Component {
     } else {
       if (currUser?.is_enterprise_admin) {
         return `/enterprise/${currUser?.enterprise_id}/index`
+      } else {
+        return `/account/center/personal`
       }
     }
   }

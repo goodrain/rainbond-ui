@@ -2,6 +2,7 @@
 
 //应用总览
 const appOverview = {
+  'appOverview.app_detail': '应用详情',
   'appOverview.memory': '使用内存',
   'appOverview.cpu': '使用CPU',
   'appOverview.disk': '使用磁盘',
@@ -17,7 +18,7 @@ const appOverview = {
   'appOverview.config': '配置组',
   'appOverview.btn.update':'更新',
   'appOverview.btn.build':'构建',
-  'appOverview.btn.copy':'快速复制',
+  'appOverview.btn.copy':'复制',
   'appOverview.btn.visit':'访问',
   'appOverview.btn.start':'启动',
   'appOverview.btn.stop':'停用',
@@ -69,7 +70,7 @@ const appOverview = {
   'appOverview.list.btn.addComponent.standard': '等语言规范',
   'appOverview.list.btn.addComponent.image.title': '从镜像开始',
   'appOverview.list.btn.addComponent.image': '指定镜像',
-  'appOverview.list.btn.addComponent.dockerRun': '指定DockerRun命令',
+  'appOverview.list.btn.addComponent.dockerRun': 'DockerRun命令',
   'appOverview.list.btn.addComponent.market.title': '从应用市场开始',
   'appOverview.list.btn.addComponent.update.title': '从上传文件包开始',
   'appOverview.list.btn.addComponent.jwar': '软件包',

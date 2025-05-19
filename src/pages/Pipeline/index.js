@@ -34,7 +34,7 @@ class Index extends Component {
             event.data.flag == "GOTO_DEPLOY_DETAIL") 
             {
             const {region_name, team_name, service_alias } = event.data
-            this.props.dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/components/${service_alias}/overview`))
+            this.props.dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${service_alias}&tab=overview`))
         }
     };
     // 获取团队下的基本信息

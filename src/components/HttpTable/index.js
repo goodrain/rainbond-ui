@@ -482,11 +482,7 @@ export default class HttpTable extends PureComponent {
             duration: 5
           });
           that.props.dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                record.service_alias
-              }`
-            )
+            routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${record.service_alias}&tab=overview`)
           );
         } else {
           winHandler.location.href = record.domain_name;
@@ -617,7 +613,7 @@ export default class HttpTable extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 record.group_id
-              }/`}
+              }/overview`}
             >
               {text}
             </Link>

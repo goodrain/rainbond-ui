@@ -72,7 +72,9 @@ class Index extends React.Component {
     const that = this
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const { group_id: groupId, dispatch } = this.props;
+    const { group_id: groupId, dispatch, apps } = this.props;
+    const appID = globalUtil.getAppID();
+    const componentID = globalUtil.getSlidePanelComponentID();
     const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function () {
@@ -98,7 +100,41 @@ class Index extends React.Component {
         });
         return topologicalAddress;
       };
+      window.getServiceAlias = function () {
+        return componentID;
+      };
+      window.clickBackground = function () {
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${appID}/overview`
+          )
+        )
+      };
+      window.clickNode = function (nodeid, componentID) {
+        if(nodeid == 'The Internet'){
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=gateway`
+            )
+          )
+        }else{  
+          const app = apps.find(app => app.service_alias === componentID);
+          if(app?.status === "creating"){
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/create/create-check/${componentID}`
+              )
+            )
+          }else{
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
+              )
+            )
+          }
 
+        }
+      }
       window.iframeGetTenantName = function () {
         return teamName;
       };
@@ -151,7 +187,7 @@ class Index extends React.Component {
         }
       }
       // 拓扑图点击更新事件
-      window.handleClickUpdate = function (relation, detailes) {
+      window.handleClickUpdate = function (relation, detailes) {                
         if (relation == 'update') {
           that.setState({
             closes: false,

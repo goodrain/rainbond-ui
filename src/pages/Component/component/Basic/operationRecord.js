@@ -39,7 +39,8 @@ class Index extends PureComponent {
     ) {
       this.props.dispatch(
         routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
+          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=log`
         )
       );
     } else if (isopenLog && onLogPush) {
@@ -73,13 +74,15 @@ class Index extends PureComponent {
     if (!bool) {
       this.props.dispatch(
         routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
+          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=expansion`
         )
       );
     } else {
       this.props.dispatch(
         routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
+          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${serivce_alias}&tab=overview`
         )
       );
     }

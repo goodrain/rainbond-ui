@@ -588,36 +588,33 @@ export default class Main extends PureComponent {
               }
             });
 
-            // 关闭弹框
-            this.setState({ installBounced: false, is_deploy: true });
-            if (handleType && refreshCurrent) {
-              refreshCurrent();
-            }
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
-              )
-            );
-          },
-          handleError: (err) => {
-            if (err) {
-              notification.error({
-                message: err.data.msg_show
-              });
-            }
+          // 关闭弹框
+          this.setState({ installBounced: false, is_deploy: true });
+          if (handleType && refreshCurrent) {
+            refreshCurrent();
           }
-        });
-      }
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                0}/overview`
+            )
+          );
+        }
+        
+      });
+    }
     });
   };
-  handleCreate = (vals, is_deploy) => {
+  handleCreate = (vals, is_deploy, group_id) => {
     this.setState({
       addAppLoading: true
     });
     const { dispatch } = this.props;
     const { showCreate: app, currentKey } = this.state;
     const teamName = globalUtil.getCurrTeamName();
+    if(group_id){
+      vals.group_id = group_id
+    }
     dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -641,8 +638,9 @@ export default class Main extends PureComponent {
             this.onCancelCreate();
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
-                }`
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  vals.group_id
+                }/overview`
               )
             );
           },
@@ -669,13 +667,15 @@ export default class Main extends PureComponent {
       )
     );
   };
-  handleCloudCreate = (vals, is_deploy) => {
+  handleCloudCreate = (vals, is_deploy, group_id) => {
     this.setState({
       addAppLoading: true
     });
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
-
+    if(group_id){
+      vals.group_id = group_id
+    }
     this.props.dispatch({
       type: 'createApp/installApp',
       payload: {
@@ -702,8 +702,9 @@ export default class Main extends PureComponent {
             this.setState({ is_deploy: true });
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${vals.group_id
-                }`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                  vals.group_id
+                }/overview`
               )
             );
           }
@@ -718,6 +719,51 @@ export default class Main extends PureComponent {
       }
     });
   };
+
+  // 创建新应用
+  installApp = (vals) => {
+    const { handleType, scopeMax } = this.state;
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    dispatch({
+      type: 'application/addGroup',
+      payload: {
+        region_name: regionName,
+        team_name: teamName,
+        group_name: vals.group_name,
+        k8s_app: vals.k8s_app,
+        note: '',
+      },
+      callback: (res) => {
+        if(res && res.group_id){
+          roleUtil.refreshPermissionsInfo()
+          if(handleType || scopeMax == 'localApplication'){
+            this.handleCreate(vals, true, res.group_id)
+          } else {
+            this.handleCloudCreate(vals, true, res.group_id)
+          }
+        }
+      },
+      handleError: () => {
+        this.setState({
+          isShare: false
+        })
+      }
+    })
+  }
+  handleInstallApp = (vals, is_deploy) => {
+    const { handleType, scopeMax } = this.state;
+    if(vals.install_type == 'new'){
+      this.installApp(vals)
+    } else {
+      if(handleType || scopeMax == 'localApplication'){
+        this.handleCreate(vals, true)
+      } else {
+        this.handleCloudCreate(vals, true)
+      }
+    }
+  }
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
@@ -1363,6 +1409,7 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
+    const isAppOverview = this.props.location?.query?.type || '';
     return (
       <div>
         {authorizations && (
@@ -1387,13 +1434,7 @@ export default class Main extends PureComponent {
         {showCreate && (
           <CreateAppFromMarketForm
             disabled={loading.effects['createApp/installApp']}
-            onSubmit={
-              handleType
-                ? this.handleCreate
-                : scopeMax == 'localApplication'
-                  ? this.handleCreate
-                  : this.handleCloudCreate
-            }
+            onSubmit={this.handleInstallApp}
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
             addAppLoading={addAppLoading}
@@ -1501,6 +1542,7 @@ export default class Main extends PureComponent {
           <div>
             <PageHeaderComponent
               isAddMarket={this.props.isAddMarket}
+              noMargin={this.props.noMargin}
               isSvg
               breadcrumbList={breadcrumbList}
               content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
@@ -1566,7 +1608,7 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{
                           padding: '12px',
-                          marginBottom: !moreState ? '40px' : '0px'
+                          marginBottom: !moreState ? '160px' : '0px'
                         }}
                       >
                         {isSpincloudList !== -1 && cloudCardList}
@@ -1606,10 +1648,10 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}`)
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
                   );
                 }} type="default">
-                  <Icon type="home" />{formatMessage({ id: 'versionUpdata_6_1.wizard' })}
+                  <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
                 </Button>
               }
             >
