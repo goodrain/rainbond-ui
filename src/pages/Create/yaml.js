@@ -19,7 +19,8 @@ import OuterCustom from './outer-custom';
 
 
 @connect(
-  ({ teamControl, global, enterprise }) => ({
+  ({ teamControl, global, enterprise, user }) => ({
+    currentUser: user.currentUser,
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
@@ -36,7 +37,8 @@ export default class Main extends PureComponent {
     super(props)
     this.state = {
       teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create'),
-      region_id: this.props.currentTeam?.region[0]?.region_id
+      region_id: this.props.currentTeam?.region[0]?.region_id,
+      eid: this.props.currentUser?.enterprise_id
     }
   }
   componentWillMount() {
@@ -131,6 +133,7 @@ export default class Main extends PureComponent {
       >
         {Com ? (
           <Com
+            eid={this.state.eid}
             region_id={this.state.region_id}
             {...this.props}
             type={this.props.match.params.type}
