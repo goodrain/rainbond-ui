@@ -4,6 +4,7 @@
 import { Button, Card, Icon, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import AddRelation from '../../components/AddRelation';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
@@ -120,6 +121,7 @@ export default class Index extends PureComponent {
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddRelation = (ids) => {
+    const { dispatch } = this.props;
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -129,12 +131,16 @@ export default class Index extends PureComponent {
         notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
-        document.getElementById('myframe').contentWindow.location.reload(true);
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=true`
+          ))
       }
     });
   };
 
   handleRemoveRelationed = app => {
+    const { dispatch } = this.props;
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -142,7 +148,10 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         this.loadRelationedApp();        
-        document.getElementById('myframe').contentWindow.location.reload(true);
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=true`
+          ))
       }
     });
   };
