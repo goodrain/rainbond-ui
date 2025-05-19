@@ -92,7 +92,6 @@ export default class Overview extends Component {
       },
       callback: data => {
         if (data && data.status_code === 200) {
-          console.log(data.list);
           this.setState({
             apps: data.list || [],
             tableDataLoading: true

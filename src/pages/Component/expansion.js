@@ -163,8 +163,8 @@ export default class Index extends PureComponent {
     const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue } = this.state;
     if ((cpuValue == 0 && memoryValue == 0) || bool) {
       const extendInfo = this.props.extendInfo;
-      const cpuValue = extendInfo?.current_cpu == 0 ? 0 : 100;
-      const memoryValue = extendInfo?.current_memory == 0 ? 0 : 512;
+      const cpuValue = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
+      const memoryValue = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
       const mValue = memoryMarksObj[memoryValue];
       const cValue = cpuMarksObj[cpuValue];
       this.setState({ cpuValue: cValue, memoryValue: mValue });
@@ -1108,8 +1108,8 @@ export default class Index extends PureComponent {
                     const { memoryMarksObj, cpuMarksObj } = this.state;
                     const { form } = this.props;
                     const extendInfo = this.props.extendInfo;
-                    const cpuValue = extendInfo?.current_cpu == 0 ? 0 : 100;
-                    const memoryValue = extendInfo?.current_memory == 0 ? 0 : 512;
+                    const cpuValue = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
+                    const memoryValue = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
                     const mValue = memoryMarksObj[memoryValue];
                     const cValue = cpuMarksObj[cpuValue];
                     this.setState({
