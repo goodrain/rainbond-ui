@@ -178,6 +178,10 @@ class TeamLayout extends PureComponent {
         this.setState({
           GroupShow: false
         })
+      }else{
+        this.setState({
+          GroupShow: true
+        })
       }
       const isPipeline = urlParams.href.includes("Pipeline");
       if (isPipeline) {
@@ -692,8 +696,7 @@ class TeamLayout extends PureComponent {
       showFooter,
       showHeader,
       overflow
-    } = this.state;
-
+    } = this.state;  
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     if (isNeedAuthz) {
@@ -753,6 +756,10 @@ class TeamLayout extends PureComponent {
     if (appID && (!currentApp || !groupDetail.ID)) {
       this.fetchAppDetail(appID);
       this.handleMenuCollapse(true);
+      this.setState({
+        overflow: 'hidden',
+        GroupShow: true
+      });
       // return <PageLoading />;
     } else if (
       currentComponent &&
@@ -899,8 +906,7 @@ class TeamLayout extends PureComponent {
       };      
       const isApp = mode == 'team' ? false : showMenu ? !componentID : false
       return (
-        <Layout>
-          <Layout>
+          <Layout key={overflow}>
             <GlobalHeader
               key={
                 currentEnterprise?.enterprise_id +
@@ -1005,7 +1011,6 @@ class TeamLayout extends PureComponent {
               </div>
             </Layout>
           </Layout>
-        </Layout>
       );
     };
 

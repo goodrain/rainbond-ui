@@ -119,6 +119,8 @@ class Index extends React.Component {
           )
         }else{  
           const app = apps.find(app => app.service_alias === componentID);
+          console.log(app, 'app');
+          console.log(componentID, 'componentID');
           if(app?.status === "creating"){
             dispatch(
               routerRedux.push(
