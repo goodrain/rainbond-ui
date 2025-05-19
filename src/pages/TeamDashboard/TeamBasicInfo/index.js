@@ -737,9 +737,7 @@ export default class index extends Component {
                 <div
                   className={styles.appListEmpty}
                   onClick={() => {
-                    this.setState({
-                      addGroup: true,
-                    });
+                    this.onJumpToWizard()
                   }}>
                   <Empty
                     description={formatMessage({ id: 'teamOverview.startDeploy' })}
