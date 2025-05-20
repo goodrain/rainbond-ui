@@ -7,26 +7,68 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 80px;
+  height: 94px; // 预留足够空间
+}
+
+/* 添加对话框样式 */
+.dialogBox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #4c4c5f;
+  border-radius: 6px;
+  padding: 4px 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  max-width: 150px;
+  animation: float-in 0.3s ease-out;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.dialogBox.hidden {
+  opacity: 0;
+  pointer-events: none; // 确保隐藏后不影响鼠标事件
+}
+
+.dialogContent {
+  font-size: 14px;
+  color: #fff;
+  text-align: center;
+}
+
+.dialogArrow {
+  position: absolute;
+  bottom: -6px;
+  right: 23px;
+  width: 12px;
+  height: 12px;
+  background: #4c4c5f;
+  transform: rotate(45deg);
+  box-shadow: 3px 3px 5px rgba(0,0,0,0.05);
 }
 
 .iconBox {
+  position: absolute;
+  bottom: 0;
+  right: 0;
   width: 54px;
   height: 54px;
-  background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 8px;
   background: #4c4c5f;
   transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }
+
 .iconBoxHover {
   transform: scale(1.12) rotate(-10deg);
   box-shadow: 0 4px 16px rgba(76,76,95,0.18);
 }
+
 .qrBox {
   position: absolute;
   right: 60px;
@@ -41,7 +83,19 @@
   align-items: center;
   animation: float-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }
+
 .qrImgStyle {
   width: 120px;
   height: 120px;
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }

@@ -252,13 +252,8 @@ export default function request(url, options) {
                 
               );
             }
-            const tipMap = {
-              10406: `${formatMessage({id:'utils.request.Insufficient_resources'})}`,
-              10413: `${formatMessage({id:'utils.request.Exceeding_limit'})}`,
-              20800: `${formatMessage({id:'utils.request.Build_failed'})}`
-            };
             handleStoreDispatch('global/showMemoryTip', {
-              message: tipMap[code]
+              message: code
             });
             return;
           }

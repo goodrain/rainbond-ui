@@ -142,7 +142,8 @@ import {
   fetchUserNewbieGuideConfig,
   putUserNewbieGuideConfig,
   fetchLoginLogs,
-  fetchOperationLogs
+  fetchOperationLogs,
+  fetchUserSource
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1177,7 +1178,12 @@ export default {
         callback(response);
       }
     },
-
+    *fetchUserSource({ payload, callback }, { call }) {
+      const response = yield call(fetchUserSource, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
   },
   reducers: {
     isUpDataHeader(state, action) {

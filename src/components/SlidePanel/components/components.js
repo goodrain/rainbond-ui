@@ -845,7 +845,11 @@ class Main extends PureComponent {
       }
     });
   };
+<<<<<<< HEAD
   handleOperation = (state, callback) => {
+=======
+  handleOperation = state => {
+>>>>>>> c80c9bde78dccd3160f992231e992df92e20648d
     const { dispatch } = this.props;
     const { actionIng } = this.state;
     if (state === 'putUpdateRolling') {

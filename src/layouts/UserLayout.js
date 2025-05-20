@@ -51,7 +51,10 @@ class UserLayout extends React.PureComponent {
           const { query } = this.props.location;
           const isLogin = this.props.location.pathname === '/user/login';
           if (isLogin) {
-            const { redirect } = query;
+            const { redirect, link } = query;
+            if (link) {
+              window.localStorage.setItem('link', link);
+            }
             if (redirect) {
               window.localStorage.setItem('redirect', redirect);
             }
@@ -111,7 +114,7 @@ class UserLayout extends React.PureComponent {
             <div className={styles.saasLeft}>
               <div className={styles.saasLeftContent}>
                 <div className={styles.introSection}>
-                  <p className={styles.subTitle}>即时部署，应用轻松扩展，实现开发者自助，无需平台运维工程师</p>
+                  <p className={styles.subTitle}>无门槛免费试用，一键部署任意应用</p>
                 </div>
                 <div className={styles.featureList}>
                   <div className={styles.featureItem}>
@@ -143,7 +146,7 @@ class UserLayout extends React.PureComponent {
                   </div>
                   <div className={styles.featureItem}>
                     <div className={styles.iconWrapper}>
-                      {globalUtil.fetchSvg('loginCloud3')}
+                      {globalUtil.fetchSvg('loginCloud4')}
                     </div>
                     <div className={styles.featureContent}>
                       <h3>应用市场</h3>
@@ -155,7 +158,7 @@ class UserLayout extends React.PureComponent {
             </div>
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
-                <h2>欢迎登录Rainbond Cloud</h2>
+                <h2>Rainbond Cloud</h2>
                 <p>开启平台之旅</p>
                 <div className={styles.loginForm}>
                   {children}

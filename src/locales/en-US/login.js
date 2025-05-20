@@ -69,6 +69,9 @@ const login = {
     'login.registerComponent.passwordMismatch': 'The two passwords are different. Please re-enter them',
     'login.registerComponent.phone':'Phone',
     'login.registerComponent.phone_error':'Mobile phone number format error!',
+    'login.registerComponent.smslink':'Link',
+    'login.registerComponent.smsusers':'User',
+    'login.registerComponent.smsphone':'Phone',
 }
 
 export default Object.assign({}, login);

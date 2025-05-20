@@ -43,14 +43,55 @@ export default class Register extends Component {
       }
     });
   };
+
+  handleUserSource = (value) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchUserSource',
+      payload: {
+        content: value
+      },
+      callback: data => {
+        window.localStorage.removeItem('link');
+      }
+    })
+  }
   handleSmsSubmit = values => {
     const { dispatch } = this.props;
+    const link = window.localStorage.getItem('link');
+    const redirect = window.localStorage.getItem('redirect');
+    let content = '';
+    if(link) {
+      content = `
+        ${formatMessage({ id: 'login.registerComponent.smslink'})}:${link}
+        ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
+        ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
+      `;
+    } else if(redirect && redirect.includes('app_name')) {
+      const hashPart = redirect.split('#')[1];
+      const queryPart = hashPart.split('?')[1];
+      const urlSearchParams = new URLSearchParams(queryPart);
+      const appName = urlSearchParams.get('app_name');
+      content = `
+        ${formatMessage({ id: 'login.registerComponent.smslink'})}:${appName}
+        ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
+        ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
+      `;
+    } else {
+      content = `
+        ${formatMessage({ id: 'login.registerComponent.smslink'})}:${'cloud'}
+        ${formatMessage({ id: 'login.registerComponent.smsusers'})}:${values.nick_name}
+        ${formatMessage({ id: 'login.registerComponent.smsphone'})}:${values.phone}
+      `;
+    }
     dispatch({
       type: 'user/smsRegister',
       payload: values,
       complete: data => {
         console.log('Register Success')
-        
+        if(content){
+          this.handleUserSource(content)
+        }
       }
     });
   };
