@@ -127,16 +127,23 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
       dep_service_ids: ids
     }).then(data => {
+      const timestamp = new Date().getTime();
       if (data) {
-        notification.info({ message: formatMessage({ id: 'notification.hint.toUpdata' }) });
-        this.loadRelationedApp();
-        this.handleCancelAddRelation();
-        // 获取当前时间戳
-        const timestamp = new Date().getTime();
-        dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-          ))
+        if (this.props.isShowUpdate) {
+          this.props.handleOperation('putUpdateRolling', () => {
+            dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+              ))
+          });
+        } else {
+          this.loadRelationedApp();
+          this.handleCancelAddRelation();
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+            ))
+        }
       }
     });
   };
@@ -149,13 +156,21 @@ export default class Index extends PureComponent {
       dep_service_id: app.service_id
     }).then(data => {
       if (data) {
-        this.loadRelationedApp();        
-        // 获取当前时间戳
         const timestamp = new Date().getTime();
-        dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-          ))
+        if (this.props.isShowUpdate) {
+          this.props.handleOperation('putUpdateRolling', () => {
+            dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+              ))
+          });
+        } else {
+          this.loadRelationedApp();
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
+            ))
+        }
       }
     });
   };
@@ -189,7 +204,7 @@ export default class Index extends PureComponent {
           >
             <ScrollerX sm={650}>
               <Table
-                rowKey={(record,index) => index}
+                rowKey={(record, index) => index}
                 pagination={{
                   current: this.state.page,
                   pageSize: this.state.pageSize,
@@ -199,7 +214,7 @@ export default class Index extends PureComponent {
                   showQuickJumper: true,
                   showSizeChanger: true,
                   showTotal: (total) => `共 ${total} 条`,
-                  pageSizeOptions:['5', '10', '20', '30'],
+                  pageSizeOptions: ['5', '10', '20', '30'],
                   hideOnSinglePage: Number(this.state.total) <= 5
                 }}
                 columns={[
@@ -262,16 +277,16 @@ export default class Index extends PureComponent {
             </ScrollerX>
           </Card>
         }
-          <EnvironmentVariable
-            // title="组件连接信息"
-            title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
-            type="Outer"
-            autoQuery
-            appAlias={appAlias}
-          />
-          <RelatumComponentInfo 
-            {...this.props} 
-          />
+        <EnvironmentVariable
+          // title="组件连接信息"
+          title={<FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.title' />}
+          type="Outer"
+          autoQuery
+          appAlias={appAlias}
+        />
+        <RelatumComponentInfo
+          {...this.props}
+        />
 
         {this.state.showAddRelation && (
           <AddRelation

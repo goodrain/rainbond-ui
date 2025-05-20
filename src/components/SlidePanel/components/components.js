@@ -292,6 +292,7 @@ class Main extends PureComponent {
       routerSwitch: true,
       componentPermissions: this.props?.permissions || {},
       activeTab: '',
+      isShowUpdate: false
     };
     this.socket = null;
     this.destroy = false;
@@ -582,7 +583,6 @@ class Main extends PureComponent {
     const { appDetail, match } = this.props;
     const service = appDetail && appDetail.service;
     const componentID = globalUtil.getSlidePanelComponentID();
-    // console.log( match && match.params && match.params.appAlias);
 
     return {
       app_alias: componentID,
@@ -845,7 +845,7 @@ class Main extends PureComponent {
       }
     });
   };
-  handleOperation = state => {
+  handleOperation = (state, callback) => {
     const { dispatch } = this.props;
     const { actionIng } = this.state;
     if (state === 'putUpdateRolling') {
@@ -882,6 +882,9 @@ class Main extends PureComponent {
           const child = this.getChildCom();
           if (child && child.onAction) {
             child.onAction(res.bean);
+          }
+          if (callback) {
+            callback();
           }
         }
         this.handleOffHelpfulHints();
@@ -1096,7 +1099,11 @@ class Main extends PureComponent {
         app_alias={globalUtil.getSlidePanelComponentID()}
       />
     );
-
+    const isShowUpdate = method !== 'vm' && isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
+    this.setState({
+      isShowUpdate
+    })
+    
     const allOperations = [
       {
         key: 'visit',
@@ -1742,8 +1749,12 @@ class Main extends PureComponent {
               onshowRestartTips={msg => {
                 this.handleshowRestartTips(msg);
               }}
+              handleOperation={(msg, callback) => {
+                this.handleOperation(msg, callback);
+              }}
               socket={this.socket}
               onChecked={this.handleChecked}
+              isShowUpdate={this.state.isShowUpdate}
             />
           ) : (
             <FormattedMessage id="componentOverview.promptModal.error" />
