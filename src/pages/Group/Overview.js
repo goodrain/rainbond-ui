@@ -198,7 +198,7 @@ export default class Overview extends Component {
     )
   }
 
-  handleChangeType = (newType) => {
+  handleChangeType = (newType, oldType) => {    
     if (this.state.type === 'EditorTopology') {
       this.setState({ isExiting: true });
       setTimeout(() => {
@@ -209,6 +209,9 @@ export default class Overview extends Component {
       }, 400);
     } else {
       this.setState({ type: newType });
+    }
+    if(oldType === 'EditorTopology') {
+      document.getElementById('myframe').contentWindow.location.reload(true);
     }
   }
 
@@ -236,7 +239,7 @@ export default class Overview extends Component {
           <>
             {tableDataLoading &&
               <AppShape
-                iframeHeight={'calc(100vh - 108px)'}
+                iframeHeight={'calc(100vh - 188px)'}
                 group_id={globalUtil.getAppID()}
                 apps={apps}
               />
@@ -267,7 +270,7 @@ export default class Overview extends Component {
         )}
         {type == 'EditorTopology' &&
           <Button
-            onClick={() => this.handleChangeType('AppShape')}
+            onClick={() => this.handleChangeType('AppShape', 'EditorTopology')}
             style={{ position: 'absolute', top: 72, right: 6, zIndex: 999 }}
             type='link'
           >
