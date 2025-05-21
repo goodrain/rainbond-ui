@@ -794,70 +794,34 @@ export default class Index extends PureComponent {
               </a>
             </div>
           }
-          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && (
-            <div
-              className="userpass-card"
-              style={{
-                margin: '24px 0 0 0',
-                background: '#fafbfc',
-                border: '1px solid #e6e6e6',
-                borderRadius: 8,
-                boxShadow: '0 2px 8px #f0f1f2',
-                padding: 24,
-                display: this.state.showUsernameAndPass ? 'block' : 'none',
-                maxWidth: 500
-              }}
+          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
+            <Form.Item
+              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
+              {...is_language}
+              label={formatMessage({ id: 'teamAdd.create.form.user' })}
             >
-              <div style={{ fontWeight: 500, fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-                <Icon type="user" style={{ marginRight: 8, color: '#1890ff' }} />
-                {formatMessage({ id: 'teamAdd.create.form.user' })}
-              </div>
-              <Form.Item style={{ marginBottom: 18 }}>
-                {getFieldDecorator('user_name', {
-                  initialValue: data.user_name || '',
-                  rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
-                })(
-                  <Input
-                    autoComplete="off"
-                    placeholder={formatMessage({ id: 'placeholder.username_1' })}
-                    style={{
-                      borderRadius: 6,
-                      height: 40,
-                      fontSize: 15,
-                      boxShadow: '0 1px 3px #f0f1f2',
-                      border: '1px solid #e6e6e6',
-                      transition: 'border 0.2s, box-shadow 0.2s'
-                    }}
-                  />
-                )}
-              </Form.Item>
-              <div className="advanced-divider" style={{ margin: '12px 0' }} />
-              <div style={{ fontWeight: 500, fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-                <Icon type="lock" style={{ marginRight: 8, color: '#1890ff' }} />
-                {formatMessage({ id: 'teamAdd.create.form.password' })}
-              </div>
-              <Form.Item style={{ marginBottom: 0 }}>
-                {getFieldDecorator('password', {
-                  initialValue: data.password || '',
-                  rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
-                })(
-                  <Input
-                    autoComplete="new-password"
-                    type="password"
-                    placeholder={formatMessage({ id: 'placeholder.password_1' })}
-                    style={{
-                      borderRadius: 6,
-                      height: 40,
-                      fontSize: 15,
-                      boxShadow: '0 1px 3px #f0f1f2',
-                      border: '1px solid #e6e6e6',
-                      transition: 'border 0.2s, box-shadow 0.2s'
-                    }}
-                  />
-                )}
-              </Form.Item>
-            </div>
-          )}
+              {getFieldDecorator('user_name', {
+                initialValue: data.user_name || '',
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+              })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+            </Form.Item>
+            <Form.Item
+              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
+              {...is_language}
+              label={formatMessage({ id: 'teamAdd.create.form.password' })}
+            >
+              {getFieldDecorator('password', {
+                initialValue: data.password || '',
+                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
+              })(
+                <Input
+                  autoComplete="new-password"
+                  type="password"
+                  placeholder={formatMessage({ id: 'placeholder.password_1' })}
+                />
+              )}
+            </Form.Item>
+          </>}
 
           {archLegnth == 2 &&
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
@@ -879,13 +843,22 @@ export default class Index extends PureComponent {
               </Button>
             </div>
             {this.state.showAdvanced && (
-              <div className="advanced-settings" style={{ marginTop: 0, padding: '24px 16px 16px 16px', border: '1px solid #ececec', boxShadow: 'none' }}>
+              <div  
+              className="userpass-card"
+              style={{
+                margin: '24px 0',
+                background: '#fafbfc',
+                border: '1px solid #e6e6e6',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px #f0f1f2',
+                padding: 24,
+              }}>
                 <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
                 <Form.Item
                   label={formatMessage({ id: 'popover.newApp.appName' })}
                   colon={false}
                   {...formItemLayout}
-                  style={{ marginBottom: 0 }}
+                  style={{ marginBottom: 18 }}
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
@@ -896,7 +869,18 @@ export default class Index extends PureComponent {
                         message: formatMessage({ id: 'placeholder.max24' })
                       }
                     ]
-                  })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                  })(<Input 
+                      placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} 
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
@@ -905,7 +889,18 @@ export default class Index extends PureComponent {
                       { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
                       { validator: this.handleValiateNameSpace }
                     ]
-                  })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                  })(<Input 
+                        placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} 
+                         style={{
+                          borderRadius: 6,
+                          height: 40,
+                          fontSize: 15,
+                          boxShadow: '0 1px 3px #f0f1f2',
+                          border: '1px solid #e6e6e6',
+                          transition: 'border 0.2s, box-shadow 0.2s'
+                        }}
+                      />
+                    )}
                 </Form.Item>
               </div>
             )}

@@ -81,10 +81,10 @@ export default class Index extends PureComponent {
       if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
         value.arch = archInfo[0]
       }
-      if(group_id){
+      if (group_id) {
         value.group_id = group_id
       }
-      if(!value.k8s_app || !value.group_name){
+      if (!value.k8s_app || !value.group_name) {
         value.group_name = value.service_cname
         value.k8s_app = this.generateEnglishName(value.service_cname)
       }
@@ -438,12 +438,22 @@ export default class Index extends PureComponent {
                 </Button>
               </div>
               {this.state.showAdvanced && (
-                <div className="advanced-settings" style={{ marginTop: 0, padding: '24px 16px 16px 16px', border: '1px solid #ececec', boxShadow: 'none' }}>
+                <div
+                  className="userpass-card"
+                  style={{
+                    margin: '24px 0',
+                    background: '#fafbfc',
+                    border: '1px solid #e6e6e6',
+                    borderRadius: 8,
+                    boxShadow: '0 2px 8px #f0f1f2',
+                    padding: 24,
+                  }}>
                   <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
                   <Form.Item
                     label={formatMessage({ id: 'popover.newApp.appName' })}
+                    colon={false}
                     {...formItemLayout}
-                    style={{ marginBottom: 0 }}
+                    style={{ marginBottom: 18 }}
                   >
                     {getFieldDecorator('group_name', {
                       initialValue: this.props.form.getFieldValue('service_cname') || '',
@@ -454,7 +464,18 @@ export default class Index extends PureComponent {
                           message: formatMessage({ id: 'placeholder.max24' })
                         }
                       ]
-                    })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+                    })(<Input
+                      placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
                   </Form.Item>
                   <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                     {getFieldDecorator('k8s_app', {
@@ -463,7 +484,18 @@ export default class Index extends PureComponent {
                         { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
                         { validator: this.handleValiateNameSpace }
                       ]
-                    })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                    })(<Input
+                      placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
                   </Form.Item>
                 </div>
               )}
@@ -477,9 +509,9 @@ export default class Index extends PureComponent {
                 }
               }}
             >
-                <Button type="primary" htmlType="submit">
-                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                </Button>
+              <Button type="primary" htmlType="submit">
+                {formatMessage({ id: 'teamAdd.create.btn.create' })}
+              </Button>
             </Form.Item>
           </Form>
         </div>
