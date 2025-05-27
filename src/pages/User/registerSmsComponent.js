@@ -131,35 +131,35 @@ export default class RegisterComponent extends Component {
         <FormItem {...formItemLayout}>
           {getFieldDecorator('nick_name', {
             rules: [
-              { required: true, message: formatMessage({ id: 'login.registerComponent.username' }) },
+              { required: true, message: '请输入用户名' },
               {
                 min: 3,
-                message: formatMessage({ id: 'login.registerComponent.min_length' })
+                message: '最小长度3位'
               },
               {
                 max: 24,
-                message: formatMessage({ id: 'login.registerComponent.max_length' })
+                message: '最大长度24位'
               },
               {
-                pattern: /^[a-z][a-z0-9\-]*$/,
-                message: formatMessage({ id: 'login.registerComponent.Only' })
+                pattern: /^[a-z](?:[a-z0-9]|-(?=[a-z0-9]))*$/,
+                message: '只支持小写字母、数字和-组合'
               }
             ]
           })(
-            <Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.user' })} />
+            <Input autoComplete="off" size="large" placeholder={'用户名'} />
           )}
         </FormItem>
         {/* 手机号 */}
         <FormItem>
           {getFieldDecorator('phone', {
             rules: [
-              { required: true, message: formatMessage({ id: 'login.registerComponent.phone' }) },
+              { required: true, message: '手机号' },
               {
                 pattern: /^1[3-9]\d{9}$/,
-                message: formatMessage({ id: 'login.registerComponent.phone_error' })
+                message: '手机号格式错误！'
               }
             ],
-          })(<Input autoComplete="off" size="large" placeholder={formatMessage({ id: 'login.registerComponent.phone' })} />)}
+          })(<Input autoComplete="off" size="large" placeholder={'手机号'} />)}
         </FormItem>
         
         {/* 验证码 */}
@@ -181,7 +181,7 @@ export default class RegisterComponent extends Component {
                 onClick={this.handleSendCode}
                 style={{ width: '100%', marginTop: '-16px', color: '#000' }}
               >
-                {this.state.countdown > 0 ? `${this.state.countdown}s` : '发送验证码'}
+                {this.state.countdown > 0 ? `${this.state.countdown}s` : '获取验证码'}
               </Button>
             </Col>
           </Row>
@@ -196,15 +196,15 @@ export default class RegisterComponent extends Component {
             htmlType="submit"
           >
             {firstRegist
-              ? <FormattedMessage id='login.registerComponent.admin' />
+              ? '管理员注册'
               : type === 'register'
-                ? <FormattedMessage id='login.registerComponent.register' />
-                : <FormattedMessage id='login.registerComponent.bind' />}
+                ? '注册'
+                : '注册并绑定'}
           </Button>
 
           {!firstRegist && type === 'register' && (
             <Link className={styles.login} to={this.getRedirectParams()}>
-              <FormattedMessage id='login.registerComponent.use' />
+              使用已有账户登录
             </Link>
           )}
         </FormItem>
@@ -214,7 +214,7 @@ export default class RegisterComponent extends Component {
               span={24}
               style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
             >
-              <FormattedMessage id='login.registerComponent.be_careful' />
+              请注意：注册使用即同意产品发行版用户许可协议。
             </Col>
           </Row>
         )}

@@ -44,7 +44,7 @@ export default class LoginComponent extends Component {
   }
 
   handleMobileChange = (e) => {
-    const mobile = e.target?.value || e;  // 获取输入值
+    const mobile = e.target?.value || '';  // 获取输入值
     this.setState({ mobile });
   };
 
@@ -55,7 +55,6 @@ export default class LoginComponent extends Component {
     
     const { dispatch } = this.props;
     const { mobile } = this.state;
-    
     if (!mobile) {
       message.error('请输入手机号');
       return;
@@ -77,6 +76,7 @@ export default class LoginComponent extends Component {
 
   render() {
     const { thirdLogin, userLogin, type } = this.props;
+    const { mobile } = this.state;
     return (
       <div>
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
@@ -89,15 +89,17 @@ export default class LoginComponent extends Component {
             name="code"
             placeholder={'请输入验证码'}
             countDown={120}
+            mobile={mobile}
             onGetCaptcha={this.onGetCaptcha}
           />
           <Submit loading={type !== 'thirdLogin' ? userLogin : thirdLogin}>
-            {type === 'thirdLogin' ? <FormattedMessage id="login.loginComponent.loginandband"/> : <FormattedMessage id="login.loginComponent.login"/>}
+            {type === 'thirdLogin' ? '登录并绑定' : '登录'}
           </Submit>
           <div className={styles.other}>
             {this.props.isRegist && type !== 'thirdLogin' && (
               <Link className={styles.register} to={this.getRedirectParams()}>
-                <FormattedMessage id= 'login.loginComponent.register'/>
+                {/* <FormattedMessage id= 'login.loginComponent.register'/> */}
+                注册账户
               </Link>
             )}
           </div>

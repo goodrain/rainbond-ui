@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import PropTypes from 'prop-types';
-import { Form, Button, Row, Col } from 'antd';
+import { Form, Button, Row, Col, notification } from 'antd';
 import omit from 'omit.js';
 import styles from './index.less';
 import map from './map';
@@ -30,6 +30,18 @@ function generator({ defaultProps, defaultRules, type }) {
         clearInterval(this.interval);
       }
       onGetCaptcha = () => {
+        const { mobile } = this.props;
+        if (!mobile) {
+          notification.error({
+            message: '请输入手机号'
+          });
+          return;
+        } else if (!/^1[3-9]\d{9}$/.test(mobile)) {
+          notification.error({
+            message: '手机号格式不正确'
+          });
+          return;
+        }
         let count = 59;
         this.setState({ count });
         if (this.props.onGetCaptcha) {
@@ -81,7 +93,8 @@ function generator({ defaultProps, defaultRules, type }) {
                     size="large"
                     onClick={this.onGetCaptcha}
                   >
-                    {count ? `${count} s` : `${formatMessage({id:'login.LoginItem'})}`}
+                    {/* {count ? `${count} s` : `${formatMessage({id:'login.LoginItem'})}`} */}
+                    {count ? `${count} s` : `获取验证码`}
                   </Button>
                 </Col>
               </Row>
