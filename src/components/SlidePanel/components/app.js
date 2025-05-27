@@ -17,6 +17,7 @@ import AppState from '../../../components/ApplicationState';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
 import sourceUtil from '../../../utils/source-unit';
+import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
@@ -29,7 +30,8 @@ import styles from './app.less';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  novices: global.novices
+  novices: global.novices,
+  pluginsList: teamControl.pluginsList
 }))
 export default class app extends Component {
   constructor(props) {
@@ -56,7 +58,11 @@ export default class app extends Component {
       addComponentOrAppDetail: props.addComponentOrAppDetail,
       isExiting: false,
       customSwitch: false,
-      toEditAppDirector: false
+      toEditAppDirector: false,
+      storageUsed: {
+        value: 0,
+        unit: 'MB'
+      }
     };
   }
   componentDidMount() {
@@ -64,6 +70,7 @@ export default class app extends Component {
     this.handleArchCpuInfo();
     this.handleWaitLevel();
     this.handleGroupAllResource()
+    this.getStorageUsed();
   }
   loading = () => {
     this.fetchAppDetail();
@@ -240,6 +247,24 @@ export default class app extends Component {
       }
     });
   };
+   // 获取存储实际占用
+  getStorageUsed = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchStorageUsed',
+      payload: {
+        app_id: globalUtil.getAppID(),
+        region_name: globalUtil.getCurrRegionName(),
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            storageUsed: res.bean.used_storage
+          })
+        }
+      }
+    });
+  }
   loadTopology(isCycle) {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
@@ -836,7 +861,8 @@ export default class app extends Component {
       customSwitch,
       toEditAppDirector,
       upgradableNumLoading,
-      upgradableNum
+      upgradableNum,
+      storageUsed
     } = this.state;
     const {
       deleteLoading,
@@ -858,7 +884,8 @@ export default class app extends Component {
           isAppResources,
           isAppConfigGroup,
         },
-      }
+      },
+      pluginsList
     } = this.props;
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
@@ -867,6 +894,7 @@ export default class app extends Component {
       deploy: formatMessage({ id: 'appOverview.btn.build' }),
       upgrade: formatMessage({ id: 'appOverview.btn.update' }),
     };
+    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     return (
       <div className={styles.container}>
         <div className={styles.header_container}>
@@ -1018,8 +1046,7 @@ export default class app extends Component {
                     <div>{formatMessage({ id: 'appOverview.disk' })}</div>
                     <div>
                       <p>
-                        {`${resources.disk < 1024 ? resources.disk : resources.disk / 1024}`}
-                        <span>{resources.disk < 1024 ? 'MB' : 'GB'}</span>
+                        {showStorageUsed ? `${storageUsed?.value}${storageUsed?.unit}` : sourceUtil.unit(resources.disk || 0, 'KB')}
                       </p>
                       <div className={styles.app_detail_container_row_disk_progress_img}>
                         <svg t="1743403446443" class="icon" viewBox="0 0 1335 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8371" width="50" height="50">
