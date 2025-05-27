@@ -140,7 +140,8 @@ class TeamLayout extends PureComponent {
       const overview = urlParams.href.includes("/overview");
       if (webconsole) {
         this.setState({
-          showHeader: false
+          showHeader: false,
+          showFooter: false,
         })
       } else {
         this.setState({
@@ -154,7 +155,6 @@ class TeamLayout extends PureComponent {
         })
       } else {
         this.setState({
-          showFooter: true,
           overflow: 'auto'
         })
       }
