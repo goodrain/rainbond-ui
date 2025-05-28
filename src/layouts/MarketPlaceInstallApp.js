@@ -121,7 +121,7 @@ export default class MarketPlaceInstallApp extends Component {
         })
         dispatch(
           routerRedux.push(
-            `/team/${teamName}/region/${regionName}/apps/${group_id}`
+            `/team/${teamName}/region/${regionName}/apps/${group_id}/overview`
           )
           );
       },
