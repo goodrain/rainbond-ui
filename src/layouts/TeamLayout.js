@@ -394,12 +394,15 @@ class TeamLayout extends PureComponent {
 
   getTeamOverview = () => {
     this.load();
-    this.fetchTeamDetails();
-    const { dispatch, currentUser } = this.props;
+    const { dispatch, currentUser, rainbondInfo } = this.props;
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
     const { teamName, regionName } = this.props.match.params;
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
+    if(isSaas){
+      this.fetchTeamDetails();
+    }
     dispatch({
       type: 'global/getTeamOverview',
       payload: {
