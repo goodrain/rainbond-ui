@@ -16,7 +16,8 @@ import {
   Radio,
   Row,
   Select,
-  Tooltip
+  Tooltip,
+  Divider
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -34,18 +35,18 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 6
+    span: 8
   },
   wrapperCol: {
-    span: 18
+    span: 7
   }
 };
 const formItemLayouts = {
   labelCol: {
-    span: 11
+    span: 21
   },
   wrapperCol: {
-    span: 13
+    span: 3
   }
 };
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
@@ -74,7 +75,8 @@ export default class Index extends PureComponent {
       staticList: [''],
       language: cookie.get('language') === 'zh-CN' ? true : false,
       comNames: [],
-      creatComPermission: {}
+      creatComPermission: {},
+      showAdvanced: false
     };
   }
   componentDidMount() {
@@ -107,6 +109,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit } = this.props;
+    const group_id = globalUtil.getGroupID()
     form.validateFields((err, fieldsValue) => {
       if (err) {
         if (
@@ -123,6 +126,13 @@ export default class Index extends PureComponent {
         }
       }
       if (!err && onSubmit) {
+         if (group_id) {
+          fieldsValue.group_id = group_id
+        }
+        if (!fieldsValue.k8s_app || !fieldsValue.group_name) {
+          fieldsValue.group_name = fieldsValue.service_cname
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
+        }
         onSubmit(fieldsValue);
       }
     });
@@ -308,6 +318,7 @@ export default class Index extends PureComponent {
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts
+    const group_id = globalUtil.getGroupID()
     const apiMessage = (
       <Alert
         message={formatMessage({ id: 'teamAdd.create.third.Alert.warning' })}
@@ -375,44 +386,6 @@ export default class Index extends PureComponent {
                 }}
                 placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
               />
-            )}
-          </Form.Item>
-
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
-            {getFieldDecorator('group_id', {
-              initialValue: Number(groupId),
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-            })(
-              <Select
-                showSearch
-                filterOption={(input, option) =>
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                style={((language == false) && (isService == true)) ? {
-                  display: 'inline-block',
-                  width: 200,
-                  marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  // overflow: 'hidden',
-                  whiteSpace: 'nowrap'
-                } : {
-                  display: 'inline-block',
-                  width: 350,
-                  marginRight: 15,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}
-                disabled={true}
-                onChange={this.fetchComponentNames}
-              >
-                {(groups || []).map(group => (
-                  <Option key={group.group_id} value={group.group_id}>
-                    {group.group_name}
-                  </Option>
-                ))}
-              </Select>
             )}
           </Form.Item>
 
@@ -550,6 +523,77 @@ export default class Index extends PureComponent {
             </div>
           )}
 
+          {!group_id && <div style={{ width: '50%', margin: '0 auto' }}>
+            <Divider />
+            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
+              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
+                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+              </Button>
+            </div>
+            {this.state.showAdvanced && (
+              <div  
+              className="userpass-card"
+              style={{
+                margin: '24px 0',
+                background: '#fafbfc',
+                border: '1px solid #e6e6e6',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px #f0f1f2',
+                padding: 24,
+              }}>
+                <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                <Form.Item
+                  label={formatMessage({ id: 'popover.newApp.appName' })}
+                  colon={false}
+                  {...formItemLayout}
+                  style={{ marginBottom: 18 }}
+                >
+                  {getFieldDecorator('group_name', {
+                    initialValue: this.props.form.getFieldValue('service_cname') || '',
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                      {
+                        max: 24,
+                        message: formatMessage({ id: 'placeholder.max24' })
+                      }
+                    ]
+                  })(<Input 
+                      placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} 
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                  {getFieldDecorator('k8s_app', {
+                    initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                      { validator: this.handleValiateNameSpace }
+                    ]
+                  })(<Input 
+                        placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} 
+                         style={{
+                          borderRadius: 6,
+                          height: 40,
+                          fontSize: 15,
+                          boxShadow: '0 1px 3px #f0f1f2',
+                          border: '1px solid #e6e6e6',
+                          transition: 'border 0.2s, box-shadow 0.2s'
+                        }}
+                      />
+                    )}
+                </Form.Item>
+              </div>
+            )}
+          </div>}
+
           {showSubmitBtn ? (
             <Form.Item
               wrapperCol={{
@@ -571,11 +615,9 @@ export default class Index extends PureComponent {
                 : !handleType && (
                   <div>
                     {endpointsType == 'api' && apiMessage}
-                    <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
-                      <Button onClick={this.handleSubmit} type="primary" disabled={!isCreate}>
-                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                      </Button>
-                    </Tooltip>
+                    <Button onClick={this.handleSubmit} type="primary">
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
                   </div>
                 )}
               {isService && endpointsType == 'api' && apiMessage}
