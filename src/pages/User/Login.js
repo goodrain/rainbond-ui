@@ -138,7 +138,45 @@ export default class LoginPage extends Component {
     return (
       <div className={styles.main}>
         {isSaas ? (
-          <LoginSmsComponent onSubmit={this.handleSmsSubmit} type="login" />
+          <>
+            <LoginSmsComponent onSubmit={this.handleSmsSubmit} type="login" />
+            {rainbondUtil.OauthbEnable(rainbondInfo) &&
+              (oauthInfo ||
+                (oauthServicesList && oauthServicesList.length > 0)) && (
+                <div className={styles.thirdBox}>
+                  <Divider>
+                    <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three" /></div>
+                  </Divider>
+                  <Row className={styles.third}>
+                    {oauthInfo && (
+                      <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                        <Tooltip placement="top" title={oauthInfo.name}>
+                          <a style={inlineBlock} href={url} title={oauthInfo.name}>
+                            {icon}
+                          </a>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {oauthServicesList.map(item => {
+                      const { name, service_id } = item;
+                      return (
+                        <div className={styles.thirdCol} key={service_id}>
+                          <Tooltip placement="top" title={name}>
+                            <a
+                              style={inlineBlock}
+                              href={oauthUtil.getAuthredictURL(item)}
+                              title={name}
+                            >
+                              {oauthUtil.getIcon(item)}
+                            </a>
+                          </Tooltip>
+                        </div>
+                      );
+                    })}
+                  </Row>
+                </div>
+              )}
+          </>
         ) : (
           <>
             <LoginComponent onSubmit={this.handleSubmit} type="login" />
