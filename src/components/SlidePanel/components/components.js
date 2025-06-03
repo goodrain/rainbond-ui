@@ -770,6 +770,7 @@ class Main extends PureComponent {
             team_name
           }
         });
+        document.getElementById('myframe').contentWindow.location.reload(true);
         dispatch(
           routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}/overview`)
         );
@@ -806,6 +807,13 @@ class Main extends PureComponent {
         this.handleUpDataHeader();
         this.loadDetail();
         this.hideEditName();
+        const timestamp = new Date().getTime();
+        setTimeout(() => {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${serviceAlias}&tab=${this.state.activeTab}&refresh=${timestamp}`
+            ))
+        }, 50);
       }
     });
   };
