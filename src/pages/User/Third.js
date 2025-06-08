@@ -13,7 +13,9 @@ import rainbondUtil from '../../utils/rainbond';
 
 const loginUrl = '/user/login?disable_auto_login=true';
 
-@connect()
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo
+}))
 export default class ThirdLogin extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +29,9 @@ export default class ThirdLogin extends Component {
   componentWillMount() {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
-    const { dispatch } = this.props;
+    const isSaas = rainbondInfo?.is_saas || false;
+    console.log(rainbondInfo.is_saas, 'saas');
+    const { dispatch, rainbondInfo } = this.props;
     if (
       code &&
       service_id &&
@@ -126,22 +130,29 @@ export default class ThirdLogin extends Component {
               }
               if (data && data.result) {
                 console.log(data, 'data')
-                dispatch(routerRedux.push('/'));
+                // dispatch(routerRedux.push('/'));
 
                 // if not login
-                // if (!data.result.is_authenticated) {
-                //   dispatch(
-                //     routerRedux.push(
-                //       `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
-                //     )
-                //   );
-                // } else {
-                //   dispatch(
-                //     routerRedux.push(
-                //       `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
-                //     )
-                //   );
-                // }
+                if (!data.result.is_authenticated) {
+                  if(isSaas) {
+                    console.log('进来了')
+                    this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
+                  }else {
+                    dispatch(
+                    routerRedux.push(
+                      `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
+                    )
+                  );
+                  }
+                } else {
+                  if(!isSaas){
+                    dispatch(
+                      routerRedux.push(
+                        `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
+                      )
+                    );
+                  }
+                }
               }
             } else {
               this.handleLoginUrl();
@@ -157,6 +168,57 @@ export default class ThirdLogin extends Component {
     } else {
       globalUtil.removeCookie();
       dispatch(routerRedux.replace(loginUrl));
+    }
+  }
+
+  handleThirdRegister = (code, service_id, oauth_user_id, data) => {
+    const { dispatch } = this.props;
+
+    if (code && service_id && oauth_user_id) {
+      dispatch({
+        type: 'user/thirdRegister',
+        payload: {
+          user_name: data.oauth_user_name,
+          password: data.oauth_user_name,
+          confirmPassword: data.oauth_user_name,
+          email: data.oauth_user_email,
+        },
+        callback: data => {
+          if (data && data.token !== '') {
+            cookie.set('token', data.token);
+            dispatch({
+              type: 'user/fetchThirdBinding',
+              payload: {
+                service_id,
+                oauth_user_id
+              },
+              callback: res => {
+                if (res && res.status_code === 200) {
+                  message.success(formatMessage({id:'login.ThirdLogin.success'}), 1, () => {
+                    // support redirect to the page before login
+                    let redirect = window.localStorage.getItem('redirect');
+                    if (!redirect || redirect === '') {
+                      redirect = '/';
+                    }
+                    if (redirect.startsWith('/')) {
+                      dispatch(routerRedux.push(redirect));
+                    } else {
+                      window.location.href = redirect;
+                    }
+                  });
+                } else {
+                  this.handleError();
+                }
+              },
+              handleError: () => {
+                this.handleError();
+              }
+            });
+          } else {
+            this.handleError();
+          }
+        }
+      });
     }
   }
   handleLoginUrl = () => {
