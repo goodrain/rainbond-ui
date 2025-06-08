@@ -29,8 +29,8 @@ export default class ThirdLogin extends Component {
   componentWillMount() {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
-    const isSaas = rainbondInfo?.is_saas || false;
     const { dispatch, rainbondInfo } = this.props;
+    const isSaas = rainbondInfo?.is_saas || false;
     if (
       code &&
       service_id &&
