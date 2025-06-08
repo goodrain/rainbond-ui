@@ -129,19 +129,20 @@ export default class ThirdLogin extends Component {
                 return null;
               }
               if (data && data.result) {
-                // if not login
-                if (!data.result.is_authenticated) {
-                  if(isSaas) {
+                console.log('进来了')
+                if(isSaas){
+                  console.log('进来了isSaas')
                     this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
-                  }else {
-                    dispatch(
-                    routerRedux.push(
-                      `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
-                    )
-                  );
-                  }
                 } else {
-                  if(!isSaas){
+                  console.log('进来了不是isSaas')
+                  // if not login
+                  if (!data.result.is_authenticated) {
+                    dispatch(
+                      routerRedux.push(
+                        `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
+                      )
+                    );
+                  } else {
                     dispatch(
                       routerRedux.push(
                         `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
