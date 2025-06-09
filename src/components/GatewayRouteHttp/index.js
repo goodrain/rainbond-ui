@@ -225,6 +225,9 @@ export default class index extends Component {
         })
     }
     }
+    isStartWithStar = (arr) => {
+        return arr.some(item => item.startsWith('*'));
+    }
     render() {
         const {
             routeDrawer,
@@ -328,7 +331,8 @@ export default class index extends Component {
                     dataIndex: 'enabled',
                     key: 'enabled',
                     render: (text, record) => (
-                        <Switch checked={record.enabled} onChange={() => this.handleAutomaticIssuance(record)}/>
+
+                        <Switch checked={record.enabled} onChange={() => this.handleAutomaticIssuance(record)} disabled={this.isStartWithStar(record.match.hosts)}/>
                     )
                 }
             )
