@@ -702,6 +702,7 @@ class TeamLayout extends PureComponent {
     } = this.state;  
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
+    const isSaas = rainbondInfo?.is_saas || false;
     if (isNeedAuthz) {
       if (!isAuthorizationLoading && !licenseInfo) {
         return <Overdue currentUser={currentUser} title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
@@ -1045,7 +1046,7 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
-        {rainbondInfo?.is_saas && <CustomerServiceFloat  />}
+        <CustomerServiceFloat isSaas={!isSaas}  />
       </Fragment>
     );
   }

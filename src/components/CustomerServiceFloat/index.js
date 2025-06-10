@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import wechat from '../../../public/images/wechat.jpg';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import wechat from '../../../public/images/wechat.png';
+import community from '../../../public/images/community.png';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
 
@@ -25,10 +27,11 @@ export default class CustomerServiceFloat extends Component {
 
   render() {
     const { hover, showDialog } = this.state;
+    const { isSaas } = this.props;
     return (
       <div className={styles.floatStyle}>
       <div className={styles.dialogBox + (hover ? ' ' + styles.hidden : '')}>
-        <div className={styles.dialogContent}>获取帮助</div>
+        <div className={styles.dialogContent}>{formatMessage({ id: 'CustomerFloat.title' })}</div>
         <div className={styles.dialogArrow}></div>
       </div>
       
@@ -45,8 +48,8 @@ export default class CustomerServiceFloat extends Component {
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}
         >
-          <img src={wechat} alt="联系客服获取支持" className={styles.qrImgStyle} />
-          <div style={{ marginTop: 8, color: '#333', fontSize: 14 }}>联系客服获取支持</div>
+          <img src={isSaas ? wechat : community} alt={formatMessage({ id: 'CustomerFloat.title' })} className={styles.qrImgStyle} />
+          <div style={{ marginTop: 8, color: '#333', fontSize: 14 }}> {isSaas ? formatMessage({ id: 'CustomerFloat.wechat_desc'}) : formatMessage({ id: 'CustomerFloat.community_desc'})} </div>
         </div>
       )}
     </div>

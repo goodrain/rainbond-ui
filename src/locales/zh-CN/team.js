@@ -836,4 +836,10 @@ const gatewayplugin = {
   'gatewayplugin.client_control.title': 'client-control 插件能够通过设置客户端请求体大小的上限来动态地控制 NGINX 处理客户端的请求。',
   'gatewayplugin.client_control.max_body_size': '设置客户端请求体的最大上限，动态调整 client_max_body_size 的大小，单位为字节。当设置 max_body_size 为 0 时，将不会对客户端请求体大小进行检查。'
 }
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);
+
+const CustomerFloat = {
+  'CustomerFloat.title': '获取帮助',
+  'CustomerFloat.wechat_desc': '联系客服获取支持!',
+  'CustomerFloat.community_desc': '加入用户交流群!',
+}
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin, CustomerFloat);

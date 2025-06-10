@@ -30,7 +30,6 @@ export default class ThirdLogin extends Component {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
     const { dispatch, rainbondInfo } = this.props;
-    console.log(rainbondInfo, 'rainbondInfo')
     const isSaas = rainbondInfo?.is_saas || false;
     if (
       code &&
@@ -129,12 +128,9 @@ export default class ThirdLogin extends Component {
                 return null;
               }
               if (data && data.result) {
-                console.log('进来了')
                 if(isSaas){
-                  console.log('进来了isSaas')
                     this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
                 } else {
-                  console.log('进来了不是isSaas')
                   // if not login
                   if (!data.result.is_authenticated) {
                     dispatch(

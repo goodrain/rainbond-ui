@@ -14,7 +14,7 @@ import DAinput from '../DAinput';
 import DAHosts from '../DAHosts'
 import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
-import Wechat from '../../../public/images/wechat.jpg'
+import Wechat from '../../../public/images/wechat.png'
 import cookie from '@/utils/cookie';
 const { Option } = Select;
 @Form.create()
