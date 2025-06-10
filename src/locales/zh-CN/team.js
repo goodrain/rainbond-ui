@@ -807,6 +807,7 @@ const gatewayplugin = {
   'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe': '使用 real_request_uri（nginx 中的原始 $request_uri）绕过 URI 规范化。启用它被认为是不安全的，因为它会绕过所有 URI 规范化步骤。',
   'teamGateway.strategy.table.searchTips': '支持域名/组件名称搜索',
   'teamGateway.strategy.table.autoIssue': '自动签发证书',
+  'teamGateway.strategy.table.autoIssue.tips': '暂不支持通配符',
   'teamGateway.strategy.table.accessAddress': '访问地址',
   'teamGateway.strategy.table.openPort': '开放端口',
   // cors
