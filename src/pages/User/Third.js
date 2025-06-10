@@ -177,7 +177,7 @@ export default class ThirdLogin extends Component {
         payload: {
           user_name: data.oauth_user_name,
           password: data.oauth_user_name,
-          confirmPassword: data.oauth_user_name,
+          password_repeat: data.oauth_user_name,
           email: data.oauth_user_email,
         },
         callback: data => {
