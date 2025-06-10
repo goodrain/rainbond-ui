@@ -129,7 +129,7 @@ export default class ThirdLogin extends Component {
               }
               if (data && data.result) {
                 if(isSaas){
-                    this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
+                  this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
                 } else {
                   // if not login
                   if (!data.result.is_authenticated) {

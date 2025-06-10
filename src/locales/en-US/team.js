@@ -798,6 +798,7 @@ const gatewayplugin = {
   'gatewayplugin.proxy-rewrite.use_real_request_uri_unsafe': 'Uses real_request_uri (the original $request_uri in nginx) to bypass URI normalization. Enabling it is considered unsafe because it bypasses all URI normalization steps. ',
   'teamGateway.strategy.table.searchTips': 'Support domain name/component name search',
   'teamGateway.strategy.table.autoIssue': 'Auto issue certificate',
+  'teamGateway.strategy.table.autoIssue.tips': 'Not support wildcard',
   'teamGateway.strategy.table.accessAddress': 'Access address',
   'teamGateway.strategy.table.openPort': 'Open port',
   // cors
