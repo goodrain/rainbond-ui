@@ -331,8 +331,11 @@ export default class index extends Component {
                     dataIndex: 'enabled',
                     key: 'enabled',
                     render: (text, record) => (
-
-                        <Switch checked={record.enabled} onChange={() => this.handleAutomaticIssuance(record)} disabled={this.isStartWithStar(record.match.hosts)}/>
+                        <Tooltip title={this.isStartWithStar(record.match.hosts) ? formatMessage({ id: 'teamGateway.strategy.table.autoIssue.tips' }) : ''}>
+                          <span>
+                            <Switch checked={record.enabled} onChange={() => this.handleAutomaticIssuance(record)} disabled={this.isStartWithStar(record.match.hosts)}/>
+                          </span>
+                        </Tooltip>
                     )
                 }
             )
