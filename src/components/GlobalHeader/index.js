@@ -26,7 +26,7 @@ import { routerRedux } from 'dva/router';
 import ScrollerX from '../ScrollerX';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/default_Avatar.png';
-import wechat from '../../../public/images/wechat.jpg';
+import wechat from '../../../public/images/wechat.png';
 import { setNewbieGuide, fetchAllVersion } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
@@ -413,7 +413,7 @@ export default class GlobalHeader extends PureComponent {
                 content={
                   <div className={styles.wechat}>
                     <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={wechat} alt='客服' />
-                    <p>添加客服微信获取帮助</p>
+                    <p>{formatMessage({ id: 'CustomerFloat.wechat_desc' })}</p>
                   </div>
                 }
               >

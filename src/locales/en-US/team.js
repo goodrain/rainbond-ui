@@ -829,5 +829,10 @@ const gatewayplugin = {
   'gatewayplugin.client_control.max_body_size': 'Set the maximum limit for the client request body and dynamically adjust the size of client_max_body_size, measured in bytes. If you set the max_body_size to 0, then the size of the client\'s request body will not be checked.'
 }
 
+const CustomerFloat = {
+  'CustomerFloat.title': 'Help',
+  'CustomerFloat.wechat_desc': 'Contact the customer service for support!',
+  'CustomerFloat.community_desc': 'Join the user discussion group!',
+}
 
-export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin);   
+export default Object.assign({}, teamOverview, teamApply, teamAdd, teamGateway, teamPlugin, teamManage, teamOther, Vm, gatewayplugin, CustomerFloat);   
