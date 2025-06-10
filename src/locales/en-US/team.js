@@ -204,6 +204,7 @@ const teamGateway = {
   'teamGateway.certificate.table.edit':'Edit',
   'teamGateway.certificate.table.update':'Update',
   'teamGateway.certificate.table.delete':'Delete',
+  'teamGateway.certificate.table.search':'Please enter the name of the certificate',
 
   // control
   'teamGateway.control.table.default':'Default',

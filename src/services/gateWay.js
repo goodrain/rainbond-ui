@@ -77,7 +77,8 @@ export async function fetchAllLicense(params) {
       method: 'get',
       params: {
         page_size: params.page_size || 10,
-        page_num: params.page_num || 1
+        page_num: params.page_num || 1,
+        search_key: params.name
       }
     }
   );

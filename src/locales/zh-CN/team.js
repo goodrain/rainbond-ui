@@ -204,6 +204,7 @@ const teamGateway = {
   'teamGateway.certificate.table.edit':'编辑',
   'teamGateway.certificate.table.update':'更新',
   'teamGateway.certificate.table.delete':'删除',
+  'teamGateway.certificate.table.search':'请输入证书名称',
 
   // control
   'teamGateway.control.table.default':'默认',

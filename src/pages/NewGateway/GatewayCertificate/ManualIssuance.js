@@ -9,7 +9,9 @@ import {
   Modal,
   Form,
   Icon,
-  Tooltip
+  Tooltip,
+  Col,
+  Input
 } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
@@ -26,6 +28,8 @@ import pageheaderSvg from '../../../utils/pageHeaderSvg';
 import roleUtil from '../../../utils/role';
 
 const { Paragraph } = Typography;
+const FormItem = Form.Item;
+
 @Form.create()
 
 @connect(({ user, teamControl, enterprise, global }) => ({
@@ -51,6 +55,7 @@ class Control extends Component {
       gatewayShow: false,
       batchGateway: false,
       name: '',
+      searchKey: '',
     };
   }
   componentWillMount() {
@@ -112,13 +117,14 @@ class Control extends Component {
 
   /** 查询证书 */
   load = () => {
-    const { page, pageSize } = this.state;
+    const { page, pageSize, searchKey } = this.state;
     this.props.dispatch({
       type: 'gateWay/fetchAllLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num: page,
-        page_size: pageSize
+        page_size: pageSize,
+        name: searchKey
       },
       callback: data => {
         if (data && data.status_code === 200) {
@@ -273,6 +279,22 @@ class Control extends Component {
       type
     );
   };
+
+  handelChange = value => {
+    this.setState({ searchKey: value && value.trim() });
+  };
+
+  handleSearch = () => {
+    this.setState(
+      {
+        page: 1
+      },
+      () => {
+        this.load();
+      }
+    );
+  };
+
   render() {
     const {
       currentEnterprise,
@@ -436,6 +458,30 @@ class Control extends Component {
       //   titleSvg={pageheaderSvg.getSvg('certificateSvg', 18)}
       >
         <Card
+          title={
+            <Col>
+              <Form layout="inline" style={{ display: 'inline-block' }}>
+                <FormItem>
+                  <Input
+                    placeholder={formatMessage({ id: 'teamGateway.certificate.table.search' })}
+                    onChange={e => this.handelChange(e.target.value)}
+                    onPressEnter={this.handleSearch}
+                    style={{ width: 250 }}
+                  />
+                </FormItem>
+                <FormItem>
+                  <Button
+                    type="primary"
+                    onClick={this.handleSearch}
+                    icon="search"
+                  >
+                    {/* 搜索 */}
+                    <FormattedMessage id='button.search' />
+                  </Button>
+                </FormItem>
+              </Form>
+            </Col>
+          }
           extra={
             isCreate && (
               <Button
