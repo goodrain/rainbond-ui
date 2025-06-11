@@ -291,7 +291,7 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Row gutter={24}>
+        <Row>
           {visible && (
             <Modal
               title={<FormattedMessage id='componentOverview.body.ThirdPartyServices.add'/>}
@@ -426,7 +426,7 @@ export default class Index extends PureComponent {
             rowKey={(record,index) => index}
             dataSource={list}
             columns={columns}
-            style={{ background: '#fff', margin: '12px -12px 0 -12px' }}
+            style={{ background: '#fff', margin: '12px 0' }}
           />
         </Row>
         {deleteVar && (
