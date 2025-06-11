@@ -69,7 +69,7 @@ export default class Index extends PureComponent {
             ? this.props.handleServiceGetData(appAlias)
             : this.props.dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}?group_id=${value.group_id}`
                 )
               );
           this.props.handleType &&

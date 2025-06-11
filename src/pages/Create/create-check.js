@@ -30,6 +30,7 @@ import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
 import cookie from '../../utils/cookie';
 import styles from './check.less';
+import { closeTeamRegion } from '@/services/team';
 
 const { Option } = Select;
 @connect(
@@ -519,8 +520,9 @@ export default class CreateCheck extends React.Component {
   handleBuild = () => {
     this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
-    const { refreshCurrent, dispatch, soundCodeLanguage } = this.props;
+    const { refreshCurrent, dispatch, soundCodeLanguage, location } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, packageLange } = this.state;
+    const group_id = location?.query?.group_id
     this.setState({ buildAppLoading: true }, () => {
       if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') {
         dispatch({
@@ -558,11 +560,10 @@ export default class CreateCheck extends React.Component {
                       refreshCurrent();
                     } else if (appDetail.service_source === 'third_party') {
                       // this.handleJump(`components/${appAlias}/thirdPartyServices`);
-                      // group_id
-                      this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
+                      this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
                     } else {
                       // this.handleJump(`components/${appAlias}/overview`);
-                      this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
+                      this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
                     }
                   }
                 },
@@ -596,9 +597,9 @@ export default class CreateCheck extends React.Component {
               if (ServiceGetData && isDeploy) {
                 refreshCurrent();
               } else if (appDetail.service_source === 'third_party') {
-                this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
+                this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
               } else {
-                this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
+                this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
               }
             }
           },
