@@ -1046,7 +1046,7 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
-        <CustomerServiceFloat isSaas={!isSaas}  />
+        <CustomerServiceFloat isSaas={isSaas}  />
       </Fragment>
     );
   }
