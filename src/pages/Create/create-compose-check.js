@@ -362,6 +362,7 @@ export default class CreateCheck extends PureComponent {
       <div>
         {this.state.eventId && (
           <LogProcress
+            opened={true}
             socketUrl={this.socketUrl}
             eventId={this.state.eventId}
           />
