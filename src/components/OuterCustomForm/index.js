@@ -110,7 +110,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit } = this.props;
     const group_id = globalUtil.getGroupID()
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields({ force: true },(err, fieldsValue) => {
       if (err) {
         if (
           fieldsValue.type != '' &&
@@ -239,7 +239,7 @@ export default class Index extends PureComponent {
         value.search('1.1.1.1') !== -1 ||
         value.search('localhost') !== -1
     ) {
-      callback(formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })`${value == '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
+      callback(`${formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })}${value == '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
     }
     callback();
   };
@@ -396,7 +396,6 @@ export default class Index extends PureComponent {
             })(
               <RadioGroup
                 onChange={this.handleChangeEndpointsType}
-                value={endpointsType}
               >
                 <Radio value="static">{formatMessage({ id: 'teamAdd.create.third.staticRegister' })}</Radio>
                 <Radio value="kubernetes">Kubernetes</Radio>

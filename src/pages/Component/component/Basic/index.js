@@ -54,7 +54,7 @@ class Index extends PureComponent {
     
     const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
     return (
-      <Row gutter={24}>
+      <Row>
         {!isThird && status && Object.keys(status).length >0 ? (
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <div
