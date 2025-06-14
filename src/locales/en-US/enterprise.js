@@ -575,6 +575,8 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.deleteNode': 'Delete node',
     'enterpriseColony.newHostInstall.node.deleteNodeDesc': 'Are you sure you want to delete the node? This operation cannot be restored.',
     'enterpriseColony.newHostInstall.node.deleteNodeSubDesc': 'Run the following command to clear the node:',
+    'enterpriseColony.newHostInstall.node.serverURL': 'Enter the Server URL for node registration (except the first node)',
+    'enterpriseColony.newHostInstall.node.serverURL.desc': 'For example: https://192.168.1.1:9345',
     // 添加集群
     'enterpriseColony.addCluster.supplier': 'Cluster Name',
     'enterpriseColony.addCluster.cluster': 'Select (create) platform cluster',

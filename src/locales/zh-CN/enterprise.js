@@ -576,6 +576,8 @@ const enterpriseColony = {
     'enterpriseColony.newHostInstall.node.deleteNode': '删除节点',
     'enterpriseColony.newHostInstall.node.deleteNodeDesc': '确定要删除节点吗？此操作不可恢复',
     'enterpriseColony.newHostInstall.node.deleteNodeSubDesc': '执行以下命令清理节点:',
+    'enterpriseColony.newHostInstall.node.serverURL': '输入节点注册（首节点除外）的 Server URL',
+    'enterpriseColony.newHostInstall.node.serverURL.desc': '例如: https://192.168.1.1:9345',
     // 添加集群
     'enterpriseColony.addCluster.supplier': '集群名称',
     'enterpriseColony.addCluster.cluster': '选择(创建)平台集群',
