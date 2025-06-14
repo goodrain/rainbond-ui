@@ -49,6 +49,7 @@ export default class EnterpriseClusters extends PureComponent {
       internalIP: '',
       externalIP: '',
       token: '',
+      serverURL: '',
     };
   }
   componentWillMount() {
@@ -61,9 +62,9 @@ export default class EnterpriseClusters extends PureComponent {
     this.updateCommand()
   }
   updateCommand = () => {
-    const { checkedList, token, internalIP, externalIP, Localhost } = this.state;
+    const { checkedList, token, internalIP, externalIP, Localhost, serverURL } = this.state;
     this.setState({
-      copyText: this.initializeCmd(Localhost, checkedList, token, { internalIP: internalIP, externalIP: externalIP })
+      copyText: this.initializeCmd(Localhost, checkedList, token, { internalIP: internalIP, externalIP: externalIP, serverURL: serverURL })
     })
   }
   onChange = checkedList => {
@@ -101,8 +102,11 @@ export default class EnterpriseClusters extends PureComponent {
     if (Object.keys(ipobj).length == 0) {
       cmd = `curl -sfL ${ip}/install-cluster.sh | sh -s - --rbd-url ${ip}${this.getNodeInfo(node)}` + `  --token  ${token} --mirror cn`
     } else {
-      cmd = `curl -sfL ${ip}/install-cluster.sh | sh -s - --rbd-url ${ip}${this.getNodeInfo(node)}` + `${ipobj.externalIP != '' ? `  --external-ip ${ipobj.externalIP}` : ''}` + `${ipobj.internalIP != '' ? `  --internal-ip ${ipobj.internalIP}` : ''}` + `  --token  ${token} --mirror cn`
-    }
+      cmd = `curl -sfL ${ip}/install-cluster.sh | sh -s - --rbd-url ${ip}${this.getNodeInfo(node)}` +
+      `${ipobj.externalIP != '' ? `  --external-ip ${ipobj.externalIP}` : ''}` +
+      `${ipobj.internalIP != '' ? `  --internal-ip ${ipobj.internalIP}` : ''}` +
+      `${ipobj.serverURL != '' ? `  --server-url ${ipobj.serverURL}` : ''}` +
+      `  --token  ${token} --mirror cn` }
     return cmd
   }
   getNodeInfo(list) {
@@ -117,7 +121,8 @@ export default class EnterpriseClusters extends PureComponent {
       hostInputShow,
       internalIP,
       externalIP,
-      Localhost
+      Localhost,
+      serverURL
     } = this.state
     return (
       <>
@@ -189,6 +194,20 @@ export default class EnterpriseClusters extends PureComponent {
                   onChange={(e) => {
                     this.setState({
                       Localhost: e.target.value
+                    }, () => {
+                      this.updateCommand()
+                    })
+                  }} />
+              </div>
+              <div className={styles.hostInfo}>
+                <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.serverURL' })}</p>
+                <Input
+                  placeholder={formatMessage({ id: 'enterpriseColony.newHostInstall.node.serverURL.desc' })}
+                  style={{ marginBottom: 12, width: 350, height: 40 }}
+                  value={serverURL}
+                  onChange={(e) => {
+                    this.setState({
+                      serverURL: e.target.value
                     }, () => {
                       this.updateCommand()
                     })
