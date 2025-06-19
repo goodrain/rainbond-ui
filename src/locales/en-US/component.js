@@ -347,6 +347,11 @@ const componentOverview = {
     'componentOverview.body.tab.env.table.column.transfer': 'Transfer',
     'componentOverview.body.tab.env.table.column.edit': 'Edit',
     'componentOverview.body.tab.env.table.column.add': 'Add env',
+    'componentOverview.body.tab.env.table.column.batchEdit': 'Batch Edit',
+    'componentOverview.body.tab.env.table.column.batchEditModal.title': 'Batch Edit Environment Variables',
+    'componentOverview.body.tab.env.table.column.batchEditModal.content': 'You can edit the environment variables below in Dotenv format (KEY=VALUE # COMMENT):',
+    'componentOverview.body.tab.env.table.column.batchEditModal.fetchError': 'Failed to fetch environment variables',
+    'componentOverview.body.tab.env.table.column.batchEditModal.fetchErrorDesc': 'Unable to retrieve the complete list of environment variables, please try again later',
     'componentOverview.body.tab.env.table.column.placeholder': 'Please enter the variable name to search',
     // tabs栏>Environment configuration>AddStorage
     'componentOverview.body.tab.AddStorage.limit': 'The value of permission is limited to octal number between 0 and 777',
