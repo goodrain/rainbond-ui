@@ -366,7 +366,9 @@ class EnvironmentVariable extends React.Component {
         payload: obj,
         callback: res => {
           if (res && res.status_code === 200) {
-            resolve(res.list || []);
+            // 只返回可编辑的环境变量（container_port === 0的变量）
+            const editableEnvs = (res.list || []).filter(env => env.container_port === 0);
+            resolve(editableEnvs);
           } else {
             reject(res);
           }
