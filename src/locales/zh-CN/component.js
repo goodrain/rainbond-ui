@@ -354,6 +354,11 @@ const componentOverview = {
     'componentOverview.body.tab.env.table.column.transfer': '转移',
     'componentOverview.body.tab.env.table.column.edit': '修改',
     'componentOverview.body.tab.env.table.column.add': '添加变量',
+    'componentOverview.body.tab.env.table.column.batchEdit': '批量编辑',
+    'componentOverview.body.tab.env.table.column.batchEditModal.title': '批量编辑环境变量',
+    'componentOverview.body.tab.env.table.column.batchEditModal.content': '您可以编辑下面的环境变量，格式为 Dotenv 标准（KEY=VALUE # COMMENT）：',
+    'componentOverview.body.tab.env.table.column.batchEditModal.fetchError': '获取环境变量失败',
+    'componentOverview.body.tab.env.table.column.batchEditModal.fetchErrorDesc': '无法获取完整的环境变量列表，请稍后重试',
     'componentOverview.body.tab.env.table.column.placeholder': '请输入变量名进行搜索',
     // tabs栏>Environment configuration>AddStorage
     'componentOverview.body.tab.AddStorage.limit': '权限的数值限制在0-777之间的8进制数',

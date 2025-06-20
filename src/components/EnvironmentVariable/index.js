@@ -5,6 +5,7 @@ import {
   Form,
   Icon,
   Input,
+  Modal,
   notification,
   Pagination,
   Table,
@@ -193,6 +194,11 @@ class EnvironmentVariable extends React.Component {
       addVariable: false,
       deleteVar: false,
       transfer: false,
+      showBatchEditModal: false,
+      batchEditContent: '',
+      batchEditLoading: false,
+      batchSaveLoading: false,
+      originalAllEnvs: [], // 存储原始的所有环境变量
       language: cookie.get('language') === 'zh-CN' ? true : false
     };
   }
@@ -331,6 +337,322 @@ class EnvironmentVariable extends React.Component {
 
   edit = key => {
     this.setState({ editingID: key });
+  };
+
+  // 获取所有环境变量（用于批量编辑）
+  fetchAllEnvs = () => {
+    const { dispatch, appAlias, type } = this.props;
+
+    const obj = {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: appAlias,
+      page: 1,
+      page_size: 1000, // 设置一个足够大的数值来获取所有数据
+      env_name: '' // 批量编辑时不应用搜索过滤，获取所有环境变量
+    };
+    let request = '';
+    if (type === 'Inner') {
+      request = 'appControl/fetchInnerEnvs';
+    } else if (type === 'Outer') {
+      request = 'appControl/fetchOuterEnvs';
+    } else {
+      request = 'appControl/fetchRelationOuterEnvs';
+      obj.env_type = 'outer';
+    }
+
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: request,
+        payload: obj,
+        callback: res => {
+          if (res && res.status_code === 200) {
+            // 只返回可编辑的环境变量（container_port === 0的变量）
+            const editableEnvs = (res.list || []).filter(env => env.container_port === 0);
+            resolve(editableEnvs);
+          } else {
+            reject(res);
+          }
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  handleBatchEdit = async () => {
+    this.setState({ batchEditLoading: true });
+    try {
+      // 获取所有环境变量
+      const allEnvsList = await this.fetchAllEnvs();
+      const dotenvContent = this.convertToDotenv(allEnvsList);
+      this.setState({
+        showBatchEditModal: true,
+        batchEditContent: dotenvContent,
+        batchEditLoading: false,
+        originalAllEnvs: allEnvsList // 保存原始环境变量
+      });
+    } catch (error) {
+      this.setState({ batchEditLoading: false });
+      notification.error({
+        message: formatMessage({id:'componentOverview.body.tab.env.table.column.batchEditModal.fetchError'}),
+        description: formatMessage({id:'componentOverview.body.tab.env.table.column.batchEditModal.fetchErrorDesc'})
+      });
+    }
+  };
+
+  handleCloseBatchEdit = () => {
+    this.setState({
+      showBatchEditModal: false,
+      batchEditContent: '',
+      batchSaveLoading: false,
+      originalAllEnvs: []
+    });
+  };
+
+  // 处理批量编辑内容变化
+  handleBatchEditContentChange = (e) => {
+    this.setState({ batchEditContent: e.target.value });
+  };
+
+  // 将Dotenv格式转换为环境变量列表
+  parseDotenv = (content) => {
+    if (!content || !content.trim()) {
+      return [];
+    }
+
+    return content.split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#'))
+      .map(line => {
+        const commentIndex = line.indexOf(' #');
+        let envLine = line;
+        let comment = '';
+
+        if (commentIndex !== -1) {
+          envLine = line.substring(0, commentIndex);
+          comment = line.substring(commentIndex + 2).trim();
+        }
+
+        const equalIndex = envLine.indexOf('=');
+        if (equalIndex === -1) {
+          return null;
+        }
+
+        const attr_name = envLine.substring(0, equalIndex).trim();
+        const attr_value = envLine.substring(equalIndex + 1).trim();
+
+        if (!attr_name) {
+          return null;
+        }
+
+        return {
+          attr_name,
+          attr_value,
+          name: comment
+        };
+      })
+      .filter(env => env !== null);
+  };
+
+  // 比较环境变量变化
+  compareEnvs = (originalEnvs, newEnvs) => {
+    const originalMap = new Map();
+    originalEnvs.forEach(env => {
+      originalMap.set(env.attr_name, env);
+    });
+
+    const newMap = new Map();
+    newEnvs.forEach(env => {
+      newMap.set(env.attr_name, env);
+    });
+
+    const toAdd = [];
+    const toUpdate = [];
+    const toDelete = [];
+
+    // 查找新增和修改的变量
+    newEnvs.forEach(newEnv => {
+      const original = originalMap.get(newEnv.attr_name);
+      if (!original) {
+        // 新增的变量
+        toAdd.push(newEnv);
+      } else if (
+        original.attr_value !== newEnv.attr_value ||
+        original.name !== newEnv.name
+      ) {
+        // 修改的变量，保留原始ID
+        toUpdate.push({
+          ...newEnv,
+          ID: original.ID
+        });
+      }
+    });
+
+    // 查找删除的变量
+    originalEnvs.forEach(originalEnv => {
+      if (!newMap.has(originalEnv.attr_name)) {
+        toDelete.push(originalEnv);
+      }
+    });
+
+    return { toAdd, toUpdate, toDelete };
+  };
+
+  // 执行单个环境变量操作
+  executeEnvOperation = (operation, env) => {
+    const { dispatch, appAlias, type } = this.props;
+    const commonPayload = {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: appAlias
+    };
+
+    return new Promise((resolve, reject) => {
+      let requestType = '';
+      let payload = { ...commonPayload };
+
+             switch (operation) {
+         case 'add':
+           if (type === 'Inner') {
+             requestType = 'appControl/addInnerEnvs';
+             payload = {
+               ...payload,
+               attr_name: env.attr_name,
+               attr_value: env.attr_value,
+               name: env.name,
+               scope: 'inner'
+             };
+           } else {
+             requestType = 'appControl/addInnerEnvs';
+             payload = {
+               ...payload,
+               attr_name: env.attr_name,
+               attr_value: env.attr_value,
+               name: env.name,
+               scope: 'outer'
+             };
+           }
+           break;
+        case 'update':
+          requestType = 'appControl/editEvns';
+          payload = {
+            ...payload,
+            ID: env.ID,
+            attr_value: env.attr_value,
+            name: env.name
+          };
+          break;
+        case 'delete':
+          requestType = 'appControl/deleteEnvs';
+          payload = {
+            ...payload,
+            ID: env.ID
+          };
+          break;
+        default:
+          reject(new Error('Unknown operation'));
+          return;
+      }
+
+      dispatch({
+        type: requestType,
+        payload,
+        callback: res => {
+          if (res && res.status_code === 200) {
+            resolve(res);
+          } else {
+            reject(res);
+          }
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  // 保存批量编辑的环境变量
+  handleSaveBatchEdit = async () => {
+    const { batchEditContent, originalAllEnvs } = this.state;
+
+    try {
+      // 解析新的环境变量
+      const newEnvs = this.parseDotenv(batchEditContent);
+
+            // 比较变化
+      const { toAdd, toUpdate, toDelete } = this.compareEnvs(originalAllEnvs, newEnvs);
+
+      // 如果没有任何变化，提示用户
+      if (toAdd.length === 0 && toUpdate.length === 0 && toDelete.length === 0) {
+        notification.info({
+          message: '无变化',
+          description: '环境变量没有任何变化，无需保存'
+        });
+        this.handleCloseBatchEdit();
+        return;
+      }
+
+      this.setState({ batchSaveLoading: true });
+
+      // 创建所有操作的Promise数组
+      const operations = [];
+
+      // 删除操作
+      toDelete.forEach(env => {
+        operations.push(this.executeEnvOperation('delete', env));
+      });
+
+      // 更新操作
+      toUpdate.forEach(env => {
+        operations.push(this.executeEnvOperation('update', env));
+      });
+
+      // 新增操作
+      toAdd.forEach(env => {
+        operations.push(this.executeEnvOperation('add', env));
+      });
+
+      // 执行所有操作
+      await Promise.all(operations);
+
+      // 成功提示
+      const summary = [];
+      if (toAdd.length > 0) summary.push(`新增 ${toAdd.length} 个`);
+      if (toUpdate.length > 0) summary.push(`修改 ${toUpdate.length} 个`);
+      if (toDelete.length > 0) summary.push(`删除 ${toDelete.length} 个`);
+
+      notification.success({
+        message: formatMessage({id:'notification.success.save'}),
+        description: `批量操作成功：${summary.join('，')}变量`
+      });
+
+      // 刷新数据并关闭弹框
+      this.fetchInnerEnvs();
+      this.handleCloseBatchEdit();
+
+    } catch (error) {
+      console.error('批量保存环境变量失败:', error);
+      notification.error({
+        message: '保存失败',
+        description: '批量保存环境变量时发生错误，请稍后重试'
+      });
+    } finally {
+      this.setState({ batchSaveLoading: false });
+    }
+  };
+
+  // 将环境变量列表转换为Dotenv格式
+  convertToDotenv = (envList) => {
+    if (!envList || envList.length === 0) {
+      return '';
+    }
+
+    return envList.map(env => {
+      const name = env.attr_name || '';
+      const value = env.attr_value || '';
+      const comment = env.name ? ` # ${env.name}` : '';
+      return `${name}=${value}${comment}`;
+    }).join('\n');
   };
 
   handleDeleteVariabl = () => {
@@ -498,6 +820,10 @@ class EnvironmentVariable extends React.Component {
       addVariable,
       deleteVar,
       transfer,
+      showBatchEditModal,
+      batchEditContent,
+      batchEditLoading,
+      batchSaveLoading,
       total,
       page,
       page_size,
@@ -675,6 +1001,18 @@ class EnvironmentVariable extends React.Component {
       };
     });
 
+    const batchEditButton = (
+      <Button
+        onClick={this.handleBatchEdit}
+        loading={batchEditLoading}
+        style={{ marginRight: 8 }}
+      >
+        <Icon type="edit" />
+        {/* 批量编辑 */}
+        <FormattedMessage id='componentOverview.body.tab.env.table.column.batchEdit'/>
+      </Button>
+    );
+
     const addButton = (
       <Button onClick={this.handleAdd} disabled={addVariable}>
         <Icon type="plus" />
@@ -711,6 +1049,46 @@ class EnvironmentVariable extends React.Component {
           />
         )}
 
+        {showBatchEditModal && (
+          <Modal
+            title={<FormattedMessage id='componentOverview.body.tab.env.table.column.batchEditModal.title'/>}
+            visible={showBatchEditModal}
+            onCancel={this.handleCloseBatchEdit}
+            width={800}
+            footer={[
+              <Button
+                key="cancel"
+                onClick={this.handleCloseBatchEdit}
+                disabled={batchSaveLoading}
+              >
+                <FormattedMessage id='button.cancel'/>
+              </Button>,
+              <Button
+                key="save"
+                type="primary"
+                onClick={this.handleSaveBatchEdit}
+                loading={batchSaveLoading}
+              >
+                <FormattedMessage id='button.save'/>
+              </Button>
+            ]}
+          >
+            <div style={{ marginBottom: 16 }}>
+              <FormattedMessage id='componentOverview.body.tab.env.table.column.batchEditModal.content'/>
+            </div>
+            <Input.TextArea
+              value={batchEditContent}
+              onChange={this.handleBatchEditContentChange}
+              rows={15}
+              placeholder="KEY=value # comment"
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '14px'
+              }}
+            />
+          </Modal>
+        )}
+
         <Card
           style={{
             borderRadius:5,
@@ -722,7 +1100,12 @@ class EnvironmentVariable extends React.Component {
             {isConfigPort ?  null : title}
             {!isConfigPort && <span className={styles.desc}>{formatMessage({ id: 'componentOther.relationMnt.desc' })}</span>}
           </>}
-          extra={type === 'Outer' && addButton}
+          extra={type === 'Outer' && (
+            <div>
+              {batchEditButton}
+              {addButton}
+            </div>
+          )}
         >
           {type === 'Inner' && (
             <div
@@ -737,7 +1120,10 @@ class EnvironmentVariable extends React.Component {
                 placeholder={formatMessage({id:'componentOverview.body.tab.env.table.column.placeholder'})}
                 onSearch={this.handleSearch}
               />
-              {addButton}
+              <div>
+                {batchEditButton}
+                {addButton}
+              </div>
             </div>
           )}
           <ScrollerX sm={isConfigPort ? 650 : 600}>
@@ -763,7 +1149,7 @@ class EnvironmentVariable extends React.Component {
               />
             </EditableContext.Provider>
           </ScrollerX>
-          
+
         </Card>
       </Fragment>
     );
