@@ -17,7 +17,7 @@ import globalUtil from '../../utils/global';
   }
 )
 
-export default class MoveGroup extends PureComponent {
+export default class BatchDelete extends PureComponent {
   constructor(props) {
     super(props);
     const { batchDeleteApps } = this.props;

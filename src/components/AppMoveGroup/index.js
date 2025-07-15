@@ -5,8 +5,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 const FormItem = Form.Item;
 const { Option } = Select;
 
-@Form.create()
-export default class MoveGroup extends PureComponent {
+class MoveGroup extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, currGroupID } = this.props;
@@ -61,3 +60,5 @@ export default class MoveGroup extends PureComponent {
     );
   }
 }
+
+export default Form.create()(MoveGroup);
