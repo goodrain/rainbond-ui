@@ -3,7 +3,6 @@
 import { Button, Form, Modal, Select, Spin } from 'antd';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import { fetchMarketAuthority } from '../../utils/authority';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -14,37 +13,12 @@ class SelectStore extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      loading: true,
-      storeList: []
+      loading: true
     };
   }
   componentDidMount() {
-    this.getStoreList();
+    // this.getStoreList();
   }
-  getStoreList = () => {
-    this.setState({ loading: true });
-    const { dispatch, enterprise_id } = this.props;
-    dispatch({
-      type: 'enterprise/fetchEnterpriseStoreList',
-      payload: {
-        enterprise_id
-      },
-      callback: data => {
-        if (data) {
-          const { list = [] } = data;
-          let newList = [];
-          if (list.length > 0) {
-            newList = list.filter(
-              item => item.status === 1 && fetchMarketAuthority(item, 'Write')
-            );
-          }
-          this.setState({ storeList: newList, loading: false });
-        } else {
-          this.setState({ loading: false });
-        }
-      }
-    });
-  };
   handleSubmit = () => {
     const { onOk, form } = this.props;
     const { validateFields } = form;
@@ -59,10 +33,11 @@ class SelectStore extends PureComponent {
       onCancel,
       visible,
       form,
-      loading: submitLoading = false
+      loading: submitLoading = false,
+      storeList
     } = this.props;
     const { getFieldDecorator } = form;
-    const { storeList, loading } = this.state;
+    const { loading } = this.state;
     const stores = storeList && storeList.length > 0 && storeList;
     const formItemLayout = {
       labelCol: {

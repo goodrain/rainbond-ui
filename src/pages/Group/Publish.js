@@ -17,6 +17,7 @@ import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AppExporter from '../EnterpriseShared/AppExporter';
+import AuthCompany from '../../components/AuthCompany';
 import {
   createApp,
   createEnterprise,
@@ -27,6 +28,7 @@ import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import pluginUtils from '../../utils/pulginUtils';
 import cookie from '../../utils/cookie';
+import { fetchMarketAuthority } from '../../utils/authority';
 import style from './publish.less';
 
 @connect(({ list, loading, teamControl, enterprise, rbdPlugin, user }) => ({
@@ -56,6 +58,9 @@ export default class AppPublishList extends PureComponent {
       appData: null,
       publishPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_release', `app_${globalUtil.getAppID()}`),
       showPublish: pluginUtils.isInstallPlugin(this.props?.pluginList, 'rainbond-bill'),
+      storeList: [],
+      publishBtn: false,
+      isAuthCompany: false,
     };
   }
   componentWillMount() {
@@ -66,29 +71,38 @@ export default class AppPublishList extends PureComponent {
     this.fetchPublishRecoder();
   }
   onPublishStore = () => {
-    this.handleWaitLevel()
+    this.getStoreList();
   };
   onPublishLocal = () => {
     this.handleShare('', {});
   };
-  handleWaitLevel = () => {
-    const { dispatch } = this.props;
-    const { teamName, appID } = this.props.match.params;
+  getStoreList = () => {
+    this.setState({ loading: true });
+    const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: 'application/fetchToupgrade',
+      type: 'enterprise/fetchEnterpriseStoreList',
       payload: {
-        team_name: teamName,
-        group_id: appID
+        enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: res => {
-        this.setState({ selectStoreShow: true });
-      },
-      handleError: res => {
-        console.log(res,"res");
+      callback: data => {
+        if (data) {
+          const { list = [] } = data;
+          let newList = [];
+          if (list.length > 0 && list[0].access_key) {
+            newList = list.filter(
+              item => item.status === 1 && fetchMarketAuthority(item, 'Write')
+            );
+            this.setState({ selectStoreShow: true, isAuthCompany: false });
+          } else {
+            this.setState({ storeName: list[0].name, isAuthCompany: true });
+          }
+          this.setState({ storeList: newList, loading: false,  });
+        } else {
+          this.setState({ loading: false });
+        }
       }
     });
   };
-
   onPageChange = (page, pageSize) => {
     this.setState({ page, pageSize }, () => {
       this.fetchPublishRecoder();
@@ -279,6 +293,9 @@ export default class AppPublishList extends PureComponent {
         isDelete,
       },
       showPublish,
+      storeList,
+      storeName,
+      isAuthCompany
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission();
@@ -337,11 +354,11 @@ export default class AppPublishList extends PureComponent {
               >
                 {formatMessage({ id: 'appPublish.btn.local' })}
               </Button>
-              {(currentUser.is_enterprise_admin || !showPublish) && (
+              {/* {(currentUser.is_enterprise_admin || !showPublish) && ( */}
                 <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
                   {formatMessage({ id: 'appPublish.btn.market' })}
                 </Button>
-              )}
+              {/* )} */}
             </div>
 
           }
@@ -538,11 +555,19 @@ export default class AppPublishList extends PureComponent {
         <SelectStore
           loading={storeLoading}
           dispatch={dispatch}
+          storeList={storeList}
           enterprise_id={currentEnterprise.enterprise_id}
           visible={selectStoreShow}
           onCancel={this.hideSelectStoreShow}
           onOk={this.handleSelectStore}
         />
+        { isAuthCompany && 
+          <AuthCompany
+            eid={currentEnterprise.enterprise_id}
+            marketName={storeName}
+            currStep={2}
+          />
+        }
       </PageHeaderLayout>
     );
   }

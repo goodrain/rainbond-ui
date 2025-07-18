@@ -163,10 +163,10 @@ const applicationMarket = {
     // applicationMarket>AuthCompany
     'applicationMarket.AuthCompany.title': '欢迎使用该平台，请先完成连接云应用商店授权',
     'applicationMarket.AuthCompany.Not_available': '应用市场不可用，请检查应用市场地址，或联系应用市场的管理员',
-    'applicationMarket.AuthCompany.authentication': '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
+    'applicationMarket.AuthCompany.authentication': '当前尚未绑定应用商店, 按以下步骤进行绑定认证',
     'applicationMarket.AuthCompany.Accessing': '正在访问',
     'applicationMarket.AuthCompany.store': '云应用商店',
-    'applicationMarket.AuthCompany.grant': '进行商店对接，完成后可获取安装应用的权限。',
+    'applicationMarket.AuthCompany.grant': '进行商店对接，完成后可获取应用市场权限。',
     'applicationMarket.AuthCompany.RainStore': 'RainStore商店',
     'applicationMarket.AuthCompany.Helm': 'Helm商店',
     'applicationMarket.AuthCompany.market': '请先进行应用市场认证',
