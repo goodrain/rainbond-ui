@@ -66,10 +66,27 @@ export default class AppPublishList extends PureComponent {
     this.fetchPublishRecoder();
   }
   onPublishStore = () => {
-    this.setState({ selectStoreShow: true });
+    this.handleWaitLevel()
   };
   onPublishLocal = () => {
     this.handleShare('', {});
+  };
+  handleWaitLevel = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID } = this.props.match.params;
+    dispatch({
+      type: 'application/fetchToupgrade',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {
+        this.setState({ selectStoreShow: true });
+      },
+      handleError: res => {
+        console.log(res,"res");
+      }
+    });
   };
 
   onPageChange = (page, pageSize) => {
