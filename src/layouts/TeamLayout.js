@@ -1030,7 +1030,7 @@ class TeamLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
         {/* 企业尚未认证 */}
-        {showAuthCompany && (
+        {showAuthCompany && !isSaas && (
           <AuthCompany
             eid={this.state.eid}
             marketName={showAuthCompany}
