@@ -397,7 +397,7 @@ export default class AppList extends PureComponent {
         if (res && res.code === 404) {
           dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
