@@ -524,7 +524,8 @@ export async function getStoreList(
     {
       method: 'get',
       params: {
-        extend: true
+        extend: true,
+        for_publish:'true'
       }
     }
   );
