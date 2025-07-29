@@ -485,3 +485,67 @@ export async function uploadEnterpriseLicense(params, handleError) {
     handleError
   });
 }
+
+// 可观测性
+export async function fetchObservabilityOverview(params, handleError) {
+  return request(`${apiconfig.baseUrl}/openapi/v1/overview`, {
+    method: 'get',
+    isToken: true,
+    headers:{
+      Authorization: params.token
+    },
+    handleError
+  });
+}
+export async function fetchPerformanceOverview(params, handleError) {
+  return request(`${apiconfig.baseUrl}/openapi/v1/monitor/performance_overview`, {
+    method: 'get',
+    isToken: true,
+    headers:{
+      Authorization: params.token
+    },
+    handleError
+  });
+}
+// resource_over_view
+// performance_overview
+// 桑基图数据
+export async function fetchResourceOverview(params, handleError) {
+  return request(`${apiconfig.baseUrl}/openapi/v1/monitor/${params.type}`, {
+    method: 'get',
+    isToken: true,
+    headers:{
+      Authorization: params.token
+    },
+    handleError
+  });
+}
+// 网络数据
+export async function fetchQueryRange(params, handleError) {
+  return request(`${apiconfig.baseUrl}/openapi/v1/monitor/query_range`, {
+    method: 'get',
+    isToken: true,
+    headers:{
+      Authorization: params.token
+    },
+    params: {
+      query: params.query, //CPU使用趋势
+      region_name: params.region_name, //集群唯一标识
+      start: params.start, //开始时间七天前零点
+      end: params.end, //结束时间当前
+      step: params.step, //每个采样点间隔
+    },
+    handleError
+  });
+}
+// 获取 Prometheus 节点信息
+export async function fetchPrometheusNodeInfo(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/regions/monitor`, {
+    method: 'post',
+    data: {
+      url: params.url,
+      data: params.data
+    },
+    handleError
+  });
+}

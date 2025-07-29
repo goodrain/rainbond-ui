@@ -3,6 +3,8 @@ import { Spin, Card, Button } from 'antd';
 import Result from '../Result';
 import { connect } from 'dva';
 import PluginsUtiles from '../../utils/pulginUtils'
+import { formatMessage } from 'umi-plugin-locale';
+import { routerRedux } from 'dva/router';
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";
 import styles from './index.less';
@@ -25,6 +27,13 @@ export default class index extends Component {
     const str = PluginsUtiles.isCurrentPluginMultiView(window.location.href, plugins.plugin_views)
     return str
   }
+  jumpRouter = (url) => {
+    this.props.dispatch(
+      routerRedux.push(
+        url
+      )
+    );
+  };
 
   // 渲染插件
   rbdPluginsRender = () => {
@@ -55,6 +64,7 @@ export default class index extends Component {
         AppPagePlugin ?
           <AppPagePlugin
             dispatch={dispatch}
+            formatMessage={formatMessage}
             baseInfo={{
               colorPrimary: Global.getPublicColor('primary-color'),
               currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
@@ -65,6 +75,7 @@ export default class index extends Component {
               overviewInfo: this.props.overviewInfo
             }}
             globalUtile={Global}
+            jumpRouter={this.jumpRouter}
           />
           :
           <Card style={{ marginTop: 20 }}>
