@@ -46,7 +46,12 @@ import {
   getReginConfig,
   addReginConfig,
   getEnterpriseLicense,
-  uploadEnterpriseLicense
+  uploadEnterpriseLicense,
+  fetchObservabilityOverview,
+  fetchPerformanceOverview,
+  fetchResourceOverview,
+  fetchQueryRange,
+  fetchPrometheusNodeInfo
 } from '../services/region';
 
 export default {
@@ -366,6 +371,36 @@ export default {
         callback(response);
       }
     },
+    *fetchObservabilityOverview({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchObservabilityOverview, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchPerformanceOverview({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchPerformanceOverview, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchResourceOverview({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchResourceOverview, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchQueryRange({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchQueryRange, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchPrometheusNodeInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchPrometheusNodeInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    }
   },
   reducers: {
     saveProtocols(state, action) {

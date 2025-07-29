@@ -22,6 +22,18 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       authority: ['admin', 'user']
     }
   ];
+  const observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
+  
+  if (observabilityPlugin && Object.keys(observabilityPlugin).length !== 0) {
+    const firstEntry = Object.entries(observabilityPlugin)[0];
+    const [regionName, plugins] = firstEntry;
+    menuArr.push({
+      name: '观测中心',
+      icon: getMenuSvg.getSvg('monitoringSvg'),
+      path: `/enterprise/${eid}/plugins/rainbond-observability?regionName=${regionName}`,
+      authority: ['admin', 'user']
+    });
+  }
   if (rainbondUtil.isEnableBillingFunction()) {
     menuArr.push({
       name: '订购',
@@ -50,6 +62,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       });
     }
   }
+
   if (adminer) {
     menuArr.push(
       {
