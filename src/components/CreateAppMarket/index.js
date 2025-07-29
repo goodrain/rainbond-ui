@@ -96,7 +96,7 @@ class CreateAppMarket extends PureComponent {
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href="https://store.goodrain.com/marketregist"
+            href="https://hub.grapps.cn/marketregist"
           >
             <FormattedMessage id='applicationMarket.CreateAppMarket.go_open'/>
           </a>

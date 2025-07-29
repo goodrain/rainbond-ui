@@ -643,7 +643,7 @@ class TeamLayout extends PureComponent {
         if (res && res.status === 404) {
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
@@ -1030,7 +1030,7 @@ class TeamLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
         {/* 企业尚未认证 */}
-        {showAuthCompany && (
+        {showAuthCompany && !isSaas && (
           <AuthCompany
             eid={this.state.eid}
             marketName={showAuthCompany}

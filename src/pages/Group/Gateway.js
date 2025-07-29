@@ -164,7 +164,7 @@ export default class AppGatewayList extends PureComponent {
         if (res && res.code === 404) {
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }

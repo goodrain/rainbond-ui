@@ -20,6 +20,7 @@ import sourceUtil from '../../../utils/source-unit';
 import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
+import ComponentListModal from '../../../pages/Group/ComponentListModal';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
@@ -31,7 +32,8 @@ import styles from './app.less';
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   novices: global.novices,
-  pluginsList: teamControl.pluginsList
+  pluginsList: teamControl.pluginsList,
+  groups: global.groups
 }))
 export default class app extends Component {
   constructor(props) {
@@ -62,7 +64,8 @@ export default class app extends Component {
       storageUsed: {
         value: 0,
         unit: 'MB'
-      }
+      },
+      showComponentList: false
     };
   }
   componentDidMount() {
@@ -502,6 +505,13 @@ export default class app extends Component {
         text: <FormattedMessage id="appOverview.list.table.delete" defaultMessage="删除" />,
         show: isDelete,
         onClick: () => this.toDelete()
+      },
+      {
+        key: 'batchOperation',
+        type: 'button',
+        text: '批量操作',
+        show: (isStart || isStop || isUpdate || isDelete || isEdit) && jsonDataLength > 0,
+        onClick: () => this.onShowComponentList()
       }
     ]
     const availableOperations = allOperations.filter(op => op.show);
@@ -695,6 +705,14 @@ export default class app extends Component {
   };
   toDeleteResource = () => {
     this.setState({ toDeleteResource: true });
+  };
+  
+  onShowComponentList = () => {
+    this.setState({ showComponentList: true });
+  };
+  
+  onHideComponentList = () => {
+    this.setState({ showComponentList: false });
   };
 
   cancelDelete = (isOpen = true) => {
@@ -1201,6 +1219,15 @@ export default class app extends Component {
             principal={currApp.username}
             onCancel={this.cancelEditAppDirector}
             onOk={this.handleEdit}
+          />
+        )}
+        {this.state.showComponentList && (
+          <ComponentListModal
+            visible={this.state.showComponentList}
+            onCancel={this.onHideComponentList}
+            groupId={globalUtil.getAppID()}
+            componentPermissions={this.state.permissions.componentPermissions}
+            groups={this.props.groups}
           />
         )}
       </div>
