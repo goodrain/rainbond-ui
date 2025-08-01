@@ -22,17 +22,44 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       authority: ['admin', 'user']
     }
   ];
-  const observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
+  let observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
+  let alarmPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-alarm');
+  let Detectionarr = []
+  if(observabilityPlugin && Object.keys(observabilityPlugin).length !== 0){
+    Detectionarr.push(observabilityPlugin)
+  }
+  if(alarmPlugin && Object.keys(alarmPlugin).length !== 0){
+    Detectionarr.push(alarmPlugin)
+  }
   
-  if (observabilityPlugin && Object.keys(observabilityPlugin).length !== 0) {
-    const firstEntry = Object.entries(observabilityPlugin)[0];
-    const [regionName, plugins] = firstEntry;
+  if (Detectionarr && Detectionarr.length == 1) {    
+    const firstEntry = Object.entries(Detectionarr[0])[0];
+    const [regionName, plugins] = firstEntry;    
     menuArr.push({
-      name: '观测中心',
+      name: '可观测',
       icon: getMenuSvg.getSvg('monitoringSvg'),
-      path: `/enterprise/${eid}/plugins/rainbond-observability?regionName=${regionName}`,
+      path: `/enterprise/${eid}/plugins/${plugins?.name}?regionName=${regionName}`,
       authority: ['admin', 'user']
     });
+  } else if (Detectionarr.length != 0 && Detectionarr.length  == 2) {
+    const DetectionChildren = []
+    Detectionarr.forEach(item => {
+      const keys = Object.keys(item);
+      const values = Object.values(item);
+      DetectionChildren.push({
+        name: values[0]?.display_name,
+        icon: getMenuSvg.getSvg(values[0]?.name),
+        path: `${values[0]?.name}?regionName=${keys[0]}`,
+        authority: ['admin', 'user']
+      });
+    })
+    menuArr.push({
+      name: '可观测',
+      icon: getMenuSvg.getSvg('monitoringSvg'),
+      path: `/enterprise/${eid}/plugins`,
+      authority: ['admin', 'user'],
+      children: DetectionChildren
+    })
   }
   if (rainbondUtil.isEnableBillingFunction()) {
     menuArr.push({

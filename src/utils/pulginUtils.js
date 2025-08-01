@@ -3,7 +3,13 @@
 export default {
   // 对企业级、团队级、应用级的插件列表进行筛选归类
   segregatePluginsByHierarchy(list, type) {
-      const arr = (list || []).filter(item => item?.plugin_views?.includes(type) && item.name != 'rainbond-enterprise-base'  && item.name != 'rainbond-bill' && item.name !='rainbond-observability' && item.enable_status === 'true' ).map(item => item);
+      const arr = (list || []).filter(item => item?.plugin_views?.includes(type) 
+      && item.name != 'rainbond-enterprise-base'  
+      && item.name != 'rainbond-bill' 
+      && item.name !='rainbond-observability' 
+      && item.name != 'rainbond-enterprise-alarm'
+      && item.enable_status === 'true' 
+    ).map(item => item);
       return arr
   },
   // 判断当前企业是否安装企业插件
