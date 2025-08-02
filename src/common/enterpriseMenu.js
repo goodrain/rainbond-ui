@@ -36,7 +36,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     const firstEntry = Object.entries(Detectionarr[0])[0];
     const [regionName, plugins] = firstEntry;    
     menuArr.push({
-      name: '可观测',
+      name: '可观测性',
       icon: getMenuSvg.getSvg('monitoringSvg'),
       path: `/enterprise/${eid}/plugins/${plugins?.name}?regionName=${regionName}`,
       authority: ['admin', 'user']
@@ -54,7 +54,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       });
     })
     menuArr.push({
-      name: '可观测',
+      name: '可观测性',
       icon: getMenuSvg.getSvg('monitoringSvg'),
       path: `/enterprise/${eid}/plugins`,
       authority: ['admin', 'user'],
