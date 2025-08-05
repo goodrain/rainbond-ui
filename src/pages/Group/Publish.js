@@ -566,6 +566,9 @@ export default class AppPublishList extends PureComponent {
             eid={currentEnterprise.enterprise_id}
             marketName={storeName}
             currStep={2}
+            onCancel={() => {
+              this.setState({ isAuthCompany: false });
+            }}
           />
         }
       </PageHeaderLayout>
