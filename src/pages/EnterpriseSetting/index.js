@@ -108,7 +108,6 @@ export default class EnterpriseSetting extends PureComponent {
       const fetchFavicon = rainbondInfo?.disable_logo
         ? rainbondInfo.favicon.value
         : rainbondUtil.fetchFavicon(rainbondInfo);
-
       const title =
         (rainbondInfo && rainbondInfo.title && rainbondInfo.title.value) || (rainbondInfo.diy_customer == 'rainbond' ? '云原生应用管理平台' : '煤科云PaaS平台');
       const enterpriseTitle =
@@ -117,7 +116,8 @@ export default class EnterpriseSetting extends PureComponent {
       const doc_url = rainbondUtil.documentPlatform_url(enterprise);
       const officialDemo = rainbondUtil.officialDemoEnable(enterprise);
       const footer = rainbondInfo.footer && rainbondInfo.footer.value || '';
-      const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable
+      const showSecurityRestrictions = rainbondInfo?.security_restrictions?.enable;
+      const login_image = rainbondInfo?.login_image?.value || '';
       // eslint-disable-next-line no-const-assign
       infos = {
         logo: fetchLogo,
@@ -127,7 +127,8 @@ export default class EnterpriseSetting extends PureComponent {
         enterprise_alias: enterpriseTitle,
         favicon: fetchFavicon,
         footer,
-        showSecurityRestrictions
+        showSecurityRestrictions,
+        login_image
       };
     }
     return infos

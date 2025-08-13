@@ -42,6 +42,7 @@ import Overdue from '../pages/Overdue';
 import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
+import PluginUtil from '../utils/pulginUtils';
 import "animate.css"
 import error from '@/models/error';
 const { Content } = Layout;
@@ -853,7 +854,7 @@ class TeamLayout extends PureComponent {
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
-
+    const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion = team && team.region && team.region.length && currentRegion;
@@ -1046,7 +1047,11 @@ class TeamLayout extends PureComponent {
             orders={orders}
           />
         )}
-        <CustomerServiceFloat isSaas={isSaas}  />
+        {showEnterprisebase && !isSaas ? (
+          null
+        ):(
+          <CustomerServiceFloat isSaas={isSaas} />
+        )}
       </Fragment>
     );
   }

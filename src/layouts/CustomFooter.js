@@ -28,7 +28,7 @@ export default class CustomFooter extends Component {
     const footer = (rainbondInfo && rainbondInfo.footer && rainbondInfo.footer.value) || formatMessage({ id: 'CustomFooter.goodrain' });
     return (
       <div>
-        {showEnterpriseFootrt ? (
+        {(footer || showEnterpriseFootrt) ? (
           <div className={styles.footer}>
             {footer}
           </div>
