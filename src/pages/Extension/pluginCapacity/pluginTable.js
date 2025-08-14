@@ -8,7 +8,10 @@ import AppState from '../../../components/ApplicationState';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import styles from './index.less'
 const { TabPane } = Tabs;
-@connect(null, null, null, { withRef: true })
+@connect(({ global, user }) => ({
+    enterprise: global.enterprise,
+    currentUser: user.currentUser,
+}), null, null, { withRef: true })
 class Index extends PureComponent {
     constructor(props) {
         super(props)
@@ -114,8 +117,18 @@ class Index extends PureComponent {
     }
 
     handleFetchPluginUrl = () => {
-        const { dispatch, regionName } = this.props
-        const eid = global.getCurrEnterpriseId();
+        const { dispatch, regionName, enterprise, currentUser } = this.props
+        // 优先从全局状态拿企业ID，其次尝试从URL解析
+        const eid = (enterprise && enterprise.enterprise_id)
+            || (currentUser && currentUser.enterprise_id)
+            || global.getCurrEnterpriseId();
+        if (!eid) {
+            // 无有效企业ID时不请求，避免 /enterprise/undefined
+            this.setState({ loading: false });
+            notification.warning({ message: '未获取到企业ID，无法加载官方插件列表' });
+            return;
+        }
+        
         dispatch({
             type: 'teamControl/fetchPluginUrl',
             payload: {

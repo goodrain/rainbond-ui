@@ -67,12 +67,21 @@ export default class Index extends PureComponent {
   // 加载用户团队
   loadUserTeams = () => {
     this.setState({ loading: true });
-    const { dispatch, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise, enterprise, currentUser } = this.props;
     const { page, page_size } = this.state;
+    // 兜底获取企业ID，避免 enterprise_id 为空
+    const eid = (currentEnterprise && currentEnterprise.enterprise_id)
+      || (enterprise && enterprise.enterprise_id)
+      || (currentUser && currentUser.enterprise_id)
+      || globalUtil.getCurrEnterpriseId();
+    if (!eid) {
+      this.setState({ loading: false });
+      return;
+    }
     dispatch({
       type: 'global/fetchMyTeams',
       payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
+        enterprise_id: eid,
         name: '',
         page,
         page_size
@@ -83,7 +92,7 @@ export default class Index extends PureComponent {
             userTeamList: res.list,
             loading: false
           }, () => {
-            this.fetchPipePipeline(currentEnterprise.enterprise_id);
+            this.fetchPipePipeline(eid);
           });
         }
       }
@@ -99,11 +108,20 @@ export default class Index extends PureComponent {
     }
   }
   fetchPipePipeline = (eid) => {
-    const { dispatch } = this.props;
+    const { dispatch, currentEnterprise, enterprise, currentUser } = this.props;
+    // 兜底获取企业ID
+    const enterpriseId = eid
+      || (currentEnterprise && currentEnterprise.enterprise_id)
+      || (enterprise && enterprise.enterprise_id)
+      || (currentUser && currentUser.enterprise_id)
+      || globalUtil.getCurrEnterpriseId();
+    if (!enterpriseId) {
+      return;
+    }
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: enterpriseId,
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
