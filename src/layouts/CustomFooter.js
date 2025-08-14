@@ -24,11 +24,11 @@ export default class CustomFooter extends Component {
 
   render() {
     const { rainbondInfo, pluginsList } = this.props
-    const showEnterpriseFootrt = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-enterprise-base');
+    const showEnterpriseFooter = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-enterprise-base');
     const footer = (rainbondInfo && rainbondInfo.footer && rainbondInfo.footer.value) || formatMessage({ id: 'CustomFooter.goodrain' });
     return (
       <div>
-        {(footer || showEnterpriseFootrt) ? (
+        {(footer || showEnterpriseFooter) ? (
           <div className={styles.footer}>
             {footer}
           </div>
