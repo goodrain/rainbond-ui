@@ -8,7 +8,8 @@ import {
     scaleCluster as scaleClusterApi,
     updateBackupConfig as updateBackupConfigApi,
     getBackupList,
-    deleteBackups as deleteBackupsApi
+    deleteBackups as deleteBackupsApi,
+    createManualBackup as createManualBackupApi
 } from '../services/kubeblocks';
 
 export default {
@@ -145,8 +146,35 @@ export default {
         /**
          * 删除 KubeBlocks 集群备份
          */
-        *deleteBackups({ payload, callback, handleError }, { call }) {
+        *deleteBackups({ payload, callback, handleError }, { call, put, select }) {
             const response = yield call(deleteBackupsApi, payload, handleError);
+            
+            // 如果删除成功，立即更新本地状态
+            if (response && response.status_code === 200) {
+                const currentBackupList = yield select(state => state.kubeblocks.backupList);
+                const { backups } = payload;
+                
+                // 从当前列表中移除被删除的备份
+                const updatedBackupList = currentBackupList.filter(backup => 
+                    !backups.includes(backup.name)
+                );
+                
+                yield put({
+                    type: 'saveBackupList',
+                    payload: updatedBackupList
+                });
+            }
+            
+            if (callback) {
+                callback(response);
+            }
+        },
+
+        /**
+         * 创建手动备份
+         */
+        *createManualBackup({ payload, callback, handleError }, { call }) {
+            const response = yield call(createManualBackupApi, payload, handleError);
             if (callback) {
                 callback(response);
             }

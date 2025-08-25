@@ -20,7 +20,6 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import dateUtil from '../../utils/date-util';
-import { createManualBackup } from '../../services/kubeblocks';
 import styles from './Index.less';
 
 const { Option } = Select;
@@ -68,12 +67,22 @@ export default class Index extends PureComponent {
     this.fetchBackupRepos();
     this.initFromClusterDetail();
     this.fetchBackupList();
+    
+    this.backupListTimer = setInterval(() => {
+      this.fetchBackupList();
+    }, 60000); 
   }
 
   // 当 props.clusterDetail 变化时，只在非编辑状态下重新初始化界面状态
   componentDidUpdate(prevProps) {
     if (prevProps.clusterDetail !== this.props.clusterDetail && !this.state.editBackupInfo) {
       this.initFromClusterDetail();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.backupListTimer) {
+      clearInterval(this.backupListTimer);
     }
   }
 
@@ -325,33 +334,31 @@ export default class Index extends PureComponent {
    * 触发手动备份操作
    */
   handleManualBackup = () => {
-    const { appDetail } = this.props;
-
-    // 调用手动备份 API
+    const { dispatch, appDetail } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     const service_id = appDetail.service.service_id;
 
-    createManualBackup(
-      { team_name, region_name, service_id },
-      (err) => {
-        if (err && err.data && err.data.msg_show) {
-          notification.error({ message: err.data.msg_show });
+    dispatch({
+      type: 'kubeblocks/createManualBackup',
+      payload: { team_name, region_name, service_id },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          notification.success({ 
+            message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' }) 
+          });
+          this.fetchBackupList();
         } else {
-          notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.manual.failed' }) });
+          const msg = (res && res.msg_show) || 
+            formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
+          notification.error({ message: msg });
         }
-      }
-    ).then((res) => {
-      if (res && res.status_code === 200) {
-        notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' }) });
-        // 刷新备份列表，获取最新的备份记录
-        this.fetchBackupList();
-      } else {
-        const msg = (res && res.msg_show) || formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
+      },
+      handleError: (err) => {
+        const msg = (err && err.data && err.data.msg_show) || 
+          formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
         notification.error({ message: msg });
       }
-    }).catch((err) => {
-      notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.manual.failed' }) });
     });
   };
 
@@ -371,33 +378,38 @@ export default class Index extends PureComponent {
     const region_name = globalUtil.getCurrRegionName();
     const service_id = appDetail.service.service_id;
 
-    // 设置加载状态
+    // 保持loading状态
     this.setState({ loading: true });
 
-    // 调用删除备份 API
     dispatch({
       type: 'kubeblocks/deleteBackups',
       payload: {
         team_name,
         region_name,
         service_id,
-        backups: [backupName] // 传入要删除的备份名称数组
+        backups: [backupName]
       },
       callback: (res) => {
         this.setState({ loading: false });
         if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' }) });
-          // 刷新备份列表
+          notification.success({ 
+            message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' }) 
+          });
+          // model 已经自动更新了状态，但为了保险起见也手动刷新一次
           this.fetchBackupList();
         } else {
-          const msg = (res && res.msg_show) || formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
+          const msg = (res && res.msg_show) || 
+            formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
           notification.error({ message: msg });
         }
       },
       handleError: (err) => {
         this.setState({ loading: false });
-        const msg = (err && err.data && err.data.msg_show) || formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
+        const msg = (err && err.data && err.data.msg_show) || 
+          formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
         notification.error({ message: msg });
+        // 如果删除失败，手动刷新确保数据一致性
+        this.fetchBackupList();
       }
     });
   };
