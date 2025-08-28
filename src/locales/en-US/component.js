@@ -281,6 +281,7 @@ const componentOverview = {
     'componentOverview.body.tab.log.startPushing': 'Start pushing',
     'componentOverview.body.tab.log.install': 'Download',
     'componentOverview.body.tab.log.lately': 'Last 1000 logs',
+    'componentOverview.body.tab.log.history': 'History logs',
     'componentOverview.body.tab.log.text': 'Filter text',
     'componentOverview.body.tab.log.filtertext': 'Please enter filter text',
     'componentOverview.body.tab.log.container': 'Container',
