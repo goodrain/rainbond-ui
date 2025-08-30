@@ -24,6 +24,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   ];
   let observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
   let alarmPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-alarm');
+  let lokiPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-logs');
   let Detectionarr = []
   if(observabilityPlugin && Object.keys(observabilityPlugin).length !== 0){
     Detectionarr.push(observabilityPlugin)
@@ -31,27 +32,51 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   if(alarmPlugin && Object.keys(alarmPlugin).length !== 0){
     Detectionarr.push(alarmPlugin)
   }
+  if(lokiPlugin && Object.keys(lokiPlugin).length !== 0){
+    Detectionarr.push(lokiPlugin)
+  }  
   
   if (Detectionarr && Detectionarr.length == 1) {    
     const firstEntry = Object.entries(Detectionarr[0])[0];
-    const [regionName, plugins] = firstEntry;    
-    menuArr.push({
-      name: '可观测性',
-      icon: getMenuSvg.getSvg('monitoringSvg'),
-      path: `/enterprise/${eid}/plugins/${plugins?.name}?regionName=${regionName}`,
-      authority: ['admin', 'user']
-    });
-  } else if (Detectionarr.length != 0 && Detectionarr.length  == 2) {
-    const DetectionChildren = []
-    Detectionarr.forEach(item => {
-      const keys = Object.keys(item);
-      const values = Object.values(item);
-      DetectionChildren.push({
-        name: values[0]?.display_name,
-        icon: getMenuSvg.getSvg(values[0]?.name),
-        path: `${values[0]?.name}?regionName=${keys[0]}`,
+    if(firstEntry.length >= 1){
+      const [regionName, plugins] = firstEntry;    
+      menuArr.push({
+        name: '可观测性',
+        icon: getMenuSvg.getSvg('monitoringSvg'),
+        path: `/enterprise/${eid}/plugins/${plugins?.name || ''}?regionName=${regionName}`,
         authority: ['admin', 'user']
       });
+    }else{
+      menuArr.push({
+        name: '可观测性',
+        icon: getMenuSvg.getSvg('monitoringSvg'),
+        path: `/enterprise/${eid}/plugins/${plugins?.name}?regionName=${regionName}&showSelect=true`,
+        authority: ['admin', 'user']
+      });
+    }
+  } else if (Detectionarr.length != 0 && Detectionarr.length  >= 2) {
+    const DetectionChildren = []
+    Detectionarr.forEach(item => {
+      if(Object.keys(item).length == 1){
+        const keys = Object.keys(item);
+        const values = Object.values(item);
+        DetectionChildren.push({
+          name: values[0]?.display_name,
+          icon: getMenuSvg.getSvg(values[0]?.name),
+          path: `${values[0]?.name}?regionName=${keys[0]}`,
+          authority: ['admin', 'user']
+        });
+      }else{
+        const keys = Object.keys(item);
+        const values = Object.values(item);
+        DetectionChildren.push({
+          name: values[0]?.display_name,
+          icon: getMenuSvg.getSvg(values[0]?.name),
+          path: `${values[0]?.name}?regionName=${keys[0]}&showSelect=true`,
+          authority: ['admin', 'user']
+        });
+      }
+
     })
     menuArr.push({
       name: '可观测性',

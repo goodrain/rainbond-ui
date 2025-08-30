@@ -92,9 +92,12 @@ export default class index extends Component {
   // 渲染iframe
   iframeRender = () => {
     const { app, plugins, pluginLoading, error, errInfo } = this.props;
+    const iframeParams = PluginsUtiles.getIframeParams(plugins?.name)
+    console.log(plugins?.fronted_path,"plugins?.fronted_path");
+    
     return <div style={{ height: '100vh' }}>
       <iframe
-        src={plugins?.fronted_path}
+        src={`${plugins?.fronted_path}?${iframeParams}`}
         style={{ width: '100%', height: '100%' }}
         id={plugins?.name}
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"

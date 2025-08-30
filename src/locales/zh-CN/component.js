@@ -288,6 +288,7 @@ const componentOverview = {
     'componentOverview.body.tab.log.startPushing': '开始推送',
     'componentOverview.body.tab.log.install': '历史日志下载',
     'componentOverview.body.tab.log.lately': '最近1000条日志',
+    'componentOverview.body.tab.log.history': '历史日志',
     'componentOverview.body.tab.log.text': '过滤文本',
     'componentOverview.body.tab.log.filtertext': '请输入过滤文本',
     'componentOverview.body.tab.log.container': '容器',

@@ -17,13 +17,15 @@ import History1000Log from './component/Log/history1000';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import PulginUtiles from '../../utils/pulginUtils'
 
 
 const { Option } = Select;
 
 @connect(
-  ({ user }) => ({
-    currUser: user.currentUser
+  ({ user, teamControl }) => ({
+    currUser: user.currentUser,
+    pluginList: teamControl.pluginsList
   }),
   null,
   null,
@@ -46,12 +48,28 @@ export default class Index extends PureComponent {
       container_name: '',
       refreshValue: 5,
       messages: [],
+      isHistoryLogs: false,
+      lokiUrl: ''
     };
     this.eventSources = {};
   }
   componentDidMount() {
     if (!this.canView()) return;
     this.fetchInstanceInfo();
+    this.setState({
+      // 历史日志展示
+      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList,'rainbond-enterprise-logs'),
+    },()=>{
+      if(this.state.isHistoryLogs){
+        this.props.pluginList.forEach(item =>{
+          if(item.name == 'rainbond-enterprise-logs'){
+            this.setState({
+              lokiUrl: item.urls[0]
+            })
+          }
+        })        
+      }
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -292,7 +310,12 @@ export default class Index extends PureComponent {
     const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
     this.setState(upDataInfo);
   };
-
+  showHistoryLogs = () => {
+    this.setState({ showHistoryLog: true });
+  };
+  hideHistoryLogs = () => {
+    this.setState({ showHistoryLog: false });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { appAlias, regionName, teamName } = this.props;
@@ -306,7 +329,8 @@ export default class Index extends PureComponent {
       refreshValue,
       showHistoryLog,
       showHistory1000Log,
-      messages
+      messages,
+      lokiUrl
     } = this.state;
     return (
       <Card
@@ -331,6 +355,10 @@ export default class Index extends PureComponent {
               {/* 最近1000条日志 */}
               <FormattedMessage id='componentOverview.body.tab.log.lately' />
             </a>
+            {this.state.isHistoryLogs && <a onClick={this.showHistoryLogs} style={{marginLeft: '10px'}}>
+              {/* 历史日志 */}
+              <FormattedMessage id='componentOverview.body.tab.log.history' />
+            </a>}
           </Fragment>
         }
       >
@@ -499,7 +527,7 @@ export default class Index extends PureComponent {
               }))}
         </div>
         {showHistoryLog && (
-          <HistoryLog onCancel={this.hideDownHistoryLog} appAlias={appAlias} />
+          <HistoryLog onCancel={this.hideHistoryLogs} appAlias={appAlias} url={lokiUrl} />
         )}
         {showHistory1000Log && (
           <History1000Log
