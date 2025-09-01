@@ -212,7 +212,8 @@ export default class EnterpriseShared extends PureComponent {
       page,
       pageSize
     });
-    this.setState({ helmPag: setHelmPag }, () => {
+    this.setState({ helmPag: setHelmPag, helmLoading: true }, () => {
+
       this.getHelmAppStore(helmInfo && helmInfo.name);
     });
   };
@@ -525,35 +526,15 @@ export default class EnterpriseShared extends PureComponent {
       payload,
       callback: res => {
         if (res && res.status_code === 200) {
-          const setHelmPag = Object.assign({}, helmPag, {
-            total: (res && res.length) || 0
-          });
-          let helmList = [];
-          if (Array.isArray(res)) {
-            const helmQuery = helmPag.query;
-            const helmPage = helmPag.page;
-            if (helmQuery) {
-              const arr = [];
-              const ql = helmQuery.length;
-              res.map(item => {
-                if (ql <= item.name.length) {
-                  const str = item.name.substring(0, ql);
-                  if (str.indexOf(helmQuery) > -1) {
-                    arr.push(item);
-                  }
-                }
-              });
-              setHelmPag.total = arr.length;
-              helmList =
-                arr.length > 10 ? arr.splice((helmPage - 1) * 10, 10) : arr;
-            } else {
-              helmList = res.splice(helmPage > 1 ? (helmPage - 1) * 10 : 0, 10);
-            }
-          }
           this.setState({
             helmLoading: false,
-            helmList,
-            helmPag: setHelmPag
+            helmList: res.response_data.data || [],
+            helmPag: {
+              pageSize: helmPag.pageSize,
+              total: res.response_data.total,
+              page: helmPag.page,
+              query: helmPag.query
+            }
           });
         }
       }

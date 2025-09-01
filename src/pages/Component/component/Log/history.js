@@ -1,47 +1,44 @@
 import { Button, Icon, Modal, Select, DatePicker, Row, Col } from 'antd';
 import React, { PureComponent } from 'react';
-import { getHistoryLog } from '../../../../services/app';
-import globalUtil from '../../../../utils/global';
+import { connect } from 'dva';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import moment from 'moment';
-import list from '@/models/list';
-
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 // 优化的日志项组件，使用React.memo避免不必要的重新渲染
-const LogItem = React.memo(({ item }) => (
+const LogItem = React.memo(({ item, index }) => (
   <div style={{ 
-    marginBottom: 8, 
-    padding: 8, 
-    border: '1px solid #f0f0f0', 
-    borderRadius: 4,
-    backgroundColor: '#fff'
+    padding: '2px 8px', 
+    backgroundColor: '#212121',
+    color: '#fff',
+    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+    fontSize: '12px',
+    lineHeight: '1.4',
+    wordBreak: 'break-word',
+    whiteSpace: 'pre-wrap',
   }}>
-    <div style={{ 
-      fontSize: '12px', 
-      color: '#666', 
-      marginBottom: 4,
-      fontWeight: 500
+    <span style={{ 
+      color: '#666666',
+      marginRight: 12,
+      fontWeight: 'normal',
+      display: 'inline-block',
+      textAlign: 'right'
+    }}>
+      {index + 1}
+    </span>
+    <span style={{ 
+      color: '#666666',
+      marginRight: 12,
+      fontWeight: 'normal'
     }}>
       {item.formattedTime}
-    </div>
-    <div style={{ 
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace', 
-      fontSize: '12px', 
-      backgroundColor: '#f8f8f8', 
-      padding: 8, 
-      borderRadius: 4,
-      wordBreak: 'break-word',
-      whiteSpace: 'pre-wrap',
-      lineHeight: '1.4',
-      border: '1px solid #e8e8e8'
-    }}>
+    </span>
+    <span style={{ color: '#FFF' }}>
       {item.msg}
-    </div>
+    </span>
   </div>
 ));
-
+@connect(null, null, null, { withRef: true })
 export default class HistoryLog extends PureComponent {
   constructor(props) {
     super(props);
@@ -55,7 +52,7 @@ export default class HistoryLog extends PureComponent {
     };
     
     this.logContainerRef = React.createRef();
-    this.itemHeight = 80; // 估算的每个日志项高度
+    this.itemHeight = 22; // 估算的每个日志项高度
   }
   componentDidMount() {
     this.loadData();
@@ -67,7 +64,7 @@ export default class HistoryLog extends PureComponent {
   }
 
   queryLokiLogs = async (timeParams) => {
-    const { appAlias, url } = this.props;
+    const { appAlias, url, dispatch } = this.props;
     
     if (!appAlias) {
       console.warn('appAlias is required for Loki query');
@@ -90,37 +87,26 @@ export default class HistoryLog extends PureComponent {
       range: timeParams,
       from: timeParams.from,
       to: timeParams.to
-    };
-    console.log(url,"url=====");
-    
-    try {
-      const response = await fetch(
-        `${url}/api/ds/query`, 
-        {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(lokiQuery)
+    }; 
+    dispatch({
+      type: 'region/fetchLokiLog',
+      payload: {
+        url: url+'/api/ds/query',
+        data: lokiQuery
+      },
+      callback: (res) => {
+        
+        const logs = this.parseLokiResponse(res.bean);
+        this.setState({ 
+          loading: false, 
+          list: logs.sort((a, b) => b.timestamp - a.timestamp)
+        });
+      },
+      handleError: (error) => {
+        console.error('Loki query error:', error);
+        this.setState({ loading: false, list: [] });
       }
-    );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const logs = this.parseLokiResponse(data);
-      
-      this.setState({ 
-        loading: false, 
-        list: logs.sort((a, b) => b.timestamp - a.timestamp)
-      });
-
-    } catch (error) {
-      console.error('Loki query error:', error);
-      this.setState({ loading: false, list: [] });
-    }
+    });
   }
 
   parseLokiResponse = (data) => {
@@ -277,6 +263,7 @@ export default class HistoryLog extends PureComponent {
         title={<FormattedMessage id='componentOverview.body.tab.log.HistoryLog.title'/>}
         visible
         width={1024}
+        bodyStyle={{ background: '#222222', color: '#fff' }}
         onCancel={this.props.onCancel}
         footer={[
           <Button 
@@ -342,7 +329,8 @@ export default class HistoryLog extends PureComponent {
                 style={{ 
                   maxHeight: 500, 
                   overflowY: 'auto',
-                  position: 'relative'
+                  position: 'relative',
+                  backgroundColor: '#212121'
                 }}
                 onScroll={this.handleScroll}
               >
@@ -356,15 +344,15 @@ export default class HistoryLog extends PureComponent {
                         width: '100%'
                       }}
                     >
-                      {visibleItems.map((item) => (
-                        <LogItem key={item.id} item={item} />
+                      {visibleItems.map((item, index) => (
+                        <LogItem key={item.id} item={item} index={visibleStartIndex + index} />
                       ))}
                     </div>
                   </div>
                 ) : (
                   // 正常渲染（数据量小时）
-                  visibleItems.map((item) => (
-                    <LogItem key={item.id} item={item} />
+                  visibleItems.map((item, index) => (
+                    <LogItem key={item.id} item={item} index={index} />
                   ))
                 )}
               </div>

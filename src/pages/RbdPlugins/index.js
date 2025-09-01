@@ -36,7 +36,6 @@ export default class Index extends Component {
     const urlParams = new URLSearchParams(window.location.search || window.location.hash?.split('?')[1]);
     const showSelect = urlParams.get('showSelect');
     this.setState({ showSelect });
-    console.log(this.props.cluster_info, "this.props.cluster_info");
 
   }
 

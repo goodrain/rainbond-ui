@@ -49,7 +49,8 @@ export default class Index extends PureComponent {
       refreshValue: 5,
       messages: [],
       isHistoryLogs: false,
-      lokiUrl: ''
+      lokiUrl: '',
+      previousPodNames: []
     };
     this.eventSources = {};
   }
@@ -62,16 +63,19 @@ export default class Index extends PureComponent {
     },()=>{
       if(this.state.isHistoryLogs){
         this.props.pluginList.forEach(item =>{
-          if(item.name == 'rainbond-enterprise-logs'){
-            console.log(item.backend,"item.backend=====");
-            
+          if(item.name == 'rainbond-enterprise-logs'){            
             this.setState({
               lokiUrl: item.backend
             })
           }
         })        
       }
-    })
+    });
+    
+    // 设置定时器每5秒执行fetchInstanceInfo
+    this.intervalTimer = setInterval(() => {
+      this.fetchInstanceInfo();
+    }, 5000);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -86,6 +90,10 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     if (this.eventSources) {
       this.closeAllEventSources();
+    }
+    // 清理定时器
+    if (this.intervalTimer) {
+      clearInterval(this.intervalTimer);
     }
   }
 
@@ -112,7 +120,6 @@ export default class Index extends PureComponent {
   closeEventSource(podsName) {
     if (this.eventSources[podsName]) {
       this.eventSources[podsName].close();
-      console.log(`${podsName} EventSource closed.`);
       delete this.eventSources[podsName]; // 从对象中移除引用
     }
   }
@@ -124,6 +131,18 @@ export default class Index extends PureComponent {
         this.closeEventSource(podsName);
       });
     }
+  }
+
+  // 比较两个pod_name数组是否相同
+  comparePodNames = (currentPodNames, previousPodNames) => {
+    if (currentPodNames.length !== previousPodNames.length) {
+      return false;
+    }
+    
+    const sortedCurrent = [...currentPodNames].sort();
+    const sortedPrevious = [...previousPodNames].sort();
+    
+    return sortedCurrent.every((name, index) => name === sortedPrevious[index]);
   }
 
   fetchInstanceInfo = () => {
@@ -149,7 +168,7 @@ export default class Index extends PureComponent {
             [];
           list = [...new_pods, ...old_pods];
         }
-
+        
         if (list && list.length > 0) {
           list.map(item => {
             item.name = `实例：${item.pod_name}`;
@@ -162,11 +181,26 @@ export default class Index extends PureComponent {
           name: formatMessage({ id: 'componentOverview.body.tab.log.allLogs' }),
         });
 
+        // 提取当前的pod_name数组
+        const currentPodNames = list
+          .filter(item => item.pod_name)
+          .map(item => item.pod_name);
+        
+        const { previousPodNames } = this.state;
+        
+        // 比较pod_name是否发生变化
+        const podsChanged = !this.comparePodNames(currentPodNames, previousPodNames);
+
         this.setState({
-          instances: list
+          instances: list,
+          previousPodNames: currentPodNames
         }, () => {
-          const { instances } = this.state
-          this.initializeEventSources(instances, 100)
+          // 只有当pod_name发生变化时才重新初始化EventSources
+          if (podsChanged) {
+            const { instances } = this.state;
+            this.closeAllEventSources();
+            this.initializeEventSources(instances, 100);
+          }
         });
       }
     });
@@ -353,11 +387,7 @@ export default class Index extends PureComponent {
         }
         extra={
           <Fragment>
-            <a onClick={this.showDownHistory1000Log}>
-              {/* 最近1000条日志 */}
-              <FormattedMessage id='componentOverview.body.tab.log.lately' />
-            </a>
-            {this.state.isHistoryLogs && <a onClick={this.showHistoryLogs} style={{marginLeft: '10px'}}>
+            {this.state.isHistoryLogs && <a onClick={this.showHistoryLogs}>
               {/* 历史日志 */}
               <FormattedMessage id='componentOverview.body.tab.log.history' />
             </a>}

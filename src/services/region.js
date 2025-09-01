@@ -549,3 +549,14 @@ export async function fetchPrometheusNodeInfo(params, handleError) {
     handleError
   });
 }
+// 获取loki日志
+export async function fetchLokiLog(params, handleError) {
+  return request(`${apiconfig.baseUrl}/console/log/proxy`, {
+    method: 'post',
+    data: {
+      url: params.url,
+      data: params.data
+    },
+    handleError
+  });
+}
