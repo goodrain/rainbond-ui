@@ -1429,7 +1429,7 @@ export default class Index extends PureComponent {
       group_id: groupId
     } = this.fetchParameter();
     return (
-      <Fragment>
+      <div style={{ height: '80vh', overflowY: 'auto' }}>
         {/* 应用信息头部 */}
         <Row>{pageHeaderContent}</Row>
         {/* 检测中 */}
@@ -1444,11 +1444,11 @@ export default class Index extends PureComponent {
         {!showConfig && status == 4 && this.installError()}
         {/* 应用信息展示 */}
         {showConfig &&
-          <div className={styles.customCollapse}>
+          <div className={styles.customCollapse_helm}>
             {this.handleConfing()}
           </div>
         }
-      </Fragment>
+      </div>
     );
   }
 }

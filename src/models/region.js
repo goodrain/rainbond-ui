@@ -51,7 +51,8 @@ import {
   fetchPerformanceOverview,
   fetchResourceOverview,
   fetchQueryRange,
-  fetchPrometheusNodeInfo
+  fetchPrometheusNodeInfo,
+  fetchLokiLog
 } from '../services/region';
 
 export default {
@@ -397,6 +398,12 @@ export default {
     },
     *fetchPrometheusNodeInfo({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchPrometheusNodeInfo, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchLokiLog({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchLokiLog, payload, handleError);
       if (response && callback) {
         callback(response);
       }

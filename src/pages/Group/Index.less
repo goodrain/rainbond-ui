@@ -355,6 +355,26 @@
   align-items: center;
   flex-wrap: wrap;
 }
+.customCollapse_helm{
+  background: #fff;
+  padding: 24px;
+  margin-top: 24px;
+  :global {
+    .ant-collapse-borderless {
+      background: #fff;
+    }
+    .ant-collapse-item > .ant-collapse-header {
+      background: #f7f7f7;
+      border-top: 1px solid rgb(217, 217, 217);
+      padding: 6px 40px;
+    }
+    .ant-collapse-item > .ant-collapse-header,
+    .ant-collapse-item > .ant-collapse-content {
+      border-left: 1px solid rgb(217, 217, 217);
+      border-right: 1px solid rgb(217, 217, 217);
+    }
+  }
+}
 
 .customCollapse,
 .customCollapseBox {
