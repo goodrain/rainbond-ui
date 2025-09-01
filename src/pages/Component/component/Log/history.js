@@ -91,7 +91,8 @@ export default class HistoryLog extends PureComponent {
       from: timeParams.from,
       to: timeParams.to
     };
-
+    console.log(url,"url=====");
+    
     try {
       const response = await fetch(
         `${url}/api/ds/query`, 
