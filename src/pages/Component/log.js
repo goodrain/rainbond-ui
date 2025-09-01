@@ -63,8 +63,10 @@ export default class Index extends PureComponent {
       if(this.state.isHistoryLogs){
         this.props.pluginList.forEach(item =>{
           if(item.name == 'rainbond-enterprise-logs'){
+            console.log(item.backend,"item.backend=====");
+            
             this.setState({
-              lokiUrl: item.urls[0]
+              lokiUrl: item.backend
             })
           }
         })        

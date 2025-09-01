@@ -97,7 +97,7 @@ export default class index extends Component {
     
     return <div style={{ height: '100vh' }}>
       <iframe
-        src={`${plugins?.fronted_path}?${iframeParams}`}
+        src={`${plugins?.backend}?${iframeParams}`}
         style={{ width: '100%', height: '100%' }}
         id={plugins?.name}
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
