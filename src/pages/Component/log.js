@@ -6,14 +6,14 @@
 import { Button, Card, Cascader, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import axios from 'axios';
-import React, { Fragment, PureComponent } from 'react';
+import React, { Fragment, PureComponent, memo } from 'react';
 import Ansi from '../../components/Ansi/index';
 import NoPermTip from '../../components/NoPermTip';
-import VirtualList from '../../components/VirtualList';
 import { getContainerLog, getServiceLog } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
+import History1000Log from './component/Log/history1000';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -33,7 +33,6 @@ const { Option } = Select;
 )
 export default class Index extends PureComponent {
   formRef = React.createRef();
-  virtualListRef = React.createRef();
   constructor(arg) {
     super(arg);
     this.state = {
@@ -42,6 +41,7 @@ export default class Index extends PureComponent {
       instances: [],
       started: true,
       showHistoryLog: false,
+      showHistory1000Log: false,
       showHighlighted: '',
       filter: '',
       pod_name: '',
@@ -53,6 +53,9 @@ export default class Index extends PureComponent {
       previousPodNames: []
     };
     this.eventSources = {};
+    this.messageBuffer = [];
+    this.batchUpdateTimer = null;
+    this.MAX_LOGS = 1000;
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -80,11 +83,11 @@ export default class Index extends PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      this.virtualListRef &&
+      this.refs.box &&
       prevState.logs.length !== this.state.logs.length &&
       this.state.showHighlighted === ''
     ) {
-      this.virtualListRef.scrollToBottom();
+      this.refs.box.scrollTop = this.refs.box.scrollHeight;
     }
   }
   componentWillUnmount() {
@@ -94,6 +97,9 @@ export default class Index extends PureComponent {
     // 清理定时器
     if (this.intervalTimer) {
       clearInterval(this.intervalTimer);
+    }
+    if (this.batchUpdateTimer) {
+      clearTimeout(this.batchUpdateTimer);
     }
   }
 
@@ -105,9 +111,8 @@ export default class Index extends PureComponent {
         this.eventSources[pod.pod_name] = new EventSource(url, { withCredentials: true });
         this.eventSources[pod.pod_name].onmessage = (event) => {
           const newMessage = event.data;
-          this.setState((prevState) => ({
-            logs: [...prevState.logs, newMessage],
-          }));
+          this.messageBuffer.push(newMessage);
+          this.debouncedBatchUpdate();
         };
         this.eventSources[pod.pod_name].onerror = (error) => {
           console.error(`${pod.pod_name} EventSource failed:`, error);
@@ -132,6 +137,30 @@ export default class Index extends PureComponent {
       });
     }
   }
+
+  debouncedBatchUpdate = () => {
+    if (this.batchUpdateTimer) {
+      clearTimeout(this.batchUpdateTimer);
+    }
+    this.batchUpdateTimer = setTimeout(() => {
+      this.processBatchMessages();
+    }, 100);
+  };
+
+  processBatchMessages = () => {
+    if (this.messageBuffer.length === 0) return;
+    
+    const newMessages = [...this.messageBuffer];
+    this.messageBuffer = [];
+    
+    this.setState((prevState) => {
+      const updatedLogs = [...prevState.logs, ...newMessages];
+      if (updatedLogs.length > this.MAX_LOGS) {
+        return { logs: updatedLogs.slice(-this.MAX_LOGS) };
+      }
+      return { logs: updatedLogs };
+    });
+  };
 
   // 比较两个pod_name数组是否相同
   comparePodNames = (currentPodNames, previousPodNames) => {
@@ -292,6 +321,26 @@ export default class Index extends PureComponent {
       }
     });
   };
+  /**
+   * 显示下载历史1000行日志模态框
+   * 
+   * 显示下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
+  showDownHistory1000Log = () => {
+    this.setState({ showHistory1000Log: true });
+  };
+  /**
+   * 隐藏下载历史1000行日志模态框
+   * 
+   * 隐藏下载历史1000行日志的模态框。
+   * 
+   * @returns {void}
+   */
+  hideDownHistory1000Log = () => {
+    this.setState({ showHistory1000Log: false });
+  };
 
   onFinish = value => {
     this.setState({ filter: value }, () => {
@@ -332,135 +381,13 @@ export default class Index extends PureComponent {
   hideHistoryLogs = () => {
     this.setState({ showHistoryLog: false });
   };
-
-  renderLogItem = (log, index) => {
+  handleHighlightClick = (highlightId) => {
     const { showHighlighted } = this.state;
-    return (
-      <div key={index} style={{ height: '20px', display: 'flex', alignItems: 'center' }}>
-        <span
-          style={{
-            color:
-              showHighlighted == log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                ? '#FFFF91'
-                : '#666666'
-          }}
-        >
-          <span>{log == '' ? '' : `${index + 1}`}</span>
-        </span>
-        <span
-          ref="texts"
-          style={{
-            color:
-              showHighlighted == log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                ? '#FFFF91'
-                : '#FFF'
-          }}
-        >
-          <Ansi>
-            {log.substring(log.indexOf(':') + 1, log.length)}
-          </Ansi>
-        </span>
-
-        {this.state.logs.length == 1 ? (
-          <span
-            style={{
-              color:
-                showHighlighted ==
-                  log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                  ? '#FFFF91'
-                  : '#bbb',
-              cursor: 'pointer',
-              backgroundColor: log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                ? '#666'
-                : ''
-            }}
-            onClick={() => {
-              this.setState({
-                showHighlighted:
-                  showHighlighted ==
-                    log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                    ? ''
-                    : log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-              });
-            }}
-          >
-            <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
-          </span>
-        ) : this.state.logs.length > 1 &&
-          index >= 1 &&
-          log.substring(log.indexOf(':') - 12, log.indexOf(':')) ==
-          this.state.logs[index <= 0 ? index + 1 : index - 1].substring(
-
-            this.state.logs[index <= 0 ? index + 1 : index - 1].indexOf(':') - 12,
-            this.state.logs[index <= 0 ? index + 1 : index - 1].indexOf(':')
-          ) ? (
-          ''
-        ) : (
-          <span
-            style={{
-              color:
-                showHighlighted ==
-                  log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                  ? '#FFFF91'
-                  : '#bbb',
-              cursor: 'pointer',
-              backgroundColor:
-                index == 0 && log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                  ? '#666'
-                  : log.substring(log.indexOf(':') - 12, log.indexOf(':')) ==
-                    this.state.logs[
-                      index <= 0 ? index + 1 : index - 1
-                    ].substring(
-
-                      this.state.logs[
-                        index <= 0 ? index + 1 : index - 1
-                      ].indexOf(':') - 12,
-                      this.state.logs[
-                        index <= 0 ? index + 1 : index - 1
-                      ].indexOf(':')
-                    )
-                    ? ''
-                    : '#666'
-            }}
-            onClick={() => {
-              this.setState({
-                showHighlighted:
-                  showHighlighted ==
-                    log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-                    ? ''
-                    : log.substring(log.indexOf(':') - 12, log.indexOf(':'))
-              });
-            }}
-          >
-            <Ansi>{log.substring(0, log.indexOf(':'))}</Ansi>
-          </span>
-        )}
-      </div>
-    );
+    this.setState({
+      showHighlighted: showHighlighted === highlightId ? '' : highlightId
+    });
   };
 
-  renderContainerLogItem = (item, index) => {
-    return (
-      <div key={index} style={{ height: '20px', display: 'flex', alignItems: 'center' }}>
-        <span
-          style={{
-            color: '#666666'
-          }}
-        >
-          <span>{index + 1}</span>
-        </span>
-        <span
-          ref="texts"
-          style={{
-            width: '100%',
-            color: '#FFF'
-          }}
-        >
-          <Ansi>{item}</Ansi>
-        </span>
-      </div>
-    );
-  };
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { appAlias, regionName, teamName } = this.props;
@@ -473,6 +400,7 @@ export default class Index extends PureComponent {
       started,
       refreshValue,
       showHistoryLog,
+      showHistory1000Log,
       messages,
       lokiUrl
     } = this.state;
@@ -534,33 +462,99 @@ export default class Index extends PureComponent {
             />
           </Form.Item>
         </Form>
-        {containerLog && containerLog.length > 0 ? (
-          <VirtualList
-            ref={this.virtualListRef}
-            className={styles.logsss}
-            style={{ height: '500px' }}
-            items={containerLog}
-            itemHeight={20}
-            renderItem={this.renderContainerLogItem}
-            autoScrollToBottom={this.state.showHighlighted === ''}
-          />
-        ) : logs && logs.length > 0 ? (
-          <VirtualList
-            ref={this.virtualListRef}
-            className={styles.logsss}
-            style={{ height: '500px' }}
-            items={logs}
-            itemHeight={20}
-            renderItem={this.renderLogItem}
-            autoScrollToBottom={this.state.showHighlighted === ''}
-          />
-        ) : (
-          <div className={styles.logsss} style={{ height: '500px' }}></div>
-        )}
+        <div className={styles.logsss} ref="box">
+          {(containerLog &&
+            containerLog.length > 0 &&
+            containerLog.map((item, index) => {
+              return (
+                <LogItem
+                  key={index}
+                  item={item}
+                  index={index}
+                  isContainer={true}
+                />
+              );
+            })) ||
+            (logs &&
+              logs.length > 0 &&
+              logs.map((log, index) => {
+                return (
+                  <LogItem
+                    key={index}
+                    log={log}
+                    index={index}
+                    logs={logs}
+                    showHighlighted={showHighlighted}
+                    onHighlightClick={this.handleHighlightClick}
+                    isContainer={false}
+                  />
+                );
+              }))}
+        </div>
         {showHistoryLog && (
           <HistoryLog onCancel={this.hideHistoryLogs} appAlias={appAlias} url={lokiUrl} />
+        )}
+        {showHistory1000Log && (
+          <History1000Log
+            onCancel={this.hideDownHistory1000Log}
+            region={regionName}
+            podName={appAlias}
+            instances={instances}
+            teamName={teamName}
+          />
         )}
       </Card>
     );
   }
 }
+
+const LogItem = memo(({ item, log, index, logs, showHighlighted, onHighlightClick, isContainer }) => {
+  if (isContainer) {
+    return (
+      <div>
+        <span style={{ color: '#666666' }}>
+          <span>{index + 1}</span>
+        </span>
+        <span style={{ width: '100%', color: '#FFF' }}>
+          <Ansi>{item}</Ansi>
+        </span>
+      </div>
+    );
+  }
+
+  const colonIndex = log.indexOf(':');
+  const highlightId = log.substring(colonIndex - 12, colonIndex);
+  const isHighlighted = showHighlighted === highlightId;
+  const logContent = log.substring(colonIndex + 1, log.length);
+  const logPrefix = log.substring(0, colonIndex);
+
+  const shouldShowPrefix = logs.length === 1 || 
+    (index >= 1 && 
+     highlightId !== logs[index - 1]?.substring(
+       logs[index - 1].indexOf(':') - 12, 
+       logs[index - 1].indexOf(':')
+     ));
+
+  return (
+    <div>
+      <span style={{ color: isHighlighted ? '#FFFF91' : '#666666' }}>
+        <span>{log === '' ? '' : `${index + 1}`}</span>
+      </span>
+      <span style={{ color: isHighlighted ? '#FFFF91' : '#FFF' }}>
+        <Ansi>{logContent}</Ansi>
+      </span>
+      {shouldShowPrefix && (
+        <span
+          style={{
+            color: isHighlighted ? '#FFFF91' : '#bbb',
+            cursor: 'pointer',
+            backgroundColor: highlightId ? '#666' : ''
+          }}
+          onClick={() => onHighlightClick(highlightId)}
+        >
+          <Ansi>{logPrefix}</Ansi>
+        </span>
+      )}
+    </div>
+  );
+});
