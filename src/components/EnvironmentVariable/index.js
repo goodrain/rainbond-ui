@@ -152,7 +152,7 @@ class EditableCell extends React.Component {
               initialValue: record[dataIndex]
             })(
               <Input
-                disabled={!addVariable && dataIndex === 'attr_name'}
+                // disabled={!addVariable && dataIndex === 'attr_name'}
                 placeholder={placeholders}
               />
             )}

@@ -13,7 +13,6 @@ import { getContainerLog, getServiceLog } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
-import History1000Log from './component/Log/history1000';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -41,7 +40,6 @@ export default class Index extends PureComponent {
       instances: [],
       started: true,
       showHistoryLog: false,
-      showHistory1000Log: false,
       showHighlighted: '',
       filter: '',
       pod_name: '',
@@ -321,26 +319,6 @@ export default class Index extends PureComponent {
       }
     });
   };
-  /**
-   * 显示下载历史1000行日志模态框
-   * 
-   * 显示下载历史1000行日志的模态框。
-   * 
-   * @returns {void}
-   */
-  showDownHistory1000Log = () => {
-    this.setState({ showHistory1000Log: true });
-  };
-  /**
-   * 隐藏下载历史1000行日志模态框
-   * 
-   * 隐藏下载历史1000行日志的模态框。
-   * 
-   * @returns {void}
-   */
-  hideDownHistory1000Log = () => {
-    this.setState({ showHistory1000Log: false });
-  };
 
   onFinish = value => {
     this.setState({ filter: value }, () => {
@@ -400,7 +378,6 @@ export default class Index extends PureComponent {
       started,
       refreshValue,
       showHistoryLog,
-      showHistory1000Log,
       messages,
       lokiUrl
     } = this.state;
@@ -493,15 +470,6 @@ export default class Index extends PureComponent {
         </div>
         {showHistoryLog && (
           <HistoryLog onCancel={this.hideHistoryLogs} appAlias={appAlias} url={lokiUrl} />
-        )}
-        {showHistory1000Log && (
-          <History1000Log
-            onCancel={this.hideDownHistory1000Log}
-            region={regionName}
-            podName={appAlias}
-            instances={instances}
-            teamName={teamName}
-          />
         )}
       </Card>
     );
