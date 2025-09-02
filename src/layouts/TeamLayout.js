@@ -803,7 +803,7 @@ class TeamLayout extends PureComponent {
       // Refresh the component information
     } else if (componentID) {
       // 避免在 render 中发起请求；改由生命周期在参数变化时触发
-      return <GlobalHeader />;
+      // return <GlobalHeader />;
     } else {
       this.setState({ currentComponent: null });
     }
