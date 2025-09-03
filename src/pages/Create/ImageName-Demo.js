@@ -18,7 +18,7 @@ import {
 import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
-import ImageCmdDemoForm from "../../components/ImageCmdDemoForm ";
+import ImageCmdDemoForm from "../../components/ImageCmdDemoForm";
 import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
