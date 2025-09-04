@@ -19,8 +19,9 @@ import roleUtil from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './wizard.less';
 
-@connect(({ enterprise, user, teamControl, global }) => ({
+@connect(({enterprise, user, teamControl, global }) => ({
     currentEnterprise: enterprise.currentEnterprise,
+    enterprise: global.enterprise,
     user: user.currentUser,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     rainbondInfo: global.rainbondInfo,
@@ -146,10 +147,24 @@ export default class Index extends PureComponent {
                 }
                 this.setState({
                     rainStoreTab: rainStores
+                },() => {
+                    this.getStoreList();
                 })
             }
         });
     };
+    getStoreList = () => {
+        this.setState({ loading: true });
+        const { dispatch, currentEnterprise } = this.props;
+        dispatch({
+          type: 'enterprise/fetchEnterpriseStoreList',
+          payload: {
+            enterprise_id: currentEnterprise?.enterprise_id
+          },
+          callback: data => {
+          }
+        });
+      };
     onClickLinkCreate = (type, link) => {
         const { dispatch, currentEnterprise } = this.props
         const teamName = globalUtil.getCurrTeamName();

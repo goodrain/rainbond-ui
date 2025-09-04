@@ -121,19 +121,11 @@ class TeamLayout extends PureComponent {
     this.fetchUserInfo();
     this.handleMenuCollapse(true);
     const { teamAppCreatePermission: { isAccess } } = this.state
-    // 避免 SaaS 下重复调用 getUserNewbieGuideConfig
+    if(this.props.rainbondInfo?.is_saas){
+      this.getUserNewbieGuideConfig();
+    }
     if (isAccess) {
       this.getAppNames();
-    }
-  }
-
-  componentDidMount() {
-    // 首次挂载时，根据当前路由参数触发一次初始化加载
-    const { teamName, regionName } = this.props.match.params || {};
-    if (teamName && regionName) {
-      cookie.set('team_name', teamName);
-      cookie.set('region_name', regionName);
-      this.load();
     }
   }
   componentWillUpdate() {
@@ -142,77 +134,82 @@ class TeamLayout extends PureComponent {
       window.location.reload()
       window.sessionStorage.removeItem('updata')
     }
-    // 将 URL 驱动的展示状态更新挪到 componentDidUpdate 中按需更新，避免循环 setState
-  }
-  componentWillReceiveProps(nextProps) {
-    // 1) team/region 变化时，集中触发一次 load
-    const prevParams = this.props.match && this.props.match.params;
-    const nextParams = nextProps.match && nextProps.match.params;
-    if (
-      prevParams && nextParams &&
-      (prevParams.teamName !== nextParams.teamName || prevParams.regionName !== nextParams.regionName)
-    ) {
-      // 设置 cookie 仅在参数变化时
-      cookie.set('team_name', nextParams.teamName);
-      cookie.set('region_name', nextParams.regionName);
-      this.load();
-      // 若已有 eid 或 enterprise 可用，兜底刷新官方插件 url
-      const enterpriseId = this.state.eid
-        || (this.state.currentEnterprise && this.state.currentEnterprise.enterprise_id)
-        || (this.props.enterprise && this.props.enterprise.enterprise_id)
-        || (this.props.currentUser && this.props.currentUser.enterprise_id);
-      if (enterpriseId) {
-        setTimeout(() => this.fetchPipePipeline(enterpriseId), 10);
+    const urlParams = new URL(window.location.href);
+    if (urlParams) {
+      const bool = urlParams.href.includes("/helminstall");
+      const webconsole = urlParams.href.includes("/webconsole");
+      const overview = urlParams.href.includes("/overview");
+      if (webconsole) {
+        this.setState({
+          showHeader: false,
+          showFooter: false,
+        })
+      } else {
+        this.setState({
+          showHeader: true
+        })
+      }
+      if (overview) {
+        this.setState({
+          showFooter: false,
+          overflow: 'hidden'
+        })
+      } else {
+        this.setState({
+          overflow: 'auto'
+        })
+      }
+      if (bool) {
+        this.setState({
+          showMenu: false,
+          showFooter: false
+        })
+      } else {
+        this.setState({
+          showMenu: true
+        })
       }
     }
-
-    // 2) appID 变化时，触发 fetchAppDetail（避免在 render 中触发）
-    const newAppID = globalUtil.getAppID();
-    const { appID: stateAppID } = this.state;
-    if (newAppID && newAppID !== stateAppID) {
+    if (urlParams) {
+      const code = urlParams.href.includes("/create/code");
+      const image = urlParams.href.includes("/create/image");
+      const yaml = urlParams.href.includes("/create/yaml");
+      const outer = urlParams.href.includes("/create/outer");
+      if (code || image || yaml || outer) {
+        this.setState({
+          GroupShow: false
+        })
+      }else{
+        this.setState({
+          GroupShow: true
+        })
+      }
+      const isPipeline = urlParams.href.includes("Pipeline");
+      if (isPipeline) {
+        this.setState({
+          marginShow: false
+        })
+      } else {
+        this.setState({
+          marginShow: true
+        })
+      }
+    }
+  }
+  componentWillReceiveProps() {
+    const appID = globalUtil.getAppID();
+    const { appID: cldAppID } = this.state;
+    if (appID && appID !== cldAppID) {
       this.setState(
-        { appID: newAppID, currentApp: false },
+        {
+          appID,
+          currentApp: false
+        },
         () => {
           this.fetchGroup();
-          this.fetchAppDetail(newAppID);
+          this.fetchAppDetail(appID);
         }
       );
-    }
-
-    // 3) componentID 变化时，触发组件详情加载（避免在 render 中触发）
-    const prevComponentID = globalUtil.getComponentID(this.props && this.props.location);
-    const nextComponentID = globalUtil.getComponentID(nextProps && nextProps.location);
-    if (nextComponentID && nextComponentID !== prevComponentID) {
-      this.queryComponentDeatil();
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    // 仅当路由变化时，根据 URL 统一计算展示状态，避免每次更新都 setState
-    const prevPath = prevProps.location && prevProps.location.pathname;
-    const currPath = this.props.location && this.props.location.pathname;
-    if (prevPath !== currPath) {
-      const href = window.location && window.location.href ? window.location.href : '';
-      const webconsole = href.includes('/webconsole');
-      const overview = href.includes('/overview');
-      const helminstall = href.includes('/helminstall');
-      const isCreate = href.includes('/create/code') || href.includes('/create/image') || href.includes('/create/yaml') || href.includes('/create/outer');
-      const isPipeline = href.includes('Pipeline');
-
-      const nextState = {
-        showHeader: !webconsole,
-        showFooter: !(webconsole || overview || helminstall),
-        showMenu: !helminstall,
-        GroupShow: !isCreate,
-        marginShow: !isPipeline,
-        overflow: overview ? 'hidden' : 'auto'
-      };
-
-      // 仅在状态有变化时才更新，避免无意义 setState
-      const needUpdate = Object.keys(nextState).some(k => this.state[k] !== nextState[k]);
-      if (needUpdate) {
-        this.setState(nextState);
-      }
     }
   }
 
@@ -300,19 +297,10 @@ class TeamLayout extends PureComponent {
   }
   fetchPipePipeline = (eid) => {
     const { dispatch } = this.props;
-    // 兜底获取 enterprise_id，避免传入 undefined
-    const enterpriseId = eid
-      || this.state.eid
-      || (this.state.currentEnterprise && this.state.currentEnterprise.enterprise_id)
-      || (this.props.enterprise && this.props.enterprise.enterprise_id)
-      || (this.props.currentUser && this.props.currentUser.enterprise_id);
-    if (!enterpriseId) {
-      return; // 无有效 enterpriseId 时不发起请求，避免 404/undefined
-    }
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
-        enterprise_id: enterpriseId,
+        enterprise_id: eid,
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
@@ -334,12 +322,9 @@ class TeamLayout extends PureComponent {
             isNeedAuthz: res.bean.need_authz
           })
         }
-        // 仅当列表确实发生变化时才更新，避免触发下游重复计算
-        if (JSON.stringify(this.state.showPipeline || []) !== JSON.stringify(res.list || [])) {
-          this.setState({
-            showPipeline: res.list
-          })
-        }
+        this.setState({
+          showPipeline: res.list
+        })
       }
     })
   }
@@ -364,9 +349,7 @@ class TeamLayout extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState(
             {
-              enterpriseList: res.list,
-              // 确保 currentEnterprise 及时就绪，避免页面因为空而一直 Loading
-              currentEnterprise: (this.state.currentEnterprise || (res.list && res.list[0])) || null
+              enterpriseList: res.list
             },
             () => {
               if (currentUser) {
@@ -411,7 +394,7 @@ class TeamLayout extends PureComponent {
   };
 
   getTeamOverview = () => {
-    // 避免在此处再次触发 load，统一在参数变化生命周期中触发
+    this.load();
     const { dispatch, currentUser, rainbondInfo } = this.props;
     const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
@@ -495,16 +478,13 @@ class TeamLayout extends PureComponent {
   }
 
   load = () => {
-    // 组件详情按参数变化单独触发，避免 load 内部重复拉取
+    this.queryComponentDeatil();
     const { enterpriseList, eid, teamOverviewPermission: { isAccess } } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
     const enterpriseId = this.props.enterprise && this.props.enterprise.enterprise_id;
-    // 仅当 enterpriseList 已有数据时才设置当前企业，避免 undefined 传递导致下游读取 enterprise_id 报错
-    if (enterpriseList && enterpriseList.length > 0) {
-      dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
-    }
+    dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: enterpriseList[0] });
     dispatch({
       type: 'teamControl/fetchFeatures',
       payload: { team_name: teamName, region_name: regionName }
@@ -525,7 +505,7 @@ class TeamLayout extends PureComponent {
     this.fetchTeamApps();
     this.fetchGroup()
     this.setState({
-      currentEnterprise: this.state.currentEnterprise || (enterpriseList && enterpriseList[0]) || null,
+      currentEnterprise: enterpriseList[0],
       currentTeam: team,
       ready: true,
       GroupShow: true
@@ -550,10 +530,6 @@ class TeamLayout extends PureComponent {
     const { teamName } = this.props.match.params;
     const componentID = globalUtil.getComponentID();
     if (componentID) {
-      // 避免重复请求同一组件详情
-      if (this.state.currentComponent && this.state.currentComponent.service_alias === componentID) {
-        return;
-      }
       this.props.dispatch({
         type: 'appControl/fetchDetail',
         payload: {
@@ -644,10 +620,6 @@ class TeamLayout extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     if (!appID) {
-      return false;
-    }
-    // 避免重复请求：当 appID 与当前相同且已有 currentApp 时跳过
-    if (this.state.currentApp && this.state.currentApp.group_id === appID) {
       return false;
     }
     dispatch({
@@ -772,13 +744,12 @@ class TeamLayout extends PureComponent {
       return <PageLoading />;
     }
 
-    // 避免在 render 中触发副作用；迁移到生命周期里处理
-    // if (
-    //   teamName !== currentTeam?.team_name ||
-    //   regionName !== (currentRegion && currentRegion?.team_region_name)
-    // ) {
-    //   this.load();
-    // }
+    if (
+      teamName !== currentTeam?.team_name ||
+      regionName !== (currentRegion && currentRegion?.team_region_name)
+    ) {
+      this.load();
+    }
     if (upDataHeader) {
       this.upData();
     }
@@ -802,8 +773,11 @@ class TeamLayout extends PureComponent {
       appID = currentComponent.group_id;
       // Refresh the component information
     } else if (componentID) {
-      // 避免在 render 中发起请求；改由生命周期在参数变化时触发
-      // return <GlobalHeader />;
+      this.queryComponentDeatil();
+      setTimeout(() => {
+        this.queryComponentDeatil();
+      }, 1000);
+      return <GlobalHeader />;
     } else {
       this.setState({ currentComponent: null });
     }
@@ -878,11 +852,9 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
-    const safeEnterprise = enterprise || {};
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, safeEnterprise) || logo;
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
     const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
-    const pluginsLoaded = Array.isArray(showPipeline);
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion = team && team.region && team.region.length && currentRegion;
@@ -1069,17 +1041,17 @@ class TeamLayout extends PureComponent {
         {memoryTip && <MemoryTip memoryTip={memoryTip} />}
 
         {orders && BillingFunction && (
-            <ServiceOrder
-              // enterpriseServiceInfo={enterpriseServiceInfo}
-              eid={currentEnterprise ? currentEnterprise.enterprise_id : undefined}
-              orders={orders}
-            />
+          <ServiceOrder
+            // enterpriseServiceInfo={enterpriseServiceInfo}
+            eid={currentEnterprise && currentEnterprise.enterprise_id}
+            orders={orders}
+          />
         )}
-        {pluginsLoaded ? (
-          showEnterprisebase && !isSaas ? null : (
-            <CustomerServiceFloat isSaas={isSaas} />
-          )
-        ) : null}
+        {showEnterprisebase && !isSaas ? (
+          null
+        ):(
+          <CustomerServiceFloat isSaas={isSaas} />
+        )}
       </Fragment>
     );
   }
