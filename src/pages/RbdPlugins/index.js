@@ -29,14 +29,29 @@ export default class Index extends Component {
       showSelect: null,
       regionName: null,
     };
+    this.isLoading = false; // 防止重复加载的标志
+    this.importingPlugin = null; // 当前正在导入的插件名称
   }
 
   componentDidMount() {
-    this.getPluginsList();
+    // 对于isCom模式，延迟加载以确保URL参数正确更新
+    if (this.props.isCom) {
+      setTimeout(() => {
+        this.getPluginsList();
+      }, 100);
+    } else {
+      this.getPluginsList();
+    }
+    
     const urlParams = new URLSearchParams(window.location.search || window.location.hash?.split('?')[1]);
     const showSelect = urlParams.get('showSelect');
     this.setState({ showSelect });
-
+  }
+  
+  componentWillUnmount() {
+    // 清理可能的定时器和异步操作
+    this.isLoading = false;
+    this.importingPlugin = null;
   }
 
   componentDidUpdate(prevProps) {
@@ -52,20 +67,55 @@ export default class Index extends Component {
     const currentRegionName = currentUrlParams.get('regionName');
     const prevShowSelect = prevUrlParams.get('showSelect');
     const currentShowSelect = currentUrlParams.get('showSelect');
+    
+    // 监听tab参数变化
+    const prevTab = prevUrlParams.get('tab');
+    const currentTab = currentUrlParams.get('tab');
 
     if (prevRegionName !== currentRegionName) {
+      this.isLoading = false; // 允许重新加载
       this.getPluginsList();
+      return; // 避免同时执行tab切换逻辑
     }
 
     if (prevShowSelect !== currentShowSelect) {
       this.setState({ showSelect: currentShowSelect });
     }
+    
+    // 当tab参数变化时，重新加载对应的插件
+    if (prevTab !== currentTab && this.props.isCom && currentTab && prevTab) {
+      // 清理状态，避免上一个插件的状态影响新插件
+      this.setState({
+        app: {},
+        plugins: {},
+        loading: true,
+        pluginLoading: true,
+        error: false,
+        errInfo: '',
+      });
+      
+      // 重置标志
+      this.isLoading = false;
+      this.importingPlugin = null;
+      
+      this.getPluginsList();
+    }
   }
 
   importPlugin = (meta, regionName) => {
+    // 防止重复导入同一个插件
+    if (this.importingPlugin === meta.name) {
+      return;
+    }
+    
+    this.importingPlugin = meta.name;
+    this.setState({ pluginLoading: true }); // 设置加载状态
+    
     importAppPagePlugin(meta, regionName, 'enterprise').then(res => {
+      this.importingPlugin = null;
       this.setState({ app: res, pluginLoading: false })
     }).catch(err => {
+      this.importingPlugin = null;
       this.setState({
         errInfo: err?.response?.data?.message || err?.message || "An unexpected error occurred.",
         pluginLoading: false,
@@ -74,6 +124,10 @@ export default class Index extends Component {
     })
   }
   getPluginsList = () => {
+    if (this.isLoading) {
+      return;
+    }
+    this.isLoading = true;
     const type = PluginUtil.getCurrentViewPosition(window.location.href);
     type === 'Platform' ? this.loadEnterpriseClusters() : this.loadPluginList();
   };
@@ -106,16 +160,21 @@ export default class Index extends Component {
       type: 'global/getPluginList',
       payload: { enterprise_id: enterpriseId, region_name: currentRegionName },
       callback: (res) => {
+        this.isLoading = false; // 重置加载标志
         if (res && res.list) {
           const plugin = res.list.find((item) => item.name === pluginId) || {};
-          this.setState({ plugins: plugin, loading: false }, () => {
-            if (plugin.plugin_type === 'JSInject') {
+          // 先设置插件信息
+          this.setState({ plugins: plugin, loading: false });
+          // 对于JSInject类型的插件，延迟调用importPlugin避免重复渲染
+          if (plugin.plugin_type === 'JSInject') {
+            setTimeout(() => {
               this.importPlugin(plugin, currentRegionName);
-            }
-          });
+            }, 50);
+          }
         }
       },
       handleError: () => {
+        this.isLoading = false; // 重置加载标志
         this.setState({ plugins: {}, loading: false });
       },
     });

@@ -7,7 +7,7 @@ export default class componentPlugin extends Component {
   render() {    
     return (
       <div>
-        <RbdPlugins isCom={true} key={Global.getComponentPluginType()}/>
+        <RbdPlugins isCom={true} />
       </div>
     )
   }
