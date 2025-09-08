@@ -53,7 +53,7 @@ export async function fetchBackupRepos(params, handleError) {
 }
 
 /**
- * 创建数据库集群
+ * 创建 KubeBlocks 数据库组件, 一次性完成
  * @param {Object} params - { team_name, region_name, config }
  * @param {String} params.team_name - 团队名称
  * @param {String} params.region_name - 区域名称
@@ -62,12 +62,12 @@ export async function fetchBackupRepos(params, handleError) {
  * @param {String} params.config.database_type - 数据库类型
  * @param {String} params.config.service_cname - 数据库中文名称
  * @param {String} params.config.k8s_app - 数据库英文名称
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>} 返回格式与标准组件部署完成后一致，包含 service_alias, group_id 等信息
  */
 export async function createDatabaseCluster(params) {
-    const { team_name, region_name, config } = params;
+    const { team_name, config } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/kubeblocks`,
         {
             method: 'POST',
             data: config

@@ -71,7 +71,6 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
-import DatabaseAdvancedSettings from '../../../pages/Component/databaseAdvancedSettings'
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -415,16 +414,6 @@ class Main extends PureComponent {
         team_name,
         region_name,
         service_id: appDetail.service.service_id
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          console.log('KubeBlocks 集群详情刷新成功:', res.bean);
-        } else {
-          console.error('KubeBlocks 集群详情刷新失败:', res);
-        }
-      },
-      handleError: err => {
-        console.error('KubeBlocks 集群详情刷新失败:', err);
       }
     });
   };
@@ -562,16 +551,20 @@ class Main extends PureComponent {
           this.loadBuildState(appDetail);
         }
         if (appDetail.service.service_source) {
+          const isKBComponent = appDetail?.service?.extend_method === 'kubeblocks_component';
           this.setState({
             isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
             tabsShow: true,
+            isShowKubeBlocksComponent: isKBComponent
           }, () => {
             this.setState({
               routerSwitch: false,
-              activeTab: haveTabKey ? haveTabKey : this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview'
+              activeTab: (() => {
+                const targetTab = haveTabKey ? haveTabKey :
+                  this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview';
+                return (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
+              })()
             });
-            // 获取组件 KubeBlocks 信息
-            this.getKubeBlocksComponentInfo(appDetail);
           });
         }
         if (
@@ -667,46 +660,6 @@ class Main extends PureComponent {
     });
   };
 
-  // 获取组件 KubeBlocks 信息
-  getKubeBlocksComponentInfo = (appDetail) => {
-    const { dispatch } = this.props;
-    const { team_name, region_name } = this.fetchParameter();
-    const service_id = appDetail.service.service_id;
-
-    dispatch({
-      type: 'kubeblocks/getComponentKubeBlocksInfo',
-      payload: {
-        team_name,
-        region_name,
-        service_id
-      },
-      callback: (response) => {
-        if (response && response.status_code === 200) {
-          const isKBComponent = response.bean && response.bean.isKubeBlocksComponent ? response.bean.isKubeBlocksComponent : false;
-          this.setState({
-            isShowKubeBlocksComponent: isKBComponent
-          });
-
-          // 如果是 KubeBlocks 组件，获取集群详情并设置正确的 activeTab
-          if (isKBComponent) {
-            this.getKubeBlocksStatus();
-
-            // 设置正确的 activeTab 为 databaseOverview
-            const { activeTab } = this.state;
-            if (activeTab !== 'databaseOverview') {
-              this.setState({ activeTab: 'databaseOverview' });
-            }
-          }
-        }
-      },
-      handleError: (err) => {
-        console.error('获取组件 KubeBlocks 信息失败:', err);
-        this.setState({
-          isShowKubeBlocksComponent: false
-        });
-      }
-    });
-  };
 
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
@@ -1233,7 +1186,7 @@ class Main extends PureComponent {
       },
       {
         key: 'webTerminal',
-        show: method !== 'vm' && isVisitWebTerminal && !isShowThirdParty,
+        show: method !== 'vm' && isVisitWebTerminal && !isShowThirdParty && !isShowKubeBlocksComponent,
         type: 'link',
         text: <FormattedMessage id='componentOverview.header.right.web' />,
         path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole`,
@@ -1256,7 +1209,7 @@ class Main extends PureComponent {
       },
       {
         key: 'update',
-        show: method !== 'vm' && isUpdate &&
+        show: method !== 'vm' && isUpdate && !isShowKubeBlocksComponent &&
           !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status),
         type: 'button',
         text: upDataText,
@@ -1548,18 +1501,36 @@ class Main extends PureComponent {
         auth: ['isTelescopic'],
         condition: (appDetail) =>
           appDetail?.service?.extend_method !== 'job' &&
-          appDetail?.service?.extend_method !== 'cronjob'
+          appDetail?.service?.extend_method !== 'cronjob' &&
+          appDetail?.service?.extend_method !== 'kubeblocks_component'
+      },
+      {
+        key: 'databaseExpansion',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' }),
+        auth: ['isTelescopic'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method === 'kubeblocks_component'
+      },
+      {
+        key: 'databaseBackup',
+        tab: formatMessage({ id: 'kubeblocks.database.backup.tab' }),
+        auth: ['isStorage', 'isTelescopic'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method === 'kubeblocks_component'
       },
       {
         key: 'monitor',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
-        auth: ['isServiceMonitor']
+        auth: ['isServiceMonitor'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {
         key: 'environmentConfiguration',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' }),
         auth: ['isEnv'],
-        condition: () => method !== 'vm'
+        condition: (appDetail) =>
+          method !== 'vm' && appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {
         key: 'relation',
@@ -1593,45 +1564,17 @@ class Main extends PureComponent {
       }
     ];
 
-    // KubeBlocks Component tabs
-    const getKubeBlocksTabs = (method) => [
+    const getKubeBlocksBaseTabs = () => [
       {
         key: 'databaseOverview',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
-      },
-      {
-        key: 'databaseExpansion',
-        tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' }),
-        auth: ['isTelescopic'],
-        condition: (appDetail) =>
-          appDetail?.service?.extend_method !== 'job' &&
-          appDetail?.service?.extend_method !== 'cronjob'
-      },
-      {
-        key: 'databaseBackup',
-        tab: formatMessage({ id: 'componentOverview.kubeblocks.common.backup' }),
-        auth: ['isStorage', 'isTelescopic']
-      },
-      {
-        key: 'environmentConfiguration',
-        tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' }),
-        auth: ['isEnv'],
-        condition: () => method !== 'vm'
-      },
-      {
-        key: 'relation',
-        tab: formatMessage({ id: 'componentOverview.body.tab.bar.relation' }),
-        auth: ['isRely']
-      },
-      {
-        key: 'databaseAdvancedSettings',
-        tab: formatMessage({ id: 'versionUpdata_6_2.advancedSettings' }),
-        auth: ['isStorage', 'isPort', 'isPlugin', 'isSource', 'isOtherSetting']
       }
     ];
 
     // 获取基础tabs
-    const tabs = getBaseTabs();
+    const tabs = appDetail?.service?.extend_method === 'kubeblocks_component'
+      ? getKubeBlocksBaseTabs()
+      : getBaseTabs();
 
     // 添加扩展tabs(根据权限)
     if (!isShowThirdParty) {
@@ -1654,21 +1597,6 @@ class Main extends PureComponent {
             key: item.name,
             tab: item.display_name
           });
-        });
-      }
-
-      // 清空 tabs 改为 KubeBlocks Component 的 tabs
-      if (isShowKubeBlocksComponent) {
-        tabs.length = 0;
-        const databaseTabs = getKubeBlocksTabs(method);
-        databaseTabs.forEach(tab => {
-          const hasPermission = !tab.auth || tab.auth.some(perm => permissions[perm]);
-          if (
-            hasPermission &&
-            (!tab.condition || tab.condition(appDetail))
-          ) {
-            tabs.push(tab);
-          }
         });
       }
     }
@@ -1711,7 +1639,6 @@ class Main extends PureComponent {
       databaseOverview: DatabaseOverview,
       databaseExpansion: DatabaseExpansion,
       databaseBackup: DatabaseBackup,
-      databaseAdvancedSettings: DatabaseAdvancedSettings,
     };
     if (CompluginList && CompluginList.length > 0) {
       CompluginList.forEach(item => {
