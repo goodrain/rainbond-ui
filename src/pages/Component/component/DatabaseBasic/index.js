@@ -57,27 +57,10 @@ class Index extends PureComponent {
       status: mapped,
       status_cn: kbStatus.status_cn || null,
       start_time: kbStatus.start_time || null,
-      // 保留 KB 原生状态用于与 native 进行“ready”判断
       raw_status: raw
     };
   };
 
-  // 合并原生 status 与 KB status: 仅当两者均为 running 时显示 running，否则以 KB 的状态为准
-  getMergedStatus = (rbdStatus, clusterDetail) => {
-    // nativeStatus: 父组件传入的原有状态对象，包含 status/status_cn/start_time
-    const kbStatus = this.extractKBStatus(clusterDetail);
-    if (!kbStatus) return rbdStatus;
-    const isRBDRunning = rbdStatus && rbdStatus.status === 'running';
-    const isKbRunning = kbStatus && kbStatus.raw_status === 'running';
-    if (isRBDRunning && isKbRunning) {
-      return rbdStatus;
-    }
-    return {
-      status: kbStatus.status || (rbdStatus && rbdStatus.status),
-      status_cn: kbStatus.status_cn || (rbdStatus && rbdStatus.status_cn),
-      start_time: kbStatus.start_time || (rbdStatus && rbdStatus.start_time)
-    };
-  };
 
   render() {
     const { language } = this.state;
@@ -91,8 +74,7 @@ class Index extends PureComponent {
       clusterDetail
     } = this.props;
 
-    // 根据业务约束合并 native 与 KB 状态，仅当二者均 running 时显示 running，否则使用 KB 状态
-    const status = this.getMergedStatus(originStatus, clusterDetail);
+    const status = this.extractKBStatus(clusterDetail);
 
     const setMemory =
       memory === 0 && !showStorageUsed ? (
@@ -221,6 +203,43 @@ class Index extends PureComponent {
                               {formatMessage({ id: 'componentOverview.body.tab.overview.disk' })}
                             </Fragment>
                           )}
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div className={styles.buildRightBox}>
+                  <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
+                    <span className={` ${styles.en_alcen}  `}>
+                      {Svg.getSvg('database', 16, 'rbd-content-color-secondary')}
+                      <span style={{ color: globalUtil.getPublicColor('rbd-content-color-secondary') }}>
+                        <FormattedMessage id='componentOverview.body.tab.overview.databaseType' />
+                      </span>
+                    </span>
+                    <span
+                      style={{
+                        color:
+                          clusterDetail?.basic?.type
+                            ? globalUtil.getPublicColor('rbd-success-status')
+                            : globalUtil.getPublicColor('rbd-content-color')
+                      }}
+                    >
+                      {clusterDetail?.basic?.type || <FormattedMessage id='componentOverview.body.tab.overview.not' />}
+                    </span>
+                  </h2>
+                  <div className={styles.buildCommitInfo}>
+                    <ul className={styles.buildInfo}>
+                      <li>
+                        <a target="_blank">
+                          <span
+                            className={` ${styles.en_alcen}  `}
+                          >
+                            {Svg.getSvg('banben', 16, 'rbd-content-color-secondary')}
+                            <FormattedMessage id='componentOverview.body.tab.overview.databaseVersion' />
+                          </span>
+                          <span className={styles.buildText}>
+                            {clusterDetail?.basic?.version || <FormattedMessage id='componentOverview.body.tab.overview.not' />}
+                          </span>
                         </a>
                       </li>
                     </ul>

@@ -38,8 +38,9 @@ import setting from './setting'
 export default class advancedSettings extends Component {
   constructor(props) {
     super(props)
+    const method = props?.method || (props?.appDetail && props.appDetail.service && props.appDetail.service.extend_method)
     this.state = {
-      activeTab: ['mnt']
+      activeTab: method === 'kubeblocks_component' ? ['port'] : ['mnt']
     }
   }
   changeMenu = (key) => {    
@@ -67,7 +68,8 @@ export default class advancedSettings extends Component {
       {
         key: 'mnt',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.mnt' }),
-        auth: ['isStorage']
+        auth: ['isStorage'],
+        condition: () => method !== 'kubeblocks_component'
       },
       {
         key: 'port',
@@ -78,18 +80,19 @@ export default class advancedSettings extends Component {
         key: 'plugin',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.plugin' }),
         auth: ['isPlugin'],
-        condition: () => method !== 'vm'
+        condition: () => method !== 'vm' && method !== 'kubeblocks_component'
       },
       {
         key: 'resource',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.resource' }),
         auth: ['isSource'],
-        condition: () => method !== 'vm'
+        condition: () => method !== 'vm' && method !== 'kubeblocks_component'
       },
       {
         key: 'setting',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.setting' }),
-        auth: ['isOtherSetting']
+        auth: ['isOtherSetting'],
+        condition: () => method !== 'kubeblocks_component'
       }
     ];
     const extendTabs = getExtendTabs(method);

@@ -870,6 +870,7 @@ export default class Index extends PureComponent {
             <DatabaseInstance
               clusterDetail={clusterDetail}
               loading={false}
+              appAlias={this.props.appAlias}
             />
           </Card>
         )}

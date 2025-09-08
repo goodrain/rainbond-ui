@@ -229,20 +229,39 @@ export default class Index extends PureComponent {
         if (response && response.status_code === 200) {
           message.success(formatMessage({ id: 'kubeblocks.database.config.success.created' }));
 
-          // 获取返回的 service_alias 用于检测流程
+          // 刷新应用分组信息
+          dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name: team_name
+            }
+          });
+
+          window.sessionStorage.removeItem('codeLanguage');
+          window.sessionStorage.removeItem('packageNpmOrYarn'); 
+          window.sessionStorage.removeItem('advanced_setup');
+
+          // 获取返回的组件信息，直接跳转到应用视图
           const serviceAlias = response.bean?.service_alias;
-          if (serviceAlias) {
+          const groupId = response.bean?.group_id;
+          
+          if (serviceAlias && groupId) {
             dispatch(
-              routerRedux.push(`/team/${team_name}/region/${region_name}/create/create-check/${serviceAlias}`)
+              routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
             );
           } else {
             message.error('创建成功但无法获取组件信息，请手动刷新页面');
           }
         } else {
+          console.error('API 调用失败:', {
+            status_code: response?.status_code,
+            msg_show: response?.msg_show,
+            full_response: response
+          });
           message.error(response ? response.msg_show : formatMessage({ id: 'kubeblocks.database.config.error.creation_failed' }));
         }
       },
-      handleError: (err) => {
+      handleError: () => {
         message.error(formatMessage({ id: 'kubeblocks.database.config.error.creation_failed' }));
       }
     });

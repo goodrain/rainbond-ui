@@ -92,7 +92,8 @@ const componentOverview = {
     'componentOverview.body.tab.overview.moreVersion': 'View more versions',
     'componentOverview.body.tab.overview.return': 'Return to instance list',
     'componentOverview.body.tab.overview.unlimited': 'Unlimited',
-
+    'componentOverview.body.tab.overview.databaseType': 'Database Type',
+    'componentOverview.body.tab.overview.databaseVersion': 'Version',
 
     // tabs栏>overview>构建版本历史
     'componentOverview.body.tab.overview.buildHistory.buildVersionHistory': 'Build version history',
@@ -1113,9 +1114,11 @@ const componentOverview = {
     'kubeblocks.database.config.subtitle': 'Configure database cluster resources, backup and other parameters based on business requirements',
     'kubeblocks.database.config.btn.prev': 'Previous Step',
     'kubeblocks.database.config.btn.create': 'Create Database Component',
-    'kubeblocks.database.check.detecting': 'Detecting database cluster...',
-    'kubeblocks.database.check.success': 'Database cluster created successfully',
-    'kubeblocks.database.check.creating': 'Creating database cluster...',
+    'kubeblocks.database.config.error.component_name_empty': 'Component name is required',
+    'kubeblocks.database.config.error.database_type_empty': 'Database type is required',
+    'kubeblocks.database.config.error.creation_failed': 'Creation failed',
+    'kubeblocks.database.config.success.created': 'Created successfully',
+    
     'kubeblocks.database.create.form.database_type.label': 'Database Type',
     'kubeblocks.database.create.form.database_type.placeholder': 'Please select database type',
     'kubeblocks.database.create.form.database_type.required': 'Please select database type',
@@ -1144,6 +1147,7 @@ const componentOverview = {
     'kubeblocks.database.backup.repo_label': 'BackupRepo',
     'kubeblocks.database.backup.repo_placeholder': 'Please select BackupRepo',
     'kubeblocks.database.backup.repo_none': 'None',
+    'kubeblocks.database.backup.tab': 'Backup',
     'kubeblocks.database.backup.cycle_label': 'Backup Cycle',
     'kubeblocks.database.backup.cycle_required': 'Please select backup cycle',
     'kubeblocks.database.backup.cycle_hour': 'Hour',
@@ -1175,11 +1179,9 @@ const componentOverview = {
     'kubeblocks.database.backup.table.name': 'Backup Name',
     'kubeblocks.database.backup.table.status': 'Backup Status',
     'kubeblocks.database.backup.table.time': 'Backup Time',
-    'kubeblocks.database.backup.table.action': 'Action',
-    'kubeblocks.database.backup.table.delete': 'Delete',
+    
     'kubeblocks.database.backup.delete.confirm': 'Are you sure you want to delete this backup?',
-    'kubeblocks.database.backup.delete.confirm.ok': 'Confirm',
-    'kubeblocks.database.backup.delete.confirm.cancel': 'Cancel',
+    
 
     // Backup validation messages
     'kubeblocks.database.backup.repo_required': 'Please select backup repository',
@@ -1195,147 +1197,19 @@ const componentOverview = {
     'kubeblocks.database.backup.delete.failed': 'Backup deletion failed',
     'kubeblocks.database.backup.delete.service_incomplete': 'Component information incomplete, cannot delete backup',
 
-    'componentOverview.kubeblocks.create.page.title': 'Create Database',
-    'componentOverview.kubeblocks.create.page.subtitle': 'Set up a database cluster using KubeBlocks with support for PostgreSQL, MySQL, MongoDB, etc.',
-    'componentOverview.kubeblocks.create.tab.config': 'Database Configuration',
-    'componentOverview.kubeblocks.create.button.next': 'Next Step',
-    'componentOverview.kubeblocks.create.button.prev': 'Previous Step',
-    'componentOverview.kubeblocks.create.button.create': 'Create Database Component',
-    'componentOverview.kubeblocks.create.form.database_type': 'Database Type',
-    'componentOverview.kubeblocks.create.form.database_type.placeholder': 'Please select database type',
-    'componentOverview.kubeblocks.create.form.database_type.required': 'Please select database type',
-    'componentOverview.kubeblocks.create.check.detecting': 'Detecting database cluster...',
-    'componentOverview.kubeblocks.create.check.success': 'Database cluster created successfully',
-    'componentOverview.kubeblocks.create.check.creating': 'Creating database cluster...',
-
-    // 数据库配置页面
-    'componentOverview.kubeblocks.config.page.title': 'Database Cluster Configuration - {service_name}',
-    'componentOverview.kubeblocks.config.page.subtitle': 'Configure database cluster resources, backup and other parameters based on business requirements',
-
-    // 基础信息配置
-    'componentOverview.kubeblocks.basic.card.title': 'Basic Information Setup',
-    'componentOverview.kubeblocks.basic.memory.label': 'Memory',
-    'componentOverview.kubeblocks.basic.memory.required': 'Please configure memory',
-    'componentOverview.kubeblocks.basic.cpu.label': 'CPU',
-    'componentOverview.kubeblocks.basic.cpu.required': 'Please configure CPU',
-    'componentOverview.kubeblocks.basic.disk.label': 'Disk',
-    'componentOverview.kubeblocks.basic.disk.required': 'Please configure disk size',
-
-    'componentOverview.kubeblocks.basic.replicas.label': 'Replicas',
-    'componentOverview.kubeblocks.basic.replicas.required': 'Please configure number of replicas',
-    'componentOverview.kubeblocks.basic.storage.label': 'StorageClass',
-    'componentOverview.kubeblocks.basic.storage.required': 'Please select StorageClass',
-    'componentOverview.kubeblocks.basic.version.label': 'Database Version',
-    'componentOverview.kubeblocks.basic.version.required': 'Please select database version',
+    
 
     // 资源值标记
-    'componentOverview.kubeblocks.value.128m': '128M',
-    'componentOverview.kubeblocks.value.256m': '256M',
-    'componentOverview.kubeblocks.value.512m': '512M',
-    'componentOverview.kubeblocks.value.1g': '1G',
-    'componentOverview.kubeblocks.value.2g': '2G',
-    'componentOverview.kubeblocks.value.4g': '4G',
-    'componentOverview.kubeblocks.value.8g': '8G',
-    'componentOverview.kubeblocks.value.16g': '16G',
-    'componentOverview.kubeblocks.value.32g': '32G',
-    'componentOverview.kubeblocks.value.100m': '100m',
-    'componentOverview.kubeblocks.value.250m': '250m',
-    'componentOverview.kubeblocks.value.500m': '500m',
-    'componentOverview.kubeblocks.value.1core': '1Core',
-    'componentOverview.kubeblocks.value.2core': '2Core',
-    'componentOverview.kubeblocks.value.4core': '4Core',
-    'componentOverview.kubeblocks.value.8core': '8Core',
-    'componentOverview.kubeblocks.value.16core': '16Core',
+    
 
-    // 备份配置
-    'componentOverview.kubeblocks.backup.card.title': 'Backup Configuration',
-    'componentOverview.kubeblocks.backup.repo.label': 'Backup Repository',
-    'componentOverview.kubeblocks.backup.repo.placeholder': 'Please select backup repository',
-    'componentOverview.kubeblocks.backup.repo.none': 'No backup',
-    'componentOverview.kubeblocks.backup.cycle.label': 'Backup Cycle',
-    'componentOverview.kubeblocks.backup.cycle.hourly': 'Hourly',
-    'componentOverview.kubeblocks.backup.cycle.daily': 'Daily',
-    'componentOverview.kubeblocks.backup.cycle.weekly': 'Weekly',
-    'componentOverview.kubeblocks.backup.startTime.label': 'Backup Start Time',
-    'componentOverview.kubeblocks.backup.startTime.day.label': 'Day',
-    'componentOverview.kubeblocks.backup.startTime.hour.label': 'Hour',
-    'componentOverview.kubeblocks.backup.startTime.minute.label': 'Minute',
-    'componentOverview.kubeblocks.backup.startTime.mon': 'Monday',
-    'componentOverview.kubeblocks.backup.startTime.tue': 'Tuesday',
-    'componentOverview.kubeblocks.backup.startTime.wed': 'Wednesday',
-    'componentOverview.kubeblocks.backup.startTime.thu': 'Thursday',
-    'componentOverview.kubeblocks.backup.startTime.fri': 'Friday',
-    'componentOverview.kubeblocks.backup.startTime.sat': 'Saturday',
-    'componentOverview.kubeblocks.backup.startTime.sun': 'Sunday',
-    'componentOverview.kubeblocks.backup.retention.label': 'Backup Retention Period',
-    'componentOverview.kubeblocks.backup.retention.unit': 'days',
-    'componentOverview.kubeblocks.backup.retention.placeholder': 'Please enter retention period',
-    'componentOverview.kubeblocks.backup.policy.label': 'Deletion Policy',
-    'componentOverview.kubeblocks.backup.policy.delete': 'Delete',
-    'componentOverview.kubeblocks.backup.policy.wipeout': 'Wipe Out',
-
-    // 备份管理页面
-    'componentOverview.kubeblocks.backup.page.title': 'Backup Settings',
-    'componentOverview.kubeblocks.backup.page.list.title': 'Backup List',
-    'componentOverview.kubeblocks.backup.page.manual.button': 'Manual Backup',
-    'componentOverview.kubeblocks.backup.table.name': 'Backup Name',
-    'componentOverview.kubeblocks.backup.table.status': 'Backup Status',
-    'componentOverview.kubeblocks.backup.table.time': 'Backup Time',
-    'componentOverview.kubeblocks.backup.table.action': 'Action',
-    'componentOverview.kubeblocks.backup.table.delete': 'Delete',
-    'componentOverview.kubeblocks.backup.status.completed': 'Completed',
-    'componentOverview.kubeblocks.backup.status.failed': 'Failed',
-    'componentOverview.kubeblocks.backup.status.running': 'Running',
-    'componentOverview.kubeblocks.backup.status.pending': 'Pending',
-    'componentOverview.kubeblocks.backup.delete.confirm': 'Are you sure you want to delete this backup?',
-    'componentOverview.kubeblocks.backup.delete.success': 'Backup deleted successfully',
-    'componentOverview.kubeblocks.backup.delete.failed': 'Failed to delete backup',
-
-    // 备份错误提示
-    'componentOverview.kubeblocks.backup.error.repo': 'Please select backup repository',
-    'componentOverview.kubeblocks.backup.error.cycle': 'Please select backup cycle',
-    'componentOverview.kubeblocks.backup.error.retention': 'Please configure backup retention period',
-    'componentOverview.kubeblocks.backup.error.day': 'Please select which day of the week to backup',
-    'componentOverview.kubeblocks.backup.error.hour': 'Please select backup start hour',
-    'componentOverview.kubeblocks.backup.error.minute': 'Please select backup start minute',
-
-    // 数据库概览页面
-    'componentOverview.kubeblocks.overview.title': 'Database Overview',
-    'componentOverview.kubeblocks.overview.instance.title': 'Database Instance',
-    'componentOverview.kubeblocks.overview.storage.label': 'Storage Usage',
-    'componentOverview.kubeblocks.overview.memory.label': 'Memory',
+    
 
     // 数据库实例相关
     'kubeblocks.database.instance.loading': 'Loading...',
-    'kubeblocks.database.instance.total': 'Total Instances',
-    'kubeblocks.database.instance.running': 'Running',
-    'kubeblocks.database.instance.ready': 'Ready',
-    'kubeblocks.database.instance.clusterStatus': 'Cluster Status',
+    
     'kubeblocks.database.instance.list': 'Instance List',
-    'kubeblocks.database.instance.noInstances': 'No instances',
-    'kubeblocks.database.instance.clusterInfo': 'Cluster Info',
-    'kubeblocks.database.instance.clusterName': 'Cluster Name',
-    'kubeblocks.database.instance.databaseType': 'Database Type',
-    'kubeblocks.database.instance.version': 'Version',
-    // 数据库扩容页面
-    'componentOverview.kubeblocks.expansion.title': 'Database Scaling',
-    'componentOverview.kubeblocks.expansion.telescopic': 'Manual Scaling',
-    'componentOverview.kubeblocks.expansion.memory.label': 'Memory',
-    'componentOverview.kubeblocks.expansion.cpu.label': 'CPU',
-    'componentOverview.kubeblocks.expansion.replicas.label': 'Number of Replicas',
-    'componentOverview.kubeblocks.expansion.storage.label': 'Storage Capacity',
-    'componentOverview.kubeblocks.expansion.modify': 'To modify the scaling mode, please',
-    'componentOverview.kubeblocks.expansion.set': 'set the application mode',
-
-    // 通用术语库
-    'componentOverview.kubeblocks.common.database': 'Database',
-    'componentOverview.kubeblocks.common.cluster': 'Cluster',
-    'componentOverview.kubeblocks.common.instance': 'Instance',
-    'componentOverview.kubeblocks.common.backup': 'Backup',
-    'componentOverview.kubeblocks.common.repository': 'Repository',
-    'componentOverview.kubeblocks.common.configuration': 'Configuration',
-    'componentOverview.kubeblocks.common.monitoring': 'Monitoring',
-    'componentOverview.kubeblocks.common.resources': 'Resources',
+    
+    
 
 }
 

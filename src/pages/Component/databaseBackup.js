@@ -61,16 +61,16 @@ export default class Index extends PureComponent {
       termination_policy: '', // 删除策略
       backupRepo: '' // 备份仓库名称
     };
-    
+
   }
   componentDidMount() {
     this.fetchBackupRepos();
     this.initFromClusterDetail();
     this.fetchBackupList();
-    
+
     this.backupListTimer = setInterval(() => {
       this.fetchBackupList();
-    }, 60000); 
+    }, 60000);
   }
 
   // 当 props.clusterDetail 变化时，只在非编辑状态下重新初始化界面状态
@@ -97,7 +97,7 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => {}
+      handleError: (err) => { }
     });
   };
 
@@ -121,7 +121,7 @@ export default class Index extends PureComponent {
         region_name,
         service_id
       },
-      handleError: (err) => {}
+      handleError: (err) => { }
     });
   };
 
@@ -184,7 +184,7 @@ export default class Index extends PureComponent {
       backupStartMinute,
       backupRetentionTime,
       backupRepo: backupRepo || '',
-      termination_policy: '' 
+      termination_policy: ''
     });
   };
 
@@ -344,18 +344,18 @@ export default class Index extends PureComponent {
       payload: { team_name, region_name, service_id },
       callback: (res) => {
         if (res && res.status_code === 200) {
-          notification.success({ 
-            message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' }) 
+          notification.success({
+            message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' })
           });
           this.fetchBackupList();
         } else {
-          const msg = (res && res.msg_show) || 
+          const msg = (res && res.msg_show) ||
             formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
           notification.error({ message: msg });
         }
       },
       handleError: (err) => {
-        const msg = (err && err.data && err.data.msg_show) || 
+        const msg = (err && err.data && err.data.msg_show) ||
           formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
         notification.error({ message: msg });
       }
@@ -392,20 +392,20 @@ export default class Index extends PureComponent {
       callback: (res) => {
         this.setState({ loading: false });
         if (res && res.status_code === 200) {
-          notification.success({ 
-            message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' }) 
+          notification.success({
+            message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' })
           });
           // model 已经自动更新了状态，但为了保险起见也手动刷新一次
           this.fetchBackupList();
         } else {
-          const msg = (res && res.msg_show) || 
+          const msg = (res && res.msg_show) ||
             formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
           notification.error({ message: msg });
         }
       },
       handleError: (err) => {
         this.setState({ loading: false });
-        const msg = (err && err.data && err.data.msg_show) || 
+        const msg = (err && err.data && err.data.msg_show) ||
           formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
         notification.error({ message: msg });
         // 如果删除失败，手动刷新确保数据一致性
@@ -468,18 +468,18 @@ export default class Index extends PureComponent {
         render: (t) => t ? dateUtil.format(t, 'yyyy-MM-dd hh:mm:ss') : '-'
       },
       {
-        title: formatMessage({ id: 'kubeblocks.database.backup.table.action' }),
+        title: formatMessage({ id: 'button.operation' }),
         key: 'action',
         render: (text, record) => (
           <span>
             <Popconfirm
               title={formatMessage({ id: 'kubeblocks.database.backup.delete.confirm' })}
               onConfirm={() => this.handleDeleteBackup(record.name)}
-              okText={formatMessage({ id: 'kubeblocks.database.backup.delete.confirm.ok' })}
-              cancelText={formatMessage({ id: 'kubeblocks.database.backup.delete.confirm.cancel' })}
+              okText={formatMessage({ id: 'button.confirm' })}
+              cancelText={formatMessage({ id: 'button.cancel' })}
             >
               <Button type="link" size="small" style={{ color: '#f5222d' }}>
-                <Icon type="delete" /> {formatMessage({ id: 'kubeblocks.database.backup.table.delete' })}
+                <Icon type="delete" /> {formatMessage({ id: 'button.delete' })}
               </Button>
             </Popconfirm>
           </span>
