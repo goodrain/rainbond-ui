@@ -119,7 +119,7 @@ class Index extends React.Component {
           )
         }else{  
           const app = apps.find(app => app.service_alias === componentID);
-          if(app?.status === "creating"){
+          if(app?.status === "creating" && app.service_source !== 'kubeblocks'){
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${regionName}/create/create-check/${componentID}`
