@@ -138,7 +138,7 @@ export default class Overview extends Component {
       type: 'AppShape'
     })
     const app = this.state.apps.find(app => app.service_alias === k8s_service_name);
-    if (app?.status === "creating") {
+    if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
       dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${k8s_service_name}`
