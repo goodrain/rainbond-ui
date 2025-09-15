@@ -2823,6 +2823,7 @@ const global = {
       'update-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.update-component-k8s-attributes' }),
       'create-component-k8s-attributes': formatMessage({ id: 'global.fetchStateOptTypeText.create-component-k8s-attributes' }),
       'backup-database': formatMessage({ id: 'global.fetchStateOptTypeText.backup-database' }),
+      'reconfiguring-cluster': formatMessage({ id: 'global.fetchStateOptTypeText.reconfiguring-cluster' }),
       Unschedulable: formatMessage({ id: 'global.fetchStateOptTypeText.Unschedulable' }),
       INITIATING: formatMessage({ id: 'global.fetchStateOptTypeText.start' }),
       CrashLoopBackOff: formatMessage({ id: 'global.fetchStateOptTypeText.error' }),
