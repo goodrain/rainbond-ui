@@ -185,6 +185,7 @@ const global = {
     'global.fetchStateOptTypeText.update-component-k8s-attributes':'更新 k8s 属性',
     'global.fetchStateOptTypeText.create-component-k8s-attributes':'创建 k8s 属性',
     'global.fetchStateOptTypeText.backup-database':'数据库备份',
+    'global.fetchStateOptTypeText.reconfiguring-cluster':'配置数据库参数',
     'global.fetchStateOptTypeText.Unschedulable':'不可调度',
     'global.fetchStateOptTypeText.start':'等待启动',
     'global.fetchStateOptTypeText.error':'运行异常',

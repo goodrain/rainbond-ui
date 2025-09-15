@@ -7,6 +7,7 @@ import port from './port'
 import plugin from './plugin'
 import resource from './resource'
 import setting from './setting'
+import parameter from './parameter'
 
 @connect(
   ({ user, appControl, global, teamControl, enterprise, loading }) => ({
@@ -93,6 +94,12 @@ export default class advancedSettings extends Component {
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.setting' }),
         auth: ['isOtherSetting'],
         condition: () => method !== 'kubeblocks_component'
+      },
+      {
+        key: 'parameter',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.parameter' }),
+        auth: ['isOtherSetting'],
+        condition: () => method === 'kubeblocks_component'
       }
     ];
     const extendTabs = getExtendTabs(method);
@@ -110,7 +117,8 @@ export default class advancedSettings extends Component {
       port: port,
       plugin: plugin,
       resource: resource,
-      setting: setting
+      setting: setting,
+      parameter: parameter
     };
     const Com = map[activeTab[0]];
     return (

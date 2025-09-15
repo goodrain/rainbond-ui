@@ -218,3 +218,57 @@ export async function deleteBackups(params, handleError) {
         }
     );
 }
+
+/**
+ * 获取 KubeBlocks 集群参数（分页/搜索）
+ * @param {Object} params
+ * @param {String} params.team_name 团队名称
+ * @param {String} params.region_name 区域名称
+ * @param {String} params.service_id 服务 ID
+ * @param {Number} params.page 页码（默认 1）
+ * @param {Number} params.page_size 页面大小（默认 6）
+ * @param {String} [params.keyword] 关键字搜索（可选）
+ * @param {Function} handleError 错误处理回调
+ * @returns {Promise<Object>} 返回格式: { status_code: 200, list: [], page: 1, number: 4 }
+ */
+export async function getClusterParameters(params, handleError) {
+    const { team_name, region_name, service_id, page, page_size, keyword } = params;
+    const queryParams = new URLSearchParams({
+        page: page || 1,
+        page_size: page_size || 6
+    });
+
+    if (keyword) {
+        queryParams.append('keyword', keyword);
+    }
+
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/parameters?${queryParams.toString()}`,
+        {
+            method: 'get',
+            handleError
+        }
+    );
+}
+
+/**
+ * 批量更新 KubeBlocks 集群参数
+ * @param {Object} params
+ * @param {String} params.team_name 团队名称
+ * @param {String} params.region_name 区域名称
+ * @param {String} params.service_id 服务 ID
+ * @param {Object} params.body 请求体，格式: { changes: [{ name, value }, ...] }
+ * @param {Function} handleError 错误处理回调
+ * @returns {Promise<Object>} 返回格式: { status_code: 200, bean: { applied: [], invalids: [] } }
+ */
+export async function updateClusterParameters(params, handleError) {
+    const { team_name, region_name, service_id, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/parameters`,
+        {
+            method: 'post',
+            data: body,
+            handleError
+        }
+    );
+}

@@ -9,7 +9,9 @@ import {
     updateBackupConfig as updateBackupConfigApi,
     getBackupList,
     deleteBackups as deleteBackupsApi,
-    createManualBackup as createManualBackupApi
+    createManualBackup as createManualBackupApi,
+    getClusterParameters,
+    updateClusterParameters
 } from '../services/kubeblocks';
 
 export default {
@@ -22,6 +24,13 @@ export default {
         createLoading: false, // 创建数据库集群的加载状态
         componentInfo: null, // 组件 KubeBlocks 信息
         clusterDetail: null, // 集群详情信息
+        parameterList: [], // 存储参数列表
+        parameterPagination: { // 参数分页信息
+            page: 1,
+            page_size: 6,
+            total: 0,
+            keyword: ''
+        },
     },
     effects: {
         *fetchKubeBlocksDatabaseTypes({ payload, callback, handleError }, { call, put }) {
@@ -179,6 +188,45 @@ export default {
                 callback(response);
             }
         },
+
+        /**
+        * 获取 KubeBlocks 集群参数（分页/搜索）
+        */
+        *fetchParameters({ payload, callback, handleError }, { call, put }) {
+            const response = yield call(getClusterParameters, payload, handleError);
+            if (response && response.status_code === 200) {
+                // 保存参数列表
+                yield put({
+                    type: 'saveParameterList',
+                    payload: response.list || []
+                });
+
+                // 保存分页信息，需要将 number 映射为 total
+                yield put({
+                    type: 'saveParameterPagination',
+                    payload: {
+                        page: response.page || payload.page || 1,
+                        page_size: payload.page_size || 6,
+                        // 与非 KubeBlocks 业务保持一致：优先 total，兼容旧字段 number
+                        total: (response.total !== undefined ? response.total : response.number) || 0,
+                        keyword: payload.keyword || ''
+                    }
+                });
+            }
+            if (callback) {
+                callback(response);
+            }
+        },
+
+        /**
+         * 批量更新 KubeBlocks 集群参数
+         */
+        *updateParameters({ payload, callback, handleError }, { call }) {
+            const response = yield call(updateClusterParameters, payload, handleError);
+            if (callback) {
+                callback(response);
+            }
+        },
     },
     reducers: {
         saveDatabaseTypes(state, { payload }) {
@@ -247,6 +295,29 @@ export default {
             return {
                 ...state,
                 clusterDetail: payload
+            };
+        },
+
+        /**
+         * 保存参数列表
+         */
+        saveParameterList(state, { payload }) {
+            return {
+                ...state,
+                parameterList: payload || []
+            };
+        },
+
+        /**
+         * 保存参数分页信息
+         */
+        saveParameterPagination(state, { payload }) {
+            return {
+                ...state,
+                parameterPagination: {
+                    ...state.parameterPagination,
+                    ...payload
+                }
             };
         },
     }
