@@ -13,7 +13,9 @@ import {
   Table,
   Tag,
   Popconfirm,
-  Icon
+  Icon,
+  Modal,
+  Alert
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
@@ -59,7 +61,10 @@ export default class Index extends PureComponent {
       backupRetentionTime: '', // 备份保留时间
       backupRetentionUnit: 'day', // 备份保留单位
       termination_policy: '', // 删除策略
-      backupRepo: '' // 备份仓库名称
+      backupRepo: '', // 备份仓库名称
+      restoreVisible: false, // 恢复确认弹窗显示状态
+      selectedBackupName: '', // 选中要恢复的备份名称
+      restoring: false // 恢复操作进行中
     };
 
   }
@@ -414,7 +419,78 @@ export default class Index extends PureComponent {
     });
   };
 
+  /**
+   * 显示恢复确认弹窗
+   */
+  handleShowRestoreConfirm = (backupName) => {
+    this.setState({
+      restoreVisible: true,
+      selectedBackupName: backupName
+    });
+  };
 
+  /**
+   * 取消恢复操作
+   */
+  handleCancelRestore = () => {
+    this.setState({
+      restoreVisible: false,
+      selectedBackupName: ''
+    });
+  };
+
+  /**
+   * 执行从备份恢复操作
+   * 调用API创建新的集群，原集群保持不变
+   */
+  handleConfirmRestore = () => {
+    const { dispatch, appDetail } = this.props;
+    const { selectedBackupName } = this.state;
+
+    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
+      notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.restore.service_incomplete' }) });
+      return;
+    }
+
+    this.setState({ restoring: true });
+
+    dispatch({
+      type: 'kubeblocks/restoreFromBackup',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: appDetail.service.service_alias,
+        body: { backup_name: selectedBackupName }
+      },
+      callback: (res) => {
+        this.setState({
+          restoring: false,
+          restoreVisible: false,
+          selectedBackupName: ''
+        });
+
+        if (res && res.status_code === 200) {
+          notification.success({
+            message: formatMessage({ id: 'kubeblocks.database.backup.restore.success' }),
+            duration: 4
+          });
+        } else {
+          const msg = (res && res.msg_show) ||
+            formatMessage({ id: 'kubeblocks.database.backup.restore.failed' });
+          notification.error({ message: msg });
+        }
+      },
+      handleError: (err) => {
+        this.setState({
+          restoring: false,
+          restoreVisible: false,
+          selectedBackupName: ''
+        });
+        const msg = (err && err.data && err.data.msg_show) ||
+          formatMessage({ id: 'kubeblocks.database.backup.restore.request_failed' });
+        notification.error({ message: msg });
+      }
+    });
+  };
 
   render() {
     const { form, clusterDetail, backupRepos = [], backupList = [] } = this.props;
@@ -428,7 +504,10 @@ export default class Index extends PureComponent {
       backupStartMinute,
       backupRetentionTime,
       termination_policy,
-      backupRepo
+      backupRepo,
+      restoreVisible,
+      selectedBackupName,
+      restoring
     } = this.state;
 
     const formItemLayout = {
@@ -472,6 +551,16 @@ export default class Index extends PureComponent {
         key: 'action',
         render: (text, record) => (
           <span>
+            <Button
+              type="link"
+              size="small"
+              icon="reload"
+              style={{ color: '#1890ff', marginRight: 8 }}
+              onClick={() => this.handleShowRestoreConfirm(record.name)}
+              disabled={record.status !== 'Completed'}
+            >
+              {formatMessage({ id: 'kubeblocks.database.backup.restore.button' })}
+            </Button>
             <Popconfirm
               title={formatMessage({ id: 'kubeblocks.database.backup.delete.confirm' })}
               onConfirm={() => this.handleDeleteBackup(record.name)}
@@ -664,6 +753,29 @@ export default class Index extends PureComponent {
             loading={loading}
           />
         </Card>
+
+        {/* 恢复确认弹窗 */}
+        <Modal
+          title={formatMessage({ id: 'kubeblocks.database.backup.restore.title' })}
+          visible={restoreVisible}
+          onCancel={this.handleCancelRestore}
+          onOk={this.handleConfirmRestore}
+          confirmLoading={restoring}
+          okText={formatMessage({ id: 'kubeblocks.database.backup.restore.confirm' })}
+          cancelText={formatMessage({ id: 'kubeblocks.database.backup.restore.cancel' })}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <Icon type="info-circle" style={{ color: '#1890ff', marginRight: 8 }} />
+            <strong>{formatMessage({ id: 'kubeblocks.database.backup.restore.backup_name' })}：</strong>{selectedBackupName}
+          </div>
+          <Alert
+            type="info"
+            showIcon
+            message={formatMessage({ id: 'kubeblocks.database.backup.restore.tip.title' })}
+            description={formatMessage({ id: 'kubeblocks.database.backup.restore.tip.content' })}
+            style={{ marginBottom: 16 }}
+          />
+        </Modal>
       </div>
     );
   }
