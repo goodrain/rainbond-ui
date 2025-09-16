@@ -1233,10 +1233,21 @@ const componentOverview = {
     'kubeblocks.database.backup.delete.service_incomplete': '组件信息不完整，无法删除备份',
     'kubeblocks.database.backup.tab': '备份',
 
+    // 备份恢复相关
+    'kubeblocks.database.backup.restore.button': '恢复',
+    'kubeblocks.database.backup.restore.title': '从备份恢复数据库',
+    'kubeblocks.database.backup.restore.confirm': '确认恢复',
+    'kubeblocks.database.backup.restore.cancel': '取消',
+    'kubeblocks.database.backup.restore.backup_name': '备份名称',
+    'kubeblocks.database.backup.restore.tip.title': '重要提示',
+    'kubeblocks.database.backup.restore.tip.content': '从备份恢复将创建一个新的数据库集群，原有集群将保留不变。恢复过程可能需要几分钟时间。',
+    'kubeblocks.database.backup.restore.success': '恢复操作已启动，正在创建新的数据库集群',
+    'kubeblocks.database.backup.restore.failed': '恢复操作失败',
+    'kubeblocks.database.backup.restore.request_failed': '恢复请求失败',
+    'kubeblocks.database.backup.restore.service_incomplete': '组件信息不完整，无法执行恢复操作',
 
     // 数据库实例相关
     'kubeblocks.database.instance.loading': '加载中...',
-    
     'kubeblocks.database.instance.list': '实例列表',
     
     

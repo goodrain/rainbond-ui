@@ -11,7 +11,8 @@ import {
     deleteBackups as deleteBackupsApi,
     createManualBackup as createManualBackupApi,
     getClusterParameters,
-    updateClusterParameters
+    updateClusterParameters,
+    restoreClusterFromBackup
 } from '../services/kubeblocks';
 
 export default {
@@ -223,6 +224,17 @@ export default {
          */
         *updateParameters({ payload, callback, handleError }, { call }) {
             const response = yield call(updateClusterParameters, payload, handleError);
+            if (callback) {
+                callback(response);
+            }
+        },
+
+        /**
+         * 从备份恢复 KubeBlocks 集群
+         * 创建新的集群，原集群保持不变
+         */
+        *restoreFromBackup({ payload, callback, handleError }, { call }) {
+            const response = yield call(restoreClusterFromBackup, payload, handleError);
             if (callback) {
                 callback(response);
             }

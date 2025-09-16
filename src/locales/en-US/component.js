@@ -1191,7 +1191,6 @@ const componentOverview = {
     'kubeblocks.database.backup.retention_required': 'Please configure backup data retention time',
     'kubeblocks.database.backup.retention_placeholder': 'Please enter retention days',
     'kubeblocks.database.backup.retention_unit': 'days',
-
     'kubeblocks.database.backup.policy_label': 'Deletion Policy',
     'kubeblocks.database.backup.policy_required': 'Please select deletion policy',
     'kubeblocks.database.backup.policy_delete': 'Keep Backup',
@@ -1220,16 +1219,21 @@ const componentOverview = {
     'kubeblocks.database.backup.delete.failed': 'Backup deletion failed',
     'kubeblocks.database.backup.delete.service_incomplete': 'Component information incomplete, cannot delete backup',
 
-    
-
-    // 资源值标记
-    
-
-    
+    // Backup restore related
+    'kubeblocks.database.backup.restore.button': 'Restore',
+    'kubeblocks.database.backup.restore.title': 'Restore Database from Backup',
+    'kubeblocks.database.backup.restore.confirm': 'Confirm Restore',
+    'kubeblocks.database.backup.restore.cancel': 'Cancel',
+    'kubeblocks.database.backup.restore.backup_name': 'Backup Name',
+    'kubeblocks.database.backup.restore.tip.title': 'Important Notice',
+    'kubeblocks.database.backup.restore.tip.content': 'Restoring from backup will create a new database cluster. The original cluster will remain unchanged. The restore process may take several minutes.',
+    'kubeblocks.database.backup.restore.success': 'Restore operation started, creating new database cluster',
+    'kubeblocks.database.backup.restore.failed': 'Restore operation failed',
+    'kubeblocks.database.backup.restore.request_failed': 'Restore request failed',
+    'kubeblocks.database.backup.restore.service_incomplete': 'Component information incomplete, cannot perform restore operation',
 
     // 数据库实例相关
     'kubeblocks.database.instance.loading': 'Loading...',
-    
     'kubeblocks.database.instance.list': 'Instance List',
     
     

@@ -272,3 +272,24 @@ export async function updateClusterParameters(params, handleError) {
         }
     );
 }
+
+/**
+ * 从 backup 恢复 cluster
+ * @param {Object} params
+ * @param {String} params.team_name 团队名称
+ * @param {String} params.service_alias 服务别名 (AppBaseView 需要)
+ * @param {Object} params.body 请求体，格式: { backup_name: {backup_name} }
+ * @param {Function} handleError 错误处理回调
+ * @returns {Promise<Object>} 返回格式: { status_code: 200, bean: { applied: [], invalids: [] } }
+ */
+export async function restoreClusterFromBackup(params, handleError) {
+    const { team_name, service_alias, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/restores`,
+        {
+            method: 'post',
+            data: body,
+            handleError
+        }
+    )
+}

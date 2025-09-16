@@ -186,6 +186,7 @@ const global = {
     'global.fetchStateOptTypeText.create-component-k8s-attributes':'Create k8s attribute',
     'global.fetchStateOptTypeText.backup-database':'Backup database',
     'global.fetchStateOptTypeText.reconfiguring-cluster':'Configuring database parameters',
+    'global.fetchStateOptTypeText.restore-database':'Restore database from backup',
     'global.fetchStateOptTypeText.Unschedulable':'Unschedulable',
     'global.fetchStateOptTypeText.start':'Waiting to start',
     'global.fetchStateOptTypeText.error':'Abnormal operation',
