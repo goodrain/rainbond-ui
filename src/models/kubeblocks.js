@@ -139,13 +139,14 @@ export default {
 
         /**
          * 获取 KubeBlocks 集群备份列表
+         * @param {Object} payload - { team_name, region_name, service_id, page, page_size }
          */
         *fetchBackupList({ payload, callback, handleError }, { call, put }) {
             const response = yield call(getBackupList, payload, handleError);
-            if (response && response.status_code === 200 && Array.isArray(response.list)) {
+            if (response && response.status_code === 200) {
                 yield put({
                     type: 'saveBackupList',
-                    payload: response.list
+                    payload: response.list || []
                 });
             }
             if (callback) {
