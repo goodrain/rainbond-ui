@@ -176,19 +176,26 @@ export async function createManualBackup(params, handleError) {
 }
 
 /**
- * 获取 KubeBlocks 集群备份列表
- * 获取集群的所有备份记录，包括备份名称、状态和时间
+ * 获取 KubeBlocks 集群备份列表（分页）
+ * 获取集群的备份记录，支持分页展示
  * @param {Object} params
  * @param {String} params.team_name 团队名称
  * @param {String} params.region_name 区域名称
  * @param {String} params.service_id 服务 ID
+ * @param {Number} params.page 页码（默认 1）
+ * @param {Number} params.page_size 页面大小（默认 6）
  * @param {Function} handleError 错误处理回调
- * @returns {Promise<Object>} 返回格式: { list: [{ name: string, status: string, time: string }] }
+ * @returns {Promise<Object>} 返回格式: { status_code: 200, list: [], page: 1, total: 4 }
  */
 export async function getBackupList(params, handleError) {
-    const { team_name, region_name, service_id } = params;
+    const { team_name, region_name, service_id, page, page_size } = params;
+    const queryParams = new URLSearchParams({
+        page: page || 1,
+        page_size: page_size || 6
+    });
+
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backups`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backups?${queryParams.toString()}`,
         {
             method: 'get',
             handleError

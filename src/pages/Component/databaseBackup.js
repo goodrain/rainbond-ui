@@ -64,7 +64,13 @@ export default class Index extends PureComponent {
       backupRepo: '', // 备份仓库名称
       restoreVisible: false, // 恢复确认弹窗显示状态
       selectedBackupName: '', // 选中要恢复的备份名称
-      restoring: false // 恢复操作进行中
+      restoring: false, // 恢复操作进行中
+      // 分页状态
+      backupPagination: {
+        page: 1,
+        page_size: 6,
+        total: 0
+      }
     };
 
   }
@@ -73,9 +79,7 @@ export default class Index extends PureComponent {
     this.initFromClusterDetail();
     this.fetchBackupList();
 
-    this.backupListTimer = setInterval(() => {
-      this.fetchBackupList();
-    }, 60000);
+    this.startAutoRefresh();
   }
 
   // 当 props.clusterDetail 变化时，只在非编辑状态下重新初始化界面状态
@@ -86,10 +90,34 @@ export default class Index extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.stopAutoRefresh();
+  }
+
+  /**
+   * 仅在第一页时启用60秒自动刷新
+   */
+  startAutoRefresh = () => {
+    this.stopAutoRefresh(); // 先清除现有定时器
+
+    if (this.state.backupPagination.page === 1) {
+      this.backupListTimer = setInterval(() => {
+        // 再次检查是否还在第一页
+        if (this.state.backupPagination.page === 1) {
+          this.fetchBackupList();
+        }
+      }, 60000);
+    }
+  };
+
+  /**
+   * 停止自动刷新
+   */
+  stopAutoRefresh = () => {
     if (this.backupListTimer) {
       clearInterval(this.backupListTimer);
+      this.backupListTimer = null;
     }
-  }
+  };
 
   fetchBackupRepos = () => {
     const { dispatch } = this.props;
@@ -107,10 +135,12 @@ export default class Index extends PureComponent {
   };
 
   /**
-   * 获取备份列表
+   * 分页获取备份列表
    */
-  fetchBackupList = () => {
+  fetchBackupList = (page = null) => {
     const { dispatch, appDetail } = this.props;
+    const { backupPagination } = this.state;
+
     if (!appDetail || !appDetail.service || !appDetail.service.service_id) {
       return;
     }
@@ -119,14 +149,34 @@ export default class Index extends PureComponent {
     const region_name = globalUtil.getCurrRegionName();
     const service_id = appDetail.service.service_id;
 
+    const currentPage = page !== null ? page : backupPagination.page;
+
+    this.setState({ loading: true });
+
     dispatch({
       type: 'kubeblocks/fetchBackupList',
       payload: {
         team_name,
         region_name,
-        service_id
+        service_id,
+        page: currentPage,
+        page_size: backupPagination.page_size
       },
-      handleError: (err) => { }
+      callback: (response) => {
+        this.setState({ loading: false });
+        if (response && response.status_code === 200) {
+          this.setState({
+            backupPagination: {
+              ...backupPagination,
+              page: response.page || currentPage,
+              total: response.total || 0
+            }
+          });
+        }
+      },
+      handleError: (err) => {
+        this.setState({ loading: false });
+      }
     });
   };
 
@@ -333,6 +383,29 @@ export default class Index extends PureComponent {
     this.setState({ editBackupInfo: false });
   };
 
+  /**
+   * 处理分页切换
+   */
+  handlePageChange = (page, pageSize) => {
+    this.setState(prevState => ({
+      backupPagination: {
+        ...prevState.backupPagination,
+        page,
+        page_size: pageSize
+      }
+    }), () => {
+      this.fetchBackupList(page);
+      this.startAutoRefresh();
+    });
+  };
+
+  /**
+   * 手动刷新列表
+   */
+  handleRefresh = () => {
+    this.fetchBackupList();
+  };
+
 
   /**
    * 手动备份
@@ -340,6 +413,7 @@ export default class Index extends PureComponent {
    */
   handleManualBackup = () => {
     const { dispatch, appDetail } = this.props;
+    const { backupPagination } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     const service_id = appDetail.service.service_id;
@@ -352,7 +426,16 @@ export default class Index extends PureComponent {
           notification.success({
             message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' })
           });
-          this.fetchBackupList();
+          // 手动备份成功后，重置到第一页并刷新列表
+          this.setState({
+            backupPagination: {
+              ...backupPagination,
+              page: 1
+            }
+          }, () => {
+            this.fetchBackupList(1);
+            this.startAutoRefresh();
+          });
         } else {
           const msg = (res && res.msg_show) ||
             formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
@@ -400,7 +483,7 @@ export default class Index extends PureComponent {
           notification.success({
             message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' })
           });
-          // model 已经自动更新了状态，但为了保险起见也手动刷新一次
+          // 删除成功后刷新当前页，如果当前页没有数据则跳转到第一页
           this.fetchBackupList();
         } else {
           const msg = (res && res.msg_show) ||
@@ -507,7 +590,8 @@ export default class Index extends PureComponent {
       backupRepo,
       restoreVisible,
       selectedBackupName,
-      restoring
+      restoring,
+      backupPagination
     } = this.state;
 
     const formItemLayout = {
@@ -549,7 +633,7 @@ export default class Index extends PureComponent {
       {
         title: formatMessage({ id: 'button.operation' }),
         key: 'action',
-        render: (text, record) => (
+        render: (_, record) => (
           <span>
             <Button
               type="link"
@@ -736,21 +820,42 @@ export default class Index extends PureComponent {
         <Card
           title={formatMessage({ id: 'kubeblocks.database.backup.page.list.title' })}
           extra={
-            <Button
-              type="primary"
-              icon="cloud-upload"
-              onClick={this.handleManualBackup}
-            >
-              {formatMessage({ id: 'kubeblocks.database.backup.page.manual.button' })}
-            </Button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Button
+                icon="reload"
+                onClick={this.handleRefresh}
+                loading={loading}
+              >
+                {formatMessage({ id: 'kubeblocks.parameter.refresh' })}
+              </Button>
+              <Button
+                type="primary"
+                icon="cloud-upload"
+                onClick={this.handleManualBackup}
+              >
+                {formatMessage({ id: 'kubeblocks.database.backup.page.manual.button' })}
+              </Button>
+            </div>
           }
         >
           <Table
             columns={backupColumns}
             dataSource={backupList}
             rowKey={(record) => record.name || record.time}
-            pagination={false}
             loading={loading}
+            pagination={{
+              current: backupPagination.page,
+              pageSize: backupPagination.page_size,
+              total: backupPagination.total,
+              onChange: this.handlePageChange,
+              onShowSizeChange: this.handlePageChange,
+              pageSizeOptions: ['6', '12', '24', '48'],
+              showSizeChanger: true,
+              showTotal: total => formatMessage(
+                { id: 'kubeblocks.database.backup.pagination.total' },
+                { total }
+              )
+            }}
           />
         </Card>
 
@@ -766,7 +871,7 @@ export default class Index extends PureComponent {
         >
           <div style={{ marginBottom: 16 }}>
             <Icon type="info-circle" style={{ color: '#1890ff', marginRight: 8 }} />
-            <strong>{formatMessage({ id: 'kubeblocks.database.backup.restore.backup_name' })}：</strong>{selectedBackupName}
+            <strong>{formatMessage({ id: 'kubeblocks.database.backup.restore.backup_name' })}: </strong>{selectedBackupName}
           </div>
           <Alert
             type="info"
