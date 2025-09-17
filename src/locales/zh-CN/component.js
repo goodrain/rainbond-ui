@@ -1245,6 +1245,7 @@ const componentOverview = {
     'kubeblocks.database.backup.restore.failed': '恢复操作失败',
     'kubeblocks.database.backup.restore.request_failed': '恢复请求失败',
     'kubeblocks.database.backup.restore.service_incomplete': '组件信息不完整，无法执行恢复操作',
+    'kubeblocks.database.backup.pagination.total': '共 {total} 条备份',
 
     // 数据库实例相关
     'kubeblocks.database.instance.loading': '加载中...',

@@ -1231,6 +1231,7 @@ const componentOverview = {
     'kubeblocks.database.backup.restore.failed': 'Restore operation failed',
     'kubeblocks.database.backup.restore.request_failed': 'Restore request failed',
     'kubeblocks.database.backup.restore.service_incomplete': 'Component information incomplete, cannot perform restore operation',
+    'kubeblocks.database.backup.pagination.total': '{total} backups in total',
 
     // 数据库实例相关
     'kubeblocks.database.instance.loading': 'Loading...',
