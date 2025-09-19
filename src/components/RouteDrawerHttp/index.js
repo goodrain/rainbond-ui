@@ -16,6 +16,7 @@ import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
 import Wechat from '../../../public/images/wechat.png'
 import cookie from '@/utils/cookie';
+import { closeTeamRegion } from '@/services/team';
 const { Option } = Select;
 @Form.create()
 
@@ -57,7 +58,8 @@ export default class index extends Component {
             showPlugin: false,
             serviceComponentList: [],
             descriptionVisible: false,
-            language: cookie.get('language') === 'zh-CN' ? true : false
+            language: cookie.get('language') === 'zh-CN' ? true : false,
+            editHttpStrategyLoading: false
         };
     }
     componentWillMount() {
@@ -106,6 +108,12 @@ export default class index extends Component {
     }
     handleSubmit = e => {
         e.preventDefault();
+        // 防止重复提交
+        if (this.state.editHttpStrategyLoading) {
+            return;
+        }
+        // 点击即显示 loading
+        this.setState({ editHttpStrategyLoading: true });
         const { formRefs, serviceComponentList } = this.state;
         const plugins = []
         formRefs.forEach((formRef, index) => {
@@ -213,15 +221,27 @@ export default class index extends Component {
                     notification.warning({
                         message: '当前应用下没有组件，请先创建组件'
                     });
+                    this.setState({ editHttpStrategyLoading: false });
                     return null;
                 } else {
+                    let ret;
                     if (values?.group_id?.key) {
-                        onOk(data, Number(values.group_id.key), result);
+                        ret = onOk(data, Number(values.group_id.key), result);
                     } else {
-                        onOk(data, null, result);
+                        ret = onOk(data, null, result);
+                    }
+                    // 如果 onOk 返回 Promise，则在完成后关闭 loading
+                    if (ret && typeof ret.then === 'function') {
+                        ret.finally(() => {
+                            this.setState({ editHttpStrategyLoading: false });
+                        });
                     }
                 }
 
+            }
+            // 主表单校验失败，关闭 loading
+            if (err) {
+                this.setState({ editHttpStrategyLoading: false });
             }
         });
     };
@@ -547,7 +567,8 @@ export default class index extends Component {
             serviceLoading,
             serviceList,
             showPlugin,
-            language
+            language,
+            editHttpStrategyLoading
         } = this.state
         const formItemLayout = {
             labelCol: {
@@ -903,7 +924,7 @@ export default class index extends Component {
                         <Button onClick={this.onClose} style={{ marginRight: 8 }}>
                             {formatMessage({ id: 'popover.cancel' })}
                         </Button>
-                        <Button type="primary" onClick={this.handleSubmit}>
+                        <Button type="primary" loading={editHttpStrategyLoading} onClick={this.handleSubmit}>
                             {formatMessage({ id: 'popover.confirm' })}
                         </Button>
                     </div>
