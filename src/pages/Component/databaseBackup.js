@@ -18,6 +18,7 @@ import {
   Alert
 } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
@@ -556,6 +557,24 @@ export default class Index extends PureComponent {
             message: formatMessage({ id: 'kubeblocks.database.backup.restore.success' }),
             duration: 4
           });
+
+          const serviceAlias = res?.bean?.service_alias;
+          const groupId = res?.bean?.group_id;
+          const teamName = globalUtil.getCurrTeamName();
+          const regionName = globalUtil.getCurrRegionName();
+
+          if (serviceAlias && groupId) {
+            dispatch({
+              type: 'global/fetchGroups',
+              payload: {
+                team_name: teamName
+              }
+            });
+
+            dispatch(
+              routerRedux.push(`/team/${teamName}/region/${regionName}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
+            );
+          }
         } else {
           const msg = (res && res.msg_show) ||
             formatMessage({ id: 'kubeblocks.database.backup.restore.failed' });
