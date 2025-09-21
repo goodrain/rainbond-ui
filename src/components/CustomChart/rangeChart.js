@@ -123,14 +123,19 @@ export default class RangeChart extends PureComponent {
         baseInfo && baseInfo.extend_method
       );
       const parameter = isState ? serviceAlias : serviceId;
+      const isKB = appDetail.service.extend_method === 'kubeblocks_component'
       switch (T) {
         case 'containerMem':
+          if (isKB) return `sum(container_memory_rss{namespace="${namespace}", pod=~"^${serviceCname}-.*", container!=""}) by (pod, namespace) / 1024 / 1024`;
           return `sum(container_memory_rss{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}",namespace="${namespace}"}) by (pod, namespace) / 1024 / 1024`;
         case 'containerCpu':
+          if (isKB) return `sum(irate(container_cpu_usage_seconds_total{namespace="${namespace}", pod=~"^${serviceCname}-.*", container!=""}[5m])) by (pod, namespace) * 1000`;
           return `sum(irate(container_cpu_usage_seconds_total{pod=~".*${groupName}-${serviceCname}.*",container="${serviceCname}",namespace="${namespace}"}[5m])) by (pod,namespace) * 1000`;
         case 'containerNetR':
+          if (isKB) return `sum(rate(container_network_receive_bytes_total{namespace="${namespace}", pod=~"^${serviceCname}-.*"}[1m])) by (pod, namespace) / 1024`;
           return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m])) by (pod, namespace) / 1024`;
         case 'containerNetT':
+          if (isKB) return `sum(rate(container_network_transmit_bytes_total{namespace="${namespace}", pod=~"^${serviceCname}-.*"}[1m])) by (pod, namespace) / 1024`;
           return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m]) by (pod, namespace) / 1024`;
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;

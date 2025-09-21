@@ -1522,8 +1522,6 @@ class Main extends PureComponent {
         key: 'monitor',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
         auth: ['isServiceMonitor'],
-        condition: (appDetail) =>
-          appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {
         key: 'environmentConfiguration',
