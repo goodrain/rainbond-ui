@@ -603,8 +603,8 @@ const pluginSystem = {
                             name: 'max_body_size',
                             type: 'integer',
                             FromType: 'input',
-                            value: value.max_body_size || false,
-                            defaultValue: false,
+                            value: value.max_body_size || 0,
+                            defaultValue: 0,
                             describe: formatMessage({ id: 'gatewayplugin.client_control.max_body_size' }),
                             rules: []
                         }
