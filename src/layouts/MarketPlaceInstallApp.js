@@ -20,7 +20,8 @@ export default class MarketPlaceInstallApp extends Component {
     };
   }
   componentDidMount() {
-    this.fetchAppInfo();
+    this.handleAppStoreTabs();
+    // this.fetchAppInfo();
     this.getAppNames();
   }
 
@@ -37,8 +38,21 @@ export default class MarketPlaceInstallApp extends Component {
     });
   }
 
+  handleAppStoreTabs = (tab) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: {
+        enterprise_id: this.props?.currUser?.enterprise_id
+      },
+      callback: (res) => {
+        this.fetchAppInfo(res.list[0]?.name)
+      }
+    })
+  }
+
   // 查询应用市场应用的详情
-  fetchAppInfo = () => {
+  fetchAppInfo = (storeName) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'market/fetchMarkets',
@@ -46,7 +60,7 @@ export default class MarketPlaceInstallApp extends Component {
         enterprise_id: this.props?.currUser?.enterprise_id,
         pageSize: 999,
         page: 1,
-        name: 'RainbondMarket',
+        name: storeName ||'RainbondMarket',
         query: this.props?.location?.query?.app_name,
         is_plugin: false,
         arch: 'amd64'

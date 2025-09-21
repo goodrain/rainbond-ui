@@ -36,8 +36,11 @@ class AppShareInstall extends PureComponent {
     };
   }
   componentDidMount() {
-    const { regionName, teamName } = this.props;
-    this.fetchPrices();
+    const { regionName, teamName, rainbondInfo } = this.props;
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
+    if(isSaas){
+      this.fetchPrices();
+    }
     if(teamName && regionName){
       this.fetchGroup(teamName, regionName);
     }
@@ -210,7 +213,7 @@ class AppShareInstall extends PureComponent {
   };
 
   render() {
-    const { eid, title, appInfo, form, teaName, regionName, isShare, appName } = this.props;
+    const { eid, title, appInfo, form, teaName, regionName, isShare, appName, rainbondInfo } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       userTeamList,
@@ -225,6 +228,7 @@ class AppShareInstall extends PureComponent {
       group_id
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
+    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
 
     const formItemLayout = {
       labelCol: {
@@ -247,7 +251,7 @@ class AppShareInstall extends PureComponent {
           className={styles.TelescopicModal}
           footer={
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>
-              <div>
+              {isSaas && <div>
                 <span style={{ color: '#8C8C8C', fontSize: '14px' }}>
                   {formatMessage({id:'teamOverview.estimate'})}
                   <span style={{ color: '#F5A623', fontSize: '16px', fontWeight: 500, marginLeft: '4px' }}>
@@ -259,7 +263,7 @@ class AppShareInstall extends PureComponent {
                     ).toFixed(2)}
                   </span>
                 </span>
-              </div>
+              </div>}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <Button onClick={() => { this.handleBackHome() }}>{formatMessage({id:'teamOverview.backHome'})}</Button>
                 <Button loading={isShare} type="primary" onClick={this.handleSubmit}>{formatMessage({id:'teamOverview.install'})}</Button>

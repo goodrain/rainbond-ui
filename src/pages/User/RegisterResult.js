@@ -17,21 +17,21 @@ export default class Register extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      eid:'',
+      eid: '',
       is_admin: 0,
       regionName: null,
-      currUser:{}
+      currUser: {}
     }
   }
-  componentDidMount(){
+  componentDidMount() {
     const { dispatch, rainbondInfo } = this.props
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
-    if(firstRegist){
+    if (firstRegist) {
       dispatch({
         type: 'global/fetchInitCluster',
         payload: {},
         callback: res => {
-          if(res && res.bean && res.bean.default_region){
+          if (res && res.bean && res.bean.default_region) {
             globalUtil.putClusterSizeLog(res.bean.enterprise_id);
             this.setState({
               regionName: res.bean.default_region.region_name
@@ -39,7 +39,7 @@ export default class Register extends Component {
           }
         },
         handleError: res => {
-          console.log(res,'error')
+          console.log(res, 'error')
         }
       })
     }
@@ -48,27 +48,27 @@ export default class Register extends Component {
   }
   fetchUserInfo = () => {
     this.props.dispatch({
-        type: 'user/fetchCurrent',
-        callback: res => {
-            if (res) {
-                this.setState({
-                  currUser: res.bean
-                })
-            }
-        },
+      type: 'user/fetchCurrent',
+      callback: res => {
+        if (res) {
+          this.setState({
+            currUser: res.bean
+          })
+        }
+      },
     });
-}
-   // 获取企业列表
+  }
+  // 获取企业列表
   getEnterpriseList = () => {
     const { dispatch } = this.props;
-    
+
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
-        if(res.list.length > 0){
+        if (res.list.length > 0) {
           this.setState({
-            eid:res.list[0].enterprise_id
-          },()=>{
+            eid: res.list[0].enterprise_id
+          }, () => {
             const { eid } = this.state
           })
         }
@@ -104,7 +104,7 @@ export default class Register extends Component {
       const { team_name, region } = teams[0]
       const { team_region_name } = region[0]
       if (team_name && team_region_name) {
-        return`/team/${team_name}/region/${team_region_name}/index`
+        return `/team/${team_name}/region/${team_region_name}/index`
       }
     } else {
       if (currUser?.is_enterprise_admin) {
@@ -114,18 +114,25 @@ export default class Register extends Component {
       }
     }
   }
-  onRouterLink = (eid, firstRegist, regionName)=>{
+  onRouterLink = (eid, firstRegist, regionName) => {
     const { dispatch } = this.props;
     const redirect = window.localStorage.getItem('redirect');
     const redirectUrl = decodeURIComponent(redirect);
-    if(firstRegist){
-      if(regionName){
-        dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
-      }else{
+    if (firstRegist) {
+      if (regionName) {
+        if (redirectUrl && redirect && redirect.includes('marketplace/install')) {
+          const url = new URL(redirectUrl);
+          const result = url.hash.replace(/^#/, '');
+          dispatch(routerRedux.replace(result))
+          window.localStorage.removeItem('redirect');
+        } else {
+          dispatch(routerRedux.replace(`/team/default/region/${regionName}/index`))
+        }
+      } else {
         dispatch(routerRedux.replace(`/enterprise/${eid}/index`))
       }
-    }else{
-      if(redirectUrl && redirect && redirect.includes('marketplace/install')){
+    } else {
+      if (redirectUrl && redirect && redirect.includes('marketplace/install')) {
         const url = new URL(redirectUrl);
         const result = url.hash.replace(/^#/, '');
         dispatch(routerRedux.replace(result))
@@ -142,7 +149,7 @@ export default class Register extends Component {
     const isSaas = rainbondInfo?.is_saas || false;
     const actions = (
       <div className={styles.actions}>
-        <Button type='primary' size="large" onClick={()=>{this.onRouterLink(eid, firstRegist, regionName)}}>{isSaas ? '开始免费试用' :<FormattedMessage id="login.RegisterResult.back" />}</Button>
+        <Button type='primary' size="large" onClick={() => { this.onRouterLink(eid, firstRegist, regionName) }}>{isSaas ? '开始免费试用' : <FormattedMessage id="login.RegisterResult.back" />}</Button>
       </div>
     );
     return (
