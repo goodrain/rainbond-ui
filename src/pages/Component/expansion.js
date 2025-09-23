@@ -97,6 +97,10 @@ export default class Index extends PureComponent {
       memorySliderMax: 8,
       cpuSliderMin: 1,
       cpuSliderMax: 7,
+      isCustomMemory: false,
+      isCustomCpu: false,
+      customMemoryValue: '',
+      customCpuValue: '',
       memoryMarks: {
         1: '128M',
         2: '256M',
@@ -159,28 +163,69 @@ export default class Index extends PureComponent {
       });
     }
   }
+  // 检查是否为自定义值的方法
+  checkNum = (value, type) => {
+    const { memoryMarksObj, cpuMarksObj, showBill } = this.state;
+    let num = 0;
+    if (type == 'memory') {
+      Object.keys(memoryMarksObj).forEach(item => {
+        if (item == value) {
+          num = memoryMarksObj[item];
+        }
+      });
+      // 如果没有匹配到预设值且不是企业版，则认为是自定义值
+      if (num === 0 && value > 0 && !showBill) {
+        num = 10; // 自定义选项的滑块位置
+      }
+    }
+    if (type == 'cpu') {
+      Object.keys(cpuMarksObj).forEach(item => {
+        if (item == value) {
+          num = cpuMarksObj[item];
+        }
+      });
+      // 如果没有匹配到预设值且不是企业版，则认为是自定义值
+      if (num === 0 && value > 0 && !showBill) {
+        num = 9; // 自定义选项的滑块位置
+      }
+    }
+    return num;
+  }
+
   getPrice = (bool) => {
-    const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue } = this.state;
+    const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue, showBill } = this.state;
     if ((cpuValue == 0 && memoryValue == 0) || bool) {
       const extendInfo = this.props.extendInfo;
-      const cpuValue = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
-      const memoryValue = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
-      const mValue = memoryMarksObj[memoryValue];
-      const cValue = cpuMarksObj[cpuValue];
-      this.setState({ cpuValue: cValue, memoryValue: mValue });
+      const cpuValueRaw = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
+      const memoryValueRaw = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
+      
+      const mValue = this.checkNum(memoryValueRaw, 'memory');
+      const cValue = this.checkNum(cpuValueRaw, 'cpu');
+      
+      const isCustomMemory = mValue === 10;
+      const isCustomCpu = cValue === 9;
+      
+      this.setState({ 
+        cpuValue: cValue, 
+        memoryValue: mValue,
+        isCustomMemory: isCustomMemory,
+        isCustomCpu: isCustomCpu,
+        customMemoryValue: isCustomMemory ? (memoryValueRaw / 1024).toString() : '',
+        customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : ''
+      });
     }
   }
   componentDidMount() {
     if (!this.canView()) return;
     if (!this.state.showBill) {      
       this.setState({
-        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G' },
-        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core' },
-        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
-        memorySliderMax: 9,
+        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G', 10: '自定义' },
+        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core', 9: '自定义' },
+        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9, 'custom': 10 },
+        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8, 'custom': 9 },
+        memorySliderMax: 10,
         memorySliderMin: 0,
-        cpuSliderMax: 8,
+        cpuSliderMax: 9,
         cpuSliderMin: 0
       })
     }
@@ -834,20 +879,35 @@ export default class Index extends PureComponent {
   }
   handleFromData = () => {
     const { form, appAlias, extendInfo, dispatch } = this.props;
-    const { cpuMarksObj, memoryMarksObj } = this.state;
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state;
     form.validateFields((err, values) => {
       if (!err) return;
       const { new_memory, new_cpu } = values;
-      const memory = Object.keys(memoryMarksObj).find(item => {
-        if (memoryMarksObj[item] == new_memory) {
-          return item;
-        }
-      });
-      const cpu = Object.keys(cpuMarksObj).find(item => {
-        if (cpuMarksObj[item] == new_cpu) {
-          return item;
-        }
-      });
+      
+      let memory, cpu;
+      
+      // 处理自定义内存值
+      if (isCustomMemory && new_memory === 10 && customMemoryValue) {
+        memory = parseFloat(customMemoryValue) * 1024; // 转换GB为MB
+      } else {
+        memory = Object.keys(memoryMarksObj).find(item => {
+          if (memoryMarksObj[item] == new_memory) {
+            return item;
+          }
+        });
+      }
+      
+      // 处理自定义CPU值
+      if (isCustomCpu && new_cpu === 9 && customCpuValue) {
+        cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
+      } else {
+        cpu = Object.keys(cpuMarksObj).find(item => {
+          if (cpuMarksObj[item] == new_cpu) {
+            return item;
+          }
+        });
+      }
+      
       dispatch({
         type: 'appControl/newVertical',
         payload: {
@@ -886,12 +946,18 @@ export default class Index extends PureComponent {
       6: 5,
       7: 6,
       8: 7,
-      9: 8
+      9: 8,
+      10: 9  // 自定义选项对应的CPU值
     };
     const newCpuValue = memoryToCpuMap[value] !== undefined ? memoryToCpuMap[value] : 8;
+    const isCustomMemory = value === 10;
+    const isCustomCpu = newCpuValue === 9;
+    
     this.setState({
       memoryValue: value,
-      cpuValue: newCpuValue
+      cpuValue: newCpuValue,
+      isCustomMemory: isCustomMemory,
+      isCustomCpu: isCustomMemory ? true : isCustomCpu  // 当选择自定义内存时，CPU也自动变为自定义
     }, () => {
       // 在状态更新完成后更新表单值
       form.setFieldsValue({
@@ -902,8 +968,10 @@ export default class Index extends PureComponent {
   }
   handleCpuChange = (value) => {
     const { form } = this.props;
+    const isCustomCpu = value === 9;
     this.setState({
-      cpuValue: value
+      cpuValue: value,
+      isCustomCpu: isCustomCpu
     }, () => {
       // 在状态更新完成后更新表单值
       form.setFieldsValue({
@@ -911,21 +979,46 @@ export default class Index extends PureComponent {
       });
     });
   }
+
+  // 自定义内存输入框变化处理
+  handleCustomMemoryChange = (e) => {
+    this.setState({
+      customMemoryValue: e.target.value
+    });
+  }
+  
+  // 自定义CPU输入框变化处理
+  handleCustomCpuChange = (e) => {
+    this.setState({
+      customCpuValue: e.target.value
+    });
+  }
+
   getFormValues = (data, type) => {
-    const { cpuMarksObj, memoryMarksObj } = this.state
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state
     let num = 0
     if (type == 'memory') {
-      Object.keys(memoryMarksObj).forEach(item => {
-        if (memoryMarksObj[item] == data) {
-          num = item
-        }
-      })
+      if (isCustomMemory && data === 10 && customMemoryValue) {
+        // 自定义内存值，转换为MB
+        num = parseFloat(customMemoryValue) * 1024;
+      } else {
+        Object.keys(memoryMarksObj).forEach(item => {
+          if (memoryMarksObj[item] == data) {
+            num = item
+          }
+        })
+      }
     } else {
-      Object.keys(cpuMarksObj).forEach(item => {
-        if (cpuMarksObj[item] == data) {
-          num = item
-        }
-      })
+      if (isCustomCpu && data === 9 && customCpuValue) {
+        // 自定义CPU值，转换为m
+        num = parseFloat(customCpuValue) * 1000;
+      } else {
+        Object.keys(cpuMarksObj).forEach(item => {
+          if (cpuMarksObj[item] == data) {
+            num = item
+          }
+        })
+      }
     }
     return num
   }
@@ -970,7 +1063,11 @@ export default class Index extends PureComponent {
       memorySliderMax,
       memorySliderMin,
       cpuSliderMax,
-      cpuSliderMin
+      cpuSliderMin,
+      isCustomMemory,
+      isCustomCpu,
+      customMemoryValue,
+      customCpuValue
     } = this.state;
     if (extendInfo && Object.keys(extendInfo).length > 0) {
       this.getPrice()
@@ -1105,16 +1202,24 @@ export default class Index extends PureComponent {
                     {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button icon='close-circle' onClick={() => {
-                    const { memoryMarksObj, cpuMarksObj } = this.state;
                     const { form } = this.props;
                     const extendInfo = this.props.extendInfo;
-                    const cpuValue = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
-                    const memoryValue = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
-                    const mValue = memoryMarksObj[memoryValue];
-                    const cValue = cpuMarksObj[cpuValue];
+                    const cpuValueRaw = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
+                    const memoryValueRaw = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
+                    
+                    const mValue = this.checkNum(memoryValueRaw, 'memory');
+                    const cValue = this.checkNum(cpuValueRaw, 'cpu');
+                    
+                    const isCustomMemory = mValue === 10;
+                    const isCustomCpu = cValue === 9;
+                    
                     this.setState({
                       cpuValue: cValue,
                       memoryValue: mValue,
+                      isCustomMemory: isCustomMemory,
+                      isCustomCpu: isCustomCpu,
+                      customMemoryValue: isCustomMemory ? (memoryValueRaw / 1024).toString() : '',
+                      customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
                       editBillInfo: false
                     }, () => {
                       // 在状态更新完成后恢复表单值
@@ -1152,6 +1257,20 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
+            {!showBill && this.state.isCustomMemory && (
+              <Form.Item {...formItemLayout} label="自定义内存">
+                <Input
+                  style={{ width: '200px' }}
+                  placeholder="请输入内存大小"
+                  value={this.state.customMemoryValue}
+                  onChange={this.handleCustomMemoryChange}
+                  addonAfter="GB"
+                  type="number"
+                  min={1}
+                  disabled={!this.state.editBillInfo}
+                />
+              </Form.Item>
+            )}
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
               {getFieldDecorator('new_cpu', {
                 initialValue: cpuValue,
@@ -1168,6 +1287,21 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
+            {!showBill && this.state.isCustomCpu && (
+              <Form.Item {...formItemLayout} label="自定义CPU">
+                <Input
+                  style={{ width: '200px' }}
+                  placeholder="请输入CPU大小"
+                  value={this.state.customCpuValue}
+                  onChange={this.handleCustomCpuChange}
+                  addonAfter="Core"
+                  type="number"
+                  min={0.1}
+                  step={0.1}
+                  disabled={!this.state.editBillInfo}
+                />
+              </Form.Item>
+            )}
             <Form.Item
               label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
               {...formItemLayout}

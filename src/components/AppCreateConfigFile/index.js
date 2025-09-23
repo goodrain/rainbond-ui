@@ -146,27 +146,40 @@ class BaseInfo extends PureComponent {
         8000: 7,
       },
       cpuValue: 0,
-      memoryValue: 0
+      memoryValue: 0,
+      isCustomMemory: false,
+      isCustomCpu: false,
+      customMemoryValue: '',
+      customCpuValue: ''
     };
   }
   componentDidMount() {
     const { onRefCpu, appDetail, showEnterprisePlugin } = this.props
     if (!showEnterprisePlugin) {
       this.setState({
-        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9:'32G' },
-        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8:'16Core' },
-        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
-        memorySliderMax: 9,
+        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9:'32G', 10: '自定义' },
+        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8:'16Core', 9: '自定义' },
+        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9, 'custom': 10 },
+        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8, 'custom': 9 },
+        memorySliderMax: 10,
         memorySliderMin: 0,
-        cpuSliderMax: 8,
+        cpuSliderMax: 9,
         cpuSliderMin: 0
       })
     }
     setTimeout(() => {
+      const memoryValue = this.checkNum(appDetail.service.min_memory, 'memory');
+      const cpuValue = this.checkNum(appDetail.service.min_cpu, 'cpu');
+      const isCustomMemory = memoryValue === 10;
+      const isCustomCpu = cpuValue === 9;
+      
       this.setState({
-        cpuValue: this.checkNum(appDetail.service.min_cpu, 'cpu'),
-        memoryValue: this.checkNum(appDetail.service.min_memory, 'memory')
+        cpuValue: cpuValue,
+        memoryValue: memoryValue,
+        isCustomMemory: isCustomMemory,
+        isCustomCpu: isCustomCpu,
+        customMemoryValue: isCustomMemory ? (appDetail.service.min_memory / 1024).toString() : '',
+        customCpuValue: isCustomCpu ? (appDetail.service.min_cpu / 1000).toString() : ''
       })
     }, 10)
     if (onRefCpu) {
@@ -175,20 +188,32 @@ class BaseInfo extends PureComponent {
   }
 
   handleSubmitCpu = () => {
-    const { setUnit, memoryMarksObj, cpuMarksObj } = this.state
+    const { setUnit, memoryMarksObj, cpuMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state
     const { form, onSubmit, showEnterprisePlugin } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
+        // 处理自定义内存值
+        if (isCustomMemory && customMemoryValue) {
+          fieldsValue.min_memory = parseFloat(customMemoryValue) * 1024; // 转换GB为MB
+        } else {
           Object.keys(memoryMarksObj).forEach(item => {
             if (memoryMarksObj[item] == fieldsValue.min_memory) {
               fieldsValue.min_memory = item
             }
           })
+        }
+        
+        // 处理自定义CPU值
+        if (isCustomCpu && customCpuValue) {
+          fieldsValue.min_cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
+        } else {
           Object.keys(cpuMarksObj).forEach(item => {
             if (cpuMarksObj[item] == fieldsValue.min_cpu) {
               fieldsValue.min_cpu = item
             }
           })
+        }
+        
         if (!fieldsValue.extend) {
           fieldsValue.extend_method = 'stateless_multiple'
         }
@@ -310,12 +335,16 @@ class BaseInfo extends PureComponent {
       6: 5,
       7: 6,
       8: 7,
-      9: 8
+      9: 8,
+      10: 9  // 自定义选项对应的CPU值
     };
     const newCpuValue = memoryToCpuMap[value] !== undefined ? memoryToCpuMap[value] : 8;
+    const isCustom = value === 10;
     this.setState({
       memoryValue: value,
-      cpuValue: newCpuValue
+      cpuValue: newCpuValue,
+      isCustomMemory: isCustom,
+      isCustomCpu: isCustom  // 当选择自定义内存时，CPU也自动变为自定义
     }, () => {
       // 更新表单中的 CPU 值
       const { form } = this.props;
@@ -325,12 +354,27 @@ class BaseInfo extends PureComponent {
     });
   }
   handleCpuChange = (value) => {
+    const isCustom = value === 9;
     this.setState({
-      cpuValue: value
+      cpuValue: value,
+      isCustomCpu: isCustom
+    });
+  }
+  
+  handleCustomMemoryChange = (e) => {
+    this.setState({
+      customMemoryValue: e.target.value
+    });
+  }
+  
+  handleCustomCpuChange = (e) => {
+    this.setState({
+      customCpuValue: e.target.value
     });
   }
   checkNum = (value, type) => {
     const { memoryMarksObj, cpuMarksObj } = this.state
+    const { showEnterprisePlugin } = this.props
     let num = 0
     if (type == 'memory') {
       Object.keys(memoryMarksObj).forEach(item => {
@@ -338,6 +382,10 @@ class BaseInfo extends PureComponent {
           num = memoryMarksObj[item]
         }
       })
+      // 如果没有匹配到预设值且不是企业版，则认为是自定义值
+      if (num === 0 && value > 0 && !showEnterprisePlugin) {
+        num = 10; // 自定义选项的滑块位置
+      }
     }
     if (type == 'cpu') {
       Object.keys(cpuMarksObj).forEach(item => {
@@ -345,25 +393,38 @@ class BaseInfo extends PureComponent {
           num = cpuMarksObj[item]
         }
       })
-
+      // 如果没有匹配到预设值且不是企业版，则认为是自定义值
+      if (num === 0 && value > 0 && !showEnterprisePlugin) {
+        num = 9; // 自定义选项的滑块位置
+      }
     }
     return num
   }
   getFormValues = (data, type) => {
-    const { cpuMarksObj, memoryMarksObj } = this.state
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state
     let num = 0
     if (type == 'memory') {
-      Object.keys(memoryMarksObj).forEach(item => {
-        if (memoryMarksObj[item] == data) {
-          num = item
-        }
-      })
+      if (isCustomMemory && data === 10 && customMemoryValue) {
+        // 自定义内存值，转换为MB
+        num = parseFloat(customMemoryValue) * 1024;
+      } else {
+        Object.keys(memoryMarksObj).forEach(item => {
+          if (memoryMarksObj[item] == data) {
+            num = item
+          }
+        })
+      }
     } else {
-      Object.keys(cpuMarksObj).forEach(item => {
-        if (cpuMarksObj[item] == data) {
-          num = item
-        }
-      })
+      if (isCustomCpu && data === 9 && customCpuValue) {
+        // 自定义CPU值，转换为m
+        num = parseFloat(customCpuValue) * 1000;
+      } else {
+        Object.keys(cpuMarksObj).forEach(item => {
+          if (cpuMarksObj[item] == data) {
+            num = item
+          }
+        })
+      }
     }
     return num
   }
@@ -382,7 +443,11 @@ class BaseInfo extends PureComponent {
       memorySliderMax, 
       memorySliderMin, 
       cpuSliderMax, 
-      cpuSliderMin 
+      cpuSliderMin,
+      isCustomMemory,
+      isCustomCpu,
+      customMemoryValue,
+      customCpuValue
     } = this.state
     const { getFieldDecorator } = form;
     const {
@@ -528,6 +593,19 @@ class BaseInfo extends PureComponent {
                 />
               )}
             </Form.Item>
+            {!showEnterprisePlugin && isCustomMemory && (
+              <Form.Item {...formItemLayout} label="自定义内存">
+                <Input
+                  style={{ width: '200px' }}
+                  placeholder="请输入内存大小"
+                  value={customMemoryValue}
+                  onChange={this.handleCustomMemoryChange}
+                  addonAfter="GB"
+                  type="number"
+                  min={1}
+                />
+              </Form.Item>
+            )}
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>
               {getFieldDecorator('min_cpu', {
                 initialValue: cpuValue,
@@ -554,6 +632,20 @@ class BaseInfo extends PureComponent {
                 />
               )}
             </Form.Item>
+            {!showEnterprisePlugin && isCustomCpu && (
+              <Form.Item {...formItemLayout} label="自定义CPU">
+                <Input
+                  style={{ width: '200px' }}
+                  placeholder="请输入CPU大小"
+                  value={customCpuValue}
+                  onChange={this.handleCustomCpuChange}
+                  addonAfter="Core"
+                  type="number"
+                  min={0.1}
+                  step={0.1}
+                />
+              </Form.Item>
+            )}
           </Col>
           {showEnterprisePlugin && (
             <Col span={6}>
