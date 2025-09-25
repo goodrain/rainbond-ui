@@ -539,6 +539,18 @@ export default class GatewayRouteLoadBalancer extends Component {
         const config = statusConfig[status] || { color: 'default', text: status };
         return <Tag color={config.color}>{config.text}</Tag>;
     };
+    handleServiceNameClick = (service_name) => {
+      const {comList}=this.state;
+      const service_obj = comList.find(item => item.service_alias === service_name);
+      console.log(service_obj,"service_obj");
+      return service_obj ? `${service_obj.component_name} (${service_obj.service_alias})` : service_name;
+      // return service_obj ? `${service_obj.component_name} (${service_obj.service_alias})` : '';
+    };
+    handleClick = (service_name) => {
+      if(service_name){
+        this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${service_name}&tab=overview`));
+      }
+    };
 
     render() {
         const { form,             
@@ -567,7 +579,12 @@ export default class GatewayRouteLoadBalancer extends Component {
             {
                 title: formatMessage({ id: 'componentOverview.body.LoadBalancer.backend_service' }),
                 dataIndex: 'service_name',
-                key: 'service_name'
+                key: 'service_name',
+                render: (text, record) => (
+                    <Tag color="blue" onClick={() => this.handleClick(text)} style={{cursor:'pointer'}}>
+                      {this.handleServiceNameClick(text)}
+                    </Tag>
+                )
             },
             {
                 title: formatMessage({ id: 'componentOverview.body.LoadBalancer.port_config' }),
@@ -598,22 +615,7 @@ export default class GatewayRouteLoadBalancer extends Component {
                                 <Tag 
                                     key={index} 
                                     color="blue"
-                                    style={{ 
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        userSelect: 'none',
-                                        alignSelf: 'flex-start'
-                                    }}
-                                    onClick={() => this.handleIPClick(ip)}
-                                    onMouseEnter={(e) => {
-                                        e.target.style.transform = 'scale(1.05)';
-                                        e.target.style.opacity = '0.8';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.target.style.transform = 'scale(1)';
-                                        e.target.style.opacity = '1';
-                                    }}
-                                    title="点击访问此IP地址"
+                                    style={{ alignSelf: 'flex-start' }}
                                 >
                                     {ip}
                                 </Tag>
