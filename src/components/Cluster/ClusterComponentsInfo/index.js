@@ -71,7 +71,7 @@ class ClusterComponentsInfo extends PureComponent {
     }
     
     const { cluster_info_add_cluster: { cluster_id } } = this.props;
-    const url = `http://118.196.28.199:7070/console/rb_component_logs_sse?cluster_id=${cluster_id}&pod_name=${podName}&container_name=${containerName}&tail_lines=100`;
+    const url = `/console/rb_component_logs_sse?cluster_id=${cluster_id}&pod_name=${podName}&container_name=${containerName}&tail_lines=100`;
     
     this.setState({ 
       logLoading: true, 
