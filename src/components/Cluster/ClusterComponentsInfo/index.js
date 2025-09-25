@@ -47,6 +47,11 @@ class ClusterComponentsInfo extends PureComponent {
     if (this.logEventSource) {
       this.logEventSource.close();
     }
+    // 清理日志相关的定时器和缓存
+    if (this.logUpdateTimer) {
+      clearTimeout(this.logUpdateTimer);
+    }
+    this.logMessages = null;
   }
   closeTimer = () => {
     if (this.timer) {
@@ -57,6 +62,12 @@ class ClusterComponentsInfo extends PureComponent {
   startLogStream = (podName, containerName) => {
     if (this.logEventSource) {
       this.logEventSource.close();
+    }
+    
+    // 清空之前的消息缓存和定时器
+    this.logMessages = [];
+    if (this.logUpdateTimer) {
+      clearTimeout(this.logUpdateTimer);
     }
     
     const { cluster_info_add_cluster: { cluster_id } } = this.props;
@@ -70,46 +81,50 @@ class ClusterComponentsInfo extends PureComponent {
     });
     
     this.logEventSource = new EventSource(url, { withCredentials: true });
-    const messages = [];
     const MAX_LOGS = 1000; // 最大日志条数限制
     
     this.logEventSource.onmessage = (event) => {
+      
       const newMessage = event.data;
       if (newMessage && newMessage.trim()) {
         // 解析日志JSON格式
+        let formattedLog;
         try {
           const logObj = JSON.parse(newMessage);
-          const formattedLog = {
+          formattedLog = {
             timestamp: logObj.timestamp,
             data: logObj.data,
             original: newMessage
           };
-          messages.push(formattedLog);
         } catch (e) {
           // 如果不是JSON格式，保持原样
-          messages.push({
+          formattedLog = {
             timestamp: Date.now() / 1000,
             data: newMessage,
             original: newMessage
-          });
+          };
         }
         
-        if (messages.length >= 10) {  // 每收到10条消息更新一次
-          this.setState((prevState) => {
-            const updatedLogs = [...prevState.containerLog, ...messages];
-            // 限制日志数量，避免内存问题
-            const finalLogs = updatedLogs.length > MAX_LOGS 
-              ? updatedLogs.slice(-MAX_LOGS) 
-              : updatedLogs;
-            return {
-              logLoading: false,
-              containerLog: finalLogs,
-            };
-          }, () => {
-            // 滚动到底部
-            this.scrollLogToBottom();
-          });
-          messages.length = 0;  // 清空数组
+        // 确保logMessages数组存在
+        if (!this.logMessages) {
+          this.logMessages = [];
+        }
+        
+        this.logMessages.push(formattedLog);
+        
+        // 降低批量更新阈值并添加定时器机制
+        if (this.logMessages.length >= 1) {  // 从10改为3
+          this.updateLogDisplay(MAX_LOGS);
+        } else {
+          // 如果没有达到阈值，设置一个短暂的定时器
+          if (this.logUpdateTimer) {
+            clearTimeout(this.logUpdateTimer);
+          }
+          this.logUpdateTimer = setTimeout(() => {
+            if (this.logMessages && this.logMessages.length > 0) {
+              this.updateLogDisplay(MAX_LOGS);
+            }
+          }, 1000); // 1秒后强制更新
         }
       }
     };
@@ -119,6 +134,38 @@ class ClusterComponentsInfo extends PureComponent {
       this.setState({ logLoading: false, logStarted: false });
       this.logEventSource.close();
     };
+  };
+
+  // 更新日志显示
+  updateLogDisplay = (maxLogs) => {
+    if (!this.logMessages || this.logMessages.length === 0) {
+      return;
+    }
+    
+    
+    this.setState((prevState) => {
+      const updatedLogs = [...prevState.containerLog, ...this.logMessages];
+      // 限制日志数量，避免内存问题
+      const finalLogs = updatedLogs.length > maxLogs 
+        ? updatedLogs.slice(-maxLogs) 
+        : updatedLogs;
+      return {
+        logLoading: false,
+        containerLog: finalLogs,
+      };
+    }, () => {
+      // 滚动到底部
+      this.scrollLogToBottom();
+    });
+    
+    // 清空消息缓存
+    this.logMessages = [];
+    
+    // 清理定时器
+    if (this.logUpdateTimer) {
+      clearTimeout(this.logUpdateTimer);
+      this.logUpdateTimer = null;
+    }
   };
 
   // 滚动日志到底部
@@ -353,9 +400,6 @@ class ClusterComponentsInfo extends PureComponent {
             <div key={index} className={styles.logLine}>
               <span className={styles.lineNumber}>
                 {index + 1}
-              </span>
-              <span className={styles.timestamp}>
-                {this.formatTimestamp(log.timestamp)}
               </span>
               <div className={styles.logContent}>
                 <Ansi>{log.data || log.original || log}</Ansi>
