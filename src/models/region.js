@@ -67,6 +67,7 @@ export default {
     //shell终端状态 
     terminal_status: JSON.parse(window.sessionStorage.getItem('terminal_status')) || false,
     cluster_info: JSON.parse(window.sessionStorage.getItem('cluster_info')) || {},
+    cluster_info_add_cluster: JSON.parse(window.sessionStorage.getItem('cluster_info_add_cluster')) || {},
   },
   effects: {
     *fetchProtocols({ payload }, { call, put }) {
@@ -312,9 +313,10 @@ export default {
         callback(response);
       }
     },
-    *fetchClusterInfo({ payload, callback, handleError }, { call }) {
+    *fetchClusterInfo({ payload, callback, handleError }, { call, put }) {
       const response = yield call(fetchClusterInfo, payload, handleError);
       if (response && callback) {
+        yield put({ type: 'saveClusterInfoAddCluster', payload: response.bean });
         callback(response);
       }
     },
@@ -483,6 +485,19 @@ export default {
       return {
         ...state,
         cluster_info: payload
+      };
+    },
+    saveClusterInfoAddCluster(state, action) {
+      const { payload } = action;
+      if (payload) {
+        window.sessionStorage.setItem(
+          'cluster_info_add_cluster',
+          JSON.stringify(payload) || {}
+        );
+      }
+      return {
+        ...state,
+        cluster_info_add_cluster: payload
       };
     },
   }

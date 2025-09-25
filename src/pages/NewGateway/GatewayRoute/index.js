@@ -6,6 +6,7 @@ import {
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import GatewayRouteHttp from '../../../components/GatewayRouteHttp';
 import GatewayRouteTcp from '../../../components/GatewayRouteTcp';
+import GatewayRouteLoadBalancer from '../../../components/GatewayRouteLoadBalancer';
 import pluginUtils from '../../../utils/pulginUtils';
 import globalUtil from '../../../utils/global';
 const { TabPane } = Tabs;
@@ -78,6 +79,15 @@ export default class index extends Component {
                             />
                         </TabPane>
                     )}
+                    <TabPane tab="LoadBalancer" key="loadbalancer">
+                        <GatewayRouteLoadBalancer
+                            operationPermissions={operationPermissions}
+                            open={open}
+                            type={tableKey}
+                            appID={appID}
+                            permission={permission}
+                        />
+                    </TabPane>
                 </Tabs>
 
             </div>

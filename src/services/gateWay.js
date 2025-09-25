@@ -746,3 +746,75 @@ export async function checkAutomaticIssuanceCert(params, handleError) {
     }
   );
 }
+
+
+// loadbalancer
+
+/** 创建LoadBalancer服务 */
+export async function createLoadBalancer(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/loadbalancer`,
+    {
+      method: 'post',
+      data: {
+        service_name: params.service_name,
+        ports: params.ports,
+        annotations: params.annotations || {}
+      },
+      params: {
+        service_id: params.service_id,
+        appID: params.appID,
+        region_name: params.region_name
+      },
+      handleError
+    }
+  );
+}
+
+/** 查询LoadBalancer服务列表 */
+export async function getLoadBalancerList(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/loadbalancer`,
+    {
+      method: 'get',
+      params: {
+        appID: params.appID,
+        service_name: params.service_name,
+        region_name: params.region_name
+      },
+      handleError
+    }
+  );
+}
+
+/** 更新LoadBalancer服务 */
+export async function updateLoadBalancer(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/loadbalancer/${params.name}`,
+    {
+      method: 'post',
+      data: {
+        ports: params.ports,
+        annotations: params.annotations || {}
+      },
+      params: {
+        region_name: params.region_name
+      },
+      handleError
+    }
+  );
+}
+
+/** 删除LoadBalancer服务 */
+export async function deleteLoadBalancer(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/loadbalancer/${params.name}`,
+    {
+      method: 'delete',
+      params: {
+        region_name: params.region_name
+      },
+      handleError
+    }
+  );
+}
