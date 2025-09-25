@@ -191,8 +191,19 @@ export default class GatewayRouteLoadBalancer extends Component {
                 appID
             },
             callback: res => {
+                // 对comList进行service_alias去重处理
+                const originalList = res.bean.ports || [];
+                const uniqueComList = [];
+                const seenServiceAlias = new Set();
+                
+                originalList.forEach(item => {
+                    if (!seenServiceAlias.has(item.service_alias)) {
+                        seenServiceAlias.add(item.service_alias);
+                        uniqueComList.push(item);
+                    }
+                });
                 this.setState({
-                    comList: res.bean.ports || [],
+                    comList: uniqueComList,
                     serviceComponentLoading: false
                 });
             }
@@ -307,7 +318,7 @@ export default class GatewayRouteLoadBalancer extends Component {
 
     // 添加端口配置
     addPortConfig = () => {
-        const { portConfigs } = this.state;
+        const { portConfigs, portList } = this.state;
         if (portConfigs.length >= 10) {
             notification.warning({
                 message: formatMessage({ id: 'componentOverview.body.LoadBalancer.port_config_limit' }),
@@ -315,6 +326,21 @@ export default class GatewayRouteLoadBalancer extends Component {
             });
             return;
         }
+        
+        // 检查是否还有可用端口
+        const availablePorts = (portList || []).filter(port => 
+            port.inner_url !== '' && 
+            !portConfigs.some(config => config.target_port === port.container_port)
+        );
+        
+        if (availablePorts.length === 0 && portList.length > 0) {
+            notification.warning({
+                message: '无可用端口',
+                description: '所有端口都已被选择，无法添加更多端口配置'
+            });
+            return;
+        }
+        
         this.setState({
             portConfigs: [...portConfigs, { target_port: '', protocol: 'TCP' }]
         });
@@ -392,9 +418,7 @@ export default class GatewayRouteLoadBalancer extends Component {
                 this.setState({ modalLoading: true });
 
                 // 处理annotations
-                let annotations = {};
-                console.log(values.annotations,"values.annotations");
-                
+                let annotations = {};                
                 if (values.annotations) {
                     try {
                         annotations = JSON.parse(values.annotations);
@@ -428,9 +452,7 @@ export default class GatewayRouteLoadBalancer extends Component {
                     ports,
                     annotations,
                     region_name
-                };
-                console.log(payload,"payload");
-                
+                };                
 
                 const action = editingRecord ? 'updateLoadBalancer' : 'createLoadBalancer';
                 const actionText = editingRecord ? '更新' : '创建';
@@ -457,9 +479,7 @@ export default class GatewayRouteLoadBalancer extends Component {
                         }
                         this.setState({ modalLoading: false });
                     },
-                    handleError: (res) => {
-                      console.log(res,"description");
-                      
+                    handleError: (res) => {                      
                         notification.error({
                             message: actionText === '创建' ? formatMessage({ id: 'componentOverview.body.LoadBalancer.create_failed' }) : formatMessage({ id: 'componentOverview.body.LoadBalancer.update_failed' }),
                             description: res.data.msg || null
@@ -469,6 +489,13 @@ export default class GatewayRouteLoadBalancer extends Component {
                 });
             }
         });
+    };
+
+    // 处理IP点击事件
+    handleIPClick = (ip) => {        
+        // 在新标签页中打开
+        window.open(ip, '_blank');
+        
     };
 
     // 删除LoadBalancer
@@ -538,12 +565,6 @@ export default class GatewayRouteLoadBalancer extends Component {
 
         const columns = [
             {
-                title: formatMessage({ id: 'componentOverview.body.LoadBalancer.service_name' }),
-                dataIndex: 'name',
-                key: 'name',
-                render: (text) => <Tooltip title={text}>{text}</Tooltip>
-            },
-            {
                 title: formatMessage({ id: 'componentOverview.body.LoadBalancer.backend_service' }),
                 dataIndex: 'service_name',
                 key: 'service_name'
@@ -553,10 +574,10 @@ export default class GatewayRouteLoadBalancer extends Component {
                 dataIndex: 'ports',
                 key: 'ports',
                 render: (ports) => (
-                    <div>
+                    <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
                         {ports && ports.length > 0 ? (
                             ports.map((port, index) => (
-                                <Tag key={index} color="blue" style={{ marginBottom: 4 }}>
+                                <Tag key={index} color="blue" style={{ alignSelf: 'flex-start' }}>
                                     {port.target_port} ({port.protocol})
                                 </Tag>
                             ))
@@ -568,13 +589,34 @@ export default class GatewayRouteLoadBalancer extends Component {
             },
             {
                 title: formatMessage({ id: 'componentOverview.body.LoadBalancer.external_ip' }),
-                dataIndex: 'external_ips',
-                key: 'external_ips',
+                dataIndex: 'access_urls',
+                key: 'access_urls',
                 render: (ips, record) => (
-                    <div>
+                    <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
                         {ips && ips.length > 0 ? (
                             ips.map((ip, index) => (
-                                <Tag key={index} color="blue">{ip}</Tag>
+                                <Tag 
+                                    key={index} 
+                                    color="blue"
+                                    style={{ 
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        userSelect: 'none',
+                                        alignSelf: 'flex-start'
+                                    }}
+                                    onClick={() => this.handleIPClick(ip)}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.transform = 'scale(1.05)';
+                                        e.target.style.opacity = '0.8';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'scale(1)';
+                                        e.target.style.opacity = '1';
+                                    }}
+                                    title="点击访问此IP地址"
+                                >
+                                    {ip}
+                                </Tag>
                             ))
                         ) : (
                             <Tag 
@@ -741,14 +783,38 @@ export default class GatewayRouteLoadBalancer extends Component {
 
                             <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.port_config' })}>
                                 <div style={{ marginBottom: 16 }}>
-                                    <Button 
-                                        type="dashed" 
-                                        onClick={this.addPortConfig}
-                                        icon="plus"
-                                        style={{ width: '100%' }}
-                                    >
-                                        {formatMessage({ id: 'componentOverview.body.LoadBalancer.add_port_config' })}
-                                    </Button>
+                                    {(() => {
+                                        // 计算可用端口数量
+                                        const availablePorts = (portList || []).filter(port => 
+                                            port.inner_url !== '' && 
+                                            !portConfigs.some(config => config.target_port === port.container_port)
+                                        );
+                                        const isDisabled = availablePorts.length === 0 || portConfigs.length >= 10;
+                                        
+                                        return (
+                                            <Button 
+                                                type="dashed" 
+                                                onClick={this.addPortConfig}
+                                                icon="plus"
+                                                style={{ width: '100%' }}
+                                                disabled={isDisabled}
+                                                title={
+                                                    availablePorts.length === 0 && portList.length > 0 
+                                                        ? '所有端口都已被选择' 
+                                                        : portConfigs.length >= 10 
+                                                        ? '最多支持10个端口配置' 
+                                                        : ''
+                                                }
+                                            >
+                                                {formatMessage({ id: 'componentOverview.body.LoadBalancer.add_port_config' })}
+                                                {availablePorts.length > 0 && portList.length > 0 && (
+                                                    <span style={{ marginLeft: 8, color: '#1890ff' }}>
+                                                        (还可添加 {availablePorts.length} 个)
+                                                    </span>
+                                                )}
+                                            </Button>
+                                        );
+                                    })()}
                                 </div>
                                 {portConfigs.map((config, index) => (
                                     <div key={index} style={{ 
@@ -771,9 +837,21 @@ export default class GatewayRouteLoadBalancer extends Component {
                                                     >
                                                         {(portList || []).map((port, portIndex) => {
                                                             if (port.inner_url !== '') {
+                                                                // 检查当前端口是否已被其他配置选择
+                                                                const isSelected = portConfigs.some((otherConfig, otherIndex) => 
+                                                                    otherIndex !== index && 
+                                                                    otherConfig.target_port === port.container_port
+                                                                );
+                                                                
                                                                 return (
-                                                                    <Option value={port.container_port} key={portIndex}>
+                                                                    <Option 
+                                                                        value={port.container_port} 
+                                                                        key={portIndex}
+                                                                        disabled={isSelected}
+                                                                        style={isSelected ? { color: '#ccc', backgroundColor: '#f5f5f5' } : {}}
+                                                                    >
                                                                         {port.container_port} ({port.protocol})
+                                                                        {isSelected && <span style={{ color: '#ff7875', marginLeft: 8 }}>已选择</span>}
                                                                     </Option>
                                                                 );
                                                             }
@@ -823,9 +901,6 @@ export default class GatewayRouteLoadBalancer extends Component {
                                         rows={6}
                                     />
                                 )}
-                                <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
-                                    {formatMessage({ id: 'componentOverview.body.LoadBalancer.annotations_description' })}
-                                </div>
                             </Form.Item>
                         </Form>
                     </Spin>
