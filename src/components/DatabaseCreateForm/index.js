@@ -71,7 +71,7 @@ export default class Index extends PureComponent {
     };
 
     generateEnglishName = (name) => {
-        if (name != undefined && name !== '') {
+        if (name !== undefined && name !== '') {
             const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
             const cleanedPinyinName = pinyinName.toLowerCase();
             return cleanedPinyinName;

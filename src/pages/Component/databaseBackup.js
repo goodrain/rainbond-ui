@@ -66,6 +66,7 @@ export default class Index extends PureComponent {
       restoreVisible: false, // 恢复确认弹窗显示状态
       selectedBackupName: '', // 选中要恢复的备份名称
       restoring: false, // 恢复操作进行中
+      isBackupDisabled: false, // 备份功能是否禁用
       // 分页状态
       backupPagination: {
         page: 1,
@@ -79,6 +80,7 @@ export default class Index extends PureComponent {
     this.fetchBackupRepos();
     this.initFromClusterDetail();
     this.fetchBackupList();
+    this.updateBackupDisabledState();
 
     this.startAutoRefresh();
   }
@@ -87,6 +89,7 @@ export default class Index extends PureComponent {
   componentDidUpdate(prevProps) {
     if (prevProps.clusterDetail !== this.props.clusterDetail && !this.state.editBackupInfo) {
       this.initFromClusterDetail();
+      this.updateBackupDisabledState();
     }
   }
 
@@ -94,9 +97,16 @@ export default class Index extends PureComponent {
     this.stopAutoRefresh();
   }
 
-  /**
-   * 仅在第一页时启用60秒自动刷新
-   */
+  
+   // 不支持备份功能的数据库禁用备份功能
+  updateBackupDisabledState = () => {
+    const { clusterDetail } = this.props;
+    const isBackupDisabled = clusterDetail?.basic?.support_backup !== true;
+    this.setState({ isBackupDisabled });
+  };
+
+
+   // 仅在第一页时启用60秒自动刷新
   startAutoRefresh = () => {
     this.stopAutoRefresh(); // 先清除现有定时器
 
@@ -610,7 +620,8 @@ export default class Index extends PureComponent {
       restoreVisible,
       selectedBackupName,
       restoring,
-      backupPagination
+      backupPagination,
+      isBackupDisabled
     } = this.state;
 
     const formItemLayout = {
@@ -660,7 +671,7 @@ export default class Index extends PureComponent {
               icon="reload"
               style={{ color: '#1890ff', marginRight: 8 }}
               onClick={() => this.handleShowRestoreConfirm(record.name)}
-              disabled={record.status !== 'Completed'}
+              disabled={record.status !== 'Completed' || isBackupDisabled}
             >
               {formatMessage({ id: 'kubeblocks.database.backup.restore.button' })}
             </Button>
@@ -670,7 +681,7 @@ export default class Index extends PureComponent {
               okText={formatMessage({ id: 'button.confirm' })}
               cancelText={formatMessage({ id: 'button.cancel' })}
             >
-              <Button type="link" size="small" style={{ color: '#f5222d' }}>
+              <Button type="link" size="small" style={{ color: '#f5222d' }} disabled={isBackupDisabled}>
                 <Icon type="delete" /> {formatMessage({ id: 'button.delete' })}
               </Button>
             </Popconfirm>
@@ -704,7 +715,11 @@ export default class Index extends PureComponent {
                   </Button>
                 </div>
               ) : (
-                <Button icon="edit" onClick={() => this.setState({ editBackupInfo: true })}>
+                <Button
+                  icon="edit"
+                  disabled={isBackupDisabled}
+                  onClick={() => this.setState({ editBackupInfo: true })}
+                >
                   {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
                 </Button>
               )}
@@ -723,7 +738,7 @@ export default class Index extends PureComponent {
                   placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })}
                   onChange={this.handleBackupRepoChange}
                   allowClear
-                  disabled={!editBackupInfo}
+                  disabled={!editBackupInfo || isBackupDisabled}
                 >
                   <Option value="">{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                   {backupRepos.map(repo => (
@@ -743,7 +758,7 @@ export default class Index extends PureComponent {
                     initialValue: backupSchedule || '',
                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.cycle_required' }) }]
                   })(
-                    <RadioGroup onChange={this.handleBackupScheduleChange} disabled={!editBackupInfo}>
+                    <RadioGroup onChange={this.handleBackupScheduleChange} disabled={!editBackupInfo || isBackupDisabled}>
                       <Radio value="hour">{formatMessage({ id: 'kubeblocks.database.backup.cycle_hour' })}</Radio>
                       <Radio value="day">{formatMessage({ id: 'kubeblocks.database.backup.cycle_day' })}</Radio>
                       <Radio value="week">{formatMessage({ id: 'kubeblocks.database.backup.cycle_week' })}</Radio>
@@ -767,7 +782,7 @@ export default class Index extends PureComponent {
                           value={backupStartDay || ''}
                           onChange={v => this.setState({ backupStartDay: v })}
                           style={{ width: 80, marginRight: 8 }}
-                          disabled={!editBackupInfo}
+                          disabled={!editBackupInfo || isBackupDisabled}
                         >
                           <Option value="1">{formatMessage({ id: 'kubeblocks.database.backup.startTime_mon' })}</Option>
                           <Option value="2">{formatMessage({ id: 'kubeblocks.database.backup.startTime_tue' })}</Option>
@@ -784,7 +799,7 @@ export default class Index extends PureComponent {
                             value={backupStartHour || ''}
                             onChange={v => this.setState({ backupStartHour: v })}
                             style={{ width: 80, marginRight: 4 }}
-                            disabled={!editBackupInfo}
+                            disabled={!editBackupInfo || isBackupDisabled}
                           >
                             {Array.from({ length: 24 }, (_, i) => (
                               <Option key={i} value={i.toString().padStart(2, '0')}>
@@ -799,7 +814,7 @@ export default class Index extends PureComponent {
                         value={backupStartMinute || ''}
                         onChange={v => this.setState({ backupStartMinute: v })}
                         style={{ width: 80, marginRight: 4 }}
-                        disabled={!editBackupInfo}
+                        disabled={!editBackupInfo || isBackupDisabled}
                       >
                         {Array.from({ length: 60 }, (_, i) => (
                           <Option key={i} value={i.toString().padStart(2, '0')}>
@@ -825,7 +840,7 @@ export default class Index extends PureComponent {
                       value={backupRetentionTime || ''}
                       onChange={v => this.setState({ backupRetentionTime: v })}
                       placeholder={formatMessage({ id: 'kubeblocks.database.backup.retention_placeholder' })}
-                      disabled={!editBackupInfo}
+                      disabled={!editBackupInfo || isBackupDisabled}
                     />
                   )}
                   <span style={{ marginLeft: 8, color: '#666' }}>{formatMessage({ id: 'kubeblocks.database.backup.retention_unit' })}</span>
@@ -844,6 +859,7 @@ export default class Index extends PureComponent {
                 icon="reload"
                 onClick={this.handleRefresh}
                 loading={loading}
+                disabled={isBackupDisabled}
               >
                 {formatMessage({ id: 'kubeblocks.parameter.refresh' })}
               </Button>
@@ -851,6 +867,7 @@ export default class Index extends PureComponent {
                 type="primary"
                 icon="cloud-upload"
                 onClick={this.handleManualBackup}
+                disabled={isBackupDisabled}
               >
                 {formatMessage({ id: 'kubeblocks.database.backup.page.manual.button' })}
               </Button>

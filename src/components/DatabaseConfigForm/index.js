@@ -28,17 +28,37 @@ class Index extends PureComponent {
         this.setState({ backupConfigRef: ref });
     };
 
+    // 检查当前数据库类型是否支持备份
+    checkDatabaseBackupSupport = () => {
+        const { databaseTypes = [], databaseType } = this.props;
+
+        if (!databaseType) {
+            return false;
+        }
+
+        const currentDbConfig = databaseTypes.find(
+            dbType => String(dbType.type) === String(databaseType)
+        );
+
+        if (!currentDbConfig) {
+            return false;
+        }
+
+        return currentDbConfig.support_backup === true;
+    };
+
     handleSubmit = () => {
         const { form, onSubmit } = this.props;
         const { basicInfoRef, backupConfigRef } = this.state;
+        const supportsBackup = this.checkDatabaseBackupSupport();
 
         // 验证基础信息
         if (basicInfoRef) {
             basicInfoRef.handleSubmit();
         }
 
-        // 验证备份配置
-        if (backupConfigRef) {
+        // 只在支持备份时才验证备份配置
+        if (supportsBackup && backupConfigRef) {
             backupConfigRef.handleSubmit();
         }
 
@@ -49,7 +69,8 @@ class Index extends PureComponent {
                 const configData = {
                     ...values,
                     basicInfo: this.state.basicInfoData,
-                    backupConfig: this.state.backupConfigData
+                    // 只在支持备份时才包含备份配置
+                    ...(supportsBackup && { backupConfig: this.state.backupConfigData })
                 };
                 onSubmit(configData);
             }
@@ -68,6 +89,7 @@ class Index extends PureComponent {
 
     render() {
         const { form, dbVersions = [], storageClasses = [], backupRepos = [] } = this.props;
+        const supportsBackup = this.checkDatabaseBackupSupport();
 
         return (
             <div>
@@ -80,13 +102,15 @@ class Index extends PureComponent {
                     onSubmit={this.handleBasicInfoSubmit}
                 />
 
-                {/* 备份配置组件 */}
-                <BackupConfig
-                    form={form}
-                    backupRepos={backupRepos}
-                    onRef={this.onRefBackupConfig}
-                    onSubmit={this.handleBackupConfigSubmit}
-                />
+                {/* 只在支持备份时才显示备份配置组件 */}
+                {supportsBackup && (
+                    <BackupConfig
+                        form={form}
+                        backupRepos={backupRepos}
+                        onRef={this.onRefBackupConfig}
+                        onSubmit={this.handleBackupConfigSubmit}
+                    />
+                )}
             </div>
         );
     }
