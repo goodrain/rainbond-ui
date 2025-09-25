@@ -97,7 +97,7 @@ export default class Index extends PureComponent {
 
   // 英文名生成
   generateEnglishName = (name) => {
-    if (name != undefined && name !== '') {
+    if (name !== undefined && name !== '') {
       const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
       const cleanedPinyinName = pinyinName.toLowerCase();
       return cleanedPinyinName;
@@ -564,6 +564,8 @@ export default class Index extends PureComponent {
             dbVersions={dbVersions}
             storageClasses={storageClasses}
             backupRepos={backupRepos}
+            databaseTypes={databaseTypes}
+            databaseType={database_type}
             onRef={this.onRefConfigForm}
             onSubmit={this.handleInstallApp}
           />
