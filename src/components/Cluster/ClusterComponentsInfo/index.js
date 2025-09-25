@@ -1,18 +1,21 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card, Table, Descriptions, Skeleton, notification, Tooltip } from 'antd';
+import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card, Table, Descriptions, Skeleton, notification, Tooltip, Form, Select } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../ConfirmModal'
+import Ansi from '../../Ansi/index';
 import styles from './index.less'
 
 const { Panel } = Collapse;
+const { Option } = Select;
 
-@connect(({ global }) => ({
+@connect(({ global,region }) => ({
   rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  cluster_info_add_cluster: region.cluster_info_add_cluster
 }))
 class ClusterComponentsInfo extends PureComponent {
   constructor(props) {
@@ -25,20 +28,122 @@ class ClusterComponentsInfo extends PureComponent {
       showDetails: false,
       runningPodNum: 0,
       showUnInstallModal: false,
-      unInstallLoading: false
+      unInstallLoading: false,
+      // 日志相关状态
+      containerLog: [],
+      logStarted: false,
+      logLoading: false,
+      selectedContainer: null
     };
   }
-  componentDidMount() {
+  componentDidMount() {    
     this.fetchRainbondComponents(true);
   }
   componentWillUnmount() {
     this.closeTimer()
+    if (this.eventSources) {
+      this.eventSources.close();
+    }
+    if (this.logEventSource) {
+      this.logEventSource.close();
+    }
   }
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
     }
   };
+  // 启动日志流
+  startLogStream = (podName, containerName) => {
+    if (this.logEventSource) {
+      this.logEventSource.close();
+    }
+    
+    const { cluster_info_add_cluster: { cluster_id } } = this.props;
+    const url = `/console/rb_component_logs_sse?cluster_id=${cluster_id}&pod_name=${podName}&container_name=${containerName}&tail_lines=100`;
+    
+    this.setState({ 
+      logLoading: true, 
+      logStarted: true,
+      selectedContainer: { podName, containerName },
+      containerLog: []
+    });
+    
+    this.logEventSource = new EventSource(url, { withCredentials: true });
+    const messages = [];
+    const MAX_LOGS = 1000; // 最大日志条数限制
+    
+    this.logEventSource.onmessage = (event) => {
+      const newMessage = event.data;
+      if (newMessage && newMessage.trim()) {
+        // 解析日志JSON格式
+        try {
+          const logObj = JSON.parse(newMessage);
+          const formattedLog = {
+            timestamp: logObj.timestamp,
+            data: logObj.data,
+            original: newMessage
+          };
+          messages.push(formattedLog);
+        } catch (e) {
+          // 如果不是JSON格式，保持原样
+          messages.push({
+            timestamp: Date.now() / 1000,
+            data: newMessage,
+            original: newMessage
+          });
+        }
+        
+        if (messages.length >= 10) {  // 每收到10条消息更新一次
+          this.setState((prevState) => {
+            const updatedLogs = [...prevState.containerLog, ...messages];
+            // 限制日志数量，避免内存问题
+            const finalLogs = updatedLogs.length > MAX_LOGS 
+              ? updatedLogs.slice(-MAX_LOGS) 
+              : updatedLogs;
+            return {
+              logLoading: false,
+              containerLog: finalLogs,
+            };
+          }, () => {
+            // 滚动到底部
+            this.scrollLogToBottom();
+          });
+          messages.length = 0;  // 清空数组
+        }
+      }
+    };
+    
+    this.logEventSource.onerror = (error) => {
+      console.error('SSE error:', error);
+      this.setState({ logLoading: false, logStarted: false });
+      this.logEventSource.close();
+    };
+  };
+
+  // 滚动日志到底部
+  scrollLogToBottom = () => {
+    if (this.logContainerRef) {
+      this.logContainerRef.scrollTop = this.logContainerRef.scrollHeight;
+    }
+  };
+
+  // 格式化时间戳
+  formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp * 1000);
+    return date.toISOString().replace('T', ' ').substring(0, 19);
+  };
+
+  // 停止日志流
+  stopLogStream = () => {
+    if (this.logEventSource) {
+      this.logEventSource.close();
+      this.logEventSource = null;
+    }
+    this.setState({ logStarted: false, logLoading: false });
+  };
+
   handleTimers = (timerName, callback, times) => {
     this[timerName] = setTimeout(() => {
       callback();
@@ -118,11 +223,29 @@ class ClusterComponentsInfo extends PureComponent {
           this.setState({
             componentInfo: res.response_data.data.bean,
             showDetails: true
+          }, () => {
+            // 自动选择第一个容器并开始日志
+            this.autoSelectFirstContainer();
           })
         }
       }
     })
   }
+
+  // 自动选择第一个容器并开始日志
+  autoSelectFirstContainer = () => {
+    const { componentInfo } = this.state;
+    const containers = componentInfo?.pod_status?.containers || [];
+    
+    if (containers.length > 0) {
+      const firstContainer = containers[0];
+      const podName = componentInfo?.pod_status?.pod_name;
+      const containerName = firstContainer.container_name;
+      
+      // 自动开始第一个容器的日志流
+      this.startLogStream(podName, containerName);
+    }
+  };
   unInstallCluster = () => {
     const { dispatch, preStep } = this.props;
     this.setState({
@@ -139,6 +262,111 @@ class ClusterComponentsInfo extends PureComponent {
       }
     })
   }
+
+  // 渲染日志内容
+  renderLogContent = () => {
+    const { componentInfo } = this.state;
+    const { 
+      containerLog, 
+      logStarted, 
+      logLoading, 
+      selectedContainer 
+    } = this.state;
+
+    // 获取容器列表
+    const containers = componentInfo?.pod_status?.containers || [];
+
+    return (
+      <div>
+        {/* 容器选择和控制 */}
+        <Form layout="inline" className={styles.logControls}>
+          <Form.Item label={formatMessage({ id: 'enterpriseColony.ClusterComponents.selectContainer' })}>
+            <Select
+              style={{ width: 200 }}
+              placeholder={formatMessage({ id: 'enterpriseColony.ClusterComponents.selectContainerPlaceholder' })}
+              onChange={(value) => {
+                const [podName, containerName] = value.split('|');
+                this.startLogStream(podName, containerName);
+              }}
+              value={selectedContainer ? `${selectedContainer.podName}|${selectedContainer.containerName}` : 
+                     (containers.length > 0 ? `${componentInfo?.pod_status?.pod_name}|${containers[0].container_name}` : undefined)}
+            >
+              {containers.map((container, index) => (
+                <Option 
+                  key={index} 
+                  value={`${componentInfo?.pod_status?.pod_name}|${container.container_name}`}
+                >
+                  {container.container_name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            {logStarted ? (
+              <Button onClick={this.stopLogStream} type="danger">
+                {formatMessage({ id: 'enterpriseColony.ClusterComponents.stopLog' })}
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => {
+                  if (selectedContainer) {
+                    this.startLogStream(selectedContainer.podName, selectedContainer.containerName);
+                  } else if (containers.length > 0) {
+                    this.startLogStream(
+                      componentInfo?.pod_status?.pod_name, 
+                      containers[0].container_name
+                    );
+                  }
+                }}
+                type="primary"
+                disabled={containers.length === 0}
+              >
+                {formatMessage({ id: 'enterpriseColony.ClusterComponents.restartLog' })}
+              </Button>
+            )}
+          </Form.Item>
+        </Form>
+
+        {/* 日志统计 */}
+        <div className={styles.logStats}>
+          {formatMessage({ id: 'enterpriseColony.ClusterComponents.logTotal' })}: {containerLog.length} {formatMessage({ id: 'enterpriseColony.ClusterComponents.logCount' })}
+          {(selectedContainer || containers.length > 0) && (
+            <span style={{ marginLeft: 16 }}>
+              {formatMessage({ id: 'enterpriseColony.ClusterComponents.currentContainer' })}: {selectedContainer?.containerName || containers[0]?.container_name || formatMessage({ id: 'enterpriseColony.ClusterComponents.unknown' })}
+            </span>
+          )}
+        </div>
+
+        {/* 日志显示区域 */}
+        <div 
+          ref={(ref) => { this.logContainerRef = ref; }}
+          className={styles.logContainer}
+        >
+          {logLoading && <div style={{ color: '#1890ff' }}>{formatMessage({ id: 'enterpriseColony.ClusterComponents.loadingLog' })}</div>}
+          {!logStarted && !logLoading && containerLog.length === 0 && (
+            <div style={{ color: '#666' }}>
+              {formatMessage({ id: 'enterpriseColony.ClusterComponents.autoConnecting' })}
+            </div>
+          )}
+          {containerLog.map((log, index) => (
+            <div key={index} className={styles.logLine}>
+              <span className={styles.lineNumber}>
+                {index + 1}
+              </span>
+              <span className={styles.timestamp}>
+                {this.formatTimestamp(log.timestamp)}
+              </span>
+              <div className={styles.logContent}>
+                <Ansi>{log.data || log.original || log}</Ansi>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   render() {
     const { completeInit } = this.props
     const {
@@ -180,7 +408,7 @@ class ClusterComponentsInfo extends PureComponent {
 
               </Descriptions>
               <Collapse
-                defaultActiveKey={['1', '2']}
+                defaultActiveKey={['1', '2', '3']}
                 className={styles.customCollapse}
               >
                 {componentInfo?.pod_status?.containers && componentInfo?.pod_status?.containers.length > 0 &&
@@ -218,6 +446,18 @@ class ClusterComponentsInfo extends PureComponent {
 
                   </Panel>
                 }
+                <Panel
+                    header={
+                      <div className={styles.panelBox}>
+                        <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLog' })}</div>
+                        <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLogDesc' })}</div>
+                      </div>
+                    }
+                  key="2"
+                >
+                  {this.renderLogContent()}
+                </Panel>
+
                 {componentInfo?.events && componentInfo?.events.length > 0 &&
                   <Panel
                     header={
@@ -226,7 +466,7 @@ class ClusterComponentsInfo extends PureComponent {
                         <div><FormattedMessage id='enterpriseColony.ClusterComponents.pod' /></div>
                       </div>
                     }
-                    key="2"
+                    key="3"
                   >
                     <Row className={styles.customCollapseTable}>
                       <Col span={3}>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.type' })}</Col>
