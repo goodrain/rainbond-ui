@@ -1228,6 +1228,8 @@ const componentOverview = {
     // 备份操作消息
     'kubeblocks.database.backup.manual.success': '手动备份已启动',
     'kubeblocks.database.backup.manual.failed': '手动备份启动失败',
+    'kubeblocks.database.backup.config.updated': '定时备份配置更新成功',
+    'kubeblocks.database.backup.disabled.success': '备份已关闭',
     'kubeblocks.database.backup.delete.success': '备份删除成功',
     'kubeblocks.database.backup.delete.failed': '备份删除失败',
     'kubeblocks.database.backup.delete.service_incomplete': '组件信息不完整，无法删除备份',

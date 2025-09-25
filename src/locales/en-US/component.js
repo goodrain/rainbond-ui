@@ -1215,6 +1215,8 @@ const componentOverview = {
     // Backup operation messages
     'kubeblocks.database.backup.manual.success': 'Manual backup started',
     'kubeblocks.database.backup.manual.failed': 'Manual backup failed to start',
+    'kubeblocks.database.backup.config.updated': 'Backup configuration updated successfully',
+    'kubeblocks.database.backup.disabled.success': 'Backup disabled',
     'kubeblocks.database.backup.delete.success': 'Backup deleted successfully',
     'kubeblocks.database.backup.delete.failed': 'Backup deletion failed',
     'kubeblocks.database.backup.delete.service_incomplete': 'Component information incomplete, cannot delete backup',
