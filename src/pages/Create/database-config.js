@@ -382,7 +382,10 @@ export default class Index extends PureComponent {
     if (Number.isNaN(numeric)) return 1000;
 
     if (numeric >= 0 && numeric <= 8) {
-      return sliderIndexToMillicoresMap[numeric] || 1000;
+      if (Object.prototype.hasOwnProperty.call(sliderIndexToMillicoresMap, numeric)) {
+        return sliderIndexToMillicoresMap[numeric];
+      }
+      return 1000;
     }
 
     return numeric;
@@ -409,7 +412,10 @@ export default class Index extends PureComponent {
     if (Number.isNaN(numeric)) return 1024;
 
     if (numeric >= 0 && numeric <= 9) {
-      return sliderIndexToMBMap[numeric] || 1024;
+      if (Object.prototype.hasOwnProperty.call(sliderIndexToMBMap, numeric)) {
+        return sliderIndexToMBMap[numeric];
+      }
+      return 1024;
     }
 
     return numeric;
@@ -469,7 +475,7 @@ export default class Index extends PureComponent {
 
   convertCpuValue = (cpuSliderValue) => {
     const cpuMap = {
-      0: '0',        // 无限制
+      0: '0m',       // 无限制
       100: '100m',
       250: '250m',
       500: '500m',
@@ -484,7 +490,7 @@ export default class Index extends PureComponent {
 
   convertMemoryValue = (memorySliderValue) => {
     const memoryMap = {
-      0: '0',        // 无限制
+      0: '0Mi',      // 无限制
       128: '128Mi',
       256: '256Mi',
       512: '512Mi',
