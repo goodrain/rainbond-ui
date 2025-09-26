@@ -60,11 +60,11 @@ export default class Index extends PureComponent {
     this.fetchInstanceInfo();
     this.setState({
       // 历史日志展示
-      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList,'rainbond-enterprise-logs'),
+      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList,'rainbond-enterprise-base'),
     },()=>{
       if(this.state.isHistoryLogs){
         this.props.pluginList.forEach(item =>{
-          if(item.name == 'rainbond-enterprise-logs'){            
+          if(item.name == 'rainbond-enterprise-base'){            
             this.setState({
               lokiUrl: item.backend
             })
