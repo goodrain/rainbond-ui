@@ -1479,6 +1479,23 @@ const auditEnterprise = {
     'auditEnterprise.tabs.operation_log.th.select.time':'选择时间',
     'auditEnterprise.tabs.operation_log.th.select.type':'选择类型',
 }
+
+// 容器日志相关
+const containerLog = {
+    'enterpriseColony.ClusterComponents.containerLog': '容器日志',
+    'enterpriseColony.ClusterComponents.containerLogDesc': '当前pod所属容器的日志查询',
+    'enterpriseColony.ClusterComponents.selectContainer': '选择容器',
+    'enterpriseColony.ClusterComponents.selectContainerPlaceholder': '请选择容器',
+    'enterpriseColony.ClusterComponents.stopLog': '停止日志',
+    'enterpriseColony.ClusterComponents.restartLog': '重新开始日志',
+    'enterpriseColony.ClusterComponents.logTotal': '日志总数',
+    'enterpriseColony.ClusterComponents.logCount': '条',
+    'enterpriseColony.ClusterComponents.currentContainer': '当前容器',
+    'enterpriseColony.ClusterComponents.unknown': '未知',
+    'enterpriseColony.ClusterComponents.loadingLog': '正在加载日志...',
+    'enterpriseColony.ClusterComponents.autoConnecting': '正在自动连接第一个容器的日志...',
+}
+
 const monitarEnterprise = {
     'monitarEnterprise.title': '观测中心',
     'monitarEnterprise.service': '服务监控',
@@ -1532,4 +1549,4 @@ const monitarEnterprise = {
     'monitarEnterprise.error.desc.scan': '未检测到安装巡检插件',
 }
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade, auditEnterprise, monitarEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade, auditEnterprise, containerLog, monitarEnterprise);

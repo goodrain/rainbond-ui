@@ -1,0 +1,58 @@
+.container {
+  .ant-card {
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafa;
+    font-weight: 600;
+  }
+
+  .ant-btn-link {
+    padding: 0;
+    height: auto;
+  }
+
+  .ant-modal-body {
+    .ant-form-item-label {
+      font-weight: 600;
+    }
+  }
+
+  .status-tag {
+    border-radius: 12px;
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+
+  .port-config-item {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+    
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: #ff4d4f;
+    }
+  }
+
+  .add-port-btn {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+}
+
+// 闪烁动画
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.5;
+  }
+}

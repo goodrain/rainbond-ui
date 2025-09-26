@@ -49,7 +49,11 @@ import {
     getAutomaticIssuanceCertList,
     openAutomaticIssuance,
     closeAutomaticIssuance,
-    checkAutomaticIssuanceCert
+    checkAutomaticIssuanceCert,
+    createLoadBalancer,
+    getLoadBalancerList,
+    updateLoadBalancer,
+    deleteLoadBalancer
 } from '../services/gateWay';
 
 export default {
@@ -407,6 +411,30 @@ export default {
         },
         *checkAutomaticIssuanceCert({ callback, payload, handleError }, { call }) {
             const response = yield call(checkAutomaticIssuanceCert, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *createLoadBalancer({ callback, payload, handleError }, { call }) {
+            const response = yield call(createLoadBalancer, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *getLoadBalancerList({ callback, payload, handleError }, { call }) {
+            const response = yield call(getLoadBalancerList, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *updateLoadBalancer({ callback, payload, handleError }, { call }) {
+            const response = yield call(updateLoadBalancer, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *deleteLoadBalancer({ callback, payload, handleError }, { call }) {
+            const response = yield call(deleteLoadBalancer, payload, handleError);
             if (callback) {
                 callback(response)
             }

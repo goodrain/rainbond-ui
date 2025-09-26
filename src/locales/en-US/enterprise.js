@@ -1469,6 +1469,23 @@ const auditEnterprise = {
     'auditEnterprise.tabs.operation_log.th.select.time':'Select time',
     'auditEnterprise.tabs.operation_log.th.select.type':'Select type',
 }
+
+// Container log related
+const containerLog = {
+    'enterpriseColony.ClusterComponents.containerLog': 'Container Log',
+    'enterpriseColony.ClusterComponents.containerLogDesc': 'Log query for containers belonging to the current pod',
+    'enterpriseColony.ClusterComponents.selectContainer': 'Select Container',
+    'enterpriseColony.ClusterComponents.selectContainerPlaceholder': 'Please select a container',
+    'enterpriseColony.ClusterComponents.stopLog': 'Stop Log',
+    'enterpriseColony.ClusterComponents.restartLog': 'Restart Log',
+    'enterpriseColony.ClusterComponents.logTotal': 'Total Logs',
+    'enterpriseColony.ClusterComponents.logCount': ' entries',
+    'enterpriseColony.ClusterComponents.currentContainer': 'Current Container',
+    'enterpriseColony.ClusterComponents.unknown': 'Unknown',
+    'enterpriseColony.ClusterComponents.loadingLog': 'Loading logs...',
+    'enterpriseColony.ClusterComponents.autoConnecting': 'Automatically connecting to the first container log...',
+}
+
 //监控
 const monitarEnterprise = {
     'monitarEnterprise.title': 'Observation',
@@ -1524,4 +1541,4 @@ const monitarEnterprise = {
     'monitarEnterprise.error.desc.scan': 'The installed patrol plug-in was not detected',
 }
 
-export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade, auditEnterprise, monitarEnterprise);
+export default Object.assign({}, enterpriseOverview, applicationMarket, enterpriseTeamManagement, enterpriseColony, enterpriseUser, enterpriseSetting, otherEnterprise, LogEnterprise, extensionEnterprise, platformUpgrade, auditEnterprise, containerLog, monitarEnterprise);
