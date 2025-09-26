@@ -48,7 +48,8 @@ export default class GatewayRouteLoadBalancer extends Component {
             portLoading: false,
             token: null,
             portConfigs: [{ target_port: '', protocol: 'TCP', port: '' }], // 多端口配置
-            pollingTimer: null // 轮询定时器
+            pollingTimer: null, // 轮询定时器
+            deletingRecords: new Map() // 删除状态管理：Map<recordName, {loading: boolean, timeout: timeoutId}>
         };
     }
 
@@ -61,6 +62,12 @@ export default class GatewayRouteLoadBalancer extends Component {
     componentWillUnmount() {
         // 清理轮询定时器
         this.stopPolling();
+        // 清理所有删除超时定时器
+        this.state.deletingRecords.forEach(record => {
+            if (record.timeout) {
+                clearTimeout(record.timeout);
+            }
+        });
     }
 
     // 获取LoadBalancer列表数据
@@ -86,7 +93,6 @@ export default class GatewayRouteLoadBalancer extends Component {
                         dataSource,
                         tableLoading: false
                     });
-                    
                 } else {
                     this.setState({ tableLoading: false });
                 }
@@ -131,7 +137,7 @@ export default class GatewayRouteLoadBalancer extends Component {
     // 静默获取数据（不显示loading）
     getTableDataSilent = () => {
         const { dispatch, appID } = this.props;
-        const { searchKey } = this.state;
+        const { searchKey, deletingRecords } = this.state;
         const teamName = globalUtil.getCurrTeamName();
         const region_name = globalUtil.getCurrRegionName();
 
@@ -146,7 +152,32 @@ export default class GatewayRouteLoadBalancer extends Component {
             callback: (res) => {
                 if (res && res.status_code === 200) {
                     const dataSource = res.list || [];
-                    this.setState({ dataSource });
+                    let newState = { dataSource };
+                    
+                    // 检查所有正在删除的记录是否还存在
+                    if (deletingRecords.size > 0) {
+                        const newDeletingRecords = new Map(deletingRecords);
+                        let hasChanges = false;
+                        
+                        deletingRecords.forEach((deleteInfo, recordName) => {
+                            const recordStillExists = dataSource.some(item => item.name === recordName);
+                            // 如果记录不存在了，说明删除成功，清除删除loading状态
+                            if (!recordStillExists) {
+                                // 清理超时定时器
+                                if (deleteInfo.timeout) {
+                                    clearTimeout(deleteInfo.timeout);
+                                }
+                                newDeletingRecords.delete(recordName);
+                                hasChanges = true;
+                            }
+                        });
+                        
+                        if (hasChanges) {
+                            newState.deletingRecords = newDeletingRecords;
+                        }
+                    }
+                    
+                    this.setState(newState);
                 }
             },
             handleError: () => {
@@ -395,13 +426,62 @@ export default class GatewayRouteLoadBalancer extends Component {
         this.setState({ portConfigs: newConfigs });
     };
 
+    // 生成可用的对外端口
+    generateAvailableExternalPort = (targetPort) => {
+        const restrictedPorts = [80, 443, 8443, 7070, 8889, 6060, 7080, 10250, 9180];
+        const { portConfigs } = this.state;
+        
+        // 获取已使用的端口列表
+        const usedPorts = portConfigs
+            .map(config => config.port)
+            .filter(port => port && !isNaN(port))
+            .map(port => parseInt(port));
+        
+        // 生成候选端口列表，优先使用与目标端口相同的端口
+        const candidates = [];
+        
+        // 第一选择：与目标端口相同
+        if (targetPort) {
+            candidates.push(parseInt(targetPort));
+        }
+        
+        // 第二选择：目标端口+1000的范围内
+        if (targetPort) {
+            const basePort = parseInt(targetPort);
+            for (let i = 1; i <= 1000; i++) {
+                candidates.push(basePort + i);
+            }
+        }
+        
+        // 第三选择：常用端口范围
+        for (let port = 8000; port <= 9999; port++) {
+            candidates.push(port);
+        }
+        
+        // 第四选择：更大范围的端口
+        for (let port = 10000; port <= 65535; port++) {
+            candidates.push(port);
+        }
+        
+        // 查找第一个可用的端口
+        for (const port of candidates) {
+            if (port >= 1 && port <= 65535 && 
+                !restrictedPorts.includes(port) && 
+                !usedPorts.includes(port)) {
+                return port;
+            }
+        }
+        
+        return null; // 如果找不到可用端口
+    };
+
     // 更新端口配置
     updatePortConfig = (index, field, value) => {
         const { portConfigs, portList } = this.state;
         const newConfigs = [...portConfigs];
         
         if (field === 'target_port') {
-            // 根据选择的端口自动设置协议
+            // 根据选择的端口自动设置协议和对外端口
             const selectedPort = portList.find(port => port.container_port === value);
             if (selectedPort) {
                 let protocol = 'TCP'; // 默认协议
@@ -416,11 +496,19 @@ export default class GatewayRouteLoadBalancer extends Component {
                         protocol = 'UDP';
                     }
                 }
+                
+                // 自动生成对外端口
+                const suggestedExternalPort = this.generateAvailableExternalPort(value);
+                
                 newConfigs[index] = { 
                     ...newConfigs[index], 
                     target_port: value,
-                    protocol: protocol
+                    protocol: protocol,
+                    port: suggestedExternalPort || '' // 如果找不到可用端口，留空让用户手动输入
                 };
+                
+                // 清除之前的端口错误
+                delete newConfigs[index].portError;
             } else {
                 newConfigs[index] = { ...newConfigs[index], [field]: value };
             }
@@ -550,11 +638,42 @@ export default class GatewayRouteLoadBalancer extends Component {
         const { dispatch } = this.props;
         const teamName = globalUtil.getCurrTeamName();
         const region_name = globalUtil.getCurrRegionName();
+        const recordName = record.name;
+        
+        // 如果该记录已经在删除中，直接返回
+        if (this.state.deletingRecords.has(recordName)) {
+            return;
+        }
+        
+        // 设置删除loading状态和超时机制
+        const timeout = setTimeout(() => {
+            // 15秒后强制清除该记录的删除loading状态
+            this.setState(prevState => {
+                const newDeletingRecords = new Map(prevState.deletingRecords);
+                newDeletingRecords.delete(recordName);
+                return { deletingRecords: newDeletingRecords };
+            });
+            notification.warning({
+                message: '删除超时',
+                description: `记录 ${recordName} 删除操作可能仍在进行中，请稍后手动刷新页面确认`
+            });
+        }, 15000);
+        
+        // 添加删除状态
+        this.setState(prevState => {
+            const newDeletingRecords = new Map(prevState.deletingRecords);
+            newDeletingRecords.set(recordName, {
+                loading: true,
+                timeout: timeout
+            });
+            return { deletingRecords: newDeletingRecords };
+        });
+        
         dispatch({
             type: 'gateWay/deleteLoadBalancer',
             payload: {
                 teamName,
-                name: record.name,
+                name: recordName,
                 region_name,
             },
             callback: (res) => {
@@ -563,7 +682,11 @@ export default class GatewayRouteLoadBalancer extends Component {
                         message: formatMessage({ id: 'componentOverview.body.LoadBalancer.delete_success' }),
                         description: formatMessage({ id: 'componentOverview.body.LoadBalancer.wait_data_update' })
                     });
-                    this.getTableData();
+                    // 删除成功后不立即刷新，让轮询机制检测删除结果
+                    // 轮询会在检测到记录不存在时自动清除loading状态
+                } else {
+                    // 删除失败时立即清除该记录的loading状态
+                    this.clearDeleteState(recordName);
                 }
             },
             handleError: (res) => {
@@ -571,7 +694,22 @@ export default class GatewayRouteLoadBalancer extends Component {
                     message: formatMessage({ id: 'componentOverview.body.LoadBalancer.delete_failed' }),
                     description: res.msg || formatMessage({ id: 'componentOverview.body.LoadBalancer.wait_data_update' })
                 });
+                // 删除失败时立即清除该记录的loading状态
+                this.clearDeleteState(recordName);
             }
+        });
+    };
+
+    // 清除指定记录的删除状态
+    clearDeleteState = (recordName) => {
+        this.setState(prevState => {
+            const newDeletingRecords = new Map(prevState.deletingRecords);
+            const record = newDeletingRecords.get(recordName);
+            if (record && record.timeout) {
+                clearTimeout(record.timeout);
+            }
+            newDeletingRecords.delete(recordName);
+            return { deletingRecords: newDeletingRecords };
         });
     };
 
@@ -585,6 +723,22 @@ export default class GatewayRouteLoadBalancer extends Component {
         };
         const config = statusConfig[status] || { color: 'default', text: status };
         return <Tag color={config.color}>{config.text}</Tag>;
+    };
+
+    // 判断LoadBalancer是否可以操作（编辑/删除）
+    isLoadBalancerOperatable = (record) => {
+        // 如果正在删除中，不可操作
+        if (this.state.deletingRecords.has(record.name)) {
+            return false;
+        }
+        
+        // 如果状态是分配中（Creating、Pending等），不可操作
+        const nonOperatableStates = ['Creating', 'Pending'];
+        if (nonOperatableStates.includes(record.status)) {
+            return false;
+        }
+        
+        return true;
     };
     handleServiceNameClick = (service_name) => {
       const {comList}=this.state;
@@ -619,7 +773,8 @@ export default class GatewayRouteLoadBalancer extends Component {
             serviceComponentLoading,
             portList,
             portLoading,
-            portConfigs
+            portConfigs,
+            deletingRecords
         } = this.state;
 
         const columns = [
@@ -698,22 +853,62 @@ export default class GatewayRouteLoadBalancer extends Component {
                                 type="link" 
                                 size="small" 
                                 onClick={() => this.showModal(record)}
-                                style={{ padding: 0, marginRight: 8 }}
+                                style={{ 
+                                    padding: 0, 
+                                    marginRight: 8,
+                                    color: this.isLoadBalancerOperatable(record) ? undefined : '#ccc'
+                                }}
+                                disabled={!this.isLoadBalancerOperatable(record)}
+                                title={!this.isLoadBalancerOperatable(record) ? 
+                                    (deletingRecords.has(record.name) ? '正在删除中，无法编辑' : 'LoadBalancer分配中，无法编辑') : 
+                                    undefined
+                                }
                             >
                                 {formatMessage({ id: 'componentOverview.body.LoadBalancer.edit' })}
                             </Button>
                         )}
                         {isDelete && (
-                            <Popconfirm
-                                title={formatMessage({ id: 'componentOverview.body.LoadBalancer.confirm_delete' })}
-                                onConfirm={() => this.handleDelete(record)}
-                                okText={formatMessage({ id: 'componentOverview.body.Ports.determine' })}
-                                cancelText={formatMessage({ id: 'componentOverview.body.Ports.cancel' })}
-                            >
-                                <Button type="link" size="small" style={{ color: '#ff4d4f', padding: 0 }}>
-                                    {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
-                                </Button>
-                            </Popconfirm>
+                            <>
+                                {deletingRecords.has(record.name) ? (
+                                    // 删除loading状态时显示禁用的按钮
+                                    <Button 
+                                        type="link" 
+                                        size="small" 
+                                        style={{ color: '#ccc', padding: 0 }}
+                                        disabled={true}
+                                    >
+                                        {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
+                                        <Icon type="loading" style={{ marginLeft: 4 }} />
+                                    </Button>
+                                ) : !this.isLoadBalancerOperatable(record) ? (
+                                    // LoadBalancer分配中时显示禁用的删除按钮
+                                    <Button 
+                                        type="link" 
+                                        size="small" 
+                                        style={{ color: '#ccc', padding: 0 }}
+                                        disabled={true}
+                                        title="LoadBalancer分配中，无法删除"
+                                    >
+                                        {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
+                                    </Button>
+                                ) : (
+                                    // 正常状态时显示带确认框的按钮
+                                    <Popconfirm
+                                        title={formatMessage({ id: 'componentOverview.body.LoadBalancer.confirm_delete' })}
+                                        onConfirm={() => this.handleDelete(record)}
+                                        okText={formatMessage({ id: 'componentOverview.body.Ports.determine' })}
+                                        cancelText={formatMessage({ id: 'componentOverview.body.Ports.cancel' })}
+                                    >
+                                        <Button 
+                                            type="link" 
+                                            size="small" 
+                                            style={{ color: '#ff4d4f', padding: 0 }}
+                                        >
+                                            {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
+                                        </Button>
+                                    </Popconfirm>
+                                )}
+                            </>
                         )}
                     </div>
                 )
