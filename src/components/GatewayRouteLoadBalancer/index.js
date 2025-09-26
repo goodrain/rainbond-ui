@@ -47,7 +47,7 @@ export default class GatewayRouteLoadBalancer extends Component {
             portList: [],
             portLoading: false,
             token: null,
-            portConfigs: [{ target_port: '', protocol: 'TCP' }], // 多端口配置
+            portConfigs: [{ target_port: '', protocol: 'TCP', port: '' }], // 多端口配置
             pollingTimer: null // 轮询定时器
         };
     }
@@ -282,9 +282,10 @@ export default class GatewayRouteLoadBalancer extends Component {
         const portConfigs = record && record.ports ? 
             record.ports.map(port => ({
                 target_port: port.target_port,
-                protocol: port.protocol
+                protocol: port.protocol,
+                port: port.port || ''
             })) : 
-            [{ target_port: '', protocol: 'TCP' }];
+            [{ target_port: '', protocol: 'TCP', port: '' }];
 
         this.setState({
             modalVisible: true,
@@ -311,7 +312,7 @@ export default class GatewayRouteLoadBalancer extends Component {
             editingRecord: null,
             portList: [],
             portLoading: false,
-            portConfigs: [{ target_port: '', protocol: 'TCP' }]
+            portConfigs: [{ target_port: '', protocol: 'TCP', port: '' }]
         });
         this.props.form.resetFields();
     };
@@ -342,7 +343,7 @@ export default class GatewayRouteLoadBalancer extends Component {
         }
         
         this.setState({
-            portConfigs: [...portConfigs, { target_port: '', protocol: 'TCP' }]
+            portConfigs: [...portConfigs, { target_port: '', protocol: 'TCP', port: '' }]
         });
     };
 
@@ -356,6 +357,41 @@ export default class GatewayRouteLoadBalancer extends Component {
             return;
         }
         const newConfigs = portConfigs.filter((_, i) => i !== index);
+        this.setState({ portConfigs: newConfigs });
+    };
+
+    // 验证对外端口
+    validateExternalPort = (port, index) => {
+        const restrictedPorts = [80, 443, 8443, 7070, 8889, 6060, 7080, 10250, 9180];
+        const { portConfigs } = this.state;
+        const newConfigs = [...portConfigs];
+        
+        // 清除之前的错误
+        if (newConfigs[index]) {
+            delete newConfigs[index].portError;
+        }
+        
+        if (port) {
+            const portNumber = parseInt(port);
+            
+            // 检查是否为限制端口
+            if (restrictedPorts.includes(portNumber)) {
+                newConfigs[index] = {
+                    ...newConfigs[index],
+                    portError: `端口 ${portNumber} 为系统保留端口，不允许使用`
+                };
+            }
+            // 检查是否与其他配置重复
+            else if (portConfigs.some((config, configIndex) => 
+                configIndex !== index && config.port === portNumber
+            )) {
+                newConfigs[index] = {
+                    ...newConfigs[index],
+                    portError: `端口 ${portNumber} 已被其他配置使用`
+                };
+            }
+        }
+        
         this.setState({ portConfigs: newConfigs });
     };
 
@@ -407,10 +443,21 @@ export default class GatewayRouteLoadBalancer extends Component {
                 const { portConfigs } = this.state;
                 
                 // 验证端口配置
-                const validPorts = portConfigs.filter(config => config.target_port);
+                const validPorts = portConfigs.filter(config => config.target_port && config.port);
                 if (validPorts.length === 0) {
                     notification.error({
-                        message: formatMessage({ id: 'componentOverview.body.LoadBalancer.port_config_error' })
+                        message: '端口配置错误',
+                        description: '请至少配置一个完整的端口映射（目标端口和对外端口都必须填写）'
+                    });
+                    return;
+                }
+
+                // 检查是否有端口验证错误
+                const hasPortError = portConfigs.some(config => config.portError);
+                if (hasPortError) {
+                    notification.error({
+                        message: '端口配置错误',
+                        description: '请修复端口配置中的错误后再提交'
                     });
                     return;
                 }
@@ -439,10 +486,10 @@ export default class GatewayRouteLoadBalancer extends Component {
 
                 // 构建端口配置
                 const ports = validPorts.map((config, index) => ({
-                    port: parseInt(config.target_port), // 使用目标端口作为监听端口
-                    target_port: parseInt(config.target_port),
+                    port: parseInt(config.port), // 对外端口
+                    target_port: parseInt(config.target_port), // 目标端口
                     protocol: config.protocol,
-                    name: `port-${config.target_port}`
+                    name: `port-${config.port}`
                 }));
 
                 const payload = {
@@ -642,12 +689,6 @@ export default class GatewayRouteLoadBalancer extends Component {
                 render: this.renderStatus
             },
             {
-                title: formatMessage({ id: 'componentOverview.body.LoadBalancer.create_time' }),
-                dataIndex: 'created_at',
-                key: 'created_at',
-                render: (text) => text ? new Date(text).toLocaleString() : '-'
-            },
-            {
                 title: formatMessage({ id: 'componentOverview.body.LoadBalancer.operation' }),
                 key: 'action',
                 render: (text, record) => (
@@ -764,10 +805,10 @@ export default class GatewayRouteLoadBalancer extends Component {
                                         loading={serviceComponentLoading}
                                         onChange={(service_alias) => {
                                             this.handlePorts(service_alias);
-                                            // 重置端口配置
-                                            this.setState({
-                                                portConfigs: [{ target_port: '', protocol: 'TCP' }]
-                                            });
+                            // 重置端口配置
+                            this.setState({
+                                portConfigs: [{ target_port: '', protocol: 'TCP', port: '' }]
+                            });
                                         }}
                                         showSearch
                                         filterOption={(input, option) =>
@@ -786,12 +827,25 @@ export default class GatewayRouteLoadBalancer extends Component {
                             <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.port_config' })}>
                                 <div style={{ marginBottom: 16 }}>
                                     {(() => {
+                                        // 获取当前选择的服务
+                                        const currentServiceAlias = form.getFieldValue('service_alias');
+                                        const hasSelectedService = currentServiceAlias && currentServiceAlias !== undefined;
+                                        
                                         // 计算可用端口数量
                                         const availablePorts = (portList || []).filter(port => 
                                             port.inner_url !== '' && 
                                             !portConfigs.some(config => config.target_port === port.container_port)
                                         );
-                                        const isDisabled = availablePorts.length === 0 || portConfigs.length >= 10;
+                                        const isDisabled = !hasSelectedService || availablePorts.length === 0 || portConfigs.length >= 10;
+                                        
+                                        let tooltipTitle = '';
+                                        if (!hasSelectedService) {
+                                            tooltipTitle = '请先选择后端服务';
+                                        } else if (availablePorts.length === 0 && portList.length > 0) {
+                                            tooltipTitle = '所有端口都已被选择';
+                                        } else if (portConfigs.length >= 10) {
+                                            tooltipTitle = '最多支持10个端口配置';
+                                        }
                                         
                                         return (
                                             <Button 
@@ -800,16 +854,10 @@ export default class GatewayRouteLoadBalancer extends Component {
                                                 icon="plus"
                                                 style={{ width: '100%' }}
                                                 disabled={isDisabled}
-                                                title={
-                                                    availablePorts.length === 0 && portList.length > 0 
-                                                        ? '所有端口都已被选择' 
-                                                        : portConfigs.length >= 10 
-                                                        ? '最多支持10个端口配置' 
-                                                        : ''
-                                                }
+                                                title={tooltipTitle}
                                             >
                                                 {formatMessage({ id: 'componentOverview.body.LoadBalancer.add_port_config' })}
-                                                {availablePorts.length > 0 && portList.length > 0 && (
+                                                {hasSelectedService && availablePorts.length > 0 && portList.length > 0 && (
                                                     <span style={{ marginLeft: 8, color: '#1890ff' }}>
                                                         (还可添加 {availablePorts.length} 个)
                                                     </span>
@@ -818,25 +866,33 @@ export default class GatewayRouteLoadBalancer extends Component {
                                         );
                                     })()}
                                 </div>
-                                {portConfigs.map((config, index) => (
-                                    <div key={index} style={{ 
-                                        border: '1px solid #d9d9d9', 
-                                        borderRadius: 6, 
-                                        padding: 16, 
-                                        marginBottom: 16,
-                                        position: 'relative'
-                                    }}>
-                                        <Row gutter={16}>
-                                            <Col span={12}>
-                                                <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.target_port' })} style={{ marginBottom: 16 }}>
-                                                    <Select
-                                                        placeholder={formatMessage({ id: 'componentOverview.body.LoadBalancer.select_port' })}
-                                                        value={config.target_port}
-                                                        onChange={(value) => this.updatePortConfig(index, 'target_port', value)}
-                                                        disabled={portList.length === 0}
-                                                        loading={portLoading}
-                                                        showSearch
-                                                    >
+                                {portConfigs.map((config, index) => {
+                                    // 获取当前选择的服务状态
+                                    const currentServiceAlias = form.getFieldValue('service_alias');
+                                    const hasSelectedService = currentServiceAlias && currentServiceAlias !== undefined;
+                                    const isPortConfigDisabled = !hasSelectedService;
+                                    
+                                    return (
+                                        <div key={index} style={{ 
+                                            border: '1px solid #d9d9d9', 
+                                            borderRadius: 6, 
+                                            padding: 16, 
+                                            marginBottom: 16,
+                                            position: 'relative',
+                                            backgroundColor: isPortConfigDisabled ? '#f5f5f5' : 'transparent',
+                                            opacity: isPortConfigDisabled ? 0.6 : 1
+                                        }}>
+                                            <Row gutter={16}>
+                                                <Col span={8}>
+                                                    <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.target_port' })} style={{ marginBottom: 16 }}>
+                                                        <Select
+                                                            placeholder={isPortConfigDisabled ? '请先选择后端服务' : formatMessage({ id: 'componentOverview.body.LoadBalancer.select_port' })}
+                                                            value={config.target_port}
+                                                            onChange={(value) => this.updatePortConfig(index, 'target_port', value)}
+                                                            disabled={isPortConfigDisabled || portList.length === 0}
+                                                            loading={portLoading}
+                                                            showSearch
+                                                        >
                                                         {(portList || []).map((port, portIndex) => {
                                                             if (port.inner_url !== '') {
                                                                 // 检查当前端口是否已被其他配置选择
@@ -862,41 +918,61 @@ export default class GatewayRouteLoadBalancer extends Component {
                                                     </Select>
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={12}>
-                                                <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.protocol' })} style={{ marginBottom: 16 }}>
-                                                    <Input
-                                                        value={config.protocol}
-                                                        disabled
-                                                        placeholder={formatMessage({ id: 'componentOverview.body.LoadBalancer.auto_set_protocol' })}
-                                                        style={{ backgroundColor: '#f5f5f5' }}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
+                                                <Col span={8}>
+                                                    <Form.Item label="对外端口" style={{ marginBottom: 16 }}>
+                                                        <InputNumber
+                                                            placeholder={isPortConfigDisabled ? '请先选择后端服务' : '请输入对外端口'}
+                                                            value={config.port}
+                                                            onChange={(value) => this.updatePortConfig(index, 'port', value)}
+                                                            min={1}
+                                                            max={65535}
+                                                            style={{ width: '100%' }}
+                                                            onBlur={(e) => this.validateExternalPort(e.target.value, index)}
+                                                            disabled={isPortConfigDisabled}
+                                                        />
+                                                        {config.portError && !isPortConfigDisabled && (
+                                                            <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
+                                                                {config.portError}
+                                                            </div>
+                                                        )}
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={8}>
+                                                    <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.protocol' })} style={{ marginBottom: 16 }}>
+                                                        <Input
+                                                            value={config.protocol}
+                                                            disabled
+                                                            placeholder={isPortConfigDisabled ? '请先选择后端服务' : formatMessage({ id: 'componentOverview.body.LoadBalancer.auto_set_protocol' })}
+                                                            style={{ backgroundColor: '#f5f5f5' }}
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
                                         </Row>
-                                        {portConfigs.length > 1 && (
-                                            <Button
-                                                type="link"
-                                                icon="delete"
-                                                onClick={() => this.removePortConfig(index)}
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 8,
-                                                    right: 8,
-                                                    color: '#ff4d4f'
-                                                }}
-                                            >
-                                                {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete_port_config' })}
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
+                                            {portConfigs.length > 1 && (
+                                                <Button
+                                                    type="link"
+                                                    icon="delete"
+                                                    onClick={() => this.removePortConfig(index)}
+                                                    disabled={isPortConfigDisabled}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 8,
+                                                        right: 8,
+                                                        color: isPortConfigDisabled ? '#ccc' : '#ff4d4f'
+                                                    }}
+                                                >
+                                                    {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete_port_config' })}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </Form.Item>
 
                             <Form.Item label={formatMessage({ id: 'componentOverview.body.LoadBalancer.annotations_config' })}>
                                 {getFieldDecorator('annotations', {
                                     initialValue: editingRecord?.annotations ? 
-                                        JSON.stringify(editingRecord.annotations, null, 2) : 
-                                        '{\n  "service.beta.kubernetes.io/aws-load-balancer-type": "nlb"\n}'
+                                        JSON.stringify(editingRecord.annotations, null, 2) : null
                                 })(
                                     <TextArea
                                         placeholder={formatMessage({ id: 'componentOverview.body.LoadBalancer.annotations_placeholder' })}
