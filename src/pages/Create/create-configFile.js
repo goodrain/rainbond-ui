@@ -214,8 +214,13 @@ export default class Index extends PureComponent {
     dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
   handleJumpNext = () => {
-      this.child.childFn()
-      this.handleLinkConfigPort('create-configPort')
+      // 调用子组件的验证方法
+      const validationResult = this.child.childFn()
+
+      // 只有验证通过才跳转到下一页
+      if (validationResult !== false) {
+          this.handleLinkConfigPort('create-configPort')
+      }
   }
   // cpu 内存 接口
   handleEditInfo = (val = {}) => {

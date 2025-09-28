@@ -102,6 +102,7 @@ export default class Index extends PureComponent {
       customMemoryValue: '',
       customCpuValue: '',
       customMemoryUnit: 'GB', // 默认单位为GB
+      customMemoryError: '', // 内存输入错误信息
       memoryMarks: {
         1: '128M',
         2: '256M',
@@ -911,13 +912,13 @@ export default class Index extends PureComponent {
 
       // 处理自定义内存值
       if (isCustomMemory && new_memory === 10) {
-        if (customMemoryValue && customMemoryValue !== '') {
-          // 根据选择的单位转换为MB
-          memory = customMemoryUnit === 'GB' ? parseFloat(customMemoryValue) * 1024 : parseFloat(customMemoryValue);
-        } else {
-          notification.warning({ message: '请输入自定义内存值' });
+        // 先验证内存值
+        if (!this.validateCustomMemory()) {
           return;
         }
+        const memValue = parseFloat(customMemoryValue);
+        // 根据选择的单位转换为MB
+        memory = customMemoryUnit === 'GB' ? memValue * 1024 : memValue;
       } else {
         memory = Object.keys(memoryMarksObj).find(item => {
           if (memoryMarksObj[item] == new_memory) {
@@ -1017,42 +1018,87 @@ export default class Index extends PureComponent {
   // 自定义内存输入框变化处理
   handleCustomMemoryChange = (e) => {
     const value = e.target.value;
-    const { customMemoryUnit } = this.state;
 
-    // 允许清空输入框
-    if (value === '') {
+    // 实时更新输入值，验证在 validateCustomMemory 中处理
+    this.setState({
+      customMemoryValue: value,
+      customMemoryError: '' // 清除错误信息
+    });
+  }
+
+  // 验证自定义内存值
+  validateCustomMemory = () => {
+    const { customMemoryValue, customMemoryUnit } = this.state;
+
+    // 如果为空，显示错误
+    if (!customMemoryValue || customMemoryValue === '') {
       this.setState({
-        customMemoryValue: ''
+        customMemoryError: '请输入内存值'
       });
-      return;
+      return false;
     }
 
-    // 验证输入值
-    const numValue = parseFloat(value);
+    const numValue = parseFloat(customMemoryValue);
 
-    // 如果不是有效的数字，不更新状态
+    // 验证是否为有效数字
     if (isNaN(numValue)) {
-      return;
+      this.setState({
+        customMemoryError: '请输入有效的数字'
+      });
+      return false;
     }
 
     // 不允许负数或零
     if (numValue <= 0) {
-      return;
+      this.setState({
+        customMemoryError: '内存值必须大于0'
+      });
+      return false;
     }
 
-    // 限制最大值
-    if (customMemoryUnit === 'GB' && numValue > 1024) {
-      message.warning('内存不能超过 1024 GB');
-      return;
-    }
-    if (customMemoryUnit === 'MB' && numValue > 1048576) {
-      message.warning('内存不能超过 1048576 MB');
-      return;
+    // MB单位时必须是整数
+    if (customMemoryUnit === 'MB') {
+      if (!Number.isInteger(numValue)) {
+        this.setState({
+          customMemoryError: 'MB单位时请输入整数'
+        });
+        return false;
+      }
+      if (numValue < 1) {
+        this.setState({
+          customMemoryError: 'MB单位时最小值为 1 MB'
+        });
+        return false;
+      }
+      if (numValue > 1048576) {
+        this.setState({
+          customMemoryError: '内存不能超过 1048576 MB'
+        });
+        return false;
+      }
     }
 
+    // GB单位时的验证
+    if (customMemoryUnit === 'GB') {
+      if (numValue < 1) {
+        this.setState({
+          customMemoryError: 'GB单位时最小值为 1 GB'
+        });
+        return false;
+      }
+      if (numValue > 1024) {
+        this.setState({
+          customMemoryError: '内存不能超过 1024 GB'
+        });
+        return false;
+      }
+    }
+
+    // 验证通过
     this.setState({
-      customMemoryValue: value
+      customMemoryError: ''
     });
+    return true;
   }
 
   // 内存单位切换处理
@@ -1078,11 +1124,16 @@ export default class Index extends PureComponent {
 
       this.setState({
         customMemoryUnit: value,
-        customMemoryValue: convertedValue
+        customMemoryValue: convertedValue,
+        customMemoryError: '' // 清除错误信息
+      }, () => {
+        // 切换单位后重新验证
+        this.validateCustomMemory();
       });
     } else {
       this.setState({
-        customMemoryUnit: value
+        customMemoryUnit: value,
+        customMemoryError: ''
       });
     }
   }
@@ -1175,7 +1226,9 @@ export default class Index extends PureComponent {
       isCustomMemory,
       isCustomCpu,
       customMemoryValue,
-      customCpuValue
+      customCpuValue,
+      customMemoryUnit,
+      customMemoryError
     } = this.state;
     if (extendInfo && Object.keys(extendInfo).length > 0) {
       this.getPrice()
@@ -1386,16 +1439,22 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
             {!showBill && this.state.isCustomMemory && (
-              <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentOverview.body.Expansion.customMemory' })}>
+              <Form.Item
+                {...formItemLayout}
+                label={formatMessage({ id: 'componentOverview.body.Expansion.customMemory' })}
+                validateStatus={this.state.customMemoryError ? 'error' : ''}
+                help={this.state.customMemoryError}
+              >
                 <Input.Group compact>
                   <Input
                     style={{ width: '150px' }}
                     placeholder={this.state.customMemoryUnit === 'GB' ? '例如: 1.5' : '例如: 512'}
                     value={this.state.customMemoryValue}
                     onChange={this.handleCustomMemoryChange}
+                    onBlur={this.validateCustomMemory}
                     type="number"
-                    min={this.state.customMemoryUnit === 'GB' ? 0.01 : 1}
-                    step={this.state.customMemoryUnit === 'GB' ? 0.01 : 1}
+                    min={1}
+                    step={this.state.customMemoryUnit === 'GB' ? 0.1 : 1}
                     disabled={!this.state.editBillInfo}
                   />
                   <Select
