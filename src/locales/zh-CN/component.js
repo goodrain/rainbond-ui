@@ -431,6 +431,7 @@ const componentOverview = {
     'componentOverview.body.Expansion.empower': '当前产品授权不支持 GPU 调度，需要 GPU 共享调度能力，',
     'componentOverview.body.Expansion.authorization': '请获取企业版授权。',
     'componentOverview.body.Expansion.memory': '内存',
+    'componentOverview.body.Expansion.customMemory': '自定义内存',
     'componentOverview.body.Expansion.unlimited': '不限制',
     'componentOverview.body.Expansion.algorithm': '内存分配 0 则为不限制。',
     'componentOverview.body.Expansion.video': 'GPU显存',

@@ -101,6 +101,7 @@ export default class Index extends PureComponent {
       isCustomCpu: false,
       customMemoryValue: '',
       customCpuValue: '',
+      customMemoryUnit: 'GB', // 默认单位为GB
       memoryMarks: {
         1: '128M',
         2: '256M',
@@ -205,13 +206,35 @@ export default class Index extends PureComponent {
       const isCustomMemory = mValue === 10;
       const isCustomCpu = cValue === 9;
       
-      this.setState({ 
-        cpuValue: cValue, 
+      // 智能选择内存单位
+      let memoryUnit = 'MB';
+      let memoryDisplayValue = '';
+      if (isCustomMemory && memoryValueRaw > 0) {
+        // 如果内存值大于等于1024MB且能被1024整除，或者大于等于1024且转换为GB后是整数或简单小数，使用GB
+        if (memoryValueRaw >= 1024) {
+          const gbValue = memoryValueRaw / 1024;
+          // 如果GB值是整数或者小数位不超过2位的简单小数，使用GB
+          if (Number.isInteger(gbValue) || gbValue.toFixed(2) == gbValue) {
+            memoryUnit = 'GB';
+            memoryDisplayValue = gbValue.toString();
+          } else {
+            memoryUnit = 'MB';
+            memoryDisplayValue = memoryValueRaw.toString();
+          }
+        } else {
+          memoryUnit = 'MB';
+          memoryDisplayValue = memoryValueRaw.toString();
+        }
+      }
+
+      this.setState({
+        cpuValue: cValue,
         memoryValue: mValue,
         isCustomMemory: isCustomMemory,
         isCustomCpu: isCustomCpu,
-        customMemoryValue: isCustomMemory ? (memoryValueRaw / 1024).toString() : '',
-        customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : ''
+        customMemoryValue: memoryDisplayValue,
+        customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
+        customMemoryUnit: memoryUnit
       });
     }
   }
@@ -879,16 +902,22 @@ export default class Index extends PureComponent {
   }
   handleFromData = () => {
     const { form, appAlias, extendInfo, dispatch } = this.props;
-    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state;
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
     form.validateFields((err, values) => {
       if (!err) return;
       const { new_memory, new_cpu } = values;
-      
+
       let memory, cpu;
-      
+
       // 处理自定义内存值
-      if (isCustomMemory && new_memory === 10 && customMemoryValue) {
-        memory = parseFloat(customMemoryValue) * 1024; // 转换GB为MB
+      if (isCustomMemory && new_memory === 10) {
+        if (customMemoryValue && customMemoryValue !== '') {
+          // 根据选择的单位转换为MB
+          memory = customMemoryUnit === 'GB' ? parseFloat(customMemoryValue) * 1024 : parseFloat(customMemoryValue);
+        } else {
+          notification.warning({ message: '请输入自定义内存值' });
+          return;
+        }
       } else {
         memory = Object.keys(memoryMarksObj).find(item => {
           if (memoryMarksObj[item] == new_memory) {
@@ -898,8 +927,13 @@ export default class Index extends PureComponent {
       }
       
       // 处理自定义CPU值
-      if (isCustomCpu && new_cpu === 9 && customCpuValue) {
-        cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
+      if (isCustomCpu && new_cpu === 9) {
+        if (customCpuValue && customCpuValue !== '') {
+          cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
+        } else {
+          notification.warning({ message: '请输入自定义CPU值' });
+          return;
+        }
       } else {
         cpu = Object.keys(cpuMarksObj).find(item => {
           if (cpuMarksObj[item] == new_cpu) {
@@ -982,9 +1016,75 @@ export default class Index extends PureComponent {
 
   // 自定义内存输入框变化处理
   handleCustomMemoryChange = (e) => {
+    const value = e.target.value;
+    const { customMemoryUnit } = this.state;
+
+    // 允许清空输入框
+    if (value === '') {
+      this.setState({
+        customMemoryValue: ''
+      });
+      return;
+    }
+
+    // 验证输入值
+    const numValue = parseFloat(value);
+
+    // 如果不是有效的数字，不更新状态
+    if (isNaN(numValue)) {
+      return;
+    }
+
+    // 不允许负数或零
+    if (numValue <= 0) {
+      return;
+    }
+
+    // 限制最大值
+    if (customMemoryUnit === 'GB' && numValue > 1024) {
+      message.warning('内存不能超过 1024 GB');
+      return;
+    }
+    if (customMemoryUnit === 'MB' && numValue > 1048576) {
+      message.warning('内存不能超过 1048576 MB');
+      return;
+    }
+
     this.setState({
-      customMemoryValue: e.target.value
+      customMemoryValue: value
     });
+  }
+
+  // 内存单位切换处理
+  handleMemoryUnitChange = (value) => {
+    const { customMemoryValue, customMemoryUnit } = this.state;
+
+    // 如果有输入值，进行单位转换
+    if (customMemoryValue && customMemoryValue !== '') {
+      const numValue = parseFloat(customMemoryValue);
+      let convertedValue = '';
+
+      if (customMemoryUnit === 'GB' && value === 'MB') {
+        // GB 转换为 MB
+        convertedValue = (numValue * 1024).toString();
+      } else if (customMemoryUnit === 'MB' && value === 'GB') {
+        // MB 转换为 GB
+        const gbValue = numValue / 1024;
+        // 保留最多2位小数
+        convertedValue = gbValue.toFixed(2);
+        // 去除不必要的小数位
+        convertedValue = parseFloat(convertedValue).toString();
+      }
+
+      this.setState({
+        customMemoryUnit: value,
+        customMemoryValue: convertedValue
+      });
+    } else {
+      this.setState({
+        customMemoryUnit: value
+      });
+    }
   }
   
   // 自定义CPU输入框变化处理
@@ -995,12 +1095,16 @@ export default class Index extends PureComponent {
   }
 
   getFormValues = (data, type) => {
-    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue } = this.state
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state
     let num = 0
     if (type == 'memory') {
-      if (isCustomMemory && data === 10 && customMemoryValue) {
-        // 自定义内存值，转换为MB
-        num = parseFloat(customMemoryValue) * 1024;
+      if (isCustomMemory && data === 10) {
+        if (customMemoryValue && customMemoryValue !== '') {
+          // 自定义内存值，根据单位转换为MB
+          num = customMemoryUnit === 'GB' ? parseFloat(customMemoryValue) * 1024 : parseFloat(customMemoryValue);
+        } else {
+          num = 0; // 如果没有输入值，返回0
+        }
       } else {
         Object.keys(memoryMarksObj).forEach(item => {
           if (memoryMarksObj[item] == data) {
@@ -1009,9 +1113,13 @@ export default class Index extends PureComponent {
         })
       }
     } else {
-      if (isCustomCpu && data === 9 && customCpuValue) {
-        // 自定义CPU值，转换为m
-        num = parseFloat(customCpuValue) * 1000;
+      if (isCustomCpu && data === 9) {
+        if (customCpuValue && customCpuValue !== '') {
+          // 自定义CPU值，转换为m
+          num = parseFloat(customCpuValue) * 1000;
+        } else {
+          num = 0; // 如果没有输入值，返回0
+        }
       } else {
         Object.keys(cpuMarksObj).forEach(item => {
           if (cpuMarksObj[item] == data) {
@@ -1212,14 +1320,34 @@ export default class Index extends PureComponent {
                     
                     const isCustomMemory = mValue === 10;
                     const isCustomCpu = cValue === 9;
-                    
+
+                    // 智能选择内存单位
+                    let memoryUnit = 'MB';
+                    let memoryDisplayValue = '';
+                    if (isCustomMemory && memoryValueRaw > 0) {
+                      if (memoryValueRaw >= 1024) {
+                        const gbValue = memoryValueRaw / 1024;
+                        if (Number.isInteger(gbValue) || gbValue.toFixed(2) == gbValue) {
+                          memoryUnit = 'GB';
+                          memoryDisplayValue = gbValue.toString();
+                        } else {
+                          memoryUnit = 'MB';
+                          memoryDisplayValue = memoryValueRaw.toString();
+                        }
+                      } else {
+                        memoryUnit = 'MB';
+                        memoryDisplayValue = memoryValueRaw.toString();
+                      }
+                    }
+
                     this.setState({
                       cpuValue: cValue,
                       memoryValue: mValue,
                       isCustomMemory: isCustomMemory,
                       isCustomCpu: isCustomCpu,
-                      customMemoryValue: isCustomMemory ? (memoryValueRaw / 1024).toString() : '',
+                      customMemoryValue: memoryDisplayValue,
                       customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
+                      customMemoryUnit: memoryUnit,
                       editBillInfo: false
                     }, () => {
                       // 在状态更新完成后恢复表单值
@@ -1258,17 +1386,28 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>
             {!showBill && this.state.isCustomMemory && (
-              <Form.Item {...formItemLayout} label="自定义内存">
-                <Input
-                  style={{ width: '200px' }}
-                  placeholder="请输入内存大小"
-                  value={this.state.customMemoryValue}
-                  onChange={this.handleCustomMemoryChange}
-                  addonAfter="GB"
-                  type="number"
-                  min={1}
-                  disabled={!this.state.editBillInfo}
-                />
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentOverview.body.Expansion.customMemory' })}>
+                <Input.Group compact>
+                  <Input
+                    style={{ width: '150px' }}
+                    placeholder={this.state.customMemoryUnit === 'GB' ? '例如: 1.5' : '例如: 512'}
+                    value={this.state.customMemoryValue}
+                    onChange={this.handleCustomMemoryChange}
+                    type="number"
+                    min={this.state.customMemoryUnit === 'GB' ? 0.01 : 1}
+                    step={this.state.customMemoryUnit === 'GB' ? 0.01 : 1}
+                    disabled={!this.state.editBillInfo}
+                  />
+                  <Select
+                    value={this.state.customMemoryUnit}
+                    onChange={this.handleMemoryUnitChange}
+                    style={{ width: 80 }}
+                    disabled={!this.state.editBillInfo}
+                  >
+                    <Option value="MB">MB</Option>
+                    <Option value="GB">GB</Option>
+                  </Select>
+                </Input.Group>
               </Form.Item>
             )}
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_cpu' })}>

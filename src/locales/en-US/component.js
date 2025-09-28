@@ -421,6 +421,7 @@ const componentOverview = {
     'componentOverview.body.Expansion.empower': 'The current product license does not support GPU scheduling. Therefore, GPU sharing scheduling capability is required,',
     'componentOverview.body.Expansion.authorization': 'Please obtain enterprise Edition authorization.',
     'componentOverview.body.Expansion.memory': 'Memory',
+    'componentOverview.body.Expansion.customMemory': 'Custom Memory',
     'componentOverview.body.Expansion.unlimited': 'Unlimited',
     'componentOverview.body.Expansion.algorithm': 'Memory allocation 0 is unlimited.',
     'componentOverview.body.Expansion.video': 'GPU Memory',
