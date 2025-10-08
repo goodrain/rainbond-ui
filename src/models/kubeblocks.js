@@ -121,7 +121,7 @@ export default {
 
         /**
          * 伸缩 KubeBlocks 集群
-         * @param {Object} payload - { team_name, region_name, service_id, body }
+         * @param {Object} payload - { team_name, service_alias, body }
          */
         *scaleCluster({ payload, callback, handleError }, { call, put }) {
             const response = yield call(scaleClusterApi, payload, handleError);
@@ -130,7 +130,7 @@ export default {
 
         /**
          * 更新 KubeBlocks 集群备份配置
-         * @param {Object} payload - { team_name, region_name, service_id, body }
+         * @param {Object} payload - { team_name, service_alias, body }
          */
         *updateBackupConfig({ payload, callback, handleError }, { call, put }) {
             const response = yield call(updateBackupConfigApi, payload, handleError);
@@ -139,7 +139,7 @@ export default {
 
         /**
          * 获取 KubeBlocks 集群备份列表
-         * @param {Object} payload - { team_name, region_name, service_id, page, page_size }
+         * @param {Object} payload - { team_name, service_alias, page, page_size }
          */
         *fetchBackupList({ payload, callback, handleError }, { call, put }) {
             const response = yield call(getBackupList, payload, handleError);
@@ -156,26 +156,27 @@ export default {
 
         /**
          * 删除 KubeBlocks 集群备份
+         * @param {Object} payload - { team_name, service_alias, backups }
          */
         *deleteBackups({ payload, callback, handleError }, { call, put, select }) {
             const response = yield call(deleteBackupsApi, payload, handleError);
-            
+
             // 如果删除成功，立即更新本地状态
             if (response && response.status_code === 200) {
                 const currentBackupList = yield select(state => state.kubeblocks.backupList);
                 const { backups } = payload;
-                
+
                 // 从当前列表中移除被删除的备份
-                const updatedBackupList = currentBackupList.filter(backup => 
+                const updatedBackupList = currentBackupList.filter(backup =>
                     !backups.includes(backup.name)
                 );
-                
+
                 yield put({
                     type: 'saveBackupList',
                     payload: updatedBackupList
                 });
             }
-            
+
             if (callback) {
                 callback(response);
             }
@@ -183,6 +184,7 @@ export default {
 
         /**
          * 创建手动备份
+         * @param {Object} payload - { team_name, service_alias }
          */
         *createManualBackup({ payload, callback, handleError }, { call }) {
             const response = yield call(createManualBackupApi, payload, handleError);

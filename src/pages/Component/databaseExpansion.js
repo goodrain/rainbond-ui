@@ -225,8 +225,7 @@ export default class Index extends PureComponent {
         type: 'kubeblocks/getClusterDetail',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          region_name: globalUtil.getCurrRegionName(),
-          service_id: this.props.appDetail.service.service_id
+          service_alias: this.props.appDetail.service.service_alias
         },
         callback: (res) => {
           if (res && res.status_code === 200) {
@@ -515,12 +514,12 @@ export default class Index extends PureComponent {
         return;
       }
       this.setState({ pendingScaleBody: resourceBody });
+      const serviceAlias = this.props.appDetail.service.service_alias;
       dispatch({
         type: 'kubeblocks/scaleCluster',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          region_name: globalUtil.getCurrRegionName(),
-          service_id: serviceId,
+          service_alias: serviceAlias,
           body: {
             cpu: resourceBody.cpu,
             memory: resourceBody.memory,
@@ -537,8 +536,7 @@ export default class Index extends PureComponent {
               type: 'kubeblocks/getClusterDetail',
               payload: {
                 team_name: globalUtil.getCurrTeamName(),
-                region_name: globalUtil.getCurrRegionName(),
-                service_id: serviceId
+                service_alias: serviceAlias
               },
             });
             this.setState({ editBillInfo: false });

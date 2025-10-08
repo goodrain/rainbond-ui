@@ -98,14 +98,13 @@ export async function getComponentKubeBlocksInfo(params, handleError) {
  * 获取 KubeBlocks 集群详情
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务ID
+ * @param {String} params.service_alias 组件别名（AppBaseView 需要）
  * @param {Function} handleError 错误处理回调
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>}
  */
 export async function getClusterDetail(params, handleError) {
     return request(
-        `${apiconfig.baseUrl}/console/teams/${params.team_name}/regions/${params.region_name}/kubeblocks/clusters/${params.service_id}`,
+        `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.service_alias}/kubeblocks/detail`,
         {
             method: 'get',
             handleError
@@ -114,17 +113,16 @@ export async function getClusterDetail(params, handleError) {
 }
 
 /**
- * 伸缩 KubeBlocks Cluster
+ * 伸缩 KubeBlocks 集群
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias 组件别名（AppBaseView 需要）
  * @param {Object} params.body request body：{ cpu, memory, storage, replicas, rbdService }
  */
 export async function scaleCluster(params, handleError) {
-    const { team_name, region_name, service_id, body } = params;
+    const { team_name, service_alias, body } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/detail`,
         {
             method: 'put',
             data: body,
@@ -138,14 +136,13 @@ export async function scaleCluster(params, handleError) {
  * 仅变更 backupRepo / schedule / retentionPeriod / terminationPolicy
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias
  * @param {Object} params.body request body：{ backupRepo, schedule, retentionPeriod, terminationPolicy }
  */
 export async function updateBackupConfig(params, handleError) {
-    const { team_name, region_name, service_id, body } = params;
+    const { team_name, service_alias, body } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backup`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/backup-config`,
         {
             method: 'put',
             data: body,
@@ -159,15 +156,14 @@ export async function updateBackupConfig(params, handleError) {
  * 触发 KubeBlocks 集群的手动备份操作，不需要额外参数
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias 组件别名（AppBaseView 需要）
  * @param {Function} handleError 错误处理回调
  * @returns {Promise<Object>} 返回格式: { bean: { backup_id: string, status: string } }
  */
 export async function createManualBackup(params, handleError) {
-    const { team_name, region_name, service_id } = params;
+    const { team_name, service_alias } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backups`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/backups`,
         {
             method: 'post',
             handleError
@@ -180,22 +176,21 @@ export async function createManualBackup(params, handleError) {
  * 获取集群的备份记录，支持分页展示
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias 组件别名（AppBaseView 需要）
  * @param {Number} params.page 页码（默认 1）
  * @param {Number} params.page_size 页面大小（默认 6）
  * @param {Function} handleError 错误处理回调
  * @returns {Promise<Object>} 返回格式: { status_code: 200, list: [], page: 1, total: 4 }
  */
 export async function getBackupList(params, handleError) {
-    const { team_name, region_name, service_id, page, page_size } = params;
+    const { team_name, service_alias, page, page_size } = params;
     const queryParams = new URLSearchParams({
         page: page || 1,
         page_size: page_size || 6
     });
 
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backups?${queryParams.toString()}`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/backups?${queryParams.toString()}`,
         {
             method: 'get',
             handleError
@@ -208,16 +203,15 @@ export async function getBackupList(params, handleError) {
  * 删除指定的一个或多个备份记录
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias 组件别名（AppBaseView 需要）
  * @param {Array<String>} params.backups 要删除的备份名称数组
  * @param {Function} handleError 错误处理回调
  * @returns {Promise<Object>} 返回格式: { list: [删除的备份名称列表] }
  */
 export async function deleteBackups(params, handleError) {
-    const { team_name, region_name, service_id, backups } = params;
+    const { team_name, service_alias, backups } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/backups`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/backups`,
         {
             method: 'delete',
             data: { backups },
@@ -230,8 +224,7 @@ export async function deleteBackups(params, handleError) {
  * 获取 KubeBlocks 集群参数（分页/搜索）
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias
  * @param {Number} params.page 页码（默认 1）
  * @param {Number} params.page_size 页面大小（默认 6）
  * @param {String} [params.keyword] 关键字搜索（可选）
@@ -239,7 +232,7 @@ export async function deleteBackups(params, handleError) {
  * @returns {Promise<Object>} 返回格式: { status_code: 200, list: [], page: 1, number: 4 }
  */
 export async function getClusterParameters(params, handleError) {
-    const { team_name, region_name, service_id, page, page_size, keyword } = params;
+    const { team_name, service_alias, page, page_size, keyword } = params;
     const queryParams = new URLSearchParams({
         page: page || 1,
         page_size: page_size || 6
@@ -250,7 +243,7 @@ export async function getClusterParameters(params, handleError) {
     }
 
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/parameters?${queryParams.toString()}`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/parameters?${queryParams.toString()}`,
         {
             method: 'get',
             handleError
@@ -262,16 +255,15 @@ export async function getClusterParameters(params, handleError) {
  * 批量更新 KubeBlocks 集群参数
  * @param {Object} params
  * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务 ID
+ * @param {String} params.service_alias
  * @param {Object} params.body 请求体，格式: { changes: [{ name, value }, ...] }
  * @param {Function} handleError 错误处理回调
  * @returns {Promise<Object>} 返回格式: { status_code: 200, bean: { applied: [], invalids: [] } }
  */
 export async function updateClusterParameters(params, handleError) {
-    const { team_name, region_name, service_id, body } = params;
+    const { team_name, service_alias, body } = params;
     return request(
-        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/clusters/${service_id}/parameters`,
+        `${apiconfig.baseUrl}/console/teams/${team_name}/apps/${service_alias}/kubeblocks/parameters`,
         {
             method: 'post',
             data: body,

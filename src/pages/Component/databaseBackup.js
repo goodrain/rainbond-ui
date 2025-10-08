@@ -142,13 +142,12 @@ export default class Index extends PureComponent {
     const { dispatch, appDetail } = this.props;
     const { backupPagination } = this.state;
 
-    if (!appDetail || !appDetail.service || !appDetail.service.service_id) {
+    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
       return;
     }
 
     const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-    const service_id = appDetail.service.service_id;
+    const service_alias = appDetail.service.service_alias;
 
     const currentPage = page !== null ? page : backupPagination.page;
 
@@ -158,8 +157,7 @@ export default class Index extends PureComponent {
       type: 'kubeblocks/fetchBackupList',
       payload: {
         team_name,
-        region_name,
-        service_id,
+        service_alias,
         page: currentPage,
         page_size: backupPagination.page_size
       },
@@ -315,6 +313,12 @@ export default class Index extends PureComponent {
         return;
       }
 
+      const serviceAlias = appDetail?.service?.service_alias;
+      if (!serviceAlias) {
+        notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.service_not_ready' }) });
+        return;
+      }
+
       const backupConfig = {
         backupRepo: backupRepo || "",
         terminationPolicy: termination_policy || 'Delete',
@@ -355,8 +359,7 @@ export default class Index extends PureComponent {
         type: 'kubeblocks/updateBackupConfig',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          region_name: globalUtil.getCurrRegionName(),
-          service_id: serviceId,
+          service_alias: serviceAlias,
           body: backupConfig
         },
         callback: (res) => {
@@ -421,12 +424,11 @@ export default class Index extends PureComponent {
     const { dispatch, appDetail } = this.props;
     const { backupPagination } = this.state;
     const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-    const service_id = appDetail.service.service_id;
+    const service_alias = appDetail.service.service_alias;
 
     dispatch({
       type: 'kubeblocks/createManualBackup',
-      payload: { team_name, region_name, service_id },
+      payload: { team_name, service_alias },
       callback: (res) => {
         if (res && res.status_code === 200) {
           notification.success({
@@ -463,14 +465,13 @@ export default class Index extends PureComponent {
    */
   handleDeleteBackup = (backupName) => {
     const { dispatch, appDetail } = this.props;
-    if (!appDetail || !appDetail.service || !appDetail.service.service_id) {
+    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
       notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.delete.service_incomplete' }) });
       return;
     }
 
     const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-    const service_id = appDetail.service.service_id;
+    const service_alias = appDetail.service.service_alias;
 
     // 保持loading状态
     this.setState({ loading: true });
@@ -479,8 +480,7 @@ export default class Index extends PureComponent {
       type: 'kubeblocks/deleteBackups',
       payload: {
         team_name,
-        region_name,
-        service_id,
+        service_alias,
         backups: [backupName]
       },
       callback: (res) => {

@@ -117,14 +117,15 @@ export default class Index extends PureComponent {
     this.fetchParameters();
   }
 
-  // 获取服务上下文（团队/区域/服务ID），若缺失返回 null
+  // 获取 service context(team, service_alias)，若缺失返回 null
   getServiceCtx = () => {
     const { appDetail } = this.props;
     if (!appDetail || !appDetail.service) return null;
+    const { service_alias } = appDetail.service;
+    if (!service_alias) return null;
     return {
       team_name: globalUtil.getCurrTeamName(),
-      region_name: globalUtil.getCurrRegionName(),
-      service_id: appDetail.service.service_id
+      service_alias
     };
   };
 

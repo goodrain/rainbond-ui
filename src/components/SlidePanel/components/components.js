@@ -401,9 +401,9 @@ class Main extends PureComponent {
   // 获取 KubeBlocks 组件状态信息
   getKubeBlocksStatus = () => {
     const { dispatch, appDetail } = this.props;
-    const { team_name, region_name } = this.fetchParameter();
+    const { team_name } = this.fetchParameter();
 
-    if (!appDetail?.service?.service_id) {
+    if (!appDetail?.service?.service_alias) {
       return;
     }
 
@@ -412,8 +412,7 @@ class Main extends PureComponent {
       type: 'kubeblocks/getClusterDetail',
       payload: {
         team_name,
-        region_name,
-        service_id: appDetail.service.service_id
+        service_alias: appDetail.service.service_alias
       }
     });
   };
