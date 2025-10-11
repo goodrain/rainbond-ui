@@ -261,8 +261,7 @@ class EditName extends PureComponent {
       loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
-    // KubeBlocks 相关状态
-    componentInfo: kubeblocks.componentInfo,
+    clusterDetail: kubeblocks.clusterDetail
   }),
   null,
   null,
@@ -324,6 +323,7 @@ class Main extends PureComponent {
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
+    this.props.dispatch({ type: 'kubeblocks/clearClusterDetail' });
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
@@ -564,6 +564,16 @@ class Main extends PureComponent {
                 return (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
               })()
             });
+
+            if (isKBComponent) {
+              dispatch({
+                type: 'kubeblocks/getClusterDetail',
+                payload: {
+                  team_name,
+                  service_alias: appDetail.service.service_alias
+                }
+              });
+            }
           });
         }
         if (

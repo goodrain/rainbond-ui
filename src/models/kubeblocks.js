@@ -335,5 +335,12 @@ export default {
                 }
             };
         },
+
+        clearClusterDetail(state) {
+            return {
+                ...state,
+                clusterDetail: null
+            };
+        },
     }
 }; 

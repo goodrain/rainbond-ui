@@ -132,17 +132,27 @@ export default class Index extends PureComponent {
     }
   }
   // 将 KubeBlocks 的数值初始化为滑块值与输入框值
-  initFromClusterDetail = () => {
+  initFromClusterDetail = (force = false) => {
     const { clusterDetail } = this.props;
-    const { memoryMarksObj, cpuMarksObj } = this.state;
+    const { memoryMarksObj, cpuMarksObj, replicasValue } = this.state;
+
+    if (!force && replicasValue !== undefined) {
+      return;
+    }
+
     if (!clusterDetail || !clusterDetail.resource) return;
     const cpuMilli = clusterDetail.resource.cpu; // 毫核 m
     const memoryMi = clusterDetail.resource.memory; // Mi
     const replicas = clusterDetail.resource.replicas;
     const storageGi = clusterDetail.resource.storage; // Gi
 
-    const cValue = cpuMarksObj[cpuMilli] !== undefined ? cpuMarksObj[cpuMilli] : this.state.cpuSliderMax;
-    const mValue = memoryMarksObj[memoryMi] !== undefined ? memoryMarksObj[memoryMi] : this.state.memorySliderMax;
+    const cValue = cpuMarksObj[cpuMilli];
+    const mValue = memoryMarksObj[memoryMi];
+
+    if (cValue === undefined || mValue === undefined) {
+      return;
+    }
+
     this.setState({
       cpuValue: cValue,
       memoryValue: mValue,
@@ -538,10 +548,11 @@ export default class Index extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
                 service_alias: serviceAlias
               },
+              callback: () => {
+                this.initFromClusterDetail(true);
+              }
             });
             this.setState({ editBillInfo: false });
-            // 同步 sliders 显示
-            this.initFromClusterDetail();
           } else {
             notification.warning({ message: res?.msg_show || '伸缩失败' });
           }
@@ -608,6 +619,11 @@ export default class Index extends PureComponent {
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { clusterDetail, appAlias, form, appDetail, method } = this.props;
+
+    if (clusterDetail && clusterDetail.resource) {
+      this.initFromClusterDetail();
+    }
+
     let notAllowScaling = false;
     if (appDetail) {
       if (globalUtil.isSingletonComponent(method)) {
@@ -636,10 +652,6 @@ export default class Index extends PureComponent {
       cpuSliderMax,
       cpuSliderMin
     } = this.state;
-    // 初始化一次
-    if (clusterDetail && this.state.replicasValue === undefined) {
-      this.initFromClusterDetail();
-    }
     if (!clusterDetail) {
       return null;
     }
@@ -738,7 +750,7 @@ export default class Index extends PureComponent {
                     {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button onClick={() => {
-                    this.initFromClusterDetail();
+                    this.initFromClusterDetail(true); // 强制刷新到原始值
                     this.setState({ editBillInfo: false });
                   }}>
                     {formatMessage({ id: 'appPublish.table.btn.cancel' })}

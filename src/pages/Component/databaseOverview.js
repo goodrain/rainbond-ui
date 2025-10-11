@@ -860,7 +860,7 @@ export default class Index extends PureComponent {
         )}
         {!more && (
           <Card
-            loading={false}
+            loading={runLoading}
             title={
               <FormattedMessage id="kubeblocks.database.instance.list" />
             }
@@ -869,7 +869,7 @@ export default class Index extends PureComponent {
           >
             <DatabaseInstance
               clusterDetail={clusterDetail}
-              loading={false}
+              loading={runLoading}
               appAlias={this.props.appAlias}
             />
           </Card>
