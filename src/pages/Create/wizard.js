@@ -19,13 +19,14 @@ import roleUtil from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './wizard.less';
 
-@connect(({enterprise, user, teamControl, global }) => ({
+@connect(({enterprise, user, teamControl, global, kubeblocks }) => ({
     currentEnterprise: enterprise.currentEnterprise,
     enterprise: global.enterprise,
     user: user.currentUser,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     rainbondInfo: global.rainbondInfo,
-    noviceGuide: global.noviceGuide
+    noviceGuide: global.noviceGuide,
+    databaseTypes: kubeblocks.databaseTypes
 }))
 
 export default class Index extends PureComponent {
@@ -48,6 +49,15 @@ export default class Index extends PureComponent {
     componentDidMount() {
         const { teamAppCreatePermission: { isAccess } } = this.state;
         const { noviceGuide, rainbondInfo } = this.props;
+        const { dispatch } = this.props;
+
+        const teamName = globalUtil.getCurrTeamName();
+        const regionName = globalUtil.getCurrRegionName();
+        dispatch({
+            type: 'kubeblocks/fetchKubeBlocksDatabaseTypes',
+            payload: { team_name: teamName, region_name: regionName },
+            handleError: () => { }
+        });
 
         if (isAccess) {
             this.getMarketsTab()
@@ -249,7 +259,7 @@ export default class Index extends PureComponent {
         };
 
         const shouldRender = guideStep && guideInfo[guideStep];
-        
+
         return shouldRender ? (
             <NewbieGuiding
                 {...guideInfo[guideStep]}
@@ -267,17 +277,25 @@ export default class Index extends PureComponent {
         const teamMarket = globalUtil.fetchSvg('teamMarket');
         const teamImage = globalUtil.fetchSvg('teamImage');
         const teamUpload = globalUtil.fetchSvg('teamUpload');
+        const teamDatabase = globalUtil.fetchSvg('teamDatabase');
         const { rainbondInfo } = this.props
         const { rainStoreTab, language, localist, teamAppCreatePermission: { isAccess } } = this.state
         const showDemo = rainbondInfo?.official_demo?.enable
         const type = this.props.location.query.type;
         const group_id = this.props.location.query.group_id;
-        
+
         const showSecurityRestrictions = !rainbondInfo?.security_restrictions?.enable
+
+        // 通过是否获取到 databaseType 来判断是否安装了 Block Mechanica
+        const { databaseTypes } = this.props;
+        const enableDatabaseEntry = Array.isArray(databaseTypes) && databaseTypes.some(item =>
+            typeof item === 'string' || (item && (typeof item.name === 'string' || typeof item.type === 'string'))
+        );
+
         if (!isAccess) {
             return roleUtil.noPermission()
         }
-    
+
         return (
             <>
                 {this.renderGuide()}
@@ -402,6 +420,39 @@ export default class Index extends PureComponent {
 
                             </div>
                         </div>
+                        {enableDatabaseEntry && (
+                            <div>
+                                <div className={styles.topContent} style={{ height: 220 }}>
+                                    <div className={styles.initIcon}>
+                                        <div>
+                                            {teamDatabase}
+                                        </div>
+                                    </div>
+                                    <div className={styles.initTitle}>
+                                        {formatMessage({ id: 'kubeblocks.wizard.database.title' })}
+                                    </div>
+                                    <div className={styles.initDesc}>
+                                        <p>
+                                            {formatMessage({ id: 'kubeblocks.wizard.database.desc' })}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className={styles.bottomContent}>
+                                    <p data-guide="database" onClick={() => {
+                                        const { dispatch } = this.props;
+                                        const teamName = globalUtil.getCurrTeamName();
+                                        const regionName = globalUtil.getCurrRegionName();
+                                        const group_id = this.props.location.query.group_id || '';
+                                        const isAppOverview = this.props.location?.query?.type || '';
+                                        dispatch(
+                                            routerRedux.push(`/team/${teamName}/region/${regionName}/create/database?group_id=${group_id}&type=${isAppOverview}`)
+                                        );
+                                    }}>
+                                        {formatMessage({ id: 'kubeblocks.wizard.database.button' })}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </PageHeaderLayout>
             </>

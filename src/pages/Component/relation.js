@@ -187,6 +187,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         {method != 'vm' &&
+          method !== 'kubeblocks_component' &&
           <Card
             title={<>
               <span><FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.information' /></span>
