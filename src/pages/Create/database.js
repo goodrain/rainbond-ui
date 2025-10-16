@@ -140,7 +140,7 @@ export default class Main extends PureComponent {
         content={<p>{formatMessage({ id: 'kubeblocks.database.create.subtitle' })}</p>}
         tabActiveKey={type}
         tabList={tabList}
-        titleSvg={pageheaderSvg.getPageHeaderSvg('storeSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('database', 18)}
         isContent
         extraContent={
           <Button

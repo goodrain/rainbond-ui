@@ -544,7 +544,7 @@ export default class Index extends PureComponent {
         breadcrumbList={breadcrumbList}
         title={`${formatMessage({ id: 'kubeblocks.database.config.title' })} - ${service_cname || '未命名'}`}
         content={<p>{formatMessage({ id: 'kubeblocks.database.config.subtitle' })}</p>}
-        titleSvg={pageheaderSvg.getPageHeaderSvg('storeSvg', 18)}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('database', 18)}
         isContent
         extraContent={
           <Button
