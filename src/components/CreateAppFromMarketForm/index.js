@@ -48,7 +48,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     const { pluginsList } = this.props
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill')){
       this.fetchPrices()
     }
@@ -114,7 +114,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { is_deploy } = this.state;
     const { form, onSubmit } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if(group_id){
@@ -186,7 +186,7 @@ export default class Index extends PureComponent {
       showCreate.versions &&
       showCreate.versions.length > 0 &&
       showCreate.versions;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const islocal = showCreate?.source === 'local'
     const showSaaSPrice = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     return (

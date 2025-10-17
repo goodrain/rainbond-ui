@@ -51,9 +51,6 @@ export default class Index extends PureComponent {
         <TopUpHints />
         <div
           className={styles.formWrap}
-          style={{
-            width: '600px',
-          }}
         >
           <CodeDemoForm
             data={{ git_url: code || '' }}

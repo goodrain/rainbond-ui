@@ -209,12 +209,7 @@ export default class Index extends PureComponent {
     return (
       <Card key={`${showaddStoreVisible}`} bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
         <TopUpHints />
-        <div
-          className={styles.formWrap}
-          style={{
-            width: "600px"
-          }}
-        >
+        <div className={styles.formWrap}>
           <HelmCmdForm
             onRef={this.onRef}
             data={{ docker_cmd: helm || "" }}

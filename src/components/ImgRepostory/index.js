@@ -26,12 +26,12 @@ export default class ImgRepository extends Component {
       showDetail: false,
       imagePagination: {
         current: 1,
-        pageSize: 10,
+        pageSize: 20,
         total: 0,
       },
       tagPagination: {
         current: 1,
-        pageSize: 10,
+        pageSize: 20,
         total: 0,
       },
       imageSearchKey: '',
@@ -39,11 +39,33 @@ export default class ImgRepository extends Component {
       showInstall: false,
       imageUrl: '',
       tag: '',
+      imgRepostoryList: [],
+      imageLoadingMore: false,
+      tagLoadingMore: false,
+      imageHasMore: true,
+      tagHasMore: true,
     }
+    this.imageListRef = React.createRef();
+    this.tagListRef = React.createRef();
   }
 
   componentDidMount() {
     this.getSecretId();
+    this.fetchImageHubList();
+  }
+
+  fetchImageHubList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchPlatformImageHub',
+      callback: data => {
+        if (data && data.list) {
+          this.setState({
+            imgRepostoryList: data.list
+          });
+        }
+      }
+    });
   }
 
   getSecretId = () => {
@@ -91,9 +113,9 @@ export default class ImgRepository extends Component {
   }
 
   // 获取镜像列表
-  fetchImages = (secretId, namespace) => {
-    const { imagePagination, imageSearchKey } = this.state;
-    this.setState({ tableLoading: true });
+  fetchImages = (secretId, namespace, append = false) => {
+    const { imagePagination, imageSearchKey, imageList } = this.state;
+    this.setState({ tableLoading: !append, imageLoadingMore: append });
     const { dispatch } = this.props;
     dispatch({
       type: 'user/getImageList',
@@ -106,19 +128,22 @@ export default class ImgRepository extends Component {
       },
       callback: res => {
         if (res) {
+          const newList = append ? [...imageList, ...res.list] : res.list;
+          const hasMore = newList.length < res.total;
           this.setState({
-            imageList: res.list,
+            imageList: newList,
             imagePagination: {
               ...imagePagination,
               total: res.total,
-            }
+            },
+            imageHasMore: hasMore,
           });
         }
-        this.setState({ tableLoading: false });
+        this.setState({ tableLoading: false, imageLoadingMore: false });
       },
       handleError: err => {
         console.error('获取命名空间失败:', err);
-        this.setState({ tableLoading: false });
+        this.setState({ tableLoading: false, imageLoadingMore: false });
       }
     });
   }
@@ -175,10 +200,11 @@ export default class ImgRepository extends Component {
       tagList: [],
       tagPagination: {
         current: 1,
-        pageSize: 10,
+        pageSize: 20,
         total: 0,
       },
       tagSearchKey: '',
+      tagHasMore: true,
     }, () => {
       this.fetchImages(this.state.secretId, this.state.currentNamespace);
     });
@@ -244,11 +270,31 @@ export default class ImgRepository extends Component {
       imagePagination: {
         ...this.state.imagePagination,
         current: 1,
-      }
+      },
+      imageHasMore: true,
     }, () => {
       this.fetchImages(this.state.secretId, namespace);
     });
   }
+
+  // 处理镜像列表滚动加载
+  handleImageScroll = (e) => {
+    const { imageLoadingMore, imageHasMore, imagePagination } = this.state;
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+
+    // 当滚动到距离底部50px时触发加载
+    if (scrollHeight - scrollTop - clientHeight < 50 && !imageLoadingMore && imageHasMore) {
+      this.setState({
+        imagePagination: {
+          ...imagePagination,
+          current: imagePagination.current + 1
+        }
+      }, () => {
+        this.fetchImages(this.state.secretId, this.state.currentNamespace, true);
+      });
+    }
+  }
+
   // 添加安装处理方法
   handleInstall = (record) => {
     const { currentNamespace, selectedImage, secretId } = this.state;
@@ -276,6 +322,11 @@ export default class ImgRepository extends Component {
     });
   }
 
+  // 暴露给父组件的方法,用于触发表单提交
+  getFormRef = () => {
+    return this.imageFormRef;
+  }
+
   render() {
     const {
       imageList,
@@ -293,7 +344,10 @@ export default class ImgRepository extends Component {
       showInstall,
       imageUrl,
       tag,
-      secretId
+      secretId,
+      imgRepostoryList,
+      imageLoadingMore,
+      imageHasMore
     } = this.state;
     const { handleType } = this.props;
     const columns = [
@@ -343,6 +397,7 @@ export default class ImgRepository extends Component {
       <Spin spinning={loading}>
         <Card
           bordered={false}
+          padding={0}
           title={
             showDetail ? formatMessage({ id: 'versionUpdata_6_1.imageDetail.name' }, { name: selectedImage.name }) : (
               <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
@@ -390,7 +445,12 @@ export default class ImgRepository extends Component {
                 <>
                   {imageList.length > 0 ? (
                     <>
-                      <div className={styles.imageList}>
+                      <div
+                        className={styles.imageList}
+                        ref={this.imageListRef}
+                        onScroll={this.handleImageScroll}
+                        style={{ maxHeight: '600px', overflowY: 'auto' }}
+                      >
                         {imageList.map(item => (
                           <div
                             key={item.name}
@@ -421,17 +481,16 @@ export default class ImgRepository extends Component {
                             </div>
                           </div>
                         ))}
-                      </div>
-                      <div className={styles.pagination}>
-                        <Pagination
-                          current={imagePagination.current}
-                          pageSize={imagePagination.pageSize}
-                          total={imagePagination.total}
-                          onChange={this.handleImageListChange}
-                          showTotal={total => formatMessage({ id: 'versionUpdata_6_1.imageTotal' }, { total })}
-                          showSizeChanger
-                          pageSizeOptions={['10', '20', '50', '100']}
-                        />
+                        {imageLoadingMore && (
+                          <div style={{ textAlign: 'center', padding: '20px' }}>
+                            <Spin tip="加载更多..." />
+                          </div>
+                        )}
+                        {!imageHasMore && imageList.length > 0 && (
+                          <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                            已加载全部镜像
+                          </div>
+                        )}
                       </div>
                     </>
                   ) : (
@@ -444,13 +503,16 @@ export default class ImgRepository extends Component {
             </div>
           ) : (
             showInstall ? (
-              <ImageNameForm 
-                groupId={globalUtil.getGroupID()} 
-                selectedImage={selectedImage} 
+              <ImageNameForm
+                wrappedComponentRef={(ref) => { this.imageFormRef = ref; }}
+                groupId={globalUtil.getAppID()}
+                selectedImage={selectedImage}
                 imageUrl={imageUrl}
                 tag={tag}
                 secretId={secretId}
-                isPublic={false} 
+                isPublic={false}
+                imgRepostoryList={imgRepostoryList}
+                showSubmitBtn={this.props.showSubmitBtn !== false}
                 {...this.props}
               />
             ) : (

@@ -320,9 +320,62 @@
   border: 1px dashed #e8e8e8;
   border-radius: 5px;
   color: @rbd-content-color-secondary;
-  cursor: pointer;
 }
-.appListEmpty:hover {
-  border: 1px dashed @primary-color;
-  background-color: #f4f4f4;
+
+.tableCreateBtnWrapper {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.addNewAppCard {
+  border: 1px dashed #d9d9d9 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border: 1px dashed @primary-color !important;
+    background-color: #f5f8ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .addNewAppContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      margin-bottom: 8px;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+      path {
+        fill: #8c8c8c;
+      }
+    }
+
+    .addNewAppText {
+      font-size: 14px;
+      color: #8c8c8c;
+      font-weight: 400;
+      transition: all 0.3s ease;
+    }
+  }
+
+  &:hover .addNewAppContent {
+    svg {
+      opacity: 1;
+      path {
+        fill: @primary-color;
+      }
+    }
+
+    .addNewAppText {
+      color: @primary-color;
+      font-weight: 500;
+    }
+  }
 }

@@ -2,7 +2,10 @@
 .rbd_card{
   // body的padding 删除
   :global(.ant-card-body){
-    padding: 24px 0 0;
+    padding: 0px;
+  }
+  :global(.ant-card-bordered){
+    // border: none;
   }
   :global(.ant-card-head){
     background-color: #fff;
@@ -67,7 +70,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 24px;
+  margin: 12px 0px;
 }
 .rbd_sub_title{
   font-size: @rbd-sub-title-size;

@@ -35,8 +35,8 @@ const MAX_NAME_LENGTH = 32;
 const MAX_SERVICE_NAME_LENGTH = 24;
 
 const formItemLayout = {
-  labelCol: { span: 7 },
-  wrapperCol: { span: 15 }
+  labelCol: { span: 24 },
+  wrapperCol: { span: 24 }
 };
 
 @connect(
@@ -66,7 +66,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
-    const group_id = globalUtil.getGroupID();
+    const group_id = globalUtil.getAppID();
     if (group_id) {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(
@@ -91,7 +91,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, handleType, archInfo } = this.props;
-    const group_id = globalUtil.getGroupID();
+    const group_id = globalUtil.getAppID();
     const isService = handleType === 'Service';
 
     form.validateFields((err, fieldsValue) => {
@@ -156,13 +156,13 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = form;
     const isService = handleType === 'Service';
     const { language, dockerRun, demoName } = this.state;
-    const group_id = globalUtil.getGroupID();
-    
-    const arch = archInfo.length === 2 ? DEFAULT_ARCH : archInfo[0] || DEFAULT_ARCH;
+    const group_id = globalUtil.getAppID();
+
+    const arch = (archInfo?.length === 2 ? DEFAULT_ARCH : archInfo?.[0]) || DEFAULT_ARCH;
 
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.code.selectDemo' })}>
             {getFieldDecorator('type', {
               initialValue: 'mysql',
@@ -192,6 +192,7 @@ export default class Index extends PureComponent {
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'placeholder.appName' })}
                 disabled={true}
+                style={{ width: '100%' }}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -244,7 +245,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          {archInfo.length === 2 && (
+          {archInfo?.length === 2 && (
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
                 initialValue: arch,
@@ -262,33 +263,32 @@ export default class Index extends PureComponent {
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
-                sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
-                }
+                sm: { span: 24, offset: 0 }
               }}
               label=""
             >
-              {isService && ButtonGroupState
-                ? this.props.handleServiceBotton(
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByDockerrunLoading}
-                    >
-                      {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                    </Button>,
-                    false
-                  )
-                : !handleType && (
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByDockerrunLoading}
-                    >
-                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                    </Button>
-                  )}
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ? this.props.handleServiceBotton(
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByDockerrunLoading}
+                      >
+                        {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                      </Button>,
+                      false
+                    )
+                  : !handleType && (
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByDockerrunLoading}
+                      >
+                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                      </Button>
+                    )}
+              </div>
             </Form.Item>
           )}
         </Form>

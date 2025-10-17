@@ -67,10 +67,10 @@ class CreateOAuthForm extends PureComponent {
     const { edit, oauthList, privateList } = this.state;
     const formItemLayout = {
       labelCol: {
-        span: 8
+        span: 24
       },
       wrapperCol: {
-        span: 16
+        span: 24
       }
     };
     const oauthType = getFieldValue('oauth_type') || 'github';
@@ -82,7 +82,6 @@ class CreateOAuthForm extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         width={600}
-        className={styless.TelescopicModal}
         footer={[
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
             {formatMessage({ id: 'button.confirm' })}
@@ -94,12 +93,7 @@ class CreateOAuthForm extends PureComponent {
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Application} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.oauth_type' })}
-              </div>
-            }
+            label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.oauth_type' })}
           >
             {getFieldDecorator('oauth_type', {
               initialValue: oauthInfo ? oauthInfo.oauth_type : 'github',
@@ -136,12 +130,7 @@ class CreateOAuthForm extends PureComponent {
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Application} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.name' })}
-              </div>
-            }
+            label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.name' })}
           >
             {getFieldDecorator('name', {
               initialValue: oauthInfo ? oauthInfo.name : '',
@@ -162,12 +151,7 @@ class CreateOAuthForm extends PureComponent {
               <Form.Item
                 className={styles.clearConform}
                 {...formItemLayout}
-                label={
-                  <div className={styles.clearConformMinTitle}>
-                    <img src={Branches} alt="" />
-                    {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.home_url' })}
-                  </div>
-                }
+                label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.home_url' })}
               >
                 {getFieldDecorator('home_url', {
                   initialValue: oauthInfo ? oauthInfo.home_url : '',
@@ -187,12 +171,7 @@ class CreateOAuthForm extends PureComponent {
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Branches} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.client_id' })}
-              </div>
-            }
+            label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.client_id' })}
           >
             {getFieldDecorator('client_id', {
               initialValue: oauthInfo ? oauthInfo.client_id : '',
@@ -209,12 +188,7 @@ class CreateOAuthForm extends PureComponent {
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Branches} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.client_secret' })}
-              </div>
-            }
+            label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.client_secret' })}
           >
             {getFieldDecorator('client_secret', {
               initialValue: oauthInfo ? oauthInfo.client_secret : '',
@@ -231,12 +205,7 @@ class CreateOAuthForm extends PureComponent {
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Branches} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain' })}
-              </div>
-            }
+            label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain' })}
           >
             {getFieldDecorator('redirect_domain', {
               initialValue: oauthInfo
@@ -265,13 +234,8 @@ class CreateOAuthForm extends PureComponent {
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
-            label={
-              <div className={styles.clearConformMinTitle}>
-                <img src={Branches} alt="" />
-                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login' })}
-              </div>
-            }
-          >
+              label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login' })}
+            >
             {getFieldDecorator('is_auto_login', {
               initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.oauth.is_auto_login' }) }]

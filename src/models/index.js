@@ -62,7 +62,7 @@ export default {
       const response = yield call(getTeamArchOverview, payload, handleError);
       if (response) {
         yield put({
-          type: 'saveOverviewInfo',
+          type: 'saveArchInfo',
           payload: response.bean,
         });
         if (callback) {
@@ -120,6 +120,15 @@ export default {
       return {
         ...state,
         overviewInfo: payload,
+      };
+    },
+    saveArchInfo(state, { payload }) {
+      return {
+        ...state,
+        overviewInfo: {
+          ...state.overviewInfo,
+          ...payload,
+        },
       };
     },
     saveAppOverviewInfo(state, { payload }) {

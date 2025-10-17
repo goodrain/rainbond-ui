@@ -21,6 +21,7 @@ import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
+import CreateComponentModal from '@/components/CreateComponentModal';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
@@ -31,6 +32,7 @@ import ComponentListModal from '../../../pages/Group/ComponentListModal';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  rainbondInfo: global.rainbondInfo,
   novices: global.novices,
   pluginsList: teamControl.pluginsList,
   groups: global.groups
@@ -65,7 +67,8 @@ export default class app extends Component {
         value: 0,
         unit: 'MB'
       },
-      showComponentList: false
+      showComponentList: false,
+      showCreateComponentModal: false
     };
   }
   componentDidMount() {
@@ -730,18 +733,21 @@ export default class app extends Component {
   };
   handleOpenAddComponentOrAppDetail = (type) => {
     if (type === 'addComponent') {
-      const { dispatch } = this.props;
-      dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${globalUtil.getAppID()}&type=app`
-        )
-      );
+      this.setState({
+        showCreateComponentModal: true
+      });
     } else {
       this.props?.handleAddComponentOrAppDetail(type);
       this.setState({
         addComponentOrAppDetail: type
       });
     }
+  };
+
+  handleCloseCreateComponentModal = () => {
+    this.setState({
+      showCreateComponentModal: false
+    });
   };
 
   handleClose = () => {
@@ -1227,6 +1233,17 @@ export default class app extends Component {
             onCancel={this.onHideComponentList}
             groupId={globalUtil.getAppID()}
             componentPermissions={this.state.permissions.componentPermissions}
+            groups={this.props.groups}
+          />
+        )}
+        {this.state.showCreateComponentModal && (
+          <CreateComponentModal
+            visible={this.state.showCreateComponentModal}
+            onCancel={this.handleCloseCreateComponentModal}
+            dispatch={this.props.dispatch}
+            currentEnterprise={this.props.currentEnterprise}
+            rainbondInfo={this.props.rainbondInfo}
+            currentUser={this.props.currUser}
             groups={this.props.groups}
           />
         )}

@@ -11,32 +11,35 @@ import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
+import oauthUtil from '../../utils/oauth';
+import styles from './index.less';
 
 const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 7
+    span: 24
   },
   wrapperCol: {
-    span: 15
+    span: 24
   }
 };
 const en_formItemLayout = {
   labelCol: {
-    span: 7
+    span: 24
   },
   wrapperCol: {
-    span: 15
+    span: 24
   }
 };
 
 @connect(
-  ({ user, global, loading, teamControl }) => ({
+  ({ user, global, loading, teamControl, enterprise }) => ({
     currUser: user.currentUser,
     groups: global.groups,
     createAppByCodeLoading: loading.effects['createApp/createAppByCode'],
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentEnterprise: enterprise.currentEnterprise
   }),
   null,
   null,
@@ -61,7 +64,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     const { handleType, groupId } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
     }
@@ -144,7 +147,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
@@ -274,7 +277,8 @@ export default class Index extends PureComponent {
       ButtonGroupState,
       handleServiceBotton,
       showCreateGroup,
-      archInfo
+      archInfo,
+      enterpriseInfo
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
 
@@ -289,6 +293,9 @@ export default class Index extends PureComponent {
         isCreate
       }
     } = this.state;
+
+    // 获取可用的 Git 仓库列表
+    const codeRepositoryList = enterpriseInfo ? oauthUtil.getEnableGitOauthServer(enterpriseInfo) : [];
     let arch = 'amd64'
     let archLegnth = archInfo.length
     if (archLegnth == 2) {
@@ -338,10 +345,10 @@ export default class Index extends PureComponent {
     );
     // const serverType = getFieldValue("server_type");
     const isService = handleType && handleType === 'Service';
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -519,33 +526,32 @@ export default class Index extends PureComponent {
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
-                sm: {
-                  span: is_language.wrapperCol.span,
-                  offset: is_language.labelCol.span
-                }
+                sm: { span: 24, offset: 0 }
               }}
               label=""
             >
-              {isService && ButtonGroupState
-                ? handleServiceBotton(
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByCodeLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                  </Button>,
-                  false
-                )
-                : !handleType && (
-                  <Button
-                    onClick={this.handleSubmit}
-                    type="primary"
-                    loading={createAppByCodeLoading}
-                  >
-                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                  </Button>
-                )}
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ? handleServiceBotton(
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                    </Button>,
+                    false
+                  )
+                  : !handleType && (
+                    <Button
+                      onClick={this.handleSubmit}
+                      type="primary"
+                      loading={createAppByCodeLoading}
+                    >
+                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                    </Button>
+                  )}
+              </div>
             </Form.Item>
           ) : null}
         </Form>

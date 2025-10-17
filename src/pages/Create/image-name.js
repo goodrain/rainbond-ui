@@ -114,9 +114,9 @@ export default class Index extends PureComponent {
     const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match?.params?.image || ""));
     const { localImageList } = this.state
     return (
-      <Card bordered={this.props.handleType && this.props.handleType === 'Service' ? false : true}>
+      <div>
         <TopUpHints />
-        <div className={styles.formWrap} style={{ width:"600px" }}>
+        <div className={styles.formWrap}>
           <ImageNameForm
             localList={localImageList}
             data={{ docker_cmd: image || "" }}
@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
             {...this.props}
           />
         </div>
-      </Card>
+      </div>
     );
   }
 }
