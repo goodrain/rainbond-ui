@@ -180,12 +180,11 @@ export default class Index extends PureComponent {
   };
 
   /**
-   * 从集群详情初始化备份配置
+   * 从 clusterDetail 解析备份配置数据
    */
-  initFromClusterDetail = () => {
-    const { clusterDetail } = this.props;
+  parseBackupConfig = (clusterDetail) => {
     if (!clusterDetail || !clusterDetail.backup) {
-      this.setState({
+      return {
         backupSchedule: '',
         backupStartDay: '',
         backupStartHour: '',
@@ -193,8 +192,7 @@ export default class Index extends PureComponent {
         backupRetentionTime: '',
         backupRepo: '',
         termination_policy: ''
-      });
-      return;
+      };
     }
 
     const { backup } = clusterDetail;
@@ -230,16 +228,24 @@ export default class Index extends PureComponent {
       }
     }
 
-    // 更新组件状态，只设置有值的字段
-    this.setState({
-      backupSchedule: backupSchedule,
+    return {
+      backupSchedule,
       backupStartDay,
       backupStartHour,
       backupStartMinute,
       backupRetentionTime,
       backupRepo: backupRepo || '',
       termination_policy: ''
-    });
+    };
+  };
+
+  /**
+   * 从 clusterDetail 初始化组件状态
+   */
+  initFromClusterDetail = () => {
+    const { clusterDetail } = this.props;
+    const config = this.parseBackupConfig(clusterDetail);
+    this.setState(config);
   };
 
   /**
@@ -388,8 +394,16 @@ export default class Index extends PureComponent {
    * 重新从集群详情初始化配置，恢复到只读状态
    */
   handleCancelEdit = () => {
-    this.initFromClusterDetail();
-    this.setState({ editBackupInfo: false });
+    const { form, clusterDetail } = this.props;
+
+    const config = this.parseBackupConfig(clusterDetail);
+
+    this.setState({ ...config, editBackupInfo: false });
+    form.setFieldsValue({
+      backupRepo: config.backupRepo,
+      backupSchedule: config.backupSchedule,
+      backupRetention: config.backupRetentionTime || ''
+    });
   };
 
   /**

@@ -131,7 +131,7 @@ export default class Index extends PureComponent {
       });
     }
   }
-  // 将 KubeBlocks 的数值初始化为滑块值与输入框值
+
   initFromClusterDetail = (force = false) => {
     const { clusterDetail } = this.props;
     const { memoryMarksObj, cpuMarksObj, replicasValue } = this.state;
@@ -598,6 +598,10 @@ export default class Index extends PureComponent {
     });
   }
 
+  handleReplicasChange = (value) => {
+    this.setState({ replicasValue: value });
+  }
+
   getFormValues = (data, type) => {
     const { cpuMarksObj, memoryMarksObj } = this.state
     let num = 0
@@ -750,7 +754,28 @@ export default class Index extends PureComponent {
                     {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button onClick={() => {
-                    this.initFromClusterDetail(true); // 强制刷新到原始值
+                    const { form, clusterDetail } = this.props;
+                    const { cpuMarksObj, memoryMarksObj } = this.state;
+
+                    this.initFromClusterDetail(true);
+
+                    if (clusterDetail && clusterDetail.resource) {
+                      const cpuMilli = clusterDetail.resource.cpu;
+                      const memoryMi = clusterDetail.resource.memory;
+                      const replicas = clusterDetail.resource.replicas;
+                      const storageGi = clusterDetail.resource.storage;
+
+                      const cValue = cpuMarksObj[cpuMilli];
+                      const mValue = memoryMarksObj[memoryMi];
+
+                      form.setFieldsValue({
+                        new_memory: mValue,
+                        new_cpu: cValue,
+                        replicas: replicas || 1,
+                        storageGi: storageGi || 1
+                      });
+                    }
+
                     this.setState({ editBillInfo: false });
                   }}>
                     {formatMessage({ id: 'appPublish.table.btn.cancel' })}
