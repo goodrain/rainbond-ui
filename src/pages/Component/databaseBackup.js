@@ -75,6 +75,39 @@ export default class Index extends PureComponent {
     };
 
   }
+
+  /**
+   * 获取默认时间配置
+   */
+  getDefaultBackupTimeConfig = (schedule) => {
+    const config = {
+      backupStartMinute: '00' 
+    };
+
+    if (schedule === 'day' || schedule === 'week') {
+      config.backupStartHour = '00'; 
+    }
+
+    if (schedule === 'week') {
+      config.backupStartDay = '1'; 
+    }
+
+    return config;
+  };
+
+  /**
+   * 更新备份配置状态
+   */
+  updateBackupConfigState = (stateUpdates, formUpdates = {}) => {
+    const { form } = this.props;
+
+    this.setState(stateUpdates);
+
+    if (Object.keys(formUpdates).length > 0) {
+      form.setFieldsValue(formUpdates);
+    }
+  };
+
   componentDidMount() {
     this.fetchBackupRepos();
     this.initFromClusterDetail();
@@ -96,7 +129,7 @@ export default class Index extends PureComponent {
 
 
 
-   // 仅在第一页时启用60秒自动刷新
+  // 仅在第一页时启用60秒自动刷新
   startAutoRefresh = () => {
     this.stopAutoRefresh(); // 先清除现有定时器
 
@@ -252,18 +285,71 @@ export default class Index extends PureComponent {
    * 处理备份仓库变更
    */
   handleBackupRepoChange = (value) => {
-    this.setState({ backupRepo: value });
-    const { form } = this.props;
-    form.setFieldsValue({ backupRepo: value });
+    const { backupRetentionTime } = this.state;
+
+    if (value && value.trim()) {
+      const defaultSchedule = 'hour';
+      const defaultTimeConfig = this.getDefaultBackupTimeConfig(defaultSchedule);
+
+      this.updateBackupConfigState(
+        {
+          backupRepo: value,
+          backupSchedule: defaultSchedule,
+          backupRetentionTime: backupRetentionTime || 7,
+          ...defaultTimeConfig
+        },
+        {
+          backupRepo: value,
+          backupSchedule: defaultSchedule,
+          backupRetention: backupRetentionTime || 7
+        }
+      );
+    } else {
+      this.updateBackupConfigState(
+        { backupRepo: value },
+        { backupRepo: value }
+      );
+    }
   };
 
   /**
    * 处理备份周期变更
    */
   handleBackupScheduleChange = (e) => {
-    this.setState({ backupSchedule: e.target.value });
-    const { form } = this.props;
-    form.setFieldsValue({ backupSchedule: e.target.value });
+    const newSchedule = e.target.value;
+    const { backupStartHour, backupStartMinute, backupStartDay } = this.state;
+
+    const stateUpdates = { backupSchedule: newSchedule };
+
+    const defaultConfig = this.getDefaultBackupTimeConfig(newSchedule);
+
+    if (newSchedule === 'hour') {
+      if (!backupStartMinute && backupStartMinute !== '0') {
+        stateUpdates.backupStartMinute = defaultConfig.backupStartMinute;
+      }
+    } else if (newSchedule === 'day') {
+      if (!backupStartHour && backupStartHour !== '0') {
+        stateUpdates.backupStartHour = defaultConfig.backupStartHour;
+      }
+      if (!backupStartMinute && backupStartMinute !== '0') {
+        stateUpdates.backupStartMinute = defaultConfig.backupStartMinute;
+      }
+    } else if (newSchedule === 'week') {
+      if (!backupStartDay && backupStartDay !== '0') {
+        stateUpdates.backupStartDay = defaultConfig.backupStartDay;
+      }
+      if (!backupStartHour && backupStartHour !== '0') {
+        stateUpdates.backupStartHour = defaultConfig.backupStartHour;
+      }
+      if (!backupStartMinute && backupStartMinute !== '0') {
+        stateUpdates.backupStartMinute = defaultConfig.backupStartMinute;
+      }
+    }
+
+    this.updateBackupConfigState(
+      stateUpdates,
+      { backupSchedule: newSchedule }
+    );
   };
 
   /**
