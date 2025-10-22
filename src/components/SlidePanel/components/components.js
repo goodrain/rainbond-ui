@@ -1575,6 +1575,11 @@ class Main extends PureComponent {
       {
         key: 'databaseOverview',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.overview' })
+      },
+      {
+        key: 'log',
+        tab: formatMessage({ id: 'componentOverview.body.tab.bar.log' }),
+        auth: true
       }
     ];
 
