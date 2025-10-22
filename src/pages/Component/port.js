@@ -699,6 +699,8 @@ export default class Index extends PureComponent {
     const { isAddLicense, troubleshootVisible } = this.state;
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
+    const extendMethod =
+      appDetail && appDetail.service && appDetail.service.extend_method;
     if (!this.canView()) return <NoPermTip />;
     const isHelm =
       appDetail.service && appDetail.service.component_type === 'helm';
@@ -797,6 +799,7 @@ export default class Index extends PureComponent {
             isDockerfile={isDockerfile}
             onCancel={this.onCancelAddPort}
             onOk={this.handleAddPort}
+            extendMethod={extendMethod}
           />
         )}
         {this.state.showAddDomain && (

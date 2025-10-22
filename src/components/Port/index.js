@@ -271,8 +271,10 @@ export default class Index extends PureComponent {
     let { showDomain } = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
-    const isHelm =
-      appDetail.service && appDetail.service.component_type === 'helm';
+    const service = (appDetail && appDetail.service) || {};
+    const isHelm = service.component_type === 'helm';
+    const extendMethod = service.extend_method;
+    const isKubeBlocks = extendMethod === 'kubeblocks_component';
 
     // 是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =
@@ -379,9 +381,11 @@ export default class Index extends PureComponent {
               ) : (
                 <div>
                   {port.protocol}
-                  <a onClick={this.showEditProtocol}>
-                    <Icon type="edit" />
-                  </a>
+                  {!isKubeBlocks && (
+                    <a onClick={this.showEditProtocol}>
+                      <Icon type="edit" />
+                    </a>
+                  )}
                 </div>
               )}
             </td>
