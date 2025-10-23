@@ -1184,6 +1184,8 @@ const componentOverview = {
     'kubeblocks.parameter.invalid.message': '以下参数应用失败，草稿已保留，您可以修正后重试：',
     'kubeblocks.parameter.invalid.name': '参数名称',
     'kubeblocks.parameter.invalid.reason': '失败原因',
+    'kubeblocks.parameter.unsupported': '{type} 不支持参数配置',
+    'kubeblocks.parameter.empty': '暂无参数数据',
     'kubeblocks.database.config.storage_placeholder': '请输入磁盘大小',
     'kubeblocks.database.config.replicas_label': '副本数',
     'kubeblocks.database.config.replicas_required': '请配置副本数',

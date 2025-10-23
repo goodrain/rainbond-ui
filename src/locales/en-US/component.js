@@ -1170,6 +1170,8 @@ const componentOverview = {
     'kubeblocks.parameter.invalid.message': 'The following parameters failed to apply. Drafts have been preserved, you can fix and retry:',
     'kubeblocks.parameter.invalid.name': 'Parameter',
     'kubeblocks.parameter.invalid.reason': 'Reason',
+    'kubeblocks.parameter.unsupported': '{type} does not support parameter configuration',
+    'kubeblocks.parameter.empty': 'No parameters available',
     'kubeblocks.database.config.storage_placeholder': 'Please enter disk size',
     'kubeblocks.database.config.replicas_label': 'Replicas',
     'kubeblocks.database.config.replicas_required': 'Please configure number of replicas',

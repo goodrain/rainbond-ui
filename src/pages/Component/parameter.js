@@ -13,16 +13,18 @@ import {
   Modal,
   message,
   Row,
-  Col
+  Col,
+  Empty
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import NoPermTip from '../../components/NoPermTip';
 import globalUtil from '../../utils/global';
 
 @connect(
-  ({ user, appControl, loading }) => ({
+  ({ user, appControl, kubeblocks, loading }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
+    clusterDetail: kubeblocks.clusterDetail,
     updateLoading: loading.effects && loading.effects['kubeblocks/updateParameters']
   }),
   null,
@@ -61,7 +63,7 @@ export default class Index extends PureComponent {
   isUnsafeIntegerContext = (type, value, minv, maxv) => {
     if (!this.isIntegerType(type)) return false;
     const MAX_SAFE = Number.MAX_SAFE_INTEGER;
-    const MIN_SAFE = Number.MIN_SAFE_INTEGER; // 虽然通常为正数，但保持对称判断
+    const MIN_SAFE = Number.MIN_SAFE_INTEGER;
     const toMaybeNum = (v) => (typeof v === 'number' ? v : (typeof v === 'string' && v.trim() !== '' ? Number(v) : null));
     // 若能被安全地转成 number，且处于安全整数范围内，则认为安全
     const cand = [value, minv, maxv].map(toMaybeNum).filter(v => v !== null);
@@ -302,11 +304,10 @@ export default class Index extends PureComponent {
         return;
       }
       const oldValue = value;
-      // 不直接修改 props 中的记录，统一通过草稿态驱动 UI
       this.setDraft(name, oldValue, v, record);
     };
 
-    // 若存在枚举值，则优先使用下拉（与具体 type 无关）
+    // 存在枚举值，优先使用下拉
     const hasEnum = Array.isArray(enum_values) && enum_values.length > 0;
     if (hasEnum) {
       const labels = this.getEnumLabels(enum_values);
@@ -346,8 +347,8 @@ export default class Index extends PureComponent {
       );
     }
 
-    // 数值类型：允许任意字符串输入（例如 2h、30G）。
-    // 仅当输入可被解析为对应类型的数值时，才在 onBlur 进行范围裁剪。
+    // 数值类型：允许任意字符串输入
+    // 仅当输入可被解析为对应类型的数值时，才尝试进行范围裁剪
     if (this.isNumericType(type)) {
       return (
         <Input
@@ -439,7 +440,7 @@ export default class Index extends PureComponent {
         key: 'need_restart',
         width: 150,
         align: 'center',
-        render: v => (v ? '否' : '是')
+        render: v => (v ? 'NO' : 'YES')
       }
     ];
   };
@@ -690,7 +691,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { appDetail, componentPermissions = {}, updateLoading } = this.props;
+    const { appDetail, componentPermissions = {}, updateLoading, clusterDetail } = this.props;
     const {
       draft,
       previewVisible,
@@ -705,6 +706,11 @@ export default class Index extends PureComponent {
     const columns = this.getColumns();
     const hasChanges = Object.keys(draft).length > 0;
     const modifiedCount = Object.keys(draft).length;
+
+    // 数据库是否支持参数配置
+    const isParameterUnsupported = clusterDetail?.basic?.support_parameter !== true;
+    // 数据库类型
+    const databaseType = clusterDetail?.basic?.type || '';
 
     return (
       <div>
@@ -726,7 +732,7 @@ export default class Index extends PureComponent {
                   {formatMessage({ id: 'kubeblocks.parameter.modified' }, { count: modifiedCount })}
                 </Tag>
               )}
-              <Button type="default" onClick={this.handleNewParameterClick}>
+              <Button type="default" onClick={this.handleNewParameterClick} disabled={isParameterUnsupported}>
                 <FormattedMessage id="kubeblocks.parameter.add" />
               </Button>
               <Button style={{ marginLeft: 12 }} onClick={this.handleRefresh}>
@@ -767,6 +773,19 @@ export default class Index extends PureComponent {
               return { ...r, value: d.newValue };
             })}
             rowClassName={(record) => (draft && draft[record.name] ? 'kb-param-modified' : '')}
+            locale={{
+              emptyText: isParameterUnsupported ? (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={formatMessage(
+                    { id: 'kubeblocks.parameter.unsupported' },
+                    { type: databaseType }
+                  )}
+                />
+              ) : (
+                <Empty description={formatMessage({ id: 'kubeblocks.parameter.empty' })} />
+              )
+            }}
             pagination={{
               current: parameterPagination?.page || 1,
               pageSize: parameterPagination?.page_size || 6,
