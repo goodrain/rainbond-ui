@@ -1141,8 +1141,20 @@ const componentOverview = {
     'kubeblocks.parameter.table.range': 'Range',
     'kubeblocks.parameter.table.restart': 'Static Parameter',
     'kubeblocks.parameter.search.placeholder': 'Search by name',
+    'kubeblocks.parameter.modified': 'Modified {count}',
     'kubeblocks.parameter.refresh': 'Refresh',
     'kubeblocks.parameter.save': 'Save',
+    'kubeblocks.parameter.add': 'Add',
+    'kubeblocks.parameter.add.modal.title': 'Add Parameter',
+    'kubeblocks.parameter.add.modal.name': 'Parameter Name',
+    'kubeblocks.parameter.add.modal.value': 'Parameter Value',
+    'kubeblocks.parameter.add.modal.name.placeholder': 'Enter parameter name',
+    'kubeblocks.parameter.add.modal.value.placeholder': 'Enter parameter value',
+    'kubeblocks.parameter.add.modal.add_more': 'Add More Parameters',
+    'kubeblocks.parameter.add.success': 'Parameter added successfully',
+    'kubeblocks.parameter.add.validation.empty': 'Please add at least one parameter',
+    'kubeblocks.parameter.add.validation.incomplete': 'Please fill in both parameter name and value',
+    'kubeblocks.parameter.add.partial_success': 'Added {applied} parameter(s), {failed} failed',
     'kubeblocks.parameter.total': 'Total',
     'kubeblocks.parameter.preview.title': 'Preview Changes',
     'kubeblocks.parameter.preview.name': 'Parameter',
@@ -1151,6 +1163,7 @@ const componentOverview = {
     'kubeblocks.parameter.preview.restart': 'Static Parameter',
     'kubeblocks.parameter.error.required': '{name} is required',
     'kubeblocks.parameter.save.success': 'Saved',
+    'kubeblocks.parameter.save.partial_success': 'Applied {applied} parameter(s), {failed} failed',
     'kubeblocks.parameter.alert.static_restart': 'Changing static parameters will trigger an automatic restart. Perform during off-peak hours and be aware of brief connection interruptions.',
     'kubeblocks.parameter.invalid.title': 'Parameter Application Result',
     'kubeblocks.parameter.invalid.ok': 'Got it',
@@ -1238,9 +1251,6 @@ const componentOverview = {
     // 数据库实例相关
     'kubeblocks.database.instance.loading': 'Loading...',
     'kubeblocks.database.instance.list': 'Instance List',
-    
-    
-
 }
 
 

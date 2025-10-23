@@ -1155,8 +1155,20 @@ const componentOverview = {
     'kubeblocks.parameter.table.range': '参数值范围',
     'kubeblocks.parameter.table.restart': '是否为静态参数',
     'kubeblocks.parameter.search.placeholder': '搜索参数名',
+    'kubeblocks.parameter.modified': '已修改 {count}',
     'kubeblocks.parameter.refresh': '刷新',
     'kubeblocks.parameter.save': '保存',
+    'kubeblocks.parameter.add': '新增',
+    'kubeblocks.parameter.add.modal.title': '新增参数',
+    'kubeblocks.parameter.add.modal.name': '参数名',
+    'kubeblocks.parameter.add.modal.value': '参数值',
+    'kubeblocks.parameter.add.modal.name.placeholder': '请输入参数名',
+    'kubeblocks.parameter.add.modal.value.placeholder': '请输入参数值',
+    'kubeblocks.parameter.add.modal.add_more': '添加更多参数',
+    'kubeblocks.parameter.add.success': '参数添加成功',
+    'kubeblocks.parameter.add.validation.empty': '请至少添加一个参数',
+    'kubeblocks.parameter.add.validation.incomplete': '请填写完整的参数名和参数值',
+    'kubeblocks.parameter.add.partial_success': '已添加 {applied} 个参数，{failed} 个失败',
     'kubeblocks.parameter.total': '共',
     'kubeblocks.parameter.preview.title': '预览更改',
     'kubeblocks.parameter.preview.name': '参数名称',
@@ -1165,6 +1177,7 @@ const componentOverview = {
     'kubeblocks.parameter.preview.restart': '是否为静态参数',
     'kubeblocks.parameter.error.required': '{name} 为必填项',
     'kubeblocks.parameter.save.success': '已保存',
+    'kubeblocks.parameter.save.partial_success': '已应用 {applied} 个参数，{failed} 个失败',
     'kubeblocks.parameter.alert.static_restart': '修改静态参数将触发数据库自动重启，请在业务低峰期进行操作，并注意短暂连接中断的影响。',
     'kubeblocks.parameter.invalid.title': '参数应用结果',
     'kubeblocks.parameter.invalid.ok': '知道了',
@@ -1252,9 +1265,6 @@ const componentOverview = {
     // 数据库实例相关
     'kubeblocks.database.instance.loading': '加载中...',
     'kubeblocks.database.instance.list': '实例列表',
-    
-    
-
 }
 
 const componentOther = {

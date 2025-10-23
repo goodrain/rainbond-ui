@@ -11,7 +11,9 @@ import {
   Tooltip,
   Icon,
   Modal,
-  message
+  message,
+  Row,
+  Col
 } from 'antd';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import NoPermTip from '../../components/NoPermTip';
@@ -44,7 +46,9 @@ export default class Index extends PureComponent {
       pendingChanges: [],
       previewVisible: false,
       invalidVisible: false,
-      invalidList: []
+      invalidList: [],
+      addParameterVisible: false,
+      newParameters: []
     };
   }
 
@@ -85,7 +89,6 @@ export default class Index extends PureComponent {
     return found != null ? found : String(bool);
   };
 
-  // 归一化比较，确保与 API 基准值的等价判断可靠
   normalizeForCompare = (val, type, enum_values, meta) => {
     const labels = Array.isArray(enum_values) ? enum_values.map(this.trimQuotes) : [];
     const allBooleanMappable = labels.length > 0 && labels.every(l => this.labelToBoolean(l) !== null);
@@ -151,7 +154,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  // 统一获取枚举的可读标签（剥离包裹引号）
+  // 统一获取枚举的可读标签
   getEnumLabels = (enum_values) => (Array.isArray(enum_values) ? enum_values.map(this.trimQuotes) : []);
 
   fetchParameters = () => {
@@ -431,7 +434,7 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: formatMessage({ id: 'kubeblocks.parameter.table.restart', defaultMessage: '是否为静态参数' }),
+        title: formatMessage({ id: 'kubeblocks.parameter.table.restart' }),
         dataIndex: 'is_dynamic',
         key: 'need_restart',
         width: 150,
@@ -521,7 +524,8 @@ export default class Index extends PureComponent {
       },
       callback: (response) => {
         if (response && response.status_code === 200) {
-          // 当前后端返回结构：{ bean: { bean: { applied, invalids } } }
+          // 后端实际返回的是双层 bean 嵌套：
+          // response.bean.bean = { applied: [...], invalids: [...] }
           const bean = (response && response.bean && response.bean.bean) || {};
           const applied = Array.isArray(bean.applied) ? bean.applied : [];
           const invalids = Array.isArray(bean.invalids) ? bean.invalids : [];
@@ -537,15 +541,20 @@ export default class Index extends PureComponent {
             // 清理已应用的草稿，保留失败的
             this.setState(prev => {
               const nextDraft = { ...prev.draft };
-              applied.forEach(item => {
-                if (nextDraft[item.name]) {
-                  delete nextDraft[item.name];
+              applied.forEach(paramName => {
+                if (nextDraft[paramName]) {
+                  delete nextDraft[paramName];
                 }
               });
               return { draft: nextDraft };
             });
 
-            message.warning(`已应用 ${applied.length} 个参数，${invalids.length} 个失败`);
+            message.warning(
+              formatMessage(
+                { id: 'kubeblocks.parameter.save.partial_success' },
+                { applied: applied.length, failed: invalids.length }
+              )
+            );
           } else {
             // 全部成功
             message.success(formatMessage({ id: 'kubeblocks.parameter.save.success', defaultMessage: '已保存' }));
@@ -559,9 +568,140 @@ export default class Index extends PureComponent {
     });
   };
 
+  // 新增参数
+  handleNewParameterClick = () => {
+    this.setState({
+      addParameterVisible: true,
+      newParameters: [{ name: '', value: '', error: null }]
+    });
+  };
+
+  handleAddParameterCard = () => {
+    this.setState(prev => ({
+      newParameters: [...prev.newParameters, { name: '', value: '', error: null }]
+    }));
+  };
+
+  handleRemoveParameterCard = (index) => {
+    this.setState(prev => ({
+      newParameters: prev.newParameters.filter((_, i) => i !== index)
+    }));
+  };
+
+  handleParameterChange = (index, field, value) => {
+    this.setState(prev => {
+      const nextParams = [...prev.newParameters];
+      nextParams[index] = { ...nextParams[index], [field]: value, error: null };
+      return { newParameters: nextParams };
+    });
+  };
+
+  handleAddParameterCancel = () => {
+    this.setState({
+      addParameterVisible: false,
+      newParameters: []
+    });
+  };
+
+  handleAddParameterConfirm = () => {
+    const { dispatch } = this.props;
+    const { newParameters } = this.state;
+
+    // 过滤掉空行并验证
+    const validParams = newParameters.filter(p => p.name.trim() !== '' && p.value !== '');
+
+    if (validParams.length === 0) {
+      message.warning(formatMessage({ id: 'kubeblocks.parameter.add.validation.empty', defaultMessage: '请至少添加一个参数' }));
+      return;
+    }
+
+    // 检查是否有不完整的数据
+    const hasIncomplete = newParameters.some(p => {
+      const hasName = p.name.trim() !== '';
+      const hasValue = p.value !== '';
+      return (hasName && !hasValue) || (!hasName && hasValue);
+    });
+
+    if (hasIncomplete) {
+      message.warning(formatMessage({ id: 'kubeblocks.parameter.add.validation.incomplete', defaultMessage: '请填写完整的参数名和参数值' }));
+      return;
+    }
+
+    const ctx = this.getServiceCtx();
+    if (!ctx) {
+      message.error('缺少服务上下文，无法提交参数变更');
+      return;
+    }
+
+    const changes = validParams.map(p => ({ name: p.name, value: p.value }));
+
+    dispatch({
+      type: 'kubeblocks/updateParameters',
+      payload: {
+        ...ctx,
+        body: { changes }
+      },
+      callback: (response) => {
+        if (response && response.status_code === 200) {
+          const bean = (response && response.bean && response.bean.bean) || {};
+          const applied = Array.isArray(bean.applied) ? bean.applied : [];
+          const invalids = Array.isArray(bean.invalids) ? bean.invalids : [];
+
+          if (invalids.length > 0) {
+            // 部分失败：保持弹窗打开，移除成功的参数，为失败的参数添加错误信息
+            this.setState(prev => {
+              const nextParams = prev.newParameters.filter(p =>
+                !applied.includes(p.name)
+              );
+
+              const withErrors = nextParams.map(p => {
+                const failedItem = invalids.find(inv => inv.name === p.name);
+                return failedItem
+                  ? { ...p, error: failedItem.code }
+                  : { ...p, error: null };
+              });
+
+              return { newParameters: withErrors };
+            });
+
+            message.warning(
+              formatMessage(
+                { id: 'kubeblocks.parameter.add.partial_success' },
+                { applied: applied.length, failed: invalids.length }
+              )
+            );
+
+            this.fetchParameters();
+
+          } else {
+            // 全部成功：关闭弹窗
+            message.success(formatMessage({ id: 'kubeblocks.parameter.add.success', defaultMessage: '参数添加成功' }));
+            this.setState({
+              addParameterVisible: false,
+              newParameters: []
+            });
+            this.fetchParameters();
+          }
+        } else {
+          message.error('参数添加失败，请重试');
+        }
+      }
+    });
+  };
+
   render() {
     const { appDetail, componentPermissions = {}, updateLoading } = this.props;
-    const { draft, previewVisible, invalidVisible, invalidList, parameterList, parameterPagination, listLoading } = this.state;
+    const {
+      draft,
+      previewVisible,
+      invalidVisible,
+      invalidList,
+      parameterList,
+      parameterPagination,
+      listLoading,
+      addParameterVisible,
+      newParameters
+    } = this.state;
     const columns = this.getColumns();
     const hasChanges = Object.keys(draft).length > 0;
     const modifiedCount = Object.keys(draft).length;
@@ -575,7 +715,7 @@ export default class Index extends PureComponent {
           extra={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Input.Search
-                placeholder={formatMessage({ id: 'kubeblocks.parameter.search.placeholder', defaultMessage: '搜索参数名' })}
+                placeholder={formatMessage({ id: 'kubeblocks.parameter.search.placeholder' })}
                 defaultValue={parameterPagination?.keyword || ''}
                 onSearch={this.handleSearch}
                 allowClear
@@ -583,11 +723,14 @@ export default class Index extends PureComponent {
               />
               {modifiedCount > 0 && (
                 <Tag color="orange" style={{ marginRight: 8 }}>
-                  已修改 {modifiedCount}
+                  {formatMessage({ id: 'kubeblocks.parameter.modified' }, { count: modifiedCount })}
                 </Tag>
               )}
+              <Button type="default" onClick={this.handleNewParameterClick}>
+                <FormattedMessage id="kubeblocks.parameter.add" />
+              </Button>
               <Button style={{ marginLeft: 12 }} onClick={this.handleRefresh}>
-                <FormattedMessage id="kubeblocks.parameter.refresh" defaultMessage="刷新" />
+                <FormattedMessage id="kubeblocks.parameter.refresh" />
               </Button>
               <Button
                 type="primary"
@@ -596,7 +739,7 @@ export default class Index extends PureComponent {
                 onClick={this.handleSaveClick}
                 style={{ marginLeft: 8 }}
               >
-                <FormattedMessage id="kubeblocks.parameter.save" defaultMessage="保存" />
+                <FormattedMessage id="kubeblocks.parameter.save" />
               </Button>
             </div>
           }
@@ -604,7 +747,7 @@ export default class Index extends PureComponent {
           <Alert
             type="info"
             showIcon
-            message={<FormattedMessage id="kubeblocks.parameter.alert.static_restart" defaultMessage="修改静态参数将触发数据库自动重启，请在业务低峰期进行操作，并注意短暂连接中断的影响。" />}
+            message={<FormattedMessage id="kubeblocks.parameter.alert.static_restart" />}
             style={{ marginBottom: 12 }}
           />
           {/* 高亮样式 */}
@@ -639,7 +782,7 @@ export default class Index extends PureComponent {
 
         {/* 预览更改弹窗 */}
         <Modal
-          title={formatMessage({ id: 'kubeblocks.parameter.preview.title', defaultMessage: '预览更改' })}
+          title={formatMessage({ id: 'kubeblocks.parameter.preview.title' })}
           visible={previewVisible}
           onCancel={this.handlePreviewCancel}
           onOk={this.handlePreviewConfirm}
@@ -649,10 +792,10 @@ export default class Index extends PureComponent {
             rowKey="name"
             pagination={false}
             columns={[
-              { title: formatMessage({ id: 'kubeblocks.parameter.preview.name', defaultMessage: '参数名称' }), dataIndex: 'name', key: 'name' },
-              { title: formatMessage({ id: 'kubeblocks.parameter.preview.old', defaultMessage: '旧值' }), dataIndex: 'oldValue', key: 'old' },
-              { title: formatMessage({ id: 'kubeblocks.parameter.preview.new', defaultMessage: '新值' }), dataIndex: 'newValue', key: 'new' },
-              { title: formatMessage({ id: 'kubeblocks.parameter.preview.restart', defaultMessage: '是否为静态参数' }), dataIndex: 'needRestart', key: 'restart', align: 'center' }
+              { title: formatMessage({ id: 'kubeblocks.parameter.preview.name' }), dataIndex: 'name', key: 'name' },
+              { title: formatMessage({ id: 'kubeblocks.parameter.preview.old' }), dataIndex: 'oldValue', key: 'old' },
+              { title: formatMessage({ id: 'kubeblocks.parameter.preview.new' }), dataIndex: 'newValue', key: 'new' },
+              { title: formatMessage({ id: 'kubeblocks.parameter.preview.restart' }), dataIndex: 'needRestart', key: 'restart', align: 'center' }
             ]}
             dataSource={Object.keys(draft).map(name => {
               const item = draft[name];
@@ -661,7 +804,7 @@ export default class Index extends PureComponent {
                 name,
                 oldValue: item.oldValue,
                 newValue: item.newValue,
-                needRestart: meta.is_dynamic ? '否' : '是'
+                needRestart: meta.is_dynamic ? 'NO' : 'YES'
               };
             })}
           />
@@ -669,18 +812,18 @@ export default class Index extends PureComponent {
 
         {/* 失败结果弹窗 */}
         <Modal
-          title={formatMessage({ id: 'kubeblocks.parameter.invalid.title', defaultMessage: '参数应用结果' })}
+          title={formatMessage({ id: 'kubeblocks.parameter.invalid.title' })}
           visible={invalidVisible}
           onCancel={() => this.setState({ invalidVisible: false })}
           footer={[
             <Button key="ok" type="primary" onClick={() => this.setState({ invalidVisible: false })}>
-              {formatMessage({ id: 'kubeblocks.parameter.invalid.ok', defaultMessage: '知道了' })}
+              {formatMessage({ id: 'kubeblocks.parameter.invalid.ok' })}
             </Button>
           ]}
         >
           <div>
             <p style={{ marginBottom: 16 }}>
-              {formatMessage({ id: 'kubeblocks.parameter.invalid.message', defaultMessage: '以下参数应用失败，草稿已保留，您可以修正后重试：' })}
+              {formatMessage({ id: 'kubeblocks.parameter.invalid.message' })}
             </p>
             <Table
               size="small"
@@ -688,13 +831,13 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: formatMessage({ id: 'kubeblocks.parameter.invalid.name', defaultMessage: '参数名称' }),
+                  title: formatMessage({ id: 'kubeblocks.parameter.invalid.name' }),
                   dataIndex: 'name',
                   key: 'name'
                 },
                 {
                   // 仅展示后端提供的 code
-                  title: formatMessage({ id: 'kubeblocks.parameter.invalid.reason', defaultMessage: '失败原因' }),
+                  title: formatMessage({ id: 'kubeblocks.parameter.invalid.reason' }),
                   dataIndex: 'code',
                   key: 'code',
                   render: (code) => code || '-'
@@ -703,6 +846,85 @@ export default class Index extends PureComponent {
               dataSource={invalidList}
             />
           </div>
+        </Modal>
+
+        {/* 新增参数弹窗 */}
+        <Modal
+          title={formatMessage({ id: 'kubeblocks.parameter.add.modal.title' })}
+          visible={addParameterVisible}
+          onCancel={this.handleAddParameterCancel}
+          onOk={this.handleAddParameterConfirm}
+          width={600}
+          confirmLoading={updateLoading}
+          keyboard={false}
+        >
+          <div style={{ marginBottom: 16 }}>
+            {newParameters.map((param, index) => (
+              <Card
+                key={index}
+                size="small"
+                style={{
+                  marginBottom: 12,
+                  borderColor: param.error ? '#f5222d' : undefined
+                }}
+                extra={
+                  newParameters.length > 1 && (
+                    <Icon
+                      type="close"
+                      style={{ cursor: 'pointer', color: '#999' }}
+                      onClick={() => this.handleRemoveParameterCard(index)}
+                    />
+                  )
+                }
+              >
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 4, fontSize: 12, color: '#999' }}>
+                      {formatMessage({ id: 'kubeblocks.parameter.add.modal.name', defaultMessage: '参数名' })}
+                    </div>
+                    <Input
+                      placeholder={formatMessage({ id: 'kubeblocks.parameter.add.modal.name.placeholder', defaultMessage: '请输入参数名' })}
+                      value={param.name}
+                      onChange={e => this.handleParameterChange(index, 'name', e.target.value)}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 4, fontSize: 12, color: '#999' }}>
+                      {formatMessage({ id: 'kubeblocks.parameter.add.modal.value', defaultMessage: '参数值' })}
+                    </div>
+                    <Input
+                      placeholder={formatMessage({ id: 'kubeblocks.parameter.add.modal.value.placeholder', defaultMessage: '请输入参数值' })}
+                      value={param.value}
+                      onChange={e => this.handleParameterChange(index, 'value', e.target.value)}
+                    />
+                  </Col>
+                </Row>
+                {param.error && (
+                  <div style={{
+                    marginTop: 8,
+                    padding: '4px 8px',
+                    backgroundColor: '#fff1f0',
+                    border: '1px solid #ffccc7',
+                    borderRadius: 2,
+                    fontSize: 12,
+                    color: '#cf1322'
+                  }}>
+                    <Icon type="exclamation-circle" style={{ marginRight: 4 }} />
+                    {param.error}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+
+          <Button
+            type="dashed"
+            onClick={this.handleAddParameterCard}
+            block
+            icon="plus"
+          >
+            {formatMessage({ id: 'kubeblocks.parameter.add.modal.add_more', defaultMessage: '添加更多参数' })}
+          </Button>
         </Modal>
       </div>
     );
