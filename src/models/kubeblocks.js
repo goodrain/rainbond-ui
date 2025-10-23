@@ -3,7 +3,6 @@ import {
     createDatabaseCluster,
     fetchStorageClasses,
     fetchBackupRepos,
-    getComponentKubeBlocksInfo,
     getClusterDetail,
     scaleCluster as scaleClusterApi,
     updateBackupConfig as updateBackupConfigApi,
@@ -23,7 +22,6 @@ export default {
         backupRepos: [], // 存储 BackupRepo 列表
         backupList: [], // 存储备份列表
         createLoading: false, // 创建数据库集群的加载状态
-        componentInfo: null, // 组件 KubeBlocks 信息
         clusterDetail: null, // 集群详情信息
         parameterList: [], // 存储参数列表
         parameterPagination: { // 参数分页信息
@@ -84,20 +82,6 @@ export default {
                 yield put({
                     type: 'saveBackupRepos',
                     payload: response.list
-                });
-            }
-            if (callback) {
-                callback(response);
-            }
-        },
-
-        *getComponentKubeBlocksInfo({ payload, callback, handleError }, { call, put }) {
-            const response = yield call(getComponentKubeBlocksInfo, payload, handleError);
-            if (response && response.status_code === 200) {
-                // 保存组件 KubeBlocks 信息
-                yield put({
-                    type: 'saveComponentInfo',
-                    payload: response.bean || null
                 });
             }
             if (callback) {
@@ -284,19 +268,6 @@ export default {
             return {
                 ...state,
                 createLoading: payload
-            };
-        },
-
-        /**
-         * 保存组件 KubeBlocks 信息
-         * @param {Object} state - 当前状态
-         * @param {Object} action - 包含 payload 的 action
-         * @param {Object} action.payload - 组件 KubeBlocks 信息，包含 isKubeBlocksComponent 和 databaseType
-         */
-        saveComponentInfo(state, { payload }) {
-            return {
-                ...state,
-                componentInfo: payload
             };
         },
 

@@ -76,25 +76,6 @@ export async function createDatabaseCluster(params) {
 }
 
 /**
- * 获取组件 KubeBlocks 信息
- * @param {Object} params
- * @param {String} params.team_name 团队名称
- * @param {String} params.region_name 区域名称
- * @param {String} params.service_id 服务ID
- * @param {Function} handleError 错误处理回调
- * @returns {Promise<Object>} 返回格式: { bean: { isKubeBlocksComponent: boolean, databaseType: string } }
- */
-export async function getComponentKubeBlocksInfo(params, handleError) {
-    return request(
-        `${apiconfig.baseUrl}/console/teams/${params.team_name}/regions/${params.region_name}/kubeblocks/component/${params.service_id}/infos`,
-        {
-            method: 'get',
-            handleError
-        }
-    );
-}
-
-/**
  * 获取 KubeBlocks 集群详情
  * @param {Object} params
  * @param {String} params.team_name 团队名称
