@@ -1225,7 +1225,6 @@ const componentOverview = {
     'kubeblocks.database.backup.startTime_week_required': 'Please select the day of week for weekly execution',
     'kubeblocks.database.backup.startTime_hour_required': 'Please select backup start hour',
     'kubeblocks.database.backup.startTime_minute_required': 'Please select backup start minute',
-    'kubeblocks.database.backup.service_not_ready': 'Component is not ready, cannot save backup configuration',
 
     // Backup operation messages
     'kubeblocks.database.backup.manual.success': 'Manual backup started',

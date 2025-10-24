@@ -1238,7 +1238,6 @@ const componentOverview = {
     'kubeblocks.database.backup.startTime_week_required': '请选择每周执行的星期几',
     'kubeblocks.database.backup.startTime_hour_required': '请选择备份开始小时',
     'kubeblocks.database.backup.startTime_minute_required': '请选择备份开始分钟',
-    'kubeblocks.database.backup.service_not_ready': '组件尚未就绪，无法保存备份配置',
 
     // 备份操作消息
     'kubeblocks.database.backup.manual.success': '手动备份已启动',

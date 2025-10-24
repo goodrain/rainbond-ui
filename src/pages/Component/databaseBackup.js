@@ -457,18 +457,28 @@ export default class Index extends PureComponent {
         callback: (res) => {
           this.setState({ loading: false });
           if (res && res.status_code === 200) {
-            const successMessage = backupRepo && backupRepo.trim() ?
-              formatMessage({ id: 'kubeblocks.database.backup.config.updated' }) :
-              formatMessage({ id: 'kubeblocks.database.backup.disabled.success' });
-            notification.success({ message: successMessage });
-            this.setState({ editBackupInfo: false });
-            this.fetchBackupList();
+            // 保存成功后，重新获取 clusterDetail 以确保 UI 状态同步
+            dispatch({
+              type: 'kubeblocks/getClusterDetail',
+              payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                service_alias: serviceAlias
+              },
+              callback: () => {
+                const successMessage = backupRepo && backupRepo.trim() ?
+                  formatMessage({ id: 'kubeblocks.database.backup.config.updated' }) :
+                  formatMessage({ id: 'kubeblocks.database.backup.disabled.success' });
+                notification.success({ message: successMessage });
+                this.setState({ editBackupInfo: false });
+                this.fetchBackupList();
+              }
+            });
           } else {
             const msg = (res && res.msg_show) || formatMessage({ id: 'notification.error.save' });
             notification.error({ message: msg });
           }
         },
-        handleError: (e) => {
+        handleError: () => {
           this.setState({ loading: false });
         }
       });
@@ -720,8 +730,9 @@ export default class Index extends PureComponent {
 
     // 数据库不支持备份功能
     const isBackupUnSupported = clusterDetail?.basic?.support_backup !== true;
-    // 备份功能关闭
-    const isBackupDisabled = !backupRepo || backupRepo.trim() === '';
+    // 备份功能是否已启用（基于实际保存的配置，而不是编辑中的 state）
+    const isBackupDisabled = !clusterDetail?.backup?.backupRepo ||
+                             clusterDetail.backup.backupRepo.trim() === '';
 
     const formItemLayout = {
       labelCol: {
