@@ -115,9 +115,6 @@ export default class Index extends PureComponent {
         <TopUpHints />
         <div
           className={styles.formWrap}
-          style={{
-            width:"600px"
-          }}
         >
           <ImageCmdDemoForm
             data={{ docker_cmd: image || "" }}

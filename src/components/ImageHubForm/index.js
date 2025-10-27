@@ -30,22 +30,18 @@ export default class ImageHubForm extends PureComponent {
     const {language} = this.state;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
+        span: 24
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 15 }
+        span: 24
       }
     };
     const formItemLayouts = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 }
+        span: 24
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 }
+        span: 24
       }
     };
     const is_language = language ? formItemLayout : formItemLayouts
@@ -55,10 +51,11 @@ export default class ImageHubForm extends PureComponent {
         confirmLoading={loading}
         visible
         className={styles.TelescopicModal}
+        bodyStyle={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onCancel={onCancel}
         onOk={this.onOk}
       >
-        <Form onSubmit={this.onOk}>
+        <Form onSubmit={this.onOk} layout="vertical" hideRequiredMark>
 
           <Form.Item {...is_language} label={formatMessage({id:'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url'})}>
             <Input.Group compact>

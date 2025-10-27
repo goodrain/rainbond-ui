@@ -57,7 +57,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUpload()
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if (group_id) {
       this.setState({
         creatComPermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
@@ -74,7 +74,7 @@ export default class Index extends PureComponent {
     const { form, dispatch, archInfo, onSubmit } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
@@ -292,40 +292,41 @@ export default class Index extends PureComponent {
       form,
       form: { getFieldDecorator },
       groups,
-      archInfo
+      archInfo,
+      showSubmitBtn = true
     } = this.props;
     const myheaders = {};
     const { fileList, defaultRadio, addGroup, record, region_name, existFileList, language, creatComPermission: { isCreate }, isDisabledUpload } = this.state;
 
     const formItemLayout = {
       labelCol: {
-        span: 7
+        span: 24
       },
       wrapperCol: {
-        span: 15
+        span: 24
       }
     };
     const en_formItemLayout = {
       labelCol: {
-        span: 7
+        span: 24
       },
       wrapperCol: {
-        span: 15
+        span: 24
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
     let arch = 'amd64'
-    let archLegnth = archInfo.length
+    let archLegnth = archInfo?.length || 0
     if (archLegnth == 2) {
       arch = 'amd64'
-    } else if (archInfo.length == 1) {
+    } else if (archLegnth == 1) {
       arch = archInfo && archInfo[0]
     }
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     return (
       <>
         <div className={styles.yaml_container}>
-          <Form onSubmit={this.handleSubmit}>
+          <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
                 rules: [
@@ -404,15 +405,9 @@ export default class Index extends PureComponent {
                 </div>
                 {existFileList.length > 0 &&
                   <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      background: '#ff7b7b',
-                      padding: '0px 12px',
-                      justifyContent: 'center',
-                    }}
+                    className={styles.deleteButton}
                   >
-                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                    <Icon onClick={this.handleJarWarUploadDelete} type="delete" />
                   </div>
                 }
               </div>
@@ -500,19 +495,20 @@ export default class Index extends PureComponent {
                 </div>
               )}
             </>}
-            <Form.Item
-              wrapperCol={{
-                xs: { span: 24, offset: 0 },
-                sm: {
-                  span: is_language.wrapperCol.span,
-                  offset: is_language.labelCol.span
-                }
-              }}
-            >
-              <Button type="primary" htmlType="submit">
-                {formatMessage({ id: 'teamAdd.create.btn.create' })}
-              </Button>
-            </Form.Item>
+            {showSubmitBtn && (
+              <Form.Item
+                wrapperCol={{
+                  xs: { span: 24, offset: 0 },
+                  sm: { span: 24, offset: 0 }
+                }}
+              >
+                <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                  <Button type="primary" htmlType="submit">
+                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                  </Button>
+                </div>
+              </Form.Item>
+            )}
           </Form>
         </div>
         {/* </Card> */}

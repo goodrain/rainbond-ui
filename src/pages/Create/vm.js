@@ -52,7 +52,7 @@ export default class Main extends PureComponent {
   }
   handleTabChange = key => {
     const { dispatch } = this.props;
-    const group_id = globalUtil.getGroupID()  
+    const group_id = globalUtil.getAppID()  
     dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
@@ -93,7 +93,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const isAppOverview = this.props.location?.query?.type || '';
     return (
       <PageHeaderLayout

@@ -1,0 +1,324 @@
+.createComponentModal {
+  :global {
+    .ant-modal-header {
+      border-bottom: none;
+      padding: 24px 24px 16px;
+    }
+
+    .ant-modal-body {
+      padding: 0 24px 24px;
+    }
+
+    .ant-modal-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+
+  .backIcon {
+    font-size: 20px;
+    margin-right: 12px;
+    color: #262626;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #595959;
+    }
+  }
+
+  .titleIcon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 10px;
+    color: #262626;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    background: #fafafa;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.08);
+
+    .menuIcon {
+      color: #262626;
+      background: #e6e6e6;
+    }
+
+    .menuTitle {
+      color: #262626;
+    }
+
+    .arrowIcon {
+      color: #262626;
+    }
+  }
+
+  &:active {
+    background: #f5f5f5;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .menuIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 20px;
+    color: #595959;
+  }
+
+  .menuTitle {
+    flex: 1;
+    font-size: 16px;
+    color: #262626;
+    font-weight: 500;
+  }
+
+  .arrowIcon {
+    font-size: 16px;
+    color: #d9d9d9;
+  }
+}
+
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.formWrapper {
+  padding: 20px 0;
+  max-height: 600px;
+  overflow-y: auto;
+
+  // 隐藏滚动条,但保持滚动功能
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE 和 Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
+}
+
+.addPrivateRegistry {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  margin-top: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed #d9d9d9;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: #fafafa;
+    border-color: #595959;
+
+    .addIcon {
+      background: #e8e8e8;
+      transform: scale(1.05);
+    }
+
+    .addTitle {
+      color: #262626;
+    }
+  }
+
+  .addIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 20px;
+    color: #595959;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .addContent {
+    flex: 1;
+
+    .addTitle {
+      font-size: 15px;
+      color: #595959;
+      font-weight: 500;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .addDesc {
+      font-size: 13px;
+      color: #8c8c8c;
+      line-height: 1.4;
+    }
+  }
+}
+
+// 插件弹窗样式
+.pluginModal {
+  :global {
+    .ant-modal-header {
+      border-bottom: 1px solid #e8e8e8;
+      padding: 20px 24px;
+    }
+
+    .ant-modal-body {
+      padding: 0;
+      height: 80vh;
+      overflow: hidden;
+    }
+
+    .ant-modal-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
+
+.pluginContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  // 错误状态样式
+  .errorContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+
+    h3 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #262626;
+    }
+
+    p {
+      margin: 0 0 20px 0;
+      font-size: 14px;
+      color: #ff4d4f;
+      line-height: 1.6;
+    }
+
+    button {
+      min-width: 80px;
+    }
+  }
+
+  // 加载状态样式
+  .loadingContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+  }
+}
+
+// 插件内嵌样式
+.pluginWrapper {
+  height: 600px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ffffff;
+
+  .loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex-direction: column;
+
+    .ant-spin {
+      margin-bottom: 16px;
+    }
+
+    span {
+      color: #8c8c8c;
+      font-size: 14px;
+    }
+  }
+
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px 20px;
+    text-align: center;
+
+    h3 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff4d4f;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      font-size: 14px;
+      color: #595959;
+      line-height: 1.6;
+      max-width: 400px;
+    }
+
+    .ant-btn {
+      min-width: 80px;
+    }
+  }
+}
