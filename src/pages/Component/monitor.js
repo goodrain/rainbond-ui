@@ -182,18 +182,18 @@ export default class Index extends PureComponent {
                 {/* 资源监控 */}
                 <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
               </Menu.Item>
-              {method != 'vm' &&
+              {method != 'vm' && method != 'kubeblocks_component' &&
                 <Menu.Item key="pm">
                   {/* 性能分析 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
                 </Menu.Item>}
 
-              {enablePM && method != 'vm' &&
+              {enablePM && method != 'vm' && method != 'kubeblocks_component' &&
                 <Menu.Item key="trace">
                   {/* 链路追踪 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.tracking' />
                 </Menu.Item>}
-              {isServiceMonitor && method != 'vm' &&
+              {isServiceMonitor && method != 'vm' && method != 'kubeblocks_component' &&
                 <Menu.Item key="custom">
                   {/* 业务监控 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.business' />

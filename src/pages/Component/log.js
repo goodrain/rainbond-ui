@@ -22,9 +22,10 @@ import PulginUtiles from '../../utils/pulginUtils'
 const { Option } = Select;
 
 @connect(
-  ({ user, teamControl }) => ({
+  ({ user, teamControl, kubeblocks }) => ({
     currUser: user.currentUser,
-    pluginList: teamControl.pluginsList
+    pluginList: teamControl.pluginsList,
+    clusterDetail: kubeblocks.clusterDetail
   }),
   null,
   null,
@@ -57,6 +58,21 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
+
+    const { appDetail, dispatch, appAlias } = this.props;
+    const isKubeBlocks = appDetail?.service?.extend_method === 'kubeblocks_component';
+
+    // KubeBlocks component，获取 clusterDetail
+    if (isKubeBlocks) {
+      dispatch({
+        type: 'kubeblocks/getClusterDetail',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          service_alias: appAlias
+        }
+      });
+    }
+
     this.fetchInstanceInfo();
     this.setState({
       // 历史日志展示
@@ -76,6 +92,17 @@ export default class Index extends PureComponent {
     // 设置定时器每5秒执行fetchInstanceInfo
     this.intervalTimer = setInterval(() => {
       this.fetchInstanceInfo();
+
+      // KubeBlocks component 刷新 clusterDetail
+      if (isKubeBlocks) {
+        dispatch({
+          type: 'kubeblocks/getClusterDetail',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            service_alias: appAlias
+          }
+        });
+      }
     }, 5000);
   }
 
@@ -173,7 +200,9 @@ export default class Index extends PureComponent {
   }
 
   fetchInstanceInfo = () => {
-    const { dispatch, appAlias } = this.props;
+    const { dispatch, appAlias, appDetail, clusterDetail } = this.props;
+    const isKubeBlocks = appDetail?.service?.extend_method === 'kubeblocks_component';
+
     dispatch({
       type: 'appControl/fetchPods',
       payload: {
@@ -204,6 +233,27 @@ export default class Index extends PureComponent {
             });
           });
         }
+
+        // KubeBlocks 组件：用 clusterDetail 数据覆盖
+        if (isKubeBlocks && clusterDetail && clusterDetail.basic && clusterDetail.basic.replicas) {
+          const replicas = clusterDetail.basic.replicas;
+          list = replicas.map(replica => {
+            // 从 replica.containers 提取容器信息并转换格式
+            const containers = (replica.containers || []).map(container => ({
+              container_name: container.name,
+              name: `容器：${container.name}`
+            }));
+
+            return {
+              pod_name: replica.name,
+              name: `实例：${replica.name}`,
+              pod_status: replica.status,
+              ready: replica.ready,
+              container: containers
+            };
+          });
+        }
+
         list.push({
           name: formatMessage({ id: 'componentOverview.body.tab.log.allLogs' }),
         });

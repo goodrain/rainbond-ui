@@ -463,6 +463,23 @@ export default [
             name: 'yaml',
             authority: ['admin', 'user']
           },
+
+          // KubeBlocks
+          // Database 创建
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/database',
+            component: './Create/database',
+            name: 'database',
+            authority: ['admin', 'user']
+          },
+          {
+            path:
+              '/team/:teamName/region/:regionName/create/database-config',
+            component: './Create/database-config',
+            name: 'databaseConfig',
+            authority: ['admin', 'user']
+          },
           {
             path:
               '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
