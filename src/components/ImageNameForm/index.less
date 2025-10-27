@@ -1,5 +1,11 @@
 .yaml_container {
     :global {
+        // 统一表单标签样式
+        .ant-form-item-label > label {
+          font-size: 14px !important;
+          color: rgba(0, 0, 0, 0.85) !important;
+          font-weight: 600 !important;
+        }
         .ant-upload {
           width: 200px;
         }
@@ -251,7 +257,7 @@
   .setCheckbox {
     width: 100%;
     margin-top: 30px;
-  
+
     &>div {
       display: flex;
       flex-wrap: wrap;
@@ -260,6 +266,12 @@
       min-height: 100px;
       max-height: 160px;
       overflow: auto;
+      // 隐藏滚动条
+      &::-webkit-scrollbar {
+        display: none; // Chrome, Safari, Edge
+      }
+      -ms-overflow-style: none;  // IE 10+
+      scrollbar-width: none;  // Firefox
     }
   
     :global {

@@ -103,9 +103,6 @@ export default class Index extends PureComponent {
         <TopUpHints />
         <div
           className={styles.formWrap}
-          style={{
-            width:'600px'
-          }}
         >
           <CodeCustomForm onSubmit={this.handleInstallApp} {...this.props} />
         </div>

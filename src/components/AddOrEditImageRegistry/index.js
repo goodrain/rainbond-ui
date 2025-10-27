@@ -113,22 +113,18 @@ class ConfirmModal extends PureComponent {
     const { language, checking, checkLoading } = this.state;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
+        span: 24
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 14 }
+        span: 24
       }
     };
     const en_formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 10 }
+        span: 24
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 14 }
+        span: 24
       }
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
@@ -137,6 +133,7 @@ class ConfirmModal extends PureComponent {
         title={data ? formatMessage({ id: 'confirmModal.edit.common.image.title' }) : formatMessage({ id: 'confirmModal.add.common.image.title' })}
         visible
         onCancel={onCancel}
+        bodyStyle={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         footer={
           <div>
             <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>
@@ -151,7 +148,7 @@ class ConfirmModal extends PureComponent {
         }
       >
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
           <Spin
             spinning={checkLoading}
             tip="正在检测..."

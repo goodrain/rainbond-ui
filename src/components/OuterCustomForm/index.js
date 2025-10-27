@@ -35,10 +35,10 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 8
+    span: 24
   },
   wrapperCol: {
-    span: 7
+    span: 24
   }
 };
 const formItemLayouts = {
@@ -109,7 +109,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields({ force: true },(err, fieldsValue) => {
       if (err) {
         if (
@@ -318,7 +318,7 @@ export default class Index extends PureComponent {
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const apiMessage = (
       <Alert
         message={formatMessage({ id: 'teamAdd.create.third.Alert.warning' })}
@@ -329,7 +329,7 @@ export default class Index extends PureComponent {
     );
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
@@ -429,8 +429,8 @@ export default class Index extends PureComponent {
                 <div>
                   {staticList.map((item, index) => {
                     return (
-                      <Row style={language && isService ? { width: 370 } : { width: 280 }} key={index}>
-                        <Col span={18}>
+                      <Row style={language && isService ? { width: 370, lineHeight: '40px' } : { width: 280, lineHeight: '40px' }} key={index}>
+                        <Col span={18} style={{ marginBottom: '12px' }}>
                           <Input
                             onChange={this.onKeyChange.bind(
                               this,
@@ -522,7 +522,7 @@ export default class Index extends PureComponent {
             </div>
           )}
 
-          {!group_id && <div style={{ width: '50%', margin: '0 auto' }}>
+          {!group_id && <div style={{ width: '100%' }}>
             <Divider />
             <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
               <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
@@ -597,29 +597,28 @@ export default class Index extends PureComponent {
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
-                sm: {
-                  span: is_language.wrapperCol.span,
-                  offset: is_language.labelCol.span
-                }
+                sm: { span: 24, offset: 0 }
               }}
               label=""
             >
-              {isService && ButtonGroupState
-                ? this.props.handleServiceBotton(
-                  <Button onClick={this.handleSubmit} type="primary">
-                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                  </Button>,
-                  false
-                )
-                : !handleType && (
-                  <div>
-                    {endpointsType == 'api' && apiMessage}
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ? this.props.handleServiceBotton(
                     <Button onClick={this.handleSubmit} type="primary">
-                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                    </Button>
-                  </div>
-                )}
-              {isService && endpointsType == 'api' && apiMessage}
+                      {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                    </Button>,
+                    false
+                  )
+                  : !handleType && (
+                    <div>
+                      {endpointsType == 'api' && apiMessage}
+                      <Button onClick={this.handleSubmit} type="primary">
+                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                      </Button>
+                    </div>
+                  )}
+                {isService && endpointsType == 'api' && apiMessage}
+              </div>
             </Form.Item>
           ) : null}
         </Form>

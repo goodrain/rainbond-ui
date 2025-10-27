@@ -33,3 +33,114 @@ body {
 .ant-notification-notice-description {
   word-break: break-all !important;
 }
+
+// 隐藏 Modal 滚动条
+.ant-modal-body {
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Edge
+  }
+  -ms-overflow-style: none;  // IE 10+
+  scrollbar-width: none;  // Firefox
+}
+
+// 优化垂直表单的 label 样式,增强视觉层次
+.ant-form-vertical {
+  .ant-form-item {
+    margin-bottom: 8px; // 增加表单项之间的间距
+  }
+
+  .ant-form-item-label {
+    // padding-bottom: 8px; // 增加 label 与输入框的间距
+
+    > label {
+      font-size: 15px; // 稍微增大字号
+      font-weight: 600;
+      color: @heading-color;
+      line-height: 24px;
+
+      &::after {
+        display: none; // 隐藏冒号
+      }
+
+      // 必填星号样式
+      .ant-form-item-required::before {
+        color: @error-color;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // 输入框样式优化
+  .ant-input {
+    height: 40px; // 增加输入框高度
+    padding: 8px 12px; // 增加内边距
+    font-size: 14px;
+    color: @text-color;
+    border-radius: 4px;
+
+    &:focus {
+      box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+    }
+  }
+
+  // TextArea 样式
+  .ant-input-textarea textarea {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+
+    &:focus {
+      box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+    }
+  }
+
+  // Select 样式
+  .ant-select-selection {
+    height: 40px; // 增加选择框高度
+    font-size: 14px;
+    border-radius: 4px;
+
+    &__rendered {
+      line-height: 38px;
+    }
+  }
+
+  .ant-select-selection--single {
+    height: 40px;
+
+    .ant-select-selection__rendered {
+      line-height: 40px;
+    }
+  }
+
+  // Radio 和 Checkbox 样式
+  .ant-radio-wrapper,
+  .ant-checkbox-wrapper {
+    font-size: 14px;
+  }
+
+  // 帮助文字样式
+  .ant-form-explain,
+  .ant-form-extra {
+    font-size: 12px;
+    color: @text-color-secondary;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  // 提交按钮样式优化
+  .ant-btn-primary {
+    height: 40px;
+    padding: 0 24px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+
+  .ant-btn {
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+}

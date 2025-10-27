@@ -77,7 +77,7 @@ export default class Main extends PureComponent {
       })
     }else{
       const { dispatch } = this.props;
-      const group_id = globalUtil.getGroupID()
+      const group_id = globalUtil.getAppID()
       dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}?group_id=${group_id}`
@@ -271,7 +271,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: '创建组件' });
-    const group_id = globalUtil.getGroupID() || '';
+    const group_id = globalUtil.getAppID() || '';
     const isAppOverview = this.props.location?.query?.type || '';
     return (
       <PageHeaderLayout

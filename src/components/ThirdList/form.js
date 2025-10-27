@@ -30,10 +30,10 @@ const { TabPane } = Tabs;
 
 const formItemLayout = {
   labelCol: {
-    span: 8
+    span: 24
   },
   wrapperCol: {
-    span: 7
+    span: 24
   }
 };
 
@@ -115,7 +115,7 @@ class Index extends React.Component {
     e.preventDefault();
     const { form, thirdInfo, onSubmit, archInfo } = this.props;
     const { tagsLoading } = this.state;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if (tagsLoading) {
       return null;
     }
@@ -214,7 +214,7 @@ class Index extends React.Component {
       checkedList,
       showSubdirectories
     } = this.state;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     let arch = 'amd64'
     let archLegnth = archInfo.length
     if (archLegnth == 2) {
@@ -227,7 +227,7 @@ class Index extends React.Component {
         <Spin spinning={Loading}>
           <Form
             onSubmit={this.handleSubmit}
-            layout="horizontal"
+            layout="vertical"
             hideRequiredMark
           >
             <Form.Item
@@ -300,7 +300,7 @@ class Index extends React.Component {
               value={checkedList}
             >
               <Row>
-                <Col span={15} style={{ textAlign: 'right' }}>
+                <Col span={24}>
                   <Checkbox value="subdirectories">{formatMessage({ id: 'versionUpdata_6_1.subdirectories' })}</Checkbox>
                 </Col>
               </Row>
@@ -338,8 +338,8 @@ class Index extends React.Component {
                 )}
               </Form.Item>}
 
-            {!group_id && 
-            <div style={{ width: '50%', margin: '0 auto' }}>
+            {!group_id &&
+            <div style={{ width: '100%' }}>
               <Divider />
               <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
                 <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
@@ -411,7 +411,7 @@ class Index extends React.Component {
             </div>}
 
             {showSubmitBtn ? (
-              <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
                 {ServiceComponent && this.props.ButtonGroupState
                   ? this.props.handleServiceBotton(
                     <Button

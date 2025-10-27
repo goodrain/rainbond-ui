@@ -47,8 +47,24 @@ class Index extends React.Component {
       create_loading: false,
       create_status: '',
       service_info: '',
-      error_infos: ''
+      error_infos: '',
+      loadingMore: false,
+      hasMore: true
     };
+    this.thirdFormRef = React.createRef();
+    this.listRef = React.createRef();
+  }
+
+  // 暴露一个 handleSubmit 方法供父组件调用
+  handleSubmit = () => {
+    if (this.thirdFormRef.current && this.thirdFormRef.current.getWrappedInstance) {
+      const formInstance = this.thirdFormRef.current.getWrappedInstance();
+      if (formInstance && formInstance.handleSubmit) {
+        // 创建一个假的事件对象
+        const fakeEvent = { preventDefault: () => {} };
+        formInstance.handleSubmit(fakeEvent);
+      }
+    }
   }
   componentDidMount() {
     this.handleCodeWarehouseInfo(this.props);
@@ -72,20 +88,38 @@ class Index extends React.Component {
       {
         page: 1,
         loading: true,
-        search
+        search,
+        lists: [],
+        hasMore: true
       },
       () => {
         _th.handleCodeWarehouseInfo(_th.props);
       }
     );
   };
+
+  // 处理列表滚动加载
+  handleListScroll = (e) => {
+    const { loadingMore, hasMore, page } = this.state;
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+
+    // 当滚动到距离底部50px时触发加载
+    if (scrollHeight - scrollTop - clientHeight < 50 && !loadingMore && hasMore) {
+      this.setState({
+        page: page + 1
+      }, () => {
+        this.handleCodeWarehouseInfo(this.props, true);
+      });
+    }
+  };
   // 获取代码仓库信息
-  handleCodeWarehouseInfo = props => {
-    const { page, search } = this.state;
+  handleCodeWarehouseInfo = (props, append = false) => {
+    const { page, search, lists } = this.state;
     const { dispatch, type } = props;
     this.setState(
       {
-        loading: true
+        loading: !append,
+        loadingMore: append
       },
       () => {
         dispatch({
@@ -97,10 +131,15 @@ class Index extends React.Component {
           },
           callback: res => {
             if (res && res.bean) {
+              const newList = append ? [...lists, ...res.bean.repositories] : res.bean.repositories;
+              const total = Number(res.bean.total) || 0;
+              const hasMore = newList.length < total;
               this.setState({
                 loading: false,
-                total: Number(res.bean.total) || 0,
-                lists: res.bean.repositories
+                loadingMore: false,
+                total,
+                lists: newList,
+                hasMore
               });
             }
           }
@@ -232,7 +271,9 @@ class Index extends React.Component {
       page,
       create_status,
       error_infos,
-      service_info
+      service_info,
+      loadingMore,
+      hasMore
     } = this.state;
     const { handleType } = this.props;
     const ServiceComponent = handleType && handleType === 'Service';
@@ -405,36 +446,27 @@ class Index extends React.Component {
         )}
 
         {!visible ? (
-          <List
-            loading={loading}
-            className={styles.lists}
-            header={
-              <Input.Search
-                placeholder="请输入搜索内容"
-                enterButton="搜索"
-                size="large"
-                onSearch={this.handleSearch}
-                style={{
-                  width: 440,
-                  padding: '0 0 11px 0',
-                  marginLeft: '10px',
-                }}
-              />
-            }
-            footer={
-              <div style={{ display: 'flex', marginBottom: '32px' }}>
-                <Pagination
-                  style={{ marginLeft: 'auto' }}
-                  showTotal={t => `共计 ${t} 个仓库`}
-                  onChange={this.onChangePage}
-                  current={page}
-                  total={total}
-                />
-              </div>
-            }
-            dataSource={lists}
-            gutter={1}
-            renderItem={item => (
+          <div>
+            <Input.Search
+              placeholder="请输入搜索内容"
+              enterButton="搜索"
+              size="large"
+              onSearch={this.handleSearch}
+              style={{
+                padding: '0 0 11px 0',
+              }}
+            />
+            <div
+              ref={this.listRef}
+              onScroll={this.handleListScroll}
+              style={{ maxHeight: '600px', overflowY: 'auto' }}
+            >
+              <List
+                loading={loading}
+                className={styles.lists}
+                dataSource={lists}
+                gutter={1}
+                renderItem={item => (
               <List.Item
                 className={styles.listItem}
                 actions={[
@@ -482,13 +514,13 @@ class Index extends React.Component {
                     <Row
                       justify="center"
                       style={{
-                        width: '70%',
+                        width: '60%',
                         display: 'flex',
                         alignItems: 'center',
                         overflow: 'hidden'
                       }}
                     >
-                      <Col span={8}>
+                      <Col span={18}>
                         <Tooltip title={item.project_description}>
                           <div
                             className={styles.listItemMataDesc}
@@ -499,7 +531,7 @@ class Index extends React.Component {
                         </Tooltip>
                       </Col>
 
-                      <Col span={ServiceComponent ? 12 : 8}>
+                      <Col span={6}>
                         <Tooltip title={item.project_default_branch}>
                           <div className={styles.listItemMataBranch}>
                             <Icon
@@ -516,6 +548,18 @@ class Index extends React.Component {
               </List.Item>
             )}
           />
+          {loadingMore && (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <Spin tip="加载更多..." />
+            </div>
+          )}
+          {!hasMore && lists.length > 0 && (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+              已加载全部仓库
+            </div>
+          )}
+            </div>
+          </div>
         ) : (
           <Card bordered={false}  className={styles.listCard}
             extra={
@@ -527,10 +571,12 @@ class Index extends React.Component {
             }
           >
             <ThirForm
+              wrappedComponentRef={this.thirdFormRef}
               onSubmit={this.props.handleSubmit}
               {...this.props}
               ServiceComponent={ServiceComponent}
               thirdInfo={thirdInfo}
+              showSubmitBtn={true}
             />
           </Card>
         )}

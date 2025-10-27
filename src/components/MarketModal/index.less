@@ -1,0 +1,410 @@
+.marketModal {
+  :global {
+    .ant-modal-header {
+      border-bottom: 1px solid #e8e8e8;
+      padding: 20px 24px;
+    }
+
+    .ant-modal-body {
+      padding: 20px 24px 24px;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-modal-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  font-size: @rbd-sub-title-size;
+  font-weight: 600;
+  color: @rbd-title-color;
+
+  .backIcon {
+    font-size: @rbd-sub-title-size;
+    margin-right: 12px;
+    color: @heading-color;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: @text-color;
+    }
+  }
+
+  .titleIcon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    background: @rbd-background-color;
+    border-radius: 10px;
+
+    :global {
+      .anticon {
+        font-size: @rbd-sub-title-size;
+        color: @rbd-title-color;
+      }
+    }
+  }
+}
+
+.searchWrapper {
+  margin-bottom: 20px;
+  flex-shrink: 0;
+
+  .searchInput {
+    :global {
+      .ant-input {
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: @rbd-content-size;
+        border: 1px solid @border-color-base;
+        background: #ffffff;
+        height: 44px;
+
+        &:focus {
+          border-color: @primary-color;
+          box-shadow: none;
+          background: #ffffff;
+        }
+
+        &::placeholder {
+          color: @text-color-secondary;
+        }
+      }
+
+      .ant-input-suffix {
+        color: @rbd-content-color-secondary;
+      }
+
+      .ant-input-search-button {
+        display: none;
+      }
+    }
+  }
+}
+
+.appListWrapper {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 3px;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
+}
+
+.appList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+.loadingMoreState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 8px;
+  color: @rbd-content-color-secondary;
+  font-size: @rbd-content-size;
+}
+
+.appCard {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid @border-color-base;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    border-color: @primary-color;
+  }
+
+  .appIcon {
+    width: 48px;
+    height: 48px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    :global {
+      .ant-avatar {
+        border-radius: 10px;
+      }
+    }
+  }
+
+  .appInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .appHeader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .appName {
+        font-size: @rbd-content-size;
+        font-weight: 600;
+        color: @rbd-title-color;
+        line-height: 1.2;
+      }
+
+      .archTag {
+        padding: 2px 8px;
+        background: @rbd-background-color;
+        border-radius: 4px;
+        font-size: @rbd-auxiliary-size;
+        color: @rbd-auxiliary-color-secondary;
+        white-space: nowrap;
+      }
+
+      .versionTag {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: @rbd-auxiliary-size;
+        color: #ffffff;
+        font-weight: 500;
+        white-space: nowrap;
+        background-color: @success-color;
+      }
+    }
+
+    .appDescription {
+      font-size: @rbd-auxiliary-size;
+      color: @rbd-content-color-secondary;
+      line-height: @rbd-auxiliary-line-height;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .appActions {
+    margin-left: 16px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    :global {
+      .ant-btn {
+        min-width: 64px;
+        height: 30px;
+        border-radius: 6px;
+        font-size: @rbd-auxiliary-size;
+        font-weight: 500;
+        border: 1px solid @border-color-base;
+        background: #ffffff;
+        color: @rbd-content-color;
+
+        &:hover {
+          border-color: @primary-color;
+          background: @rbd-background-color;
+          color: @primary-color;
+        }
+      }
+    }
+
+    .appFooter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: @rbd-auxiliary-size;
+
+      :global {
+        .anticon {
+          font-size: @rbd-auxiliary-size;
+          color: @rbd-auxiliary-color-secondary;
+        }
+      }
+
+      .downloads {
+        color: @rbd-auxiliary-color-secondary;
+      }
+    }
+  }
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.storeList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.storeCard {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transform: translateX(4px);
+  }
+
+  .storeIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: @rbd-background-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+
+    :global {
+      .anticon {
+        font-size: @rbd-title-big-size;
+        color: @rbd-label-color;
+      }
+    }
+  }
+
+  .storeInfo {
+    flex: 1;
+    min-width: 0;
+
+    .storeName {
+      font-size: @rbd-sub-title-size;
+      font-weight: 600;
+      color: @rbd-title-color;
+      margin-bottom: 4px;
+    }
+
+    .storeDesc {
+      font-size: @rbd-auxiliary-size;
+      color: @rbd-content-color-secondary;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .arrowIcon {
+    font-size: @rbd-sub-title-size;
+    color: @text-color-secondary;
+    margin-left: 16px;
+    transition: all 0.3s ease;
+  }
+
+  &:hover .arrowIcon {
+    color: @primary-color;
+    transform: translateX(4px);
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+
+  .emptyText {
+    margin-top: 16px;
+    font-size: @rbd-content-size;
+    color: @rbd-content-color-secondary;
+  }
+}
+
+// 安装表单相关样式
+.installFormWrapper {
+  .appDescriptionBanner {
+    background: fade(@primary-color, 10%);
+    padding: 8px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+  }
+
+  .resourceInfo {
+    margin-bottom: -18px;
+    font-size: @rbd-content-size;
+    color: @rbd-content-color-secondary;
+  }
+
+  .installHint {
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    margin-top: 8px;
+  }
+}
+
+// Footer 价格显示
+.priceFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .priceInfo {
+    display: flex;
+    align-items: center;
+
+    .priceLabel {
+      color: @rbd-content-color-secondary;
+      font-size: @rbd-content-size;
+    }
+
+    .priceValue {
+      color: @warning-color;
+      font-size: @rbd-sub-title-size;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+  }
+
+  .actionButtons {
+    display: flex;
+    gap: 8px;
+  }
+}

@@ -16,18 +16,18 @@ const { Option } = Select;
 const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
-    span: 7
+    span: 24
   },
   wrapperCol: {
-    span: 15
+    span: 24
   }
 };
 const formItemLayouts = {
   labelCol: {
-    span: 7
+    span: 24
   },
   wrapperCol: {
-    span: 15
+    span: 24
   }
 };
 
@@ -82,7 +82,7 @@ export default class Index extends PureComponent {
     this.handleJarWarUpload();
     this.handleGetWarehouse();
     const { handleType, groupId } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(group_id){
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
     const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
@@ -137,9 +137,11 @@ export default class Index extends PureComponent {
           fieldsValue.docker_cmd = `event ${event_id}`
         }
         if(!isPublic){
-          const secretObj = imgRepostoryList.find(item => item.secret_id === secretId)
-          fieldsValue.user_name = secretObj.username
-          fieldsValue.password = secretObj.password
+          const secretObj = imgRepostoryList && imgRepostoryList.find(item => item.secret_id === secretId)
+          if(secretObj){
+            fieldsValue.user_name = secretObj.username
+            fieldsValue.password = secretObj.password
+          }
         }
         const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
         if(fieldsValue.imagefrom == 'address' && isCloudProxy){
@@ -561,7 +563,7 @@ export default class Index extends PureComponent {
     const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
       isCreate
     } } = this.state;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
@@ -577,7 +579,7 @@ export default class Index extends PureComponent {
     }
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
@@ -782,17 +784,16 @@ export default class Index extends PureComponent {
             </>
           }
           {(radioKey === 'cmd' || radioKey === 'address') && isPublic &&
-            <div style={{ textAlign: 'right', marginRight: isService ? '80px' : '100px' }}>
-              {formatMessage({ id: 'teamAdd.create.image.hint1' })}
-              <a
-                onClick={() => {
-                  this.setState({ showUsernameAndPass: true });
+            <Form.Item {...is_language}>
+              <Checkbox
+                checked={this.state.showUsernameAndPass}
+                onChange={(e) => {
+                  this.setState({ showUsernameAndPass: e.target.checked });
                 }}
-                href="javascript:;"
               >
-                {formatMessage({ id: 'teamAdd.create.image.hint2' })}
-              </a>
-            </div>
+                {formatMessage({ id: 'teamAdd.create.image.hint1' })} {formatMessage({ id: 'teamAdd.create.image.hint2' })}
+              </Checkbox>
+            </Form.Item>
           }
           {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
             <Form.Item
@@ -839,20 +840,20 @@ export default class Index extends PureComponent {
             <Divider />
             <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
               <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+                高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
               </Button>
             </div>
             {this.state.showAdvanced && (
-              <div  
-              className="userpass-card"
-              style={{
-                margin: '24px 0',
-                background: '#fafbfc',
-                border: '1px solid #e6e6e6',
-                borderRadius: 8,
-                boxShadow: '0 2px 8px #f0f1f2',
-                padding: 24,
-              }}>
+              <div
+                className="userpass-card"
+                style={{
+                  margin: '24px 0',
+                  background: '#fafbfc',
+                  border: '1px solid #e6e6e6',
+                  borderRadius: 8,
+                  boxShadow: '0 2px 8px #f0f1f2',
+                  padding: 24,
+                }}>
                 <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
                 <Form.Item
                   label={formatMessage({ id: 'popover.newApp.appName' })}
@@ -869,18 +870,18 @@ export default class Index extends PureComponent {
                         message: formatMessage({ id: 'placeholder.max24' })
                       }
                     ]
-                  })(<Input 
-                      placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} 
-                      style={{
-                        borderRadius: 6,
-                        height: 40,
-                        fontSize: 15,
-                        boxShadow: '0 1px 3px #f0f1f2',
-                        border: '1px solid #e6e6e6',
-                        transition: 'border 0.2s, box-shadow 0.2s'
-                      }}
-                    />
-                    )}
+                  })(<Input
+                    placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
+                    style={{
+                      borderRadius: 6,
+                      height: 40,
+                      fontSize: 15,
+                      boxShadow: '0 1px 3px #f0f1f2',
+                      border: '1px solid #e6e6e6',
+                      transition: 'border 0.2s, box-shadow 0.2s'
+                    }}
+                  />
+                  )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
@@ -889,18 +890,18 @@ export default class Index extends PureComponent {
                       { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
                       { validator: this.handleValiateNameSpace }
                     ]
-                  })(<Input 
-                        placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} 
-                         style={{
-                          borderRadius: 6,
-                          height: 40,
-                          fontSize: 15,
-                          boxShadow: '0 1px 3px #f0f1f2',
-                          border: '1px solid #e6e6e6',
-                          transition: 'border 0.2s, box-shadow 0.2s'
-                        }}
-                      />
-                    )}
+                  })(<Input
+                    placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
+                    style={{
+                      borderRadius: 6,
+                      height: 40,
+                      fontSize: 15,
+                      boxShadow: '0 1px 3px #f0f1f2',
+                      border: '1px solid #e6e6e6',
+                      transition: 'border 0.2s, box-shadow 0.2s'
+                    }}
+                  />
+                  )}
                 </Form.Item>
               </div>
             )}
@@ -913,32 +914,34 @@ export default class Index extends PureComponent {
                   offset: 0
                 },
                 sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
+                  span: 24,
+                  offset: 0
                 }
               }}
               label=""
             >
-             {isService && ButtonGroupState
-                ? this.props.handleServiceBotton(
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByDockerrunLoading}
-                    >
-                     {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
-                    </Button>,
-                    false
-                  )
-                : !handleType && (
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByDockerrunLoading}
-                    >
-                      {formatMessage({id: 'teamAdd.create.btn.create'})}
-                    </Button>
-                  )}
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ? this.props.handleServiceBotton(
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByDockerrunLoading}
+                      >
+                       {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
+                      </Button>,
+                      false
+                    )
+                  : !handleType && (
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByDockerrunLoading}
+                      >
+                        {formatMessage({id: 'teamAdd.create.btn.create'})}
+                      </Button>
+                    )}
+              </div>
             </Form.Item>
           ) : null}
         </Form>

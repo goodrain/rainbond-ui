@@ -9,23 +9,24 @@ import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import role from '../../utils/newRole'
 import cookie from '../../utils/cookie';
+import styles from './index.less';
 
 const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 24
   },
   wrapperCol: {
-    span: 15
+    span: 24
   }
 };
 const en_formItemLayout = {
   labelCol: {
-    span: 7
+    span: 24
   },
   wrapperCol: {
-    span: 17
+    span: 24
   }
 };
 
@@ -55,7 +56,7 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount(){
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(group_id){
       this.handleChangeGroup(group_id)
     }
@@ -75,7 +76,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit, handleType, archInfo } = this.props;
     const isService = handleType && handleType === 'Service';
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if(!isService){
@@ -264,9 +265,9 @@ export default class Index extends PureComponent {
     }else if(archInfo.length == 1){
       arch = archInfo && archInfo[0]
     }
-    const group_id = globalUtil.getGroupID()    
+    const group_id = globalUtil.getAppID()    
     return (
-      <Form layout="horizontal" hideRequiredMark>
+      <Form layout="vertical" hideRequiredMark>
         <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.selectDemo' })}</span>}>
           {getFieldDecorator('git_url', {
             initialValue:
@@ -277,11 +278,11 @@ export default class Index extends PureComponent {
               getPopupContainer={triggerNode => triggerNode.parentNode}
               style={language ? {
                 display: 'inline-block',
-                width: isService ? 210 : 300,
+                width: 400,
                 marginRight: 15
               } : {
                 display: 'inline-block',
-                width: isService ? 234 : 340,
+                width: 360,
                 marginRight: 15
               }}
               showSearch
@@ -461,33 +462,32 @@ export default class Index extends PureComponent {
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
-                sm: {
-                  span: is_language.wrapperCol.span,
-                  offset: is_language.labelCol.span
-                }
+                sm: { span: 24, offset: 0 }
               }}
               label=""
             >
-              {isService && ButtonGroupState
-                ? handleServiceBotton(
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByCodeLoading}
-                    >
-                      {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
-                    </Button>,
-                    false
-                  )
-                : !handleType && (
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={createAppByCodeLoading}
-                    >
-                      {formatMessage({id: 'teamAdd.create.btn.create'})}
-                    </Button>
-                  )}
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ? handleServiceBotton(
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByCodeLoading}
+                      >
+                        {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
+                      </Button>,
+                      false
+                    )
+                  : !handleType && (
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={createAppByCodeLoading}
+                      >
+                        {formatMessage({id: 'teamAdd.create.btn.create'})}
+                      </Button>
+                    )}
+              </div>
             </Form.Item>
           ) : null}
         {this.state.addGroup && (

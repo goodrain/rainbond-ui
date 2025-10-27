@@ -29,7 +29,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
@@ -85,18 +85,18 @@ export default class Index extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5
+        span: 24
       },
       wrapperCol: {
-        span: 19
+        span: 24
       }
     };
     const en_formItemLayout = {
       labelCol: {
-        span: 8
+        span: 24
       },
       wrapperCol: {
-        span: 16
+        span: 24
       }
     };
     const {
@@ -110,21 +110,21 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, setFieldsValue } = form;
     const { language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     let arch = 'amd64'
-    let archLegnth = archInfo.length
+    let archLegnth = archInfo?.length || 0
     if (archLegnth == 2) {
       arch = 'amd64'
-    } else if (archInfo.length == 1) {
+    } else if (archLegnth == 1) {
       arch = archInfo && archInfo[0]
     }
     return (
       <Fragment>
-        <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
+        <Card bordered={false}>
           <Form
             autocomplete="off"
             onSubmit={this.handleSubmit}
-            layout="horizontal"
+            layout="vertical"
             hideRequiredMark
           >
             {!group_id &&
@@ -228,19 +228,21 @@ export default class Index extends PureComponent {
                 wrapperCol={{
                   xs: { span: 24, offset: 0 },
                   sm: {
-                    span: is_language.wrapperCol.span,
-                    offset: is_language.labelCol.span
+                    span: 24,
+                    offset: 0
                   }
                 }}
                 label=""
               >
-                <Button
-                  onClick={this.handleSubmit}
-                  type="primary"
-                  loading={createAppByCompose}
-                >
-                  {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                </Button>
+                <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                  <Button
+                    onClick={this.handleSubmit}
+                    type="primary"
+                    loading={createAppByCompose}
+                  >
+                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                  </Button>
+                </div>
               </Form.Item>
             ) : null}
           </Form>
