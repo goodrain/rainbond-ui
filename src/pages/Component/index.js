@@ -532,7 +532,8 @@ class Main extends PureComponent {
         }
         if (
           !appUtil.isCreateComplete(appDetail) &&
-          !appUtil.isMarketApp(appDetail)
+          !appUtil.isMarketApp(appDetail) &&
+          appDetail.service.extend_method !== 'kubeblocks_component'
         ) {
           if (
             appDetail.service &&
