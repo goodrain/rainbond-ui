@@ -149,20 +149,6 @@ export default class Index extends PureComponent {
                     })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
 
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.create.form.database_type.label' })}>
-                    {getFieldDecorator('database_type', {
-                        initialValue: databaseTypes[0] ? databaseTypes[0].value : '',
-                        rules: [
-                            { required: true, message: formatMessage({ id: 'kubeblocks.database.create.form.database_type.required' }) }
-                        ]
-                    })(
-                        <Select placeholder={formatMessage({ id: 'kubeblocks.database.create.form.database_type.placeholder' })}>
-                            {databaseTypes.map(type => (
-                                <Option key={type.value} value={type.value}>{type.label}</Option>
-                            ))}
-                        </Select>
-                    )}
-                </Form.Item>
 
                 {!group_id && <>
                     <Divider />
@@ -237,17 +223,6 @@ export default class Index extends PureComponent {
                     )}
                 </>}
 
-                <Form.Item style={{ textAlign: 'center', marginTop: '32px' }}>
-                    <Button
-                        type="primary"
-                        size="large"
-                        loading={loading}
-                        htmlType="submit"
-                        style={{ minWidth: '120px' }}
-                    >
-                        {formatMessage({ id: 'kubeblocks.database.create.form.button.next' })}
-                    </Button>
-                </Form.Item>
             </Form>
         );
     }

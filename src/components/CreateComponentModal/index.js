@@ -20,6 +20,7 @@ import CodeJwarForm from '../CodeJwarForm';
 import CodeYamlForm from '../CodeYamlForm';
 import HelmCmdForm from '../HelmCmdForm';
 import OuterCustomForm from '../OuterCustomForm';
+import DatabaseCreateForm from '../DatabaseCreateForm';
 import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
 import RBDPluginsCom from '../RBDPluginsCom';
@@ -59,6 +60,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [enterpriseInfo, setEnterpriseInfo] = useState(null);
   const [loadingEnterpriseInfo, setLoadingEnterpriseInfo] = useState(false);
   const [selectedOauthService, setSelectedOauthService] = useState(null);
+
+  // 数据库相关状态
+  const [databaseTypes, setDatabaseTypes] = useState([]);
+  const [loadingDatabaseInfo, setLoadingDatabaseInfo] = useState(false);
+  const [currentDatabaseType, setCurrentDatabaseType] = useState(null);
+  const [showDatabaseForm, setShowDatabaseForm] = useState(false);
 
   // 插件相关状态
   const [availablePlugins, setAvailablePlugins] = useState([]);
@@ -113,6 +120,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const helmFormRef = useRef(null);
   const thirdPartyFormRef = useRef(null);
   const thirdListFormRef = useRef(null);
+  const databaseFormRef = useRef(null);
   const marketInstallFormRef = useRef(null);
   const localInstallFormRef = useRef(null);
   const imageRepoFormRef = useRef(null);
@@ -479,6 +487,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       key: 'yaml',
       hasSubMenu: true
     },
+
     // 每个插件独立展示在第一层菜单
     ...availablePlugins.map(plugin => ({
       icon: 'api',
@@ -488,6 +497,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showPluginModal: true
     }))
   ];
+  if(showDatabaseForm){
+    menuItems.push({
+      icon: 'database',
+      title: '数据库',
+      key: 'database',
+      hasSubMenu: true
+    });
+  }
 
   // 动态生成市场子项:商店列表 + 本地组件库 + 离线导入
   const marketSubItems = [
@@ -603,6 +620,16 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'third-party'
     }
   ];
+
+  // 动态生成数据库子项：根据获取到的数据库类型
+  const databaseSubItems = databaseTypes.map(dbType => ({
+    icon: 'database',
+    title: dbType.type || dbType.label || '数据库',
+    key: `database-${dbType.type}`,
+    showForm: true,
+    formType: 'database',  // 统一使用 'database' 作为表单类型
+    databaseType: dbType.type
+  }));
 
   // 插件现在直接在第一层菜单展示，不需要子菜单
 
@@ -759,10 +786,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const fetchAvailablePlugins = () => {
     const teamName = globalUtil.getCurrTeamName();
 
-
+    const bool = PluginUtils.isInstallPlugin(pluginsList,"rainbond-databases");
+    setShowDatabaseForm(bool);    
     // 根据团队视图过滤插件
     const filteredPlugins = PluginUtils.segregatePluginsByHierarchy(pluginsList, 'TeamModal');
-
+    
     // 过滤出有弹窗字段的插件（这里假设插件有特定的属性标识弹窗功能）
     const modalPlugins = filteredPlugins.filter(plugin => {
       // 可以根据插件的特定属性来判断是否有弹窗字段
@@ -777,6 +805,30 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
 
     setAvailablePlugins(modalPlugins);
+  };
+
+  // 获取数据库类型列表
+  const fetchDatabaseTypes = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName) {
+      return;
+    }
+    setLoadingDatabaseInfo(true);
+    dispatch({
+      type: 'kubeblocks/fetchKubeBlocksDatabaseTypes',
+      payload: {
+        team_name: teamName,
+        region_name: regionName
+      },
+      callback: res => {
+        if (res && Array.isArray(res.list)) {
+          setDatabaseTypes(res.list);
+          setLoadingDatabaseInfo(false);
+        }
+      }
+    });
   };
 
   // 监听滚动事件进行自动加载 - 商店应用
@@ -949,9 +1001,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       if (item.key === 'code') {
         fetchEnterpriseInfo();
       }
+      // 如果切换到数据库视图,获取数据库类型列表
+      if (item.key === 'database') {
+        fetchDatabaseTypes();
+      }
       return;
-    }
-
+    }    
     // 如果标记了需要显示应用列表(点击商店)
     if (item.showMarketModal && item.storeName) {
       const store = marketStores.find(s => s.name === item.storeName);
@@ -995,6 +1050,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     if (item.showForm) {
       setCurrentView('form');
       setCurrentFormType(item.formType);
+      // 如果有 databaseType 字段，说明是数据库类型，需要设置数据库类型
+      if (item.databaseType) {
+        setCurrentDatabaseType(item.databaseType);
+      }
       return;
     }
 
@@ -1012,6 +1071,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const handleBack = () => {
+
     if (currentView === 'form') {
       // 从表单视图返回到对应的二级菜单
       const formTypeToView = {
@@ -1024,7 +1084,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         'yaml': 'yaml',
         'helm': 'yaml',
         'third-party': 'yaml',
+        'database': 'database'
       };
+
       setCurrentView(formTypeToView[currentFormType] || 'main');
       setCurrentFormType('');
     } else if (currentView === 'plugin') {
@@ -1226,7 +1288,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           onCancel();
         },
       });
-    } else if (currentFormType === 'demo') {
+    } else if (currentFormType === 'database') {
+       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_app=${value.k8s_app}&service_cname=${value.service_cname}`));
+    }else if (currentFormType === 'demo') {
       // 示例镜像提交
       dispatch({
         type: "createApp/createAppByDockerrun",
@@ -1504,6 +1568,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         if (currentFormType === 'yaml') return 'Yaml';
         if (currentFormType === 'helm') return 'Helm';
         if (currentFormType === 'third-party') return '第三方组件';
+        if (currentFormType === 'database') return '数据库';
         return '创建组件';
       default:
         return '创建组件';
@@ -1520,6 +1585,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         return codeSubItems;
       case 'yaml':
         return yamlSubItems;
+      case 'database':
+        return databaseSubItems;
       default:
         return menuItems;
     }
@@ -1653,6 +1720,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           break;
         case 'third-party':
           formRef = thirdPartyFormRef.current;
+          break;
+        case 'database':
+          formRef = databaseFormRef.current;
           break;
         default:
           break;
@@ -1916,6 +1986,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 showSubmitBtn={false}
               />
             )}
+           {currentFormType === 'database' && (
+              <DatabaseCreateForm
+                wrappedComponentRef={databaseFormRef}
+                onSubmit={handleInstallApp}
+                dispatch={dispatch}
+                showSubmitBtn={false}
+              />
+            )}
           </div>
         ) : (
           <>
@@ -1924,7 +2002,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             </div>
             {(currentView === 'market' && loadingStores) ||
              (currentView === 'image' && loadingImageHubs) ||
-             (currentView === 'code' && loadingEnterpriseInfo) ? (
+             (currentView === 'code' && loadingEnterpriseInfo) ||
+             (currentView === 'database' && loadingDatabaseInfo) ? (
               <div className={styles.loadingWrapper}>
                 <Spin size="large" />
               </div>
