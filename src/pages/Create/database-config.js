@@ -551,7 +551,7 @@ export default class Index extends PureComponent {
             onClick={() => {
               dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
                 )
               );
             }}
@@ -562,7 +562,7 @@ export default class Index extends PureComponent {
           </Button>
         }
       >
-        <div className={styles.formWrap} style={{ width: '900px' }}>
+        <div className={styles.formWrap} style={{ width: '100%' }}>
 
           {/* 数据库配置表单组件 */}
           <DatabaseConfigForm
@@ -576,7 +576,7 @@ export default class Index extends PureComponent {
             onSubmit={this.handleInstallApp}
           />
 
-          <div style={{ textAlign: 'right', marginTop: 24 }}>
+          <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Button style={{ marginRight: 8 }} onClick={this.handlePrevStep}>
               {formatMessage({ id: 'kubeblocks.database.config.btn.prev' })}
             </Button>
