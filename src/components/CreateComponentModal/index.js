@@ -487,7 +487,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       key: 'yaml',
       hasSubMenu: true
     },
-
     // 每个插件独立展示在第一层菜单
     ...availablePlugins.map(plugin => ({
       icon: 'api',
@@ -1071,7 +1070,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const handleBack = () => {
-
     if (currentView === 'form') {
       // 从表单视图返回到对应的二级菜单
       const formTypeToView = {

@@ -122,7 +122,6 @@ const versionUpdata = {
   'versionUpdata_6_1.editBaseUserInfo': 'Edit Base User Info',
   'versionUpdata_6_1.editPassword': 'Edit Password',
   'versionUpdata_6_1.AccesstokenForm.placeholder': 'If not selected, it will not be limited by the expiration time',
-  'versionUpdata_6_2.editMode': 'Edit Mode',
   'versionUpdata_6_2.advancedSettings': 'Advanced Settings',
   'versionUpdata_6_2.componentSettings.desc': 'Component configuration, including component startup, stop, restart, and delete operations.',
   'versionUpdata_6_2.more': 'More',
