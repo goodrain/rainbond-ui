@@ -8,8 +8,12 @@ import styles from '../../pages/Create/Index.less';
 
 const { Option } = Select;
 const formItemLayout = {
-    labelCol: { span: 7 },
-    wrapperCol: { span: 15 }
+  labelCol: {
+    span: 24
+  },
+  wrapperCol: {
+    span: 24
+  }
 };
 
 @connect(({ teamControl, global }) => ({
@@ -122,10 +126,9 @@ export default class Index extends PureComponent {
     render() {
         const { form, databaseTypes = [], loading } = this.props;
         const { getFieldDecorator, getFieldValue } = form;
-        const group_id = globalUtil.getGroupID();
-
+        const group_id = globalUtil.getAppID();        
         return (
-            <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+            <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
                     {getFieldDecorator('service_cname', {
                         initialValue: '',
@@ -160,6 +163,7 @@ export default class Index extends PureComponent {
                         >
                             {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })} {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
                         </Button>
+
                     </div>
                     {this.state.showAdvanced && (
                         <div

@@ -496,7 +496,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showPluginModal: true
     }))
   ];
-  if(showDatabaseForm){
+  if (showDatabaseForm) {
     menuItems.push({
       icon: 'database',
       title: '数据库',
@@ -620,15 +620,28 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   ];
 
+  // 数据库类型名称格式化方法
+  const formatDatabaseTypeName = (type) => {
+    const typeMap = {
+      'mysql': 'MySQL',
+      'postgresql': 'PostgreSQL',
+      'rabbitmq': 'RabbitMQ',
+      'redis': 'Redis'
+    };
+    return typeMap[type?.toLowerCase()] || type || '数据库';
+  };
+
   // 动态生成数据库子项：根据获取到的数据库类型
   const databaseSubItems = databaseTypes.map(dbType => ({
     icon: 'database',
-    title: dbType.type || dbType.label || '数据库',
+    title: formatDatabaseTypeName(dbType.type) || formatDatabaseTypeName(dbType.label) || '数据库',
     key: `database-${dbType.type}`,
     showForm: true,
     formType: 'database',  // 统一使用 'database' 作为表单类型
     databaseType: dbType.type
   }));
+
+  
 
   // 插件现在直接在第一层菜单展示，不需要子菜单
 
@@ -785,8 +798,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const fetchAvailablePlugins = () => {
     const teamName = globalUtil.getCurrTeamName();
 
-    const bool = PluginUtils.isInstallPlugin(pluginsList,"rainbond-databases");
-    setShowDatabaseForm(bool);    
+    const bool = PluginUtils.isInstallPlugin(pluginsList, "rainbond-databases");
+    setShowDatabaseForm(bool);
     // 根据团队视图过滤插件
     const filteredPlugins = PluginUtils.segregatePluginsByHierarchy(pluginsList, 'TeamModal');
     
@@ -1005,7 +1018,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         fetchDatabaseTypes();
       }
       return;
-    }    
+    }
     // 如果标记了需要显示应用列表(点击商店)
     if (item.showMarketModal && item.storeName) {
       const store = marketStores.find(s => s.name === item.storeName);
@@ -1287,8 +1300,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
       });
     } else if (currentFormType === 'database') {
-       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_app=${value.k8s_app}&service_cname=${value.service_cname}`));
-    }else if (currentFormType === 'demo') {
+      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_app=${value.k8s_app}&service_cname=${value.service_cname}`));
+    } else if (currentFormType === 'demo') {
       // 示例镜像提交
       dispatch({
         type: "createApp/createAppByDockerrun",
@@ -1663,7 +1676,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 处理 footer 按钮点击
   const handleFooterSubmit = () => {
     // 创建一个假的事件对象
-    const fakeEvent = { preventDefault: () => {} };
+    const fakeEvent = { preventDefault: () => { } };
 
     if (currentView === 'marketInstall') {
       // 应用市场安装 - 直接调用 AppMarketContent 的 handleSubmit 方法
@@ -1732,6 +1745,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   };
 
+  const DatabaseSVG = () => (
+    <svg t="1761709531655" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11608" viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor"><path d="M928 204.8v614.4h-64V601.728q-28.928 17.28-70.4 31.168-117.376 39.104-281.6 39.104-164.224 0-281.6-39.104-41.472-13.824-70.4-31.168V819.2h-64V204.8q0-76.096 134.4-120.896Q347.712 44.8 512 44.8q164.224 0 281.6 39.104 134.4 44.8 134.4 120.896z m-768 90.112V512q0 10.496 17.984 24.704 24.768 19.52 72.576 35.456Q358.08 608 512 608q153.856 0 261.44-35.84 47.808-16 72.576-35.456 17.984-14.208 17.984-24.704V294.912q-28.736 16.896-70.4 30.72Q676.288 364.8 512 364.8q-164.224 0-281.6-39.104-41.664-13.888-70.4-30.784z m688.448-112.768q-24.64-20.672-75.008-37.504Q665.92 108.8 512 108.8q-153.856 0-261.44 35.84-50.368 16.832-75.008 37.504-15.552 13.12-15.552 22.656t15.552 22.656q24.64 20.672 75.008 37.504Q358.08 300.8 512 300.8q153.856 0 261.44-35.84 50.368-16.832 75.008-37.504 15.552-13.12 15.552-22.656t-15.552-22.656zM160 819.2q0 10.496 17.984 24.704 24.768 19.52 72.576 35.456 107.52 35.84 261.44 35.84 153.856 0 261.44-35.84 47.808-16 72.576-35.456 17.984-14.208 17.984-24.704h64q0 41.6-42.368 74.944-33.536 26.432-91.968 45.952Q676.224 979.2 512 979.2t-281.6-39.104q-58.496-19.52-92.032-45.952Q96 860.8 96 819.2h64z" fill="#303133" p-id="11609"></path></svg>
+  );
+  const DatabaseIcon = props => <Icon component={DatabaseSVG} {...props} />;
   return (
     <>
       <Modal
@@ -1775,7 +1792,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                   onClick={() => handleItemClick(item)}
                 >
                   <div className={styles.menuIcon}>
-                    <Icon type={item.icon} />
+                    {item.key == 'database' ?
+                      <DatabaseIcon />
+                      :
+                      <Icon type={item.icon} />
+                    }
                   </div>
                   <div className={styles.menuTitle}>{item.title}</div>
                   <Icon type="right" className={styles.arrowIcon} />
@@ -1984,7 +2005,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 showSubmitBtn={false}
               />
             )}
-           {currentFormType === 'database' && (
+            {currentFormType === 'database' && (
               <DatabaseCreateForm
                 wrappedComponentRef={databaseFormRef}
                 onSubmit={handleInstallApp}
@@ -1999,9 +2020,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               选择具体的部署方式:
             </div>
             {(currentView === 'market' && loadingStores) ||
-             (currentView === 'image' && loadingImageHubs) ||
-             (currentView === 'code' && loadingEnterpriseInfo) ||
-             (currentView === 'database' && loadingDatabaseInfo) ? (
+              (currentView === 'image' && loadingImageHubs) ||
+              (currentView === 'code' && loadingEnterpriseInfo) ||
+              (currentView === 'database' && loadingDatabaseInfo) ? (
               <div className={styles.loadingWrapper}>
                 <Spin size="large" />
               </div>
@@ -2015,7 +2036,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                       onClick={() => handleItemClick(item)}
                     >
                       <div className={styles.menuIcon}>
-                        <Icon type={item.icon} />
+                        {currentView == 'database' ?
+                          <DatabaseIcon />
+                          :
+                          <Icon type={item.icon} />
+                        }
                       </div>
                       <div className={styles.menuTitle}>{item.title}</div>
                       <Icon type="right" className={styles.arrowIcon} />
