@@ -79,12 +79,10 @@ class Index extends PureComponent {
 
     handleBasicInfoSubmit = (basicInfoData) => {
         this.setState({ basicInfoData });
-        console.log('基础信息配置:', basicInfoData);
     };
 
     handleBackupConfigSubmit = (backupData) => {
         this.setState({ backupConfigData: backupData });
-        console.log('备份配置:', backupData);
     };
 
     render() {

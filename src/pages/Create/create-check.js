@@ -74,6 +74,7 @@ export default class CreateCheck extends React.Component {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       Directory: "dist",
       imageAddress: null,
+      dockfilePath: ''
     };
     this.mount = false;
     this.loadingBuild = false
@@ -307,8 +308,12 @@ export default class CreateCheck extends React.Component {
           const status = data.bean.check_status;
           const errorInfos = data.bean.error_infos || [];
           const serviceInfo = data.bean.service_info || [];
-          if(status != 'failure'){
+          let dockfilePath = ''
+          if (status != 'failure') {
             serviceInfo.map((item) => {
+              if (item.type == 'dockerfiles' && item.value && item.value.length > 0) {
+                dockfilePath = item.value[0]
+              }
               if (item.type == 'language') {
                 const parts = item.value && item.value.split(",");
                 this.props.dispatch({
@@ -337,7 +342,8 @@ export default class CreateCheck extends React.Component {
             status,
             errorInfo: errorInfos,
             serviceInfo,
-            isMulti: data.bean.is_multi
+            isMulti: data.bean.is_multi,
+            dockfilePath
           });
         }
       })
@@ -428,7 +434,7 @@ export default class CreateCheck extends React.Component {
   handleConfigFile = () => {
     const { appAlias, dist, teamName } = this.getParameter();
     const { dispatch } = this.props
-    const { imageAddress, codeLanguage } = this.state
+    const { imageAddress, codeLanguage, dockfilePath } = this.state
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     if (codeLanguage == 'NodeJSStatic') {
       window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
@@ -442,7 +448,8 @@ export default class CreateCheck extends React.Component {
         payload: {
           team_name: teamName,
           app_id: appAlias,
-          lang: codeLanguage
+          lang: codeLanguage,
+          dockerfile_path: dockfilePath
         },
         callback: res => {
           this.handleJump(`create/create-configFile/${appAlias}`);
@@ -1253,9 +1260,8 @@ export default class CreateCheck extends React.Component {
       - 其他情况直接显示键值对信息。
   */
   renderSuccessInfo = () => {
-    const { imageAddress, codeLanguage, serviceInfo, packageLange, Directory, ports } = this.state
+    const { imageAddress, codeLanguage, serviceInfo, packageLange, Directory, ports, dockfilePath } = this.state
     const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
-    
     return serviceInfo.map((item, index) => {
       if (typeof item.value === 'string' && item.type == 'language') {
         const parts = item.value.split(",");
@@ -1352,7 +1358,8 @@ export default class CreateCheck extends React.Component {
           <div
             key={`item${index}`}
             style={{
-              marginBottom: 16
+              marginBottom: 16,
+              display: item.type == "dockerfiles" && codeLanguage != 'dockerfile' ?  'none': 'block'
             }}
           >
             <span
@@ -1401,7 +1408,21 @@ export default class CreateCheck extends React.Component {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : item.type == "dockerfiles" ? (
+              codeLanguage == 'dockerfile' &&
+              <div
+                style={{
+                  display: 'inline-block'
+                }}
+              >
+                <Radio.Group onChange={this.onDockfileChange} value={dockfilePath}>
+                  {(item.value || []).map((items, index) => (
+                    <Radio value={items}>{items}</Radio>
+                  ))}
+                </Radio.Group>
+              </div>
+            )
+              :
               <div
                 style={{
                   display: 'inline-block'
@@ -1418,8 +1439,7 @@ export default class CreateCheck extends React.Component {
                   </p>
                 ))}
               </div>
-            )}
-
+            }
           </div>
         );
       }
@@ -1427,6 +1447,11 @@ export default class CreateCheck extends React.Component {
 
 
   };
+  onDockfileChange = (e) => {
+    this.setState({
+      dockfilePath: e.target.value
+    })
+  }
   /*
     函数名称: renderSuccessOnChange
     
@@ -1687,7 +1712,7 @@ export default class CreateCheck extends React.Component {
               {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}{' '}
               {formatMessage({ id: 'componentCheck.tooltip.title.p9' })}{' '}
               <a
-                href={`${platform_url}${this.state.language? 'docs/how-to-guides/app-deploy/source-code/springboot' :'en/docs/how-to-guides/app-deploy/source-code/springboot'}`}
+                href={`${platform_url}${this.state.language ? 'docs/how-to-guides/app-deploy/source-code/springboot' : 'en/docs/how-to-guides/app-deploy/source-code/springboot'}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -1735,6 +1760,7 @@ export default class CreateCheck extends React.Component {
 
     const mr8 = { marginRight: '8px' };
     let actions = [];
+
     if (ServiceGetData && isMulti) {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -1972,8 +1998,8 @@ export default class CreateCheck extends React.Component {
     );
     return (
       <PageHeaderLayout
-        title={formatMessage({id:'versionUpdata_6_1.check'})}
-        content={formatMessage({id:'versionUpdata_6_1.content4'})}
+        title={formatMessage({ id: 'versionUpdata_6_1.check' })}
+        content={formatMessage({ id: 'versionUpdata_6_1.content4' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
       >
         {ServiceGetData ? box : <Card>{box}</Card>}
