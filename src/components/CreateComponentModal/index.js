@@ -802,7 +802,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     setShowDatabaseForm(bool);
     // 根据团队视图过滤插件
     const filteredPlugins = PluginUtils.segregatePluginsByHierarchy(pluginsList, 'TeamModal');
-
+    
     // 过滤出有弹窗字段的插件（这里假设插件有特定的属性标识弹窗功能）
     const modalPlugins = filteredPlugins.filter(plugin => {
       // 可以根据插件的特定属性来判断是否有弹窗字段
