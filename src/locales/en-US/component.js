@@ -513,6 +513,16 @@ const componentOverview = {
     'componentOverview.body.mnt.dep_app_group': 'Application',
     'componentOverview.body.mnt.action': 'Operation',
     'componentOverview.body.mnt.unmount': 'Unmount',
+    // tabs栏>mnt>Component Status Tips
+    'componentOverview.body.mnt.status.unknown': 'Component status is unknown, unable to manage files',
+    'componentOverview.body.mnt.status.undeploy': 'Component is not deployed, unable to manage files',
+    'componentOverview.body.mnt.status.closed': 'Component is closed, unable to manage files',
+    'componentOverview.body.mnt.status.abnormal': 'Component status is abnormal, unable to manage files',
+    'componentOverview.body.mnt.status.stopping': 'Component is stopping, unable to manage files',
+    'componentOverview.body.mnt.status.starting': 'Component is starting, unable to manage files',
+    'componentOverview.body.mnt.status.deploying': 'Component is deploying, unable to manage files',
+    'componentOverview.body.mnt.status.upgrade': 'Component is upgrading, unable to manage files',
+    'componentOverview.body.mnt.status.default': 'Component status does not allow file management, please wait for the component to run',
     // tabs栏>mnt>RelyComponentModal
     'componentOverview.body.RelyComponentModal.title': 'Store dependent components',
     'componentOverview.body.RelyComponentModal.volume_name': 'Storage Name',
