@@ -2011,6 +2011,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 showSubmitBtn={false}
+                groupId={globalUtil.getAppID()}
               />
             )}
           </div>

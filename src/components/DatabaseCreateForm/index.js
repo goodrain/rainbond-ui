@@ -29,7 +29,7 @@ export default class Index extends PureComponent {
 
     componentDidMount() {
         // 如果存在应用组ID，获取当前应用下已有组件的英文名列表，用于生成默认英文名时避免冲突
-        const group_id = globalUtil.getGroupID();
+        const group_id = this.props.groupId || globalUtil.getGroupID();
         if (group_id) {
             this.fetchComponentNames(group_id);
         }
@@ -92,7 +92,7 @@ export default class Index extends PureComponent {
     handleSubmit = e => {
         e.preventDefault();
         const { form, onSubmit } = this.props;
-        const group_id = globalUtil.getGroupID();
+        const group_id = this.props.groupId || globalUtil.getGroupID();
 
         form.validateFields((err, fieldsValue) => {
             if (err) {
@@ -126,7 +126,7 @@ export default class Index extends PureComponent {
     render() {
         const { form, databaseTypes = [], loading } = this.props;
         const { getFieldDecorator, getFieldValue } = form;
-        const group_id = globalUtil.getAppID();        
+        const group_id = this.props.groupId || globalUtil.getGroupID();        
         return (
             <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
