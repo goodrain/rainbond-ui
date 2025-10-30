@@ -229,7 +229,10 @@ export default class Index extends PureComponent {
         if (response && response.status_code === 200) {
           message.success(formatMessage({ id: 'kubeblocks.database.config.success.created' }));
 
-          // 刷新应用分组信息
+          const serviceAlias = response.bean?.service_alias;
+          const groupId = response.bean?.group_id;
+
+          // 先刷新应用分组信息
           dispatch({
             type: 'global/fetchGroups',
             payload: {
@@ -237,21 +240,17 @@ export default class Index extends PureComponent {
             }
           });
 
-          window.sessionStorage.removeItem('codeLanguage');
-          window.sessionStorage.removeItem('packageNpmOrYarn'); 
-          window.sessionStorage.removeItem('advanced_setup');
-
-          // 获取返回的组件信息，直接跳转到应用视图
-          const serviceAlias = response.bean?.service_alias;
-          const groupId = response.bean?.group_id;
-          
-          if (serviceAlias && groupId) {
-            dispatch(
-              routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
-            );
-          } else {
-            message.error('创建成功但无法获取组件信息，请手动刷新页面');
-          }
+          // 刷新权限信息，并在权限更新完成后再跳转
+          roleUtil.refreshPermissionsInfo(groupId, true, () => {
+            // 跳转到应用详情页
+            if (serviceAlias && groupId) {
+              dispatch(
+                routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
+              );
+            } else {
+              message.error('创建成功但无法获取组件信息，请手动刷新页面');
+            }
+          });
         } else {
           console.error('API 调用失败:', {
             status_code: response?.status_code,
@@ -287,7 +286,6 @@ export default class Index extends PureComponent {
       },
       callback: (res) => {
         if (res && res.group_id) {
-          roleUtil.refreshPermissionsInfo();
           // 创建应用组成功后，更新 location.query 并继续创建数据库组件
           const { service_cname, database_type, k8s_app } = this.props.location?.query || {};
           this.proceedWithSubmit(vals, {
