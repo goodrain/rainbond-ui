@@ -524,6 +524,16 @@ const componentOverview = {
     'componentOverview.body.mnt.dep_app_group': '目标组件所属应用',
     'componentOverview.body.mnt.action': '操作',
     'componentOverview.body.mnt.unmount': '取消挂载',
+    // tabs栏>mnt>组件状态提示
+    'componentOverview.body.mnt.status.unknown': '组件状态未知，无法操作文件管理',
+    'componentOverview.body.mnt.status.undeploy': '组件未部署，无法操作文件管理',
+    'componentOverview.body.mnt.status.closed': '组件已关闭，无法操作文件管理',
+    'componentOverview.body.mnt.status.abnormal': '组件状态异常，无法操作文件管理',
+    'componentOverview.body.mnt.status.stopping': '组件停止中，无法操作文件管理',
+    'componentOverview.body.mnt.status.starting': '组件启动中，无法操作文件管理',
+    'componentOverview.body.mnt.status.deploying': '组件部署中，无法操作文件管理',
+    'componentOverview.body.mnt.status.upgrade': '组件升级中，无法操作文件管理',
+    'componentOverview.body.mnt.status.default': '组件状态不允许操作文件管理，请等待组件运行后再试',
     // tabs栏>mnt>RelyComponentModal
     'componentOverview.body.RelyComponentModal.title': '存储被依赖的组件',
     'componentOverview.body.RelyComponentModal.volume_name': '存储名称',
