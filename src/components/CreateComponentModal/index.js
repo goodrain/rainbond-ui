@@ -25,6 +25,17 @@ import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
 import RBDPluginsCom from '../RBDPluginsCom';
 import styles from './index.less';
+import mysql from '../../../public/images/mysql.svg';
+import postgresql from '../../../public/images/postgresql.svg';
+import rabbitmq from '../../../public/images/rabbitmq.svg';
+import redis from '../../../public/images/redis.svg';
+
+const DATABASE_ICON_MAP = {
+  mysql: mysql,
+  postgresql: postgresql,
+  rabbitmq: rabbitmq,
+  redis: redis
+};
 
 // Form wrapper for market install
 const MarketInstallFormWrapper = Form.create()(
@@ -631,15 +642,26 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     return typeMap[type?.toLowerCase()] || type || '数据库';
   };
 
+  // 直接基于返回的数据库类型获取数据库图标路径
+  const getDatabaseIconSrc = (databaseType) => {
+    if (!databaseType) return null;
+    const type = databaseType.toLowerCase();
+    return DATABASE_ICON_MAP[type] || null;
+  };
+
   // 动态生成数据库子项：根据获取到的数据库类型
-  const databaseSubItems = databaseTypes.map(dbType => ({
-    icon: 'database',
-    title: formatDatabaseTypeName(dbType.type) || formatDatabaseTypeName(dbType.label) || '数据库',
-    key: `database-${dbType.type}`,
-    showForm: true,
-    formType: 'database',  // 统一使用 'database' 作为表单类型
-    databaseType: dbType.type
-  }));
+  const databaseSubItems = databaseTypes.map(dbType => {
+    const iconSrc = getDatabaseIconSrc(dbType.type);
+    return {
+      icon: 'database',
+      iconSrc: iconSrc,
+      title: formatDatabaseTypeName(dbType.type) || formatDatabaseTypeName(dbType.label) || '数据库',
+      key: `database-${dbType.type}`,
+      showForm: true,
+      formType: 'database',  // 统一使用 'database' 作为表单类型
+      databaseType: dbType.type
+    };
+  });
 
   
 
@@ -1300,7 +1322,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
       });
     } else if (currentFormType === 'database') {
-      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_app=${value.k8s_app}&service_cname=${value.service_cname}`));
+      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
     } else if (currentFormType === 'demo') {
       // 示例镜像提交
       dispatch({
@@ -2011,6 +2033,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 showSubmitBtn={false}
+                groupId={globalUtil.getAppID()}
               />
             )}
           </div>
@@ -2036,11 +2059,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                       onClick={() => handleItemClick(item)}
                     >
                       <div className={styles.menuIcon}>
-                        {currentView == 'database' ?
+                        {currentView === 'database' && item.iconSrc ? (
+                          <img
+                            src={item.iconSrc}
+                            alt={item.title}
+                            style={{
+                              width: '1em',
+                              height: '1em',
+                              verticalAlign: 'middle'
+                            }}
+                          />
+                        ) : currentView === 'database' ? (
                           <DatabaseIcon />
-                          :
+                        ) : (
                           <Icon type={item.icon} />
-                        }
+                        )}
                       </div>
                       <div className={styles.menuTitle}>{item.title}</div>
                       <Icon type="right" className={styles.arrowIcon} />
