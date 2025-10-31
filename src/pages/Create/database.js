@@ -79,7 +79,8 @@ export default class Main extends PureComponent {
         query: {
           database_type: values.database_type,
           service_cname: values.service_cname,
-          k8s_app: values.k8s_component_name || values.k8s_app,
+          k8s_component_name: values.k8s_component_name,
+          k8s_app: values.k8s_app,
           group_name: values.group_name,
           group_id: values.group_id
         }

@@ -1322,7 +1322,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
       });
     } else if (currentFormType === 'database') {
-      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_app=${value.k8s_app}&service_cname=${value.service_cname}`));
+      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
     } else if (currentFormType === 'demo') {
       // 示例镜像提交
       dispatch({
