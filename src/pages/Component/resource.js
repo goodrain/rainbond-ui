@@ -843,11 +843,11 @@ export default class Index extends PureComponent {
             extra={method != 'vm' && [
               appUtil.isOauthByBuildSource(buildSource) ? (
                 <Button onClick={this.changeEditOauth} icon='form' >
-                  <FormattedMessage id='componentOverview.body.Resource.edit' />
+                  <FormattedMessage id='componentOverview.body.Resource.edit' />1
                 </Button>
               ) : (
                 <Button onClick={this.changeBuildSource} icon='form'>
-                  <FormattedMessage id='componentOverview.body.Resource.change' />
+                  <FormattedMessage id='componentOverview.body.Resource.change' />2
                 </Button>
               )
             ]}

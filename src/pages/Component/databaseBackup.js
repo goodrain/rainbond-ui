@@ -810,6 +810,17 @@ export default class Index extends PureComponent {
 
     return (
       <div>
+        {/* 不支持备份的数据库展示提醒 */}
+        {isBackupUnSupported && (
+          <Alert
+            showIcon
+            message={formatMessage({ id: 'kubeblocks.database.backup.unsupported.alert' })}
+            type="info"
+            style={{
+              marginBottom: 16
+            }}
+          />
+        )}
         {/* 备份设置 */}
         <Card
           title={formatMessage({ id: 'kubeblocks.database.backup.page.title' })}
