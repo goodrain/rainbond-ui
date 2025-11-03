@@ -12,7 +12,7 @@ import styles from './index.less'
 const { Panel } = Collapse;
 const { Option } = Select;
 
-@connect(({ global,region }) => ({
+@connect(({ global, region }) => ({
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   cluster_info_add_cluster: region.cluster_info_add_cluster
@@ -33,11 +33,30 @@ class ClusterComponentsInfo extends PureComponent {
       containerLog: [],
       logStarted: false,
       logLoading: false,
-      selectedContainer: null
+      selectedContainer: null,
+      clusterInfo: {}
     };
   }
-  componentDidMount() {    
-    this.fetchRainbondComponents(true);
+  componentDidMount() {
+    this.getCluterName()
+  }
+  getCluterName = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'region/fetchClusterInfo',
+      payload: {
+        cluster_id: ''
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            clusterInfo: res.bean
+          }, () => {
+            this.fetchRainbondComponents(true);
+          })
+        }
+      }
+    });
   }
   componentWillUnmount() {
     this.closeTimer()
@@ -63,28 +82,27 @@ class ClusterComponentsInfo extends PureComponent {
     if (this.logEventSource) {
       this.logEventSource.close();
     }
-    
+
     // 清空之前的消息缓存和定时器
     this.logMessages = [];
     if (this.logUpdateTimer) {
       clearTimeout(this.logUpdateTimer);
     }
-    
-    const { cluster_info_add_cluster: { cluster_id } } = this.props;
+    const { clusterInfo: { cluster_id } } = this.state
     const url = `/console/rb_component_logs_sse?cluster_id=${cluster_id}&pod_name=${podName}&container_name=${containerName}&tail_lines=100`;
-    
-    this.setState({ 
-      logLoading: true, 
+
+    this.setState({
+      logLoading: true,
       logStarted: true,
       selectedContainer: { podName, containerName },
       containerLog: []
     });
-    
+
     this.logEventSource = new EventSource(url, { withCredentials: true });
     const MAX_LOGS = 1000; // 最大日志条数限制
-    
+
     this.logEventSource.onmessage = (event) => {
-      
+
       const newMessage = event.data;
       if (newMessage && newMessage.trim()) {
         // 解析日志JSON格式
@@ -104,14 +122,14 @@ class ClusterComponentsInfo extends PureComponent {
             original: newMessage
           };
         }
-        
+
         // 确保logMessages数组存在
         if (!this.logMessages) {
           this.logMessages = [];
         }
-        
+
         this.logMessages.push(formattedLog);
-        
+
         // 降低批量更新阈值并添加定时器机制
         if (this.logMessages.length >= 1) {  // 从10改为3
           this.updateLogDisplay(MAX_LOGS);
@@ -128,7 +146,7 @@ class ClusterComponentsInfo extends PureComponent {
         }
       }
     };
-    
+
     this.logEventSource.onerror = (error) => {
       console.error('SSE error:', error);
       this.setState({ logLoading: false, logStarted: false });
@@ -141,13 +159,13 @@ class ClusterComponentsInfo extends PureComponent {
     if (!this.logMessages || this.logMessages.length === 0) {
       return;
     }
-    
-    
+
+
     this.setState((prevState) => {
       const updatedLogs = [...prevState.containerLog, ...this.logMessages];
       // 限制日志数量，避免内存问题
-      const finalLogs = updatedLogs.length > maxLogs 
-        ? updatedLogs.slice(-maxLogs) 
+      const finalLogs = updatedLogs.length > maxLogs
+        ? updatedLogs.slice(-maxLogs)
         : updatedLogs;
       return {
         logLoading: false,
@@ -157,10 +175,10 @@ class ClusterComponentsInfo extends PureComponent {
       // 滚动到底部
       this.scrollLogToBottom();
     });
-    
+
     // 清空消息缓存
     this.logMessages = [];
-    
+
     // 清理定时器
     if (this.logUpdateTimer) {
       clearTimeout(this.logUpdateTimer);
@@ -283,12 +301,12 @@ class ClusterComponentsInfo extends PureComponent {
   autoSelectFirstContainer = () => {
     const { componentInfo } = this.state;
     const containers = componentInfo?.pod_status?.containers || [];
-    
+
     if (containers.length > 0) {
       const firstContainer = containers[0];
       const podName = componentInfo?.pod_status?.pod_name;
       const containerName = firstContainer.container_name;
-      
+
       // 自动开始第一个容器的日志流
       this.startLogStream(podName, containerName);
     }
@@ -313,11 +331,11 @@ class ClusterComponentsInfo extends PureComponent {
   // 渲染日志内容
   renderLogContent = () => {
     const { componentInfo } = this.state;
-    const { 
-      containerLog, 
-      logStarted, 
-      logLoading, 
-      selectedContainer 
+    const {
+      containerLog,
+      logStarted,
+      logLoading,
+      selectedContainer
     } = this.state;
 
     // 获取容器列表
@@ -335,12 +353,12 @@ class ClusterComponentsInfo extends PureComponent {
                 const [podName, containerName] = value.split('|');
                 this.startLogStream(podName, containerName);
               }}
-              value={selectedContainer ? `${selectedContainer.podName}|${selectedContainer.containerName}` : 
-                     (containers.length > 0 ? `${componentInfo?.pod_status?.pod_name}|${containers[0].container_name}` : undefined)}
+              value={selectedContainer ? `${selectedContainer.podName}|${selectedContainer.containerName}` :
+                (containers.length > 0 ? `${componentInfo?.pod_status?.pod_name}|${containers[0].container_name}` : undefined)}
             >
               {containers.map((container, index) => (
-                <Option 
-                  key={index} 
+                <Option
+                  key={index}
                   value={`${componentInfo?.pod_status?.pod_name}|${container.container_name}`}
                 >
                   {container.container_name}
@@ -355,13 +373,13 @@ class ClusterComponentsInfo extends PureComponent {
                 {formatMessage({ id: 'enterpriseColony.ClusterComponents.stopLog' })}
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={() => {
                   if (selectedContainer) {
                     this.startLogStream(selectedContainer.podName, selectedContainer.containerName);
                   } else if (containers.length > 0) {
                     this.startLogStream(
-                      componentInfo?.pod_status?.pod_name, 
+                      componentInfo?.pod_status?.pod_name,
                       containers[0].container_name
                     );
                   }
@@ -386,7 +404,7 @@ class ClusterComponentsInfo extends PureComponent {
         </div>
 
         {/* 日志显示区域 */}
-        <div 
+        <div
           ref={(ref) => { this.logContainerRef = ref; }}
           className={styles.logContainer}
         >
@@ -489,14 +507,15 @@ class ClusterComponentsInfo extends PureComponent {
 
 
                   </Panel>
+
                 }
                 <Panel
-                    header={
-                      <div className={styles.panelBox}>
-                        <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLog' })}</div>
-                        <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLogDesc' })}</div>
-                      </div>
-                    }
+                  header={
+                    <div className={styles.panelBox}>
+                      <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLog' })}</div>
+                      <div>{formatMessage({ id: 'enterpriseColony.ClusterComponents.containerLogDesc' })}</div>
+                    </div>
+                  }
                   key="2"
                 >
                   {this.renderLogContent()}
@@ -559,45 +578,45 @@ class ClusterComponentsInfo extends PureComponent {
                 <Skeleton active rows={10} />
                 :
                 <>
-                    {Object.keys(componentList).map((item, index) => {
-                      return <div className={styles.pod_Info}>
-                        <p>
-                          {item}
-                        </p>
-                        {componentList[item] && componentList[item].length > 0 && componentList[item].map((val, inex) => {
-                          return <Row
-                            key={inex}
-                            className={styles.details}
-                            style={{ borderBottom: inex == componentList[item].length - 1 ? '0' : '1px solid #e8e8e8' }}
-                            onClick={() => this.fetchPodDetails(val.pod_name)}
-                          >
-                            <Col span={4}>
-                              <span className={this.handleStateName(
-                                val.status
-                              )}>
-                                {val.status}
-                              </span>
-                            </Col>
-                            <Col span={6}>
-                              {val.pod_name || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noName' })}
-                            </Col>
-                            <Col span={14}>
-                              <div>
-                                {val.image == '' ?
-                                  <p>{val.image_status || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noImg' })}</p>
-                                  :
-                                  <p>{val.image}</p>
-                                }
-                                <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTimeText' })}{moment(val?.start_time).format(
-                                  'YYYY-MM-DD HH:mm:ss'
-                                ) || '-'} {formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNumText' })}{val.restarts || 0}</p>
-                              </div>
-                            </Col>
-                          </Row>
-                        })}
+                  {Object.keys(componentList).map((item, index) => {
+                    return <div className={styles.pod_Info}>
+                      <p>
+                        {item}
+                      </p>
+                      {componentList[item] && componentList[item].length > 0 && componentList[item].map((val, inex) => {
+                        return <Row
+                          key={inex}
+                          className={styles.details}
+                          style={{ borderBottom: inex == componentList[item].length - 1 ? '0' : '1px solid #e8e8e8' }}
+                          onClick={() => this.fetchPodDetails(val.pod_name)}
+                        >
+                          <Col span={4}>
+                            <span className={this.handleStateName(
+                              val.status
+                            )}>
+                              {val.status}
+                            </span>
+                          </Col>
+                          <Col span={6}>
+                            {val.pod_name || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noName' })}
+                          </Col>
+                          <Col span={14}>
+                            <div>
+                              {val.image == '' ?
+                                <p>{val.image_status || formatMessage({ id: 'enterpriseColony.newHostInstall.node.noImg' })}</p>
+                                :
+                                <p>{val.image}</p>
+                              }
+                              <p>{formatMessage({ id: 'enterpriseColony.newHostInstall.node.greatTimeText' })}{moment(val?.start_time).format(
+                                'YYYY-MM-DD HH:mm:ss'
+                              ) || '-'} {formatMessage({ id: 'enterpriseColony.newHostInstall.node.RestartNumText' })}{val.restarts || 0}</p>
+                            </div>
+                          </Col>
+                        </Row>
+                      })}
 
-                      </div>
-                    })}
+                    </div>
+                  })}
                 </>
               }
               <div

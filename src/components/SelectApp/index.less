@@ -1,5 +1,9 @@
 @import "~antd/lib/style/themes/default.less";
 
+// 定义主题变量（从 config/theme.js）
+@primary-color: #195ca3;
+@rbd-background-color: #f0f5ff;
+
 .selectButton {
     height: 64px;
     display: flex;
@@ -13,7 +17,7 @@
 
 .selectButtonName {
     padding: 6px 16px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 10px;
     color: #ffffff;
@@ -21,7 +25,7 @@
     align-items: center;
     gap: 12px;
     overflow: hidden;
-    max-width: 320px;
+    max-width: 280px;
     line-height: 1.5;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -50,48 +54,22 @@
     overflow: hidden;
 }
 
-.selectButtonTeam {
+.selectButtonApp {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-shrink: 0;
-}
-
-.selectButtonTeamIcon {
-    font-size: 16px;
-    opacity: 0.9;
-}
-
-.selectButtonTeamText {
-    font-weight: 600;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-.selectButtonDivider {
-    font-size: 14px;
-    opacity: 0.5;
-    font-weight: 300;
-    flex-shrink: 0;
-}
-
-.selectButtonRegion {
-    display: flex;
-    align-items: center;
-    gap: 4px;
     overflow: hidden;
 }
 
-.selectButtonRegionIcon {
-    font-size: 12px;
-    opacity: 0.8;
+.selectButtonAppIcon {
+    font-size: 16px;
+    opacity: 0.9;
     flex-shrink: 0;
 }
 
-.selectButtonRegionText {
-    font-weight: 400;
-    font-size: 13px;
-    opacity: 0.9;
+.selectButtonAppText {
+    font-weight: 600;
+    font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -205,7 +183,7 @@
     }
 }
 
-.teamItem {
+.appItem {
     align-items: center;
     display: flex;
     width: 100%;
@@ -216,32 +194,32 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-        .teamItemContent {
+        .appItemContent {
             background-color: @rbd-background-color;
             border-color: @primary-color;
             box-shadow: 0 2px 8px fade(@primary-color, 8%);
             transform: translateX(2px);
         }
 
-        .teamItemIcon {
+        .appItemIcon {
             background: @primary-color;
             color: #ffffff;
         }
 
-        .teamItemName {
+        .appItemName {
             color: @primary-color;
         }
     }
 
     &:active {
-        .teamItemContent {
+        .appItemContent {
             transform: translateX(0);
             box-shadow: 0 1px 4px fade(@primary-color, 12%);
         }
     }
 }
 
-.teamItemContent {
+.appItemContent {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -253,7 +231,7 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.teamItemIcon {
+.appItemIcon {
     width: 36px;
     height: 36px;
     border-radius: 8px;
@@ -267,15 +245,15 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.teamItemInfo {
+.appItemInfo {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.teamItemName {
+.appItemName {
     color: #262626;
     font-size: 14px;
     line-height: 20px;
@@ -284,24 +262,6 @@
     text-overflow: ellipsis;
     font-weight: 600;
     transition: color 0.2s ease;
-}
-
-.teamItemRegion {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #8c8c8c;
-    font-size: 12px;
-    line-height: 16px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.clusterIcon {
-    font-size: 11px;
-    opacity: 0.8;
-    flex-shrink: 0;
 }
 
 .emptyState {

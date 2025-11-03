@@ -41,6 +41,8 @@ import {
   delAuthorizationMessage,
   fetchImageTags,
   getComponentLangVersion,
+  loadTarImage,
+  getTarImageLoadResult,
 } from '../services/team';
 
 export default {
@@ -363,6 +365,18 @@ export default {
     },
     *getComponentLangVersion({ payload, callback, handleError }, { call }) {
       const response = yield call(getComponentLangVersion, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *loadTarImage({ payload, callback, handleError }, { call }) {
+      const response = yield call(loadTarImage, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getTarImageLoadResult({ payload, callback, handleError }, { call }) {
+      const response = yield call(getTarImageLoadResult, payload, handleError);
       if (response && callback) {
         callback(response);
       }

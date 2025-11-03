@@ -1335,6 +1335,28 @@ const componentOther = {
     'componentOverview.body.LoadBalancer.max_port_configs': 'Maximum 10 port configurations supported',
     'componentOverview.body.LoadBalancer.min_port_configs': 'At least one port configuration must be kept',
     'componentOverview.body.LoadBalancer.total_records': 'Total {total} records',
+
+    // Tar Image Upload
+    'componentOverview.body.TarImageUpload.upload_button': 'Upload Image Package',
+    'componentOverview.body.TarImageUpload.modal_title': 'Upload Image Package',
+    'componentOverview.body.TarImageUpload.upload_file': 'Upload File',
+    'componentOverview.body.TarImageUpload.file_format_tip': 'Supports .tar and .tar.gz Docker image files',
+    'componentOverview.body.TarImageUpload.select_file': 'Select File',
+    'componentOverview.body.TarImageUpload.uploaded_files': 'Uploaded Files',
+    'componentOverview.body.TarImageUpload.no_files': 'No files',
+    'componentOverview.body.TarImageUpload.delete': 'Delete',
+    'componentOverview.body.TarImageUpload.start_parse': 'Start Parsing',
+    'componentOverview.body.TarImageUpload.parsing': 'Parsing...',
+    'componentOverview.body.TarImageUpload.please_upload': 'Please upload tar package file first',
+    'componentOverview.body.TarImageUpload.start_parse_tar': 'Start parsing tar package',
+    'componentOverview.body.TarImageUpload.parse_task_failed': 'Failed to start parsing task',
+    'componentOverview.body.TarImageUpload.parse_success': 'Image parsing successful',
+    'componentOverview.body.TarImageUpload.original_address': 'Original Address:',
+    'componentOverview.body.TarImageUpload.new_address': 'New Address:',
+    'componentOverview.body.TarImageUpload.parse_complete': 'Parsing complete',
+    'componentOverview.body.TarImageUpload.no_target_image': 'Target image address not found',
+    'componentOverview.body.TarImageUpload.parse_failed': 'Parsing failed',
+    'componentOverview.body.TarImageUpload.query_result_failed': 'Failed to query parsing result',
 }
 
 export default Object.assign({}, componentOverview, componentOther);

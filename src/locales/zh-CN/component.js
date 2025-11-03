@@ -1348,6 +1348,28 @@ const componentOther = {
     'componentOverview.body.LoadBalancer.min_port_configs': '至少保留一个端口配置',
     'componentOverview.body.LoadBalancer.total_records': '共 {total} 条记录',
 
+    // Tar Image Upload - 镜像上传相关
+    'componentOverview.body.TarImageUpload.upload_button': '上传镜像包',
+    'componentOverview.body.TarImageUpload.modal_title': '上传镜像包',
+    'componentOverview.body.TarImageUpload.upload_file': '上传文件',
+    'componentOverview.body.TarImageUpload.file_format_tip': '支持 .tar 和 .tar.gz 格式的Docker镜像文件',
+    'componentOverview.body.TarImageUpload.select_file': '选择文件',
+    'componentOverview.body.TarImageUpload.uploaded_files': '已上传文件',
+    'componentOverview.body.TarImageUpload.no_files': '暂无文件',
+    'componentOverview.body.TarImageUpload.delete': '删除',
+    'componentOverview.body.TarImageUpload.start_parse': '开始解析',
+    'componentOverview.body.TarImageUpload.parsing': '解析中...',
+    'componentOverview.body.TarImageUpload.please_upload': '请先上传tar包文件',
+    'componentOverview.body.TarImageUpload.start_parse_tar': '开始解析tar包',
+    'componentOverview.body.TarImageUpload.parse_task_failed': '启动解析任务失败',
+    'componentOverview.body.TarImageUpload.parse_success': '镜像解析成功',
+    'componentOverview.body.TarImageUpload.original_address': '原始地址：',
+    'componentOverview.body.TarImageUpload.new_address': '新地址：',
+    'componentOverview.body.TarImageUpload.parse_complete': '解析完成',
+    'componentOverview.body.TarImageUpload.no_target_image': '未找到目标镜像地址',
+    'componentOverview.body.TarImageUpload.parse_failed': '解析失败',
+    'componentOverview.body.TarImageUpload.query_result_failed': '查询解析结果失败',
+
 }
 
 export default Object.assign({}, componentOverview, componentOther);
