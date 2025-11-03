@@ -1,25 +1,27 @@
-.alerts{
+.alerts {
     width: 100%;
     font-weight: bolder;
-    :global{
-        .ant-alert-icon{
+
+    :global {
+        .ant-alert-icon {
             color: red;
             font-size: 16px;
         }
     }
 }
-.platform{
-    color: #fff;
-    font-size: 16px;
-    font-weight: bolder;
-    margin: 0px 14px;
-    border-bottom: 2px solid transparent;
-}
-.platform:hover{
-    color: #bfbfbf;
-    border-bottom: 2px solid #bfbfbf;
+
+.platform {
+    padding: 6px 12px;
+    backdrop-filter: blur(10px);
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 }
 
-.bgc{
+.bgc {
     background-color: @rbd-background-color;
 }
