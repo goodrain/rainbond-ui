@@ -78,7 +78,8 @@ class DAinput extends Component {
                   placeholder={namePlaceholder}
                 >
                     {ipArr && ipArr.length>0 && ipArr.map((item, index) => {
-                        return <Option value={type === '1' ? item.node_name : item.host} key={index}>{type === '1' ? item.node_name : item.host}</Option>;
+                        const displayValue = type === '1' ? (item.name || item.node_name) : (item.external_ip || item.host);
+                        return <Option value={displayValue} key={index}>{displayValue}</Option>;
                     })}
                 </Select>
               </Col>

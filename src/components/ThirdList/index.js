@@ -19,12 +19,15 @@ import {
   Skeleton,
   Spin,
   Table,
-  Tooltip
+  Tooltip,
+  Alert
 } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
+import { formatMessage } from 'umi-plugin-locale';
 import App from '../../../public/images/code.svg';
 import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
 import ThirForm from './form.js';
 import styles from './Index.less';
 
@@ -275,17 +278,22 @@ class Index extends React.Component {
       loadingMore,
       hasMore
     } = this.state;
-    const { handleType } = this.props;
+    const { handleType, oauthService } = this.props;
     const ServiceComponent = handleType && handleType === 'Service';
     const serviceInfos = service_info && service_info.length > 0;
+
+    // 检查认证状态
+    const isAuthenticated = oauthService?.is_authenticated;
+    const isExpired = oauthService?.is_expired;
+    const needAuth = !isAuthenticated || isExpired;
     const columns = [
       {
-        title: '组件名称',
+        title: formatMessage({ id: 'componentOverview.body.ThirdList.component_name' }),
         dataIndex: 'name',
         render: data => <span>{data || thirdInfo.project_name}</span>
       },
       {
-        title: '语言',
+        title: formatMessage({ id: 'componentOverview.body.ThirdList.language' }),
         dataIndex: 'language'
       }
     ];
@@ -295,12 +303,12 @@ class Index extends React.Component {
           <Modal
             visible={detection}
             onCancel={this.handleDetection}
-            title="检测语言"
+            title={formatMessage({ id: 'componentOverview.body.ThirdList.detect_language' })}
             footer={
               !create_status
                 ? [
                   <Button key="back" onClick={this.handleDetection}>
-                    关闭
+                    {formatMessage({ id: 'componentOverview.body.ThirdList.close' })}
                   </Button>,
                   <Button
                     key="submit"
@@ -308,25 +316,25 @@ class Index extends React.Component {
                     loading={create_loading}
                     onClick={this.handleTestCode}
                   >
-                    检测
+                    {formatMessage({ id: 'componentOverview.body.ThirdList.detect' })}
                   </Button>
                 ]
                 : create_status == 'Success'
                   ? [
                     <Button key="back" onClick={this.handleDetection}>
-                      关闭
+                      {formatMessage({ id: 'componentOverview.body.ThirdList.close' })}
                     </Button>,
                     <Button
                       key="submit"
                       type="primary"
                       onClick={this.handleDetection}
                     >
-                      确认
+                      {formatMessage({ id: 'componentOverview.body.ThirdList.confirm' })}
                     </Button>
                   ]
                   : [
                     <Button key="back" onClick={this.handleDetection}>
-                      关闭
+                      {formatMessage({ id: 'componentOverview.body.ThirdList.close' })}
                     </Button>
                   ]
             }
@@ -338,7 +346,7 @@ class Index extends React.Component {
                     <Spin />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    检测中，请稍后(请勿关闭弹窗)
+                    {formatMessage({ id: 'componentOverview.body.ThirdList.detecting' })}
                   </p>
                 </div>
               ) : (
@@ -402,7 +410,7 @@ class Index extends React.Component {
                               color: '#000'
                             }}
                           >
-                            {`${service_info[0].language} 多模块`}
+                            {formatMessage({ id: 'componentOverview.body.ThirdList.multi_module' }, { language: service_info[0].language })}
                           </div>
                         )
                       }
@@ -427,7 +435,7 @@ class Index extends React.Component {
                     <Icon type="close-circle-o" />
                   </p>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    检测失败，请重新检测
+                    {formatMessage({ id: 'componentOverview.body.ThirdList.detect_failed' })}
                   </p>
                 </div>
               ) : (
@@ -437,7 +445,7 @@ class Index extends React.Component {
               {!create_status && (
                 <div>
                   <p style={{ textAlign: 'center', fontSize: '14px' }}>
-                    确定要检测语言吗?
+                    {formatMessage({ id: 'componentOverview.body.ThirdList.confirm_detect' })}
                   </p>
                 </div>
               )}
@@ -447,11 +455,53 @@ class Index extends React.Component {
 
         {!visible ? (
           <div>
+            {/* 认证提示 */}
+            {needAuth && oauthService && (
+              <Alert
+                message={
+                  isExpired
+                    ? formatMessage(
+                        { id: 'componentOverview.body.ThirdList.auth_expired_title' },
+                        { name: oauthService.name }
+                      )
+                    : formatMessage(
+                        { id: 'componentOverview.body.ThirdList.auth_required_title' },
+                        { name: oauthService.name }
+                      )
+                }
+                description={
+                  <div>
+                    <div style={{ marginBottom: '12px' }}>
+                      {isExpired
+                        ? formatMessage({ id: 'componentOverview.body.ThirdList.auth_expired_desc' })
+                        : formatMessage({ id: 'componentOverview.body.ThirdList.auth_required_desc' })
+                      }
+                    </div>
+                    <Button
+                      type="primary"
+                      icon="safety"
+                      onClick={() => {
+                        const authURL = oauthUtil.getAuthredictURL(oauthService);
+                        if (authURL) {
+                          window.open(`${authURL}&type=certification`, '_blank');
+                        }
+                      }}
+                    >
+                      {formatMessage({ id: 'componentOverview.body.ThirdList.go_auth' })}
+                    </Button>
+                  </div>
+                }
+                type="warning"
+                showIcon
+                style={{ marginBottom: '16px' }}
+              />
+            )}
             <Input.Search
-              placeholder="请输入搜索内容"
-              enterButton="搜索"
+              placeholder={formatMessage({ id: 'componentOverview.body.ThirdList.search_placeholder' })}
+              enterButton={formatMessage({ id: 'componentOverview.body.ThirdList.search_button' })}
               size="large"
               onSearch={this.handleSearch}
+              disabled={needAuth}
               style={{
                 padding: '0 0 11px 0',
               }}
@@ -472,12 +522,18 @@ class Index extends React.Component {
                 actions={[
                   <div>
                     <a
-                      style={{ marginLeft: '16px' }}
+                      style={{
+                        marginLeft: '16px',
+                        pointerEvents: needAuth ? 'none' : 'auto',
+                        opacity: needAuth ? 0.5 : 1
+                      }}
                       onClick={() => {
-                        this.showModal(item);
+                        if (!needAuth) {
+                          this.showModal(item);
+                        }
                       }}
                     >
-                      创建组件
+                      {formatMessage({ id: 'componentOverview.body.ThirdList.create_component' })}
                     </a>
                   </div>
                 ]}
@@ -550,12 +606,12 @@ class Index extends React.Component {
           />
           {loadingMore && (
             <div style={{ textAlign: 'center', padding: '20px' }}>
-              <Spin tip="加载更多..." />
+              <Spin tip={formatMessage({ id: 'componentOverview.body.ThirdList.loading_more' })} />
             </div>
           )}
           {!hasMore && lists.length > 0 && (
             <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-              已加载全部仓库
+              {formatMessage({ id: 'componentOverview.body.ThirdList.all_loaded' })}
             </div>
           )}
             </div>
@@ -566,7 +622,7 @@ class Index extends React.Component {
               <Button
                 onClick={this.handleCancel}
               >
-                回到列表
+                {formatMessage({ id: 'componentOverview.body.ThirdList.back_to_list' })}
               </Button>
             }
           >

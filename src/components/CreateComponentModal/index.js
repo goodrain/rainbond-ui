@@ -3,6 +3,7 @@ import { Modal, Icon, Spin, Form, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
+import { formatMessage } from 'umi-plugin-locale';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
@@ -24,11 +25,30 @@ import DatabaseCreateForm from '../DatabaseCreateForm';
 import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
 import RBDPluginsCom from '../RBDPluginsCom';
+import oauthUtil from '../../utils/oauth';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
 import rabbitmq from '../../../public/images/rabbitmq.svg';
 import redis from '../../../public/images/redis.svg';
+import {
+  CodeIcon,
+  ExampleIcon,
+  DatabaseIcon,
+  StoreIcon,
+  FolderOpenIcon,
+  UploadIcon,
+  ContainerIcon,
+  PackageIcon,
+  FileTextIcon,
+  ShipIcon,
+  PuzzleIcon,
+  BoxesIcon,
+  GitBranchIcon,
+  GithubIcon,
+  GitlabIcon,
+  GiteeIcon
+} from './icons';
 
 const DATABASE_ICON_MAP = {
   mysql: mysql,
@@ -476,32 +496,40 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const menuItems = [
     {
       icon: 'shop',
-      title: '从应用市场安装',
+      iconSrc: StoreIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_market' }),
       key: 'market',
-      hasSubMenu: true
+      hasSubMenu: true,
+      iconColor: '#1890ff',
     },
     {
       icon: 'block',
-      title: '从镜像构建',
+      iconSrc: ContainerIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_image' }),
       key: 'image',
-      hasSubMenu: true
+      hasSubMenu: true,
+      iconColor: '#fa8c16',
     },
     {
       icon: 'code',
-      title: '从源码构建',
+      iconSrc: CodeIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_source' }),
       key: 'code',
-      hasSubMenu: true
+      hasSubMenu: true,
+      iconColor: '#52c41a',
     },
     {
       icon: 'file-text',
+      iconSrc: FileTextIcon,
       title: 'Yaml Helm K8s',
       key: 'yaml',
-      hasSubMenu: true
+      hasSubMenu: true,
+      iconColor: '#722ed1',
     },
     // 每个插件独立展示在第一层菜单
     ...availablePlugins.map(plugin => ({
       icon: 'api',
-      title: plugin.display_name || plugin.alias || plugin.name || '未知插件',
+      title: plugin.display_name || plugin.alias || plugin.name || formatMessage({ id: 'componentOverview.body.CreateComponentModal.plugin' }),
       key: `plugin-${plugin.name}`,
       plugin: plugin,
       showPluginModal: true
@@ -510,9 +538,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   if (showDatabaseForm) {
     menuItems.push({
       icon: 'database',
-      title: '数据库',
+      iconSrc: DatabaseIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' }),
       key: 'database',
-      hasSubMenu: true
+      hasSubMenu: true,
+      iconColor: '#13c2c2',
     });
   }
 
@@ -520,22 +550,28 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const marketSubItems = [
     ...marketStores.map(store => ({
       icon: 'shop',
+      iconSrc: StoreIcon,
       title: store.alias || store.name,
       key: `store-${store.name}`,
       storeName: store.name,
-      showMarketModal: true  // 标记需要打开应用列表弹窗
+      showMarketModal: true,  // 标记需要打开应用列表弹窗
+      iconColor: '#1890ff',
     })),
     {
       icon: 'appstore',
-      title: '本地组件库',
+      iconSrc: FolderOpenIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' }),
       key: 'local-market',
-      showLocalMarketModal: true  // 标记需要打开本地组件库弹窗
+      showLocalMarketModal: true,  // 标记需要打开本地组件库弹窗
+      iconColor: '#1890ff',
     },
     {
       icon: 'shop',
-      title: '离线导入',
+      iconSrc: UploadIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.offline_import' }),
       key: 'offline-import',
-      path: 'shared/import'
+      path: 'shared/import',
+      iconColor: '#1890ff',
     }
   ];
 
@@ -544,90 +580,132 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const imageSubItems = [
     {
       icon: 'block',
-      title: '容器',
+      iconSrc: ContainerIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' }),
       key: 'custom',
       showForm: true,
-      formType: 'docker'
+      formType: 'docker',
+      iconColor: '#fa8c16',
     },
     // 只在非应用视图下显示 Docker Compose
     ...(!group_id ? [{
       icon: 'block',
-      title: 'Docker Compose',
+      iconSrc: ContainerIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' }),
       key: 'docker-compose',
       showForm: true,
-      formType: 'docker-compose'
+      formType: 'docker-compose',
+      iconColor: '#fa8c16',
     }] : []),
     ...imageHubList.map(hub => ({
       icon: 'block',
+      iconSrc: BoxesIcon,
       title: `${hub.hub_type} (${hub.secret_id})`,
       key: `image-hub-${hub.secret_id}`,
       showImgRepostory: true,
-      secretId: hub.secret_id
+      secretId: hub.secret_id,
+      iconColor: '#fa8c16',
     })),
     {
       icon: 'block',
-      title: '示例',
+      iconSrc: ExampleIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
       key: 'demo',
       showForm: true,
-      formType: 'demo'
+      formType: 'demo',
+      iconColor: '#fa8c16',
     }
   ];
 
   // 使用 oauthUtil 过滤出可用的 Git 仓库
   const codeRepositoryList = enterpriseInfo ? require('../../utils/oauth').default.getEnableGitOauthServer(enterpriseInfo) : [];
 
+  // 根据仓库类型返回对应的图标组件
+  const getRepoIcon = (oauthType) => {
+    const typeMap = {
+      'github': GithubIcon,
+      'gitlab': GitlabIcon,
+      'gitee': GiteeIcon
+    };
+    return typeMap[oauthType?.toLowerCase()] || GitBranchIcon;
+  };
+
+  // 根据仓库类型返回对应的品牌色
+  const getRepoColor = (oauthType) => {
+    const colorMap = {
+      'github': '#24292e',   // GitHub 黑色
+      'gitlab': '#FC6D26',   // GitLab 橙色
+      'gitee': '#C71D23'     // Gitee 红色
+    };
+    return colorMap[oauthType?.toLowerCase()] || '#52c41a'; // 默认绿色
+  };
+
   const codeSubItems = [
     {
       icon: 'code',
-      title: '源码',
+      iconSrc: CodeIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_code' }),
       key: 'source-code',
       showForm: true,
-      formType: 'code-custom'
+      formType: 'code-custom',
+      iconColor: '#52c41a',
     },
     ...codeRepositoryList.map(repo => ({
       icon: 'code',
+      iconSrc: getRepoIcon(repo.oauth_type),
       title: `${repo.name}`,
       key: `code-repo-${repo.service_id}`,
       showThirdList: true,
-      oauthService: repo
+      oauthService: repo,
+      iconColor: getRepoColor(repo.oauth_type),
     })),
     {
       icon: 'code',
-      title: '软件包',
+      iconSrc: PackageIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' }),
       key: 'package',
       showForm: true,
-      formType: 'code-jwar'
+      formType: 'code-jwar',
+      iconColor: '#52c41a',
     },
     {
       icon: 'code',
-      title: '示例',
+      iconSrc: ExampleIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
       key: 'code-demo',
       showForm: true,
-      formType: 'code-demo'
+      formType: 'code-demo',
+      iconColor: '#52c41a',
     }
   ];
 
   const yamlSubItems = [
     {
       icon: 'file-text',
-      title: 'Yaml',
+      iconSrc: FileTextIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.yaml' }),
       key: 'yaml',
       showForm: true,
-      formType: 'yaml'
+      formType: 'yaml',
+      iconColor: '#722ed1',
     },
     {
       icon: 'file-text',
-      title: 'Helm',
+      iconSrc: ShipIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.helm' }),
       key: 'helm',
       showForm: true,
-      formType: 'helm'
+      formType: 'helm',
+      iconColor: '#722ed1',
     },
     {
       icon: 'file-text',
-      title: '第三方组件',
+      iconSrc: PuzzleIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.third_party' }),
       key: 'third-party',
       showForm: true,
-      formType: 'third-party'
+      formType: 'third-party',
+      iconColor: '#722ed1',
     }
   ];
 
@@ -639,7 +717,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       'rabbitmq': 'RabbitMQ',
       'redis': 'Redis'
     };
-    return typeMap[type?.toLowerCase()] || type || '数据库';
+    return typeMap[type?.toLowerCase()] || type || formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' });
   };
 
   // 直接基于返回的数据库类型获取数据库图标路径
@@ -1236,6 +1314,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       callback: data => {
         if (data && data.status_code === 200) {
           handleCloseAddOauth();
+          // 刷新企业信息以获取最新的OAuth仓库列表
+          fetchEnterpriseInfo();
         }
       }
     });
@@ -1570,41 +1650,41 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const getTitle = () => {
     switch (currentView) {
       case 'market':
-        return '从应用市场安装';
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_market' });
       case 'marketStore':
-        return selectedStore ? selectedStore.alias || selectedStore.name : '应用商店';
+        return selectedStore ? selectedStore.alias || selectedStore.name : formatMessage({ id: 'componentOverview.body.CreateComponentModal.market_store' });
       case 'marketInstall':
-        return selectedMarketApp ? `安装 ${selectedMarketApp.app_name || selectedMarketApp.name}` : '安装应用';
+        return selectedMarketApp ? formatMessage({ id: 'componentOverview.body.CreateComponentModal.install_app' }, { name: selectedMarketApp.app_name || selectedMarketApp.name }) : formatMessage({ id: 'componentOverview.body.CreateComponentModal.install' });
       case 'localMarket':
-        return '本地组件库';
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' });
       case 'localMarketInstall':
-        return selectedLocalApp ? `安装 ${selectedLocalApp.app_name || selectedLocalApp.name}` : '安装应用';
+        return selectedLocalApp ? formatMessage({ id: 'componentOverview.body.CreateComponentModal.install_app' }, { name: selectedLocalApp.app_name || selectedLocalApp.name }) : formatMessage({ id: 'componentOverview.body.CreateComponentModal.install' });
       case 'image':
-        return '从镜像构建';
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_image' });
       case 'imageRepo':
-        return selectedImageHub ? `${selectedImageHub.hub_type} (${selectedImageHub.secret_id})` : '私有镜像仓库';
+        return selectedImageHub ? `${selectedImageHub.hub_type} (${selectedImageHub.secret_id})` : formatMessage({ id: 'componentOverview.body.CreateComponentModal.private_image_repo' });
       case 'code':
-        return '从源码构建';
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_source' });
       case 'yaml':
         return 'Yaml Helm K8s';
       case 'plugin':
-        return selectedPlugin?.display_name || selectedPlugin?.alias || selectedPlugin?.name || '插件';
+        return selectedPlugin?.display_name || selectedPlugin?.alias || selectedPlugin?.name || formatMessage({ id: 'componentOverview.body.CreateComponentModal.plugin' });
       case 'thirdList':
-        return selectedOauthService ? `${selectedOauthService.name} 仓库` : '源码仓库';
+        return selectedOauthService ? formatMessage({ id: 'componentOverview.body.CreateComponentModal.repo' }, { name: selectedOauthService.name }) : formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_repo' });
       case 'form':
-        if (currentFormType === 'docker') return '容器';
-        if (currentFormType === 'docker-compose') return 'Docker Compose';
-        if (currentFormType === 'demo') return '示例';
-        if (currentFormType === 'code-custom') return '源码';
-        if (currentFormType === 'code-jwar') return '软件包';
-        if (currentFormType === 'code-demo') return '示例';
-        if (currentFormType === 'yaml') return 'Yaml';
-        if (currentFormType === 'helm') return 'Helm';
-        if (currentFormType === 'third-party') return '第三方组件';
-        if (currentFormType === 'database') return '数据库';
-        return '创建组件';
+        if (currentFormType === 'docker') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' });
+        if (currentFormType === 'docker-compose') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' });
+        if (currentFormType === 'demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
+        if (currentFormType === 'code-custom') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_code' });
+        if (currentFormType === 'code-jwar') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' });
+        if (currentFormType === 'code-demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
+        if (currentFormType === 'yaml') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.yaml' });
+        if (currentFormType === 'helm') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.helm' });
+        if (currentFormType === 'third-party') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.third_party' });
+        if (currentFormType === 'database') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' });
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.create_component' });
       default:
-        return '创建组件';
+        return formatMessage({ id: 'componentOverview.body.CreateComponentModal.create_component' });
     }
   };
 
@@ -1629,13 +1709,13 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     switch (currentView) {
       case 'image':
         return {
-          title: '添加私有镜像仓库',
-          desc: '配置您的私有镜像仓库地址'
+          title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.add_private_image' }),
+          desc: formatMessage({ id: 'componentOverview.body.CreateComponentModal.add_private_image_desc' })
         };
       case 'code':
         return {
-          title: '添加源码仓库',
-          desc: '配置您的私有源码仓库地址'
+          title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.add_source_repo' }),
+          desc: formatMessage({ id: 'componentOverview.body.CreateComponentModal.add_source_repo_desc' })
         };
       default:
         return null;
@@ -1651,7 +1731,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="primary" onClick={handleFooterSubmit} loading={false}>
-            确认创建
+            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_create' })}
           </Button>
         </div>
       );
@@ -1662,13 +1742,13 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#595959' }}>
-            <span>预估(每天)</span>
+            <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
             <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
               ¥{price.toFixed(2)}
             </span>
           </div>
           <Button type="primary" onClick={handleFooterSubmit} loading={marketSubmitLoading}>
-            确认安装
+            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
           </Button>
         </div>
       );
@@ -1679,13 +1759,13 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#595959' }}>
-            <span>预估(每天)</span>
+            <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
             <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
               ¥{price.toFixed(2)}
             </span>
           </div>
           <Button type="primary" onClick={handleFooterSubmit} loading={localSubmitLoading}>
-            确认安装
+            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
           </Button>
         </div>
       );
@@ -1767,10 +1847,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   };
 
-  const DatabaseSVG = () => (
-    <svg t="1761709531655" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11608" viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor"><path d="M928 204.8v614.4h-64V601.728q-28.928 17.28-70.4 31.168-117.376 39.104-281.6 39.104-164.224 0-281.6-39.104-41.472-13.824-70.4-31.168V819.2h-64V204.8q0-76.096 134.4-120.896Q347.712 44.8 512 44.8q164.224 0 281.6 39.104 134.4 44.8 134.4 120.896z m-768 90.112V512q0 10.496 17.984 24.704 24.768 19.52 72.576 35.456Q358.08 608 512 608q153.856 0 261.44-35.84 47.808-16 72.576-35.456 17.984-14.208 17.984-24.704V294.912q-28.736 16.896-70.4 30.72Q676.288 364.8 512 364.8q-164.224 0-281.6-39.104-41.664-13.888-70.4-30.784z m688.448-112.768q-24.64-20.672-75.008-37.504Q665.92 108.8 512 108.8q-153.856 0-261.44 35.84-50.368 16.832-75.008 37.504-15.552 13.12-15.552 22.656t15.552 22.656q24.64 20.672 75.008 37.504Q358.08 300.8 512 300.8q153.856 0 261.44-35.84 50.368-16.832 75.008-37.504 15.552-13.12 15.552-22.656t-15.552-22.656zM160 819.2q0 10.496 17.984 24.704 24.768 19.52 72.576 35.456 107.52 35.84 261.44 35.84 153.856 0 261.44-35.84 47.808-16 72.576-35.456 17.984-14.208 17.984-24.704h64q0 41.6-42.368 74.944-33.536 26.432-91.968 45.952Q676.224 979.2 512 979.2t-281.6-39.104q-58.496-19.52-92.032-45.952Q96 860.8 96 819.2h64z" fill="#303133" p-id="11609"></path></svg>
-  );
-  const DatabaseIcon = props => <Icon component={DatabaseSVG} {...props} />;
+
   return (
     <>
       <Modal
@@ -1804,7 +1881,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         {currentView === 'main' ? (
           <>
             <div className={styles.subtitle}>
-              选择以下任意方式来创建您的第一个应用组件
+              {formatMessage({ id: 'componentOverview.body.CreateComponentModal.select_method' })}
             </div>
             <div className={styles.menuList}>
               {menuItems.map((item) => (
@@ -1812,13 +1889,35 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                   key={item.key}
                   className={styles.menuItem}
                   onClick={() => handleItemClick(item)}
-                >
-                  <div className={styles.menuIcon}>
-                    {item.key == 'database' ?
-                      <DatabaseIcon />
-                      :
-                      <Icon type={item.icon} />
+                  onMouseEnter={(e) => {
+                    const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                    if (icon) {
+                      icon.style.backgroundColor = item.hoverBgColor;
                     }
+                  }}
+                  onMouseLeave={(e) => {
+                    const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                    if (icon) {
+                      icon.style.backgroundColor = item.bgColor;
+                    }
+                  }}
+                >
+                  <div
+                    className={styles.menuIcon}
+                    style={{
+                      color: item.iconColor,
+                      backgroundColor: item.bgColor
+                    }}
+                  >
+                    {item.iconSrc ? (
+                      typeof item.iconSrc === 'function' ? (
+                        <item.iconSrc />
+                      ) : (
+                        <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
+                      )
+                    ) : (
+                      <Icon type={item.icon} />
+                    )}
                   </div>
                   <div className={styles.menuTitle}>{item.title}</div>
                   <Icon type="right" className={styles.arrowIcon} />
@@ -1844,6 +1943,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               <ThirdList
                 wrappedComponentRef={thirdListFormRef}
                 type={selectedOauthService.service_id}
+                oauthService={selectedOauthService}
                 dispatch={dispatch}
                 currentUser={currentUser}
                 archInfo={archInfo}
@@ -2040,7 +2140,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         ) : (
           <>
             <div className={styles.subtitle}>
-              选择具体的部署方式:
+              {formatMessage({ id: 'componentOverview.body.CreateComponentModal.select_deploy_method' })}
             </div>
             {(currentView === 'market' && loadingStores) ||
               (currentView === 'image' && loadingImageHubs) ||
@@ -2057,20 +2157,36 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                       key={item.key}
                       className={styles.menuItem}
                       onClick={() => handleItemClick(item)}
+                      onMouseEnter={(e) => {
+                        if (item.hoverBgColor) {
+                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                          if (icon) {
+                            icon.style.backgroundColor = item.hoverBgColor;
+                          }
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (item.bgColor) {
+                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                          if (icon) {
+                            icon.style.backgroundColor = item.bgColor;
+                          }
+                        }
+                      }}
                     >
-                      <div className={styles.menuIcon}>
-                        {currentView === 'database' && item.iconSrc ? (
-                          <img
-                            src={item.iconSrc}
-                            alt={item.title}
-                            style={{
-                              width: '1em',
-                              height: '1em',
-                              verticalAlign: 'middle'
-                            }}
-                          />
-                        ) : currentView === 'database' ? (
-                          <DatabaseIcon />
+                      <div
+                        className={styles.menuIcon}
+                        style={{
+                          color: item.iconColor,
+                          backgroundColor: item.bgColor
+                        }}
+                      >
+                        {item.iconSrc ? (
+                          typeof item.iconSrc === 'function' ? (
+                            <item.iconSrc />
+                          ) : (
+                            <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
+                          )
                         ) : (
                           <Icon type={item.icon} />
                         )}
