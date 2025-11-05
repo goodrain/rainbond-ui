@@ -206,11 +206,6 @@ export default class SelectTeam extends PureComponent {
                       <Icon type="team" className={style.selectButtonTeamIcon} />
                       <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
                     </div>
-                    <div className={style.selectButtonDivider}>/</div>
-                    <div className={style.selectButtonRegion}>
-                      <Icon type="cluster" className={style.selectButtonRegionIcon} />
-                      <span className={style.selectButtonRegionText}>{currentRegion?.team_region_alias}</span>
-                    </div>
                   </div>
                   <Icon
                     className={`${style.selectButtonArray} ${visible ? style.selectButtonArrayActive : ''}`}
@@ -226,11 +221,6 @@ export default class SelectTeam extends PureComponent {
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
                       <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
-                    </div>
-                    <div className={style.selectButtonDivider}>/</div>
-                    <div className={style.selectButtonRegion}>
-                      <Icon type="cluster" className={style.selectButtonRegionIcon} />
-                      <span className={style.selectButtonRegionText}>{currentRegion?.team_region_alias}</span>
                     </div>
                   </div>
                 </div>

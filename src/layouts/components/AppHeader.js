@@ -37,8 +37,8 @@ export default function AppHeader(props) {
             currentRegion={currentRegion}
             changeTeam={changeTeam}
           />
-          <div style={{ padding: '0 6px' }}>
-            <Icon type="right" />
+          <div style={{ padding: '0 6px' ,fontSize:14,fontWeight: 600}}>
+              /
           </div>
           <SelectApp
             handleClick={handleClick}

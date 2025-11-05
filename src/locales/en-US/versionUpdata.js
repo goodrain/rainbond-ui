@@ -126,7 +126,10 @@ const versionUpdata = {
   'versionUpdata_6_2.componentSettings.desc': 'Component configuration, including component startup, stop, restart, and delete operations.',
   'versionUpdata_6_2.more': 'More',
   'versionUpdata_6_2.gateway.desc': 'Access control supports setting the way to access components outside the cluster, including using HTTP domain name access or IP+Port access, and supports management of target services and domain name certificates.',
-
+  'versionUpdata_6_4.overview.template': 'Template',
+  'versionUpdata_6_4.overview.add': 'Add',
+  'versionUpdata_6_4.overview.detail': 'Detail',
+  'versionUpdata_6_4.overview.upgrade': 'Upgrade',
 }
 
 
