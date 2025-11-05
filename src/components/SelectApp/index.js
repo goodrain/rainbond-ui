@@ -152,12 +152,6 @@ export default class SelectApp extends PureComponent {
               <FormattedMessage id="header.app.create" />
             </div>
           )}
-          <Link className={style.dropBoxAll} to={currentTeamAppsPageLink}>
-            <span>
-              <FormattedMessage id="header.app.getall" />
-            </span>
-            <Icon type="right" />
-          </Link>
         </div>
       </div>
     );

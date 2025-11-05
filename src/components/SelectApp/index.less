@@ -222,9 +222,9 @@
 .appItemContent {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
-    padding: 12px;
+    padding: 8px 12px;
     margin: 4px 8px;
     border-radius: 8px;
     border: 1px solid transparent;
@@ -232,14 +232,14 @@
 }
 
 .appItemIcon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     background-color: #f0f2f5;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     color: #8c8c8c;
     flex-shrink: 0;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -249,19 +249,21 @@
     flex: 1;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
 }
 
 .appItemName {
     color: #262626;
     font-size: 14px;
-    line-height: 20px;
+    line-height: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 600;
     transition: color 0.2s ease;
+    flex-shrink: 0;
 }
 
 .emptyState {

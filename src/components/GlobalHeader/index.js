@@ -364,7 +364,7 @@ export default class GlobalHeader extends PureComponent {
             {/* 平台管理 */}
             {currentUser.is_enterprise_admin && (
               <Link className={styles.platform} style={{ color: '#fff', fontSize: '14px', fontWeight: '600', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
-                <Icon type="desktop" style={{ fontSize: 16, marginRight: 6 }} />
+                <Icon type="desktop" style={{ fontSize: 16, marginRight: 6, verticalAlign: 'sub' }} />
                 <FormattedMessage id="GlobalHeader.platform" />
               </Link>
             )}

@@ -176,12 +176,6 @@ export default class SelectTeam extends PureComponent {
               <FormattedMessage id="header.team.create" />
             </div>
           )}
-          <Link className={style.dropBoxAll} to={currentEnterpriseTeamPageLink}>
-            <span>
-              <FormattedMessage id="header.team.getall" />
-            </span>
-            <Icon type="right" />
-          </Link>
         </div>
       </div>
     );
@@ -206,11 +200,6 @@ export default class SelectTeam extends PureComponent {
                       <Icon type="team" className={style.selectButtonTeamIcon} />
                       <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
                     </div>
-                    <div className={style.selectButtonDivider}>/</div>
-                    <div className={style.selectButtonRegion}>
-                      <Icon type="cluster" className={style.selectButtonRegionIcon} />
-                      <span className={style.selectButtonRegionText}>{currentRegion?.team_region_alias}</span>
-                    </div>
                   </div>
                   <Icon
                     className={`${style.selectButtonArray} ${visible ? style.selectButtonArrayActive : ''}`}
@@ -226,11 +215,6 @@ export default class SelectTeam extends PureComponent {
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
                       <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
-                    </div>
-                    <div className={style.selectButtonDivider}>/</div>
-                    <div className={style.selectButtonRegion}>
-                      <Icon type="cluster" className={style.selectButtonRegionIcon} />
-                      <span className={style.selectButtonRegionText}>{currentRegion?.team_region_alias}</span>
                     </div>
                   </div>
                 </div>
