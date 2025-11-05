@@ -176,12 +176,6 @@ export default class SelectTeam extends PureComponent {
               <FormattedMessage id="header.team.create" />
             </div>
           )}
-          <Link className={style.dropBoxAll} to={currentEnterpriseTeamPageLink}>
-            <span>
-              <FormattedMessage id="header.team.getall" />
-            </span>
-            <Icon type="right" />
-          </Link>
         </div>
       </div>
     );
