@@ -422,7 +422,6 @@ export default class Index extends PureComponent {
               event_id: eventId
             })
           }
-
           this.setState({ buildSource: bean }, () => {
             if (
               bean &&
@@ -701,6 +700,7 @@ export default class Index extends PureComponent {
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
+          arch: fieldsValue.arch || null
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.appAlias,
           is_oauth: true,
@@ -1482,6 +1482,30 @@ export default class Index extends PureComponent {
                     </Select>
                   )}
                 </Form.Item>
+
+                {buildSource && buildSource.arch && buildSource.arch.length > 0 && (
+                  <Form.Item
+                    {...formOauthLayout}
+                    label={<FormattedMessage id='componentOverview.body.Resource.arch' />}
+                  >
+                    {getFieldDecorator('arch', {
+                      initialValue: buildSource.arch[0],
+                      rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.select_arch' }), }]
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode => triggerNode.parentNode}
+                        placeholder={formatMessage({ id: 'componentOverview.body.Resource.select_arch' })}
+                        disabled={buildSource.arch.length === 1}
+                      >
+                        {buildSource.arch.map(item => (
+                          <Option key={item} value={item}>
+                            {item}
+                          </Option>
+                        ))}
+                      </Select>
+                    )}
+                  </Form.Item>
+                )}
               </Form>
             </Spin>{' '}
           </Modal>

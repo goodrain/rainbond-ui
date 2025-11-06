@@ -100,9 +100,9 @@ export default class Index extends PureComponent {
   };
   // 设置流水线插件
   setTeamMenu = (pluginMenu, menuName) => {
-    if(pluginMenu){
-      const isShow = pluginMenu.some(item =>{
-          return item.name == menuName
+    if (pluginMenu) {
+      const isShow = pluginMenu.some(item => {
+        return item.name == menuName
       })
       return isShow
     }
@@ -149,7 +149,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.bean) {
-         const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
           this.setState({
             currentTeam: team,
             indexLoading: false
@@ -234,32 +234,29 @@ export default class Index extends PureComponent {
         <Spin spinning={this.state.loading}>
           <div className={styles.header}>
             <div className={styles.left}>
-              <Dropdown overlay={this.generateMenu()} placement="bottomLeft">
-                <div className={styles.teamName}>
-                  {this.state.currentTeam?.team_alias}
-                  <Icon type="down" className={styles.downIcon} />
-                </div>
-              </Dropdown>
+              <div className={styles.teamName}>
+                {this.state.currentTeam?.team_alias}
+              </div>
             </div>
             <div className={styles.right}>
               {this.getPluginsMenu()}
-              {this.setTeamMenu(pluginsList, 'pipeline') && 
+              {this.setTeamMenu(pluginsList, 'pipeline') &&
                 <Button
-                style={{ marginRight: 10 }}
-                onClick={() => {
-                  const { dispatch } = this.props;
-                  dispatch(
-                    routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Pipeline`,
-                    })
-                  );
-                }}
-              >
-                {globalUtil.fetchSvg('pipeLine', false, '14px' )}
-                {formatMessage({id:'menu.team.pipeline'})}
-              </Button>
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    const { dispatch } = this.props;
+                    dispatch(
+                      routerRedux.push({
+                        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Pipeline`,
+                      })
+                    );
+                  }}
+                >
+                  {globalUtil.fetchSvg('pipeLine', false, '14px')}
+                  {formatMessage({ id: 'menu.team.pipeline' })}
+                </Button>
               }
-    
+
               <Button
                 style={{ marginRight: 10 }}
                 onClick={() => {
@@ -274,7 +271,7 @@ export default class Index extends PureComponent {
                 <Icon type="setting" />
                 {formatMessage({ id: 'global.fetchAccessText.plugin' })}
               </Button>
-              <Button 
+              <Button
                 data-guide="team-setting"
                 onClick={() => {
                   const { dispatch } = this.props;
@@ -286,7 +283,7 @@ export default class Index extends PureComponent {
                 }}
               >
                 <Icon type="setting" />
-                {formatMessage({id:'versionUpdata_6_1.setting'})}
+                {formatMessage({ id: 'versionUpdata_6_1.setting' })}
               </Button>
             </div>
           </div>

@@ -783,6 +783,8 @@ const componentOverview = {
     'componentOverview.body.Resource.input_name': '请输入配置组名',
     'componentOverview.body.Resource.input_code': '请输入代码版本',
     'componentOverview.body.Resource.branch': '分支',
+    'componentOverview.body.Resource.arch': '架构',
+    'componentOverview.body.Resource.select_arch': '请选择架构',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': '自动构建设置',
     'componentOverview.body.AutoDeploy.open': '开启自动构建',
