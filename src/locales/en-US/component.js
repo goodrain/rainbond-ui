@@ -770,6 +770,8 @@ const componentOverview = {
     'componentOverview.body.Resource.input_name': 'Please enter the configuration group name',
     'componentOverview.body.Resource.input_code': 'Please enter the code version',
     'componentOverview.body.Resource.branch': 'Branch',
+    'componentOverview.body.Resource.arch': 'Architecture',
+    'componentOverview.body.Resource.select_arch': 'Please select architecture',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': 'Auto Build Settings',
     'componentOverview.body.AutoDeploy.open': 'Turn on',
