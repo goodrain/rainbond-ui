@@ -203,7 +203,7 @@ export default class RainbondClusterInit extends PureComponent {
                 // 从ipArray中获取对应的内网IP和外网IP
                 let mergedObject = {
                   name: ipArray[j].name,
-                  externalIP: ipArray[j].external_ip,
+                  externalIP: ipArray[j].external_ip || ipArray[j].internal_ip,
                   internalIP: ipArray[j].internal_ip,
                 };
                 gatewayArr.push(mergedObject);
