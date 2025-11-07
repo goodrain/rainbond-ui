@@ -700,7 +700,7 @@ export default class Index extends PureComponent {
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
-          arch: fieldsValue.arch || null
+          arch: fieldsValue.arch || null,
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.appAlias,
           is_oauth: true,
