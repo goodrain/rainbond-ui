@@ -1693,7 +1693,7 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
                   );
                 }} type="default">
                   <Icon type="rollback" />{formatMessage({ id: 'button.return' })}

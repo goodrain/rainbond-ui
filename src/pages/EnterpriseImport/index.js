@@ -276,7 +276,7 @@ export default class EnterpriseShared extends PureComponent {
             });
 
             if (teamName) {
-              dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/market`));
+              dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/index?showAddModal=true&currentView=localMarketInstall`));
             } else {
               dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
             }

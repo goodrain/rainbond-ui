@@ -58,13 +58,30 @@ export default class index extends Component {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       storageUsed: 0,
       guideStep: shouldShowGuide ? 'team-overview' : '',
-      createComponentVisible: false
+      createComponentVisible: false,
+      currentView: null,
     };
   }
   componentDidMount() {
     const { teamOverviewPermission, teamAppCreatePermission } = this.state;
     const { noviceGuide } = this.props;
     this.loadOverview();
+
+    // 解析 URL 参数（只在首次加载时处理）
+    if (!this.hasProcessedUrlParams) {
+      const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+      const showAddModal = urlParams.get('showAddModal');
+      const currentView = urlParams.get('currentView');
+
+      // 如果 URL 中有 showAddModal=true，则显示创建组件弹窗
+      if (showAddModal === 'true') {
+        this.setState({
+          createComponentVisible: true,
+          currentView: currentView || null
+        });
+        this.hasProcessedUrlParams = true;
+      }
+    }
 
     // 初始化第一个高亮
     setTimeout(() => {
@@ -787,6 +804,7 @@ export default class index extends Component {
           currentEnterprise={this.props.currentEnterprise}
           rainbondInfo={this.props.rainbondInfo}
           currentUser={this.props.currentUser}
+          currentView={this.state.currentView}
         />
       </>
     );

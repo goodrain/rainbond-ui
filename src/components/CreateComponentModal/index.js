@@ -71,8 +71,9 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
+  const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [selectedStore, setSelectedStore] = useState(null);
   const [marketStores, setMarketStores] = useState([]);
   const [loadingStores, setLoadingStores] = useState(false);
@@ -1097,6 +1098,76 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   }, [visible, pluginsList]);
 
+  // 处理 URL 传入的 initialView 参数
+  useEffect(() => {
+    if (visible) {
+      // 只在首次打开弹窗时处理 initialView
+      if (!hasInitialized) {
+        if (initialView) {
+          // 根据 initialView 设置对应的视图
+          setCurrentView(initialView);
+
+          // 根据不同的视图类型，预加载必要的数据
+          switch (initialView) {
+            case 'market':
+              fetchMarketStores();
+              break;
+            case 'marketStore':
+              // 需要先获取商店列表
+              fetchMarketStores();
+              break;
+            case 'localMarket':
+              // 直接获取本地组件库列表
+              fetchLocalMarketApps(1, '', 'all');
+              break;
+            case 'localMarketInstall':
+              // localMarketInstall 需要先选中一个应用才能进入安装页面
+              // 如果没有 selectedLocalApp，则跳转到 localMarket 列表视图
+              // 用户需要先在列表中选择一个应用，然后点击安装按钮
+              setCurrentView('localMarket');
+              fetchLocalMarketApps(1, '', 'all');
+              break;
+            case 'image':
+              fetchImageHubs();
+              fetchClusters();
+              break;
+            case 'code':
+              fetchEnterpriseInfo();
+              break;
+            case 'database':
+              fetchDatabaseTypes();
+              break;
+            case 'form':
+              fetchLocalImageList();
+              fetchArchInfo();
+              break;
+            default:
+              break;
+          }
+        } else {
+          // 如果没有 initialView，重置为主视图
+          setCurrentView('main');
+        }
+        setHasInitialized(true);
+      }
+    } else {
+      // 弹窗关闭时，重置所有状态
+      setCurrentView('main');
+      setSelectedStore(null);
+      setSelectedMarketApp(null);
+      setSelectedLocalApp(null);
+      setMarketApps([]);
+      setLocalMarketApps([]);
+      setMarketSearchValue('');
+      setLocalMarketSearchValue('');
+      setMarketPage(1);
+      setLocalMarketPage(1);
+      setLocalMarketActiveTab('all');
+      setCurrentFormType('');
+      setHasInitialized(false); // 重置初始化标志
+    }
+  }, [visible, initialView, hasInitialized]);
+
   const handleItemClick = (item) => {
     if (item.hasSubMenu) {
       setCurrentView(item.key);
@@ -1234,6 +1305,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setLocalMarketSearchValue('');
       setLocalMarketPage(1);
       setLocalMarketActiveTab('all');
+      // 重新获取商店列表，确保数据完整
+      fetchMarketStores();
     } else {
       setCurrentView('main');
     }
@@ -1840,7 +1913,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         default:
           break;
       }
-
       if (formRef && formRef.handleSubmit) {
         formRef.handleSubmit(fakeEvent);
       }
