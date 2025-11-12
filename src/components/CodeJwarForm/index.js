@@ -16,7 +16,6 @@ import { pinyin } from 'pinyin-pro';
 const { Dragger } = Upload;
 const { Option } = Select;
 
-@Form.create()
 @connect(
   ({ teamControl, global, enterprise }) => ({
     groups: global.groups,
@@ -31,6 +30,7 @@ const { Option } = Select;
   null,
   { pure: false }
 )
+@Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
