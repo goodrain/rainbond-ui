@@ -96,8 +96,8 @@ export default class Index extends PureComponent {
   static contextType = ResumeContext;
 
   componentDidMount() {
-    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.setOauthService();
+    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
       this.bindEvent()
@@ -325,6 +325,8 @@ export default class Index extends PureComponent {
         }
         return item;
       });
+      console.log(tabList,"tabList");
+      
       this.setState({
         tabList
       });
@@ -448,6 +450,8 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          console.log(res.bean,"res.bean");
+          
           this.setState({
             thirdInfo: res.bean
           });

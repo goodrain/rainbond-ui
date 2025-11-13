@@ -742,7 +742,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     };
   });
 
-  
+
 
   // 插件现在直接在第一层菜单展示，不需要子菜单
 
@@ -903,7 +903,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     setShowDatabaseForm(bool);
     // 根据团队视图过滤插件
     const filteredPlugins = PluginUtils.segregatePluginsByHierarchy(pluginsList, 'TeamModal');
-    
+
     // 过滤出有弹窗字段的插件（这里假设插件有特定的属性标识弹窗功能）
     const modalPlugins = filteredPlugins.filter(plugin => {
       // 可以根据插件的特定属性来判断是否有弹窗字段
@@ -1798,7 +1798,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 获取 footer
   const getModalFooter = () => {
     const price = selectedMarketApp?.price || 0;
-
+    const showSaaSPrice = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-bill');
     // 表单视图需要显示提交按钮
     if (currentView === 'form') {
       return (
@@ -1815,10 +1815,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#595959' }}>
-            <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
-            <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
-              ¥{price.toFixed(2)}
-            </span>
+            {showSaaSPrice &&
+              <>
+                <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
+                <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
+                  ¥{price.toFixed(2)}
+                </span>
+              </>
+            }
+
           </div>
           <Button type="primary" onClick={handleFooterSubmit} loading={marketSubmitLoading}>
             {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
@@ -1832,10 +1837,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#595959' }}>
-            <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
-            <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
-              ¥{price.toFixed(2)}
-            </span>
+            {showSaaSPrice &&
+              <>
+                <span>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.estimate_daily' })}</span>
+                <span style={{ fontSize: '18px', fontWeight: 600, color: '#f5a623', marginLeft: '8px' }}>
+                  ¥{price.toFixed(2)}
+                </span>
+              </>
+            }
           </div>
           <Button type="primary" onClick={handleFooterSubmit} loading={localSubmitLoading}>
             {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}

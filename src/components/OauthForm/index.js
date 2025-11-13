@@ -21,6 +21,7 @@ class CreateOAuthForm extends PureComponent {
         "github",
         "gitlab",
         "gitee",
+        "gitea"
       ]
     };
   }
@@ -44,7 +45,7 @@ class CreateOAuthForm extends PureComponent {
     dispatch({
       type: 'user/fetchOauthType',
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (res && res.status_code === 200) {          
           this.setState({
             oauthList: res.bean && res.bean.oauth_type
           })
