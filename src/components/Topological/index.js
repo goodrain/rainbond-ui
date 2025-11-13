@@ -214,7 +214,7 @@ class Index extends React.Component {
           }, () => {
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?type=components&componentID=${componentID}&tab=overview`
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
               )
             );
           })
@@ -234,7 +234,7 @@ class Index extends React.Component {
           }, () => {
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?type=components&componentID=${componentID}&tab=overview`
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
               )
             );
           })
@@ -248,10 +248,10 @@ class Index extends React.Component {
             appAlias: detailes.service_alias
           }, () => {
             dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?refresh=${timestamp}`
-                )
-              );
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+              )
+            );
           })
         }
       }
@@ -312,6 +312,11 @@ class Index extends React.Component {
         // 组件到互联网：不支持
         if (targetNodeId === 'The Internet') {
           notification.warning({ message: '不支持从组件连接到互联网节点' });
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+              )
+            );
           return;
         }
 
@@ -472,16 +477,17 @@ class Index extends React.Component {
       },
       callback: () => {
         this.cancelDeleteApp(false);
-        this.refreshFrame()
         dispatch({
           type: 'global/fetchGroups',
           payload: {
             team_name: teamName
           }
         });
-        dispatch(
-          routerRedux.replace(`/team/${teamName}/region/${regionName}/apps/${groupId}`)
-        );
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+              )
+            );
       }
     });
   };
