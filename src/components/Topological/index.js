@@ -211,12 +211,6 @@ class Index extends React.Component {
             promptModal: 'stop',
             // keyes: !that.state.keyes,
             // srcUrl: that.state.srcUrl
-          }, () => {
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
-              )
-            );
           })
         }
       }
@@ -231,12 +225,6 @@ class Index extends React.Component {
             promptModal: 'start',
             // keyes: !that.state.keyes,
             // srcUrl: that.state.srcUrl
-          }, () => {
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
-              )
-            );
           })
         }
       }
@@ -246,12 +234,6 @@ class Index extends React.Component {
           that.setState({
             flag: true,
             appAlias: detailes.service_alias
-          }, () => {
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
-              )
-            );
           })
         }
       }
@@ -469,6 +451,7 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
+    const timestamp = new Date().getTime();
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
@@ -513,6 +496,8 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
+    const timestamp = new Date().getTime();
+
     if (actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
@@ -537,7 +522,11 @@ class Index extends React.Component {
           });
         }
         this.handleOffHelpfulHints();
-        this.refreshFrame()
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+          )
+        );
       }
     });
   };
