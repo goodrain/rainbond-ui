@@ -359,7 +359,7 @@ export default class AutoDeploy extends PureComponent {
                   >
                     <Description term={<FormattedMessage id='componentOverview.body.AutoDeploy.Support_type'/>}>
                       <div style={{ marginLeft: '38px' }}>
-                        Gitlab,Github,Gitee,Gogs,Coding
+                        Gitlab,Github,Gitee,Gitea,Gogs,Coding
                       </div>
                     </Description>
                     <Description term="Webhook">

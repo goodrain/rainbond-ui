@@ -76,6 +76,7 @@ class Index extends React.Component {
     const { group_id: groupId, dispatch, apps } = this.props;
     const appID = globalUtil.getAppID();
     const componentID = globalUtil.getSlidePanelComponentID();
+    const timestamp = new Date().getTime();
     const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function () {
@@ -120,7 +121,7 @@ class Index extends React.Component {
           )
         } else {
           const app = apps.find(app => app.service_alias === componentID);
-          if(app?.status === "creating" && app.service_source !== 'kubeblocks'){
+          if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${regionName}/create/create-check/${componentID}`
@@ -210,6 +211,12 @@ class Index extends React.Component {
             promptModal: 'stop',
             // keyes: !that.state.keyes,
             // srcUrl: that.state.srcUrl
+          }, () => {
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?type=components&componentID=${componentID}&tab=overview`
+              )
+            );
           })
         }
       }
@@ -224,9 +231,14 @@ class Index extends React.Component {
             promptModal: 'start',
             // keyes: !that.state.keyes,
             // srcUrl: that.state.srcUrl
+          }, () => {
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?type=components&componentID=${componentID}&tab=overview`
+              )
+            );
           })
         }
-
       }
       // 拓扑图点击删除事件
       window.handleClickDelete = function (relation, detailes) {
@@ -234,9 +246,14 @@ class Index extends React.Component {
           that.setState({
             flag: true,
             appAlias: detailes.service_alias
+          }, () => {
+            dispatch(
+                routerRedux.push(
+                  `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview?refresh=${timestamp}`
+                )
+              );
           })
         }
-
       }
 
       // 添加连线创建的处理函数
@@ -417,7 +434,7 @@ class Index extends React.Component {
           }
         });
       };
-      
+
     } catch (e) {
     }
   }
@@ -438,7 +455,7 @@ class Index extends React.Component {
       }, '*');
     }
   }
-  
+
   // 删除
   cancelDeleteApp = (isOpen = true) => {
     this.setState({ flag: false });
