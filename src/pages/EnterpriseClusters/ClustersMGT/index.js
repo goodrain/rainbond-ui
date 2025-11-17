@@ -18,10 +18,14 @@ import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
 import SVG from '../../../utils/pageHeaderSvg'
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pluginUtils from '../../../utils/pulginUtils';
 import global from '@/utils/global';
 import styles from "./index.less";
 
-@connect()
+@connect(({ global }) => ({
+  pluginsList: global.pluginsList,
+
+}))
 class Index extends Component {
   constructor(props) {
     super(props);
@@ -37,12 +41,16 @@ class Index extends Component {
       isComponents: false,
       showUpdateKubernetes: false,
       dashboardShow: false,
-      eventId: ''
+      eventId: '',
+      showGpuBtn: false,
     }
     this.timer = null
   }
   componentDidMount() {
     this.loadClusters();
+    this.setState({
+      showGpuBtn: pluginUtils.isInstallPlugin(this.props.pluginsList, 'rainbond-gpu')
+    });
   }
   componentWillUnmount() {
     clearTimeout(this.timer)
@@ -306,7 +314,8 @@ class Index extends Component {
       dashboardList,
       dashboardShow,
       nodeType,
-      eventId
+      eventId,
+      showGpuBtn
     } = this.state
     return (
       <PageHeaderLayout
@@ -328,6 +337,7 @@ class Index extends Component {
               loadClusters={this.loadClusters}
               nodeType={nodeType}
               showInfo={showInfo}
+              showGpuBtn={showGpuBtn}
             />
           </Row>
           <Row className={styles.titleStyle}>

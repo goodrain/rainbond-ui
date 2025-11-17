@@ -546,7 +546,8 @@ class Index extends Component {
       rowClusterInfo,
       form,
       showInfo = false,
-      nodeType
+      nodeType,
+      showGpuBtn
     } = this.props;
     const {
       region_alias,
@@ -678,6 +679,13 @@ class Index extends Component {
                   >
                     <Button icon="code">
                       {formatMessage({ id: 'otherEnterprise.shell.line' })}
+                    </Button>
+                  </Link>
+                  <Link
+                    to={`/enterprise/${eid}/plugins/rainbond-gpu?regionName=${rowClusterInfo.region_name}`}
+                  >
+                    <Button icon="control">
+                      GPU管理
                     </Button>
                   </Link>
                   {rowClusterInfo.scope != 'default' && (
