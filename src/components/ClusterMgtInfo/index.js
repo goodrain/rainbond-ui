@@ -548,7 +548,8 @@ class Index extends Component {
       showInfo = false,
       nodeType,
       titleIcon,
-      titleText
+      titleText,
+      showGpuBtn
     } = this.props;
     const {
       region_alias,
@@ -640,34 +641,56 @@ class Index extends Component {
     };
     return (
       <>
-        <div className={styles.cardContainer}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleStyle}>
-              <span>{titleIcon}</span>
-              <span>{titleText}</span>
-            </div>
-          </div>
-          <div className={styles.cardBody}>
-            {!showInfo && <Skeleton active />}
-            {showInfo &&
-              <>
-                <Row className={styles.InfoStyle}>
-                  {/* logo */}
-                  <Col span={3}>
-                    {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
-                  </Col>
-                  {/* 名称 */}
-                  <Col span={3}>
-                    <p>{region_alias}</p>
-                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
-                  </Col>
-                  {/* 状态 */}
-                  <Col span={3}>
-                    <p>{this.clusterStatus(status, health_status)}</p>
-                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
-                  </Col>
-                  {/* 按钮 */}
-                  <Col span={15}>
+        <Card
+        >
+          {!showInfo && <Skeleton active />}
+          {showInfo &&
+            <>
+              <Row className={styles.InfoStyle}>
+                {/* logo */}
+                <Col span={3}>
+                  {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
+                </Col>
+                {/* 名称 */}
+                <Col span={3}>
+                  <p>{region_alias}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
+                </Col>
+                {/* 状态 */}
+                <Col span={3}>
+                  <p>{this.clusterStatus(status, health_status)}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
+                </Col>
+                {/* 按钮 */}
+                <Col span={15}>
+                  <Button
+                    onClick={this.handleEdit}
+                    icon="edit"
+                  >
+                    <FormattedMessage id='enterpriseColony.table.handle.edit' />
+                  </Button>
+                  <Button
+                    onClick={this.importEven}
+                    icon='download'
+                  >
+                    <FormattedMessage id='enterpriseColony.table.handle.import' />
+                  </Button>
+                  <Link
+                    to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
+                    target="_blank"
+                  >
+                    <Button icon="code">
+                      {formatMessage({ id: 'otherEnterprise.shell.line' })}
+                    </Button>
+                  </Link>
+                  <Link
+                    to={`/enterprise/${eid}/plugins/rainbond-gpu?regionName=${rowClusterInfo.region_name}`}
+                  >
+                    <Button icon="control">
+                      GPU管理
+                    </Button>
+                  </Link>
+                  {rowClusterInfo.scope != 'default' && (
                     <Button
                       onClick={this.handleEdit}
                       icon="edit"
