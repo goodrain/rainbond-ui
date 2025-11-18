@@ -90,7 +90,8 @@ export default class Index extends PureComponent {
       showKey: false,
       modifyImageName: false,
       modifyImageCmd: false,
-      codeLang: ''
+      codeLang: '',
+      dockfilePath: ''
     };
   }
   static contextType = ResumeContext;
@@ -478,7 +479,8 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id: appAlias,
-        lang: codeLang
+        lang: codeLang,
+        dockerfile_path: this.state.dockfilePath
       },
       callback: res => {
         this.loadBuildSourceInfo();
@@ -516,9 +518,18 @@ export default class Index extends PureComponent {
                       codeLang: parts[0]
                     })
                   }
+                  if (item.type == 'dockerfiles' && res.bean.check_status != 'failure') {
+                    if (item.value && item.value.length > 0) {
+                      this.setState({
+                        dockfilePath: item.value[0]
+                      })
+                    }
+                  }
                 })
               }
               this.loadBuildSourceInfo();
+              console.log(res.bean && res.bean.service_info,'res.bean && res.bean.service_info,');
+              
               this.setState({
                 create_status: res.bean && res.bean.check_status,
                 service_info: res.bean && res.bean.service_info,
@@ -764,6 +775,12 @@ export default class Index extends PureComponent {
       codeLang: value
     })
   }
+  onDockfileChange = (e) => {
+    const value = e.target.value
+    this.setState({
+      dockfilePath: value
+    })
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -786,7 +803,8 @@ export default class Index extends PureComponent {
       modifyImageName,
       modifyImageCmd,
       showKey,
-      codeLang
+      codeLang,
+      dockfilePath
     } = this.state;
     const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
@@ -1207,6 +1225,16 @@ export default class Index extends PureComponent {
                             {languageArr.map((item) => {
                               return <Radio value={item}>{item}</Radio>
                             })}
+                          </Radio.Group>
+                        </p>
+                      ) : item.type == 'dockerfiles' ? (
+                        codeLang == 'dockerfile' &&
+                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:
+                          <Radio.Group onChange={this.onDockfileChange} value={dockfilePath}>
+                            {(item.value || []).map((items, index) => (
+                              <Radio key={index} value={items}>{items}</Radio>
+                            ))}
                           </Radio.Group>
                         </p>
                       ) : (
