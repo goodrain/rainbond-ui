@@ -1,6 +1,7 @@
 import { Upload } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
+import jsYaml from 'js-yaml';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -122,11 +123,30 @@ class CodeMirrorForm extends PureComponent {
       };
     }
   };
+  validateYaml = (value) => {
+    try {
+      if (value) {
+        jsYaml.loadAll(value);
+        return { isValid: true };
+      }
+      return { isValid: true };
+    } catch (e) {
+      return { isValid: false, error: e.message };
+    }
+  };
   checkValue = (_, value, callback) => {
-    const { message } = this.props;
+    const { message, mode } = this.props;
     if (value === '' || !value || (value && value.trim() === '')) {
       callback(message);
       return;
+    }
+    // 如果是 yaml 模式，进行 YAML 格式校验
+    if (mode === 'yaml') {
+      const validation = this.validateYaml(value);
+      if (!validation.isValid) {
+        callback(`YAML 格式错误: ${validation.error}`);
+        return;
+      }
     }
     callback();
   };
