@@ -115,13 +115,11 @@ export default class Index extends PureComponent {
   };
 
   handlePrevStep = () => {
-    const { dispatch, location } = this.props;
-    const { group_id } = location?.query || {};
+    const { dispatch } = this.props;
 
-    // 返回上一步时携带 group_id
-    const query = group_id ? `?group_id=${group_id}` : '';
+    // 点击放弃，返回到团队应用列表页面
     dispatch(
-      routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/database${query}`)
+      routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
     );
   };
   handleFormSubmit = () => {
