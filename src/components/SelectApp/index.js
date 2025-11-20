@@ -5,7 +5,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import roleUtil from '../../utils/role';
 import EditGroupName from '../AddOrEditGroup';
-import style from '../SelectTeam/index.less';
+import style from './index.less';
 
 @connect(({ user, teamControl }) => ({
   currentUser: user.currentUser,
@@ -102,78 +102,98 @@ export default class SelectApp extends PureComponent {
     const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
-        <div>
-          <div className={style.dropBoxSearch}>
-            <div className={style.dropBoxSearchInput}>
-              <Icon
-                className={style.dropBoxSearchInputIcon}
-                loading={loading}
-                type="search"
-              />
-              <Input.Search
-                onSearch={this.queryApps}
-                className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: 'header.app.search' })}
-              />
-            </div>
-          </div>
+        <div className={style.dropBoxSearch}>
+          <Input.Search
+            onSearch={this.queryApps}
+            className={style.dropBoxSearchInputContrl}
+            placeholder={formatMessage({ id: 'header.app.search' })}
+            loading={loading}
+            prefix={<Icon type="search" className={style.searchIcon} />}
+            allowClear
+          />
         </div>
-        <div>
-          <div className={style.dropBoxList}>
-            <ul>
-              {teamApps.map(item => {
-                const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}/overview`;
-                return (
-                  <li key={item.group_id} onClick={this.handleClickApp}>
-                    <Link to={link} title={item.group_name}>
-                      <span>{item.group_name}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-            {isCreateApp && (
-              <div
-                className={style.dropBoxListCreate}
-                onClick={this.showCreateApp}
-              >
-                <Icon type="plus" />
-                <FormattedMessage id="header.app.create" />
+        <div className={style.dropBoxContent}>
+          {teamApps.length > 0 ? (
+            <div className={style.dropBoxList}>
+              <ul>
+                {teamApps.map(item => {
+                  const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}/overview`;
+                  return (
+                    <li key={item.group_id} onClick={this.handleClickApp}>
+                      <Link to={link} title={item.group_name} className={style.appItem}>
+                        <div className={style.appItemContent}>
+                          <div className={style.appItemIcon}>
+                            <Icon type="appstore" />
+                          </div>
+                          <div className={style.appItemInfo}>
+                            <div className={style.appItemName}>{item.group_name}</div>
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : (
+            !loading && (
+              <div className={style.emptyState}>
+                <Icon type="inbox" className={style.emptyIcon} />
+                <p><FormattedMessage id="header.app.empty" defaultMessage="No apps found" /></p>
               </div>
-            )}
-          </div>
-          <Link className={style.dropBoxAll} to={currentTeamAppsPageLink}>
-            <span>
-              <FormattedMessage id="header.app.getall" />
-            </span>
-            <Icon type="right" />
-          </Link>
+            )
+          )}
+          {isCreateApp && (
+            <div
+              className={style.dropBoxListCreate}
+              onClick={this.showCreateApp}
+            >
+              <Icon type="plus" className={style.createIcon} />
+              <FormattedMessage id="header.app.create" />
+            </div>
+          )}
         </div>
       </div>
     );
-    let showstyle = {};
-    if (!currentComponent) {
-      showstyle = { background: '#4d73b1', color: '#ffffff' };
-    }
     return (
       <div
         className={className}
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown overlay={dropdown} visible={showCreateApp ? false : visible}>
+        <Dropdown
+          overlay={dropdown}
+          visible={showCreateApp ? false : visible}
+          trigger={['click', 'hover']}
+          placement="bottomLeft"
+        >
           <div>
             {active && (
               <div className={style.selectButton}>
-                <div className={style.selectButtonName} style={showstyle}>
-                  <span>{currentApp.group_name}</span>
-                  <Icon className={style.selectButtonArray} type="caret-down" />
+                <div className={`${style.selectButtonName} ${visible ? style.selectButtonNameActive : ''}`}>
+                  <div className={style.selectButtonContent}>
+                    <div className={style.selectButtonApp}>
+                      <Icon type="appstore" className={style.selectButtonAppIcon} />
+                      <span className={style.selectButtonAppText}>{currentApp.group_name}</span>
+                    </div>
+                  </div>
+                  <Icon
+                    className={`${style.selectButtonArray} ${visible ? style.selectButtonArrayActive : ''}`}
+                    type="caret-down"
+                  />
                 </div>
               </div>
             )}
             {!active && (
-              <Link className={style.selectButtonLink} to={currentAPPLink}>
-                {currentApp.group_name}
+              <Link to={currentAPPLink} className={style.selectButton}>
+                <div className={style.selectButtonName}>
+                  <div className={style.selectButtonContent}>
+                    <div className={style.selectButtonApp}>
+                      <Icon type="appstore" className={style.selectButtonAppIcon} />
+                      <span className={style.selectButtonAppText}>{currentApp.group_name}</span>
+                    </div>
+                  </div>
+                </div>
               </Link>
             )}
           </div>

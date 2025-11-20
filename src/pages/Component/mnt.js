@@ -280,6 +280,34 @@ export default class Index extends PureComponent {
     } = this.props;
     return isStorage;
   }
+  // 检查组件是否处于可操作状态
+  isComponentOperational() {
+    const { status } = this.props;
+    if (!status || !status.status) {
+      return false;
+    }
+    // 以下状态不允许操作文件管理
+    const disabledStatuses = ['undeploy', 'closed', 'abnormal', 'stopping', 'starting', 'deploying', 'upgrade'];
+    return !disabledStatuses.includes(status.status);
+  }
+  // 获取不可操作时的提示信息
+  getDisabledTooltip() {
+    const { status } = this.props;
+    if (!status || !status.status) {
+      return formatMessage({ id: 'componentOverview.body.mnt.status.unknown' });
+    }
+    const statusMessageKeys = {
+      'undeploy': 'componentOverview.body.mnt.status.undeploy',
+      'closed': 'componentOverview.body.mnt.status.closed',
+      'abnormal': 'componentOverview.body.mnt.status.abnormal',
+      'stopping': 'componentOverview.body.mnt.status.stopping',
+      'starting': 'componentOverview.body.mnt.status.starting',
+      'deploying': 'componentOverview.body.mnt.status.deploying',
+      'upgrade': 'componentOverview.body.mnt.status.upgrade'
+    };
+    const messageKey = statusMessageKeys[status.status] || 'componentOverview.body.mnt.status.default';
+    return formatMessage({ id: messageKey });
+  }
   handleMountFormat = (key) => {
     const obj = {
       '/lun': 'LUN',
@@ -374,6 +402,9 @@ export default class Index extends PureComponent {
                   this.onEditVolume(data);
                 }}
                 href="javascript:;"
+                style={{
+                  marginLeft: '8px'
+                }}
               >
                 {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
               </a>
@@ -481,34 +512,53 @@ export default class Index extends PureComponent {
                   {
                     title: formatMessage({ id: 'componentOverview.body.mnt.action' }),
                     dataIndex: 'action',
-                    render: (v, data) => (
-                      <div>
-                        <a
-                          onClick={() => {
-                            this.onDeleteVolume(data);
-                          }}
-                          href="javascript:;"
-                        >
-                          {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
-                        </a>
-                        <a
-                          onClick={() => {
-                            this.onEditVolume(data);
-                          }}
-                          href="javascript:;"
-                        >
-                          {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
-                        </a>
-                        {data.status != 'not_bound' && data.volume_type != 'nfs' &&
+                    render: (v, data) => {
+                      const isOperational = this.isComponentOperational();
+                      const tooltipTitle = !isOperational ? this.getDisabledTooltip() : '';
+                      return (
+                        <div>
                           <a
-                            onClick={() => this.DirectoryPersistenceShow(data)}
+                            onClick={() => {
+                              this.onDeleteVolume(data);
+                            }}
                             href="javascript:;"
                           >
-                            {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.file' })}
+                            {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
                           </a>
-                        }
-                      </div>
-                    )
+                          <a
+                            onClick={() => {
+                              this.onEditVolume(data);
+                            }}
+                            href="javascript:;"
+                            style={{
+                              marginLeft: '8px'
+                            }}
+                          >
+                            {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+                          </a>
+                          {data.status != 'not_bound' && data.volume_type != 'nfs' &&
+                            <Tooltip title={!isOperational ? tooltipTitle : ''}>
+                              <a
+                                onClick={() => {
+                                  if (isOperational) {
+                                    this.DirectoryPersistenceShow(data);
+                                  }
+                                }}
+                                href="javascript:;"
+                                style={{
+                                  color: !isOperational ? '#999999' : '',
+                                  cursor: !isOperational ? 'not-allowed' : 'pointer',
+                                  marginLeft: '8px',
+                                  opacity: !isOperational ? 0.6 : 1
+                                }}
+                              >
+                                {formatMessage({ id: 'componentOverview.body.DirectoryPersistence.file' })}
+                              </a>
+                            </Tooltip>
+                          }
+                        </div>
+                      );
+                    }
                   }
                 ]}
                 dataSource={volumes}

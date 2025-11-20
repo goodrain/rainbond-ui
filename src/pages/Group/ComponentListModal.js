@@ -16,14 +16,14 @@ import {
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';
-import {buildApp} from '../../services/createApp';
+import { buildApp } from '../../services/createApp';
 import appUtil from '../../utils/app';
 import cookie from '@/utils/cookie';
 import globalUtil from '../../utils/global';
@@ -64,7 +64,7 @@ export default class ComponentListModal extends Component {
       language: cookie.get('language') === 'zh-CN' ? true : false,
     };
   }
-  
+
   componentDidMount() {
     if (this.props.visible) {
       this.updateApp();
@@ -80,20 +80,27 @@ export default class ComponentListModal extends Component {
   shouldComponentUpdate() {
     return true;
   }
-  
+
   componentWillUnmount() {
     clearInterval(this.timer);
     this.props.dispatch({
       type: 'application/clearApps'
     });
   }
-  
+
   onSelectChange = selectedRowKeys => {
     this.setState({
       selectedRowKeys
     });
   };
-  
+  checkComView = (val) => {
+    this.props.dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${val.service_alias}&tab=overview`
+      ))
+    this.props.onCancel()
+  }
+
   getSelectedKeys() {
     const selected = this.getSelected();
     return selected.map(item => item.service_id);
@@ -102,17 +109,17 @@ export default class ComponentListModal extends Component {
   getSelected() {
     const { selectedRowKeys, apps } = this.state
     const key = selectedRowKeys;
-    const res = [] 
+    const res = []
     selectedRowKeys.map(item => {
       apps.map((item1) => {
-        if(item == item1.service_id){
+        if (item == item1.service_id) {
           res.push(item1)
         }
       })
     });
     return res;
   }
-  
+
   updateApp = () => {
     if (this.timer) {
       clearInterval(this.timer);
@@ -125,10 +132,10 @@ export default class ComponentListModal extends Component {
       }
     }, 5000);
   };
-  
+
   loadComponents = () => {
     const { dispatch, groupId } = this.props;
-    const { current, pageSize, query, sortValue, orderValue} = this.state;
+    const { current, pageSize, query, sortValue, orderValue } = this.state;
     dispatch({
       type: 'application/fetchApps',
       payload: {
@@ -152,7 +159,7 @@ export default class ComponentListModal extends Component {
       }
     });
   };
-  
+
   deleteData = () => {
     const { dispatch, groupId } = this.props;
     const { current, pageSize, query } = this.state;
@@ -182,13 +189,13 @@ export default class ComponentListModal extends Component {
       }
     });
   };
-  
+
   handleOperation = (state, data) => {
     const { dispatch } = this.props;
     const operationMap = {
-      putReStart: formatMessage({id:'notification.hint.component.putReStart'}),
-      putStart: formatMessage({id:'notification.hint.component.putStart'}),
-      putStop: formatMessage({id:'notification.hint.component.putStop'})
+      putReStart: formatMessage({ id: 'notification.hint.component.putReStart' }),
+      putStart: formatMessage({ id: 'notification.hint.component.putStart' }),
+      putStop: formatMessage({ id: 'notification.hint.component.putStop' })
     };
     dispatch({
       type: `appControl/${state}`,
@@ -214,16 +221,16 @@ export default class ComponentListModal extends Component {
   handleOperationState = operationState => {
     this.setState({ operationState });
   };
-  
+
   handleBatchOperation = action => {
     const { dispatch } = this.props;
     const ids = this.getSelectedKeys();
     const map = {
-      stop: formatMessage({id:'notification.hint.component.putBatchStop'}),
-      start: formatMessage({id:'notification.hint.component.putBatchStart'}),
-      restart: formatMessage({id:'notification.hint.component.putBatchRestart'}),
-      upgrade: formatMessage({id:'notification.hint.component.putBatchUpgrade'}),
-      deploy: formatMessage({id:'notification.hint.component.putBatchDeploy'})
+      stop: formatMessage({ id: 'notification.hint.component.putBatchStop' }),
+      start: formatMessage({ id: 'notification.hint.component.putBatchStart' }),
+      restart: formatMessage({ id: 'notification.hint.component.putBatchRestart' }),
+      upgrade: formatMessage({ id: 'notification.hint.component.putBatchUpgrade' }),
+      deploy: formatMessage({ id: 'notification.hint.component.putBatchDeploy' })
     };
     dispatch({
       type: 'appControl/batchOperation',
@@ -252,13 +259,13 @@ export default class ComponentListModal extends Component {
     const apps = this.getSelected();
     this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
   };
-  
+
   hideBatchDelete = () => {
     // update menus data
     this.deleteData();
     this.updateGroupMenu();
   };
-  
+
   handleBatchDeletes = () => {
     this.setState({
       batchDeleteApps: [],
@@ -266,7 +273,7 @@ export default class ComponentListModal extends Component {
       selectedRowKeys: []
     });
   };
-  
+
   updateGroupMenu = () => {
     this.props.dispatch({
       type: 'global/fetchGroups',
@@ -276,7 +283,7 @@ export default class ComponentListModal extends Component {
       }
     });
   };
-  
+
   handleBatchMove = groupID => {
     const ids = this.getSelectedKeys();
     const { dispatch } = this.props;
@@ -290,28 +297,28 @@ export default class ComponentListModal extends Component {
       callback: data => {
         if (data) {
           notification.success({
-            message: formatMessage({id:'notification.hint.component.putBatchMove'})
+            message: formatMessage({ id: 'notification.hint.component.putBatchMove' })
           });
           this.hideBatchDelete();
         }
       }
     });
   };
-  
+
   hideMoveGroup = () => {
     this.setState({ moveGroupShow: false });
   };
-  
+
   showBatchMove = () => {
     this.setState({ moveGroupShow: true });
   };
-  
+
   // 是否可以批量操作
   CanBatchOperation = () => {
     const arr = this.getSelected();
     return arr && arr.length > 0;
   };
-  
+
   handelChange = e => {
     this.setState({
       changeQuery: e.target.value
@@ -330,58 +337,59 @@ export default class ComponentListModal extends Component {
       }
     );
   };
-  
+
   //列表点击排序
   handleTableChange = (pagination, filters, sorter) => {
-    if(sorter && sorter.field && sorter.field == 'status_cn'){
+    if (sorter && sorter.field && sorter.field == 'status_cn') {
       this.setState({
         sortValue: 1,
         orderValue: sorter.order,
         tableDataLoading: true
-      },()=>{
+      }, () => {
         this.loadComponents()
       })
-    }else if(sorter && sorter.field && sorter.field == 'min_memory'){
+    } else if (sorter && sorter.field && sorter.field == 'min_memory') {
       this.setState({
         sortValue: 2,
         orderValue: sorter.order,
         tableDataLoading: true
-      },()=>{
+      }, () => {
         this.loadComponents()
       })
-    }else if(sorter && sorter.field && sorter.field == 'update_time'){
+    } else if (sorter && sorter.field && sorter.field == 'update_time') {
       this.setState({
         sortValue: 3,
         orderValue: sorter.order,
         tableDataLoading: true
-      },()=>{
+      }, () => {
         this.loadComponents()
       })
-    }else{
+    } else {
       this.setState({
         sortValue: 1,
         orderValue: 'descend',
         tableDataLoading: true
-      },()=>{
+      }, () => {
         this.loadComponents()
       })
     }
   }
-  
+
   titleCase = (str) => {
     str = str.toLowerCase();
     var attr = str.split(" ");
-    for(var i =0;i<attr.length;i++){
-       attr[i]=attr[i].substring(0,1).toUpperCase() + attr[i].substring(1);
+    for (var i = 0; i < attr.length; i++) {
+      attr[i] = attr[i].substring(0, 1).toUpperCase() + attr[i].substring(1);
     }
     return attr.join(" ");
   }
-  
+
   render() {
     const {
       visible,
       onCancel,
       componentPermissions: {
+        isAccess,
         isStart,
         isStop,
         isDelete,
@@ -397,7 +405,7 @@ export default class ComponentListModal extends Component {
       groupId,
       groups
     } = this.props;
-    
+
     const {
       selectedRowKeys,
       current,
@@ -411,15 +419,15 @@ export default class ComponentListModal extends Component {
       tableDataLoading,
       language
     } = this.state;
-    
+
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
     };
-    
+
     const pagination = {
       showQuickJumper: true,
-      showTotal: (total) => `${ language ? `共 ${total} 条` : `Total ${total} items` }`,
+      showTotal: (total) => `${language ? `共 ${total} 条` : `Total ${total} items`}`,
       pageSize,
       current,
       total,
@@ -448,16 +456,16 @@ export default class ComponentListModal extends Component {
         );
       }
     };
-    
+
     const columns = [
       {
-        title: formatMessage({id:'appOverview.list.table.btn.name'}),
+        title: formatMessage({ id: 'appOverview.list.table.btn.name' }),
         dataIndex: 'service_cname',
         render: (val, data) => (
           <span>
             {data.service_source && data.service_source === 'third_party' ? (
               <span>
-                <Tooltip title={formatMessage({id:'appOverview.list.table.btn.third_party'})}>
+                <Tooltip title={formatMessage({ id: 'appOverview.list.table.btn.third_party' })}>
                   <span
                     style={{
                       borderRadius: '50%',
@@ -491,7 +499,7 @@ export default class ComponentListModal extends Component {
         )
       },
       {
-        title: formatMessage({id:'appOverview.list.table.memory'}),
+        title: formatMessage({ id: 'appOverview.list.table.memory' }),
         dataIndex: 'min_memory',
         sorter: true,
         render: (val, data) => (
@@ -503,8 +511,8 @@ export default class ComponentListModal extends Component {
         )
       },
       {
-        title: formatMessage({id:'appOverview.list.table.status'}),
-        dataIndex: language ?'status_cn' : 'status',
+        title: formatMessage({ id: 'appOverview.list.table.status' }),
+        dataIndex: language ? 'status_cn' : 'status',
         sorter: true,
         render: (val, data) =>
           data.service_source && data.service_source === 'third_party' ? (
@@ -512,12 +520,12 @@ export default class ComponentListModal extends Component {
               status={appUtil.appStatusToBadgeStatus(data.status)}
               text={
                 val === '运行中'
-                  ? this.titleCase(formatMessage({id:'status.component.health'}))
+                  ? this.titleCase(formatMessage({ id: 'status.component.health' }))
                   : val === '运行异常'
-                  ? this.titleCase(formatMessage({id:'status.component.not_health'}))
-                  : val === '已关闭'
-                  ? this.titleCase(formatMessage({id:'status.component.off_line'}))
-                  : this.titleCase(val)
+                    ? this.titleCase(formatMessage({ id: 'status.component.not_health' }))
+                    : val === '已关闭'
+                      ? this.titleCase(formatMessage({ id: 'status.component.off_line' }))
+                      : this.titleCase(val)
               }
             />
           ) : (
@@ -528,7 +536,7 @@ export default class ComponentListModal extends Component {
           )
       },
       {
-        title: formatMessage({id:'appOverview.list.table.updateTime'}),
+        title: formatMessage({ id: 'appOverview.list.table.updateTime' }),
         dataIndex: 'update_time',
         sorter: true,
         render: val =>
@@ -537,45 +545,50 @@ export default class ComponentListModal extends Component {
             .format('YYYY-MM-DD HH:mm:ss')
       },
       {
-        title: formatMessage({id:'appOverview.list.table.operate'}),
+        title: formatMessage({ id: 'appOverview.list.table.operate' }),
         dataIndex: 'action',
         render: (val, data) => (
           <Fragment>
+            {isAccess && (
+              <Button type="link" onClick={() => { this.checkComView(data) }}>
+                {formatMessage({ id: 'addKubenetesResource.table.btn.check' })}
+              </Button>
+            )}
             {data.service_source && data.service_source !== 'third_party' && (
               <Fragment>
                 {isUpdate && (
                   <Popconfirm
-                    title={formatMessage({id:'confirmModal.component.restart.title'})}
+                    title={formatMessage({ id: 'confirmModal.component.restart.title' })}
                     onConfirm={() => {
                       this.handleOperation('putReStart', data);
                     }}
                   >
                     <Button type="link">
-                      {formatMessage({id:'appOverview.list.table.restart'})}
+                      {formatMessage({ id: 'appOverview.list.table.restart' })}
                     </Button>
                   </Popconfirm>
                 )}
                 {isStart && (
                   <Popconfirm
-                    title={formatMessage({id:'confirmModal.component.start.title'})}
+                    title={formatMessage({ id: 'confirmModal.component.start.title' })}
                     onConfirm={() => {
                       this.handleOperation('putStart', data);
                     }}
                   >
                     <Button type="link">
-                      {formatMessage({id:'appOverview.list.table.start'})}
+                      {formatMessage({ id: 'appOverview.list.table.start' })}
                     </Button>
                   </Popconfirm>
                 )}
                 {isStop && (
                   <Popconfirm
-                    title={formatMessage({id:'confirmModal.component.stop.title'})}
+                    title={formatMessage({ id: 'confirmModal.component.stop.title' })}
                     onConfirm={() => {
                       this.handleOperation('putStop', data);
                     }}
                   >
                     <Button type="link">
-                      {formatMessage({id:'appOverview.btn.stop'})}
+                      {formatMessage({ id: 'appOverview.btn.stop' })}
                     </Button>
                   </Popconfirm>
                 )}
@@ -585,42 +598,42 @@ export default class ComponentListModal extends Component {
         )
       }
     ];
-    
+
     const customBox = [
       {
         permissions: isConstruct,
-        name: formatMessage({id:'appOverview.btn.build'}),
+        name: formatMessage({ id: 'appOverview.btn.build' }),
         action: 'deploy'
       },
       {
         permissions: isUpdate,
-        name: formatMessage({id:'appOverview.btn.update'}),
+        name: formatMessage({ id: 'appOverview.btn.update' }),
         action: 'upgrade'
       },
       {
         permissions: isUpdate,
-        name: formatMessage({id:'appOverview.list.table.restart'}),
+        name: formatMessage({ id: 'appOverview.list.table.restart' }),
         action: 'restart'
       },
       {
         permissions: isStop,
-        name: formatMessage({id:'appOverview.btn.stop'}),
+        name: formatMessage({ id: 'appOverview.btn.stop' }),
         action: 'stop'
       },
       {
         permissions: isStart,
-        name: formatMessage({id:'appOverview.list.table.start'}),
+        name: formatMessage({ id: 'appOverview.list.table.start' }),
         action: 'start'
       },
       {
         permissions: isEdit,
-        name: formatMessage({id:'appOverview.list.table.move'}),
+        name: formatMessage({ id: 'appOverview.list.table.move' }),
         action: false,
         customMethods: this.showBatchMove
       },
       {
         permissions: isDelete,
-        name: formatMessage({id:'appOverview.list.table.delete'}),
+        name: formatMessage({ id: 'appOverview.list.table.delete' }),
         action: false,
         customMethods: this.handleBatchDelete
       }
@@ -652,7 +665,7 @@ export default class ComponentListModal extends Component {
         })}
       </Menu>
     );
-    
+
     const footer = (
       <div className={styles.tableList}>
         <div className={styles.tableListOperator}>
@@ -662,14 +675,14 @@ export default class ComponentListModal extends Component {
             placement="topCenter"
             disabled={!this.CanBatchOperation()}
           >
-            <Button style={{ padding: '8px 16px'}}>
-              {formatMessage({id:'appOverview.list.table.batchOperate'})} <Icon type="down" />
+            <Button style={{ padding: '8px 16px' }}>
+              {formatMessage({ id: 'appOverview.list.table.batchOperate' })} <Icon type="down" />
             </Button>
           </Dropdown>
         </div>
       </div>
     );
-    
+
     return (
       <Modal
         title="组件批量操作"
@@ -691,14 +704,14 @@ export default class ComponentListModal extends Component {
               <Form.Item>
                 <Input
                   style={{ width: 250 }}
-                  placeholder={formatMessage({id:'appOverview.list.input.seach.hint'})}
+                  placeholder={formatMessage({ id: 'appOverview.list.input.seach.hint' })}
                   onChange={this.handelChange}
                   onPressEnter={this.handleSearch}
                 />
               </Form.Item>
               <Form.Item>
                 <Button type="primary" onClick={this.handleSearch} icon="search">
-                {formatMessage({id:'appOverview.list.btn.seach'})}
+                  {formatMessage({ id: 'appOverview.list.btn.seach' })}
                 </Button>
               </Form.Item>
             </Form>
@@ -706,7 +719,7 @@ export default class ComponentListModal extends Component {
               <Table
                 pagination={pagination}
                 rowSelection={rowSelection}
-                onChange={this.handleTableChange} 
+                onChange={this.handleTableChange}
                 columns={columns}
                 loading={
                   reStartLoading || startLoading || stopLoading || tableDataLoading

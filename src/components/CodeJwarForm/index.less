@@ -1,30 +1,122 @@
 .yaml_container {
     :global {
-        .ant-upload {
-          width: 200px;
+        // 统一表单标签样式
+        .ant-form-item-label > label {
+          font-size: 14px !important;
+          color: rgba(0, 0, 0, 0.85) !important;
+          font-weight: 600 !important;
         }
+
+        // 优化上传按钮样式
+        .ant-upload {
+          width: 100% !important;
+
+          .ant-btn {
+            width: 100%;
+            height: 48px;
+            border-radius: 8px;
+            border: 2px dashed #d9d9d9;
+            background: #fafafa;
+            color: #8c8c8c;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+
+            &:hover {
+              border-color: #195ca3;
+              background: #f0f5ff;
+              color: #195ca3;
+            }
+
+            .anticon {
+              font-size: 20px;
+              margin-right: 8px;
+            }
+          }
+        }
+
         .ant-form-item-children{
           display: flex;
         }
+
         .ant-upload-list-item-info{
           margin-right: 12px;
         }
     }
+
+    // 优化文件列表展示
     .file{
-      padding: 0px 24px;
-      border: 1px solid #d9d9d9;
+      padding: 20px 24px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #195ca3;
+        background: #f0f5ff;
+        box-shadow: 0 4px 12px rgba(25, 92, 163, 0.1);
+      }
+
+      .anticon {
+        font-size: 24px;
+        color: #595959;
+        margin-right: 12px;
+      }
+
       .fileName{
-        width: 250px;
+        flex: 1;
+        font-size: 16px;
+        font-weight: 500;
+        color: #262626;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        line-height: 24px;
+        line-height: 28px;
       }
     }
+
+    // 优化空状态
     .empty{
-      padding: 0px 36px;
-      border: 1px solid #d9d9d9;
-      border-radius: 4px;
-      color: rgba(0, 0, 0, 0.45);
+      padding: 40px 24px;
+      border: 2px dashed #e8e8e8;
+      border-radius: 12px;
+      background: #fafbfc;
+      color: #8c8c8c;
+      font-size: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #195ca3;
+        background: #f0f5ff;
+        color: #195ca3;
+      }
+    }
+
+    // 删除按钮样式
+    .deleteButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #ff4d4f;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #ff7875;
+        transform: scale(1.1);
+      }
+
+      .anticon {
+        color: #fff;
+        font-size: 16px;
+      }
     }
 }

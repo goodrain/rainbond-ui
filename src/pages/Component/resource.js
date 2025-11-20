@@ -90,14 +90,15 @@ export default class Index extends PureComponent {
       showKey: false,
       modifyImageName: false,
       modifyImageCmd: false,
-      codeLang: ''
+      codeLang: '',
+      dockfilePath: ''
     };
   }
   static contextType = ResumeContext;
 
   componentDidMount() {
-    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.setOauthService();
+    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
       this.bindEvent()
@@ -325,6 +326,8 @@ export default class Index extends PureComponent {
         }
         return item;
       });
+      console.log(tabList,"tabList");
+      
       this.setState({
         tabList
       });
@@ -422,7 +425,6 @@ export default class Index extends PureComponent {
               event_id: eventId
             })
           }
-
           this.setState({ buildSource: bean }, () => {
             if (
               bean &&
@@ -449,6 +451,8 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          console.log(res.bean,"res.bean");
+          
           this.setState({
             thirdInfo: res.bean
           });
@@ -475,7 +479,8 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id: appAlias,
-        lang: codeLang
+        lang: codeLang,
+        dockerfile_path: this.state.dockfilePath
       },
       callback: res => {
         this.loadBuildSourceInfo();
@@ -513,9 +518,18 @@ export default class Index extends PureComponent {
                       codeLang: parts[0]
                     })
                   }
+                  if (item.type == 'dockerfiles' && res.bean.check_status != 'failure') {
+                    if (item.value && item.value.length > 0) {
+                      this.setState({
+                        dockfilePath: item.value[0]
+                      })
+                    }
+                  }
                 })
               }
               this.loadBuildSourceInfo();
+              console.log(res.bean && res.bean.service_info,'res.bean && res.bean.service_info,');
+              
               this.setState({
                 create_status: res.bean && res.bean.check_status,
                 service_info: res.bean && res.bean.service_info,
@@ -701,6 +715,7 @@ export default class Index extends PureComponent {
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
+          arch: fieldsValue.arch || null,
           team_name: globalUtil.getCurrTeamName(),
           service_alias: this.props.appAlias,
           is_oauth: true,
@@ -760,6 +775,12 @@ export default class Index extends PureComponent {
       codeLang: value
     })
   }
+  onDockfileChange = (e) => {
+    const value = e.target.value
+    this.setState({
+      dockfilePath: value
+    })
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -782,7 +803,8 @@ export default class Index extends PureComponent {
       modifyImageName,
       modifyImageCmd,
       showKey,
-      codeLang
+      codeLang,
+      dockfilePath
     } = this.state;
     const myheaders = {};
     const language = appUtil.getLanguage(appDetail);
@@ -1205,6 +1227,16 @@ export default class Index extends PureComponent {
                             })}
                           </Radio.Group>
                         </p>
+                      ) : item.type == 'dockerfiles' ? (
+                        codeLang == 'dockerfile' &&
+                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:
+                          <Radio.Group onChange={this.onDockfileChange} value={dockfilePath}>
+                            {(item.value || []).map((items, index) => (
+                              <Radio key={index} value={items}>{items}</Radio>
+                            ))}
+                          </Radio.Group>
+                        </p>
                       ) : (
                         <p style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:{item.value}{' '}
@@ -1482,6 +1514,30 @@ export default class Index extends PureComponent {
                     </Select>
                   )}
                 </Form.Item>
+
+                {buildSource && buildSource.arch && buildSource.arch.length > 0 && (
+                  <Form.Item
+                    {...formOauthLayout}
+                    label={<FormattedMessage id='componentOverview.body.Resource.arch' />}
+                  >
+                    {getFieldDecorator('arch', {
+                      initialValue: buildSource.arch[0],
+                      rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.select_arch' }), }]
+                    })(
+                      <Select
+                        getPopupContainer={triggerNode => triggerNode.parentNode}
+                        placeholder={formatMessage({ id: 'componentOverview.body.Resource.select_arch' })}
+                        disabled={buildSource.arch.length === 1}
+                      >
+                        {buildSource.arch.map(item => (
+                          <Option key={item} value={item}>
+                            {item}
+                          </Option>
+                        ))}
+                      </Select>
+                    )}
+                  </Form.Item>
+                )}
               </Form>
             </Spin>{' '}
           </Modal>

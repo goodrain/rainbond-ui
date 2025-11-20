@@ -17,10 +17,11 @@
   padding-right: .5em;
   height: 60px;
   line-height: 60px;
-  margin-right: 30px;
+  margin-right: 20px;
   float: left;
   cursor: pointer;
-  img{
+
+  img {
     width: 140px;
     height: 22px;
   }
@@ -58,22 +59,26 @@
     margin-right: 10px;
   }
 }
-.item:hover{
+
+.item:hover {
   color: @primary-5;
+
   svg {
-    fill:@primary-5 !important;
+    fill: @primary-5 !important;
   }
 }
 
 .itemlink {
   color: rgba(255, 255, 255, 0.85);
 }
-.breadCrumb{
+
+.breadCrumb {
   width: 100%;
   height: 60px;
   display: flex;
   align-items: center;
 }
+
 .itemseparator {
   margin: 0 8px;
   color: rgba(255, 255, 255, 0.85);
@@ -102,28 +107,31 @@
       border: none !important;
     }
   }
-  
-  :global{
-    .ant-menu-item>.anticon{
-      svg>path{
-        fill:  rgba(51, 51, 51, 1) !important;
+
+  :global {
+    .ant-menu-item>.anticon {
+      svg>path {
+        fill: rgba(51, 51, 51, 1) !important;
       }
     }
+
     .ant-menu-item:hover {
-      .anticon{
-        svg>path{
-          fill:  @primary-color !important;
+      .anticon {
+        svg>path {
+          fill: @primary-color !important;
         }
       }
     }
   }
+
   li {
     font-size: @rbd-content-size !important;
     color: @rbd-content-color;
-    line-height: @rbd-content-line-height!important;
+    line-height: @rbd-content-line-height !important;
     font-family: PingFangSC-Regular, PingFang SC;
     color: rgba(51, 51, 51, 1);
     height: @rbd-content-line-height !important;
+
     i {
       font-size: @rbd-content-size !important;
     }
@@ -165,6 +173,18 @@
 
   :global(.ant-dropdown-menu-item) {
     width: 160px;
+  }
+}
+
+.platform {
+  padding: 6px 12px;
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -217,21 +237,33 @@ i.trigger {
     display: none;
   }
 }
+
 .left {
   display: flex;
   align-items: center;
 }
+
 .right {
   float: right;
   display: flex;
   align-items: center;
+
   .action {
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 0 8px;
+    padding: 6px 12px;
     transition: all .3s;
-    >i {
+    backdrop-filter: blur(10px);
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    ˝>i {
       font-size: 16px;
       padding: 4px;
       color: #fff;
@@ -262,12 +294,13 @@ i.trigger {
   }
 }
 
-.nameBox{
+.nameBox {
   width: 100%;
   text-align: center;
   height: 30px;
   line-height: 30px;
 }
+
 :global {
   .ant-layout-header {
     height: 60px;
@@ -277,6 +310,7 @@ i.trigger {
     justify-content: space-between;
   }
 }
+
 .balance {
   background-color: rgba(255, 255, 255, 0.1);
   margin-right: 12px;
@@ -284,9 +318,11 @@ i.trigger {
   cursor: pointer;
   padding: 4px 14px;
   border-radius: 5px;
+
   .balanceTitle {
     margin-top: 8px;
   }
+
   .balanceNum {
     height: 24px;
     line-height: 30px;
@@ -294,6 +330,7 @@ i.trigger {
     margin-top: 2px;
   }
 }
+
 .balance:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
@@ -306,11 +343,13 @@ i.trigger {
   padding-left: 12px;
   margin-left: 12px;
 }
-.wechat{
+
+.wechat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  > p{
+
+  >p {
     font-size: 12px;
     margin-top: 6px;
   }

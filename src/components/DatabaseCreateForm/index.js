@@ -8,8 +8,12 @@ import styles from '../../pages/Create/Index.less';
 
 const { Option } = Select;
 const formItemLayout = {
-    labelCol: { span: 7 },
-    wrapperCol: { span: 15 }
+  labelCol: {
+    span: 24
+  },
+  wrapperCol: {
+    span: 24
+  }
 };
 
 @connect(({ teamControl, global }) => ({
@@ -25,7 +29,7 @@ export default class Index extends PureComponent {
 
     componentDidMount() {
         // 如果存在应用组ID，获取当前应用下已有组件的英文名列表，用于生成默认英文名时避免冲突
-        const group_id = globalUtil.getGroupID();
+        const group_id = this.props.groupId || globalUtil.getGroupID();
         if (group_id) {
             this.fetchComponentNames(group_id);
         }
@@ -88,7 +92,7 @@ export default class Index extends PureComponent {
     handleSubmit = e => {
         e.preventDefault();
         const { form, onSubmit } = this.props;
-        const group_id = globalUtil.getGroupID();
+        const group_id = this.props.groupId || globalUtil.getGroupID();
 
         form.validateFields((err, fieldsValue) => {
             if (err) {
@@ -122,10 +126,9 @@ export default class Index extends PureComponent {
     render() {
         const { form, databaseTypes = [], loading } = this.props;
         const { getFieldDecorator, getFieldValue } = form;
-        const group_id = globalUtil.getGroupID();
-
+        const group_id = this.props.groupId || globalUtil.getGroupID();        
         return (
-            <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+            <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
                     {getFieldDecorator('service_cname', {
                         initialValue: '',
@@ -149,20 +152,6 @@ export default class Index extends PureComponent {
                     })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
 
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.create.form.database_type.label' })}>
-                    {getFieldDecorator('database_type', {
-                        initialValue: databaseTypes[0] ? databaseTypes[0].value : '',
-                        rules: [
-                            { required: true, message: formatMessage({ id: 'kubeblocks.database.create.form.database_type.required' }) }
-                        ]
-                    })(
-                        <Select placeholder={formatMessage({ id: 'kubeblocks.database.create.form.database_type.placeholder' })}>
-                            {databaseTypes.map(type => (
-                                <Option key={type.value} value={type.value}>{type.label}</Option>
-                            ))}
-                        </Select>
-                    )}
-                </Form.Item>
 
                 {!group_id && <>
                     <Divider />
@@ -174,6 +163,7 @@ export default class Index extends PureComponent {
                         >
                             {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })} {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
                         </Button>
+
                     </div>
                     {this.state.showAdvanced && (
                         <div
@@ -237,17 +227,6 @@ export default class Index extends PureComponent {
                     )}
                 </>}
 
-                <Form.Item style={{ textAlign: 'center', marginTop: '32px' }}>
-                    <Button
-                        type="primary"
-                        size="large"
-                        loading={loading}
-                        htmlType="submit"
-                        style={{ minWidth: '120px' }}
-                    >
-                        {formatMessage({ id: 'kubeblocks.database.create.form.button.next' })}
-                    </Button>
-                </Form.Item>
             </Form>
         );
     }

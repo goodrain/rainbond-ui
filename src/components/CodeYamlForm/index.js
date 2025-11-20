@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -15,7 +15,6 @@ import { pinyin } from 'pinyin-pro';
 const { Dragger } = Upload;
 const { Option } = Select;
 
-@Form.create()
 @connect(
   ({ teamControl, global, enterprise }) => ({
     groups: global.groups,
@@ -30,6 +29,7 @@ const { Option } = Select;
   null,
   { pure: false }
 )
+@Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -45,7 +45,8 @@ export default class Index extends PureComponent {
       percents: false,
       existFileList: [],
       groupName: '',
-      creatComPermission: {}
+      creatComPermission: {},
+      showAdvanced: false
     };
   }
   componentWillMount() {
@@ -54,7 +55,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.handleJarWarUpload()
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if (group_id) {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
@@ -71,7 +72,7 @@ export default class Index extends PureComponent {
     const { form, dispatch, onSubmit } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const regionName = globalUtil.getCurrRegionName()
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const { event_id, existFileList, groupName } = this.state
     form.validateFields((err, value) => {
       if (err) return;
@@ -108,6 +109,24 @@ export default class Index extends PureComponent {
     }
     return ''
   }
+
+  handleValiateNameSpace = (_, value, callback) => {
+    if (!value) {
+      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
+    }
+    if (value && value.length <= 32) {
+      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
+      if (!Reg.test(value)) {
+        return callback(
+          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
+        );
+      }
+      callback();
+    }
+    if (value.length > 32) {
+      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
+    }
+  };
 
   handleChange = (values) => {
     const { dispatch, groups } = this.props;
@@ -257,7 +276,8 @@ export default class Index extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      groups
+      groups,
+      showSubmitBtn = true
     } = this.props;
     const myheaders = {};
     const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, creatComPermission: {
@@ -266,17 +286,17 @@ export default class Index extends PureComponent {
 
     const formItemLayout = {
       labelCol: {
-        span: 9
+        span: 24
       },
       wrapperCol: {
-        span: 15
+        span: 24
       }
     };
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     return (
       <>
         <div className={styles.yaml_container}>
-          <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+          <Form {...formItemLayout} layout="vertical" onSubmit={this.handleSubmit}>
             {!group_id && <>
               <Form.Item
                 label={formatMessage({ id: 'popover.newApp.appName' })}
@@ -293,14 +313,14 @@ export default class Index extends PureComponent {
                   ]
                 })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
               </Form.Item>
-              <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
                 {getFieldDecorator('k8s_app', {
                   initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
                   rules: [
-                    { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
+                    { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
                     { validator: this.handleValiateNameSpace }
                   ]
-                })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
               </Form.Item>
             </>}
             <Form.Item
@@ -349,22 +369,20 @@ export default class Index extends PureComponent {
               }
 
             </Form.Item>
-            <Form.Item
-              wrapperCol={{
-                xs: {
-                  span: 7,
-                  offset: 7
-                },
-                sm: {
-                  span: 9,
-                  offset: 9
-                }
-              }}
-            >
-              <Button type="primary" htmlType="submit">
-                {formatMessage({ id: 'teamAdd.create.btn.create' })}
-              </Button>
-            </Form.Item>
+            {showSubmitBtn && (
+              <Form.Item
+                wrapperCol={{
+                  xs: { span: 24, offset: 0 },
+                  sm: { span: 24, offset: 0 }
+                }}
+              >
+                <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                  <Button type="primary" htmlType="submit">
+                    {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                  </Button>
+                </div>
+              </Form.Item>
+            )}
           </Form>
         </div>
         {addGroup && (

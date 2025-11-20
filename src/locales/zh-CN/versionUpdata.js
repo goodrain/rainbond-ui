@@ -131,11 +131,14 @@ const versionUpdata = {
   'versionUpdata_6_1.editBaseUserInfo': '修改基础信息',
   'versionUpdata_6_1.editPassword': '修改密码',
   'versionUpdata_6_1.AccesstokenForm.placeholder': '若不选择则为不限制过期时间',
-  'versionUpdata_6_2.editMode': '编辑模式',
   'versionUpdata_6_2.advancedSettings': '高级设置',
   'versionUpdata_6_2.componentSettings.desc': '组件的各类参数配置，以及组件的启动、停止、重启、删除等操作',
   'versionUpdata_6_2.more': '更多',
   'versionUpdata_6_2.gateway.desc': '访问控制支持设置集群外访问组件的方式，包括使用HTTP域名访问或IP+Port访问，同时支持目标服务以及域名证书的管理。',
+  'versionUpdata_6_4.overview.template': '模板',
+  'versionUpdata_6_4.overview.add': '添加',
+  'versionUpdata_6_4.overview.detail': '详情',
+  'versionUpdata_6_4.overview.upgrade': '升级',
 }
 export default versionUpdata;
 

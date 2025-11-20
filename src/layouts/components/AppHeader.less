@@ -1,0 +1,48 @@
+@import "~antd/lib/style/themes/default.less";
+
+.separator {
+    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 4px !important;
+
+    i {
+        font-size: 12px;
+        opacity: 0.5;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    svg, i {
+        position: relative;
+        z-index: 1;
+    }
+
+    &:hover {
+        i, svg {
+            opacity: 0.8;
+        }
+
+        &::before {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+}

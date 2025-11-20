@@ -714,6 +714,12 @@ export default class Index extends PureComponent {
 
     return (
       <div>
+        <Alert
+          type="info"
+          showIcon
+          message={<FormattedMessage id="kubeblocks.parameter.alert.static_restart" />}
+          style={{ marginBottom: 12 }}
+        />
         <Card
           title={<FormattedMessage id="kubeblocks.parameter.title" />}
           loading={listLoading}
@@ -750,12 +756,6 @@ export default class Index extends PureComponent {
             </div>
           }
         >
-          <Alert
-            type="info"
-            showIcon
-            message={<FormattedMessage id="kubeblocks.parameter.alert.static_restart" />}
-            style={{ marginBottom: 12 }}
-          />
           {/* 高亮样式 */}
           <style>{`
           .kb-param-modified td { background: #fffbe6 !important; }
@@ -777,10 +777,7 @@ export default class Index extends PureComponent {
               emptyText: isParameterUnsupported ? (
                 <Empty
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description={formatMessage(
-                    { id: 'kubeblocks.parameter.unsupported' },
-                    { type: databaseType }
-                  )}
+                  description={formatMessage({ id: 'kubeblocks.parameter.unsupported' })}
                 />
               ) : (
                 <Empty description={formatMessage({ id: 'kubeblocks.parameter.empty' })} />

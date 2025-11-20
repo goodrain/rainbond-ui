@@ -1,4 +1,4 @@
-import { Spin } from 'antd';
+import { Icon, Spin } from 'antd';
 import { Link } from 'dva/router';
 import React from 'react';
 import headerStype from '../../components/GlobalHeader/index.less';
@@ -6,6 +6,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import SelectApp from '../../components/SelectApp';
 import SelectComponent from '../../components/SelectComponent';
 import SelectTeam from '../../components/SelectTeam';
+import styles from './AppHeader.less';
 
 export default function AppHeader(props) {
   const {
@@ -25,7 +26,8 @@ export default function AppHeader(props) {
       {upDataHeader ? (
         <Spin size="large" />
       ) : (
-        <div>
+
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <SelectTeam
             active={false}
             className={headerStype.select}
@@ -35,8 +37,8 @@ export default function AppHeader(props) {
             currentRegion={currentRegion}
             changeTeam={changeTeam}
           />
-          <div className={headerStype.item}>
-            <span className={headerStype.itemseparator}>></span>
+          <div style={{ padding: '0 6px' ,fontSize:14,fontWeight: 600}}>
+              /
           </div>
           <SelectApp
             handleClick={handleClick}
@@ -49,23 +51,6 @@ export default function AppHeader(props) {
             currentAppID={appID}
             currentComponent={currentComponent}
           />
-          {currentComponent && (
-            <div className={headerStype.item}>
-              <span className={headerStype.itemseparator}>></span>
-            </div>
-          )}
-          {currentComponent && (
-            <SelectComponent
-              active
-              className={headerStype.select}
-              teamName={teamName}
-              currentEnterprise={currentEnterprise}
-              currentTeam={currentTeam}
-              currentRegion={currentRegion}
-              currentAppID={appID}
-              currentComponent={currentComponent}
-            />
-          )}
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@ import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
 import NewbieGuiding from '../../../components/NewbieGuiding';
 import VisterBtn from '../../../components/visitBtnForAlllink';
+import CreateComponentModal from '../../../components/CreateComponentModal';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
 import PluginUtil from '../../../utils/pulginUtils'
@@ -56,13 +57,31 @@ export default class index extends Component {
       isTableView: savedViewState === 'true',
       language: cookie.get('language') === 'zh-CN' ? true : false,
       storageUsed: 0,
-      guideStep: shouldShowGuide ? 'team-overview' : ''
+      guideStep: shouldShowGuide ? 'team-overview' : '',
+      createComponentVisible: false,
+      currentView: null,
     };
   }
   componentDidMount() {
     const { teamOverviewPermission, teamAppCreatePermission } = this.state;
     const { noviceGuide } = this.props;
     this.loadOverview();
+
+    // 解析 URL 参数（只在首次加载时处理）
+    if (!this.hasProcessedUrlParams) {
+      const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+      const showAddModal = urlParams.get('showAddModal');
+      const currentView = urlParams.get('currentView');
+
+      // 如果 URL 中有 showAddModal=true，则显示创建组件弹窗
+      if (showAddModal === 'true') {
+        this.setState({
+          createComponentVisible: true,
+          currentView: currentView || null
+        });
+        this.hasProcessedUrlParams = true;
+      }
+    }
 
     // 初始化第一个高亮
     setTimeout(() => {
@@ -337,8 +356,12 @@ export default class index extends Component {
   }
   // 跳转到向导页
   onJumpToWizard = () => {
-    const { dispatch } = this.props;
-    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard`))
+    this.setState({ createComponentVisible: true });
+  }
+
+  // 关闭创建组件弹窗
+  handleCloseCreateComponent = () => {
+    this.setState({ createComponentVisible: false });
   }
   
   // 取消新建应用
@@ -389,17 +412,39 @@ export default class index extends Component {
   };
   // 添加卡片视图渲染函数
   renderCardView = () => {
-    const { teamHotAppList, appListLoading, language } = this.state;
+    const { teamHotAppList, appListLoading, language, teamAppCreatePermission } = this.state;
     const { dispatch } = this.props;
+    const isAppCreate = teamAppCreatePermission?.isAccess;
     const addComponentSvg = (
       <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="16" height="16"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
     )
     const visterSvg = (
       <svg t="1735296596548" style={{ marginRight: '2px' }} class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
     )
+    const addNewAppSvg = (
+      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="48" height="48"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
+    )
     return (
       <Spin spinning={appListLoading}>
         <div className={styles.teamHotAppList} style={{ height: teamHotAppList.length < 8 ? '300px' : '' }}>
+          {/* 新增应用卡片 */}
+          {isAppCreate && (
+            <div style={{ marginLeft: '0px' }}>
+              <div
+                className={`${styles.teamHotAppItem} ${styles.hoverPointer} ${styles.addNewAppCard}`}
+                onClick={() => {
+                  this.onJumpToWizard();
+                }}
+              >
+                <div className={styles.addNewAppContent}>
+                  {addNewAppSvg}
+                  <div className={styles.addNewAppText}>
+                    {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {teamHotAppList.map((item, index) => {
             // 添加操作菜单
             const appOverviewPermission = newRole.queryPermissionsInfo(
@@ -408,8 +453,10 @@ export default class index extends Component {
               `app_${item.group_id}`
             );
             const isAppCreate = appOverviewPermission?.isCreate;
+            // 如果有新增卡片，需要调整 margin
+            const actualIndex = this.state.teamAppCreatePermission?.isAccess ? index + 1 : index;
             return (
-              <div key={item.group_id} style={{ marginLeft: (index % 4) ? '1.2%' : '0px' }}>
+              <div key={item.group_id} style={{ marginLeft: (actualIndex % 4) ? '1.2%' : '0px' }}>
                 <div
                   className={`${styles.teamHotAppItem} ${styles.hoverPointer}`}
                   onClick={() => {
@@ -435,19 +482,6 @@ export default class index extends Component {
                       </div>
                     </div>
                     <div className={styles.btn}>
-                      {isAppCreate && (
-                        <div className={styles.actionButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            this.props.dispatch(
-                              routerRedux.push(
-                                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${item.group_id}`
-                              )
-                            );
-                          }}>
-                          {addComponentSvg} {formatMessage({ id: 'versionUpdata_6_1.addComponent.card' })}
-                        </div>
-                      )}
                       {item.status === 'RUNNING' && (
                         <div className={styles.visterBtn}>
                           {visterSvg}
@@ -571,17 +605,6 @@ export default class index extends Component {
           const appOverviewPermission = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${record.group_id}`)
           const isAppCreate = appOverviewPermission?.isCreate
           return <>
-            {isAppCreate && 
-            <>
-            <a onClick={() => {
-              this.props.dispatch(
-                routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${record.group_id}`)
-              )
-            }}>{formatMessage({ id: 'versionUpdata_6_1.addComponent' })}
-            </a>
-            <Divider type="vertical" />
-            </>
-            }
             <a
               onClick={() => {
                 const { dispatch } = this.props;
@@ -665,7 +688,6 @@ export default class index extends Component {
               loading={appListLoading}
               extra={
                 <>
-
                   <Search
                     placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
                     onSearch={this.onSearch}
@@ -677,7 +699,7 @@ export default class index extends Component {
                     style={{ width: 300, marginRight: 10 }}
                   />
                   <Select
-                    style={{ width: this.state.language ? '140px' : '170px', marginRight: 10 }}
+                    style={{ width: this.state.language ? '140px' : '170px' }}
                     placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                     defaultValue={1}
                     onChange={this.handleSortChange}
@@ -689,60 +711,74 @@ export default class index extends Component {
                       <FormattedMessage id="teamOverview.updateTimeSort" />
                     </Option>
                   </Select>
-                  {isAppCreate && (
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        this.onJumpToWizard()
-                      }}
-                      data-guide="create-app"
-                    >
-                      {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                    </Button>
-                  )}
                 </>
               }
             >
-              {!appListLoading && isAppList && teamHotAppList.length > 0 && (
+              {!appListLoading && isAppList && (
                 <>
                   {isTableView ? (
-                    <Table
-                      dataSource={teamHotAppList}
-                      columns={columns}
-                      pagination={false}
-                      rowClassName={this.getRowClassName}
-                      rowKey={(record) => record.group_id}
-                      loading={appListLoading}
-                      pagination={false}
-                    />
+                    <>
+                      {isAppCreate && (
+                        <div className={styles.tableCreateBtnWrapper}>
+                          <Button
+                            type="primary"
+                            onClick={() => {
+                              this.onJumpToWizard()
+                            }}
+                            data-guide="create-app"
+                          >
+                            {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
+                          </Button>
+                        </div>
+                      )}
+                      {teamHotAppList.length > 0 ? (
+                        <Table
+                          dataSource={teamHotAppList}
+                          columns={columns}
+                          pagination={false}
+                          rowClassName={this.getRowClassName}
+                          rowKey={(record) => record.group_id}
+                          loading={appListLoading}
+                          pagination={false}
+                        />
+                      ) : (
+                        <div className={styles.appListEmpty}>
+                          <Empty
+                            description={formatMessage({ id: 'teamOverview.startDeploy' })}
+                          />
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    this.renderCardView()
+                    <>
+                      {this.renderCardView()}
+                      {teamHotAppList.length === 0 && !isAppCreate && (
+                        <div className={styles.appListEmpty}>
+                          <Empty
+                            description={formatMessage({ id: 'teamOverview.startDeploy' })}
+                          />
+                        </div>
+                      )}
+                    </>
                   )}
-                  <div className={styles.paginationContainer}>
-                    <Pagination
-                      showSizeChanger
-                      onShowSizeChange={this.handleChangePage}
-                      current={page}
-                      pageSize={page_size}
-                      total={appListTotal}
-                      onChange={this.handleChangePage}
-                      showQuickJumper
-                      showTotal={(appListTotal) => `共 ${appListTotal} 条`}
-                      hideOnSinglePage={appListTotal <= 12}
-                      pageSizeOptions={['12', '24', '36', '48', '60']}
-                    />
-                  </div>
-                </>)}
-              {!appListLoading && teamHotAppList.length == 0 &&
-                <div
-                  className={styles.appListEmpty}
-                  onClick={() => {
-                    this.onJumpToWizard()
-                  }}>
-                  <Empty
-                    description={formatMessage({ id: 'teamOverview.startDeploy' })}
-                  />
-                </div>}
+                  {teamHotAppList.length > 0 && (
+                    <div className={styles.paginationContainer}>
+                      <Pagination
+                        showSizeChanger
+                        onShowSizeChange={this.handleChangePage}
+                        current={page}
+                        pageSize={page_size}
+                        total={appListTotal}
+                        onChange={this.handleChangePage}
+                        showQuickJumper
+                        showTotal={(appListTotal) => `共 ${appListTotal} 条`}
+                        hideOnSinglePage={appListTotal <= 12}
+                        pageSizeOptions={['12', '24', '36', '48', '60']}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
             </Card>
           </>
         )}
@@ -761,6 +797,15 @@ export default class index extends Component {
           </div>
         )}
         {addGroup && <AddGroup onCancel={this.cancelAddApp} onOk={this.handleAddGroup} />}
+        <CreateComponentModal
+          visible={this.state.createComponentVisible}
+          onCancel={this.handleCloseCreateComponent}
+          dispatch={this.props.dispatch}
+          currentEnterprise={this.props.currentEnterprise}
+          rainbondInfo={this.props.rainbondInfo}
+          currentUser={this.props.currentUser}
+          currentView={this.state.currentView}
+        />
       </>
     );
   }

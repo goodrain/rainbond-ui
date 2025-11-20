@@ -58,7 +58,7 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount(){
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(group_id){
       this.handleChange(group_id)
     }
@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     const showCreateGroups = showCreateGroup === void 0 ? true : showCreateGroup;
     const isService = handleType && handleType === 'Service';
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>

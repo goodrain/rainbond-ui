@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Card, Form, Slider, InputNumber, Select, Radio, Input } from 'antd';
+import { Card, Form, Slider, InputNumber, Select, Radio, Input, Icon } from 'antd';
 import { formatMessage } from 'umi-plugin-locale';
 import styles from './index.less';
 
@@ -64,7 +64,7 @@ export default class Index extends PureComponent {
             memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G' },
             cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core' },
             memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-            cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
+            cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 18000: 8 },
             memorySliderMax: 9,
             memorySliderMin: 0,
             cpuSliderMax: 8,
@@ -168,7 +168,7 @@ export default class Index extends PureComponent {
     };
 
     render() {
-        const { form, dbVersions = [], storageClasses = [] } = this.props;
+        const { form, dbVersions = [], storageClasses = [], databaseType = '' } = this.props;
         const { getFieldDecorator } = form;
         const {
             memoryMarks,
@@ -184,22 +184,20 @@ export default class Index extends PureComponent {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 6 }
+                sm: { span: 3 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 }
+                sm: { span: 21 }
             }
         };
-
-        const requiredLabel = (label) => (<span><span style={{ color: 'red' }}>*</span> {label}</span>);
 
         return (
             <div className={styles.databaseBasicInfo}>
                 <Card title={formatMessage({ id: 'kubeblocks.database.basic.title' })} style={{ marginBottom: 16 }}>
                     <Form layout="horizontal" hideRequiredMark>
                         {/* 内存配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.memory_label' }))}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.memory_label' })}>
                             {getFieldDecorator('min_memory', {
                                 initialValue: memoryValue,
                                 rules: [
@@ -223,7 +221,7 @@ export default class Index extends PureComponent {
                         </Form.Item>
 
                         {/* CPU配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.cpu_label' }))}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.cpu_label' })}>
                             {getFieldDecorator('min_cpu', {
                                 initialValue: cpuValue,
                                 rules: [
@@ -246,26 +244,29 @@ export default class Index extends PureComponent {
                             )}
                         </Form.Item>
 
-                        {/* 磁盘配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.storage' }))}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                {getFieldDecorator('disk_cap', {
-                                    initialValue: 50,
-                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.config.storage_required' }) }]
-                                })(
-                                    <InputNumber
-                                        style={{ width: '120px' }}
-                                        min={1}
-                                        max={10000}
-                                        placeholder={formatMessage({ id: 'kubeblocks.database.config.storage_placeholder' })}
-                                    />
-                                )}
-                                <span style={{ marginLeft: 8, color: '#666' }}>Gi</span>
-                            </div>
+                        {/* 数据库版本配置 */}
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.version_label' })}>
+                            {getFieldDecorator('dbVersion', {
+                                initialValue: dbVersions.length > 0 ? dbVersions[0] : '',
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: formatMessage({ id: 'kubeblocks.database.config.version_required' })
+                                    }
+                                ]
+                            })(
+                                <Select style={{ width: '200px' }} placeholder={formatMessage({ id: 'kubeblocks.database.config.version_placeholder' })}>
+                                    {dbVersions.map(version => (
+                                        <Option key={version} value={version} title={databaseType ? `${databaseType}-${version}` : version}>
+                                            {databaseType ? `${databaseType}-${version}` : version}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            )}
                         </Form.Item>
 
                         {/* 副本数配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.replicas_label' }))}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.replicas_label' })}>
                             {getFieldDecorator('replicas', {
                                 initialValue: 1,
                                 rules: [
@@ -276,6 +277,7 @@ export default class Index extends PureComponent {
                                 ]
                             })(
                                 <InputNumber
+                                    style={{ width: '180px' }}
                                     min={1}
                                     max={10}
                                     placeholder={formatMessage({ id: 'kubeblocks.database.config.replicas_placeholder' })}
@@ -284,7 +286,7 @@ export default class Index extends PureComponent {
                         </Form.Item>
 
                         {/* StorageClass配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.storageClass_label' }))}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.storageClass_label' })}>
                             {getFieldDecorator('storageClass', {
                                 initialValue: storageClasses.length > 0 ? storageClasses[0].name : '',
                                 rules: [
@@ -294,7 +296,7 @@ export default class Index extends PureComponent {
                                     }
                                 ]
                             })(
-                                <Select style={{ width: '120px' }} placeholder={formatMessage({ id: 'kubeblocks.database.config.storageClass_placeholder' })}>
+                                <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.config.storageClass_placeholder' })}>
                                     {storageClasses.map(storageClass => (
                                         <Option key={storageClass.name} value={storageClass.name}>
                                             {storageClass.name}
@@ -304,25 +306,32 @@ export default class Index extends PureComponent {
                             )}
                         </Form.Item>
 
-                        {/* 数据库版本配置 */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.config.version_label' }))}>
-                            {getFieldDecorator('dbVersion', {
-                                initialValue: dbVersions.length > 0 ? dbVersions[0] : '',
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: formatMessage({ id: 'kubeblocks.database.config.version_required' })
-                                    }
-                                ]
-                            })(
-                                <RadioGroup>
-                                    {dbVersions.map(version => (
-                                        <Radio key={version} value={version}>
-                                            {version}
-                                        </Radio>
-                                    ))}
-                                </RadioGroup>
-                            )}
+                        {/* 磁盘配置 */}
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.storage' })}>
+                            <div style={{ position: 'relative', display: 'inline-block', width: '180px' }}>
+                                {getFieldDecorator('disk_cap', {
+                                    initialValue: 10,
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.config.storage_required' }) }]
+                                })(
+                                    <InputNumber
+                                        style={{ width: '100%', paddingRight: '35px' }}
+                                        min={1}
+                                        max={10000}
+                                        placeholder={formatMessage({ id: 'kubeblocks.database.config.storage_placeholder' })}
+                                    />
+                                )}
+                                <span style={{
+                                    position: 'absolute',
+                                    right: '32px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: 'rgba(0, 0, 0, 0.65)',
+                                    pointerEvents: 'none',
+                                    fontSize: '14px'
+                                }}>
+                                    Gi
+                                </span>
+                            </div>
                         </Form.Item>
                     </Form>
                 </Card>

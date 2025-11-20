@@ -79,16 +79,14 @@ class Index extends PureComponent {
 
     handleBasicInfoSubmit = (basicInfoData) => {
         this.setState({ basicInfoData });
-        console.log('基础信息配置:', basicInfoData);
     };
 
     handleBackupConfigSubmit = (backupData) => {
         this.setState({ backupConfigData: backupData });
-        console.log('备份配置:', backupData);
     };
 
     render() {
-        const { form, dbVersions = [], storageClasses = [], backupRepos = [] } = this.props;
+        const { form, dbVersions = [], storageClasses = [], backupRepos = [], databaseType } = this.props;
         const supportsBackup = this.checkDatabaseBackupSupport();
 
         return (
@@ -98,6 +96,7 @@ class Index extends PureComponent {
                     form={form}
                     dbVersions={dbVersions}
                     storageClasses={storageClasses}
+                    databaseType={databaseType}
                     onRef={this.onRefBasicInfo}
                     onSubmit={this.handleBasicInfoSubmit}
                 />

@@ -39,6 +39,7 @@ const AccessText = {
     team_member: '成员管理',
     team_region: '集群管理',
     team_role: '角色管理',
+    app_backup: '应用备份',
     team_registry_auth: '镜像仓库授权管理',
     app_gateway_monitor: '网关监控',
     app_route_manage: '路由管理',
@@ -76,6 +77,7 @@ const En_AccessText = {
     app_certificate: 'Certificate management',
     team_gateway_monitor: 'Gateway monitoring',
     team_route_manage: 'Route management',
+    app_backup: 'Application backup',
     team_target_services: 'Target service',
     team_certificate: 'Certificate management',
     team_dynamic: 'Dynamic',
@@ -106,6 +108,7 @@ const appMenuPermissionsMap = {
     app_certificate: 'isAppCertificate',//证书管理
     app_resources: 'isAppResources',//应用资源
     app_config_group: 'isAppConfigGroup',//应用管理
+    app_backup: 'isAppBackup',//应用备份
 };
 export default {
     // 身份
@@ -148,7 +151,7 @@ export default {
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
-                return ['describe', 'resource_limit','app_list']
+                return ['describe', 'resource_limit', 'app_list']
                 break;
             case 'team_app_create':
             case 'team_gateway_monitor':
@@ -162,6 +165,17 @@ export default {
                 break;
             case 'app_upgrade':
                 return ['app_model_list', 'upgrade_record', 'upgrade', 'rollback']
+                break;
+            case 'app_backup':
+                return [
+                    'describe',
+                    'add',
+                    'import',
+                    'recover',
+                    'move',
+                    'export',
+                    'delete'
+                ]
                 break;
             // 组件与应用级别特殊权限
             case 'app_overview':
@@ -202,7 +216,7 @@ export default {
         switch (type) {
             // 团队级别权限特殊处理
             case 'team_overview':
-                return ['isAccess', 'isResourceLimit','isAppList']
+                return ['isAccess', 'isResourceLimit', 'isAppList']
                 break;
             case 'team_app_create':
             case 'team_gateway_monitor':
@@ -216,6 +230,17 @@ export default {
                 break;
             case 'app_upgrade':
                 return ['isAppModelList', 'isUpgradeRecord', 'isUpgrade', 'isRollback']
+                break;
+            case 'app_backup':
+                return [
+                    'isAccess',
+                    'isAddBackup',
+                    'isImportBackup',
+                    'isRecoverBackup',
+                    'isMoveBackup',
+                    'isExportBackup',
+                    'isDeleteBackup'
+                ]
                 break;
             // 组件与应用级别特殊权限
             case 'app_overview':

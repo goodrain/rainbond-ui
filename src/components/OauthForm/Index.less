@@ -1,5 +1,12 @@
 .clearConform {
   :global {
+    // 与 ImageNameForm 统一的样式
+    .ant-form-item-label > label {
+      font-size: 14px !important;
+      color: rgba(0, 0, 0, 0.85) !important;
+      font-weight: 600 !important;
+    }
+
     .ant-form-item-label>label::after {
       content: none !important;
     }
@@ -33,7 +40,7 @@
 }
 
 .formWrap {
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
 }
 

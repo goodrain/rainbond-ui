@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import SelectTeam from '../../components/SelectTeam';
 import headerStype from '../../components/GlobalHeader/index.less';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { Spin } from 'antd';
+import { Spin, Icon } from 'antd';
 import { Link } from 'dva/router';
 
 export default function TeamHeader(props) {

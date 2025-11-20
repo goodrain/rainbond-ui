@@ -21,14 +21,15 @@ export default class ThirdLogin extends Component {
     super(props);
     this.state = {
       resultState: 'ing',
-      title: formatMessage({id:'login.Third.authentication'}),
-      desc: formatMessage({id:'login.Third.wait_for'})
+      title: formatMessage({ id: 'login.Third.authentication' }),
+      desc: formatMessage({ id: 'login.Third.wait_for' })
     };
   }
   // eslint-disable-next-line consistent-return
   componentWillMount() {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
+    const state = rainbondUtil.OauthParameter('state');
     const { dispatch, rainbondInfo } = this.props;
     const isSaas = rainbondInfo?.is_saas || false;
     if (
@@ -56,8 +57,8 @@ export default class ThirdLogin extends Component {
                 this.setState(
                   {
                     resultState: 'error',
-                    title: formatMessage({id:'login.Third.Failed'}),
-                    desc: formatMessage({id:'login.Third.Authentication'})
+                    title: formatMessage({ id: 'login.Third.Failed' }),
+                    desc: formatMessage({ id: 'login.Third.Authentication' })
                   },
                   () => {
                     setTimeout(() => {
@@ -69,7 +70,7 @@ export default class ThirdLogin extends Component {
                 this.setState(
                   {
                     resultState: 'success',
-                    title: formatMessage({id:'login.Third.success'}),
+                    title: formatMessage({ id: 'login.Third.success' }),
                     desc: ''
                   },
                   () => {
@@ -97,6 +98,7 @@ export default class ThirdLogin extends Component {
       dispatch({
         type: 'user/fetchThirdCertification',
         payload: {
+          state,
           code,
           service_id,
           domain: window.location.host
@@ -111,8 +113,8 @@ export default class ThirdLogin extends Component {
               this.setState(
                 {
                   resultState: 'error',
-                  title: formatMessage({id:'login.Third.Failed'}),
-                  desc: res.msg_show || formatMessage({id:'login.Third.token'})
+                  title: formatMessage({ id: 'login.Third.Failed' }),
+                  desc: res.msg_show || formatMessage({ id: 'login.Third.token' })
                 },
                 () => {
                   setTimeout(() => {
@@ -128,7 +130,7 @@ export default class ThirdLogin extends Component {
                 return null;
               }
               if (data && data.result) {
-                if(isSaas){
+                if (isSaas) {
                   this.handleThirdRegister(data.result.code, data.result.service_id, data.result.oauth_user_id, data.result);
                 } else {
                   // if not login
@@ -187,7 +189,7 @@ export default class ThirdLogin extends Component {
               },
               callback: res => {
                 if (res && res.status_code === 200) {
-                  message.success(formatMessage({id:'login.ThirdLogin.success'}), 1, () => {
+                  message.success(formatMessage({ id: 'login.ThirdLogin.success' }), 1, () => {
                     // support redirect to the page before login
                     let redirect = window.localStorage.getItem('redirect');
                     if (!redirect || redirect === '') {
@@ -221,7 +223,7 @@ export default class ThirdLogin extends Component {
   handleError = err => {
     const status = (err && err.status) || (err.response && err.response.status);
     if (status && status === 500) {
-      message.warning(formatMessage({id:'login.Third.again'}));
+      message.warning(formatMessage({ id: 'login.Third.again' }));
     } else {
       handleAPIError(err);
     }
@@ -246,11 +248,11 @@ export default class ThirdLogin extends Component {
   render() {
     const { resultState, title, desc } = this.state;
     return (
-      <div 
-      style={{
-        paddingTop: '20%',
-        paddingBottom: 16
-      }}>
+      <div
+        style={{
+          paddingTop: '20%',
+          paddingBottom: 16
+        }}>
         <Result
           type={resultState}
           title={title}

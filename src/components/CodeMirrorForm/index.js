@@ -1,6 +1,7 @@
 import { Upload } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
+import jsYaml from 'js-yaml';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -122,11 +123,67 @@ class CodeMirrorForm extends PureComponent {
       };
     }
   };
+  validateYaml = (value) => {
+    try {
+      if (value) {
+        // 去除首尾空白字符
+        const trimmedValue = value.trim();
+
+        // 检查是否包含冒号（key-value 格式的基本特征）
+        if (!trimmedValue.includes(':')) {
+          return {
+            isValid: false,
+            error: 'YAML 格式必须包含 key: value 格式的内容'
+          };
+        }
+
+        // 解析 YAML
+        const parsed = jsYaml.load(trimmedValue);
+
+        // 验证解析结果必须是对象或数组
+        if (parsed === null || parsed === undefined) {
+          return {
+            isValid: false,
+            error: 'YAML 内容不能为空'
+          };
+        }
+
+        if (typeof parsed !== 'object') {
+          return {
+            isValid: false,
+            error: 'YAML 格式必须是对象或数组结构'
+          };
+        }
+
+        // 检查是否包含中文
+        const chineseRegex = /[\u4e00-\u9fa5]/;
+        if (chineseRegex.test(trimmedValue)) {
+          return {
+            isValid: false,
+            error: 'YAML 内容不能包含中文字符'
+          };
+        }
+
+        return { isValid: true };
+      }
+      return { isValid: true };
+    } catch (e) {
+      return { isValid: false, error: e.message };
+    }
+  };
   checkValue = (_, value, callback) => {
-    const { message } = this.props;
+    const { message, mode } = this.props;
     if (value === '' || !value || (value && value.trim() === '')) {
       callback(message);
       return;
+    }
+    // 如果是 yaml 模式，进行 YAML 格式校验
+    if (mode === 'yaml') {
+      const validation = this.validateYaml(value);
+      if (!validation.isValid) {
+        callback(`YAML 格式错误: ${validation.error}`);
+        return;
+      }
     }
     callback();
   };

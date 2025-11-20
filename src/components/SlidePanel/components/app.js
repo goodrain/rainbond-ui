@@ -4,7 +4,7 @@ import EditGroupName from '@/components/AddOrEditGroup';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import AppDirector from '@/components/AppDirector';
 import globalUtil from '@/utils/global';
-import { notification, Button, Dropdown, Menu, Icon, Tag, Modal, Divider, Row, Col, Tooltip } from 'antd';
+import { notification, Button, Dropdown, Menu, Icon, Tag, Modal, Divider, Row, Col, Tooltip, Badge } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { buildApp } from '../../../services/createApp';
@@ -21,6 +21,7 @@ import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
+import CreateComponentModal from '@/components/CreateComponentModal';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
@@ -31,6 +32,7 @@ import ComponentListModal from '../../../pages/Group/ComponentListModal';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  rainbondInfo: global.rainbondInfo,
   novices: global.novices,
   pluginsList: teamControl.pluginsList,
   groups: global.groups
@@ -65,7 +67,8 @@ export default class app extends Component {
         value: 0,
         unit: 'MB'
       },
-      showComponentList: false
+      showComponentList: false,
+      showCreateComponentModal: false
     };
   }
   componentDidMount() {
@@ -250,7 +253,7 @@ export default class app extends Component {
       }
     });
   };
-   // 获取存储实际占用
+  // 获取存储实际占用
   getStorageUsed = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -397,7 +400,8 @@ export default class app extends Component {
       resources,
       linkList,
       serviceIds,
-      resourceList
+      resourceList,
+      upgradableNum
     } = this.state;
     const {
       isSlidePanel,
@@ -431,24 +435,32 @@ export default class app extends Component {
       {
         key: 'addComponent',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.addComponent" defaultMessage="添加组件" />,
+        text: <FormattedMessage id="versionUpdata_6_4.overview.add" defaultMessage="添加" />,
         show: isCreate && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleOpenAddComponentOrAppDetail('addComponent')
-      },
-      {
-        key: 'appDetail',
-        type: 'button',
-        text: <FormattedMessage id="appOverview.app_detail" defaultMessage="应用详情" />,
-        show: !isSlidePanel,
-        disabled: false,
-        onClick: () => this.handleOpenAddComponentOrAppDetail('appDetail')
       },
       {
         key: 'visitor',
         show: linkList && linkList.length > 0,
         type: 'component', // 特殊标识组件类型
         component: <VisterBtn linkList={linkList} type={!isSlidePanel ? 'default' : 'primary'} /> // 直接传入组件
+      },
+      {
+        key: 'appRelease',
+        type: 'button',
+        text: <FormattedMessage id="versionUpdata_6_4.overview.template" />,
+        show: isAppRelease && !isSlidePanel,
+        disabled: false,
+        onClick: () => this.handleJump('publish')
+      },
+      {
+        key: 'appUpgrade',
+        type: 'badge',
+        text: <FormattedMessage id="versionUpdata_6_4.overview.upgrade" />,
+        show: isAppUpgrade && !isSlidePanel && upgradableNum !== 0,
+        disabled: false,
+        onClick: () => this.handleJump('upgrade')
       },
       {
         key: 'update',
@@ -512,18 +524,69 @@ export default class app extends Component {
         text: '批量操作',
         show: (isStart || isStop || isUpdate || isDelete || isEdit) && jsonDataLength > 0,
         onClick: () => this.onShowComponentList()
+      },
+      {
+        key: 'appGateway',
+        type: 'button',
+        text: <FormattedMessage id="menu.app.gateway" />,
+        show: (isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate) && !isSlidePanel,
+        disabled: false,
+        onClick: () => this.handleJump('gateway')
+      },
+      {
+        key: 'appResources',
+        type: 'button',
+        text: <FormattedMessage id="menu.app.k8s" />,
+        show: isAppResources && !isSlidePanel,
+        disabled: false,
+        onClick: () => this.handleJump('asset')
+      },
+      {
+        key: 'appConfigGroup',
+        type: 'button',
+        text: <FormattedMessage id="menu.app.configgroups" />,
+        show: isAppConfigGroup && !isSlidePanel,
+        disabled: false,
+        onClick: () => this.handleJump('configgroups')
       }
     ]
     const availableOperations = allOperations.filter(op => op.show);
-    return this.renderOperations(availableOperations);
+    const operationsContent = this.renderOperations(availableOperations, !isSlidePanel);
+
+    return operationsContent;
   }
   // 渲染操作按钮
-  renderOperations(operations) {
+  renderOperations(operations, showDetailButton) {
     let content = [];
-    // 处理按钮逻辑
-    if (operations.length <= 4) {
-      content = operations.map((op, index) => (
-        op.type === 'button' ? (
+    // 固定展示的按钮key: 添加、访问、模板、升级
+    const fixedKeys = ['addComponent', 'visitor', 'appRelease', 'appUpgrade'];
+
+    // 分离固定展示的按钮和其他按钮
+    const fixedButtons = operations.filter(op => fixedKeys.includes(op.key));
+    const dropdownButtons = operations.filter(op => !fixedKeys.includes(op.key));
+
+    // 渲染固定按钮
+    content = fixedButtons.map((op, index) => {
+      if (op.type === 'badge') {
+        const buttonElement = (
+          <Button
+            type={index === 0 ? "primary" : "default"}
+            onClick={op.onClick}
+            disabled={op.disabled}
+          >
+            {op.text}
+          </Button>
+        );
+        // 根据 showBadge 属性决定是否显示徽标
+        return (
+          <span key={op.key} style={{ marginRight: 8, display: 'inline-block' }}>
+            <Badge dot>
+              {buttonElement}
+            </Badge>
+          </span>
+        )
+      } else if (op.type === 'button') {
+        return (
           <Button
             type={index === 0 ? "primary" : "default"}
             key={op.key}
@@ -533,15 +596,30 @@ export default class app extends Component {
           >
             {op.text}
           </Button>
-        ) : (
-          <span key={op.key} style={{ marginLeft: 8 }}>
+        );
+      } else {
+        return (
+          <span key={op.key} style={{ marginRight: 8 }}>
             {op.component}
           </span>
-        )
-      ));
-    } else {
-      const mainButtons = operations.slice(0, 3);
-      const dropdownButtons = operations.slice(3);
+        );
+      }
+    });
+
+    if (showDetailButton) {
+      content.push(
+        <Button
+          key="appDetail"
+          onClick={() => this.handleOpenAddComponentOrAppDetail('appDetail')}
+          style={{marginRight:8}}
+        >
+          <FormattedMessage id="versionUpdata_6_4.overview.detail" defaultMessage="详情" />
+        </Button>
+      );
+    }
+
+    // 如果有其他按钮，添加"更多"下拉菜单
+    if (dropdownButtons.length > 0) {
       const menu = (
         <Menu>
           {dropdownButtons.map(op => (
@@ -556,31 +634,17 @@ export default class app extends Component {
         </Menu>
       );
 
-      content = [
-        ...mainButtons.map((op, index) => (
-          op.type === 'button' ? (
-            <Button
-              type={index === 0 ? "primary" : "default"}
-              key={op.key}
-              onClick={op.onClick}
-              disabled={op.disabled}
-              style={{ marginRight: 8 }}
-            >
-              {op.text}
-            </Button>
-          ) : (
-            <span key={op.key} style={{ marginRight: 8 }}>
-              {op.component}
-            </span>
-          )
-        )),
+      content.push(
         <Dropdown key="more" overlay={menu}>
-          <Button>
+          <Button style={{ marginRight: 8 }}>
             {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
           </Button>
         </Dropdown>
-      ];
+      );
     }
+
+
+
     return content;
   }
   toEdit = () => {
@@ -706,11 +770,11 @@ export default class app extends Component {
   toDeleteResource = () => {
     this.setState({ toDeleteResource: true });
   };
-  
+
   onShowComponentList = () => {
     this.setState({ showComponentList: true });
   };
-  
+
   onHideComponentList = () => {
     this.setState({ showComponentList: false });
   };
@@ -730,18 +794,21 @@ export default class app extends Component {
   };
   handleOpenAddComponentOrAppDetail = (type) => {
     if (type === 'addComponent') {
-      const { dispatch } = this.props;
-      dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${globalUtil.getAppID()}&type=app`
-        )
-      );
+      this.setState({
+        showCreateComponentModal: true
+      });
     } else {
       this.props?.handleAddComponentOrAppDetail(type);
       this.setState({
         addComponentOrAppDetail: type
       });
     }
+  };
+
+  handleCloseCreateComponentModal = () => {
+    this.setState({
+      showCreateComponentModal: false
+    });
   };
 
   handleClose = () => {
@@ -780,88 +847,7 @@ export default class app extends Component {
   };
   // 高级设置按钮
   handleAdvancedSettings = () => {
-    const {
-      permissions: {
-        appPermissions: {
-          isAppOverview,
-          isAppRelease,
-          isAppUpgrade,
-          isAppGatewayMonitor,
-          isAppRouteManage,
-          isAppTargetServices,
-          isAppCertificate,
-          isAppResources,
-          isAppConfigGroup,
-        },
-      }
-    } = this.props;
-    const allOperations = [
-      {
-        type: 'button',
-        key: 'isAppRelease',
-        text: formatMessage({ id: 'menu.app.publish' }),
-        onClick: () => this.handleJump('publish'),
-        disabled: !isAppRelease
-      },
-      {
-        type: 'button',
-        key: 'isAppGatewayMonitor',
-        text: formatMessage({ id: 'menu.app.gateway' }),
-        onClick: () => this.handleJump('gateway'),
-        disabled: !(isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate)
-      },
-      {
-        type: 'button',
-        key: 'isAppUpgrade',
-        text: formatMessage({ id: 'menu.app.upgrade' }),
-        onClick: () => this.handleJump('upgrade'),
-        disabled: !isAppUpgrade
-      },
-      {
-        type: 'button',
-        key: 'isAppResources',
-        text: formatMessage({ id: 'menu.app.k8s' }),
-        onClick: () => this.handleJump('asset'),
-        disabled: !isAppResources
-      },
-      {
-        type: 'button',
-        key: 'isAppConfigGroup',
-        text: formatMessage({ id: 'menu.app.configgroups' }),
-        onClick: () => this.handleJump('configgroups'),
-        disabled: !isAppConfigGroup
-      }
-    ]
-    // 根据权限过滤按钮
-    const filteredOperations = allOperations.filter(op => {
-      if (op.disabled) {
-        return this.props[op.key];
-      }
-      return true;
-    });
-    // 如果按钮数量大于1，则显示下拉菜单
-    if (filteredOperations.length > 1) {
-      return (
-        <Dropdown overlay={<Menu>
-          {filteredOperations.map(op => (
-            <Menu.Item key={op.key} onClick={op.onClick}>{op.text}</Menu.Item>  
-          ))}
-        </Menu>}
-        >
-          <Button style={{ marginLeft: 10 }}>
-            {formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.senior' })}
-            <Icon type="down" />
-          </Button>
-        </Dropdown>
-      );
-    }
-    return (
-      <>
-        {filteredOperations.map(op => (
-          <Button key={op.key} onClick={op.onClick} style={{ marginLeft: 10 }}>{op.text}</Button>
-        ))} 
-      </>
-    );
+    return null;
   };
   render() {
     const {
@@ -1141,13 +1127,13 @@ export default class app extends Component {
                     this.loading();
                   }}
                   handleClose={this.handleClose}
-                  // onload={() => {
-                  //   // this.setState({ type: 'spin' }, () => {
-                  //   //   this.setState({
-                  //   //     type: this.state.size == 'large' ? 'shape' : 'list'
-                  //   //   });
-                  //   // });
-                  // }}
+                // onload={() => {
+                //   // this.setState({ type: 'spin' }, () => {
+                //   //   this.setState({
+                //   //     type: this.state.size == 'large' ? 'shape' : 'list'
+                //   //   });
+                //   // });
+                // }}
                 />
               </div>
             )}
@@ -1227,6 +1213,17 @@ export default class app extends Component {
             onCancel={this.onHideComponentList}
             groupId={globalUtil.getAppID()}
             componentPermissions={this.state.permissions.componentPermissions}
+            groups={this.props.groups}
+          />
+        )}
+        {this.state.showCreateComponentModal && (
+          <CreateComponentModal
+            visible={this.state.showCreateComponentModal}
+            onCancel={this.handleCloseCreateComponentModal}
+            dispatch={this.props.dispatch}
+            currentEnterprise={this.props.currentEnterprise}
+            rainbondInfo={this.props.rainbondInfo}
+            currentUser={this.props.currUser}
             groups={this.props.groups}
           />
         )}

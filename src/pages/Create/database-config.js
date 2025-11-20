@@ -61,7 +61,7 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => {}
+      handleError: (err) => { }
     });
   };
 
@@ -76,7 +76,7 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => {}
+      handleError: (err) => { }
     });
   };
 
@@ -91,7 +91,7 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => {}
+      handleError: (err) => { }
     });
   };
 
@@ -115,13 +115,11 @@ export default class Index extends PureComponent {
   };
 
   handlePrevStep = () => {
-    const { dispatch, location } = this.props;
-    const { group_id } = location?.query || {};
+    const { dispatch } = this.props;
 
-    // 返回上一步时携带 group_id
-    const query = group_id ? `?group_id=${group_id}` : '';
+    // 点击放弃，返回到团队应用列表页面
     dispatch(
-      routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/database${query}`)
+      routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
     );
   };
   handleFormSubmit = () => {
@@ -138,7 +136,7 @@ export default class Index extends PureComponent {
     const region_name = globalUtil.getCurrRegionName();
 
     // 从 URL query 获取应用ID、数据库类型、名称、英文名
-    let { group_id, database_type, service_cname, k8s_app } = location?.query || {};
+    let { group_id, database_type, service_cname, k8s_component_name } = location?.query || {};
 
     // 验证必需的参数
     if (!service_cname) {
@@ -151,23 +149,23 @@ export default class Index extends PureComponent {
       return;
     }
 
-    // 如果未携带 k8s_app，基于 service_cname 生成（回填逻辑）
-    if (!k8s_app) {
-      k8s_app = this.generateEnglishName(service_cname);
+    // 如果未携带组件英文名，基于 service_cname 生成（回填逻辑）
+    if (!k8s_component_name) {
+      k8s_component_name = this.generateEnglishName(service_cname);
     }
 
     // 如果存在应用组ID，在提交前做轻量英文名预检
     if (group_id) {
-      this.performK8sNamePrecheck(k8s_app, group_id, () => {
-        this.proceedWithSubmit(configData, { group_id, database_type, service_cname, k8s_app });
+      this.performK8sNamePrecheck(k8s_component_name, group_id, () => {
+        this.proceedWithSubmit(configData, { group_id, database_type, service_cname, k8s_component_name });
       });
     } else {
-      this.proceedWithSubmit(configData, { group_id, database_type, service_cname, k8s_app });
+      this.proceedWithSubmit(configData, { group_id, database_type, service_cname, k8s_component_name });
     }
   };
 
   // 执行英文名预检（仅在存在 group_id 时调用）
-  performK8sNamePrecheck = (k8s_app, group_id, onSuccess) => {
+  performK8sNamePrecheck = (k8s_component_name, group_id, onSuccess) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'appControl/getComponentNames',
@@ -177,7 +175,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         const componentNames = res?.bean?.component_names || [];
-        if (this.checkK8sNameConflict(k8s_app, componentNames)) {
+        if (this.checkK8sNameConflict(k8s_component_name, componentNames)) {
           message.error('当前应用下英文名已存在，请返回上一步更换英文名');
           return;
         }
@@ -196,13 +194,13 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
-    const { group_id, database_type, service_cname, k8s_app } = metadata;
+    const { group_id, database_type, service_cname, k8s_component_name } = metadata;
 
     const apiRequestData = this.formatSubmitData(configData, {
       group_id,
       database_type,
       service_cname,
-      k8s_app
+      k8s_component_name
     });
 
     // 验证必填字段
@@ -229,7 +227,10 @@ export default class Index extends PureComponent {
         if (response && response.status_code === 200) {
           message.success(formatMessage({ id: 'kubeblocks.database.config.success.created' }));
 
-          // 刷新应用分组信息
+          const serviceAlias = response.bean?.service_alias;
+          const groupId = response.bean?.group_id;
+
+          // 先刷新应用分组信息
           dispatch({
             type: 'global/fetchGroups',
             payload: {
@@ -237,21 +238,17 @@ export default class Index extends PureComponent {
             }
           });
 
-          window.sessionStorage.removeItem('codeLanguage');
-          window.sessionStorage.removeItem('packageNpmOrYarn'); 
-          window.sessionStorage.removeItem('advanced_setup');
-
-          // 获取返回的组件信息，直接跳转到应用视图
-          const serviceAlias = response.bean?.service_alias;
-          const groupId = response.bean?.group_id;
-          
-          if (serviceAlias && groupId) {
-            dispatch(
-              routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
-            );
-          } else {
-            message.error('创建成功但无法获取组件信息，请手动刷新页面');
-          }
+          // 刷新权限信息，并在权限更新完成后再跳转
+          roleUtil.refreshPermissionsInfo(groupId, true, () => {
+            // 跳转到应用详情页
+            if (serviceAlias && groupId) {
+              dispatch(
+                routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
+              );
+            } else {
+              message.error('创建成功但无法获取组件信息，请手动刷新页面');
+            }
+          });
         } else {
           console.error('API 调用失败:', {
             status_code: response?.status_code,
@@ -274,27 +271,26 @@ export default class Index extends PureComponent {
     const regionName = globalUtil.getCurrRegionName();
 
     // 从 location.query 获取应用组创建需要的参数
-    const { service_cname, k8s_app, group_name } = location?.query || {};
+    const { service_cname, k8s_component_name, k8s_app, group_name } = location?.query || {};
 
     dispatch({
       type: 'application/addGroup',
       payload: {
         region_name: regionName,
         team_name: teamName,
-        group_name: vals.group_name || group_name || service_cname,
-        k8s_app: vals.k8s_app || k8s_app,
+        group_name: group_name || service_cname,
+        k8s_app: k8s_app,
         note: '',
       },
       callback: (res) => {
         if (res && res.group_id) {
-          roleUtil.refreshPermissionsInfo();
           // 创建应用组成功后，更新 location.query 并继续创建数据库组件
-          const { service_cname, database_type, k8s_app } = this.props.location?.query || {};
+          const { service_cname, database_type } = this.props.location?.query || {};
           this.proceedWithSubmit(vals, {
             group_id: res.group_id,
             database_type,
             service_cname,
-            k8s_app: vals.k8s_app || k8s_app
+            k8s_component_name: k8s_component_name
           });
         }
       },
@@ -305,7 +301,7 @@ export default class Index extends PureComponent {
   // 统一的入口方法
   handleInstallApp = (configData) => {
     const { location } = this.props;
-    const { group_id, group_name, k8s_app } = location?.query || {};
+    const { group_id } = location?.query || {};
 
     if (group_id) {
       // 已有应用
@@ -317,7 +313,7 @@ export default class Index extends PureComponent {
   };
 
   formatSubmitData = (configData, metadata) => {
-    const { group_id, database_type, service_cname, k8s_app } = metadata;
+    const { group_id, database_type, service_cname, k8s_component_name } = metadata;
 
     let basicInfo = {};
     let backupConfig = {};
@@ -352,7 +348,7 @@ export default class Index extends PureComponent {
 
       replicas: parseInt(basicInfo.replicas) || 1,             // 副本数量（必填）
       storage_class: basicInfo.storageClass || '',             // 存储类名称（必填）
-      k8s_app: k8s_app,                                        // K8s组件名称（必填，Rainbond组件英文名）
+      k8s_app: k8s_component_name,                             // K8s组件名称（必填，Rainbond组件英文名）
 
       ...(group_id && { group_id }),                           // 应用分组ID（可选）
 
@@ -518,7 +514,7 @@ export default class Index extends PureComponent {
       databaseTypes
     } = this.props;
 
-    const { database_type, group_id, service_cname, k8s_app } = this.props.location?.query || {};
+    const { database_type, group_id, service_cname } = this.props.location?.query || {};
 
     let dbVersions = [];
     if (database_type && Array.isArray(databaseTypes)) {
@@ -551,7 +547,7 @@ export default class Index extends PureComponent {
             onClick={() => {
               dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
                 )
               );
             }}
@@ -562,7 +558,7 @@ export default class Index extends PureComponent {
           </Button>
         }
       >
-        <div className={styles.formWrap} style={{ width: '900px' }}>
+        <div className={styles.formWrap} style={{ width: '100%' }}>
 
           {/* 数据库配置表单组件 */}
           <DatabaseConfigForm
@@ -576,7 +572,7 @@ export default class Index extends PureComponent {
             onSubmit={this.handleInstallApp}
           />
 
-          <div style={{ textAlign: 'right', marginTop: 24 }}>
+          <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Button style={{ marginRight: 8 }} onClick={this.handlePrevStep}>
               {formatMessage({ id: 'kubeblocks.database.config.btn.prev' })}
             </Button>

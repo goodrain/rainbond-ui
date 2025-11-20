@@ -1,0 +1,350 @@
+@import "~antd/lib/style/themes/default.less";
+
+// 定义主题变量（从 config/theme.js）
+@primary-color: #195ca3;
+@rbd-background-color: #f0f5ff;
+
+.selectButton {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.selectButtonName {
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+    max-width: 280px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.selectButtonNameActive {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.selectButtonContent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.selectButtonApp {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.selectButtonAppIcon {
+    font-size: 16px;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.selectButtonAppText {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selectButtonArray {
+    opacity: 0.7;
+    font-size: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.selectButtonArrayActive {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.dropBox {
+    width: 300px;
+    border: none;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    animation: dropdownFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropBoxSearch {
+    padding: 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dropBoxSearchInputContrl {
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        border-color: @primary-color;
+    }
+
+    &:focus {
+        border-color: @primary-color;
+        box-shadow: 0 0 0 2px fade(@primary-color, 10%);
+    }
+
+    :global {
+        .ant-input {
+            font-size: 14px;
+        }
+    }
+}
+
+.searchIcon {
+    color: #8c8c8c;
+    font-size: 14px;
+}
+
+.dropBoxContent {
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.dropBoxList {
+    margin: 0;
+
+    ul {
+        max-height: 280px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 8px 0;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #d9d9d9;
+            border-radius: 3px;
+
+            &:hover {
+                background: #bfbfbf;
+            }
+        }
+
+        li {
+            align-items: center;
+            display: flex;
+            width: 100%;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    }
+}
+
+.appItem {
+    align-items: center;
+    display: flex;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+    color: #262626;
+    background-color: transparent;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        .appItemContent {
+            background-color: @rbd-background-color;
+            border-color: @primary-color;
+            box-shadow: 0 2px 8px fade(@primary-color, 8%);
+            transform: translateX(2px);
+        }
+
+        .appItemIcon {
+            background: @primary-color;
+            color: #ffffff;
+        }
+
+        .appItemName {
+            color: @primary-color;
+        }
+    }
+
+    &:active {
+        .appItemContent {
+            transform: translateX(0);
+            box-shadow: 0 1px 4px fade(@primary-color, 12%);
+        }
+    }
+}
+
+.appItemContent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 12px;
+    margin: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.appItemIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background-color: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #8c8c8c;
+    flex-shrink: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.appItemInfo {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.appItemName {
+    color: #262626;
+    font-size: 14px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    color: #8c8c8c;
+
+    p {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: #8c8c8c;
+    }
+}
+
+.emptyIcon {
+    font-size: 48px;
+    color: #d9d9d9;
+}
+
+.dropBoxListCreate {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 16px;
+    cursor: pointer;
+    width: 100%;
+    border-top: 1px solid #f0f0f0;
+    color: @primary-color;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background-color: @rbd-background-color;
+        color: darken(@primary-color, 10%);
+    }
+
+    &:active {
+        background-color: darken(@rbd-background-color, 5%);
+    }
+}
+
+.createIcon {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.dropBoxAll {
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 48px;
+    width: 100%;
+    border-top: 1px solid #f0f0f0;
+    color: #595959;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+
+    &:hover {
+        background-color: #fafafa;
+        color: #262626;
+    }
+
+    &:active {
+        background-color: #f0f0f0;
+    }
+
+    span {
+        color: inherit;
+        font-size: 14px;
+    }
+
+    i {
+        font-size: 12px;
+        transition: transform 0.2s ease;
+    }
+
+    &:hover i {
+        transform: translateX(2px);
+    }
+}

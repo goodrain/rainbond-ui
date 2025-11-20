@@ -261,13 +261,7 @@ export default class Overview extends Component {
             )}
           </>
         )}
-        {!isVisible && addComponentOrAppDetail == '' && type != 'EditorTopology' && (
-          <Tooltip title="编辑模式" placement="right">
-            <div className={styles.topoBtn} onClick={() => this.changeType('EditorTopology')}>
-              {svg}
-            </div>
-          </Tooltip>
-        )}
+
         {type == 'EditorTopology' &&
           <Button
             onClick={() => this.handleChangeType('AppShape', 'EditorTopology')}

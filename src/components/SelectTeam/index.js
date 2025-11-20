@@ -115,82 +115,122 @@ export default class SelectTeam extends PureComponent {
     });
     const dropdown = (
       <div className={style.dropBox}>
-        <div>
-          <div className={style.dropBoxSearch}>
-            <div className={style.dropBoxSearchInput}>
-              <Icon
-                className={style.dropBoxSearchInputIcon}
-                loading={`${loading}`}
-                type="search"
-              />
-              <Input.Search
-                onSearch={this.queryTeams}
-                className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: 'header.team.search' })}
-              />
-            </div>
-          </div>
+        <div className={style.dropBoxSearch}>
+          <Input.Search
+            onSearch={this.queryTeams}
+            className={style.dropBoxSearchInputContrl}
+            placeholder={formatMessage({ id: 'header.team.search' })}
+            loading={loading}
+            prefix={<Icon type="search" className={style.searchIcon} />}
+            allowClear
+          />
         </div>
-        <div>
-          <div className={style.dropBoxList}>
-            <ul>
-              {items.map(item => {
-                if (item.link) {
-                  return (
-                    <li key={item.name}>
-                      <Link to={item.link} title={item.name} onClick={()=>{changeTeam && changeTeam()}}>
-                        <span>{item.name}</span>
-                      </Link>
-                    </li>
-                  );
-                }
-              })}
-            </ul>
-            {currentUser.is_user_enter_amdin && (
-              <div
-                className={style.dropBoxListCreate}
-                onClick={this.showCreateTeam}
-              >
-                <Icon type="plus" />
-                <FormattedMessage id="header.team.create" />
+        <div className={style.dropBoxContent}>
+          {items.length > 0 ? (
+            <div className={style.dropBoxList}>
+              <ul>
+                {items.map(item => {
+                  if (item.link) {
+                    const [teamName, regionName] = item.name.split(' | ');
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          to={item.link}
+                          title={item.name}
+                          onClick={()=>{changeTeam && changeTeam()}}
+                          className={style.teamItem}
+                        >
+                          <div className={style.teamItemContent}>
+                            <div className={style.teamItemIcon}>
+                              <Icon type="team" />
+                            </div>
+                            <div className={style.teamItemInfo}>
+                              <div className={style.teamItemName}>{teamName}</div>
+                              <div className={style.teamItemRegion}>
+                                <Icon type="cluster" className={style.clusterIcon} />
+                                {regionName}
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  }
+                })}
+              </ul>
+            </div>
+          ) : (
+            !loading && (
+              <div className={style.emptyState}>
+                <Icon type="inbox" className={style.emptyIcon} />
+                <p><FormattedMessage id="header.team.empty" defaultMessage="No teams found" /></p>
               </div>
-            )}
-          </div>
-          <Link className={style.dropBoxAll} to={currentEnterpriseTeamPageLink}>
-            <span>
-              <FormattedMessage id="header.team.getall" />
-            </span>
-            <Icon type="right" />
-          </Link>
+            )
+          )}
+          {currentUser.is_user_enter_amdin && (
+            <div
+              className={style.dropBoxListCreate}
+              onClick={this.showCreateTeam}
+            >
+              <Icon type="plus" className={style.createIcon} />
+              <FormattedMessage id="header.team.create" />
+            </div>
+          )}
         </div>
       </div>
     );
-    const showstyle = { background: '#4d73b1', color: '#ffffff' };
     return (
       <div
         className={className}
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible}>
+        <Dropdown
+          overlay={dropdown}
+          visible={showCreateTeam ? false : visible}
+          trigger={['click', 'hover']}
+          placement="bottomLeft"
+        >
           <div>
             {active && (
               <div className={style.selectButton}>
-                <div className={style.selectButtonName} style={showstyle}>
-                  <span>
-                    {currentTeam?.team_alias} | {currentRegion?.team_region_alias}
-                  </span>
-                  <Icon className={style.selectButtonArray} type="caret-down" />
+                <div className={`${style.selectButtonName} ${visible ? style.selectButtonNameActive : ''}`}>
+                  <div className={style.selectButtonContent}>
+                    <div className={style.selectButtonTeam}>
+                      <Icon type="team" className={style.selectButtonTeamIcon} />
+                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                    </div>
+                  </div>
+                  <Icon
+                    className={`${style.selectButtonArray} ${visible ? style.selectButtonArrayActive : ''}`}
+                    type="caret-down"
+                  />
                 </div>
               </div>
             )}
             {!active && (
-              <Link className={style.selectButtonLink} to={currentTeamLink}>
-                {currentTeam?.team_alias} | {currentRegion?.team_region_alias}
+              <Link to={currentTeamLink} className={style.selectButton}>
+                <div className={style.selectButtonName}>
+                  <div className={style.selectButtonContent}>
+                    <div className={style.selectButtonTeam}>
+                      <Icon type="team" className={style.selectButtonTeamIcon} />
+                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                    </div>
+                  </div>
+                </div>
               </Link>
             )}
           </div>
         </Dropdown>
+        {showCreateTeam && (
+          <CreateTeam
+            onOk={() => {
+              this.cancelCreateTeam();
+              this.loadUserTeams();
+            }}
+            onCancel={this.cancelCreateTeam}
+          />
+        )}
       </div>
     );
   }

@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
     this.fetchPipePipeline();
     this.handleJarWarUpload();
     const { handleType, groupId } = this.props;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(group_id){
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
@@ -359,7 +359,7 @@ export default class Index extends PureComponent {
     } else if (archInfo.length == 1) {
       arch = archInfo && archInfo[0]
     }
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>

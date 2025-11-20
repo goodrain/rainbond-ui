@@ -4,6 +4,7 @@ import { Button, Form, Input, Select, Alert, List, Tooltip, Popover, Table, Radi
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { pinyin } from 'pinyin-pro';
 import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';
 import globalUtil from '../../utils/global';
@@ -16,18 +17,18 @@ const { TextArea } = Input;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 24
   },
   wrapperCol: {
-    span: 14
+    span: 24
   }
 };
 const formItemLayouts = {
   labelCol: {
-    span: 10
+    span: 24
   },
   wrapperCol: {
-    span: 14
+    span: 24
   }
 };
 
@@ -65,7 +66,7 @@ export default class Index extends PureComponent {
     this.props.onRef(this)
     this.getAppStoreList();
     this.handleJarWarUpload();
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     if(group_id){
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
@@ -105,16 +106,60 @@ export default class Index extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, handleType } = this.props;
+    const { form, onSubmit, handleType, dispatch } = this.props;
     const { event_id } = this.state
     const isService = handleType && handleType === 'Service' ? 'service' : 'team';
     form.validateFields((err, fieldsValue) => {
-      if (!err && onSubmit) {
+      if (err) return;
+
+      const group_id = globalUtil.getAppID();
+
+      // 如果已经有group_id，直接调用Helm创建接口
+      if (group_id) {
         if (fieldsValue.imagefrom == 'upload') {
           fieldsValue.event_id = event_id
         }
         onSubmit(fieldsValue, isService);
+        return;
       }
+
+      // 如果没有group_id，先创建应用
+      const teamName = globalUtil.getCurrTeamName();
+      const regionName = globalUtil.getCurrRegionName();
+
+      const k8s_app = this.generateEnglishName(fieldsValue.group_name || '');
+
+      dispatch({
+        type: 'application/addGroup',
+        payload: {
+          region_name: regionName,
+          team_name: teamName,
+          group_name: fieldsValue.group_name,
+          k8s_app: k8s_app,
+          note: '',
+        },
+        callback: (res) => {
+          if (res && res.group_id) {
+            // 创建应用成功，刷新权限信息
+            role.refreshPermissionsInfo(res.group_id, false, (val) => {
+              this.setState({ creatComPermission: val });
+            });
+
+            // 为Helm接口添加group_id
+            fieldsValue.group_id = res.group_id;
+
+            if (fieldsValue.imagefrom == 'upload') {
+              fieldsValue.event_id = event_id
+            }
+
+            // 调用Helm创建接口
+            onSubmit(fieldsValue, isService);
+          }
+        },
+        handleError: () => {
+          // 创建应用失败处理
+        }
+      });
     });
   };
   handleValiateNameSpace = (_, value, callback) => {
@@ -281,6 +326,25 @@ export default class Index extends PureComponent {
       creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${values}`)
     })
   }
+
+   // 生成英文名
+   generateEnglishName = (name) => {
+    if (name != undefined) {
+      const { comNames } = this.state;
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      const cleanedPinyinName = pinyinName.toLowerCase();
+      if (comNames && comNames.length > 0) {
+        const isExist = comNames.some(item => item === cleanedPinyinName);
+        if (isExist) {
+          const random = Math.floor(Math.random() * 10000);
+          return `${cleanedPinyinName}${random}`;
+        }
+        return cleanedPinyinName;
+      }
+      return cleanedPinyinName;
+    }
+    return ''
+  }
   render() {
     const {
       groups,
@@ -303,7 +367,7 @@ export default class Index extends PureComponent {
       isCreate
     } } = this.state;
     const is_language = language ? formItemLayout : formItemLayout;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const columns = [
       {
         title: formatMessage({ id: 'teamAdd.create.helm.store_name' }),
@@ -318,29 +382,30 @@ export default class Index extends PureComponent {
     ];
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
-            {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-            })(
-              <Select
-                showSearch
-                filterOption={(input, option) =>
-                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
+          <Form.Item
+            label={formatMessage({ id: 'popover.newApp.appName' })}
+            {...formItemLayout}
+          >
+            {getFieldDecorator('group_name', {
+              initialValue: this.props.form.getFieldValue('service_cname') || '',
+              rules: [
+                { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
+                {
+                  max: 24,
+                  message: formatMessage({ id: 'placeholder.max24' })
                 }
-                getPopupContainer={triggerNode => triggerNode.parentNode}
-                placeholder={formatMessage({ id: 'placeholder.appName' })}
-                disabled={!!isService || group_id}
-                onChange={this.handleChange}
-              >
-                {(groups || []).map(group => {
-                  return (
-                    <Option value={group.group_id}>{group.group_name}</Option>
-                  );
-                })}
-              </Select>
-            )}
+              ]
+            })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
+            {getFieldDecorator('k8s_app', {
+              initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+              rules: [
+                { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
+                { validator: this.handleValiateNameSpace }
+              ]
+            })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
             {getFieldDecorator('imagefrom', {
@@ -466,36 +531,35 @@ export default class Index extends PureComponent {
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
-                sm: {
-                  span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span
-                }
+                sm: { span: 24, offset: 0 }
               }}
               label=""
             >
-              {isService && ButtonGroupState
-                ?
-                <Button
-                  onClick={this.handleSubmit}
-                  type="primary"
-                  loading={BtnLoading}
-                >
-                  {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
-                </Button>
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                {isService && ButtonGroupState
+                  ?
+                  <Button
+                    onClick={this.handleSubmit}
+                    type="primary"
+                    loading={BtnLoading}
+                  >
+                    {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
+                  </Button>
 
 
-                : !handleType && (
-                  <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
-                    <Button
-                      onClick={this.handleSubmit}
-                      type="primary"
-                      loading={BtnLoading}
-                      disabled={!isCreate}
-                    >
-                      {formatMessage({ id: 'teamAdd.create.btn.create' })}
-                    </Button>
-                  </Tooltip>
-                )}
+                  : !handleType && (
+                    <Tooltip title={!isCreate && formatMessage({ id: 'versionUpdata_6_1.noApp' })}>
+                      <Button
+                        onClick={this.handleSubmit}
+                        type="primary"
+                        loading={BtnLoading}
+                        disabled={!isCreate}
+                      >
+                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
+                      </Button>
+                    </Tooltip>
+                  )}
+              </div>
             </Form.Item>
           ) : null}
         </Form>

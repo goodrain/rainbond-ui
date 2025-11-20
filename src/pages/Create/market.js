@@ -29,6 +29,7 @@ import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AuthCompany from '../../components/AuthCompany';
 import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
 import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
+import MarketModal from '../../components/MarketModal';
 import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
@@ -97,6 +98,9 @@ export default class Main extends PureComponent {
       cloudTotal: 0,
       helmCreate: null,
       showCreate: null,
+      showMarketModal: false,
+      selectedMarketApp: null,
+      marketStore: null,
       scope,
       scopeMax: (this.props.match && this.props.match.params && this.props.match.params.keyword) ?
         (this.props.match && this.props.match.params && this.props.match.params.keyword) : (scopeMax || 'localApplication'),
@@ -209,6 +213,14 @@ export default class Main extends PureComponent {
   }
   onCancelCreate = () => {
     this.setState({ showCreate: null, helmCreate: null, addAppLoading: false });
+  };
+
+  onCancelMarketModal = () => {
+    this.setState({
+      showMarketModal: false,
+      selectedMarketApp: null,
+      marketStore: null
+    });
   };
   getCloudRecommendApps = v => {
     const { currentKey, archInfo } = this.state;
@@ -513,7 +525,7 @@ export default class Main extends PureComponent {
   };
 
   showCreate = app => {
-    const { handleType } = this.state;
+    const { handleType, scopeMax, currentKey } = this.state;
     if (handleType) {
       const versions = app.versions_info || app.versions
       this.setState({
@@ -521,7 +533,21 @@ export default class Main extends PureComponent {
         currentVersionInfo: versions[0]
       });
     } else {
-      this.setState({ showCreate: app });
+      // 本地组件库使用 MarketModal 组件
+      if (scopeMax === 'localApplication') {
+        this.setState({
+          showMarketModal: true,
+          selectedMarketApp: app,
+          marketStore: {
+            name: currentKey || 'localApplication',
+            alias: '本地组件库',
+            source: 'local'
+          }
+        });
+      } else {
+        // 其他市场继续使用原来的表单
+        this.setState({ showCreate: app });
+      }
     }
   };
   handleHelmIntall = app => {
@@ -707,6 +733,7 @@ export default class Main extends PureComponent {
                 }/overview`
               )
             );
+            
           }
         });
       },
@@ -1150,7 +1177,9 @@ export default class Main extends PureComponent {
       currentRegionName,
       isHelm = true,
       isAddMarket,
-      pluginsList
+      pluginsList,
+      dispatch,
+      groups
     } = this.props;
     const {
       handleType,
@@ -1191,7 +1220,10 @@ export default class Main extends PureComponent {
       archInfo,
       teamAppCreatePermission: { isAccess },
       cpuPrice,
-      memoryPrice
+      memoryPrice,
+      showMarketModal,
+      selectedMarketApp,
+      marketStore
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission()
@@ -1397,7 +1429,7 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: formatMessage({ id: 'otherApp.marketDrawer.creat' }) });
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const SpinBox = (
       <div
         style={{
@@ -1438,6 +1470,19 @@ export default class Main extends PureComponent {
             onCancel={this.onCancelCreate}
             showCreate={showCreate}
             addAppLoading={addAppLoading}
+          />
+        )}
+        {showMarketModal && selectedMarketApp && marketStore && (
+          <MarketModal
+            visible={showMarketModal}
+            onCancel={this.onCancelMarketModal}
+            store={marketStore}
+            initialApp={selectedMarketApp}
+            dispatch={dispatch}
+            currentEnterprise={currentEnterprise}
+            groups={groups}
+            pluginsList={pluginsList}
+            form={this.props.form}
           />
         )}
 
@@ -1648,7 +1693,7 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
+                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
                   );
                 }} type="default">
                   <Icon type="rollback" />{formatMessage({ id: 'button.return' })}

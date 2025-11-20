@@ -685,6 +685,9 @@ export async function updateCustomLanguage(body = {}, handleError) {
       method: 'put',
       params: {
         lang: body.lang
+      },
+      data:{
+        dockerfile_path: body.dockerfile_path || ""
       }
     }
   )

@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
-import { Layout, Alert } from 'antd';
+import { Layout, Alert, Icon } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux, Link } from 'dva/router';
@@ -515,7 +515,8 @@ class EnterpriseLayout extends PureComponent {
     };
     const customHeader = () => {
       return (
-        <Link style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder' }} onClick={this.onJumpPersonal}>
+        <Link style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginLeft: 20 }} className={styles.platform} onClick={this.onJumpPersonal}>
+          <Icon type="team" style={{fontSize: 16,marginRight:6}}/>
           {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
         </Link>
       )
@@ -568,7 +569,7 @@ class EnterpriseLayout extends PureComponent {
                 collapsed={collapsed}
                 onCollapse={this.handleMenuCollapse}
               />
-              <div style={{ width:showMenu? collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)' : '100%', }}>
+              <div style={{ width: showMenu ? collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)' : '100%', }}>
                 <TransitionGroup
                   style={{
                     height: 'calc(100vh - 64px)',
@@ -622,7 +623,7 @@ class EnterpriseLayout extends PureComponent {
                           noMatch={<Redirect to="/user/login" />}
                         >
                           {children}
-                         {showMenu && <CustomFooter />}
+                          {showMenu && <CustomFooter />}
                         </Authorized>
                       </div>
                     </Content>

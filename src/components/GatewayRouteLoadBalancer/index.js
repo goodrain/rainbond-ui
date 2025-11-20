@@ -871,37 +871,26 @@ export default class GatewayRouteLoadBalancer extends Component {
                             <>
                                 {deletingRecords.has(record.name) ? (
                                     // 删除loading状态时显示禁用的按钮
-                                    <Button 
-                                        type="link" 
-                                        size="small" 
+                                    <Button
+                                        type="link"
+                                        size="small"
                                         style={{ color: '#ccc', padding: 0 }}
                                         disabled={true}
                                     >
                                         {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
                                         <Icon type="loading" style={{ marginLeft: 4 }} />
                                     </Button>
-                                ) : !this.isLoadBalancerOperatable(record) ? (
-                                    // LoadBalancer分配中时显示禁用的删除按钮
-                                    <Button 
-                                        type="link" 
-                                        size="small" 
-                                        style={{ color: '#ccc', padding: 0 }}
-                                        disabled={true}
-                                        title="LoadBalancer分配中，无法删除"
-                                    >
-                                        {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}
-                                    </Button>
                                 ) : (
-                                    // 正常状态时显示带确认框的按钮
+                                    // 显示带确认框的删除按钮
                                     <Popconfirm
                                         title={formatMessage({ id: 'componentOverview.body.LoadBalancer.confirm_delete' })}
                                         onConfirm={() => this.handleDelete(record)}
                                         okText={formatMessage({ id: 'componentOverview.body.Ports.determine' })}
                                         cancelText={formatMessage({ id: 'componentOverview.body.Ports.cancel' })}
                                     >
-                                        <Button 
-                                            type="link" 
-                                            size="small" 
+                                        <Button
+                                            type="link"
+                                            size="small"
                                             style={{ color: '#ff4d4f', padding: 0 }}
                                         >
                                             {formatMessage({ id: 'componentOverview.body.LoadBalancer.delete' })}

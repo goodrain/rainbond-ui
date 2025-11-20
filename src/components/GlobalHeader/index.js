@@ -282,7 +282,7 @@ export default class GlobalHeader extends PureComponent {
       <svg t="1736330635739" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5523" width="16" height="16"><path d="M793.1904 742.4H220.5696a20.48 20.48 0 1 1 0-40.96h572.6208a20.48 20.48 0 0 1 0 40.96z" p-id="5524"></path><path d="M856.2688 952.32H157.4912A105.2672 105.2672 0 0 1 51.2 848.1792V175.8208A105.2672 105.2672 0 0 1 157.4912 71.68h698.7776A105.2672 105.2672 0 0 1 962.56 175.8208v672.3584A105.2672 105.2672 0 0 1 856.2688 952.32zM156.672 112.64A64 64 0 0 0 92.16 175.8208v672.3584A64 64 0 0 0 156.672 911.36h700.416a64 64 0 0 0 64.512-63.1808V175.8208A64 64 0 0 0 857.088 112.64z" p-id="5525"></path><path d="M777.4208 460.8H635.6992a20.48 20.48 0 1 1 0-40.96h141.7216a20.48 20.48 0 1 1 0 40.96M417.5872 386.4576H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96M417.5872 472.064H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96" p-id="5526"></path><path d="M325.2224 555.3152a20.48 20.48 0 0 1-20.48-20.48V365.4656a20.48 20.48 0 1 1 40.96 0v169.3696a20.48 20.48 0 0 1-20.48 20.48" p-id="5527"></path><path d="M323.7888 389.12a20.48 20.48 0 0 1-18.2272-11.264l-93.0816-184.32a20.48 20.48 0 0 1 36.5568-18.432l93.0816 184.32a20.48 20.48 0 0 1-9.1136 27.5456 19.7632 19.7632 0 0 1-9.216 2.2528" p-id="5528"></path><path d="M329.6256 386.048a19.6608 19.6608 0 0 1-9.728-2.4576 20.48 20.48 0 0 1-8.2944-27.7504l92.9792-172.544A20.48 20.48 0 0 1 440.32 202.752l-92.16 172.544a20.48 20.48 0 0 1-18.0224 10.752" p-id="5529"></path></svg>
     )
     const languageSvg = () => (
-      <svg t="1742959338405" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15135" width="22" height="22">
+      <svg t="1742959338405" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15135" width="20" height="20">
         <path d="M364.16 259.776a361.408 361.408 0 0 1-73.024 124.16 385.664 385.664 0 0 1-80.64-124.16H364.16z m128.576 0v-51.968H297.856l38.528-12.16c-5.376-18.368-18.816-47.104-30.464-67.84l-56.896 16.64c10.304 19.84 20.16 44.928 25.088 63.36H85.056v51.968h70.336c24.192 63.232 55.104 116.992 95.424 161.408-46.592 36.288-104.384 61.888-174.272 79.36 10.752 12.096 26.432 37.184 32.256 49.728 72.128-20.608 132.16-50.176 181.44-90.56 47.04 39.488 104.832 69.12 175.168 87.872 8.064-14.72 23.744-38.08 35.84-49.728-66.752-15.68-123.2-41.728-169.344-77.568 38.976-43.52 69.44-96 92.288-160.512h68.544zM693.76 739.84l11.264-41.472a2728.96 2728.96 0 0 0 32.256-123.904h2.048c11.264 40.96 21.504 84.48 33.28 123.904l11.264 41.472H693.76zM826.88 896h79.36l-121.856-378.88h-89.088L573.952 896h76.8l26.624-97.28h122.88L826.88 896zM768 160H576a32 32 0 0 0 0 64h192q13.248 0 22.656 9.344 9.344 9.408 9.344 22.656v192a32 32 0 0 0 64 0V256q0-39.744-28.16-67.84-28.096-28.16-67.84-28.16zM192 928q-39.744 0-67.84-28.16-28.16-28.096-28.16-67.84v-192a32 32 0 0 1 64 0v192q0 13.248 9.344 22.656 9.408 9.344 22.656 9.344h192a32 32 0 0 1 0 64H192z" p-id="15136" fill="#ffffff">
         </path>
       </svg>
@@ -312,7 +312,7 @@ export default class GlobalHeader extends PureComponent {
         </path>
       </svg>
     )
-    
+
     const docsUrl = (rainbondInfo?.document?.enable && `${rainbondInfo?.document?.value?.platform_url}${language ? 'docs/tutorial/via-rainbond-deploy-sourceandmiddleware' : 'en/docs/tutorial/via-rainbond-deploy-sourceandmiddleware'}`) || (language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/')
     const MenuItems = (key, component, text) => {
       return (
@@ -344,135 +344,137 @@ export default class GlobalHeader extends PureComponent {
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <ScrollerX sm={900}>
-      <Header className={styles.header}>
-        <div className={styles.left}>
-          {customHeaderImg && customHeaderImg()}
-          {customHeader && customHeader()}
-        </div>
-        <div className={styles.right}>
-          {showBill && (
-            <a
-              className={styles.platform}
-              style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', marginRight: '14px' }}
-              href='https://hub.grapps.cn/marketplace'
-              target='_blank'
-            >
-              <FormattedMessage id="GlobalHeader.market" />
-            </a>
-          )}
-          {/* 平台管理 */}
-          {currentUser.is_enterprise_admin && (
-            <Link className={styles.platform} style={{ color: '#fff', fontSize: '16px', fontWeight: 'bolder', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
-              <FormattedMessage id="GlobalHeader.platform" />
-            </Link>
-          )}
-
-          {isNewbieGuide && (
-            <Popconfirm
-              title={formatMessage({ id: 'GlobalHeader.close' })}
-              onConfirm={this.handlIsOpenNewbieGuide}
-              okText={formatMessage({ id: 'button.close' })}
-              cancelText={formatMessage({ id: 'button.cancel' })}
-            >
+        <Header className={styles.header}>
+          <div className={styles.left}>
+            {customHeaderImg && customHeaderImg()}
+            {customHeader && customHeader()}
+          </div>
+          <div className={styles.right}>
+            {showBill && (
               <a
-                className={styles.action}
-                style={{ color: '#fff' }}
-                target="_blank"
-                rel="noopener noreferrer"
+                className={styles.platform}
+                style={{ color: '#fff', fontSize: '14px', fontWeight: '600',}}
+                href='https://hub.grapps.cn/marketplace'
+                target='_blank'
               >
-                <FormattedMessage id="GlobalHeader.new" />
+                <Icon type="shop" style={{ fontSize: 16, marginRight: 6 }}/>
+                <FormattedMessage id="GlobalHeader.market" />
               </a>
-            </Popconfirm>
-          )}
-          <div className={styles.iconContainer}>
-            {showBill && balance != null && (
-              <div
-                onClick={() => { this.handleBalanceBill() }}
-                className={styles.balance}
-                style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
-              >
-                <div className={styles.balanceTitle}>{formatMessage({ id: 'GlobalHeader.balance' })}</div>
-                <div className={styles.balanceNum}>¥{balance.toFixed(2)}</div>
-              </div>
             )}
-            {platformUrl && (
-              <Tooltip title={formatMessage({ id: 'GlobalHeader.help' })}>
+            {/* 平台管理 */}
+            {currentUser.is_enterprise_admin && (
+              <Link className={styles.platform} style={{ color: '#fff', fontSize: '14px', fontWeight: '600', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
+                <Icon type="desktop" style={{ fontSize: 16, marginRight: 6, verticalAlign: 'sub' }} />
+                <FormattedMessage id="GlobalHeader.platform" />
+              </Link>
+            )}
+
+            {isNewbieGuide && (
+              <Popconfirm
+                title={formatMessage({ id: 'GlobalHeader.close' })}
+                onConfirm={this.handlIsOpenNewbieGuide}
+                okText={formatMessage({ id: 'button.close' })}
+                cancelText={formatMessage({ id: 'button.cancel' })}
+              >
                 <a
                   className={styles.action}
-                  style={{ verticalAlign: '-7px', color: '#fff' }}
-                  href={docsUrl}
+                  style={{ color: '#fff' }}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {handleHandBookSvg}
+                  <FormattedMessage id="GlobalHeader.new" />
                 </a>
-              </Tooltip>
+              </Popconfirm>
             )}
-            {showBill && (
-              <Popover
-                content={
-                  <div className={styles.wechat}>
-                    <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={wechat} alt='客服' />
-                    <p>{formatMessage({ id: 'CustomerFloat.wechat_desc' })}</p>
-                  </div>
-                }
-              >
-                <a
-                  className={styles.action}
-                  style={{ verticalAlign: '-7px', color: '#fff' }}
-                  rel="noopener noreferrer"
+            <div className={styles.iconContainer}>
+              {showBill && balance != null && (
+                <div
+                  onClick={() => { this.handleBalanceBill() }}
+                  className={styles.balance}
+                  style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
                 >
-                  {globalUtil.fetchSvg('serviceSvg', '#fff', 18)}
-                </a>
-              </Popover>
-            )}
-            <a
-              className={styles.action}
-              style={{ verticalAlign: '-7px', color: '#fff' }}
-              onClick={() => this.handleMenuCN(language ? 'en-US' : 'zh-CN')}
-            >
-              {languageSvg()}
-            </a>
-            {currentUser ? (
-              <Dropdown overlay={menu}>
-                <span className={`${styles.action} ${styles.account}`}>
-                  <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
-                  {/* <span className={styles.name}>{currentUser.user_name}</span> */}
-                </span>
-              </Dropdown>
-            ) : (
-              <Spin
-                size="small"
-                style={{
-                  marginLeft: 8
-                }}
-              />
-            )}
+                  <div className={styles.balanceTitle}>{formatMessage({ id: 'GlobalHeader.balance' })}</div>
+                  <div className={styles.balanceNum}>¥{balance.toFixed(2)}</div>
+                </div>
+              )}
+              {platformUrl && (
+                <Tooltip title={formatMessage({ id: 'GlobalHeader.help' })}>
+                  <a
+                    className={styles.action}
+                    style={{ verticalAlign: '-7px', color: '#fff' }}
+                    href={docsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon type="read" style={{fontSize: 16}}/>
+                  </a>
+                </Tooltip>
+              )}
+              {showBill && (
+                <Popover
+                  content={
+                    <div className={styles.wechat}>
+                      <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={wechat} alt='客服' />
+                      <p>{formatMessage({ id: 'CustomerFloat.wechat_desc' })}</p>
+                    </div>
+                  }
+                >
+                  <a
+                    className={styles.action}
+                    style={{ verticalAlign: '-7px', color: '#fff' }}
+                    rel="noopener noreferrer"
+                  >
+                    {globalUtil.fetchSvg('serviceSvg', '#fff', 18)}
+                  </a>
+                </Popover>
+              )}
+              <a
+                className={styles.action}
+                style={{ verticalAlign: '-7px', color: '#fff' }}
+                onClick={() => this.handleMenuCN(language ? 'en-US' : 'zh-CN')}
+              >
+                {languageSvg()}
+              </a>
+              {currentUser ? (
+                <Dropdown overlay={menu}>
+                  <span className={`${styles.action} ${styles.account}`}>
+                    <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
+                    {/* <span className={styles.name}>{currentUser.user_name}</span> */}
+                  </span>
+                </Dropdown>
+              ) : (
+                <Spin
+                  size="small"
+                  style={{
+                    marginLeft: 8
+                  }}
+                />
+              )}
+            </div>
           </div>
-        </div>
-        {/* change password */}
-        {this.state.showChangePassword && (
-          <ChangePassword
-            onOk={this.handleChangePass}
-            onCancel={this.cancelChangePass}
-          />
-        )}
-        {/* 版本更新弹窗 */}
-        {isVersionUpdate && (
-          <Modal
-            title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
-            visible
-            onOk={this.handleRouteupdate}
-            onCancel={() => {
-              this.setState({
-                isVersionUpdate: false
-              })
-            }}
-          >
-            <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
-          </Modal>
-        )}
-      </Header>
+          {/* change password */}
+          {this.state.showChangePassword && (
+            <ChangePassword
+              onOk={this.handleChangePass}
+              onCancel={this.cancelChangePass}
+            />
+          )}
+          {/* 版本更新弹窗 */}
+          {isVersionUpdate && (
+            <Modal
+              title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
+              visible
+              onOk={this.handleRouteupdate}
+              onCancel={() => {
+                this.setState({
+                  isVersionUpdate: false
+                })
+              }}
+            >
+              <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
+            </Modal>
+          )}
+        </Header>
       </ScrollerX>
     );
   }

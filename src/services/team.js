@@ -852,3 +852,30 @@ export async function getComponentLangVersion(body, handleError) {
     }
   )
 }
+
+// 开始解析tar包镜像
+export async function loadTarImage(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/tar-image/load`,
+    {
+      method: 'post',
+      data: {
+        event_id: body.event_id,
+        region: body.region
+      }
+    }
+  );
+}
+
+// 查询tar包解析结果
+export async function getTarImageLoadResult(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/tar-image/load/${body.load_id}`,
+    {
+      method: 'get',
+      params: {
+        region: body.region
+      }
+    }
+  );
+}

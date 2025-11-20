@@ -127,12 +127,37 @@ export default class RainbondClusterInit extends PureComponent {
       enterprise,
       nextStep
     } = this.props;
+
+    // 尝试从多个来源获取 event_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const event_id = urlParams.get('event_id') || window.localStorage.getItem('event_id') || '';
+
     dispatch({
-      type: 'region/fetchClusterNodeInfo',
+      type: 'region/fetchClusterInfoList',
+      payload: {
+        event_id: event_id,
+        cluster_id: clusterID || ''
+      },
       callback: res => {
         if (res && res.status_code === 200) {
-          const arr = res.response_data.data.list.map(item => {
-            return { node_name: item, host: item }
+          // 从 res.list 获取节点列表
+          const nodeList = res.list || [];
+
+          const arr = nodeList.map(item => {
+            if (typeof item === 'string') {
+              // 如果是字符串，创建基本对象
+              return {
+                name: item,
+                external_ip: item,
+                internal_ip: item
+              };
+            }
+            // 如果是对象，提取完整信息
+            return {
+              name: item.name,
+              internal_ip: item.internal_ip,
+              external_ip: item.external_ip
+            };
           })
           this.setState({
             ipArray: arr
@@ -173,12 +198,13 @@ export default class RainbondClusterInit extends PureComponent {
           const gatewayArr = [];
           for (let i = 0; i < values.nodesForGateway.length; i++) {
             for (let j = 0; j < ipArray.length; j++) {
-              if (values.nodesForGateway[i].name === ipArray[j].node_name) {
-                // 合并两个对象
+              // 用户选择的name就是节点的name，通过name去匹配
+              if (values.nodesForGateway[i].name === ipArray[j].name) {
+                // 从ipArray中获取对应的内网IP和外网IP
                 let mergedObject = {
-                  name: values.nodesForGateway[i].name,
-                  externalIP: ipArray[j].host,
-                  internalIP: ipArray[j].host,
+                  name: ipArray[j].name,
+                  externalIP: ipArray[j].external_ip || ipArray[j].internal_ip,
+                  internalIP: ipArray[j].internal_ip,
                 };
                 gatewayArr.push(mergedObject);
               }
@@ -415,10 +441,12 @@ export default class RainbondClusterInit extends PureComponent {
                         })(
                           <AutoComplete>
                             {(ipArray && ipArray.length > 0)
-                              ? ipArray.map((item) => {
+                              ? ipArray.map((item, index) => {
+                                const ip = item.external_ip || item.name || '';
+                                if (!ip) return null;
                                 const res = (
-                                  <AutoComplete.Option value={item.host}>
-                                    {item.host}
+                                  <AutoComplete.Option key={ip} value={ip}>
+                                    {ip}
                                   </AutoComplete.Option>
                                 );
                                 return res;

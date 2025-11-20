@@ -27,6 +27,7 @@ import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import list from '@/models/list';
 import styless from '../../components/CreateTeam/index.less';
+import { addRelationedApp, removeRelationedApp } from '../../services/app';
 import styles from './index.less'
 @connect(
   ({ user, appControl, global, teamControl, enterprise, loading }) => ({
@@ -66,7 +67,7 @@ class Index extends React.Component {
     srcUrl: `/static/www/weavescope-topolog/index.html`,
     teamName: '',
     regionName: '',
-    build:false,
+    build: false,
   }
   componentWillMount() {
     const that = this
@@ -75,6 +76,7 @@ class Index extends React.Component {
     const { group_id: groupId, dispatch, apps } = this.props;
     const appID = globalUtil.getAppID();
     const componentID = globalUtil.getSlidePanelComponentID();
+    const timestamp = new Date().getTime();
     const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function () {
@@ -111,21 +113,21 @@ class Index extends React.Component {
         )
       };
       window.clickNode = function (nodeid, componentID) {
-        if(nodeid == 'The Internet'){
+        if (nodeid == 'The Internet') {
           dispatch(
             routerRedux.push(
               `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=gateway`
             )
           )
-        }else{  
+        } else {
           const app = apps.find(app => app.service_alias === componentID);
-          if(app?.status === "creating" && app.service_source !== 'kubeblocks'){
+          if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${regionName}/create/create-check/${componentID}`
               )
             )
-          }else{
+          } else {
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${componentID}&tab=overview`
@@ -148,12 +150,12 @@ class Index extends React.Component {
       };
       // 拓扑图点击服务事件
       window.handleClickService = function (nodeDetails) {
-          dispatch(
-            // 跳转组件
-            routerRedux.push(
-              `/team/${teamName}/region/${regionName}/components/${nodeDetails.service_alias}/overview`
-            )
-          );
+        dispatch(
+          // 跳转组件
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/components/${nodeDetails.service_alias}/overview`
+          )
+        );
       };
       // 拓扑图点击依赖服务事件
       window.handleClickRelation = function (relation) {
@@ -175,19 +177,19 @@ class Index extends React.Component {
 
       // 拓扑图点击构建事件
       window.handleClickBuild = function (relation, detailes) {
-        if(relation == 'build'){
+        if (relation == 'build') {
           that.setState({
             closes: false,
             start: false,
             updated: false,
-            build:  true,
+            build: true,
             appAlias: detailes.service_alias,
             promptModal: 'build'
           })
         }
       }
       // 拓扑图点击更新事件
-      window.handleClickUpdate = function (relation, detailes) {                
+      window.handleClickUpdate = function (relation, detailes) {
         if (relation == 'update') {
           that.setState({
             closes: false,
@@ -207,8 +209,8 @@ class Index extends React.Component {
             updated: false,
             appAlias: detailes.service_alias,
             promptModal: 'stop',
-            keyes: !that.state.keyes,
-            srcUrl: that.state.srcUrl
+            // keyes: !that.state.keyes,
+            // srcUrl: that.state.srcUrl
           })
         }
       }
@@ -221,11 +223,10 @@ class Index extends React.Component {
             updated: false,
             appAlias: detailes.service_alias,
             promptModal: 'start',
-            keyes: !that.state.keyes,
-            srcUrl: that.state.srcUrl
+            // keyes: !that.state.keyes,
+            // srcUrl: that.state.srcUrl
           })
         }
-
       }
       // 拓扑图点击删除事件
       window.handleClickDelete = function (relation, detailes) {
@@ -235,11 +236,213 @@ class Index extends React.Component {
             appAlias: detailes.service_alias
           })
         }
-
       }
+
+      // 添加连线创建的处理函数
+      window.onEdgeCreated = function (edgeData) {
+
+        const {
+          sourceNodeId,
+          targetNodeId,
+          sourceServiceAlias,
+          targetServiceAlias,
+          sourceServiceCname,
+          targetServiceCname,
+          sourceShape,
+          targetShape
+        } = edgeData;
+
+
+        // 从互联网到组件：开启对外端口
+        if (sourceNodeId === 'The Internet') {
+          dispatch({
+            type: 'appControl/openExternalPort',
+            payload: {
+              team_name: teamName,
+              app_alias: targetServiceAlias,
+              container_port: '',
+              open_outer: ''
+            },
+            callback: (res) => {
+              if (res && res.status_code === 200) {
+                notification.success({ message: res.msg_show || '对外端口开启成功' });
+                that.refreshFrame();
+              } else if (res && res.status_code === 201) {
+                if (res.list && res.list.length > 0) {
+                  dispatch({
+                    type: 'appControl/openExternalPort',
+                    payload: {
+                      team_name: teamName,
+                      app_alias: targetServiceAlias,
+                      container_port: res.list[0],
+                      open_outer: true
+                    },
+                    callback: (portRes) => {
+                      if (portRes && portRes.status_code === 200) {
+                        notification.success({ message: `成功开启端口 ${res.list[0]}` });
+                        that.refreshFrame();
+                      }
+                    }
+                  });
+                }
+              }
+            }
+          });
+          return;
+        }
+
+        // 组件到互联网：不支持
+        if (targetNodeId === 'The Internet') {
+          notification.warning({ message: '不支持从组件连接到互联网节点' });
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+              )
+            );
+          return;
+        }
+
+        // 组件间连线：创建依赖关系
+        // 直接调用 service 函数，而不是通过 dva dispatch
+        addRelationedApp({
+          team_name: teamName,
+          app_alias: sourceServiceAlias,
+          dep_service_id: targetNodeId
+        }).then(res => {
+
+          if (res && res.status_code === 200) {
+            notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
+            that.refreshFrame();
+
+            // 检查是否需要更新组件
+            if (sourceShape !== 'undeploy' && sourceShape !== 'closed' && sourceShape !== 'stopping') {
+              Modal.confirm({
+                title: formatMessage({ id: 'notification.success.Depend_add_need_update' }),
+                okText: formatMessage({ id: 'button.update' }),
+                onOk: () => {
+                  dispatch({
+                    type: 'appControl/putUpdateRolling',
+                    payload: { team_name: teamName, app_alias: sourceServiceAlias }
+                  });
+                }
+              });
+            }
+          } else if (res && res.status_code === 201) {
+            // 需要选择端口
+            if (res.list && res.list.length > 0) {
+              addRelationedApp({
+                team_name: teamName,
+                app_alias: sourceServiceAlias,
+                dep_service_id: targetNodeId,
+                open_inner: true,
+                container_port: res.list[0]
+              }).then(portRes => {
+                if (portRes && portRes.status_code === 200) {
+                  notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
+                  that.refreshFrame();
+                }
+              });
+            }
+          } else if (res && res.status_code === 212) {
+            notification.warning({ message: res.msg_show || '当前应用已被关联' });
+          } else {
+            notification.error({ message: '创建依赖失败' });
+          }
+        }).catch(err => {
+          notification.error({ message: '网络错误，请稍后重试' });
+        });
+
+      };
+
+      // ⭐ 在这里添加删除连线处理
+      window.onEdgeDeleted = function (edgeData) {
+
+        const {
+          sourceNodeId,
+          targetNodeId,
+          sourceServiceAlias,
+          targetServiceAlias,
+          sourceServiceCname,
+          targetServiceCname
+        } = edgeData;
+
+        const sourceDisplay = sourceServiceCname || sourceServiceAlias || sourceNodeId;
+        const targetDisplay = targetServiceCname || targetServiceAlias || targetNodeId;
+        const sourceName = sourceServiceAlias || sourceNodeId;
+        const targetName = targetServiceAlias || targetNodeId;
+
+        const isInternet = (sourceNodeId === 'The Internet' || !sourceName || sourceName === 'The Internet');
+
+        Modal.confirm({
+          title: isInternet ? '确认关闭对外端口' : '确认删除依赖',
+          content: isInternet
+            ? `确定要关闭组件 ${targetDisplay} 的对外端口吗？`
+            : `确定要删除 ${sourceDisplay} → ${targetDisplay} 的依赖关系吗？`,
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            if (isInternet) {
+              // 关闭对外端口
+              dispatch({
+                type: 'appControl/openExternalPort',
+                payload: {
+                  team_name: globalUtil.getCurrTeamName(),
+                  app_alias: targetName,
+                  close_outer: true,
+                },
+                callback: res => {
+                  if (res && res.status_code === 200) {
+                    notification.success({ message: res.msg_show || '对外端口已关闭' });
+                    that.refreshFrame();
+                  } else {
+                    notification.error({ message: '操作失败' });
+                  }
+                }
+              });
+            } else {
+              // 删除依赖关系
+              removeRelationedApp({
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: sourceName,
+                dep_service_id: targetNodeId,
+              }).then(res => {
+                if (res && res.status_code === 200) {
+                  notification.success({ message: res.msg_show || '依赖关系已删除' });
+                  that.refreshFrame();
+                } else {
+                  notification.error({ message: '删除失败' });
+                }
+              }).catch(err => {
+                console.error('删除错误:', err);
+                notification.error({ message: '网络错误' });
+              });
+            }
+          }
+        });
+      };
+
     } catch (e) {
     }
   }
+
+  // 确保 refreshFrame 方法存在
+  refreshFrame = () => {
+    const iframe = document.getElementById('myframe');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.location.reload(true);
+    }
+  }
+
+  triggerTopologyRefresh = () => {
+    const iframe = document.getElementById('myframe');  // 请确认 iframe 的实际 ID
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'TRIGGER_DATA_REFRESH'
+      }, '*');
+    }
+  }
+
   // 删除
   cancelDeleteApp = (isOpen = true) => {
     this.setState({ flag: false });
@@ -248,6 +451,7 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
+    const timestamp = new Date().getTime();
     dispatch({
       type: 'appControl/deleteApp',
       payload: {
@@ -256,16 +460,17 @@ class Index extends React.Component {
       },
       callback: () => {
         this.cancelDeleteApp(false);
-        this.refreshFrame()
         dispatch({
           type: 'global/fetchGroups',
           payload: {
             team_name: teamName
           }
         });
-        dispatch(
-          routerRedux.replace(`/team/${teamName}/region/${regionName}/apps/${groupId}`)
-        );
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+              )
+            );
       }
     });
   };
@@ -291,16 +496,18 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
+    const timestamp = new Date().getTime();
+
     if (actionIng) {
-      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
     const operationMap = {
-      putReStart: formatMessage({id:'notification.success.operationRestart'}),
-      putStart: formatMessage({id:'notification.success.operationStart'}),
-      putStop: formatMessage({id:'notification.success.operationClose'}),
-      putUpdateRolling: formatMessage({id:'notification.success.operationUpdata'}),
-      putBuild: formatMessage({id:'notification.success.deployment'})
+      putReStart: formatMessage({ id: 'notification.success.operationRestart' }),
+      putStart: formatMessage({ id: 'notification.success.operationStart' }),
+      putStop: formatMessage({ id: 'notification.success.operationClose' }),
+      putUpdateRolling: formatMessage({ id: 'notification.success.operationUpdata' }),
+      putBuild: formatMessage({ id: 'notification.success.deployment' })
     };
     dispatch({
       type: `appControl/${state}`,
@@ -315,7 +522,11 @@ class Index extends React.Component {
           });
         }
         this.handleOffHelpfulHints();
-        this.refreshFrame()
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+          )
+        );
       }
     });
   };
@@ -333,57 +544,55 @@ class Index extends React.Component {
           : promptModal === 'restart'
             ? 'putReStart'
             : promptModal === 'build'
-            ? 'putBuild'
-            : promptModal === 'rolling'
-              ? 'putUpdateRolling'
-              : '';
+              ? 'putBuild'
+              : promptModal === 'rolling'
+                ? 'putUpdateRolling'
+                : '';
     this.handleOperation(parameter);
   };
-  refreshFrame = () => {
-    document.getElementById('myframe').contentWindow.location.reload(true);
-  }
+
   //构建
   handleDeploy = () => {
-    const { actionIng,appAlias } = this.state;
+    const { actionIng, appAlias } = this.state;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { build_upgrade, dispatch } = this.props;
     if (actionIng) {
-      notification.warning({ message: formatMessage({id:'notification.warn.executing'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
 
     dispatch({
       type: 'appControl/putDeploy',
       payload: {
-        team_name:teamName,
-        app_alias:appAlias,
+        team_name: teamName,
+        app_alias: appAlias,
         group_version: '',
         is_upgrate: ''
       },
       callback: res => {
         if (res) {
-          notification.success({ message: formatMessage({id:'notification.success.deployment'}) });
+          notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
         }
         this.handleOffHelpfulHints();
         this.refreshFrame()
       }
     });
   };
-  
-  
+
+
   render() {
-    const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading , flagHeight,iframeHeight} = this.props
+    const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading, flagHeight, iframeHeight } = this.props
     const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
     const codeObj = {
-      start:  formatMessage({id:'topology.Topological.start'}),
-      stop: formatMessage({id:'topology.Topological.stop'}),
-      rolling: formatMessage({id:'topology.Topological.rolling'}),
-      build: formatMessage({id:'topology.Topological.build'})
+      start: formatMessage({ id: 'topology.Topological.start' }),
+      stop: formatMessage({ id: 'topology.Topological.stop' }),
+      rolling: formatMessage({ id: 'topology.Topological.rolling' }),
+      build: formatMessage({ id: 'topology.Topological.build' })
     };
     return (
       // eslint-disable-next-line jsx-a11y/iframe-has-title
-      <div key={keyes} style={{ height:iframeHeight}}>
+      <div key={keyes} style={{ height: iframeHeight }}>
         {flag && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
@@ -396,7 +605,7 @@ class Index extends React.Component {
         )}
         {(closes || start || updated || build) && (
           <Modal
-            title={formatMessage({id:'topology.Topological.title'})}
+            title={formatMessage({ id: 'topology.Topological.title' })}
             visible={promptModal}
             className={styless.TelescopicModal}
             onOk={this.handleJumpAgain}
@@ -412,7 +621,7 @@ class Index extends React.Component {
             }
           >
             <p style={{ textAlign: 'center' }}>
-              {formatMessage({id:'topology.Topological.determine'})}{codeObj[promptModal]}{formatMessage({id:'topology.Topological.now'})}
+              {formatMessage({ id: 'topology.Topological.determine' })}{codeObj[promptModal]}{formatMessage({ id: 'topology.Topological.now' })}
             </p>
           </Modal>
         )}
@@ -422,7 +631,7 @@ class Index extends React.Component {
           target="_blank"
         >
         </Link>
-          <iframe
+        <iframe
           src={`${apiconfig.baseUrl}${srcUrl}`}
           style={{
             width: '100%',
@@ -437,7 +646,7 @@ class Index extends React.Component {
           marginWidth="0"
           marginHeight="0"
         />
-      </div> 
+      </div>
     );
   }
 }

@@ -276,7 +276,7 @@ export default class EnterpriseShared extends PureComponent {
             });
 
             if (teamName) {
-              dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/market`));
+              dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/index?showAddModal=true&currentView=localMarketInstall`));
             } else {
               dispatch(routerRedux.push(`/enterprise/${eid}/shared/local`));
             }
@@ -417,7 +417,7 @@ export default class EnterpriseShared extends PureComponent {
       lineHeight: '30px'
     };
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
-    const group_id = globalUtil.getGroupID()
+    const group_id = globalUtil.getAppID()
     const isAppOverview = this.props.location?.query?.type || '';
     return (
       <PageHeaderLayout
@@ -428,7 +428,7 @@ export default class EnterpriseShared extends PureComponent {
           <Button onClick={() => {
               const { dispatch } = this.props;
               dispatch(
-                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
+                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`)
               );
           }} type="default">
             <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
