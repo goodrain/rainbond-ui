@@ -132,27 +132,25 @@ export default class Index extends PureComponent {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 6 }
+                sm: { span: 3 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 }
+                sm: { span: 21 }
             }
         };
-
-        const requiredLabel = (label) => (<span><span style={{ color: 'red' }}>*</span> {label}</span>);
 
         return (
             <div className={styles.databaseBackupConfig}>
                 <Card title={formatMessage({ id: 'kubeblocks.database.backup.title' })} style={{ marginBottom: 16 }}>
                     <Form layout="horizontal" hideRequiredMark>
                         {/* BackupRepo */}
-                        <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.repo_label' }))}>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
                             {getFieldDecorator('backupRepo', {
                                 initialValue: backupRepo,
                                 rules: [{ required: false }]
                             })(
-                                <Select placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                     <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                     {repoOptions.map(repo => (
                                         <Option key={repo.name} value={repo.name}>
@@ -163,7 +161,7 @@ export default class Index extends PureComponent {
                             )}
                         </Form.Item>
                         {form.getFieldValue('backupRepo') ? <>
-                            <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.cycle_label' }))}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.cycle_label' })}>
                                 {getFieldDecorator('backupCycle', {
                                     initialValue: backupCycle,
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.cycle_required' }) }]
@@ -175,7 +173,7 @@ export default class Index extends PureComponent {
                                     </RadioGroup>
                                 )}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.startTime_label' }))}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.startTime_label' })}>
                                 {getFieldDecorator('backupStartTime', {
                                     initialValue: this.getBackupStartTimeInitialValue(),
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.startTime_required' }) }]
@@ -211,13 +209,13 @@ export default class Index extends PureComponent {
                                     </div>
                                 )}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.retention_label' }))}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.retention_label' })}>
                                 {getFieldDecorator('backupRetention', {
                                     initialValue: backupRetentionTime,
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.retention_required' }) }]
                                 })(
                                     <InputNumber
-                                        style={{ width: '120px' }}
+                                        style={{ width: '80px' }}
                                         min={1}
                                         max={365}
                                         value={backupRetentionTime}
@@ -227,7 +225,7 @@ export default class Index extends PureComponent {
                                 )}
                                 <span style={{ marginLeft: 8, color: '#666' }}>{formatMessage({ id: 'kubeblocks.database.backup.retention_unit' })}</span>
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.policy_label' }))}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.policy_label' })}>
                                 {getFieldDecorator('termination_policy', {
                                     initialValue: termination_policy,
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.policy_required' }) }]

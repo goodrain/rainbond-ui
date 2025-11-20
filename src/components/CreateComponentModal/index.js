@@ -47,7 +47,8 @@ import {
   GitBranchIcon,
   GithubIcon,
   GitlabIcon,
-  GiteeIcon
+  GiteeIcon,
+  GiteaIcon
 } from './icons';
 
 const DATABASE_ICON_MAP = {
@@ -626,7 +627,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const typeMap = {
       'github': GithubIcon,
       'gitlab': GitlabIcon,
-      'gitee': GiteeIcon
+      'gitee': GiteeIcon,
+      'gitea': GiteaIcon
     };
     return typeMap[oauthType?.toLowerCase()] || GitBranchIcon;
   };
@@ -636,7 +638,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const colorMap = {
       'github': '#24292e',   // GitHub 黑色
       'gitlab': '#FC6D26',   // GitLab 橙色
-      'gitee': '#C71D23'     // Gitee 红色
+      'gitee': '#C71D23',    // Gitee 红色
+      'gitea': '#609926'     // Gitea 绿色
     };
     return colorMap[oauthType?.toLowerCase()] || '#52c41a'; // 默认绿色
   };
