@@ -249,9 +249,9 @@ export default class Index extends PureComponent {
       }
     }
 
-    const backupStartHour = schedule && schedule.hour ? schedule.hour.toString().padStart(2, '0') : '';
-    const backupStartMinute = schedule && schedule.minute ? schedule.minute.toString().padStart(2, '0') : '';
-    const backupStartDay = schedule && schedule.dayOfWeek ? schedule.dayOfWeek.toString() : '';
+    const backupStartHour = schedule && schedule.hour !== undefined && schedule.hour !== null ? schedule.hour.toString().padStart(2, '0') : '';
+    const backupStartMinute = schedule && schedule.minute !== undefined && schedule.minute !== null ? schedule.minute.toString().padStart(2, '0') : '';
+    const backupStartDay = schedule && schedule.dayOfWeek !== undefined && schedule.dayOfWeek !== null ? schedule.dayOfWeek.toString() : '';
 
     let backupRetentionTime = '';
     if (retentionPeriod) {
@@ -276,9 +276,16 @@ export default class Index extends PureComponent {
    * 从 clusterDetail 初始化组件状态
    */
   initFromClusterDetail = () => {
-    const { clusterDetail } = this.props;
+    const { clusterDetail, form } = this.props;
     const config = this.parseBackupConfig(clusterDetail);
     this.setState(config);
+
+    // 同步更新表单字段值
+    form.setFieldsValue({
+      backupRepo: config.backupRepo,
+      backupSchedule: config.backupSchedule,
+      backupRetention: config.backupRetentionTime || ''
+    });
   };
 
   /**
@@ -737,15 +744,13 @@ export default class Index extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 3 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 }
+        sm: { span: 21 }
       }
     };
-
-    const requiredLabel = (label) => (<span><span style={{ color: 'red' }}>*</span> {label}</span>);
 
     // 备份列表列定义
     const backupColumns = [
@@ -850,12 +855,13 @@ export default class Index extends PureComponent {
         >
           <Form layout="horizontal" hideRequiredMark>
             {/* 备份仓库 */}
-            <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.repo_label' }))}>
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
               {getFieldDecorator('backupRepo', {
                 initialValue: backupRepo || '',
                 rules: [{ required: false }]
               })(
                 <Select
+                  style={{ width: '200px' }}
                   placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })}
                   onChange={this.handleBackupRepoChange}
                   allowClear
@@ -874,7 +880,7 @@ export default class Index extends PureComponent {
             {backupRepo && (
               <>
                 {/* 循环周期 */}
-                <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.cycle_label' }))}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.cycle_label' })}>
                   {getFieldDecorator('backupSchedule', {
                     initialValue: backupSchedule || '',
                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.cycle_required' }) }]
@@ -888,7 +894,7 @@ export default class Index extends PureComponent {
                 </Form.Item>
 
                 {/* 备份起始时间 */}
-                <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.startTime_label' }))}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.startTime_label' })}>
                   {getFieldDecorator('backupStartTime', {
                     initialValue: {
                       day: backupStartDay || '',
@@ -949,13 +955,13 @@ export default class Index extends PureComponent {
                 </Form.Item>
 
                 {/* 备份数据保留时间 */}
-                <Form.Item {...formItemLayout} label={requiredLabel(formatMessage({ id: 'kubeblocks.database.backup.retention_label' }))}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.retention_label' })}>
                   {getFieldDecorator('backupRetention', {
                     initialValue: backupRetentionTime || '',
                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.retention_required' }) }]
                   })(
                     <InputNumber
-                      style={{ width: '120px' }}
+                      style={{ width: '80px' }}
                       min={1}
                       max={365}
                       value={backupRetentionTime || ''}
