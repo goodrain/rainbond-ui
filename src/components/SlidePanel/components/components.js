@@ -419,7 +419,12 @@ class Main extends PureComponent {
 
   getChildCom = () => {
     if (this.ref) {
-      return this.ref.getWrappedInstance({});
+      // 检查是否存在 getWrappedInstance 方法（使用了 withRef: true 的组件才有）
+      if (typeof this.ref.getWrappedInstance === 'function') {
+        return this.ref.getWrappedInstance({});
+      }
+      // 如果没有 getWrappedInstance，直接返回 ref
+      return this.ref;
     }
     return null;
   };
@@ -913,6 +918,8 @@ class Main extends PureComponent {
     }
     if (actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
+      // 即使操作被阻止，也要关闭弹窗
+      this.handleOffHelpfulHints();
       return;
     }
     const operationMap = {
@@ -942,6 +949,10 @@ class Main extends PureComponent {
             callback();
           }
         }
+        this.handleOffHelpfulHints();
+      },
+      handleError: err => {
+        // 请求失败时也要关闭弹窗
         this.handleOffHelpfulHints();
       }
     });
