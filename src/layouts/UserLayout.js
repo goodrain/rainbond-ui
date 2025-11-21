@@ -1,7 +1,6 @@
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React from 'react';
-import cloud from '../../public/cloud.png';
 import logo from '../../public/logoLogin.png';
 import topLogo from '../../public/topLogo1.png';
 import enlogo from '../../public/login_en.png';

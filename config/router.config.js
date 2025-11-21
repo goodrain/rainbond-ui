@@ -285,12 +285,12 @@ export default [
             name: 'teamSharedImport',
             authority: ['admin', 'user']
           },
-          {
-            path: '/team/:teamName/region/:regionName/message',
-            component: './Message/Index',
-            name: 'Message',
-            authority: ['admin', 'user']
-          },
+          // {
+          //   path: '/team/:teamName/region/:regionName/message',
+          //   component: './Message/Index',
+          //   name: 'Message',
+          //   authority: ['admin', 'user']
+          // },
           {
             path: '/team/:teamName/region/:regionName/plugins/:pluginId',
             component: './RbdPlugins',
@@ -305,13 +305,13 @@ export default [
             name: 'Team',
             authority: ['admin', 'user']
           },
-          {
-            path: '/team/:teamName/region/:regionName/apps',
-            component: './AppList',
-            name: 'appList',
-            authority: ['admin', 'user'],
-            title: '应用列表'
-          },
+          // {
+          //   path: '/team/:teamName/region/:regionName/apps',
+          //   component: './AppList',
+          //   name: 'appList',
+          //   authority: ['admin', 'user'],
+          //   title: '应用列表'
+          // },
           {
             path: '/team/:teamName/region/:regionName/Pipeline',
             component: './Pipeline',

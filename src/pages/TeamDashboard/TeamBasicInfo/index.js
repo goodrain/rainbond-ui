@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
+import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Tooltip, Radio, Icon } from 'antd';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Result from '../../../components/Result';
@@ -10,6 +10,7 @@ import CreateComponentModal from '../../../components/CreateComponentModal';
 import newRole from '@/utils/newRole';
 import globalUtil from '../../../utils/global';
 import PluginUtil from '../../../utils/pulginUtils'
+import handleAPIError from '../../../utils/error';
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
@@ -55,16 +56,17 @@ export default class index extends Component {
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: savedViewState === 'true',
-      language: cookie.get('language') === 'zh-CN' ? true : false,
+      language: cookie.get('language') === 'zh-CN',
       storageUsed: 0,
       guideStep: shouldShowGuide ? 'team-overview' : '',
       createComponentVisible: false,
       currentView: null,
     };
+    // 标记组件是否已挂载
+    this._isMounted = false;
   }
   componentDidMount() {
-    const { teamOverviewPermission, teamAppCreatePermission } = this.state;
-    const { noviceGuide } = this.props;
+    this._isMounted = true;
     this.loadOverview();
 
     // 解析 URL 参数（只在首次加载时处理）
@@ -84,14 +86,24 @@ export default class index extends Component {
     }
 
     // 初始化第一个高亮
-    setTimeout(() => {
-      const currentTarget = document.querySelector(`[data-guide="${this.state.guideStep}"]`);
-      if (currentTarget) {
-        currentTarget.style.position = 'relative';
-        currentTarget.style.zIndex = '1000';
-        currentTarget.style.backgroundColor = '#fff';
+    this.guideTimer = setTimeout(() => {
+      if (this._isMounted) {
+        const currentTarget = document.querySelector(`[data-guide="${this.state.guideStep}"]`);
+        if (currentTarget) {
+          currentTarget.style.position = 'relative';
+          currentTarget.style.zIndex = '1000';
+          currentTarget.style.backgroundColor = '#fff';
+        }
       }
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    // 清理定时器
+    if (this.guideTimer) {
+      clearTimeout(this.guideTimer);
+    }
   }
 
   handleGuideStep = (step) => {
@@ -200,6 +212,7 @@ export default class index extends Component {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
+        if (!this._isMounted) return;
         if (res && res.bean && res.bean.region_health) {
           this.setState(
             { loadingOverview: false, loadedOverview: true },
@@ -212,8 +225,11 @@ export default class index extends Component {
           this.handleCloseLoading();
         }
       },
-      handleError: () => {
-        this.handleCloseLoading();
+      handleError: (err) => {
+        handleAPIError(err);
+        if (this._isMounted) {
+          this.handleCloseLoading();
+        }
       }
     });
   };
@@ -227,18 +243,24 @@ export default class index extends Component {
         tenant_id: teamId
       },
       callback: res => {
-        if (res) {
+        if (!this._isMounted) return;
+        if (res && res.bean) {
           this.setState({
             storageUsed: res.bean.used_storage
           })
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   }
 
   // 关闭loading
   handleCloseLoading = () => {
-    this.setState({ loadingOverview: false, loadedOverview: true });
+    if (this._isMounted) {
+      this.setState({ loadingOverview: false, loadedOverview: true });
+    }
   };
   // 加载热门应用数据源
   loadHotApp = () => {
@@ -254,15 +276,18 @@ export default class index extends Component {
         sort: sortValue
       },
       callback: res => {
+        if (!this._isMounted) return;
         if (res && res.status_code === 200) {
           this.setState({
-            teamHotAppList: res.list,
-            appListTotal: res.bean && res.bean.total,
+            teamHotAppList: res.list || [],
+            appListTotal: res.bean?.total || 0,
             appListLoading: false,
           });
         }
       },
       handleError: err => {
+        handleAPIError(err);
+        if (!this._isMounted) return;
         if (err && err.data && err.data.code === 10401) {
           this.setState(
             {
@@ -272,6 +297,8 @@ export default class index extends Component {
               this.loadHotApp();
             }
           );
+        } else {
+          this.setState({ appListLoading: false });
         }
       }
     });
@@ -339,7 +366,8 @@ export default class index extends Component {
         return unit ? units : nums.toFixed(1);
       }
       return num;
-    };
+    }
+    return num;
   }
   // 新建应用
   handleAddGroup = (groupId, groups) => {
@@ -416,13 +444,13 @@ export default class index extends Component {
     const { dispatch } = this.props;
     const isAppCreate = teamAppCreatePermission?.isAccess;
     const addComponentSvg = (
-      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="16" height="16"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
+      <svg t="1735296415486" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="16" height="16"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
     )
     const visterSvg = (
-      <svg t="1735296596548" style={{ marginRight: '2px' }} class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
+      <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
     )
     const addNewAppSvg = (
-      <svg t="1735296415486" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="48" height="48"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
+      <svg t="1735296415486" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="48" height="48"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
     )
     return (
       <Spin spinning={appListLoading}>
@@ -508,9 +536,6 @@ export default class index extends Component {
       loadingOverview,
       loadedOverview,
       teamHotAppList,
-      total,
-      pageSizeOptions,
-      createAppVisible,
       page,
       page_size,
       query,
@@ -527,9 +552,8 @@ export default class index extends Component {
       isTableView,
       storageUsed
     } = this.state;
-    const { index, currentTeamPermissionsInfo, pluginsList } = this.props;
+    const { index, pluginsList } = this.props;
     const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
-    const dataSource = [];
     const columns = [
       {
         title: formatMessage({ id: 'versionUpdata_6_1.appName' }),
@@ -602,9 +626,7 @@ export default class index extends Component {
         title: formatMessage({ id: 'versionUpdata_6_1.action' }),
         key: 'action',
         render: (text, record) => {
-          const appOverviewPermission = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${record.group_id}`)
-          const isAppCreate = appOverviewPermission?.isCreate
-          return <>
+          return (
             <a
               onClick={() => {
                 const { dispatch } = this.props;
@@ -612,7 +634,7 @@ export default class index extends Component {
               }}>
               {formatMessage({ id: 'versionUpdata_6_1.manage' })}
             </a>
-          </>
+          )
         },
       },
     ];
@@ -739,7 +761,6 @@ export default class index extends Component {
                           rowClassName={this.getRowClassName}
                           rowKey={(record) => record.group_id}
                           loading={appListLoading}
-                          pagination={false}
                         />
                       ) : (
                         <div className={styles.appListEmpty}>
