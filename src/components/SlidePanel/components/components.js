@@ -663,7 +663,7 @@ class Main extends PureComponent {
       },
       handleError: res => {
         if (res && res.code === 404) {
-          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}apps`));
+          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}index`));
         }
       }
     });
@@ -801,6 +801,7 @@ class Main extends PureComponent {
   handleDeleteApp = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias, group_id } = this.fetchParameter();
+    const timestamp = new Date().getTime();
 
     dispatch({
       type: 'appControl/deleteApp',
@@ -817,9 +818,8 @@ class Main extends PureComponent {
             team_name
           }
         });
-        document.getElementById('myframe').contentWindow.location.reload(true);
         dispatch(
-          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}/overview`)
+          routerRedux.replace(`${this.fetchPrefixUrl()}apps/${group_id}/overview?refresh=${timestamp}`)
         );
       }
     });

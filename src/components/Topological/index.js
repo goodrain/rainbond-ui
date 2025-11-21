@@ -294,11 +294,11 @@ class Index extends React.Component {
         // 组件到互联网：不支持
         if (targetNodeId === 'The Internet') {
           notification.warning({ message: '不支持从组件连接到互联网节点' });
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
-              )
-            );
+          dispatch(
+            routerRedux.push(
+              `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+            )
+          );
           return;
         }
 
@@ -312,7 +312,11 @@ class Index extends React.Component {
 
           if (res && res.status_code === 200) {
             notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
-            that.refreshFrame();
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+              )
+            );
 
             // 检查是否需要更新组件
             if (sourceShape !== 'undeploy' && sourceShape !== 'closed' && sourceShape !== 'stopping') {
@@ -339,7 +343,11 @@ class Index extends React.Component {
               }).then(portRes => {
                 if (portRes && portRes.status_code === 200) {
                   notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
-                  that.refreshFrame();
+                  dispatch(
+                    routerRedux.push(
+                      `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+                    )
+                  );
                 }
               });
             }
@@ -394,7 +402,11 @@ class Index extends React.Component {
                 callback: res => {
                   if (res && res.status_code === 200) {
                     notification.success({ message: res.msg_show || '对外端口已关闭' });
-                    that.refreshFrame();
+                    dispatch(
+                      routerRedux.push(
+                        `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+                      )
+                    );
                   } else {
                     notification.error({ message: '操作失败' });
                   }
@@ -409,7 +421,11 @@ class Index extends React.Component {
               }).then(res => {
                 if (res && res.status_code === 200) {
                   notification.success({ message: res.msg_show || '依赖关系已删除' });
-                  that.refreshFrame();
+                  dispatch(
+                    routerRedux.push(
+                      `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+                    )
+                  );
                 } else {
                   notification.error({ message: '删除失败' });
                 }
@@ -466,11 +482,11 @@ class Index extends React.Component {
             team_name: teamName
           }
         });
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
-              )
-            );
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+          )
+        );
       }
     });
   };
@@ -575,7 +591,11 @@ class Index extends React.Component {
           notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
         }
         this.handleOffHelpfulHints();
-        this.refreshFrame()
+        dispatch(
+          routerRedux.push(
+            `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
+          )
+        );
       }
     });
   };
