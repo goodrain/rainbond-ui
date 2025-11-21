@@ -208,6 +208,12 @@ class TeamLayout extends PureComponent {
         overflow: overview ? 'hidden' : 'auto'
       };
 
+      // 检查是否需要清空 currentComponent
+      const componentID = globalUtil.getComponentID(this.props.location);
+      if (!componentID && this.state.currentComponent) {
+        nextState.currentComponent = null;
+      }
+
       // 仅在状态有变化时才更新，避免无意义 setState
       const needUpdate = Object.keys(nextState).some(k => this.state[k] !== nextState[k]);
       if (needUpdate) {
@@ -804,13 +810,9 @@ class TeamLayout extends PureComponent {
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
+    // 避免在 render 中调用 setState，这些逻辑已在生命周期中处理
     if (appID && (!currentApp || !groupDetail.ID)) {
-      this.fetchAppDetail(appID);
-      this.handleMenuCollapse(true);
-      this.setState({
-        overflow: 'hidden',
-        GroupShow: true
-      });
+      // this.fetchAppDetail 和状态更新已在 componentWillReceiveProps 中处理
       // return <PageLoading />;
     } else if (
       currentComponent &&
@@ -821,9 +823,8 @@ class TeamLayout extends PureComponent {
     } else if (componentID) {
       // 避免在 render 中发起请求；改由生命周期在参数变化时触发
       // return <GlobalHeader />;
-    } else {
-      this.setState({ currentComponent: null });
     }
+    // else 分支的 setState 也移除，避免在 render 中更新状态
 
     const mode =
       groupDetail && groupDetail.app_type === 'helm'
