@@ -297,6 +297,8 @@
         'confirmModal.delete.project_team_delete.desc':'Are you sure you want to remove all resources under this project/team and project/team?',
         'confirmModal.delete.user.desc':'Are you sure you want to delete this user?',
         'confirmModal.delete.plugin.desc':'Are you sure you want to remove this plugin?',
+        'confirmModal.plugin.delete.force.title':'This plugin is in use by components',
+        'confirmModal.plugin.delete.force.content':'Do you want to force delete it?',
         'confirmModal.delete.configuration_item.desc':'Sure you want to remove this configuration item?',
         'confirmModal.delete.drop_procedure.desc':'Sure you want to delete this store?',
         'confirmModal.delete.drop_versions.desc':'Are you sure you want to remove the current version?',

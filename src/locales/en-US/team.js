@@ -424,6 +424,7 @@ const teamPlugin = {
   'teamPlugin.btn.install':'Install',
   'teamPlugin.install.title':'Install plugin',
   'teamPlugin.create.title':'Create plugin',
+  'teamPlugin.create.desc':'Create a plugin of your own. Created plugins can be used in components.',
   'teamPlugin.create.lable.plugin_alias':'Plugin name',
   'teamPlugin.create.lable.build_source':'Install source',
   'teamPlugin.create.lable.category':'Plugin type',

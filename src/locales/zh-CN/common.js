@@ -297,6 +297,8 @@
         'confirmModal.delete.project_team_delete.desc':'确定要删除此项目/团队和项目/团队下的所有资源吗？',
         'confirmModal.delete.user.desc':'确定要删除此用户吗？',
         'confirmModal.delete.plugin.desc':'确定要删除此插件吗？',
+        'confirmModal.plugin.delete.force.title':'该插件有组件使用',
+        'confirmModal.plugin.delete.force.content':'是否强制删除',
         'confirmModal.delete.configuration_item.desc':'确定要删除此配置项？',
         'confirmModal.delete.drop_procedure.desc':'确定要删除此配置组吗？',
         'confirmModal.delete.drop_versions.desc':'确定要删除当前版本吗？',
