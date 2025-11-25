@@ -205,6 +205,7 @@
         'status.app.backups.yolkStroke':'备份导出中',
         'status.app.backups.imported':'备份已导入',
         'status.loading':'加载中...',
+        'status.checking':'正在检测...',
         'status.not_mount':'未挂载',
         'status.mounted':'已挂载',
         'status.not_export':'未导出',

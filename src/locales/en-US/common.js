@@ -207,6 +207,7 @@
         'status.app.backups.yolkStroke':'Backup Export',
         'status.app.backups.imported':'Backup has been imported',
         'status.loading':'Loading...',
+        'status.checking':'Checking...',
         'status.not_mount':'Not mount',
         'status.mounted':'Mounted',
         'status.not_export':'Not exported',

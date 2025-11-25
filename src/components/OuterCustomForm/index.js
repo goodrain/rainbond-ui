@@ -7,7 +7,6 @@
 /* eslint-disable no-nested-ternary */
 import {
   Alert,
-  Badge,
   Button,
   Col,
   Form,
@@ -21,10 +20,11 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import rainbondUtil from '../../utils/rainbond';
@@ -103,11 +103,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    role.refreshPermissionsInfo(groupId, false, this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleChange = () => {
     this.setState({
@@ -121,12 +122,12 @@ export default class Index extends PureComponent {
     form.validateFields({ force: true },(err, fieldsValue) => {
       if (err) {
         if (
-          fieldsValue.type != '' &&
-          fieldsValue.type != undefined &&
-          (fieldsValue.servers == '' ||
-            fieldsValue.servers == undefined ||
-            fieldsValue.key == '' ||
-            fieldsValue.key == undefined)
+          fieldsValue.type !== '' &&
+          fieldsValue.type !== undefined &&
+          (fieldsValue.servers === '' ||
+            fieldsValue.servers === undefined ||
+            fieldsValue.key === '' ||
+            fieldsValue.key === undefined)
         ) {
           this.setState({
             visible: true
@@ -220,13 +221,13 @@ export default class Index extends PureComponent {
     }
     if (typeof value === 'object') {
       value.map(item => {
-        if (item == '') {
+        if (item === '') {
           callback(formatMessage({ id: 'placeholder.componentAddress' }));
           return null;
         }
 
         if (
-          this.state.endpointsType == 'static' &&
+          this.state.endpointsType === 'static' &&
           !regs.test(item || '') &&
           !rega.test(item || '') &&
           !rege.test(item || '')
@@ -247,7 +248,7 @@ export default class Index extends PureComponent {
         value.search('1.1.1.1') !== -1 ||
         value.search('localhost') !== -1
     ) {
-      callback(`${formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })}${value == '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
+      callback(`${formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })}${value === '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
     }
     callback();
   };
@@ -269,27 +270,33 @@ export default class Index extends PureComponent {
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
           })
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   render() {
     const {
       groups,
@@ -328,7 +335,7 @@ export default class Index extends PureComponent {
             })(
               <Input
                 placeholder={formatMessage({ id: 'placeholder.component_cname' })}
-                style={((language == false) && (isService == true)) ? {
+                style={((language === false) && (isService === true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -352,7 +359,7 @@ export default class Index extends PureComponent {
               rules: getK8sComponentNameRules()
             })(
               <Input
-                style={((language == false) && (isService == true)) ? {
+                style={((language === false) && (isService === true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -386,7 +393,7 @@ export default class Index extends PureComponent {
             )}
           </FormItem>
 
-          {endpointsType == 'static' && (
+          {endpointsType === 'static' && (
             <FormItem
               {...is_language}
               label={
@@ -425,7 +432,7 @@ export default class Index extends PureComponent {
                           />
                         </Col>
                         <Col span={4} style={{ textAlign: 'center' }}>
-                          {index == 0 ? (
+                          {index === 0 ? (
                             <Icon
                               type="plus-circle"
                               onClick={() => {
@@ -457,7 +464,7 @@ export default class Index extends PureComponent {
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService == true)) ? {
+                    style={((language === false) && (isService === true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -483,7 +490,7 @@ export default class Index extends PureComponent {
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService == true)) ? {
+                    style={((language === false) && (isService === true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -597,13 +604,13 @@ export default class Index extends PureComponent {
                   )
                   : !handleType && (
                     <div>
-                      {endpointsType == 'api' && apiMessage}
+                      {endpointsType === 'api' && apiMessage}
                       <Button onClick={this.handleSubmit} type="primary">
                         {formatMessage({ id: 'teamAdd.create.btn.create' })}
                       </Button>
                     </div>
                   )}
-                {isService && endpointsType == 'api' && apiMessage}
+                {isService && endpointsType === 'api' && apiMessage}
               </div>
             </Form.Item>
           ) : null}

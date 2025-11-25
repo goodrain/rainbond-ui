@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip, Divider, Icon } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Divider, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
 import globalUtil from '../../utils/global';
@@ -12,7 +12,7 @@ import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import oauthUtil from '../../utils/oauth';
-import styles from './index.less';
+import handleAPIError from '../../utils/error';
 import {
   createUrlValidator,
   getServiceNameRules,
@@ -108,7 +108,7 @@ export default class Index extends PureComponent {
     });
   };
   getDefaultBranchName = () => {
-    if (this.state.serverType == 'svn') {
+    if (this.state.serverType === 'svn') {
       return 'trunk';
     }
     return 'master';
@@ -121,11 +121,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    role.refreshPermissionsInfo(groupId, false, this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak = (val) => {
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   hideShowKey = () => {
     this.handkeDeleteCheckedList('showKey');
@@ -145,29 +146,38 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const group_id = globalUtil.getAppID()
+    const group_id = globalUtil.getAppID();
+
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
       }
+
+      // 处理版本类型为 tag
       if (fieldsValue.version_type === 'tag') {
-        // eslint-disable-next-line no-param-reassign
         fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
+
+      // 处理子目录路径
       if (fieldsValue.subdirectories && fieldsValue.server_type !== 'svg') {
-        // eslint-disable-next-line no-param-reassign
         fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
       }
+
+      // 设置应用组 ID
       if (group_id) {
-        fieldsValue.group_id = group_id
+        fieldsValue.group_id = group_id;
       }
+
+      // 设置应用组名称和 K8s 应用名
       if (!fieldsValue.k8s_app || !fieldsValue.group_name) {
-        fieldsValue.group_name = fieldsValue.service_cname
-        fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
+        fieldsValue.group_name = fieldsValue.service_cname;
+        fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname);
       }
+
       if (onSubmit) {
-        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
-          fieldsValue.arch = archInfo[0]
+        // 处理架构信息
+        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+          fieldsValue.arch = archInfo[0];
         }
         onSubmit(fieldsValue);
       }
@@ -212,7 +222,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     this.setState({
       creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
-    })
+    });
     dispatch({
       type: 'appControl/getComponentNames',
       payload: {
@@ -223,28 +233,32 @@ export default class Index extends PureComponent {
         if (res && res.bean) {
           this.setState({
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-          })
+          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (name === undefined) {
+      return '';
     }
-    return ''
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+    return cleanedPinyinName;
   }
   render() {
     const {
@@ -277,13 +291,15 @@ export default class Index extends PureComponent {
 
     // 获取可用的 Git 仓库列表
     const codeRepositoryList = enterpriseInfo ? oauthUtil.getEnableGitOauthServer(enterpriseInfo) : [];
-    let arch = 'amd64'
-    let archLegnth = archInfo.length
-    if (archLegnth == 2) {
-      arch = 'amd64'
-    } else if (archInfo.length == 1) {
-      arch = archInfo && archInfo[0]
+
+    let arch = 'amd64';
+    const archLength = archInfo.length;
+    if (archLength === 2) {
+      arch = 'amd64';
+    } else if (archInfo.length === 1) {
+      arch = archInfo && archInfo[0];
     }
+
     const is_language = language ? formItemLayout : en_formItemLayout;
     const gitUrl = getFieldValue('git_url');
 
@@ -405,7 +421,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           )}
 
-          {archLegnth == 2 &&
+          {archLength === 2 &&
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
                 initialValue: arch,

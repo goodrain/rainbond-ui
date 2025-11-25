@@ -1,18 +1,17 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider } from 'antd';
+import { Button, Form, Icon, Input, Radio, Upload, notification, Divider } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import AddGroup from '../../components/AddOrEditGroup'
-import roleUtil from '../../utils/newRole'
-import globalUtil from '../../utils/global'
+import { formatMessage } from 'umi-plugin-locale';
+import AddGroup from '../../components/AddOrEditGroup';
+import roleUtil from '../../utils/newRole';
+import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
-import styles from './index.less';
-import { getUploadInformation } from '../../services/app';
+import handleAPIError from '../../utils/error';
 import { pinyin } from 'pinyin-pro';
+import styles from './index.less';
 import {
   getServiceNameRules,
   getK8sComponentNameRules,
@@ -20,7 +19,6 @@ import {
   getGroupNameRules
 } from './validations';
 const { Dragger } = Upload;
-const { Option } = Select;
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -74,34 +72,41 @@ export default class Index extends PureComponent {
     this.loop = false;
     this.statusloop = false;
   }
-  //表单提交
+  // 表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch, archInfo, onSubmit } = this.props;
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    const group_id = globalUtil.getAppID()
-    const { event_id, existFileList, groupName } = this.state
+    const { form, archInfo, onSubmit } = this.props;
+    const group_id = globalUtil.getAppID();
+    const { event_id, existFileList } = this.state;
+
     form.validateFields((err, value) => {
       if (err) return;
-      if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
-        value.arch = archInfo[0]
+
+      // 处理架构信息
+      if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+        value.arch = archInfo[0];
       }
+
+      // 设置应用分组 ID
       if (group_id) {
-        value.group_id = group_id
+        value.group_id = group_id;
       }
+
+      // 处理应用名称和标识符
       if (!value.k8s_app || !value.group_name) {
-        value.group_name = value.service_cname
-        value.k8s_app = this.generateEnglishName(value.service_cname)
+        value.group_name = value.service_cname;
+        value.k8s_app = this.generateEnglishName(value.service_cname);
       }
+
+      // 检查是否有上传文件
       if (existFileList.length > 0) {
-        onSubmit(value, event_id)
+        onSubmit(value, event_id);
       } else {
-        this.loop = true
-        this.handleJarWarUploadStatus()
+        this.loop = true;
+        this.handleJarWarUploadStatus();
         notification.error({
           message: formatMessage({ id: 'notification.error.notDetected' })
-        })
+        });
       }
     });
   };
@@ -128,11 +133,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    roleUtil.refreshPermissionsInfo(groupId, false, this.callbcak)
+    roleUtil.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak = (val) => {
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleJarWarUpload = () => {
     const { dispatch } = this.props
@@ -161,6 +167,9 @@ export default class Index extends PureComponent {
           })
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
 
@@ -195,7 +204,9 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
@@ -209,7 +220,7 @@ export default class Index extends PureComponent {
         event_id
       },
       callback: (data) => {
-        if (data.bean.res == 'ok') {
+        if (data.bean.res === 'ok') {
           this.setState({
             existFileList: [],
             isDisabledUpload: false
@@ -220,6 +231,9 @@ export default class Index extends PureComponent {
           this.handleJarWarUpload()
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   //上传
@@ -267,27 +281,33 @@ export default class Index extends PureComponent {
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
           })
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   handleDisabledUpload = () => {
     this.setState({
       isDisabledUpload: true
@@ -322,10 +342,10 @@ export default class Index extends PureComponent {
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
     let arch = 'amd64'
-    let archLegnth = archInfo?.length || 0
-    if (archLegnth == 2) {
+    let archLength = archInfo?.length || 0
+    if (archLength === 2) {
       arch = 'amd64'
-    } else if (archLegnth == 1) {
+    } else if (archLength === 1) {
       arch = archInfo && archInfo[0]
     }
     const group_id = globalUtil.getAppID()
@@ -414,7 +434,7 @@ export default class Index extends PureComponent {
                 }
               </div>
             </Form.Item>
-            {archLegnth == 2 &&
+            {archLength === 2 &&
               <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,

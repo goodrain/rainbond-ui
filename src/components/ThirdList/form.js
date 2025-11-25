@@ -19,9 +19,10 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 import {
@@ -113,6 +114,13 @@ class Index extends React.Component {
             Loading: false
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({
+          tagsLoading: false,
+          Loading: false
+        });
       }
     });
   };
@@ -130,7 +138,7 @@ class Index extends React.Component {
     }
     form.validateFields((err, values) => {
       if (!err) {
-        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
+        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
           values.arch = archInfo[0]
         }
         if (group_id) {
@@ -160,22 +168,25 @@ class Index extends React.Component {
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
@@ -206,10 +217,10 @@ class Index extends React.Component {
     } = this.state;
     const group_id = globalUtil.getAppID()
     let arch = 'amd64'
-    let archLegnth = archInfo.length
-    if (archLegnth == 2) {
+    let archLength = archInfo.length
+    if (archLength === 2) {
       arch = 'amd64'
-    } else if (archInfo.length == 1) {
+    } else if (archInfo.length === 1) {
       arch = archInfo && archInfo[0]
     }
     return (
@@ -315,7 +326,7 @@ class Index extends React.Component {
                 rules: getOpenWebhookRules()
               })(<Switch />)}
             </Form.Item>
-            {archLegnth == 2 &&
+            {archLength === 2 &&
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'versionUpdata_6_1.arch' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,

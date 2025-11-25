@@ -1,9 +1,10 @@
-import { Button, Form, Input, Select, Divider, message, Icon } from 'antd';
+import { Button, Form, Input, Divider, message, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
 import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import styles from '../../pages/Create/Index.less';
 import {
   getServiceNameRules,
@@ -12,7 +13,6 @@ import {
   getK8sAppRules
 } from './validations';
 
-const { Option } = Select;
 const formItemLayout = {
   labelCol: {
     span: 24
@@ -57,6 +57,9 @@ export default class Index extends PureComponent {
                             : []
                     });
                 }
+            },
+            handleError: err => {
+                handleAPIError(err);
             }
         });
     };

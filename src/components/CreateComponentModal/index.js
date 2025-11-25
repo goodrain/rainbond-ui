@@ -24,7 +24,6 @@ import OuterCustomForm from '../OuterCustomForm';
 import DatabaseCreateForm from '../DatabaseCreateForm';
 import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
-import RBDPluginsCom from '../RBDPluginsCom';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
 import styles from './index.less';
