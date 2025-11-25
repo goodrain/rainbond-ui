@@ -28,6 +28,14 @@ import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import rainbondUtil from '../../utils/rainbond';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getEndpointsTypeRules,
+  getNamespaceRules,
+  getServiceNameK8sRules,
+  getGroupNameRules
+} from './validations';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -243,23 +251,6 @@ export default class Index extends PureComponent {
     }
     callback();
   };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
@@ -333,13 +324,7 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.component_cname' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getServiceNameRules()
             })(
               <Input
                 placeholder={formatMessage({ id: 'placeholder.component_cname' })}
@@ -364,9 +349,7 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
-              rules: [
-                { required: true, validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sComponentNameRules()
             })(
               <Input
                 style={((language == false) && (isService == true)) ? {
@@ -391,7 +374,7 @@ export default class Index extends PureComponent {
 
           <FormItem {...is_language} label={formatMessage({ id: 'teamAdd.create.third.componentRegister' })}>
             {getFieldDecorator('endpoints_type', {
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.endpoints' }) }],
+              rules: getEndpointsTypeRules(),
               initialValue: this.state.endpointsType
             })(
               <RadioGroup
@@ -470,7 +453,7 @@ export default class Index extends PureComponent {
             <div>
               <FormItem {...is_language} label="Namespace">
                 {getFieldDecorator('namespace', {
-                  rules: [{ required: false, message: formatMessage({ id: "placeholder.nameSpaceMsg" }) }],
+                  rules: getNamespaceRules(),
                   initialValue: ''
                 })(
                   <Input
@@ -496,7 +479,7 @@ export default class Index extends PureComponent {
               </FormItem>
               <FormItem {...is_language} label="Service">
                 {getFieldDecorator('serviceName', {
-                  rules: [{ required: true, message: formatMessage({ id: "placeholder.serviceName" }) }],
+                  rules: getServiceNameK8sRules(),
                   initialValue: ''
                 })(
                   <Input
@@ -524,9 +507,21 @@ export default class Index extends PureComponent {
 
           {!group_id && <div style={{ width: '100%' }}>
             <Divider />
-            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+              <Button
+                type="link"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 16,
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // color: '#1890ff'
+                }}
+                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+              >
+                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
             {this.state.showAdvanced && (
@@ -549,13 +544,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getGroupNameRules()
                   })(<Input 
                       placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} 
                       style={{
@@ -572,10 +561,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
+                    rules: getK8sComponentNameRules()
                   })(<Input 
                         placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} 
                          style={{

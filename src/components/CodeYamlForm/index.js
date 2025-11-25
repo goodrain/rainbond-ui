@@ -12,6 +12,10 @@ import globalUtil from '../../utils/global'
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules
+} from './validations';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -109,24 +113,6 @@ export default class Index extends PureComponent {
     }
     return ''
   }
-
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
 
   handleChange = (values) => {
     const { dispatch, groups } = this.props;
@@ -304,22 +290,13 @@ export default class Index extends PureComponent {
               >
                 {getFieldDecorator('group_name', {
                   initialValue: this.props.form.getFieldValue('service_cname') || '',
-                  rules: [
-                    { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                    {
-                      max: 24,
-                      message: formatMessage({ id: 'placeholder.max24' })
-                    }
-                  ]
+                  rules: getGroupNameRules()
                 })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
               </Form.Item>
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
                 {getFieldDecorator('k8s_app', {
                   initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                  rules: [
-                    { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
-                    { validator: this.handleValiateNameSpace }
-                  ]
+                  rules: getK8sAppNameRules()
                 })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
               </Form.Item>
             </>}

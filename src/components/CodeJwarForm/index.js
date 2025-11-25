@@ -13,6 +13,12 @@ import cookie from '../../utils/cookie';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getArchRules,
+  getGroupNameRules
+} from './validations';
 const { Dragger } = Upload;
 const { Option } = Select;
 
@@ -329,23 +335,13 @@ export default class Index extends PureComponent {
           <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.component_cname' })
-                  }
-                ]
+                rules: getServiceNameRules()
               })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
                 initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.k8s_component_name' })
-                  }
-                ]
+                rules: getK8sComponentNameRules()
               })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
             </Form.Item>
             <Form.Item
@@ -405,9 +401,15 @@ export default class Index extends PureComponent {
                 </div>
                 {existFileList.length > 0 &&
                   <div
-                    className={styles.deleteButton}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <Icon onClick={this.handleJarWarUploadDelete} type="delete" />
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
                   </div>
                 }
               </div>
@@ -416,7 +418,7 @@ export default class Index extends PureComponent {
               <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                  rules: getArchRules()
                 })(
                   <Radio.Group>
                     <Radio value='amd64'>amd64</Radio>
@@ -427,9 +429,21 @@ export default class Index extends PureComponent {
 
             {!group_id && <>
               <Divider />
-              <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-                <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                  高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+              <div className="advanced-btn" style={{ marginBottom: 16 }}>
+                <Button
+                  type="link"
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    // color: '#1890ff'
+                  }}
+                  onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+                >
+                  <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
                 </Button>
               </div>
               {this.state.showAdvanced && (
@@ -452,13 +466,7 @@ export default class Index extends PureComponent {
                   >
                     {getFieldDecorator('group_name', {
                       initialValue: this.props.form.getFieldValue('service_cname') || '',
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                        {
-                          max: 24,
-                          message: formatMessage({ id: 'placeholder.max24' })
-                        }
-                      ]
+                      rules: getGroupNameRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                       style={{
@@ -475,10 +483,7 @@ export default class Index extends PureComponent {
                   <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                     {getFieldDecorator('k8s_app', {
                       initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                        { validator: this.handleValiateNameSpace }
-                      ]
+                      rules: getK8sComponentNameRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                       style={{

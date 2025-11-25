@@ -6,6 +6,13 @@ import CodeMirrorForm from '../../components/CodeMirrorForm';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules,
+  getUsernameRules,
+  getPasswordRules,
+  getArchRules
+} from './validations';
 
 @connect(
   ({ global, loading, teamControl }) => ({
@@ -45,24 +52,6 @@ export default class Index extends PureComponent {
         onSubmit(fieldsValue);
       }
     });
-  };
-  // 团队命名空间的检验
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.appEngName' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          formatMessage({ id: 'placeholder.nameSpaceReg' })
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
   };
   // 生成英文名
   generateEnglishName = (name) => {
@@ -135,23 +124,14 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getGroupNameRules()
                   })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
-                  })(<Input placehol1der={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                    rules: getK8sAppNameRules()
+                  })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
               </>}
             <CodeMirrorForm
@@ -185,7 +165,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.user_name' }) }]
+                rules: getUsernameRules()
               })(
                 <Input
                   style={{ maxWidth: 300 }}
@@ -201,7 +181,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password' }) }]
+                rules: getPasswordRules()
               })(
                 <Input
                   autoComplete="new-password"
@@ -215,7 +195,7 @@ export default class Index extends PureComponent {
               <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                  rules: getArchRules()
                 })(
                   <Radio.Group>
                     <Radio value='amd64'>amd64</Radio>

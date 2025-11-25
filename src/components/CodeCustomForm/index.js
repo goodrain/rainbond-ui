@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip, Divider } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip, Divider, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
@@ -13,6 +13,18 @@ import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import oauthUtil from '../../utils/oauth';
 import styles from './index.less';
+import {
+  createUrlValidator,
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getGitUrlRules,
+  getUsernameRules,
+  getPasswordRules,
+  getSubdirectoriesRules,
+  getCodeVersionRules,
+  getArchRules,
+  getGroupNameRules
+} from './validations';
 
 const { Option } = Select;
 
@@ -102,22 +114,8 @@ export default class Index extends PureComponent {
     return 'master';
   };
 
-  getUrlCheck() {
-    if (this.state.serverType == 'svn') {
-      return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    }
-    return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-  }
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
-  };
-  checkURL = (rule, value, callback) => {
-    const urlCheck = this.getUrlCheck();
-    if (urlCheck.test(value)) {
-      callback();
-    } else {
-      callback(formatMessage({ id: 'componentOverview.body.ChangeBuildSource.Illegal' }));
-    }
   };
 
   handleAddGroup = groupId => {
@@ -208,23 +206,6 @@ export default class Index extends PureComponent {
         </Row>
       </Checkbox.Group>
     );
-  };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
   };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
@@ -352,35 +333,21 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getServiceNameRules()
             })(<Input placeholder={formatMessage({ id: 'placeholder.service_cname' })} />)}
           </Form.Item>
           {/* 集群内组件名称 */}
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
-              rules: [
-                {
-                  required: true,
-                  validator: this.handleValiateNameSpace
-                }
-              ]
+              rules: getK8sComponentNameRules()
             })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.address' })}>
             {getFieldDecorator('git_url', {
               initialValue: data.git_url || '',
               force: true,
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.git_url' }) },
-                { validator: this.checkURL, message: formatMessage({ id: 'placeholder.notGit_url' }) }
-              ]
+              rules: getGitUrlRules(createUrlValidator(serverType))
             })(
               <Input
                 addonBefore={prefixSelector}
@@ -397,7 +364,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.user" })}>
               {getFieldDecorator('username_1', {
                 initialValue: data.username || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+                rules: getUsernameRules()
               })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} />)}
             </Form.Item>
           )}
@@ -405,7 +372,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: "teamAdd.create.form.password" })}>
               {getFieldDecorator('password_1', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
+                rules: getPasswordRules()
               })(
                 <Input
                   autoComplete="new-password"
@@ -420,7 +387,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.path' })}>
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.subdirectories' }) }]
+                rules: getSubdirectoriesRules()
               })(<Input placeholder={formatMessage({ id: 'placeholder.subdirectories' })} />)}
             </Form.Item>
           )}
@@ -428,7 +395,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.versions' })}>
               {getFieldDecorator('code_version', {
                 initialValue: data.code_version || this.getDefaultBranchName(),
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                rules: getCodeVersionRules()
               })(
                 <Input
                   addonBefore={versionSelector}
@@ -442,7 +409,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
                 initialValue: arch,
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                rules: getArchRules()
               })(
                 <Radio.Group>
                   <Radio value='amd64'>amd64</Radio>
@@ -452,9 +419,21 @@ export default class Index extends PureComponent {
             </Form.Item>}
           {!group_id && <>
             <Divider />
-            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+              <Button
+                type="link"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 16,
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // color: '#1890ff'
+                }}
+                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+              >
+                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
 
@@ -478,13 +457,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getGroupNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                     style={{
@@ -501,10 +474,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
+                    rules: getK8sComponentNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                     style={{

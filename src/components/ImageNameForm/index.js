@@ -12,6 +12,19 @@ import { pinyin } from 'pinyin-pro';
 import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
 import styles from './index.less';
+import {
+  validateServiceName,
+  validateK8sComponentName,
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getImageSourceRules,
+  getImageAddressRules,
+  getDockerRunCmdRules,
+  getUsernameRules,
+  getPasswordRules,
+  getArchRules,
+  getAppNameRules
+} from './validations';
 const { Option } = Select;
 const { TextArea } = Input;
 const formItemLayout = {
@@ -197,38 +210,6 @@ export default class Index extends PureComponent {
   }
   
   
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
-
-  handleValiateCmd = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.docker_cmd' })));
-    }
-    if (value) {
-      const Reg = /^[^\s]*$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'mirror.name.space' }))
-        );
-      }
-      callback();
-    }
-  };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
@@ -583,16 +564,7 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({ id: 'placeholder.service_cname' })
-                },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getServiceNameRules()
             })(
               <Input
                 disabled={disableds.indexOf('service_cname') > -1}
@@ -604,15 +576,13 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
-              rules: [
-                { required: true, validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sComponentNameRules()
             })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
             {getFieldDecorator('imagefrom', {
               initialValue: 'address',
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              rules: getImageSourceRules()
             })(
               isPublic ? (
                 <Radio.Group onChange={this.handleChangeImageSource}>
@@ -642,20 +612,14 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           {radioKey === 'address' &&
-            <Form.Item 
-              {...is_language} 
+            <Form.Item
+              {...is_language}
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
               extra={isImageProxy ? '默认启用DockerHub镜像加速' : ''}
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: imageUrl || '',
-                rules: [
-                  { required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) },
-                  // 长度255
-                  { max: 255, message: formatMessage({ id: 'mirror.length.limit' }) },
-                  // 不允许输入中文、空格
-                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: formatMessage({ id: 'mirror.input.rule' }) }
-                ]
+                rules: getImageAddressRules()
               })(
                 <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} disabled={!isPublic} />
                 )}
@@ -665,7 +629,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
+                rules: getDockerRunCmdRules()
               })(
                 <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })}/>
               )}
@@ -803,7 +767,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+                rules: getUsernameRules()
               })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
             </Form.Item>
             <Form.Item
@@ -813,7 +777,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
+                rules: getPasswordRules()
               })(
                 <Input
                   autoComplete="new-password"
@@ -828,7 +792,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
                 initialValue: arch,
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                rules: getArchRules()
               })(
                 <Radio.Group>
                   <Radio value='amd64'>amd64</Radio>
@@ -838,9 +802,21 @@ export default class Index extends PureComponent {
             </Form.Item>}
           {!group_id && <>
             <Divider />
-            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+              <Button
+                type="link"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 16,
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // color: '#1890ff'
+                }}
+                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+              >
+                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
             {this.state.showAdvanced && (
@@ -863,13 +839,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getAppNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                     style={{
@@ -886,10 +856,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
+                    rules: getK8sComponentNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                     style={{

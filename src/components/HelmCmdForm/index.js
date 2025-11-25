@@ -11,6 +11,12 @@ import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 import role from '@/utils/newRole';
 import styles from './index.less';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules,
+  getImageSourceRules,
+  getHelmCmdRules
+} from './validations';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -161,23 +167,6 @@ export default class Index extends PureComponent {
         }
       });
     });
-  };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
   };
   showStoreMoudle = () => {
     this.setState({
@@ -389,28 +378,19 @@ export default class Index extends PureComponent {
           >
             {getFieldDecorator('group_name', {
               initialValue: this.props.form.getFieldValue('service_cname') || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getGroupNameRules()
             })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
             {getFieldDecorator('k8s_app', {
               initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-              rules: [
-                { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
-                { validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sAppNameRules()
             })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
             {getFieldDecorator('imagefrom', {
               initialValue: 'cmd',
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              rules: getImageSourceRules()
             })(
               <Radio.Group onChange={this.handleChangeHelm}>
                 <Radio value='cmd'>{formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}</Radio>
@@ -423,7 +403,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('helm_cmd', {
                 initialValue: data.docker_cmd || '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.helmCmdMsg' }) }]
+                rules: getHelmCmdRules()
               })(
                 <TextArea style={{ minHeight: '200px' }} placeholder={formatMessage({ id: 'placeholder.helm_cmd' })} />
               )}
@@ -446,7 +426,7 @@ export default class Index extends PureComponent {
           }
           {radioKey == 'upload' &&
             <>
-              <Form.Item
+            <Form.Item
                 {...is_language}
                 label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
                 extra={formatMessage({ id: 'teamAdd.create.image.extra_helm_chart' })}

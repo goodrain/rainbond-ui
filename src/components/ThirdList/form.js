@@ -24,6 +24,15 @@ import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getCodeVersionRules,
+  getOpenWebhookRules,
+  getArchRules,
+  getGroupNameRules,
+  getK8sAppRules
+} from './validations';
 
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
@@ -173,25 +182,6 @@ class Index extends React.Component {
       showSubdirectories: checkedValues.includes('subdirectories')
     });
   };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.input_en_name' })}`));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(
-            `${formatMessage({ id: 'componentOverview.EditName.only' })}`
-          )
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(`${formatMessage({ id: 'componentOverview.EditName.Cannot' })}`));
-    }
-  };
   render() {
     const {
       groups,
@@ -236,7 +226,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('service_cname', {
                 initialValue: thirdInfo ? thirdInfo.project_name : '',
-                rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.serviceName.placeholder' }) }]
+                rules: getServiceNameRules()
               })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.serviceName.placeholder' })} />)}
             </Form.Item>
             <Form.Item
@@ -245,7 +235,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('k8s_component_name', {
                 initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
-                rules: [{ required: true, validator: this.handleValiateNameSpace }]
+                rules: getK8sComponentNameRules()
               })(<Input placeholder={formatMessage({ id: 'versionUpdata_6_1.serviceName.k8sComponentName.placeholder' })} />)}
             </Form.Item>
             <Form.Item
@@ -254,7 +244,7 @@ class Index extends React.Component {
             >
               {getFieldDecorator('code_version', {
                 initialValue: tags && tags.length > 0 && tags[0],
-                rules: [{ required: true, message: formatMessage({ id: 'versionUpdata_6_1.codeVersion.placeholder' }) }]
+                rules: getCodeVersionRules()
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -322,14 +312,14 @@ class Index extends React.Component {
             >
               {getFieldDecorator('open_webhook', {
                 initialValue: false,
-                rules: [{ required: true, message: '' }]
+                rules: getOpenWebhookRules()
               })(<Switch />)}
             </Form.Item>
             {archLegnth == 2 &&
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'versionUpdata_6_1.arch' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                  rules: getArchRules()
                 })(
                   <Radio.Group>
                     <Radio value='amd64'>amd64</Radio>
@@ -341,9 +331,20 @@ class Index extends React.Component {
             {!group_id &&
             <div style={{ width: '100%' }}>
               <Divider />
-              <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-                <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                  高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+              <div className="advanced-btn" style={{ marginBottom: 16 }}>
+                <Button
+                  type="link"
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+                >
+                  <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                      {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
                 </Button>
               </div>
               {this.state.showAdvanced && (
@@ -366,13 +367,7 @@ class Index extends React.Component {
                   >
                     {getFieldDecorator('group_name', {
                       initialValue: this.props.form.getFieldValue('service_cname') || '',
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                        {
-                          max: 24,
-                          message: formatMessage({ id: 'placeholder.max24' })
-                        }
-                      ]
+                      rules: getGroupNameRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                       style={{
@@ -389,10 +384,7 @@ class Index extends React.Component {
                   <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                     {getFieldDecorator('k8s_app', {
                       initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                        { validator: this.handleValiateNameSpace }
-                      ]
+                      rules: getK8sAppRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                       style={{
