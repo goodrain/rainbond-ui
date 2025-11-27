@@ -17,16 +17,13 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
+import handleAPIError from '../../utils/error';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
-import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
-import EditPortAlias from '../../components/EditPortAlias';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-import NoPermTip from '../../components/NoPermTip';
-import Port from '../../components/Port';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
 import {
   addMnt,
@@ -35,17 +32,11 @@ import {
   getRelationedApp,
   removeRelationedApp
 } from '../../services/app';
-import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
 
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option, OptGroup } = Select;
 @connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -104,11 +95,8 @@ class BaseInfo extends PureComponent {
       }
     });
   };
-  handleChange = (value) => {
-  }
   onChecks = (e) => {
-    const { appDetail, form } = this.props;
-    const { method, memory, cpu } = this.state;
+    const { appDetail } = this.props;
     const {
       extend_method: extendMethod,
     } = appDetail.service;
@@ -116,7 +104,7 @@ class BaseInfo extends PureComponent {
       this.setState({
         method: true
       })
-      
+
     }else{
       this.setState({
         method: false
@@ -301,6 +289,9 @@ class RenderDeploy extends PureComponent {
         if (data) {
           this.setState({ runtimeInfo: data.bean ? data.bean : {} });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -317,6 +308,9 @@ class RenderDeploy extends PureComponent {
           notification.success({ message: formatMessage({id:'notification.success.change'}) });
           this.getRuntimeInfo();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -333,6 +327,9 @@ class RenderDeploy extends PureComponent {
           this.props.updateDetail();
           notification.success({ message: formatMessage({id:'notification.success.updates'}) });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -343,7 +340,6 @@ class RenderDeploy extends PureComponent {
     } = this.props;
     const { runtimeInfo } = this.state;
     if (!runtimeInfo) return null;
-    const language = appUtil.getLanguage(appDetail);
     return (
       <div
         style={{
@@ -364,7 +360,6 @@ class Mnt extends PureComponent {
     this.state = {
       showAddVar: null,
       showAddRelation: false,
-      selfPathList: [],
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
@@ -392,6 +387,9 @@ class Mnt extends PureComponent {
             volumes: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -408,6 +406,9 @@ class Mnt extends PureComponent {
             volumeOpts: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -446,6 +447,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.fetchVolumes();
         this.handleCancelAddVar();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -487,6 +491,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -501,6 +508,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -768,7 +778,6 @@ class Relation extends PureComponent {
     super(arg);
     this.state = {
       showAddRelation: false,
-      linkList: [],
       relationList: [],
       viewRelationInfo: null
     };
@@ -825,7 +834,7 @@ class Relation extends PureComponent {
     this.setState({ viewRelationInfo: null });
   };
   render() {
-    const { linkList, relationList } = this.state;
+    const { relationList } = this.state;
     return (
       <Card title={formatMessage({id:'componentCheck.advanced.setup.component_dependency.title'})}>
         <Table
@@ -939,7 +948,7 @@ class RenderProperty extends PureComponent {
 }
 // eslint-disable-next-line react/no-multi-comp
 @connect(
-  ({ teamControl }) => ({}),
+  () => ({}),
   null,
   null,
   {
@@ -951,11 +960,8 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       type: 'deploy',
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN'
     };
-  }
-  getAppAlias() {
-    return this.props.match.params.appAlias;
   }
   handleType = type => {
     if (this.state.type !== type) {

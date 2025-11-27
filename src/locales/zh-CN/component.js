@@ -561,6 +561,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': '请选择存储类型',
     'componentOverview.body.AddVolumes.cancel': '取消',
     'componentOverview.body.AddVolumes.confirm': '确认',
+    'componentOverview.body.AddVolumes.mount_format': '挂载格式',
+    'componentOverview.body.AddVolumes.disk': '磁盘',
+    'componentOverview.body.AddVolumes.cdrom': '光盘',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': '请输入本地挂载路径',
     'componentOverview.body.AddRelationMnt.mag_path': '{path}路径为系统保留路径，请更换其他路径',
@@ -1144,6 +1147,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': '组件名称不能为空',
     'kubeblocks.database.config.error.database_type_empty': '数据库类型不能为空',
     'kubeblocks.database.config.error.creation_failed': '创建失败',
+    'kubeblocks.database.config.error.k8s_name_conflict': '当前应用下英文名已存在，请返回上一步更换英文名',
+    'kubeblocks.database.config.error.replicas_min': '副本数量必须大于等于1',
+    'kubeblocks.database.config.error.storage_class_required': '请选择存储类',
+    'kubeblocks.database.config.error.component_info_missing': '创建成功但无法获取组件信息，请手动刷新页面',
     'kubeblocks.database.config.success.created': '创建成功',
     
     'kubeblocks.database.create.form.database_type.label': '数据库类型',

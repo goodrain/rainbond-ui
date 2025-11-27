@@ -566,6 +566,8 @@
         'notification.success.wait_patiently':'Update, please wait patiently',
         'notification.warn.save': 'You need to save the modified basic information in deployment properties first!',
         'notification.warn.no_port': 'This component does not have an end port',
+        'notification.warn.vm_system_disk_cannot_delete': 'Host system disk cannot be deleted',
+        'notification.warn.creating': 'Creating, please do not operate frequently!',
 
         // 失败
         'notification.error.delete':'Delete failure',
@@ -583,6 +585,7 @@
         'notification.error.none_deployed':'The current component is not deployed',
         'notification.error.setting_failed':'Setup failed. Please try again later',
         'notification.error.json_format_failed':'The format is incorrect. Enter the correct JSON format',
+        'notification.error.fail':'Operation failed',
 
         // 警告
         'notification.warn.team':'Please join the team first!',

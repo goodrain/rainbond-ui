@@ -13,6 +13,7 @@ import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import handleAPIError from '../../utils/error';
 
 @connect(
   ({ loading, teamControl, appControl }) => ({
@@ -36,7 +37,7 @@ export default class Index extends PureComponent {
       handleBuildSwitch: false,
       isDeploy: true
     };
-    this.loadingBuild = false
+    this.loadingBuild = false;
   }
   componentDidMount() {
     this.loadDetail();
@@ -63,11 +64,13 @@ export default class Index extends PureComponent {
       callback: data => {
         this.setState({ appDetail: data });
       },
-      handleError: data => {
-        const code = httpResponseUtil.getCode(data);
-        if (code && code === 404) {
-          // 应用不存在
-          this.handleJump(`exception/404`);
+      handleError: err => {
+        if (err) {
+          const code = httpResponseUtil.getCode(err);
+          if (code && code === 404) {
+            // 应用不存在
+            this.handleJump(`exception/404`);
+          }
         }
       }
     });
@@ -76,23 +79,23 @@ export default class Index extends PureComponent {
     return this.props.match.params.appAlias;
   }
   handleDebounce(fn, wait) {
-    let timer = null
+    let timer = null;
     return (e) => {
       if (timer !== null) {
-        clearTimeout(timer)
+        clearTimeout(timer);
       }
       timer = setTimeout(() => {
-        fn.call(e)
-        timer = null
-      }, wait)
-    }
+        fn.call(e);
+        timer = null;
+      }, wait);
+    };
   }
 
   handleBuild = () => {
-    this.loadingBuild = true
+    this.loadingBuild = true;
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
-    const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false
+    const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false;
     const { isDeploy, appDetail } = this.state;
     this.setState({ buildAppLoading: true }, () => {
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
@@ -100,10 +103,10 @@ export default class Index extends PureComponent {
           team_name: team_name,
           app_alias: app_alias,
           lang: soundCodeLanguage,
-          package_tool: packageNpmOrYarn,
-        }
+          package_tool: packageNpmOrYarn
+        };
         if (soundCodeLanguage == 'NodeJSStatic') {
-          obj.dist = dist
+          obj.dist = dist;
         }
         dispatch({
           type: 'createApp/setNodeLanguage',
@@ -126,7 +129,7 @@ export default class Index extends PureComponent {
                       },
                       callback: res => {
                         this.setState({ buildAppLoading: false });
-                        this.loadingBuild = false
+                        this.loadingBuild = false;
                       }
                     });
                     window.sessionStorage.removeItem('codeLanguage');
@@ -139,14 +142,12 @@ export default class Index extends PureComponent {
                 handleError: err => {
                   this.setState({ buildAppLoading: false });
                   this.loadingBuild = false;
-                  notification.error({ 
-                    message: err.msg_show || err.data?.msg_show || '操作失败'
-                  });
+                  handleAPIError(err);
                 }
-              })
+              });
             }
           }
-        })
+        });
       } else {
         dispatch({
           type: 'createApp/buildApps',
@@ -158,7 +159,7 @@ export default class Index extends PureComponent {
           callback: res => {
             if (res) {
               this.setState({ buildAppLoading: false });
-              this.loadingBuild = false
+              this.loadingBuild = false;
               dispatch({
                 type: 'global/fetchGroups',
                 payload: {
@@ -175,11 +176,9 @@ export default class Index extends PureComponent {
           handleError: err => {
             this.setState({ buildAppLoading: false });
             this.loadingBuild = false;
-            notification.error({ 
-              message: err.msg_show || err.data?.msg_show || '操作失败'
-            });
+            handleAPIError(err);
           }
-        })
+        });
       }
 
     });
@@ -188,11 +187,11 @@ export default class Index extends PureComponent {
 
   handlePreventClick = () => {
     if (!this.loadingBuild) {
-      this.handleBuild()
+      this.handleBuild();
     } else {
-      notification.warning({ message: '正在创建，请勿频繁操作！' });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.creating' }) });
     }
-  }
+  };
 
   handleDelete = () => {
     const { dispatch } = this.props;
@@ -239,8 +238,8 @@ export default class Index extends PureComponent {
   handleBuildSwitch = (val) => {
     this.setState({
       handleBuildSwitch: val
-    })
-  }
+    });
+  };
   handleLinkConfigFile = (link) => {
     const {
       match: {
@@ -251,9 +250,9 @@ export default class Index extends PureComponent {
         }
       },
       dispatch
-    } = this.props
-    dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
-  }
+    } = this.props;
+    dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`));
+  };
   render() {
     const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
@@ -316,7 +315,7 @@ export default class Index extends PureComponent {
                 style={{
                   marginRight: 8
                 }}
-                onClick={() => this.handleDebounce(this.handleBuild(handleBuildSwitch), 1000)}
+                onClick={this.handlePreventClick}
                 type="primary"
               >
                 {formatMessage({ id: 'button.confirm_create' })}

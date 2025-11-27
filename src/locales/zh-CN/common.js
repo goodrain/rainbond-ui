@@ -583,6 +583,7 @@
         'notification.error.none_deployed':'当前组件属于未部署状态',
         'notification.error.setting_failed':'设置失败咯，请稍后重试',
         'notification.error.json_format_failed':'格式错误、请输入正确的JSON格式',
+        'notification.error.fail':'操作失败',
 
 
         // 警告
@@ -625,6 +626,8 @@
         'notification.warn.not_team': '当前团队不存在!',
         'notification.warn.save': '请先保存部署属性中已修改的基本信息!',
         'notification.warn.no_port': '该组件暂无端口',
+        'notification.warn.vm_system_disk_cannot_delete': '主机系统盘不能删除',
+        'notification.warn.creating': '正在创建，请勿频繁操作！',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',

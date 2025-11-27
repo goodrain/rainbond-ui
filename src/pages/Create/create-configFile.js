@@ -4,8 +4,7 @@ import { Button, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import { Icon } from 'antd';
+import { formatMessage } from 'umi-plugin-locale';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { setNodeLanguage } from '../../services/createApp';
@@ -15,6 +14,7 @@ import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
 import pluginUtile from '../../utils/pulginUtils';
+import handleAPIError from '../../utils/error';
 
 @connect(
   ({ loading, teamControl, user }) => ({
@@ -33,7 +33,6 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
       handleBuildSwitch: false,
       showEnterprisePlugin: false,
@@ -64,14 +63,14 @@ export default class Index extends PureComponent {
         if (res && res.list) {
           const showEnterprisePlugin = pluginUtile.isInstallPlugin(res.list, 'rainbond-bill');
           this.setState({
-            showEnterprisePlugin: showEnterprisePlugin,
-          },()=>{
+            showEnterprisePlugin
+          }, () => {
             this.loadDetail()
           })
         }
       },
       handleError: () => {
-        this.setState({ showEnterprisePlugin: false, pluginLoading: false });
+        this.setState({ showEnterprisePlugin: false });
       },
     });
   }
@@ -89,9 +88,10 @@ export default class Index extends PureComponent {
       },
       handleError: data => {
         const code = httpResponseUtil.getCode(data);
-        if (code && code === 404) {
-          // 应用不存在
+        if (code === 404) {
           this.handleJump(`exception/404`);
+        } else {
+          handleAPIError(data);
         }
       }
     });
@@ -99,29 +99,17 @@ export default class Index extends PureComponent {
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
-  handleDebounce (fn, wait) {
-    let timer = null
-    return (e)=>{
-      if (timer !== null) {
-        clearTimeout(timer)
-      }
-      timer = setTimeout(() => {
-        fn.call(e)
-        timer = null
-      }, wait)
-    }
-  }
   handleBuild = (val) => {
     const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { appDetail } = this.state
     const { team_name, app_alias } = this.fetchParameter();
-    if( val == false ){
+    if (val == false) {
       setNodeLanguage({
-        team_name: team_name,
-        app_alias: app_alias,
+        team_name,
+        app_alias,
         lang: soundCodeLanguage,
         package_tool: packageNpmOrYarn,
-      }).then(res=>{
+      }).then(res => {
         dispatch({
           type: 'createApp/buildApps',
           payload: {
@@ -134,22 +122,23 @@ export default class Index extends PureComponent {
                 type: 'global/fetchGroups',
                 payload: {
                   team_name
+                },
+                handleError: err => {
+                  handleAPIError(err);
                 }
               });
               window.sessionStorage.removeItem('codeLanguage');
               window.sessionStorage.removeItem('packageNpmOrYarn');
               window.sessionStorage.removeItem('advanced_setup');
-              // this.handleJump(`components/${app_alias}/overview`);
               this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
             }
           },
           handleError: err => {
-            notification.error({ message: err.data.msg_show })
+            handleAPIError(err);
           }
         });
       })
-      
-    }else{
+    } else {
       notification.warning({ message: formatMessage({id:'notification.warn.save'}) });
     }
   };
@@ -168,12 +157,18 @@ export default class Index extends PureComponent {
           type: 'global/fetchGroups',
           payload: {
             team_name
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
         window.sessionStorage.removeItem('codeLanguage');
         window.sessionStorage.removeItem('packageNpmOrYarn');
         window.sessionStorage.removeItem('advanced_setup');
         this.handleJump('index');
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -222,9 +217,8 @@ export default class Index extends PureComponent {
           this.handleLinkConfigPort('create-configPort')
       }
   }
-  // cpu 内存 接口
   handleEditInfo = (val = {}) => {
-    const { 
+    const {
         match: {
             params:{
                 appAlias,
@@ -232,9 +226,9 @@ export default class Index extends PureComponent {
                 teamName
             }
         },
-        dispatch 
-    } = this.props 
-    this.props.dispatch({
+        dispatch
+    } = this.props
+    dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: teamName,
@@ -246,12 +240,14 @@ export default class Index extends PureComponent {
           this.loadDetail();
           this.handleBuildSwitch(false)
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
-  // 构建源信息
   handleEditRuntime = (build_env_dict = {}) => {
-    const { 
+    const {
         match: {
             params:{
                 appAlias,
@@ -259,9 +255,9 @@ export default class Index extends PureComponent {
                 teamName
             }
         },
-        dispatch 
-    } = this.props 
-    this.props.dispatch({
+        dispatch
+    } = this.props
+    dispatch({
       type: 'appControl/editRuntimeBuildInfo',
       payload: {
         team_name: teamName,
@@ -270,7 +266,11 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          this.loadDetail();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -278,11 +278,9 @@ export default class Index extends PureComponent {
     const { buildAppsLoading, deleteAppLoading } = this.props;
     const {
       showDelete,
-      // appPermissions: { isDelete },
       handleBuildSwitch,
       showEnterprisePlugin
     } = this.state;
-    const isDelete = true;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
       return null;
@@ -304,24 +302,22 @@ export default class Index extends PureComponent {
             handleEditRuntime={this.handleEditRuntime}
             onRef={this.onRef}
           />
-          <div 
+          <div
             style={{
               width:'100%',
               display: 'flex',
               justifyContent:'center'
             }}
           >
-            {isDelete && (
-              <Button 
-                onClick={this.showDelete} 
-                type="default"
-                style={{
-                    marginRight: 8
-                }}
-              >
-               {formatMessage({id:'button.abandon_create'})}
-              </Button>
-            )}
+            <Button
+              onClick={this.showDelete}
+              type="default"
+              style={{
+                  marginRight: 8
+              }}
+            >
+             {formatMessage({id:'button.abandon_create'})}
+            </Button>
             <Button
               style={{
                 marginRight: 8

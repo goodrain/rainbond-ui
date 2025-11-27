@@ -12,6 +12,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import DatabaseConfigForm from '../../components/DatabaseConfigForm';
 import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
+import handleAPIError from '../../utils/error';
 
 @connect(
   ({ teamControl, global, enterprise, user, kubeblocks }) => ({
@@ -61,7 +62,9 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   };
 
@@ -76,7 +79,9 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   };
 
@@ -91,7 +96,9 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
-      handleError: (err) => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   };
 
@@ -176,14 +183,15 @@ export default class Index extends PureComponent {
       callback: res => {
         const componentNames = res?.bean?.component_names || [];
         if (this.checkK8sNameConflict(k8s_component_name, componentNames)) {
-          message.error('当前应用下英文名已存在，请返回上一步更换英文名');
+          message.error(formatMessage({ id: 'kubeblocks.database.config.error.k8s_name_conflict' }));
           return;
         }
         // 预检通过，继续提交
         onSuccess();
       },
-      handleError: () => {
+      handleError: (err) => {
         // 获取组件名列表失败，继续提交（由后端兜底）
+        handleAPIError(err);
         onSuccess();
       }
     });
@@ -205,12 +213,12 @@ export default class Index extends PureComponent {
 
     // 验证必填字段
     if (!apiRequestData.replicas || apiRequestData.replicas < 1) {
-      message.error('副本数量必须大于等于1');
+      message.error(formatMessage({ id: 'kubeblocks.database.config.error.replicas_min' }));
       return;
     }
 
     if (!apiRequestData.storage_class) {
-      message.error('请选择存储类');
+      message.error(formatMessage({ id: 'kubeblocks.database.config.error.storage_class_required' }));
       return;
     }
 
@@ -246,7 +254,7 @@ export default class Index extends PureComponent {
                 routerRedux.push(`/team/${team_name}/region/${region_name}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
               );
             } else {
-              message.error('创建成功但无法获取组件信息，请手动刷新页面');
+              message.error(formatMessage({ id: 'kubeblocks.database.config.error.component_info_missing' }));
             }
           });
         } else {
@@ -258,8 +266,8 @@ export default class Index extends PureComponent {
           message.error(response ? response.msg_show : formatMessage({ id: 'kubeblocks.database.config.error.creation_failed' }));
         }
       },
-      handleError: () => {
-        message.error(formatMessage({ id: 'kubeblocks.database.config.error.creation_failed' }));
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -294,8 +302,10 @@ export default class Index extends PureComponent {
           });
         }
       },
-      handleError: () => { }
-    })
+      handleError: (err) => {
+        handleAPIError(err);
+      }
+    });
   }
 
   // 统一的入口方法

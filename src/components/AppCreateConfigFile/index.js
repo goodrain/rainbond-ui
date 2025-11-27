@@ -1,54 +1,32 @@
 import {
-  Affix,
   Button,
   Card,
   Col,
   Form,
-  Icon,
   Input,
   notification,
   Radio,
   Row,
-  Table,
-  Tooltip,
   Select,
   AutoComplete,
   Slider
 } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
-import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import AddPort from '../../components/AddPort';
-import AddRelation from '../../components/AddRelation';
-import ScrollerX from '../../components/ScrollerX';
-import AddRelationMnt from '../../components/AddRelationMnt';
-import ConfirmModal from '../../components/ConfirmModal';
-import EditPortAlias from '../../components/EditPortAlias';
-import EnvironmentVariable from '../../components/EnvironmentVariable';
-import NoPermTip from '../../components/NoPermTip';
-import Port from '../../components/Port';
-import ViewRelationInfo from '../../components/ViewRelationInfo';
-import {
-  addMnt,
-  batchAddRelationedApp,
-  getMnt,
-  getRelationedApp,
-  removeRelationedApp
-} from '../../services/app';
+import React, { PureComponent } from 'react';
+import { formatMessage } from 'umi-plugin-locale';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import sourceUtil from '../../utils/source';
 import cookie from '@/utils/cookie';
-import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
 import PriceCard from '../../components/PriceCard';
+import handleAPIError from '../../utils/error';
 import styles from './setting.less';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-const { Option, OptGroup } = Select;
+const { Option } = Select;
 @connect(null, null, null, { withRef: true })
 @Form.create()
 // 基础信息设置
@@ -99,10 +77,10 @@ class BaseInfo extends PureComponent {
       method: false,
       memory: false,
       cpu: false,
-      isComponentType: methods !== 'stateless_multiple' ? true : false,
-      isMemory: (props.appDetail.service.min_memory == 0) ? false : true,
-      isCpu: (props.appDetail.service.min_cpu == 0) ? false : true,
-      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
+      isComponentType: methods !== 'stateless_multiple',
+      isMemory: props.appDetail.service.min_memory !== 0,
+      isCpu: props.appDetail.service.min_cpu !== 0,
+      setUnit: (props.appDetail.service.min_memory % 1024 === 0) ? 'G' : 'M',
       memorySliderMin: 1,
       memorySliderMax: 8,
       cpuSliderMin: 1,
@@ -183,7 +161,7 @@ class BaseInfo extends PureComponent {
         if (memoryValueRaw >= 1024) {
           const gbValue = memoryValueRaw / 1024;
           // 如果GB值是整数或者小数位不超过2位的简单小数，使用GB
-          if (Number.isInteger(gbValue) || gbValue.toFixed(2) == gbValue) {
+          if (Number.isInteger(gbValue) || parseFloat(gbValue.toFixed(2)) === gbValue) {
             memoryUnit = 'GB';
             memoryDisplayValue = gbValue.toString();
           } else {
@@ -244,7 +222,7 @@ class BaseInfo extends PureComponent {
             }
           })
         }
-        
+
         // 处理自定义CPU值
         if (isCustomCpu) {
           if (customCpuValue && customCpuValue !== '') {
@@ -274,18 +252,16 @@ class BaseInfo extends PureComponent {
   };
 
   onChecks = (e) => {
-    const { appDetail, form, handleBuildSwitch } = this.props;
-    const { method, memory, cpu } = this.state;
+    const { appDetail, handleBuildSwitch } = this.props;
     const {
       extend_method: extendMethod,
     } = appDetail.service;
-    if (e.target.value != extendMethod) {
+    if (e.target.value !== extendMethod) {
       this.setState({
         method: true
       }, () => {
         this.handleSwitch()
       })
-
     } else {
       this.setState({
         method: false
@@ -305,7 +281,7 @@ class BaseInfo extends PureComponent {
   }
 
   RadioGroupChange = (e) => {
-    const { appDetail, handleBuildSwitch } = this.props;
+    const { appDetail } = this.props;
     const {
       min_memory: minMemory,
     } = appDetail.service;
@@ -324,7 +300,7 @@ class BaseInfo extends PureComponent {
     }
   }
   inputChange = (e) => {
-    const { appDetail, handleBuildSwitch } = this.props;
+    const { appDetail } = this.props;
     const {
       min_cpu: minCpu
     } = appDetail.service;
@@ -886,8 +862,8 @@ class VirtualMachineBaseInfo extends PureComponent {
         }
       ],
       is_flag: false,
-      setUnit: (props.appDetail.service.min_memory % 1024 == 0) ? 'G' : 'M',
-      setUnitDisk: (props.appDetail.service.disk_cap % 1024 == 0) ? 'G' : 'M',
+      setUnit: (props.appDetail.service.min_memory % 1024 === 0) ? 'G' : 'M',
+      setUnitDisk: (props.appDetail.service.disk_cap % 1024 === 0) ? 'G' : 'M',
       memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory && this.handleMinMemory(props.appDetail.service.min_memory),
     }
   }
@@ -900,7 +876,7 @@ class VirtualMachineBaseInfo extends PureComponent {
   }
 
   handleSubmitCpu = () => {
-    const { setUnit, setUnitDisk } = this.state
+    const { setUnit } = this.state
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
@@ -953,17 +929,17 @@ class VirtualMachineBaseInfo extends PureComponent {
     })
   }
   handleMinMemory = (val) => {
-    if (val != 2048 && val != 1024 * 4 && val != 1024 * 8 && val != 1024 * 16) {
+    if (val !== 2048 && val !== 1024 * 4 && val !== 1024 * 8 && val !== 1024 * 16) {
       return "custom"
     } else {
       const { appDetail } = this.props;
-      if (val == 2048 && appDetail.service.min_cpu == 2000) {
+      if (val === 2048 && appDetail.service.min_cpu === 2000) {
         return 2048
-      } else if (val == 1024 * 4 && appDetail.service.min_cpu == 2000) {
+      } else if (val === 1024 * 4 && appDetail.service.min_cpu === 2000) {
         return 1024 * 4
-      } else if (val == 1024 * 8 && appDetail.service.min_cpu == 4000) {
+      } else if (val === 1024 * 8 && appDetail.service.min_cpu === 4000) {
         return 1024 * 8
-      } else if (val == 1024 * 16 && appDetail.service.min_cpu == 4000) {
+      } else if (val === 1024 * 16 && appDetail.service.min_cpu === 4000) {
         return 1024 * 16
       }
     }
@@ -1056,7 +1032,7 @@ class VirtualMachineBaseInfo extends PureComponent {
             label={formatMessage({ id: 'Vm.createVm.memory' })}
           >
             {getFieldDecorator('memory_value', {
-              initialValue: (`${min_memory % 1024 == 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
+              initialValue: (`${min_memory % 1024 === 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
               rules: [
                 {
                   required: true,
@@ -1077,7 +1053,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         }
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'Vm.createVm.disk' })}>
           {getFieldDecorator('disk_cap', {
-            initialValue: (`${disk_cap % 1024 == 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
+            initialValue: (`${disk_cap % 1024 === 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
             rules: [
               {
                 required: true,
@@ -1105,11 +1081,6 @@ class RenderDeploy extends PureComponent {
     super(arg);
     this.state = {
       runtimeInfo: '',
-      volumes: [],
-      showAddVars: null,
-      editor: null,
-      toDeleteMnt: null,
-      toDeleteVolume: null,
     };
   }
   componentDidMount() {
@@ -1125,7 +1096,6 @@ class RenderDeploy extends PureComponent {
   childFn = (e) => {
     const {
       appDetail,
-      // componentPermissions: { isDeploytype, isSource },
     } = this.props;
     const isDeploytype = true;
     const isSource = true;
@@ -1156,15 +1126,16 @@ class RenderDeploy extends PureComponent {
         if (data) {
           this.setState({ runtimeInfo: data.bean ? data.bean : {} });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
   render() {
     const {
-      visible,
       appDetail,
-      // componentPermissions: { isDeploytype, isSource },
       handleBuildSwitch,
       handleEditInfo,
       handleEditRuntime,
@@ -1172,16 +1143,14 @@ class RenderDeploy extends PureComponent {
     } = this.props;
     const isDeploytype = true;
     const isSource = true;
-    const { runtimeInfo, volumes } = this.state;
+    const { runtimeInfo } = this.state;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     if (!runtimeInfo) return null;
     const language = appUtil.getLanguage(appDetail);
     return (
       <div>
-        {!isDeploytype && !isSource && <NoPermTip />}
         {isDeploytype && (
           <>
-
             {method == 'vm' ? (
               <VirtualMachineBaseInfo onRefCpu={this.onRefCpu} onSubmit={handleEditInfo} handleBuildSwitch={handleBuildSwitch} appDetail={appDetail} showEnterprisePlugin={showEnterprisePlugin} />
             ) : (
@@ -1217,11 +1186,7 @@ class RenderDeploy extends PureComponent {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      // componentPermissions: this.handlePermissions('queryComponentInfo'),
-      type: 'deploy',
-      language: cookie.get('language') === 'zh-CN' ? true : false
-    };
+    this.state = {};
   }
   componentDidMount() {
     //通过pros接收父组件传来的方法
@@ -1235,14 +1200,6 @@ export default class Index extends PureComponent {
     const result = this.child.childFn()
     return result
   }
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
-  handleType = type => {
-    if (this.state.type !== type) {
-      this.setState({ type });
-    }
-  };
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
@@ -1253,7 +1210,6 @@ export default class Index extends PureComponent {
 
   render() {
     const { appDetail, handleBuildSwitch, handleEditInfo, handleEditRuntime, showEnterprisePlugin } = this.props;
-    const { type, componentPermissions, language } = this.state;
     return (
       <div>
         <div
@@ -1272,7 +1228,6 @@ export default class Index extends PureComponent {
               updateDetail={this.props.updateDetail}
               handleEditInfo={handleEditInfo}
               appDetail={appDetail}
-              // componentPermissions={componentPermissions}
               handleBuildSwitch={handleBuildSwitch}
               handleEditRuntime={handleEditRuntime}
               showEnterprisePlugin={showEnterprisePlugin}

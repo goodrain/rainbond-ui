@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Radio, Switch, Input } from 'antd';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import GlobalUtils from '@/utils/global';
 
 const RadioGroup = Radio.Group;
@@ -22,6 +22,16 @@ class Index extends PureComponent {
     this.setState({
       JDKType: e.target.value,
     });
+  };
+
+  validCustomJDK = (rule, value, callback) => {
+    if (this.state.JDKType === 'Jdk') {
+      if (!value) {
+        callback(formatMessage({id:'componentOverview.body.CodeBuildConfig.callback_msg'}));
+        return;
+      }
+    }
+    callback();
   };
 
   render() {
@@ -46,10 +56,7 @@ class Index extends PureComponent {
     const { envs, form, buildSourceArr } = this.props;
     const { getFieldDecorator } = form;
     const { JDKType } = this.state;
-    let initialJDKType = 'OpenJDK';
-    if (envs && envs.BUILD_ENABLE_ORACLEJDK) {
-      initialJDKType = 'Jdk';
-    }
+    const initialJDKType = JDKType;
     return (
       <div>
         <Form.Item
@@ -77,30 +84,29 @@ class Index extends PureComponent {
         </Form.Item>
 
         {JDKType === 'OpenJDK' && (
-          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.edition"/>}>
+          <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.edition"/>}>
             {getFieldDecorator('BUILD_RUNTIMES', {
               initialValue: (envs && envs.BUILD_RUNTIMES) || GlobalUtils.getDefaultVsersion(buildSourceArr.openJDK || []),
             })(
-              <RadioGroup>          
+              <RadioGroup>
                 {buildSourceArr && buildSourceArr.openJDK?.map((item, index) => {
                   return (
                     <Radio key={index} value={item.version}>
                       {item.version}
                     </Radio>
                   );
-                }
-                )}
+                })}
               </RadioGroup>
             )}
           </Form.Item>
         )}
 
         {JDKType === 'Jdk' && (
-          <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.path"/>}>
+          <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.JavaJDKConfig.path"/>}>
             {getFieldDecorator('BUILD_ORACLEJDK_URL', {
               initialValue: envs && envs.BUILD_ORACLEJDK_URL,
               rules: [{ validator: this.validCustomJDK }],
-            })(<Input  placeholder={formatMessage({id:'componentOverview.body.JavaJDKConfig.provide_path'})}/>)}
+            })(<Input placeholder={formatMessage({id:'componentOverview.body.JavaJDKConfig.provide_path'})}/>)}
           </Form.Item>
         )}
       </div>

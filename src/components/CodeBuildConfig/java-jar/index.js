@@ -1,9 +1,8 @@
 import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import { Form, Radio, Input } from "antd";
+import { FormattedMessage } from 'umi-plugin-locale';
+import { Form, Input } from "antd";
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";
-const RadioGroup = Radio.Group;
 
 @connect(
   null,
@@ -12,10 +11,6 @@ const RadioGroup = Radio.Group;
   { withRef: true }
 )
 class Index extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const formItemLayout = {
       labelCol: {
@@ -40,7 +35,7 @@ class Index extends PureComponent {
     return (
       <div>
         <JavaJDK form={this.props.form} envs={this.props.envs} buildSourceArr={buildSourceArr}/>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.Start"/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.GoConfig.Start"/>}>
           {getFieldDecorator("BUILD_PROCFILE", {
             initialValue: (envs && envs.BUILD_PROCFILE) || "web: java $JAVA_OPTS -jar ./*.jar"
           })(
