@@ -10,7 +10,6 @@ import {
   Alert,
   Badge,
   Button,
-  Divider,
   Form,
   Icon,
   Input,
@@ -29,48 +28,40 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../ConfirmModal';
 import styless from '../../CreateTeam/index.less';
 import MarketAppDetailShow from '../../MarketAppDetailShow';
 import VisitBtn from '../../VisitBtn';
-import PageHeader from '../../ComponentPageHeader'
+import PageHeader from '../../ComponentPageHeader';
 import { rollback } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import AppPubSubSocket from '../../../utils/appPubSubSocket';
 import appStatusUtil from '../../../utils/appStatus-util';
-import ScrollerX from '../../ScrollerX';
-import {
-  createApp,
-  createComponent,
-  createEnterprise,
-  createTeam
-} from '../../../utils/breadcrumb';
 import dateUtil from '../../../utils/date-util';
+import handleAPIError from '../../../utils/error';
 import globalUtil from '../../../utils/global';
 import regionUtil from '../../../utils/region';
-import roleUtil from '../../../utils/newRole';
 import teamUtil from '../../../utils/team';
 import userUtil from '../../../utils/user';
+import PluginUtile from '../../../utils/pulginUtils';
+import { ResumeContext } from '../../../pages/Component/funContext';
 import ConnectionInformation from '../../../pages/Component/connectionInformation';
 import EnvironmentConfiguration from '../../../pages/Component/environmentConfiguration';
 import Expansion from '../../../pages/Component/expansion';
-import styles from './components.less';
 import Log from '../../../pages/Component/log';
 import Members from '../../../pages/Component/members';
-import Mnt from '../../../pages/Component/mnt';
 import Monitor from '../../../pages/Component/monitor';
 import Overview from '../../../pages/Component/overview';
 import advancedSettings from '../../../pages/Component/advancedSettings';
 import port from '../../../pages/Component/port';
-import relation from '../../../pages/Component/relation'
-import ComponentPlugin from '../../../pages/Component/componentPlugin'
+import relation from '../../../pages/Component/relation';
+import ComponentPlugin from '../../../pages/Component/componentPlugin';
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
-import PluginUtile from '../../../utils/pulginUtils'
-import { ResumeContext } from "../../../pages/Component/funContext";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
+import styles from './components.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -454,12 +445,7 @@ class Main extends PureComponent {
         }
         return null;
       }
-      if (err && err.data && err.data.msg_show) {
-        notification.warning({
-          message: formatMessage({ id: 'notification.warn.error' }),
-          description: err.data.msg_show
-        });
-      }
+      handleAPIError(err);
     });
     return null;
   };
@@ -492,30 +478,27 @@ class Main extends PureComponent {
   };
 
   loadBuildState = (appDetail, val) => {
-    const { team_name, serviceAlias } = this.fetchParameter();
+    const { team_name } = this.fetchParameter();
     const { dispatch } = this.props;
+
     if (val) {
-      this.setState({
-        BuildState: null
-      });
+      this.setState({ BuildState: null });
     }
-    if (
-      appDetail &&
-      appDetail.service &&
-      appDetail.service.service_source === 'market' &&
-      appDetail.service.service_alias
-    ) {
+
+    const service = appDetail?.service;
+    const isMarketSource = service?.service_source === 'market' && service?.service_alias;
+
+    if (isMarketSource) {
       dispatch({
         type: 'appControl/getBuildInformation',
         payload: {
           team_name,
-          app_alias: appDetail.service.service_alias
+          app_alias: service.service_alias
         },
         callback: res => {
-          if (res && res.status_code === 200) {
+          if (res?.status_code === 200) {
             this.setState({
-              BuildState:
-                res.list && res.list.length > 0 ? res.list.length : null
+              BuildState: res.list?.length > 0 ? res.list.length : null
             });
           }
         }
@@ -526,44 +509,32 @@ class Main extends PureComponent {
     const { team_name, region_name } = this.fetchParameter();
     return `/team/${team_name}/region/${region_name}/`;
   };
-  loadDetail = (val) => {    
+  loadDetail = (val) => {
     const { dispatch } = this.props;
-    const {
-      app_alias,
-      team_name,
-      group_id,
-      serviceAlias
-    } = this.fetchParameter();
+    const { app_alias, team_name, group_id, serviceAlias } = this.fetchParameter();
     const prefixUrl = this.fetchPrefixUrl();
+
     dispatch({
       type: 'appControl/fetchDetail',
-      payload: {
-        team_name,
-        app_alias
-      },
+      payload: { team_name, app_alias },
       callback: appDetail => {
         this.fetchAppDetail();
+        this.loadBuildState(appDetail, val);
+
         const haveTabKey = globalUtil.getSlidePanelTab();
-        if (val) {
-          this.loadBuildState(appDetail, val);
-        } else {
-          this.loadBuildState(appDetail);
-        }
+        const isKBComponent = appDetail?.service?.extend_method === 'kubeblocks_component';
+
         if (appDetail.service.service_source) {
-          const isKBComponent = appDetail?.service?.extend_method === 'kubeblocks_component';
           this.setState({
-            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
+            isShowThirdParty: appDetail.is_third || false,
             tabsShow: true,
             isShowKubeBlocksComponent: isKBComponent
           }, () => {
-            this.setState({
-              routerSwitch: false,
-              activeTab: (() => {
-                const targetTab = haveTabKey ? haveTabKey :
-                  this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview';
-                return (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
-              })()
-            });
+            const defaultTab = this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview';
+            const targetTab = haveTabKey || defaultTab;
+            const activeTab = (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
+
+            this.setState({ routerSwitch: false, activeTab });
 
             if (isKBComponent) {
               dispatch({
@@ -576,30 +547,23 @@ class Main extends PureComponent {
             }
           });
         }
-        if (
-          !appUtil.isCreateComplete(appDetail) &&
-          !appUtil.isMarketApp(appDetail)
-        ) {
-          if (
-            appDetail.service &&
-            appDetail.service.create_status === 'complete'
-          ) {
+
+        const isCreateComplete = appUtil.isCreateComplete(appDetail);
+        const isMarketApp = appUtil.isMarketApp(appDetail);
+
+        if (!isCreateComplete && !isMarketApp) {
+          if (appDetail.service?.create_status === 'complete') {
             this.getStatus(false);
             setTimeout(() => {
-              this.setState({
-                routerSwitch: false
-              })
-            }, 100)
+              this.setState({ routerSwitch: false });
+            }, 100);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
-            this.setState({
-              routerSwitch: false
-            })
-            serviceAlias &&
+            this.setState({ routerSwitch: false });
+            if (serviceAlias) {
               dispatch(
-                routerRedux.replace(
-                  `${prefixUrl}create/create-check/${serviceAlias}`
-                )
+                routerRedux.replace(`${prefixUrl}create/create-check/${serviceAlias}`)
               );
+            }
           } else {
             dispatch(
               routerRedux.replace(
@@ -610,18 +574,16 @@ class Main extends PureComponent {
         } else {
           this.getStatus(false);
         }
-        // get websocket url and create client
+
         this.getWebSocketUrl(appDetail.service.service_id);
       },
       handleError: data => {
         const { componentTimer } = this.state;
-        if (!componentTimer) {
-          return null;
-        }
+        if (!componentTimer) return;
+
         if (data.status === 404) {
           dispatch(routerRedux.push(`${prefixUrl}exception/404`));
         }
-        return null;
       }
     });
   };
@@ -673,14 +635,22 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
+
+  checkActionInProgress = () => {
+    if (this.state.actionIng) {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
+      return true;
+    }
+    return false;
+  };
+
   handleDeploy = groupVersion => {
     this.setState({
       showDeployTips: false,
       showreStartTips: false
     });
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.actionIng) {
-      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
+    if (this.checkActionInProgress()) {
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
@@ -712,34 +682,29 @@ class Main extends PureComponent {
     });
   };
   handleRollback = datas => {
-    if (this.state.actionIng) {
-      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
+    if (this.checkActionInProgress()) {
       return;
     }
     const { team_name, app_alias } = this.fetchParameter();
 
+    const deployVersion = datas.build_version || datas.deploy_version || '';
+    const upgradeOrRollback = datas.upgrade_or_rollback || -1;
+
     rollback({
       team_name,
       app_alias,
-      deploy_version: datas.build_version
-        ? datas.build_version
-        : datas.deploy_version
-          ? datas.deploy_version
-          : '',
-      upgrade_or_rollback: datas.upgrade_or_rollback
-        ? datas.upgrade_or_rollback
-        : -1
+      deploy_version: deployVersion,
+      upgrade_or_rollback: upgradeOrRollback
     }).then(data => {
       if (data) {
-        notification.success({
-          message: datas.upgrade_or_rollback
-            ? datas.upgrade_or_rollback == 1
-              ? formatMessage({ id: 'notification.success.upgrade' })
-              : formatMessage({ id: 'notification.success.rollback' })
-            : formatMessage({ id: 'notification.success.rollback' })
-        });
+        const message = upgradeOrRollback === 1
+          ? formatMessage({ id: 'notification.success.upgrade' })
+          : formatMessage({ id: 'notification.success.rollback' });
+
+        notification.success({ message });
+
         const child = this.getChildCom();
-        if (child && child.onAction) {
+        if (child?.onAction) {
           child.onAction(data.bean);
         }
       }
@@ -833,6 +798,8 @@ class Main extends PureComponent {
   handleEditName = data => {
     const { team_name, serviceAlias, group_id } = this.fetchParameter();
     const { dispatch } = this.props;
+    const { activeTab } = this.state;
+
     dispatch({
       type: 'appControl/editName',
       payload: {
@@ -843,23 +810,27 @@ class Main extends PureComponent {
       callback: () => {
         dispatch({
           type: 'application/editGroups',
-          payload: {
-            team_name,
-            group_id
-          },
-          callback: res => {
+          payload: { team_name, group_id },
+          callback: () => {
             notification.success({ message: formatMessage({ id: 'notification.success.takeEffect' }) });
           }
         });
+
         this.handleUpDataHeader();
         this.loadDetail();
         this.hideEditName();
+
         const timestamp = new Date().getTime();
+        const teamName = globalUtil.getCurrTeamName();
+        const regionName = globalUtil.getCurrRegionName();
+        const appID = globalUtil.getAppID();
+
         setTimeout(() => {
           dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${serviceAlias}&tab=${this.state.activeTab}&refresh=${timestamp}`
-            ))
+              `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${serviceAlias}&tab=${activeTab}&refresh=${timestamp}`
+            )
+          );
         }, 50);
       }
     });
@@ -880,6 +851,7 @@ class Main extends PureComponent {
   handleMoveGroup = data => {
     const { team_name, serviceAlias } = this.fetchParameter();
     const { dispatch } = this.props;
+
     dispatch({
       type: 'appControl/moveGroup',
       payload: {
@@ -892,9 +864,7 @@ class Main extends PureComponent {
         this.loadDetail();
         dispatch({
           type: 'global/fetchGroups',
-          payload: {
-            team_name
-          }
+          payload: { team_name }
         });
         notification.success({ message: formatMessage({ id: 'notification.warn.restart' }) });
       }
@@ -902,7 +872,7 @@ class Main extends PureComponent {
   };
   handleOperation = (state, callback) => {
     const { dispatch } = this.props;
-    const { actionIng } = this.state;
+
     if (state === 'putUpdateRolling') {
       this.setState({
         showDeployTips: false,
@@ -911,10 +881,11 @@ class Main extends PureComponent {
     } else if (state === 'putReStart') {
       this.setState({ showreStartTips: false });
     }
-    if (actionIng) {
-      notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
+
+    if (this.checkActionInProgress()) {
       return;
     }
+
     const operationMap = {
       putReStart: formatMessage({ id: 'notification.success.operationRestart' }),
       putStart: formatMessage({ id: 'notification.success.operationStart' }),
@@ -965,22 +936,23 @@ class Main extends PureComponent {
     });
   };
   handleOkBuild = (key) => {
-    const { dispatch } = this.props
+    const { dispatch, form } = this.props;
     const { group_id } = this.fetchParameter();
-    this.props.form.validateFields((err, fieldsValue) => {
-      if (!err) {
-        if (key === 'build') {
-          this.handleDeploy(fieldsValue.group_version);
-        } else if (key === 'upgrade') {
-          dispatch(
-            routerRedux.push(`${this.fetchPrefixUrl()}apps/${group_id}/upgrade`)
-          );
-        }
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      if (key === 'build') {
+        this.handleDeploy(fieldsValue.group_version);
+      } else if (key === 'upgrade') {
+        dispatch(
+          routerRedux.push(`${this.fetchPrefixUrl()}apps/${group_id}/upgrade`)
+        );
       }
     });
   };
   handleVm = () => {
-    const { appDetail, dispatch } = this.props;
+    const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
     const { status } = this.state;
     dispatch({
@@ -988,28 +960,26 @@ class Main extends PureComponent {
       payload: {
         team_name,
         app_alias: serviceAlias,
-        type: status.status == 'paused' ? 'unpause' : 'pause'
+        type: status.status === 'paused' ? 'unpause' : 'pause'
       },
       callback: res => {
         if (res && res.status_code === 200) {
           notification.success({ message: formatMessage({ id: 'Vm.createVm.handleSuccess' }) });
         }
       },
-      handleError: err => {
-        notification.warning({
-          message: formatMessage({ id: 'notification.warn.error' }),
-        });
-      }
+      handleError: handleAPIError
     });
   }
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
-    const buildType = appDetail.service.service_source;
-    const text = appDetail.rain_app_name;
     const { status } = this.state;
     const { team_name, serviceAlias } = this.fetchParameter();
 
-    if (buildType === 'market' && status && status.status !== 'undeploy') {
+    const buildType = appDetail?.service?.service_source;
+    const text = appDetail?.rain_app_name;
+    const isMarketAndDeployed = buildType === 'market' && status?.status !== 'undeploy';
+
+    if (isMarketAndDeployed) {
       dispatch({
         type: 'appControl/getBuildInformation',
         payload: {
@@ -1017,13 +987,12 @@ class Main extends PureComponent {
           app_alias: serviceAlias
         },
         callback: res => {
-          if (res && res.status_code === 200) {
+          if (res?.status_code === 200) {
             this.setState({
               BuildList: res.list,
               visibleBuild: true,
               BuildText: text,
-              BuildState:
-                res.list && res.list.length > 0 ? res.list.length : null,
+              BuildState: res.list?.length > 0 ? res.list.length : null,
               showApp: {
                 details: false,
                 group_name: text
@@ -1064,60 +1033,41 @@ class Main extends PureComponent {
   };
   handleJumpAgain = () => {
     const { promptModal } = this.state;
+
     if (promptModal === 'deploy') {
       this.handleDeploy();
-      return null;
+      return;
     }
-    const parameter =
-      promptModal === 'stop'
-        ? 'putStop'
-        : promptModal === 'start'
-          ? 'putStart'
-          : promptModal === 'restart'
-            ? 'putReStart'
-            : promptModal === 'rolling'
-              ? 'putUpdateRolling'
-              : '';
-    this.handleOperation(parameter);
+
+    const operationMap = {
+      stop: 'putStop',
+      start: 'putStart',
+      restart: 'putReStart',
+      rolling: 'putUpdateRolling'
+    };
+
+    const operation = operationMap[promptModal];
+    if (operation) {
+      this.handleOperation(operation);
+    }
   };
-  toWebConsole = () => {
-    const { dispatch } = this.props;
-    const { serviceAlias } = this.fetchParameter();
-    dispatch(
-      routerRedux.replace(
-        `${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`
-      )
-    );
-  };
-  renderTitle(name) {
-    const {
-      appDetail,
-    } = this.props;
-    const { status, groupDetail, loadingDetail } = this.state;
-    const {  isRestart, isStop, isDelete, isEdit } = this.props.permissions;
+  renderTitle() {
+    const { appDetail, permissions } = this.props;
     const comName = JSON.parse(window.sessionStorage.getItem('name')) || '-';
-    const isHelm =
-      groupDetail && groupDetail.app_type && groupDetail.app_type === 'helm';
-    const arch = appDetail.service && appDetail.service.arch
+    const arch = appDetail?.service?.arch;
+
     return (
-      <Fragment>
-        <div>
-          <div className={styles.contentTitle}>
-            {comName || '-'}
-            {isEdit && (
-              <Icon
-                style={{
-                  cursor: 'pointer',
-                  marginRight: '12px'
-                }}
-                onClick={this.showEditName}
-                type="edit"
-              />
-            )}
-            <Tag>{arch}</Tag>
-          </div>
-        </div>
-      </Fragment>
+      <div className={styles.contentTitle}>
+        {comName}
+        {permissions.isEdit && (
+          <Icon
+            style={{ cursor: 'pointer', marginRight: '12px' }}
+            onClick={this.showEditName}
+            type="edit"
+          />
+        )}
+        {arch && <Tag>{arch}</Tag>}
+      </div>
     );
   }
   checkPermissions() {
@@ -1263,125 +1213,89 @@ class Main extends PureComponent {
     return this.renderOperations(availableOperations);
   }
 
-  renderOperations(operations) {
-    let content = [];
-    // 处理按钮逻辑
-    if (operations.length <= 3) {
-      // 如果按钮数量小于等于3，直接渲染按钮
-      content = operations.map((op, index) => (
-        op.type === 'button' ? (
-          <Button
-            type={index === 0 ? "primary" : "default"}
-            key={op.key}
-            onClick={op.onClick}
-            disabled={op.disabled}
-            loading={op.loading}
-            style={{ marginRight: 8 }}
-          >
-            {op.badge ? (
-              <Tooltip title={op.badge.tooltip}>
-                <Badge
-                  className={styles.badge}
-                  status={op.badge.status}
-                  text=""
-                  count={op.badge.text}
-                  title={op.badge.text}
-                />
-              </Tooltip>
-            ) : null}
-            {op.text}
-          </Button>
-        ) : op.type === 'link' ? (
-          <Button>
-            <Link
-              key={op.key}
-              to={op.path}
-              target={op.target}
-              style={{ marginRight: 8 }}
-              className="ant-btn"
-            >
-              {op.text}
-            </Link>
-          </Button>
-        ) : (
-          <span key={op.key} style={{ marginLeft: 8 }}>
-            {op.component}
-          </span>
-        )
-      ));
-    } else {
-      const mainButtons = operations.slice(0, 2);
-      const dropdownButtons = operations.slice(2);
-      const menu = (
-        <Menu>
-          {dropdownButtons.map(op => (
-            op.type === 'link' ? (
-              <Menu.Item key={op.key}>
-                <Link to={op.path} target={op.target}>
-                  {op.text}
-                </Link>
-              </Menu.Item>
-            ) : (
-              <Menu.Item
-                key={op.key}
-                onClick={op.onClick}
-                disabled={op.disabled}
-              >
-                {op.text}
-              </Menu.Item>
-            )
-          ))}
-        </Menu>
-      );
+  renderOperationButton = (op, index) => {
+    const buttonType = index === 0 ? 'primary' : 'default';
+    const buttonStyle = { marginRight: 8 };
 
-      content = [
-        ...mainButtons.map((op, index) => (
-          op.type === 'button' ? (
-            <Button
-              type={index === 0 ? "primary" : "default"}
-              key={op.key}
-              onClick={op.onClick}
-              disabled={op.disabled}
-              loading={op.loading}
-              style={{ marginRight: 8 }}
-            >
-              {op.badge ? (
-                <Tooltip title={op.badge.tooltip}>
-                  <Badge
-                    className={styles.badge}
-                    status={op.badge.status}
-                    text=""
-                    count={op.badge.text}
-                    title={op.badge.text}
-                  />
-                </Tooltip>
-              ) : null}
-              {op.text}
-            </Button>
-          ) : op.type === 'link' ? (
-            <Button>
-              <Link
-                key={op.key}
-                to={op.path}
-                target={op.target}
-              >
+    if (op.type === 'button') {
+      return (
+        <Button
+          type={buttonType}
+          key={op.key}
+          onClick={op.onClick}
+          disabled={op.disabled}
+          loading={op.loading}
+          style={buttonStyle}
+        >
+          {op.badge && (
+            <Tooltip title={op.badge.tooltip}>
+              <Badge
+                className={styles.badge}
+                status={op.badge.status}
+                text=""
+                count={op.badge.text}
+                title={op.badge.text}
+              />
+            </Tooltip>
+          )}
+          {op.text}
+        </Button>
+      );
+    }
+
+    if (op.type === 'link') {
+      return (
+        <Button key={op.key}>
+          <Link to={op.path} target={op.target}>
+            {op.text}
+          </Link>
+        </Button>
+      );
+    }
+
+    return (
+      <span key={op.key} style={{ marginLeft: 8 }}>
+        {op.component}
+      </span>
+    );
+  };
+
+  renderOperations(operations) {
+    if (operations.length <= 3) {
+      return operations.map((op, index) => this.renderOperationButton(op, index));
+    }
+
+    const mainButtons = operations.slice(0, 2);
+    const dropdownButtons = operations.slice(2);
+
+    const menu = (
+      <Menu>
+        {dropdownButtons.map(op => (
+          <Menu.Item
+            key={op.key}
+            onClick={op.type === 'button' ? op.onClick : undefined}
+            disabled={op.disabled}
+          >
+            {op.type === 'link' ? (
+              <Link to={op.path} target={op.target}>
                 {op.text}
               </Link>
-            </Button>
-          ) : (
-            <span key={op.key} style={{ marginRight: 8 }}>
-              {op.component}
-            </span>
-          )
-        )),
-        <Dropdown key="more" overlay={menu}>
-          <Button>
-            {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
-          </Button>
-        </Dropdown>
-      ];
-    }
-    return content
+            ) : (
+              op.text
+            )}
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+
+    return [
+      ...mainButtons.map((op, index) => this.renderOperationButton(op, index)),
+      <Dropdown key="more" overlay={menu}>
+        <Button>
+          {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
+        </Button>
+      </Dropdown>
+    ];
   }
 
   render() {
