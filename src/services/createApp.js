@@ -692,3 +692,95 @@ export async function updateCustomLanguage(body = {}, handleError) {
     }
   )
 }
+
+/*
+  初始化分片上传会话
+*/
+export async function initChunkUpload(body = {}, handleError) {
+  // upload_url 只包含域名，需要拼接完整路径
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/init`,
+    {
+      method: 'post',
+      data: {
+        file_name: body.file_name,
+        file_size: body.file_size,
+        file_md5: body.file_md5,
+        chunk_size: body.chunk_size
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  上传分片
+*/
+export async function uploadChunk(body = {}, handleError) {
+  const formData = new FormData();
+  formData.append('session_id', body.session_id);
+  formData.append('chunk_index', body.chunk_index);
+  formData.append('file', body.file);
+
+  // upload_url 只包含域名，需要拼接完整路径
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/chunk`,
+    {
+      method: 'post',
+      data: formData,
+      handleError
+    }
+  );
+}
+
+/*
+  完成分片上传
+*/
+export async function completeChunkUpload(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/complete`,
+    {
+      method: 'post',
+      data: {
+        session_id: body.session_id
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  查询分片上传状态
+*/
+export async function getChunkUploadStatus(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/status/${body.session_id}`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+/*
+  取消分片上传
+*/
+export async function cancelChunkUpload(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/${body.session_id}`,
+    {
+      method: 'delete',
+      handleError
+    }
+  );
+}
