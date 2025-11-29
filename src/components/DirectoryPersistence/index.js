@@ -424,7 +424,6 @@ class Index extends Component {
         if (dowloadArr.length == 0) {
             notification.info({ message: formatMessage({ id: 'componentOverview.body.DirectoryPersistence.download' }) });
         } else {
-            notification.info({ message: '开始下载，请稍候...' });
             dowloadArr.map(item => {
                 this.fileDownloadApi(item)
             })
