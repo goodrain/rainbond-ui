@@ -833,6 +833,34 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+    // 警告功能关闭开启
+    const WarningFeature =(
+      <Card
+        hoverable
+        bordered={false}
+        style={{ borderTop: '1px solid  #ccc' , borderRadius:0}}
+        className={styles.infrastructureCard}
+      >
+        <Row type="flex" align="middle">
+          <Col span={3}>
+            <FormattedMessage id='enterpriseSetting.basicsSetting.alarm.title'/>
+          </Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              <FormattedMessage id='enterpriseSetting.basicsSetting.alarm.content'/>
+            </span>
+          </Col>
+
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <Switch
+              onChange={this.isAlarmChange}
+              // className={styles.automaTictelescopingSwitch}
+              checked={isSwitch}
+            />
+          </Col>
+        </Row>
+      </Card>
+    );
 
     return (
       <Fragment>
@@ -991,6 +1019,8 @@ class Infrastructure extends PureComponent {
             {/* {AutomaticIssueCertificate} */}
             {Oauth}
             {MirrorWarehouseInformation}
+            {/* {CloudStorage} */}
+            {WarningFeature}
           </div>
         )}
       </Fragment>
