@@ -1,26 +1,11 @@
-import React, { PureComponent, Fragment } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import { connect } from "dva";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Alert,
-  Select,
-  Modal,
-  Input
-} from "antd";
+import React, { PureComponent } from "react";
+import { formatMessage } from 'umi-plugin-locale';
+import { Form, Modal, Input } from "antd";
+
 const FormItem = Form.Item;
 
 @Form.create()
 export default class EditAlias extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields({ force: true }, (err, values) => {

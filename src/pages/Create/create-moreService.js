@@ -11,6 +11,7 @@ import pageheaderSvg from '../../utils/pageHeaderSvg';
 import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import handleAPIError from '../../utils/error';
 
 @connect(
   ({ teamControl }) => ({
@@ -58,6 +59,9 @@ export default class Index extends PureComponent {
             data: res.list
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -91,6 +95,10 @@ export default class Index extends PureComponent {
               this.fetchGroups(groupId);
             }
           }
+        },
+        handleError: err => {
+          this.setState({ buildState: false });
+          handleAPIError(err);
         }
       });
     } else {
@@ -104,9 +112,14 @@ export default class Index extends PureComponent {
       action: 'deploy',
       team_name: globalUtil.getCurrTeamName(),
       serviceIds: serviceIds && serviceIds.length > 0 && serviceIds.join(',')
-    }).then(() => {
-      this.fetchGroups(groupId);
-    });
+    })
+      .then(() => {
+        this.fetchGroups(groupId);
+      })
+      .catch(err => {
+        this.setState({ buildState: false });
+        handleAPIError(err);
+      });
   };
 
   fetchGroups = groupId => {
@@ -125,6 +138,10 @@ export default class Index extends PureComponent {
         });
         this.setState({ buildState: false });
         this.handleJump(`apps/${groupId}/overview`);
+      },
+      handleError: err => {
+        this.setState({ buildState: false });
+        handleAPIError(err);
       }
     });
   };
@@ -143,6 +160,10 @@ export default class Index extends PureComponent {
       callback: () => {
         this.handleDeleteLoading(false);
         this.handleJump(`index`);
+      },
+      handleError: err => {
+        this.handleDeleteLoading(false);
+        handleAPIError(err);
       }
     });
   };
@@ -179,10 +200,10 @@ export default class Index extends PureComponent {
       is_deploy,
       buildState,
       showDelete,
-      deleteLoading,
+      deleteLoading
       // appPermissions: { isDelete }
     } = this.state;
-    const isDelete = true
+    const isDelete = true;
     const arr = data;
     if (arr && arr.length > 0) {
       arr.map((item, index) => {
@@ -222,8 +243,7 @@ export default class Index extends PureComponent {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                zIndex: 2,
-                // borderTop: '1px solid #e8e8e8'
+                zIndex: 2
               }}
             >
               <div

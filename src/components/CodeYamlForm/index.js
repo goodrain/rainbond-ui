@@ -1,19 +1,21 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider } from 'antd';
+import { Button, Form, Icon, Input, Upload, notification } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup'
 import role from '@/utils/newRole';
 import globalUtil from '../../utils/global'
+import handleAPIError from '../../utils/error';
 import styles from './index.less';
-import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules
+} from './validations';
 const { Dragger } = Upload;
-const { Option } = Select;
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -35,18 +37,11 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       fileList: [],
-      defaultRadio: 'jwar',
-      isShowCom: true,
       addGroup: false,
       record: {},
       event_id: '',
-      region_name: '',
-      team_name: '',
-      percents: false,
       existFileList: [],
-      groupName: '',
-      creatComPermission: {},
-      showAdvanced: false
+      creatComPermission: {}
     };
   }
   componentWillMount() {
@@ -66,82 +61,60 @@ export default class Index extends PureComponent {
     this.loop = false;
     this.statusloop = false;
   }
-  //表单提交
+  // 表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch, onSubmit } = this.props;
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    const group_id = globalUtil.getAppID()
-    const { event_id, existFileList, groupName } = this.state
+    const { form, onSubmit } = this.props;
+    const group_id = globalUtil.getAppID();
+    const { event_id, existFileList } = this.state;
+
     form.validateFields((err, value) => {
       if (err) return;
+
+      // 设置应用分组 ID
       if (group_id) {
-        value.group_id = group_id
+        value.group_id = group_id;
       }
+
+      // 检查是否有上传文件
       if (existFileList.length > 0) {
-        onSubmit(value,event_id)
+        onSubmit(value, event_id);
       } else {
-        this.loop = true
-        this.handleJarWarUploadStatus()
+        this.loop = true;
+        this.handleJarWarUploadStatus();
         notification.error({
           message: formatMessage({ id: 'notification.error.notDetected' })
-        })
+        });
       }
     });
   };
 
-   // 生成英文名
-   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (!name) {
+      return '';
     }
-    return ''
-  }
 
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
       }
-      callback();
     }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
+
+    return cleanedPinyinName;
   };
 
   handleChange = (values) => {
-    const { dispatch, groups } = this.props;
     this.setState({
       creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${values}`)
     })
-    for (let index = 0; index < groups.length; index++) {
-      if (groups[index].group_id === values) {
-        this.setState({
-          groupName: groups[index].group_name
-        })
-        break;
-      }
-
-    }
   }
   //新建应用
   onAddGroup = () => {
@@ -153,11 +126,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    role.refreshPermissionsInfo(groupId, false, this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak = (val) => {
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleJarWarUpload = () => {
     const { dispatch } = this.props
@@ -175,9 +149,7 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             record: res.bean,
-            event_id: res.bean.event_id,
-            region_name: res.bean && res.bean.region,
-            team_name: res.bean && res.bean.team_name
+            event_id: res.bean.event_id
           }, () => {
             if (res.bean.region !== '') {
               this.loop = true;
@@ -186,6 +158,9 @@ export default class Index extends PureComponent {
           })
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
 
@@ -220,7 +195,9 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
@@ -234,7 +211,7 @@ export default class Index extends PureComponent {
         event_id
       },
       callback: (data) => {
-        if (data.bean.res == 'ok') {
+        if (data.bean.res === 'ok') {
           this.setState({
             existFileList: []
           });
@@ -244,9 +221,12 @@ export default class Index extends PureComponent {
           this.handleJarWarUpload()
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
-  //上传
+  // 上传
   onChangeUpload = info => {
     let { fileList } = info;
     fileList = fileList.filter(file => {
@@ -255,18 +235,6 @@ export default class Index extends PureComponent {
       }
       return true;
     });
-    if (info && info.event && info.event.percent) {
-      this.setState({
-        percents: info.event.percent
-      });
-    }
-
-    const { status } = info.file;
-    if (status === 'done') {
-      this.setState({
-        percents: false
-      });
-    }
     this.setState({ fileList });
   };
   //删除
@@ -280,9 +248,7 @@ export default class Index extends PureComponent {
       showSubmitBtn = true
     } = this.props;
     const myheaders = {};
-    const { fileList, defaultRadio, isShowCom, addGroup, record, region_name, existFileList, creatComPermission: {
-      isCreate
-    } } = this.state;
+    const { fileList, addGroup, record, existFileList } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -304,22 +270,13 @@ export default class Index extends PureComponent {
               >
                 {getFieldDecorator('group_name', {
                   initialValue: this.props.form.getFieldValue('service_cname') || '',
-                  rules: [
-                    { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                    {
-                      max: 24,
-                      message: formatMessage({ id: 'placeholder.max24' })
-                    }
-                  ]
+                  rules: getGroupNameRules()
                 })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
               </Form.Item>
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
                 {getFieldDecorator('k8s_app', {
                   initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                  rules: [
-                    { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
-                    { validator: this.handleValiateNameSpace }
-                  ]
+                  rules: getK8sAppNameRules()
                 })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
               </Form.Item>
             </>}

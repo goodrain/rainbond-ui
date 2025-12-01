@@ -1,11 +1,18 @@
-import { Button, Card, Form, Input, Radio, Select } from 'antd';
+import { Button, Card, Form, Input, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules,
+  getUsernameRules,
+  getPasswordRules,
+  getArchRules
+} from './validations';
 
 @connect(
   ({ global, loading, teamControl }) => ({
@@ -29,58 +36,48 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
-    const group_id = globalUtil.getAppID()
+    const group_id = globalUtil.getAppID();
+
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
-          fieldsValue.arch = archInfo[0]
+        // 处理架构信息
+        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+          fieldsValue.arch = archInfo[0];
         }
-        if(group_id){
-          fieldsValue.group_id = group_id
+
+        // 设置应用组 ID
+        if (group_id) {
+          fieldsValue.group_id = group_id;
         }
-        if(!fieldsValue.k8s_app || !fieldsValue.group_name){
-          fieldsValue.group_name = fieldsValue.service_cname
-          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
+
+        // 设置应用组名称和 K8s 应用名
+        if (!fieldsValue.k8s_app || !fieldsValue.group_name) {
+          fieldsValue.group_name = fieldsValue.service_cname;
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname);
         }
+
         onSubmit(fieldsValue);
       }
     });
   };
-  // 团队命名空间的检验
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.appEngName' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          formatMessage({ id: 'placeholder.nameSpaceReg' })
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { appNames } = this.props;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (appNames && appNames.length > 0) {
-        const isExist = appNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (name === undefined) {
+      return '';
     }
-    return ''
+
+    const { appNames } = this.props;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    if (appNames && appNames.length > 0) {
+      const isExist = appNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+    return cleanedPinyinName;
   }
   render() {
     const formItemLayout = {
@@ -110,13 +107,14 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, setFieldsValue } = form;
     const { language } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
-    const group_id = globalUtil.getAppID()
-    let arch = 'amd64'
-    let archLegnth = archInfo?.length || 0
-    if (archLegnth == 2) {
-      arch = 'amd64'
-    } else if (archLegnth == 1) {
-      arch = archInfo && archInfo[0]
+    const group_id = globalUtil.getAppID();
+
+    let arch = 'amd64';
+    const archLength = archInfo?.length || 0;
+    if (archLength === 2) {
+      arch = 'amd64';
+    } else if (archLength === 1) {
+      arch = archInfo && archInfo[0];
     }
     return (
       <Fragment>
@@ -135,23 +133,14 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getGroupNameRules()
                   })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
-                  })(<Input placehol1der={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+                    rules: getK8sAppNameRules()
+                  })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
               </>}
             <CodeMirrorForm
@@ -185,7 +174,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.user_name' }) }]
+                rules: getUsernameRules()
               })(
                 <Input
                   style={{ maxWidth: 300 }}
@@ -201,7 +190,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password' }) }]
+                rules: getPasswordRules()
               })(
                 <Input
                   autoComplete="new-password"
@@ -211,11 +200,11 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
-            {archLegnth == 2 &&
+            {archLength === 2 &&
               <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                  rules: getArchRules()
                 })(
                   <Radio.Group>
                     <Radio value='amd64'>amd64</Radio>

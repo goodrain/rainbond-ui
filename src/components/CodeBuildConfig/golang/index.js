@@ -1,8 +1,8 @@
 import { Form, Input, Radio, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import GlobalUtils from '@/utils/global'
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import GlobalUtils from '@/utils/global';
 
 const RadioGroup = Radio.Group;
 
@@ -40,7 +40,7 @@ class Index extends PureComponent {
             initialValue: !!(envs && envs.BUILD_NO_CACHE)
           })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.GoConfig.edition"/>}>
+        <Form.Item {...formItemLayout} label={<FormattedMessage id="componentOverview.body.GoConfig.edition"/>}>
           {getFieldDecorator('BUILD_GOVERSION', {
             initialValue: (envs && envs.BUILD_GOVERSION) || GlobalUtils.getDefaultVsersion(buildSourceArr.golang || []),
           })(
@@ -51,7 +51,6 @@ class Index extends PureComponent {
                     {item.version}
                   </Radio>
                 );
-                
               })}
             </RadioGroup>
           )}
@@ -63,7 +62,7 @@ class Index extends PureComponent {
         >
           {getFieldDecorator('BUILD_GOPROXY', {
             initialValue: (envs && envs.BUILD_GOPROXY) || 'https://goproxy.io',
-            rules: [{ type: 'url',  message:formatMessage({id:'componentOverview.body.GoConfig.url'})}]
+            rules: [{ type: 'url', message: formatMessage({id:'componentOverview.body.GoConfig.url'})}]
           })(<Input />)}
         </Form.Item>
         <Form.Item

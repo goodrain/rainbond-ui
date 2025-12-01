@@ -1,6 +1,6 @@
 import { Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -28,7 +28,7 @@ export default class AddVolumes extends PureComponent {
 
   modeCheck = (_, value, callback) => {
     if (value && !/^[0-7]{1,3}$/.test(value)) {
-      callback(<FormattedMessage id='componentOverview.body.tab.AddStorage.limit'/>);
+      callback(<FormattedMessage id='componentOverview.body.tab.AddStorage.limit' />);
       return;
     }
     callback();
@@ -51,7 +51,7 @@ export default class AddVolumes extends PureComponent {
 
     return (
       <Drawer
-        title={editor ? <FormattedMessage id='componentOverview.body.tab.AddStorage.edit'/> : <FormattedMessage id='componentOverview.body.tab.AddStorage.add'/>}
+        title={editor ? <FormattedMessage id='componentOverview.body.tab.AddStorage.edit' /> : <FormattedMessage id='componentOverview.body.tab.AddStorage.add' />}
         placement="right"
         width={500}
         closable={false}
@@ -63,71 +63,71 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit} labelAlign="left">
-          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.name"/>}>
+          <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.name" />}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
                 {
                   required: true,
-                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.input'})
+                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.input' })
                 },
                 {
                   pattern: /^[^\s]*$/,
-                  message: formatMessage({id:'placeholder.no_spaces'})
+                  message: formatMessage({ id: 'placeholder.no_spaces' })
                 },
                 {
                   max: 30,
-                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.max'})
+                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.max' })
                 }
               ]
             })(
               <Input
-                placeholder={formatMessage({id:'componentOverview.body.tab.AddStorage.input'})}
+                placeholder={formatMessage({ id: 'componentOverview.body.tab.AddStorage.input' })}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.path"/>}>
+          <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.path" />}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
                 {
                   required: true,
-                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.input_path'})
+                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })
                 },
                 {
                   pattern: /^[^\s]*$/,
-                  message: formatMessage({id:'placeholder.no_spaces'})
+                  message: formatMessage({ id: 'placeholder.no_spaces' })
                 },
                 {
                   max: 255,
-                  message:formatMessage({id:'componentOverview.body.tab.AddStorage.Maximum_length'})
+                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.Maximum_length' })
                 }
               ]
-            })(<Input  placeholder={formatMessage({id:'componentOverview.body.tab.AddStorage.input_path'})}/>)}
+            })(<Input placeholder={formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })} />)}
           </FormItem>
           <div style={{ display: 'none' }}>
-            <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.type"/>}>
+            <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.type" />}>
               {getFieldDecorator('volume_type', {
                 initialValue: 'config-file',
                 rules: [
                   {
                     required: true,
-                    message:formatMessage({id:'componentOverview.body.tab.AddStorage.input_type'})
+                    message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_type' })
                   }
                 ]
               })(
                 <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
-                    <Tooltip title={<FormattedMessage id='componentOverview.body.tab.AddStorage.content'/>}>
-                    <FormattedMessage id='enterpriseColony.import.recognition.tabs.configFiles'/>
+                    <Tooltip title={<FormattedMessage id='componentOverview.body.tab.AddStorage.content' />}>
+                      <FormattedMessage id='enterpriseColony.import.recognition.tabs.configFiles' />
                     </Tooltip>
                   </Radio>
                 </RadioGroup>
               )}
             </FormItem>
           </div>
-          <FormItem {...formItemLayout}  label={<FormattedMessage id="componentOverview.body.tab.AddStorage.mode"/>}>
+          <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.mode" />}>
             {getFieldDecorator('mode', {
               initialValue: data.mode || 777,
               rules: [{ required: true, validator: this.modeCheck }]
@@ -140,38 +140,38 @@ export default class AddVolumes extends PureComponent {
             style={{ marginBottom: '20px' }}
             getFieldDecorator={getFieldDecorator}
             name="file_content"
-            label={<FormattedMessage id="componentOverview.body.tab.AddStorage.Document"/>}
-            message={<FormattedMessage id="componentOverview.body.tab.AddStorage.edit_content"/>}
+            label={<FormattedMessage id="componentOverview.body.tab.AddStorage.Document" />}
+            message={<FormattedMessage id="componentOverview.body.tab.AddStorage.edit_content" />}
             data={data.file_content || ''}
           />
           <div
-          style={{
-            borderTop: '1px solid #e8e8e8',
-            padding: '10px 16px',
-            textAlign: 'right',
-            background: '#fff',
-            borderRadius: '0 0 4px 4px',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            zIndex: 99999
-          }}
-        >
-          <Button
             style={{
-              marginRight: 8
+              borderTop: '1px solid #e8e8e8',
+              padding: '10px 16px',
+              textAlign: 'right',
+              background: '#fff',
+              borderRadius: '0 0 4px 4px',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              zIndex: 99999
             }}
-            onClick={this.handleCancel}
           >
-            <FormattedMessage id='button.cancel'/>
-          </Button>
-          <Button onClick={this.handleSubmit} type="primary">
-            <FormattedMessage id='button.determine'/>
-          </Button>
-        </div>
+            <Button
+              style={{
+                marginRight: 8
+              }}
+              onClick={this.handleCancel}
+            >
+              <FormattedMessage id='button.cancel' />
+            </Button>
+            <Button onClick={this.handleSubmit} type="primary">
+              <FormattedMessage id='button.determine' />
+            </Button>
+          </div>
         </Form>
       </Drawer>
     );

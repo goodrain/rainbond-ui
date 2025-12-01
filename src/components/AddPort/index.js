@@ -1,9 +1,11 @@
-import { Form, Input, message, Modal, Select } from 'antd';
+import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
+
 const FormItem = Form.Item;
+const { Option } = Select;
 
 @Form.create()
 @connect(({ region }) => {
@@ -12,13 +14,6 @@ const FormItem = Form.Item;
   };
 })
 export default class AddPort extends PureComponent {
-  constructor(props){
-    super(props)
-    this.state = {
-      language: cookie.get('language') === 'zh-CN' ? true : false
-    }
-  }
-  componentWillMount() {}
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -39,7 +34,7 @@ export default class AddPort extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { language } = this.state;
+    const language = cookie.get('language') === 'zh-CN';
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -50,7 +45,7 @@ export default class AddPort extends PureComponent {
         sm: { span: 16 }
       }
     };
-    const en_formItemLayout = {
+    const enFormItemLayout = {
       labelCol: {
         xs: { span: 24 },
         sm: { span: 6 }
@@ -63,7 +58,7 @@ export default class AddPort extends PureComponent {
     const protocols = this.props.protocols || [];
     const { extendMethod } = this.props;
     const isKubeBlocks = extendMethod === 'kubeblocks_component';
-    const is_language = language ? formItemLayout : en_formItemLayout
+    const layoutConfig = language ? formItemLayout : enFormItemLayout;
     return (
       <Modal
         title={<FormattedMessage id='componentOverview.body.AddPort.title'/>}
@@ -72,7 +67,7 @@ export default class AddPort extends PureComponent {
         visible={true}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...is_language}  label={<FormattedMessage id='componentOverview.body.AddPort.label_port'/>}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddPort.label_port'/>}>
             {getFieldDecorator('port', {
               rules: [
                 { required: true, message: formatMessage({id:'componentOverview.body.AddPort.required'}) },
@@ -83,23 +78,23 @@ export default class AddPort extends PureComponent {
                 type="number"
                 placeholder={
                   this.props.isImageApp || this.props.isDockerfile
-                    ?  formatMessage({id:'componentOverview.body.AddPort.min'})
-                    :  formatMessage({id:'componentOverview.body.AddPort.max'})
+                    ? formatMessage({id:'componentOverview.body.AddPort.min'})
+                    : formatMessage({id:'componentOverview.body.AddPort.max'})
                 }
               />
             )}
           </FormItem>
-          <FormItem {...is_language} label = {<FormattedMessage id='componentOverview.body.AddPort.label_agreement'/>}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddPort.label_agreement'/>}>
             {getFieldDecorator('protocol', {
-              initialValue: !isKubeBlocks ?'http' : 'tcp',
-              rules: [{ required: true,  message: formatMessage({id:'componentOverview.body.AddPort.add'})}]
+              initialValue: !isKubeBlocks ? 'http' : 'tcp',
+              rules: [{ required: true, message: formatMessage({id:'componentOverview.body.AddPort.add'})}]
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 disabled={isKubeBlocks}
               >
                 {protocols.map(item => {
-                  return <Option value={item}>{item}</Option>;
+                  return <Option key={item} value={item}>{item}</Option>;
                 })}
               </Select>
             )}

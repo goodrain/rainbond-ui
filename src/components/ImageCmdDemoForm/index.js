@@ -1,12 +1,12 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Tooltip } from 'antd';
+import { Button, Form, Input, Select, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import AddGroup from '../AddOrEditGroup';
 import globalUtil from '../../utils/global';
-import role from '../../utils/newRole'
+import role from '../../utils/newRole';
 import cookie from '../../utils/cookie';
 
 const { Option } = Select;
@@ -79,13 +79,18 @@ export default class Index extends PureComponent {
   }
 
   onAddGroup = () => this.setState({ addGroup: true });
-  
+
   cancelAddGroup = () => this.setState({ addGroup: false });
-  
+
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
+  };
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   };
 
   handleSubmit = e => {
@@ -96,13 +101,17 @@ export default class Index extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        // 非服务模式设置示例应用配置
         if (!isService) {
-          fieldsValue.k8s_app = "appDockerDemo";
+          fieldsValue.k8s_app = 'appDockerDemo';
           fieldsValue.is_demo = !group_id;
         }
+
+        // 处理架构信息
         if (archInfo?.length === 1) {
           fieldsValue.arch = archInfo[0];
         }
+
         onSubmit(fieldsValue);
       }
     });
@@ -128,10 +137,11 @@ export default class Index extends PureComponent {
   demoChange = (val) => {
     const { setFieldsValue } = this.props.form;
     const selectedDemo = DEMO_CONFIGS[val] || DEMO_CONFIGS.mysql;
+
     setFieldsValue({
       service_cname: selectedDemo.name,
       k8s_component_name: selectedDemo.name,
-      docker_cmd: selectedDemo.saasDockerCmd 
+      docker_cmd: selectedDemo.saasDockerCmd
     });
 
     this.setState({
@@ -185,7 +195,7 @@ export default class Index extends PureComponent {
 
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: group_id ? Number(group_id) : language ? "镜像构建示例" : "Source sample application",
+              initialValue: group_id ? Number(group_id) : (language ? '镜像构建示例' : 'Source sample application'),
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
@@ -237,10 +247,10 @@ export default class Index extends PureComponent {
               initialValue: dockerRun,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
             })(
-              <TextArea 
-                style={{ height: 80 }} 
-                placeholder={formatMessage({ id: 'placeholder.dockerRun' })} 
-                disabled={isDemo} 
+              <TextArea
+                style={{ height: 80 }}
+                placeholder={formatMessage({ id: 'placeholder.dockerRun' })}
+                disabled={isDemo}
               />
             )}
           </Form.Item>

@@ -9,9 +9,7 @@ import LogSocket from '../../utils/logSocket';
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      datas: []
-    };
+    this.state = {};
     this.socketUrl = this.props.socketUrl;
     this.eventId = this.props.eventId;
   }
@@ -72,14 +70,13 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     if (this.socket) {
-      this.socket.close() ? this.socket.close() : '';
+      this.socket.close();
       this.socket = null;
     }
-    this.state.datas = [];
   }
   getItemHtml = data => {
     if (typeof data.message === 'string') {
-      var msg = data.message;
+      const msg = data.message;
       return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
         data.time
       )
@@ -88,7 +85,7 @@ export default class Index extends PureComponent {
     }
     try {
       const { message } = data;
-      var msg = '';
+      let msg = '';
       if (message.id) {
         msg += `${message.id}:`;
       }
@@ -112,29 +109,20 @@ export default class Index extends PureComponent {
           data.time
         )
           .locale('zh-cn')
-          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+          .format('HH:mm:ss')}</span><span>${data.message || ''}</span>`;
       }
       return '';
     }
   };
   createTmpElement() {
     this.ele = document.createElement('p');
-    this.ele.cssText = 'margin-bottom:0';
+    this.ele.style.marginBottom = '0';
   }
 
-  findProgressById = id => {
-    const { datas } = this.state;
-    const d = datas.filter(data => data.message.id === id)[0];
-    return d;
-  };
   saveRef = ref => {
     this.ref = ref;
   };
-  shouldComponentUpdate() {
-    return true;
-  }
   render() {
-    const datas = this.state.datas || [];
     const logs = this.props.list || [];
 
     return (

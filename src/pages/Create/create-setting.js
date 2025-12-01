@@ -13,7 +13,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
-
+import handleAPIError from '../../utils/error';
 
 @connect(
   ({ loading, teamControl }) => ({
@@ -61,11 +61,13 @@ export default class Index extends PureComponent {
       callback: data => {
         this.setState({ appDetail: data });
       },
-      handleError: data => {
-        const code = httpResponseUtil.getCode(data);
-        if (code && code === 404) {
-          // 应用不存在
-          this.handleJump(`exception/404`);
+      handleError: err => {
+        if (err) {
+          const code = httpResponseUtil.getCode(err);
+          if (code && code === 404) {
+            // 应用不存在
+            this.handleJump(`exception/404`);
+          }
         }
       }
     });
@@ -73,54 +75,46 @@ export default class Index extends PureComponent {
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
-  handleDebounce(fn, wait) {
-    let timer = null
-    return (e) => {
-      if (timer !== null) {
-        clearTimeout(timer)
-      }
-      timer = setTimeout(() => {
-        fn.call(e)
-        timer = null
-      }, wait)
-    }
-  }
   handleBuild = (val) => {
     const { dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
-    const { appDetail } = this.state
+    const { appDetail } = this.state;
     const { team_name, app_alias } = this.fetchParameter();
     if (val == false) {
       setNodeLanguage({
         team_name: team_name,
         app_alias: app_alias,
         lang: soundCodeLanguage,
-        package_tool: packageNpmOrYarn,
-      }).then(res => {
-        dispatch({
-          type: 'createApp/buildApps',
-          payload: {
-            team_name,
-            app_alias,
-          },
-          callback: data => {
-            if (data) {
-              dispatch({
-                type: 'global/fetchGroups',
-                payload: {
-                  team_name
-                }
-              });
-              window.sessionStorage.removeItem('codeLanguage');
-              window.sessionStorage.removeItem('packageNpmOrYarn');
-              window.sessionStorage.removeItem('advanced_setup');
-              this.handleJump(`components/${app_alias}/overview`);
-            }
-          },
-          handleError: err => {
-            notification.error({ message: err.data.msg_show })
-          }
-        });
+        package_tool: packageNpmOrYarn
       })
+        .then(res => {
+          dispatch({
+            type: 'createApp/buildApps',
+            payload: {
+              team_name,
+              app_alias
+            },
+            callback: data => {
+              if (data) {
+                dispatch({
+                  type: 'global/fetchGroups',
+                  payload: {
+                    team_name
+                  }
+                });
+                window.sessionStorage.removeItem('codeLanguage');
+                window.sessionStorage.removeItem('packageNpmOrYarn');
+                window.sessionStorage.removeItem('advanced_setup');
+                this.handleJump(`components/${app_alias}/overview`);
+              }
+            },
+            handleError: err => {
+              handleAPIError(err);
+            }
+          });
+        })
+        .catch(err => {
+          handleAPIError(err);
+        });
 
     } else {
       notification.warning({ message: formatMessage({ id: 'notification.warn.save' }) });
@@ -147,6 +141,9 @@ export default class Index extends PureComponent {
         window.sessionStorage.removeItem('packageNpmOrYarn');
         window.sessionStorage.removeItem('advanced_setup');
         this.handleJump('index');
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -171,18 +168,22 @@ export default class Index extends PureComponent {
   handleBuildSwitch = (val) => {
     this.setState({
       handleBuildSwitch: val
-    })
-  }
+    });
+  };
+  handlePreventClick = () => {
+    const { handleBuildSwitch } = this.state;
+    this.handleBuild(handleBuildSwitch);
+  };
   render() {
     const {
       buildAppsLoading,
       deleteAppLoading,
       match: {
         params: {
-          appAlias,
+          appAlias
         }
-      },
-    } = this.props
+      }
+    } = this.props;
     const {
       showDelete,
       // appPermissions: { isDelete },
@@ -242,11 +243,11 @@ export default class Index extends PureComponent {
                 marginRight: 8
               }}
             >
-              上一步
+              {formatMessage({ id: 'button.previous' })}
             </Button>
             <Button
               loading={buildAppsLoading}
-              onClick={() => this.handleDebounce(this.handleBuild(handleBuildSwitch), 1000)}
+              onClick={this.handlePreventClick}
               type="primary"
             >
               {formatMessage({ id: 'button.confirm_create' })}

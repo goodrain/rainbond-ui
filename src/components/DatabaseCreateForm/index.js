@@ -1,12 +1,18 @@
-import { Button, Form, Input, Select, Divider, message } from 'antd';
+import { Button, Form, Input, Divider, message, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
 import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import styles from '../../pages/Create/Index.less';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getGroupNameRules,
+  getK8sAppRules
+} from './validations';
 
-const { Option } = Select;
 const formItemLayout = {
   labelCol: {
     span: 24
@@ -51,27 +57,11 @@ export default class Index extends PureComponent {
                             : []
                     });
                 }
+            },
+            handleError: err => {
+                handleAPIError(err);
             }
         });
-    };
-
-    // 英文名校验
-    handleValiateNameSpace = (_, value, callback) => {
-        if (!value) {
-            return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-        }
-        if (value && value.length <= 32) {
-            const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-            if (!Reg.test(value)) {
-                return callback(
-                    new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-                );
-            }
-            callback();
-        }
-        if (value.length > 32) {
-            return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-        }
     };
 
     generateEnglishName = (name) => {
@@ -132,10 +122,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
                     {getFieldDecorator('service_cname', {
                         initialValue: '',
-                        rules: [
-                            { required: true, message: formatMessage({ id: 'placeholder.service_cname' }) },
-                            { max: 24, message: formatMessage({ id: 'placeholder.max24' }) }
-                        ]
+                        rules: getServiceNameRules()
                     })(
                         <Input
                             placeholder={formatMessage({ id: 'placeholder.service_cname' })}
@@ -146,24 +133,29 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                     {getFieldDecorator('k8s_component_name', {
                         initialValue: this.generateEnglishName(getFieldValue('service_cname') || ''),
-                        rules: [
-                            { required: true, validator: this.handleValiateNameSpace }
-                        ]
+                        rules: getK8sComponentNameRules()
                     })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
 
 
                 {!group_id && <>
                     <Divider />
-                    <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
+                    <div className="advanced-btn" style={{ marginBottom: 16 }}>
                         <Button
                             type="link"
-                            style={{ fontWeight: 500, fontSize: 18, padding: 0 }}
+                            style={{
+                                fontWeight: 500,
+                                fontSize: 16,
+                                padding: '8px 0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: '#1890ff'
+                            }}
                             onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
                         >
-                            {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })} {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+                            <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                            {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
                         </Button>
-
                     </div>
                     {this.state.showAdvanced && (
                         <div
@@ -185,13 +177,7 @@ export default class Index extends PureComponent {
                             >
                                 {getFieldDecorator('group_name', {
                                     initialValue: getFieldValue('service_cname') || '',
-                                    rules: [
-                                        { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                                        {
-                                            max: 24,
-                                            message: formatMessage({ id: 'placeholder.max24' })
-                                        }
-                                    ]
+                                    rules: getGroupNameRules()
                                 })(<Input
                                     placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                                     style={{
@@ -207,10 +193,7 @@ export default class Index extends PureComponent {
                             <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                                 {getFieldDecorator('k8s_app', {
                                     initialValue: this.generateEnglishName(getFieldValue('group_name') || ''),
-                                    rules: [
-                                        { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                                        { validator: this.handleValiateNameSpace }
-                                    ]
+                                    rules: getK8sAppRules()
                                 })(<Input
                                     placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                                     style={{

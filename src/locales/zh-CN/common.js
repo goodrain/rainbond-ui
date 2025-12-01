@@ -205,6 +205,7 @@
         'status.app.backups.yolkStroke':'备份导出中',
         'status.app.backups.imported':'备份已导入',
         'status.loading':'加载中...',
+        'status.checking':'正在检测...',
         'status.not_mount':'未挂载',
         'status.mounted':'已挂载',
         'status.not_export':'未导出',
@@ -297,6 +298,8 @@
         'confirmModal.delete.project_team_delete.desc':'确定要删除此项目/团队和项目/团队下的所有资源吗？',
         'confirmModal.delete.user.desc':'确定要删除此用户吗？',
         'confirmModal.delete.plugin.desc':'确定要删除此插件吗？',
+        'confirmModal.plugin.delete.force.title':'该插件有组件使用',
+        'confirmModal.plugin.delete.force.content':'是否强制删除',
         'confirmModal.delete.configuration_item.desc':'确定要删除此配置项？',
         'confirmModal.delete.drop_procedure.desc':'确定要删除此配置组吗？',
         'confirmModal.delete.drop_versions.desc':'确定要删除当前版本吗？',
@@ -580,6 +583,7 @@
         'notification.error.none_deployed':'当前组件属于未部署状态',
         'notification.error.setting_failed':'设置失败咯，请稍后重试',
         'notification.error.json_format_failed':'格式错误、请输入正确的JSON格式',
+        'notification.error.fail':'操作失败',
 
 
         // 警告
@@ -622,6 +626,8 @@
         'notification.warn.not_team': '当前团队不存在!',
         'notification.warn.save': '请先保存部署属性中已修改的基本信息!',
         'notification.warn.no_port': '该组件暂无端口',
+        'notification.warn.vm_system_disk_cannot_delete': '主机系统盘不能删除',
+        'notification.warn.creating': '正在创建，请勿频繁操作！',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',

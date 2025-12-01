@@ -550,6 +550,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': 'Please select storage type',
     'componentOverview.body.AddVolumes.cancel': 'Cancel',
     'componentOverview.body.AddVolumes.confirm': 'Confirm',
+    'componentOverview.body.AddVolumes.mount_format': 'Mount Format',
+    'componentOverview.body.AddVolumes.disk': 'Disk',
+    'componentOverview.body.AddVolumes.cdrom': 'CD-ROM',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': 'Please enter the local mount path',
     'componentOverview.body.AddRelationMnt.mag_path': '{path} The path is reserved by the system. Please replace it with another path',
@@ -1130,6 +1133,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': 'Component name is required',
     'kubeblocks.database.config.error.database_type_empty': 'Database type is required',
     'kubeblocks.database.config.error.creation_failed': 'Creation failed',
+    'kubeblocks.database.config.error.k8s_name_conflict': 'English name already exists in current application, please go back and change it',
+    'kubeblocks.database.config.error.replicas_min': 'Replicas must be greater than or equal to 1',
+    'kubeblocks.database.config.error.storage_class_required': 'Please select storage class',
+    'kubeblocks.database.config.error.component_info_missing': 'Created successfully but unable to get component information, please refresh manually',
     'kubeblocks.database.config.success.created': 'Created successfully',
     
     'kubeblocks.database.create.form.database_type.label': 'Database Type',

@@ -433,6 +433,7 @@ const teamPlugin = {
   'teamPlugin.btn.install':'安装',
   'teamPlugin.install.title':'安装插件',
   'teamPlugin.create.title':'创建插件',
+  'teamPlugin.create.desc':'创建一个属于您的插件，创建好的插件可以在组件中使用。',
   'teamPlugin.create.lable.plugin_alias':'插件名称',
   'teamPlugin.create.lable.build_source':'安装来源',
   'teamPlugin.create.lable.category':'插件类别',

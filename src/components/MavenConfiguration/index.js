@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 import globalUtil from '@/utils/global';
+import handleAPIError from '@/utils/error';
 import {
   Button,
   Col,
@@ -16,7 +17,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import CodeMirrorForm from '../CodeMirrorForm';
 import ConfirmModal from '../ConfirmModal';
 import styles from '../CreateTeam/index.less';
@@ -104,18 +105,13 @@ export default class AddAdmin extends PureComponent {
             contentLoading: false
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
-  handleSubmitConfiguration = () => {
-    const { onOk, form } = this.props;
-    form.validateFields((err, values) => {
-      if (!err && onOk) {
-        onOk(values);
-      }
-    });
-  };
   beforeUpload = (file, isMessage) => {
     const fileArr = file.name.split('.');
     const { length } = fileArr;
@@ -171,6 +167,9 @@ export default class AddAdmin extends PureComponent {
               this.fetchMavensettings();
               notification.success({ message: formatMessage({id:'notification.success.add'}) });
             }
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
       }
@@ -198,10 +197,13 @@ export default class AddAdmin extends PureComponent {
             () => {
               this.onCancelDelete();
               this.fetchMavensettings(true);
-              notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+              notification.success({ message: formatMessage({id:'notification.success.delete'})});
             }
           );
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -227,8 +229,11 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message:  formatMessage({id:'notification.success.save'})});
+              notification.success({ message: formatMessage({id:'notification.success.save'})});
             }
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
       }
@@ -255,7 +260,6 @@ export default class AddAdmin extends PureComponent {
 
   render() {
     const {
-      // eslint-disable-next-line no-shadow
       form,
       onCancel,
       AddMavensettingsLoading,
@@ -402,7 +406,7 @@ export default class AddAdmin extends PureComponent {
             </Sider>
             <Content>
               <Form onSubmit={this.handleSubmit} labelAlign="left">
-                <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.AddAdmin.name'/>}>
+                <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddAdmin.name'/>}>
                   {getFieldDecorator('name', {
                     initialValue: mavenInfo.name || '',
                     rules: [

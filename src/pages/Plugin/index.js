@@ -1,9 +1,9 @@
 /* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon, List, Modal, notification, Col, Tooltip, Form, Select } from 'antd';
+import { Button, Card, Icon, List, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../../components/ConfirmModal';
 import Ellipsis from '../../components/Ellipsis';
 import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
@@ -13,11 +13,11 @@ import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/newRole';
+import handleAPIError from '../../utils/error';
 import styles from './Index.less';
 import Manage from './manage';
-import Lists from '../../components/Lists'
+
 const { confirm } = Modal;
-const { Option } = Select;
 class MarketPlugin extends PureComponent {
   constructor(props) {
     super(props);
@@ -30,8 +30,11 @@ class MarketPlugin extends PureComponent {
   componentDidMount() {
     this.fetchPlugins();
   }
+
+  // 获取未安装的插件列表
   fetchPlugins = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/getUnInstalledPlugin',
       payload: {
         page: 1,
@@ -41,32 +44,45 @@ class MarketPlugin extends PureComponent {
         this.setState({
           list: (data && data.list) || []
         });
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
+  // 安装插件
   handleInstall = data => {
-    this.props.dispatch({
+    const { dispatch, onInstallSuccess } = this.props;
+    dispatch({
       type: 'plugin/installMarketPlugin',
       payload: {
         plugin_id: data.id
       },
-      callback: data => {
+      callback: () => {
         notification.success({
-          message: formatMessage({id:'notification.success.install_success'})
+          message: formatMessage({ id: 'notification.success.install_success' })
         });
         this.fetchPlugins();
-        this.props.onInstallSuccess && this.props.onInstallSuccess();
+        onInstallSuccess && onInstallSuccess();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 显示/隐藏插件详情
   hideMarketPluginDetail = () => {
     this.setState({ showMarketPluginDetail: false, showPlugin: {} });
   };
+
   showMarketPluginDetail = plugin => {
     this.setState({ showMarketPluginDetail: true, showPlugin: plugin });
   };
+  // 渲染插件列表
   renderTmp = () => {
-    let list = this.state.list;
+    const { list } = this.state;
+
     if (!list) {
       return (
         <p style={{ textAlign: 'center' }}>
@@ -75,9 +91,7 @@ class MarketPlugin extends PureComponent {
       );
     }
 
-    list = list.filter(item => {
-      return !item.is_installed && item.is_complete;
-    });
+    const filteredList = list.filter(item => !item.is_installed && item.is_complete);
 
     return (
       <List
@@ -89,18 +103,14 @@ class MarketPlugin extends PureComponent {
           sm: 1,
           xs: 1
         }}
-        dataSource={list}
+        dataSource={filteredList}
         renderItem={item => (
           <List.Item key={item.id}>
             <Card
               className={styles.card}
               actions={[
-                <span
-                  onClick={() => {
-                    this.handleInstall(item);
-                  }}
-                >
-                  
+                <span onClick={() => this.handleInstall(item)}>
+                  {formatMessage({ id: 'teamPlugin.btn.install' })}
                 </span>
               ]}
             >
@@ -108,9 +118,7 @@ class MarketPlugin extends PureComponent {
                 style={{ height: 99, overflow: 'hidden' }}
                 avatar={
                   <Icon
-                    onClick={() => {
-                      this.showMarketPluginDetail(item);
-                    }}
+                    onClick={() => this.showMarketPluginDetail(item)}
                     style={{ fontSize: 50, color: 'rgba(0, 0, 0, 0.2)' }}
                     type="api"
                   />
@@ -119,9 +127,7 @@ class MarketPlugin extends PureComponent {
                   <a
                     style={{ color: '#1890ff' }}
                     href="javascript:;"
-                    onClick={() => {
-                      this.showMarketPluginDetail(item);
-                    }}
+                    onClick={() => this.showMarketPluginDetail(item)}
                   >
                     {item.plugin_name}
                   </a>
@@ -135,10 +141,7 @@ class MarketPlugin extends PureComponent {
                         marginBottom: 8
                       }}
                     >
-                      {' '}
-                      {pluginUtil.getCategoryCN(
-                        item.plugin_type || item.category
-                      )}{' '}
+                      {pluginUtil.getCategoryCN(item.plugin_type || item.category)}
                     </p>
                     <Ellipsis className={styles.item} lines={3}>
                       {item.desc}
@@ -185,28 +188,31 @@ class PluginList extends PureComponent {
       deletePlugin: null,
       pluginInfo: null,
       currentType: false,
-      appPlugin: false,
-      appVersions: false,
-      appOutPlugin:false
+      appOutPlugin: false
     };
     this.timer = null;
   }
+
   componentDidMount() {
     this.fetchDefaultPlugin();
     this.fetchPlugins();
   }
 
+  // 准备删除插件
   onDeletePlugin = plugin => {
     this.setState({ deletePlugin: plugin, pluginInfo: plugin });
   };
+  // 安装插件
   onInstallPlugin = item => {
+    const { dispatch } = this.props;
+
     this.setState(
       {
         currentType: item.plugin_type,
         installLoading: true
       },
       () => {
-        this.props.dispatch({
+        dispatch({
           type: 'plugin/installDefaultPlugin',
           payload: {
             team_name: globalUtil.getCurrTeamName(),
@@ -214,66 +220,72 @@ class PluginList extends PureComponent {
           },
           callback: res => {
             if (res && res.status_code === 200) {
-              notification.success({ message: formatMessage({id:'notification.success.install_success'}) });
+              notification.success({
+                message: formatMessage({ id: 'notification.success.install_success' })
+              });
             }
             this.fetchDefaultPlugin();
+          },
+          handleError: err => {
+            handleAPIError(err);
+            this.setState({ installLoading: false, currentType: false });
           }
         });
       }
     );
   };
 
+  // 获取插件操作按钮
   getAction = (item, operationPermissions) => {
     const { isCreate, isDelete } = operationPermissions;
     const { installLoading, currentType } = this.state;
+
+    // 已安装的插件显示删除和管理按钮
     if (item.has_install !== false) {
       const arr = [];
       if (isDelete) {
         arr.push(
-          <span
-            onClick={() => {
-              this.onDeletePlugin(item);
-            }}
-          >
-            {formatMessage({id: 'teamPlugin.btn.delete'})}
+          <span onClick={() => this.onDeletePlugin(item)}>
+            {formatMessage({ id: 'teamPlugin.btn.delete' })}
           </span>
         );
       }
       arr.push(
         <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id
-            }`}
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
+            item.plugin_id
+          }`}
         >
-          {formatMessage({id: 'teamPlugin.btn.manage'})}
+          {formatMessage({ id: 'teamPlugin.btn.manage' })}
         </Link>
       );
-
       return arr;
     }
+
+    // 未安装的插件显示安装按钮
     if (isCreate) {
       return [
         <Button
           type="link"
           style={{ height: '17px', color: 'rgba(0, 0, 0, 0.45)' }}
-          loading={
-            currentType && currentType === item.plugin_type && installLoading
-          }
-          onClick={() => {
-            this.onInstallPlugin(item);
-          }}
+          loading={currentType && currentType === item.plugin_type && installLoading}
+          onClick={() => this.onInstallPlugin(item)}
         >
-          {formatMessage({id: 'teamPlugin.btn.install'})}
+          {formatMessage({ id: 'teamPlugin.btn.install' })}
         </Button>
       ];
     }
     return [];
   };
+
+  // 获取插件标题
   getItemTitle = item => {
     if (item.has_install) {
       return (
         <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id
-            }`}
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
+            item.plugin_id
+          }`}
         >
           {item.plugin_alias}
         </Link>
@@ -282,8 +294,10 @@ class PluginList extends PureComponent {
     return item.plugin_alias;
   };
 
+  // 获取默认插件列表
   fetchDefaultPlugin = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/getDefaultPlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName()
@@ -299,21 +313,24 @@ class PluginList extends PureComponent {
             }
           );
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 获取已安装的插件列表
   fetchPlugins = () => {
+    const { dispatch } = this.props;
     const { defaultList } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'plugin/getMyPlugins',
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
         if (data) {
-          const arr = defaultList.filter(item => {
-            return !item.has_install;
-          });
+          const arr = defaultList.filter(item => !item.has_install);
           let installList = [];
           if (data.list && data.list.length > 0) {
             data.list.map(item => {
@@ -328,26 +345,37 @@ class PluginList extends PureComponent {
             currentType: false
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ installLoading: false, currentType: false });
       }
     });
   };
+  // 创建插件
   handleCreate = () => {
-    this.props.dispatch(
+    const { dispatch } = this.props;
+    dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create-plugin`
       )
     );
   };
-  handleInstall = ()=>{
-    this.props.dispatch(
+
+  // 从市场安装插件
+  handleInstall = () => {
+    const { dispatch } = this.props;
+    dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Install-plugin`
       )
     );
-  }
-  hanldeDeletePlugin = isForce => {
+  };
+  // 删除插件
+  handleDeletePlugin = isForce => {
+    const { dispatch } = this.props;
     const { pluginInfo, deletePlugin } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'plugin/deletePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -365,72 +393,51 @@ class PluginList extends PureComponent {
         this.cancelDeletePluginInfo();
       },
       handleError: res => {
-        if (res && res.data.code === 20600) {
+        if (res && res.data && res.data.code === 20600) {
           this.handlePlugIn();
           this.cancelDeletePlugin();
         } else {
-          notification.warning({
-            message: res.data.msg_show
-          });
+          handleAPIError(res);
         }
       }
     });
   };
 
+  // 取消删除插件
   cancelDeletePlugin = () => {
     this.setState({ deletePlugin: null });
   };
+
+  // 取消删除插件信息
   cancelDeletePluginInfo = () => {
     this.setState({ pluginInfo: null });
   };
 
+  // 确认强制删除插件
   handlePlugIn = () => {
     const th = this;
     confirm({
-      title: '该插件有组件使用',
-      content: '是否强制删除',
-      okText: '确认',
-      cancelText: '取消',
+      title: formatMessage({id: 'confirmModal.plugin.delete.force.title'}),
+      content: formatMessage({id: 'confirmModal.plugin.delete.force.content'}),
+      okText: formatMessage({id: 'popover.confirm'}),
+      cancelText: formatMessage({id: 'popover.cancel'}),
       onOk() {
-        th.hanldeDeletePlugin(true);
+        th.handleDeletePlugin(true);
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
         }).catch(() => console.log('Oops errors!'));
       }
     });
   };
-  //安装应用插件
-  installAppPlugin = () => {
-    this.setState({
-      appPlugin: true
-    })
-  }
-  hideModal = () => {
-    this.setState({
-      appPlugin: false
-    })
-  }
-  changeVersions = () => {
-    this.setState({
-      appVersions: true
-    })
-  }
-  instAppPlugin = () => {
-    this.setState({
-      appVersions: false
-    })
-
-  }
+  // 鼠标移出
   appOut = () => {
-    this.setState({
-      appOutPlugin:false
-    })
-  }
+    this.setState({ appOutPlugin: false });
+  };
+
+  // 鼠标移入
   appOver = () => {
-    this.setState({
-      appOutPlugin:true
-    })
-  }
+    this.setState({ appOutPlugin: true });
+  };
   render() {
     const {
       currentEnterprise,
@@ -439,7 +446,7 @@ class PluginList extends PureComponent {
       operationPermissions,
       deletePluginLoading
     } = this.props;
-    const { list, appPlugin, appVersions, appOutPlugin } = this.state;
+    const { list, appOutPlugin } = this.state;
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>{formatMessage({id: 'teamPlugin.desc'})}</p>
@@ -559,7 +566,7 @@ class PluginList extends PureComponent {
               desc={formatMessage({id: 'confirmModal.delete.plugin.desc'})}
               loading={deletePluginLoading}
               onOk={() => {
-                this.hanldeDeletePlugin(false);
+                this.handleDeletePlugin(false);
               }}
               onCancel={this.cancelDeletePlugin}
             />
@@ -582,24 +589,29 @@ class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      operationPermissions: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_plugin_manage')
+      operationPermissions: roleUtil.queryPermissionsInfo(
+        this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team,
+        'team_plugin_manage'
+      )
     };
   }
-  componentWillMount() {
-    const { dispatch } = this.props;
-  }
-
 
   render() {
     const { match } = this.props;
     const { pluginId } = match.params;
-    const {operationPermissions: {isAccess}} = this.state;
-    if(!isAccess){
-      return roleUtil.noPermission()
+    const { operationPermissions: { isAccess } } = this.state;
+
+    // 检查权限
+    if (!isAccess) {
+      return roleUtil.noPermission();
     }
+
+    // 如果有 pluginId，显示插件管理页面
     if (pluginId) {
       return <Manage {...this.props} {...this.state} />;
     }
+
+    // 否则显示插件列表页面
     return <PluginList {...this.props} {...this.state} />;
   }
 }
