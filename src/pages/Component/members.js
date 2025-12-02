@@ -1,15 +1,44 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable eqeqeq */
-/* eslint-disable camelcase */
-/* eslint-disable react/sort-comp */
 import { Card, Form, notification, Button } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import appProbeUtil from '../../utils/appProbe-util';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import EditHealthCheck from './setting/edit-health-check';
+
+// 样式常量
+const BUTTON_STYLE = {
+  marginRight: '5px',
+  fontSize: '14px',
+  fontWeight: 400
+};
+
+const SECTION_WIDTH_STYLE = {
+  width: '33%',
+  textAlign: 'center'
+};
+
+const FLEX_CONTAINER_STYLE = {
+  display: 'flex',
+  justifyContent: 'space-between'
+};
+
+const FLEX_DISPLAY_STYLE = {
+  display: 'flex'
+};
+
+const HEALTH_STATUS_COLORS = {
+  healthy: 'green',
+  unhealthy: 'red'
+};
+
+// 健康状态常量
+const HEALTH_STATUS = {
+  HEALTHY: 'healthy',
+  UNHEALTHY: 'unhealthy',
+  UNKNOWN: 'unknown'
+};
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -62,6 +91,10 @@ export default class Index extends React.Component {
           list: (res && res.list) || [],
           loading: false
         });
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ loading: false });
       }
     });
   };
@@ -69,7 +102,10 @@ export default class Index extends React.Component {
     const { dispatch } = this.props;
     dispatch({
       type,
-      payload: this.handleParameter()
+      payload: this.handleParameter(),
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   fetchBaseInfo = () => {
@@ -104,6 +140,10 @@ export default class Index extends React.Component {
         if (res && res.status_code && res.status_code === 200) {
           notification.info({ message: formatMessage({id:'notification.hint.need_updata'})});
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ healthCheckLoading: false });
       }
     });
   };
@@ -119,48 +159,62 @@ export default class Index extends React.Component {
     const arr = this.state.list || [{ status: '-' }];
     let healthy = 0;
     let unhealthy = 0;
-    let Unknown = 0;
-    let nos = '';
-    arr.map(item => {
+    let unknown = 0;
+    let hasNoStatus = false;
+
+    arr.forEach(item => {
       const { status } = item;
-      if (status == 'healthy') {
-        healthy++;
-      } else if (status == 'unhealthy') {
-        unhealthy++;
-      } else if (status == 'Unknown' || status == 'unknown') {
-        Unknown++;
+      const lowerStatus = status?.toLowerCase();
+
+      if (lowerStatus === HEALTH_STATUS.HEALTHY) {
+        healthy += 1;
+      } else if (lowerStatus === HEALTH_STATUS.UNHEALTHY) {
+        unhealthy += 1;
+      } else if (lowerStatus === HEALTH_STATUS.UNKNOWN) {
+        unknown += 1;
       } else {
-        nos = '-';
+        hasNoStatus = true;
       }
-      return item;
     });
-    if (
-      healthy != 0 &&
-      unhealthy == 0 &&
-      Unknown === 0 &&
-      Unknown === 0 &&
-      nos == ''
-    ) {
+
+    // 全部健康
+    if (healthy > 0 && unhealthy === 0 && unknown === 0 && !hasNoStatus) {
       return (
         <span>
-          (<span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.Members.health'/></span>)
+          (<span style={{ color: HEALTH_STATUS_COLORS.healthy }}>
+            <FormattedMessage id='componentOverview.body.Members.health'/>
+          </span>)
         </span>
       );
-    } else if (healthy != 0 && (unhealthy != 0 || Unknown != 0)) {
+    }
+
+    // 部分健康
+    if (healthy > 0 && (unhealthy > 0 || unknown > 0)) {
       return (
         <span>
-          (<span style={{ color: 'green' }}><FormattedMessage id='componentOverview.body.Members.partial_health'/></span>)
+          (<span style={{ color: HEALTH_STATUS_COLORS.healthy }}>
+            <FormattedMessage id='componentOverview.body.Members.partial_health'/>
+          </span>)
         </span>
       );
-    } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == '') {
+    }
+
+    // 全部不健康
+    if (healthy === 0 && unhealthy > 0 && unknown === 0 && !hasNoStatus) {
       return (
         <span>
-          (<span style={{ color: 'red' }}><FormattedMessage id='componentOverview.body.Members.unhealth'/></span>)
+          (<span style={{ color: HEALTH_STATUS_COLORS.unhealthy }}>
+            <FormattedMessage id='componentOverview.body.Members.unhealth'/>
+          </span>)
         </span>
       );
-    } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == '') {
+    }
+
+    // 全部未知
+    if (healthy === 0 && unhealthy === 0 && unknown > 0 && !hasNoStatus) {
       return <FormattedMessage id='componentOverview.body.Members.unknown'/>;
     }
+
     return '(-)';
   };
 
@@ -175,9 +229,12 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res.status_code && res.status_code === 200) {
-          notification.info({ message:  formatMessage({id:'notification.hint.need_updata'})});
+          notification.info({ message: formatMessage({id:'notification.hint.need_updata'})});
         }
         this.fetchStartProbe();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -189,29 +246,22 @@ export default class Index extends React.Component {
     const { showHealth, loading, healthCheckLoading } = this.state;
     const probeMap = {
       readiness: formatMessage({id:'componentOverview.body.Members.offline'}),
-      liveness: formatMessage({id:'componentOverview.body.Members.restart'}),
+      liveness: formatMessage({id:'componentOverview.body.Members.restart'})
     };
-    const isStartProbe = JSON.stringify(startProbe) != '{}';
-    const setWidth = { width: '33%', textAlign: 'center' };
+    const isStartProbe = startProbe && Object.keys(startProbe).length > 0;
     return (
       <div>
         {startProbe && (
           <Card
             loading={loading}
             title={
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={FLEX_CONTAINER_STYLE}>
                 <FormattedMessage id='componentOverview.body.setting.health'/>
                 <div>
                   {startProbe && (
                     <Button
-                      style={{
-                        marginRight: '5px',
-                        fontSize: '14px',
-                        fontWeight: 400
-                      }}
-                      onClick={() => {
-                        this.openCancel();
-                      }}
+                      style={BUTTON_STYLE}
+                      onClick={this.openCancel}
                       icon='form'
                     >
                       {isStartProbe ? <FormattedMessage id='componentOverview.body.setting.edit'/> : <FormattedMessage id='componentOverview.body.setting.set'/>}
@@ -220,30 +270,16 @@ export default class Index extends React.Component {
                   {isStartProbe &&
                   appProbeUtil.isStartProbeStart(startProbe) ? (
                     <a
-                      onClick={() => {
-                        this.handleStartProbeStart(false);
-                      }}
-                      style={{
-                        marginRight: '5px',
-                        fontSize: '14px',
-                        fontWeight: 400
-                      }}
-                      href="javascript:;"
+                      onClick={() => this.handleStartProbeStart(false)}
+                      style={BUTTON_STYLE}
                     >
                       <FormattedMessage id='componentOverview.body.setting.Disable'/>
                     </a>
                   ) : (
                     isStartProbe && (
                       <a
-                        onClick={() => {
-                          this.handleStartProbeStart(true);
-                        }}
-                        style={{
-                          marginRight: '5px',
-                          fontSize: '14px',
-                          fontWeight: 400
-                        }}
-                        href="javascript:;"
+                        onClick={() => this.handleStartProbeStart(true)}
+                        style={BUTTON_STYLE}
                       >
                         <FormattedMessage id='componentOverview.body.setting.Enable'/>
                       </a>
@@ -254,12 +290,15 @@ export default class Index extends React.Component {
             }
           >
             {startProbe && (
-              <div style={{ display: 'flex' }}>
-                <div style={setWidth}><FormattedMessage id='componentOverview.body.setting.state'/>{this.handleState()}</div>
-                <div style={setWidth}>
-                  <FormattedMessage id='componentOverview.body.setting.method'/>{startProbe.scheme || <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
+              <div style={FLEX_DISPLAY_STYLE}>
+                <div style={SECTION_WIDTH_STYLE}>
+                  <FormattedMessage id='componentOverview.body.setting.state'/>{this.handleState()}
                 </div>
-                <div style={setWidth}>
+                <div style={SECTION_WIDTH_STYLE}>
+                  <FormattedMessage id='componentOverview.body.setting.method'/>
+                  {startProbe.scheme || <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
+                </div>
+                <div style={SECTION_WIDTH_STYLE}>
                   <FormattedMessage id='componentOverview.body.setting.unhealth'/>
                   {probeMap[startProbe.mode] || <FormattedMessage id='componentOverview.body.setting.Not_set'/>}
                 </div>

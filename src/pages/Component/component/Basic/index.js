@@ -15,10 +15,9 @@ class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      language : cookie.get('language') === 'zh-CN',
+      language: cookie.get('language') === 'zh-CN',
     };
   }
-  componentDidMount() {}
 
   handleMore = state => {
     const { handleMore, onPageChange } = this.props;
@@ -27,14 +26,12 @@ class Index extends PureComponent {
       handleMore(state);
     }
   };
-   titleCase = (str) => {
-    str = str.toLowerCase();
-    var attr = str.split(" ");
-    for(var i =0;i<attr.length;i++){
-       attr[i]=attr[i].substring(0,1).toUpperCase() + attr[i].substring(1);
-    }
-    return attr.join(" ");
-  }
+  titleCase = (str) => {
+    if (!str) return '';
+    return str.toLowerCase().split(' ').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
   render() {
     const { language } = this.state; 
     const {
@@ -53,14 +50,18 @@ class Index extends PureComponent {
     } = this.props;
     
     const setMemory = (memory === 0 && !showStorageUsed) ? <FormattedMessage id='componentOverview.body.tab.overview.unlimited'/> : numeral(memory).format('0,0');
+    const hasStatus = status && Object.keys(status).length > 0;
+    const currentStatus = status?.status || '';
+    const statusDisplay = (status && language) ? this.titleCase(status.status_cn || currentStatus) : this.titleCase(currentStatus);
+
     return (
       <Row>
-        {!isThird && status && Object.keys(status).length >0 ? (
+        {!isThird && hasStatus ? (
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <div
             className={styles.buildBox}
             style={{
-              background: globalUtil.fetchStateBJColor(status && status.status)
+              background: globalUtil.fetchStateBJColor(currentStatus)
             }}
           >
             <div className={styles.buildContent}>
@@ -68,21 +69,17 @@ class Index extends PureComponent {
                 <h2
                   className={styles.buildState}
                   style={{
-                    color: globalUtil.fetchStateColor(status && status.status)
+                    color: globalUtil.fetchStateColor(currentStatus)
                   }}
                 >
-                  {((status && language ) ?  this.titleCase(status.status_cn) :  this.titleCase(status.status)) || ''}
+                  {statusDisplay}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
-                    {status &&
-                      status.status !== 'undeploy' &&
-                      status.status !== 'undeploy' &&
-                      status.status !== 'closed' && (
+                    {currentStatus !== 'undeploy' && currentStatus !== 'closed' && (
                         <li>
                           <a target="_blank">
                             {Svg.getSvg('runTime',16,'rbd-content-color-secondary')}
-                            {/* 运行 */}
                             <FormattedMessage id='componentOverview.body.tab.overview.run'/>
                             <span
                               style={{
@@ -90,10 +87,9 @@ class Index extends PureComponent {
                                 paddingLeft: '20px'
                               }}
                             >
-                              {status && status.start_time
+                              {status?.start_time
                                 ? globalUtil.fetchTime(
-                                    Date.parse(new Date()) -
-                                      new Date(status.start_time).getTime()
+                                    Date.now() - new Date(status.start_time).getTime()
                                   )
                                 : ''}
                             </span>
@@ -103,7 +99,6 @@ class Index extends PureComponent {
                     <li>
                       <a>
                       {Svg.getSvg('fenpei',16,'rbd-content-color-secondary')}
-                        {/* 分配 */}
                         <FormattedMessage id='componentOverview.body.tab.overview.allocation'/>
                         {!resourcesLoading && (
                           <Fragment>
@@ -126,7 +121,6 @@ class Index extends PureComponent {
                     <li>
                       <a>
                       {Svg.getSvg('zhanyong',16,'rbd-content-color-secondary')}
-                        {/* 占用 */}
                         <FormattedMessage id='componentOverview.body.tab.overview.occupy'/>
                         {!resourcesLoading && (
                           <Fragment>
@@ -141,7 +135,6 @@ class Index extends PureComponent {
                                 {showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0')}
                               </span>
                             </Tooltip>
-                            {/* MB 磁盘 */}
                             {showStorageUsed ? storageUsed?.unit : 'MB'}&nbsp;
                             {formatMessage({id:'componentOverview.body.tab.overview.disk'})}
                           </Fragment>
@@ -151,28 +144,23 @@ class Index extends PureComponent {
                   </ul>
                 </div>
               </div>
-              {method == 'vm' ? (
+              {method === 'vm' ? (
                 <div className={styles.buildRightBox}>
                   <h2 className={` ${styles.en_alcen} ${styles.buildState} `}>
                   <span className={` ${styles.en_alcen}  `}>
                     {globalUtil.fetchSvg('basicInfo')}
-                  
                     <span style={{ color: globalUtil.getPublicColor('rbd-title-color') }}>
-                      {/* 版本号 */}
-                      虚拟机镜像
+                      <FormattedMessage id='componentOverview.body.tab.overview.vmImage'/>
                     </span>
                   </span>
                   <span
                     style={{
-                      color:
-                        beanData && beanData.vm_image
-                          ? globalUtil.getPublicColor('rbd-success-status')
-                          : globalUtil.getPublicColor('rbd-content-color')
+                      color: beanData?.vm_image
+                        ? globalUtil.getPublicColor('rbd-success-status')
+                        : globalUtil.getPublicColor('rbd-content-color')
                     }}
                   >
-                    {beanData && beanData.vm_image
-                      ? beanData.vm_image
-                      : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                    {beanData?.vm_image || <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                   </span>
                 </h2>
                 </div>
@@ -182,33 +170,26 @@ class Index extends PureComponent {
                   <span className={` ${styles.en_alcen}  `}>
                   {Svg.getSvg('banben',16,'rbd-content-color-secondary')}
                     <span style={{ color: globalUtil.getPublicColor('rbd-content-color-secondary') }}>
-                      {/* 版本号 */}
                       <FormattedMessage id='componentOverview.body.tab.overview.version'/>
                     </span>
                   </span>
                   <span
                     style={{
-                      color:
-                        beanData && beanData.build_version
-                          ? globalUtil.getPublicColor('rbd-success-status')
-                          : globalUtil.getPublicColor('rbd-content-color')
+                      color: beanData?.build_version
+                        ? globalUtil.getPublicColor('rbd-success-status')
+                        : globalUtil.getPublicColor('rbd-content-color')
                     }}
                   >
-                    {beanData && beanData.build_version
-                      ? beanData.build_version
-                      : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                    {beanData?.build_version || <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                   </span>
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
                     <li>
                       <a target="_blank">
-                        <span
-                          className={` ${styles.en_alcen}  `}
-                        >
-                          {/* {globalUtil.fetchSvg('warehouse')} */}
-                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'code':buildSource === 'package_build' ? 'MD5':'dizhi'),16,'rbd-content-color-secondary')}
-                          {buildSource && buildSource === 'source_code'
+                        <span className={` ${styles.en_alcen}  `}>
+                          {Svg.getSvg((buildSource === 'source_code' ? 'code' : buildSource === 'package_build' ? 'MD5' : 'dizhi'), 16, 'rbd-content-color-secondary')}
+                          {buildSource === 'source_code'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.codeVersion'/>
                             : buildSource === 'package_build'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.file'/>
@@ -216,37 +197,26 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData &&
-                            (beanData.kind && beanData.kind === '源码构建'
-                              ? beanData.code_version && ''
-                              : beanData.kind && beanData.kind === '本地文件'
-                              ? beanData.code_version
-                              : beanData.image_domain && beanData.image_domain)
+                            beanData?.kind === '源码构建' ? '' :
+                            beanData?.kind === '本地文件' ? beanData.code_version :
+                            beanData?.image_domain
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData
-                              ? beanData.kind &&
-                                beanData.kind === '源码构建' && beanData.code_version && buildSource && buildSource === 'source_code'
-                                ? beanData.code_version.substr(0, 8)
-                                : beanData.kind && beanData.kind === '本地文件' && beanData.code_version && buildSource && buildSource === 'package_build'
-                                ? beanData.code_version
-                                : beanData.image_domain
-                                ? beanData.image_domain
-                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
-                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                            {beanData?.kind === '源码构建' && beanData.code_version && buildSource === 'source_code'
+                              ? beanData.code_version.substr(0, 8)
+                              : beanData?.kind === '本地文件' && beanData.code_version && buildSource === 'package_build'
+                              ? beanData.code_version
+                              : beanData?.image_domain || <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
                     </li>
                     <li>
                       <a target="_blank">
-                        <span
-                          className={` ${styles.en_alcen}  `}
-                        >
-                          {/* {globalUtil.fetchSvg('basicInfo')} */}
-                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'msg':buildSource === 'package_build' ? 'fileName':'jingxiang'),16,'rbd-content-color-secondary')}
-                          {buildSource && buildSource === 'source_code'
+                        <span className={` ${styles.en_alcen}  `}>
+                          {Svg.getSvg((buildSource === 'source_code' ? 'msg' : buildSource === 'package_build' ? 'fileName' : 'jingxiang'), 16, 'rbd-content-color-secondary')}
+                          {buildSource === 'source_code'
                             ?  <FormattedMessage id='componentOverview.body.tab.overview.submit'/>
                             : buildSource === 'package_build'
                             ?  <FormattedMessage id='componentOverview.body.tab.overview.fileName'/>
@@ -254,40 +224,24 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData &&
-                            (beanData.kind && beanData.kind === '源码构建'
-                              ? beanData.code_commit_msg &&
-                                beanData.code_commit_msg
-                              : beanData.kind && beanData.kind === '本地文件'
-                              ? beanData.code_commit_msg &&
-                                beanData.code_commit_msg
-                              : beanData.image_repo && beanData.image_repo)
+                            beanData?.kind === '源码构建' || beanData?.kind === '本地文件'
+                              ? beanData.code_commit_msg
+                              : beanData?.image_repo
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData
-                              ? beanData.kind && beanData.kind === '源码构建'
-                                ? beanData.code_commit_msg &&
-                                  beanData.code_commit_msg
-                                : beanData.kind && beanData.kind === '本地文件'
-                                ? beanData.code_commit_msg &&
-                                  beanData.code_commit_msg
-                                : beanData.image_repo
-                                ? beanData.image_repo
-                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
-                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                            {beanData?.kind === '源码构建' || beanData?.kind === '本地文件'
+                              ? beanData.code_commit_msg || <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : beanData?.image_repo || <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
                     </li>
                     <li>
                       <a target="_blank">
-                        <span
-                          className={` ${styles.en_alcen}  `}
-                        >
-                          {Svg.getSvg((buildSource && buildSource === 'source_code' ? 'fenzhi':buildSource === 'package_build' ? 'upLoad':'jingxiangTga'),16,'rbd-content-color-secondary')}
-
-                          {buildSource && buildSource === 'source_code'
+                        <span className={` ${styles.en_alcen}  `}>
+                          {Svg.getSvg((buildSource === 'source_code' ? 'fenzhi' : buildSource === 'package_build' ? 'upLoad' : 'jingxiangTga'), 16, 'rbd-content-color-secondary')}
+                          {buildSource === 'source_code'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.codeBranch'/>
                             : buildSource === 'package_build'
                             ? <FormattedMessage id='componentOverview.body.tab.overview.uploadTime'/>
@@ -295,24 +249,17 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData &&
-                            (beanData.kind && beanData.kind === '源码构建'
-                              ? beanData.code_branch && beanData.code_branch
-                              : beanData.kind && beanData.kind === '本地文件'
-                              ? beanData.code_branch &&  moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')
-                              : beanData.image_tag && beanData.image_tag)
+                            beanData?.kind === '源码构建' ? beanData.code_branch :
+                            beanData?.kind === '本地文件' ? (beanData.code_branch && moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')) :
+                            beanData?.image_tag
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData
-                              ? beanData.kind && beanData.kind === '源码构建'
-                                ? beanData.code_branch && beanData.code_branch
-                                : beanData.kind && beanData.kind === '本地文件'
-                                ? beanData.code_branch &&  moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')
-                                : beanData.image_tag
-                                ? beanData.image_tag
-                                : <FormattedMessage id='componentOverview.body.tab.overview.not'/>
-                              : <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
+                            {beanData?.kind === '源码构建'
+                              ? beanData.code_branch || <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : beanData?.kind === '本地文件'
+                              ? (beanData.code_branch && moment(beanData.code_branch).format('YYYY-MM-DD HH:mm:ss')) || <FormattedMessage id='componentOverview.body.tab.overview.not'/>
+                              : beanData?.image_tag || <FormattedMessage id='componentOverview.body.tab.overview.not'/>}
                           </span>
                         </Tooltip>
                       </a>
@@ -320,22 +267,12 @@ class Index extends PureComponent {
                   </ul>
                   <p className={styles.buildAuthor}>
                     {dataList && dataList.length > 0 && !more ? (
-                      <a
-                        onClick={() => {
-                          this.handleMore(true);
-                        }}
-                      >
-                        {/* 查看更多版本 */}
+                      <a onClick={() => this.handleMore(true)}>
                         <FormattedMessage id='componentOverview.body.tab.overview.moreVersion'/>
                       </a>
                     ) : (
-                      more === true && (
-                        <a
-                          onClick={() => {
-                            this.handleMore(false);
-                          }}
-                        >
-                          {/* 返回实例列表 */}
+                      more && (
+                        <a onClick={() => this.handleMore(false)}>
                           <FormattedMessage id='componentOverview.body.tab.overview.return'/>
                         </a>
                       )
@@ -348,13 +285,12 @@ class Index extends PureComponent {
             </div>
           </div>
         </Col>
-                ):(
-                  !isThird && 
-                  <Card style={{ margin: '0px 12px' ,height:170}} bodyStyle={{padding:'5px 20px 5px'}}>
-                  <Skeleton active />
-                  </Card>
-                )
-          }
+        ) : (
+          !isThird &&
+          <Card style={{ margin: '0px 12px', height: 170 }} bodyStyle={{ padding: '5px 20px 5px' }}>
+            <Skeleton active />
+          </Card>
+        )}
       </Row>
     );
   }

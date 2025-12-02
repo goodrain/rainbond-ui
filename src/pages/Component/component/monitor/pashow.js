@@ -5,13 +5,12 @@ import monitorDataUtil from "@/utils/monitorDataUtil";
 import regionUtil from "@/utils/region";
 import teamUtil from "@/utils/team";
 import userUtil from "@/utils/user";
-import { Button, Card, Col, Icon, Row, Table, Tooltip } from "antd";
+import handleAPIError from "@/utils/error";
+import { Card, Col, Icon, Row, Table, Tooltip } from "antd";
 import { connect } from "dva";
 import numeral from "numeral";
 import React, { Fragment, PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-
-const ButtonGroup = Button.Group;
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
@@ -43,27 +42,38 @@ export default class MonitorNow extends PureComponent {
     this.fetchOnlineNumberRange();
     this.createSocket();
   }
+
   componentWillUnmount() {
     this.mounted = false;
-    this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
-    this.props.dispatch({ type: "appControl/clearRequestTime" });
-    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
-    this.props.dispatch({ type: "appControl/clearRequest" });
-    this.props.dispatch({ type: "appControl/clearRequestRange" });
-    this.props.dispatch({ type: "appControl/clearOnlineNumber" });
+    const clearActions = [
+      'clearOnlineNumberRange',
+      'clearRequestTime',
+      'clearRequestTimeRange',
+      'clearRequest',
+      'clearRequestRange',
+      'clearOnlineNumber'
+    ];
+
+    clearActions.forEach(action => {
+      this.props.dispatch({ type: `appControl/${action}` });
+    });
+
     const { socket } = this.props;
     if (socket) {
       socket.closeMonitorMessage();
     }
   }
+
   // eslint-disable-next-line class-methods-use-this
   getStartTime() {
     return new Date().getTime() / 1000 - 60 * 60;
   }
+
   // eslint-disable-next-line class-methods-use-this
   getStep() {
     return 60;
   }
+
   getSocketUrl = () => {
     const currTeam = userUtil.getTeamByTeamName(
       this.props.currUser,
@@ -73,126 +83,92 @@ export default class MonitorNow extends PureComponent {
 
     if (currTeam) {
       const region = teamUtil.getRegionByName(currTeam, currRegionName);
-
       if (region) {
         return regionUtil.getMonitorWebSocketUrl(region);
       }
     }
     return "";
   };
+
+  // 通用的 fetch 方法，减少代码重复
+  fetchData = (actionType, payload, callback) => {
+    if (!this.mounted) return;
+
+    this.props.dispatch({
+      type: actionType,
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id,
+        ...payload
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            callback();
+          }, this.inerval);
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
   fetchRequestTime() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchRequestTime",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestTime();
-          }, this.inerval);
-        }
-      }
-    });
+    this.fetchData(
+      "appControl/fetchRequestTime",
+      {},
+      () => this.fetchRequestTime()
+    );
   }
+
   fetchRequestTimeRange() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchRequestTimeRange",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+    this.fetchData(
+      "appControl/fetchRequestTimeRange",
+      {
         start: this.getStartTime(),
-        serviceId: this.props.appDetail.service.service_id,
         step: this.getStep()
       },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestTimeRange();
-          }, this.inerval);
-        }
-      }
-    });
+      () => this.fetchRequestTimeRange()
+    );
   }
+
   fetchRequest() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchRequest",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequest();
-          }, this.inerval);
-        }
-      }
-    });
+    this.fetchData(
+      "appControl/fetchRequest",
+      {},
+      () => this.fetchRequest()
+    );
   }
+
   fetchRequestRange() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchRequestRange",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+    this.fetchData(
+      "appControl/fetchRequestRange",
+      {
         start: this.getStartTime(),
-        serviceId: this.props.appDetail.service.service_id,
         step: this.getStep()
       },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestRange();
-          }, this.inerval);
-        }
-      }
-    });
+      () => this.fetchRequestRange()
+    );
   }
+
   fetchOnlineNumber() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchOnlineNumber",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchOnlineNumber();
-          }, this.inerval);
-        }
-      }
-    });
+    this.fetchData(
+      "appControl/fetchOnlineNumber",
+      {},
+      () => this.fetchOnlineNumber()
+    );
   }
+
   fetchOnlineNumberRange() {
-    if (!this.mounted) return;
-    this.props.dispatch({
-      type: "appControl/fetchOnlineNumberRange",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+    this.fetchData(
+      "appControl/fetchOnlineNumberRange",
+      {
         start: this.getStartTime(),
-        serviceId: this.props.appDetail.service.service_id,
         step: this.getStep()
       },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchOnlineNumberRange();
-          }, this.inerval);
-        }
-      }
-    });
+      () => this.fetchOnlineNumberRange()
+    );
   }
   createSocket() {
     const { socket } = this.props;
@@ -202,12 +178,73 @@ export default class MonitorNow extends PureComponent {
       });
     }
   }
+
   updateTable(event) {
     try {
-      event = JSON.parse(event);
-    } catch (e) {}
-    this.setState({ logs: event });
+      const parsedEvent = JSON.parse(event);
+      this.setState({ logs: parsedEvent });
+    } catch (e) {
+      // 如果解析失败，尝试直接使用原始数据
+      if (Array.isArray(event)) {
+        this.setState({ logs: event });
+      } else {
+        console.error('Failed to parse monitor data:', e);
+        this.setState({ logs: [] });
+      }
+    }
   }
+
+  // 渲染图表卡片
+  renderChartCard = (title, tooltip, data, rangeData, color, chartType = 'area') => {
+    const Chart = chartType === 'area' ? MiniArea : MiniBar;
+    return (
+      <ChartCard
+        title={<FormattedMessage id={title} />}
+        action={
+          <Tooltip title={<FormattedMessage id={tooltip} />}>
+            <Icon type="info-circle-o" />
+          </Tooltip>
+        }
+        total={numeral(monitorDataUtil.queryTog2(data)).format("0,0")}
+        footer={<Field label="" value="" />}
+        contentHeight={46}
+      >
+        <Chart
+          color={color}
+          data={monitorDataUtil.queryRangeTog2(rangeData)}
+        />
+      </ChartCard>
+    );
+  };
+
+  // 获取表格列配置
+  getTableColumns = () => [
+    {
+      title: "Url",
+      dataIndex: "Key"
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.tab.monitor.now.cumulativeTime' }),
+      dataIndex: "CumulativeTime",
+      width: 150
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.tab.monitor.now.AverageTime' }),
+      dataIndex: "AverageTime",
+      width: 150
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.tab.monitor.now.requests' }),
+      dataIndex: "Count",
+      width: 100
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.tab.monitor.now.abnormalTimes' }),
+      dataIndex: "AbnormalCount",
+      width: 100
+    }
+  ];
+
   render() {
     const topColResponsiveProps = {
       xs: 24,
@@ -219,130 +256,48 @@ export default class MonitorNow extends PureComponent {
         marginBottom: 24
       }
     };
+
+    const { requestTime, requestTimeRange, appRequest, appRequestRange, onlineNumber, onlineNumberRange } = this.props;
+
     return (
       <Fragment>
         <Row gutter={24}>
           <Col {...topColResponsiveProps}>
-            <ChartCard
-              // bordered={false}
-              // title="平均响应时间（ms）"
-              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.time"/>}
-              action={
-                <Tooltip 
-                // title="平均响应时间，单位毫秒"
-                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.averageTime"/>}
-                >
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
-                </Tooltip>
-              }
-              total={numeral(
-                monitorDataUtil.queryTog2(this.props.requestTime)
-              ).format("0,0")}
-              footer={<Field label="" value="" />}
-              contentHeight={46}
-            >
-              <MiniArea
-                color="#975FE4"
-                data={monitorDataUtil.queryRangeTog2(
-                  this.props.requestTimeRange
-                )}
-              />
-            </ChartCard>
+            {this.renderChartCard(
+              "componentOverview.body.tab.monitor.now.time",
+              "componentOverview.body.tab.monitor.now.averageTime",
+              requestTime,
+              requestTimeRange,
+              "#975FE4",
+              'area'
+            )}
           </Col>
           <Col {...topColResponsiveProps}>
-            <ChartCard
-              // bordered={false}
-              // title="吞吐率（dps）"
-              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.throughput"/>}
-              action={
-                <Tooltip 
-                // title="过去一分钟平均每5s的请求次数"
-                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.NumberOfRequests"/>}
-                >
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
-                </Tooltip>
-              }
-              total={numeral(
-                monitorDataUtil.queryTog2(this.props.appRequest)
-              ).format("0,0")}
-              footer={<Field label="" value="" />}
-              contentHeight={46}
-            >
-              <MiniArea
-                color="#4593fc"
-                data={monitorDataUtil.queryRangeTog2(
-                  this.props.appRequestRange
-                )}
-              />
-            </ChartCard>
+            {this.renderChartCard(
+              "componentOverview.body.tab.monitor.now.throughput",
+              "componentOverview.body.tab.monitor.now.NumberOfRequests",
+              appRequest,
+              appRequestRange,
+              "#4593fc",
+              'area'
+            )}
           </Col>
           <Col {...topColResponsiveProps}>
-            <ChartCard
-              // bordered={false}
-              // title="在线人数"
-              title={<FormattedMessage id="componentOverview.body.tab.monitor.now.onlineNumber"/>}
-              action={
-                <Tooltip 
-                // title="过去5分钟的独立IP数量"
-                title={<FormattedMessage id="componentOverview.body.tab.monitor.now.independent"/>}
-                >
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
-                </Tooltip>
-              }
-              total={numeral(
-                monitorDataUtil.queryTog2(this.props.onlineNumber)
-              ).format("0,0")}
-              footer={<Field label="" value="" />}
-              contentHeight={46}
-            >
-              <MiniBar
-                data={monitorDataUtil.queryRangeTog2(
-                  this.props.onlineNumberRange
-                )}
-              />
-            </ChartCard>
+            {this.renderChartCard(
+              "componentOverview.body.tab.monitor.now.onlineNumber",
+              "componentOverview.body.tab.monitor.now.independent",
+              onlineNumber,
+              onlineNumberRange,
+              "#4593fc",
+              'bar'
+            )}
           </Col>
         </Row>
-        <Card 
-        // title="过去5分钟耗时最多的URL排行"
-        title={<FormattedMessage id="componentOverview.body.tab.monitor.now.ranking"/>}
-        >
+        <Card title={<FormattedMessage id="componentOverview.body.tab.monitor.now.ranking" />}>
           <ScrollerX sm={700}>
             <Table
-              rowKey={(record,index) => index}
-              columns={[
-                {
-                  title: "Url",
-                  dataIndex: "Key"
-                },
-                {
-                  // title: "累计时间(ms)",
-                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.cumulativeTime'}),
-                  dataIndex: "CumulativeTime",
-                  width: 150
-                },
-                {
-                  // title: "平均时间(ms)",
-                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.AverageTime'}),
-                  dataIndex: "AverageTime",
-                  width: 150
-                },
-                {
-                  // title: "请求次数",
-                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.requests'}),
-                  dataIndex: "Count",
-                  width: 100
-                },
-                {
-                  // title: "异常次数",
-                  title: formatMessage({id:'componentOverview.body.tab.monitor.now.abnormalTimes'}),
-                  dataIndex: "AbnormalCount",
-                  width: 100
-                }
-              ]}
+              rowKey={(record, index) => index}
+              columns={this.getTableColumns()}
               pagination={false}
               dataSource={this.state.logs}
             />

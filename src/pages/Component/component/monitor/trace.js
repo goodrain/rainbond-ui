@@ -1,12 +1,15 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable import/extensions */
-/* eslint-disable react/sort-comp */
 import Result from "@/components/Result";
 import globalUtil from "@/utils/global";
+import handleAPIError from "@/utils/error";
 import { Alert, Button, Card, notification } from "antd";
 import { connect } from "dva";
 import React, { Fragment, PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+
+// 样式常量
+const ALERT_STYLE = {
+  marginBottom: "16px"
+};
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
@@ -24,92 +27,117 @@ export default class TraceShow extends PureComponent {
   componentDidMount() {
     this.loadTraceSetting();
   }
+
+  // 获取 payload
+  getPayload = () => {
+    const { appDetail } = this.props;
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: appDetail.service.service_alias
+    };
+  };
+
+  // 加载追踪设置
   loadTraceSetting() {
-    const { appDetail, dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: "monitor/getComponsentTrace",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appDetail.service.service_alias
-      },
+      payload: this.getPayload(),
       callback: re => {
-        this.setState({ trace: re.bean });
+        if (re && re.bean) {
+          this.setState({ trace: re.bean });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   }
+
+  // 开启追踪
   openTrace = () => {
-    const { appDetail, dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: "monitor/setComponsentTrace",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appDetail.service.service_alias
-      },
+      payload: this.getPayload(),
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.setupAssembly'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.setupAssembly' }) });
         this.loadTraceSetting();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
+  // 关闭追踪
   closeTrace = () => {
-    const { appDetail, dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: "monitor/deleteComponsentTrace",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appDetail.service.service_alias
-      },
+      payload: this.getPayload(),
       callback: () => {
-        notification.success({ message: formatMessage({id:'notification.success.closeAssembly'}) });
+        notification.success({ message: formatMessage({ id: 'notification.success.closeAssembly' }) });
         this.loadTraceSetting();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
-  componentWillUnmount() {}
+
+  // 渲染追踪状态
+  renderTraceStatus = () => {
+    const { trace } = this.state;
+
+    // 已对接但未开启
+    if (trace.collector_host && !trace.enable_apm) {
+      return (
+        <Result
+          type="success"
+          description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.Docking" />}
+          actions={[
+            <Button key="open" type="primary" onClick={this.openTrace}>
+              <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.open" />
+            </Button>
+          ]}
+        />
+      );
+    }
+
+    // 已开启
+    if (trace.collector_host && trace.enable_apm) {
+      return (
+        <Result
+          type="success"
+          description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.alreadyOpen" />}
+          actions={[
+            <Button key="close" type="primary" onClick={this.closeTrace}>
+              <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.close" />
+            </Button>
+          ]}
+        />
+      );
+    }
+
+    // 未对接
+    return (
+      <Result
+        type="warning"
+        description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.notDependent" />}
+      />
+    );
+  };
 
   render() {
-    const { trace } = this.state;
     return (
       <Fragment>
         <Alert
-          style={{ marginBottom: "16px" }}
-          // message="当前基于Java类源代码构建的组件默认支持Pinpoint链路追踪数据采集"
-          message={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.message"/>}
+          style={ALERT_STYLE}
+          message={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.message" />}
         />
         <Card>
-          {trace.collector_host && !trace.enable_apm && (
-            <Result
-              type="success"
-              // description="已经对接Pinpoint，可以开启数据采集"
-              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.Docking"/>}
-              actions={[
-                <Button type="primary" onClick={this.openTrace}>
-                  {/* 开启 */}
-                  <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.open"/>
-                </Button>
-              ]}
-            />
-          )}
-          {trace.collector_host && trace.enable_apm && (
-            <Result
-              type="success"
-              // description="已经开启Pinpoint链路追踪数据采集"
-              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.alreadyOpen"/>}
-              actions={[
-                <Button type="primary" onClick={this.closeTrace}>
-                  {/* 关闭 */}
-                  <FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.close"/>
-                </Button>
-              ]}
-            />
-          )}
-          {!trace.collector_host && (
-            <Result
-              type="warning"
-              // description="当前组件未依赖Pinpoint服务，请先依赖Pinpoint服务"
-              description={<FormattedMessage id="componentOverview.body.tab.monitor.TraceShow.notDependent"/>}
-            />
-          )}
+          {this.renderTraceStatus()}
         </Card>
       </Fragment>
     );

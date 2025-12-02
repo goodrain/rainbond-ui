@@ -23,8 +23,38 @@ import NoPermTip from '../../components/NoPermTip';
 import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import AddVarModal from './setting/env';
-import styles from '../../components/ConfirmModal/index.less'
+import styles from '../../components/ConfirmModal/index.less';
+
+// 常量定义
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZE_OPTIONS = ['5', '10', '20', '30'];
+
+// 样式常量
+const ALERT_STYLE = {
+  marginBottom: 24
+};
+
+const ALERT_STYLE_WITH_TOP = {
+  marginBottom: 24,
+  marginTop: 24
+};
+
+const CARD_STYLE = {
+  marginBottom: 24,
+  borderRadius: 5
+};
+
+const LAST_CARD_STYLE = {
+  borderRadius: 5
+};
+
+const WORD_WRAP_STYLE = {
+  wordBreak: 'break-all',
+  wordWrap: 'break-word'
+};
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -53,8 +83,8 @@ export default class Index extends React.Component {
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
-      page: 1,
-      page_size: 5,
+      page: DEFAULT_PAGE,
+      page_size: DEFAULT_PAGE_SIZE,
       env_name: '',
       showAddVars: null,
       showAddRelation: false,
@@ -65,8 +95,10 @@ export default class Index extends React.Component {
       isAttrNameList: [],
       errorDelete: false,
       toDeleteVolumeErr: null,
-      mntpageSize: 5,
-      mntPage: 1
+      errorList: [],
+      transfer: null,
+      mntpageSize: DEFAULT_PAGE_SIZE,
+      mntPage: DEFAULT_PAGE
     };
   }
   componentDidMount() {
@@ -75,7 +107,6 @@ export default class Index extends React.Component {
     this.loadMntList();
     this.fetchVolumes();
     this.fetchBaseInfo();
-    // this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
@@ -117,6 +148,9 @@ export default class Index extends React.Component {
             this.setState({ toDeleteVolume: data });
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -163,7 +197,7 @@ export default class Index extends React.Component {
   handleSearch = env_name => {
     this.setState(
       {
-        page: 1,
+        page: DEFAULT_PAGE,
         env_name
       },
       () => {
@@ -188,7 +222,7 @@ export default class Index extends React.Component {
         if (res && res.status_code === 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
-            res.list.map(item => {
+            res.list.forEach(item => {
               const isHidden = globalUtil.confirmEnding(
                 `${item.attr_name}`,
                 'PASS'
@@ -200,6 +234,9 @@ export default class Index extends React.Component {
           }
           this.setState({ isAttrNameList: arr });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -226,6 +263,9 @@ export default class Index extends React.Component {
           this.fetchInnerEnvs();
           this.handleCancelAddVar();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -252,6 +292,10 @@ export default class Index extends React.Component {
         }
         this.cancelDeleteVar();
         this.props.onshowRestartTips(true);
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.cancelDeleteVar();
       }
     });
   };
@@ -265,16 +309,20 @@ export default class Index extends React.Component {
         force: 1
       },
       callback: res => {
-        if(res && res.status_code === 200){
+        if (res && res.status_code === 200) {
           this.setState({ errorDelete: false });
           notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ errorDelete: false });
       }
     });
-  }
+  };
 
   handleTransfer = () => {
     const { transfer } = this.state;
@@ -284,7 +332,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == 'inner' ? 'outer' : 'inner'
+        scope: transfer.scope === 'inner' ? 'outer' : 'inner'
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -292,6 +340,9 @@ export default class Index extends React.Component {
           this.fetchInnerEnvs();
           this.cancelTransfer();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -313,6 +364,9 @@ export default class Index extends React.Component {
           this.cancelEditVar();
           this.fetchInnerEnvs();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -324,9 +378,13 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         is_config: true
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
   fetchBaseInfo = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -334,11 +392,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   loadMntList = () => {
-    const { mntpageSize , mntPage} = this.state;
+    const { mntpageSize, mntPage } = this.state;
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -351,6 +412,8 @@ export default class Index extends React.Component {
           mntList: data.list || []
         });
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
   handleAddVars = () => {
@@ -383,6 +446,9 @@ export default class Index extends React.Component {
             notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
             this.props.onshowRestartTips(true);
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     } else {
@@ -400,6 +466,9 @@ export default class Index extends React.Component {
             notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
             this.props.onshowRestartTips(true);
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     }
@@ -422,6 +491,8 @@ export default class Index extends React.Component {
         notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
 
@@ -440,9 +511,13 @@ export default class Index extends React.Component {
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
   handleDeleteMnt = () => {
     this.props.dispatch({
       type: 'appControl/deleteMnt',
@@ -456,6 +531,9 @@ export default class Index extends React.Component {
         this.loadMntList();
         notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         this.props.onshowRestartTips(true);
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -502,10 +580,7 @@ export default class Index extends React.Component {
     if (!this.canView()) return <NoPermTip />;
     const { mntList, page, page_size } = this.state;
     const { baseInfo, volumes } = this.props;
-    const wraps = {
-      wordBreak: 'break-all',
-      wordWrap: 'break-word'
-    };
+
     if (typeof baseInfo.build_upgrade !== 'boolean') {
       return null;
     }
@@ -517,9 +592,7 @@ export default class Index extends React.Component {
               showIcon
               message={<FormattedMessage id='componentOverview.body.tab.env.environmentVariable.message' />}
               type="info"
-              style={{
-                marginBottom: 24
-              }}
+              style={ALERT_STYLE}
             />
           </Col>
         </Row>
@@ -532,21 +605,14 @@ export default class Index extends React.Component {
           <Col span={16}>
             <Alert
               showIcon
-              // eslint-disable-next-line no-template-curly-in-string
               message={<FormattedMessage id='componentOverview.body.tab.env.setting.message' />}
               type="info"
-              style={{
-                marginBottom: 24,
-                marginTop: 24
-              }}
+              style={ALERT_STYLE_WITH_TOP}
             />
           </Col>
         </Row>
         <Card
-          style={{
-            marginBottom: 24,
-            borderRadius: 5,
-          }}
+          style={CARD_STYLE}
           title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
           extra={
             <Button onClick={this.handleAddVars}>
@@ -557,20 +623,18 @@ export default class Index extends React.Component {
         >
           <ScrollerX sm={650}>
             <Table
-              pagination={
-                {
-                  current: page,
-                  pageSize: page_size,
-                  total: Number(volumes.length),
-                  onChange: this.onPageChange,
-                  onShowSizeChange: this.onPageChange,
-                  showQuickJumper: true,
-                  showSizeChanger: true,
-                  showTotal: (total) => `共 ${total} 条`,
-                  pageSizeOptions:['5', '10', '20', '30'],
-                  hideOnSinglePage: Number(volumes.length) <= 5
-                }
-              }
+              pagination={{
+                current: page,
+                pageSize: page_size,
+                total: Number(volumes.length),
+                onChange: this.onPageChange,
+                onShowSizeChange: this.onPageChange,
+                showQuickJumper: true,
+                showSizeChanger: true,
+                showTotal: (total) => `共 ${total} 条`,
+                pageSizeOptions: PAGE_SIZE_OPTIONS,
+                hideOnSinglePage: Number(volumes.length) <= DEFAULT_PAGE_SIZE
+              }}
               columns={[
                 {
                   title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
@@ -590,18 +654,13 @@ export default class Index extends React.Component {
                   render: (v, data) => (
                     <div>
                       <a
-                        onClick={() => {
-                          this.onDeleteVolume(data);
-                        }}
-                        href="javascript:;"
+                        onClick={() => this.onDeleteVolume(data)}
+                        style={{ marginRight: 8 }}
                       >
                         <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
                       </a>
                       <a
-                        onClick={() => {
-                          this.onEditVolume(data);
-                        }}
-                        href="javascript:;"
+                        onClick={() => this.onEditVolume(data)}
                       >
                         <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
                       </a>
@@ -622,9 +681,7 @@ export default class Index extends React.Component {
               <FormattedMessage id='componentOverview.body.tab.env.file.mount' />
             </Button>
           }
-          style={{
-            borderRadius: 5,
-          }}
+          style={LAST_CARD_STYLE}
         >
           <ScrollerX sm={850}>
             <Table
@@ -637,8 +694,8 @@ export default class Index extends React.Component {
                 showQuickJumper: true,
                 showSizeChanger: true,
                 showTotal: (total) => `共 ${total} 条`,
-                pageSizeOptions:['5', '10', '20', '30'],
-                hideOnSinglePage: Number(mntList.length) <= 5
+                pageSizeOptions: PAGE_SIZE_OPTIONS,
+                hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
               }}
               rowKey={(record,index) => index}
               columns={[
@@ -649,7 +706,7 @@ export default class Index extends React.Component {
                   width: '20%',
                   render: data => (
                     <Tooltip title={data}>
-                      <span style={wraps}>{data}</span>
+                      <span style={WORD_WRAP_STYLE}>{data}</span>
                     </Tooltip>
                   )
                 },
@@ -660,7 +717,7 @@ export default class Index extends React.Component {
                   width: '15%',
                   render: data => (
                     <Tooltip title={data}>
-                      <span style={wraps}>{data}</span>
+                      <span style={WORD_WRAP_STYLE}>{data}</span>
                     </Tooltip>
                   )
                 },
@@ -671,7 +728,7 @@ export default class Index extends React.Component {
                   width: '20%',
                   render: data => (
                     <Tooltip title={data}>
-                      <span style={wraps}>{data}</span>
+                      <span style={WORD_WRAP_STYLE}>{data}</span>
                     </Tooltip>
                   )
                 },
@@ -709,12 +766,7 @@ export default class Index extends React.Component {
                   key: '6',
                   width: '15%',
                   render: (v, data) => (
-                    <a
-                      onClick={() => {
-                        this.onDeleteMnt(data);
-                      }}
-                      href="javascript:;"
-                    >
+                    <a onClick={() => this.onDeleteMnt(data)}>
                       <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
                     </a>
                   )
@@ -798,14 +850,10 @@ export default class Index extends React.Component {
           />
         )}
         <Modal
-          title='删除配置文件'
+          title={formatMessage({ id: 'confirmModal.deldete.configurationFile.title' })}
           visible={this.state.errorDelete}
           onOk={this.handleOk}
-          onCancel={
-            () => {
-              this.setState({ errorDelete: false });
-            }
-          }
+          onCancel={() => this.setState({ errorDelete: false })}
         >
           <div className={styles.content}>
           <div className={styles.inner}>

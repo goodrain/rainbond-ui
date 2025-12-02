@@ -1,6 +1,5 @@
-/* eslint-disable react/no-unused-state */
-/* eslint-disable import/extensions */
-import globalUtil from '@//utils/global';
+import globalUtil from '@/utils/global';
+import handleAPIError from '@/utils/error';
 import BatchDeleteChart from '@/components/BatchDeleteChart';
 import ConfirmModal from '@/components/ConfirmModal';
 import CustomChart from '@/components/CustomChart';
@@ -10,9 +9,33 @@ import { Button, Dropdown, Icon, Menu, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import MonitoryPoint from './monitoryPoint';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 
-/* eslint react/no-array-index-key: 0 */
+// 样式常量
+const OPERATION_CONTAINER_STYLE = {
+  display: 'inline-block',
+  width: 'calc(100% - 450px)',
+  lineHeight: '40px'
+};
+
+const BUTTON_MARGIN_STYLE = {
+  marginLeft: '5px'
+};
+
+const MANAGE_BUTTON_STYLE = {
+  float: 'right',
+  marginTop: '4px'
+};
+
+const RESULT_STYLE = {
+  background: '#fff',
+  marginTop: '10px',
+  padding: '20px'
+};
+
+const MENU_ITEM_STYLE = {
+  textAlign: 'center'
+};
 
 @connect(({ appControl, loading }) => ({
   appDetail: appControl.appDetail,
@@ -73,6 +96,7 @@ export default class customMonitor extends PureComponent {
       isCustomMonitoring: true
     });
   };
+  // 获取监控图表列表
   fetchServiceMonitorFigure = (isUpdata = true) => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -93,9 +117,14 @@ export default class customMonitor extends PureComponent {
           }
           this.cancalBatchDelete();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
+  // 获取关键导入列表
   fetchKeyImport = () => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -108,12 +137,17 @@ export default class customMonitor extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             KeyImportLoading: false,
-            KeyImportList: res.list
+            KeyImportList: res.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ KeyImportLoading: false });
       }
     });
   };
+  // 添加关键导入
   addKeyImport = name => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -128,9 +162,14 @@ export default class customMonitor extends PureComponent {
           this.fetchServiceMonitorFigure();
           this.fetchKeyImport();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+
+  // 处理排序
   handleSorting = val => {
     const { dispatch } = this.props;
     const parameter = this.handleParameter();
@@ -144,6 +183,9 @@ export default class customMonitor extends PureComponent {
         if (res && res.status_code === 200) {
           this.fetchServiceMonitorFigure(false);
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -173,6 +215,9 @@ export default class customMonitor extends PureComponent {
             this.fetchServiceMonitorFigure(false);
             this.onCancelCustomMonitoring();
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     } else {
@@ -190,6 +235,9 @@ export default class customMonitor extends PureComponent {
             this.fetchServiceMonitorFigure();
             this.onCancelCustomMonitoring();
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     }
@@ -212,6 +260,9 @@ export default class customMonitor extends PureComponent {
           this.fetchServiceMonitorFigure();
           this.cancalDelete();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -226,9 +277,12 @@ export default class customMonitor extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             isMonitorsLoading: true,
-            isMonitors: res.list.length > 0
+            isMonitors: res.list && res.list.length > 0
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -305,15 +359,9 @@ export default class customMonitor extends PureComponent {
               serviceId={serviceId}
               RangeData={isMonitorFigure ? [] : monitorFigureList}
               operation={
-                <div
-                  style={{
-                    display: 'inline-block',
-                    width: 'calc(100% - 450px)',
-                    lineHeight: '40px'
-                  }}
-                >
+                <div style={OPERATION_CONTAINER_STYLE}>
                   <Button
-                    style={{ marginLeft: '5px' }}
+                    style={BUTTON_MARGIN_STYLE}
                     onClick={this.handleCustomMonitoring}
                   >
                     {/* 添加图表 */}
@@ -323,26 +371,20 @@ export default class customMonitor extends PureComponent {
                     <Dropdown
                       overlay={
                         <Menu>
-                          {KeyImportList.map(item => {
-                            return (
-                              <Menu.Item style={{ textAlign: 'center' }}>
-                                <a
-                                  onClick={() => {
-                                    this.addKeyImport(item);
-                                  }}
-                                >
-                                  {item}
-                                </a>
-                              </Menu.Item>
-                            );
-                          })}
+                          {KeyImportList.map(item => (
+                            <Menu.Item key={item} style={MENU_ITEM_STYLE}>
+                              <a onClick={() => this.addKeyImport(item)}>
+                                {item}
+                              </a>
+                            </Menu.Item>
+                          ))}
                         </Menu>
                       }
                       trigger={['click']}
                       placement="bottomCenter"
                       disabled={addKeyImportLoading}
                     >
-                      <Button style={{ marginLeft: '5px' }}>
+                      <Button style={BUTTON_MARGIN_STYLE}>
                         {/* 一键导入 */}
                         <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.import'/>
                         <Icon type="down" />
@@ -351,7 +393,7 @@ export default class customMonitor extends PureComponent {
                   )}
                   {monitorFigureList && monitorFigureList.length > 0 && (
                     <Button
-                      style={{ marginLeft: '5px' }}
+                      style={BUTTON_MARGIN_STYLE}
                       loading={delLoading}
                       onClick={this.handleBatchDelete}
                     >
@@ -361,10 +403,8 @@ export default class customMonitor extends PureComponent {
                   )}
 
                   <Button
-                    style={{ float: 'right', marginTop: '4px' }}
-                    onClick={() => {
-                      this.handleMonitoryPoint(true);
-                    }}
+                    style={MANAGE_BUTTON_STYLE}
+                    onClick={() => this.handleMonitoryPoint(true)}
                   >
                     <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.point'/>
                     {/* 管理监控点 */}
@@ -379,22 +419,25 @@ export default class customMonitor extends PureComponent {
           isMonitorFigure &&
           isMonitorsLoading && (
             <Result
-              style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
+              style={RESULT_STYLE}
               type="warning"
               description={
                 <div>
                   {/* 暂无业务监控图、请先添加 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.noBusiness'/>
                   <a
-                    onClick={() => {
-                      if (isMonitors) {
-                        this.handleCustomMonitoring();
-                      } else {
-                        this.handleMonitoryPoint(true);
-                      }
-                    }}
+                    onClick={() =>
+                      isMonitors
+                        ? this.handleCustomMonitoring()
+                        : this.handleMonitoryPoint(true)
+                    }
                   >
-                    {isMonitors ? <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.add'/> : <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.point'/>}
+                    <FormattedMessage
+                      id={isMonitors
+                        ? 'componentOverview.body.tab.monitor.CustomMonitor.add'
+                        : 'componentOverview.body.tab.monitor.CustomMonitor.point'
+                      }
+                    />
                   </a>
                 </div>
               }

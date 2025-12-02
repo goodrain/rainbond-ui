@@ -34,11 +34,10 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       EventID: '',
-      language : cookie.get('language') === 'zh-CN' ? true : false,
+      language: cookie.get('language') === 'zh-CN',
       appUpgradePermission: this.handlePermissions()
     };
   }
-  componentDidMount() {}
   handlePermissions = () => {
     const { currentTeamPermissionsInfo, appDetail } = this.props;
     if(currentTeamPermissionsInfo && appDetail){
@@ -85,14 +84,20 @@ class Index extends PureComponent {
   showStatus = status => {
     switch (status) {
       case '':
-        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.under'})}`;
+        return formatMessage({id:'componentOverview.body.tab.overview.buildHistory.under'});
       case 'success':
-        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.success'})}`;
+        return formatMessage({id:'componentOverview.body.tab.overview.buildHistory.success'});
       case 'failure':
-        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.fail'})}`;
+        return formatMessage({id:'componentOverview.body.tab.overview.buildHistory.fail'});
       default:
-        return `${formatMessage({id:'componentOverview.body.tab.overview.buildHistory.unknown'})}`;
+        return formatMessage({id:'componentOverview.body.tab.overview.buildHistory.unknown'});
     }
+  };
+
+  getKindValue = (kind, sourceValue, packageValue, imageValue) => {
+    if (kind === '源码构建') return sourceValue;
+    if (kind === '本地文件') return packageValue;
+    return imageValue;
   };
 
   render() {
@@ -208,16 +213,15 @@ class Index extends PureComponent {
                                         : status === 'failure'
                                         ? globalUtil.getPublicColor('rbd-error-status')
                                         : '#9d9d9d',
-                                        textOverflow: 'ellipsis',
-                                        overflow: 'hidden',
-                                        whiteSpace: 'nowrap'
+                                    textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap'
                                   }}
                                 >
                                   {build_version}
                                   {build_version &&
                                     current_version &&
                                     build_version === current_version &&
-                                    // '(当前版本)'
                                     <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.currentVersion'/>}
                                 </font>
                                 </Tooltip>
@@ -230,25 +234,14 @@ class Index extends PureComponent {
                             >
                               <Tooltip
                                 title={
-                                  kind &&
-                                  (kind === '源码构建'
-                                    ? 
-                                    // '提交信息'
-                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.submitInformation'/>
+                                  kind === '源码构建'
+                                    ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.submitInformation'/>
                                     : kind === '本地文件'
-                                    ? 
-                                    // '文件名称'
-                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.fileName'/>
-                                    : 
-                                    // '源镜像仓库地址'
-                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.address'/>)
+                                    ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.fileName'/>
+                                    : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.address'/>
                                 }
                               >
-                                {/* {kind &&
-                                  (kind === '源码构建'
-                                    ? globalUtil.fetchSvg('basicInfo')
-                                    : globalUtil.fetchSvg('warehouse'))} */}
-                                { kind && Svg.getSvg((kind === '源码构建' ? 'msg' : kind === '本地文件' ? 'fileName':'jingxiang'),12,'rbd-content-color-secondary')}
+                                {kind && Svg.getSvg((kind === '源码构建' ? 'msg' : kind === '本地文件' ? 'fileName' : 'jingxiang'), 12, 'rbd-content-color-secondary')}
                               </Tooltip>
 
                               <Tooltip
@@ -316,25 +309,14 @@ class Index extends PureComponent {
                               >
                                 <Tooltip
                                   title={
-                                    kind &&
-                                    (kind === '源码构建'
-                                      ? 
-                                      // '代码分支'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.CodeBranch'/>
+                                    kind === '源码构建'
+                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.CodeBranch'/>
                                       : kind === '本地文件'
-                                      ? 
-                                      // '上传时间'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.uploadTime'/>
-                                      : 
-                                      // '源镜像名称'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.imageName'/>)
+                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.uploadTime'/>
+                                      : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.imageName'/>
                                   }
                                 >
-                                  {/* {kind &&
-                                    (kind === '源码构建'
-                                      ? globalUtil.fetchSvg('branch')
-                                      : globalUtil.fetchSvg('basicInfo'))} */}
-                                      { kind && Svg.getSvg((kind === '源码构建' ? 'fenzhi' : kind === '本地文件' ? 'upLoad':'jingxiang'),12,'rbd-content-color-secondary')}
+                                  {kind && Svg.getSvg((kind === '源码构建' ? 'fenzhi' : kind === '本地文件' ? 'upLoad' : 'jingxiang'), 12, 'rbd-content-color-secondary')}
                                 </Tooltip>
 
                                 <Tooltip
@@ -371,31 +353,18 @@ class Index extends PureComponent {
                               >
                                 <Tooltip
                                   title={
-                                    kind &&
-                                    (kind === '源码构建'
-                                      ? 
-                                      // '代码版本'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.codeVersion'/>
+                                    kind === '源码构建'
+                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.codeVersion'/>
                                       : kind === '本地文件'
-                                      ? 
-                                      // '文件MD5'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.file'/>
-                                      : 
-                                      // '源镜像TAG'
-                                      <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.tag'/>)
+                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.file'/>
+                                      : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.tag'/>
                                   }
                                 >
                                   <span
-                                    className={` ${styles.alcen} ${
-                                      styles.buildwidth
-                                    } `}
+                                    className={` ${styles.alcen} ${styles.buildwidth} `}
                                     style={{ color: 'rgba(0, 0, 0, 0.65)' }}
                                   >
-                                    {/* {kind &&
-                                      (kind === '源码构建'
-                                        ? globalUtil.fetchSvg('warehouse')
-                                        : globalUtil.fetchSvg('branch'))} */}
-                                      { kind && Svg.getSvg((kind === '源码构建' ? 'code' : kind === '本地文件' ? 'MD5':'jingxiangTga'),12,'rbd-content-color-secondary')}
+                                    {kind && Svg.getSvg((kind === '源码构建' ? 'code' : kind === '本地文件' ? 'MD5' : 'jingxiangTga'), 12, 'rbd-content-color-secondary')}
                                   </span>
                                 </Tooltip>
 
@@ -466,10 +435,7 @@ class Index extends PureComponent {
                             }`}
                           >
                             <div className={styles.alcen}>
-                              <Tooltip 
-                              // title="运行时间"
-                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.runTime'/>}
-                              >
+                              <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.runTime'/>}>
                                 {globalUtil.fetchSvg('runTime')}
                               </Tooltip>
 
@@ -497,10 +463,7 @@ class Index extends PureComponent {
                             } ${styles.alcen}`}
                           >
                             <div className={styles.alcen}>
-                              <Tooltip 
-                              // title="创建时间"
-                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.creationTime'/>}
-                              >
+                              <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.creationTime'/>}>
                                 {globalUtil.fetchSvg('createTime')}
                               </Tooltip>
 
@@ -528,7 +491,6 @@ class Index extends PureComponent {
                                 this.showModal(event_id);
                               }}
                             >
-                              {/* 日志 */}
                               <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.log'/>
                             </a>
                           </span>
@@ -542,7 +504,6 @@ class Index extends PureComponent {
                               <span>
                                 <Divider type="vertical" />
                                 <a style={{ fontSize: '12px' }}>
-                                  {/* 升级 */}
                                   <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.upgrade'/>
                                 </a>
                               </span>
@@ -571,7 +532,6 @@ class Index extends PureComponent {
                           )}
 
                           <Popconfirm
-                            // title="确定要删除此版本吗?"
                             title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popDelete'/>}
                             onConfirm={() => {
                               this.handleDel(item);
@@ -579,13 +539,12 @@ class Index extends PureComponent {
                           >
                             {build_version !== current_version &&
                               isDelete &&
-                              current_version && 
-                              (status.length > 0 ? true : false)&&
+                              current_version &&
+                              status.length > 0 &&
                               (
                                 <span>
                                   <Divider type="vertical" />
                                   <a style={{ fontSize: '12px' }}>
-                                    {/* 删除 */}
                                     <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.delete'/>
                                   </a>
                                 </span>

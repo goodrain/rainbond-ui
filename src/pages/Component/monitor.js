@@ -1,6 +1,5 @@
-import { Button, Card, Col, Menu, Row } from 'antd';
+import { Button, Card, Menu, Row } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
@@ -11,8 +10,7 @@ import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
 import TraceShow from './component/monitor/trace';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-
-const ButtonGroup = Button.Group;
+import handleAPIError from '../../utils/error';
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(
@@ -26,21 +24,17 @@ const ButtonGroup = Button.Group;
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
+    const { method } = arg;
     this.state = {
       type: 'now',
-      showMenu: 'resource',
+      showMenu: method === 'vm' ? 'resource' : 'resource',
       anaPlugins: null,
     };
   }
-  componentWillMount() {
-    this.fetchBaseInfo();
-    const { method } = this.props;
-    if (method == 'vm') {
-      this.setState({ showMenu: 'resource' });
-    }
-  }
+
   componentDidMount() {
     if (!this.canView()) return;
+    this.fetchBaseInfo();
     this.getAnalyzePlugins();
   }
 
@@ -55,6 +49,9 @@ export default class Index extends PureComponent {
         const relist = (data && data.list) || [];
         this.setState({ anaPlugins: relist });
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
 
@@ -66,6 +63,9 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
 
@@ -85,43 +85,48 @@ export default class Index extends PureComponent {
 
   renderPM() {
     const { type, anaPlugins } = this.state;
-    const { appDetail } = this.props;
     const showPerformance = anaPlugins && anaPlugins.length > 0;
+
+    const containerStyle = {
+      padding: '10px',
+      border: '1px solid #e8e8e8',
+      borderRadius: '5px',
+    };
+
+    const headerStyle = {
+      textAlign: 'left',
+      marginBottom: 25,
+    };
+
+    const emptyStateStyle = {
+      textAlign: 'center',
+      fontSize: 18,
+      padding: '30px 0',
+    };
+
+    const descriptionStyle = {
+      paddingTop: 8,
+    };
+
     if (showPerformance) {
       return (
         <Fragment>
-          <div
-            style={{
-              padding: '10px',
-              border: '1px solid #e8e8e8',
-              borderRadius: '5px',
-            }}>
-            <div
-              style={{
-                textAlign: 'left',
-                marginBottom: 25,
-              }}
-            >
-              <ButtonGroup>
+          <div style={containerStyle}>
+            <div style={headerStyle}>
+              <Button.Group>
                 <Button
-                  onClick={() => {
-                    this.changeType('now');
-                  }}
+                  onClick={() => this.changeType('now')}
                   type={type === 'now' ? 'primary' : ''}
                 >
-                  {/* 实时 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.now' />
                 </Button>
                 <Button
-                  onClick={() => {
-                    this.changeType('history');
-                  }}
+                  onClick={() => this.changeType('history')}
                   type={type === 'history' ? 'primary' : ''}
                 >
-                  {/* 历史 */}
                   <FormattedMessage id='componentOverview.body.tab.monitor.history' />
                 </Button>
-              </ButtonGroup>
+              </Button.Group>
             </div>
             {type === 'now' ? (
               <MonitorNow {...this.props} />
@@ -134,20 +139,9 @@ export default class Index extends PureComponent {
     }
     return (
       <Card>
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: 18,
-            padding: '30px 0',
-          }}
-        >
-          {/* 尚未开通性能分析插件 */}
+        <div style={emptyStateStyle}>
           <FormattedMessage id='componentOverview.body.tab.monitor.analysis' />
-          <p
-            style={{
-              paddingTop: 8,
-            }}
-          >
+          <p style={descriptionStyle}>
             {formatMessage({ id: 'componentOverview.body.tab.monitor.analysis_desc' })}
           </p>
         </div>
@@ -162,43 +156,49 @@ export default class Index extends PureComponent {
       appDetail,
       componentPermissions: { isServiceMonitor },
       method
-    } = this.props;    
+    } = this.props;
+
     const defaultShow = ['resource'];
+    const isStandardComponent = method !== 'vm' && method !== 'kubeblocks_component';
     const enablePM =
       appDetail &&
       appDetail.service &&
       appDetail.service.language &&
       appDetail.service.language.toLowerCase().indexOf('java') > -1;
+
+    const menuStyle = {
+      paddingBottom: 10,
+      border: 0
+    };
+
     return (
       <>
         <Row>
-            <Menu
-              onSelect={this.changeMenu}
-              defaultSelectedKeys={defaultShow}
-              style={{ paddingBottom: 10, border:0 }}
-              mode="horizontal"
-            >
-              <Menu.Item key="resource">
-                {/* 资源监控 */}
-                <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
+          <Menu
+            onSelect={this.changeMenu}
+            defaultSelectedKeys={defaultShow}
+            style={menuStyle}
+            mode="horizontal"
+          >
+            <Menu.Item key="resource">
+              <FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />
+            </Menu.Item>
+            {isStandardComponent && (
+              <Menu.Item key="pm">
+                <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
               </Menu.Item>
-              {method != 'vm' && method != 'kubeblocks_component' &&
-                <Menu.Item key="pm">
-                  {/* 性能分析 */}
-                  <FormattedMessage id='componentOverview.body.tab.monitor.performanceAnalysis' />
-                </Menu.Item>}
-
-              {enablePM && method != 'vm' && method != 'kubeblocks_component' &&
-                <Menu.Item key="trace">
-                  {/* 链路追踪 */}
-                  <FormattedMessage id='componentOverview.body.tab.monitor.tracking' />
-                </Menu.Item>}
-              {isServiceMonitor && method != 'vm' && method != 'kubeblocks_component' &&
-                <Menu.Item key="custom">
-                  {/* 业务监控 */}
-                  <FormattedMessage id='componentOverview.body.tab.monitor.business' />
-                </Menu.Item>}
-            </Menu>
+            )}
+            {enablePM && isStandardComponent && (
+              <Menu.Item key="trace">
+                <FormattedMessage id='componentOverview.body.tab.monitor.tracking' />
+              </Menu.Item>
+            )}
+            {isServiceMonitor && isStandardComponent && (
+              <Menu.Item key="custom">
+                <FormattedMessage id='componentOverview.body.tab.monitor.business' />
+              </Menu.Item>
+            )}
+          </Menu>
         </Row>
         <Row>
           {showMenu === 'pm' && this.renderPM()}
@@ -207,7 +207,6 @@ export default class Index extends PureComponent {
           {showMenu === 'custom' && <CustomMonitor appDetail={appDetail} />}
         </Row>
       </>
-
     );
   }
 }

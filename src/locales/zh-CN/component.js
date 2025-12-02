@@ -80,6 +80,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.occupy': '占用',
     'componentOverview.body.tab.overview.disk': '磁盘',
     'componentOverview.body.tab.overview.version': '版本号',
+    'componentOverview.body.tab.overview.vmImage': '虚拟机镜像',
     'componentOverview.body.tab.overview.not': '暂无',
     'componentOverview.body.tab.overview.codeVersion': '代码版本',
     'componentOverview.body.tab.overview.file': '文件MD5',

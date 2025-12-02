@@ -8,6 +8,30 @@ import React, { PureComponent } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
+
+// 常量定义
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 6;
+
+// 样式常量
+const WORD_WRAP_STYLE = {
+  wordBreak: 'break-all',
+  wordWrap: 'break-word'
+};
+
+const ROW_STYLE = {
+  paddingBottom: 10
+};
+
+const SELECT_STYLE = {
+  width: 240
+};
+
+const TABLE_STYLE = {
+  width: '100%',
+  overflowX: 'auto'
+};
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -16,12 +40,15 @@ export default class Index extends PureComponent {
       selectedRowKeys: [],
       list: [],
       total: 0,
-      current: 1,
-      pageSize: 6,
+      current: DEFAULT_PAGE,
+      pageSize: DEFAULT_PAGE_SIZE,
       localpaths: {},
       appList: [],
       comList: [],
-      loading: true
+      loading: true,
+      dep_app_group: '',
+      dep_app_name: '',
+      config_name: ''
     };
   }
   componentDidMount() {
@@ -64,7 +91,7 @@ export default class Index extends PureComponent {
   loadUnMntList = (bool = true) => {
     this.setState({
       loading: true
-    })
+    });
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -80,7 +107,7 @@ export default class Index extends PureComponent {
     }).then(data => {
       if (data) {
         if (bool) {
-          this.handleData(data.list)
+          this.handleData(data.list);
         }
         this.setState({
           list: data.list || [],
@@ -88,6 +115,11 @@ export default class Index extends PureComponent {
           loading: false
         });
       }
+    }).catch(err => {
+      handleAPIError(err);
+      this.setState({
+        loading: false
+      });
     });
   };
   handleCancel = () => {
@@ -101,46 +133,66 @@ export default class Index extends PureComponent {
     this.setState({ localpaths: local });
   };
   handleData = (data) => {
-    let appList = [];
-    let comList = [];
-    const result = data.reduce((acc, item) => {
+    const appList = [];
+    const comList = [];
+
+    data.forEach(item => {
       const componentKey = item.dep_app_alias;
       const componentName = item.dep_app_name;
       const appKey = item.dep_group_id;
       const appName = item.dep_app_group;
-      const existingAppComponent = comList.find(app => app.key === componentKey);
-      const existingApp = appList.find(com => com.key === appKey);
+
+      const existingApp = appList.find(app => app.key === appKey);
+      const existingComponent = comList.find(com => com.key === componentKey);
+
       if (!existingApp) {
         appList.push({ key: appKey, value: appName });
       }
-      if (!existingAppComponent) {
+      if (!existingComponent) {
         comList.push({ key: componentKey, value: componentName });
       }
-      return acc;
-    }, {});
+    });
+
     this.setState({
       appList,
       comList
-    })
-  }
-  handleDependChange = (e, bool) => {
-    if (bool === 'dep_app_group') {
-      this.setState({ dep_app_group: e }, () => { this.loadUnMntList(false) })
-    } else if (bool === 'dep_app_name') {
-      this.setState({ dep_app_name: e }, () => { this.loadUnMntList(false) })
-    } else if (bool === 'config_name') {
-      this.setState({ config_name: e }, () => { this.loadUnMntList(false) })
-    }
-  }
+    });
+  };
+  handleDependChange = (e, fieldName) => {
+    this.setState({ [fieldName]: e }, () => {
+      this.loadUnMntList(false);
+    });
+  };
+
+  // 渲染带Tooltip的文本列
+  renderTextColumn = (text) => (
+    <Tooltip title={text}>
+      <span style={WORD_WRAP_STYLE}>
+        {text}
+      </span>
+    </Tooltip>
+  );
+
+  // 渲染带Tooltip和Link的列
+  renderLinkColumn = (text, linkUrl) => (
+    <Tooltip title={text}>
+      <Link to={linkUrl}>
+        <span style={WORD_WRAP_STYLE}>
+          {text}
+        </span>
+      </Link>
+    </Tooltip>
+  );
+
   render() {
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
+      onChange: (selectedRowKeys) => {
         this.setState({
           selectedRowKeys
         });
       }
     };
-    const { total, current, pageSize,loading } = this.state;
+    const { total, current, pageSize, loading } = this.state;
 
     const pagination = {
       onChange: this.handleTableChange,
@@ -157,11 +209,11 @@ export default class Index extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
-        <Row style={{paddingBottom:10}}>
+        <Row style={ROW_STYLE}>
           <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.name'})}
             <Input
-              style={{ width: 240 }}
+              style={SELECT_STYLE}
               onBlur={(e) => this.handleDependChange(e.target.value, 'config_name')}
               placeholder={formatMessage({ id: 'componentOther.relationMnt.file_name' })}
             />
@@ -171,18 +223,14 @@ export default class Index extends PureComponent {
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_app'})}
-              style={{ width: 240 }}
+              style={SELECT_STYLE}
               onChange={(e) => this.handleDependChange(e, 'dep_app_group')}
-
             >
-              {this.state.appList.map(item => {
-                return (
-                  <Select.Option key={item.value} value={item.value}>
-                    {item.value}
-                  </Select.Option>
-                );
-              }
-              )}
+              {this.state.appList.map(item => (
+                <Select.Option key={item.value} value={item.value}>
+                  {item.value}
+                </Select.Option>
+              ))}
             </Select>
           </Col>
           <Col span={8}>
@@ -190,28 +238,25 @@ export default class Index extends PureComponent {
             <Select
               allowClear
               placeholder={formatMessage({id:'componentOther.relationMnt.select_com'})}
-              style={{ width: 240 }}
+              style={SELECT_STYLE}
               onChange={(e) => this.handleDependChange(e, 'dep_app_name')}
             >
-              {this.state.comList.map(item => {
-                return (
-                  <Select.Option key={item.value} value={item.value}>
-                    {item.value}
-                  </Select.Option>
-                )
-              }
-              )}
+              {this.state.comList.map(item => (
+                <Select.Option key={item.value} value={item.value}>
+                  {item.value}
+                </Select.Option>
+              ))}
             </Select>
           </Col>
         </Row>
 
         <Table
           loading={loading}
-          rowKey={(record,index) => index}
+          rowKey={(record, index) => index}
           pagination={pagination}
           dataSource={this.state.list}
           rowSelection={rowSelection}
-          style={{ width: '100%', overflowX: 'auto' }}
+          style={TABLE_STYLE}
           columns={[
             {
               title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.localpath' }),
@@ -232,86 +277,34 @@ export default class Index extends PureComponent {
               dataIndex: 'dep_vol_name',
               key: '2',
               width: '20%',
-              render: (data, index) => (
-                <Tooltip title={data}>
-                  <span
-                    style={{
-                      wordBreak: 'break-all',
-                      wordWrap: 'break-word'
-                    }}
-                  >
-                    {data}
-                  </span>
-                </Tooltip>
-              )
+              render: this.renderTextColumn
             },
             {
               title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.dep_vol_path' }),
               dataIndex: 'dep_vol_path',
               key: '3',
               width: '20%',
-              render: (data, index) => (
-                <Tooltip title={data}>
-                  <span
-                    style={{
-                      wordBreak: 'break-all',
-                      wordWrap: 'break-word'
-                    }}
-                  >
-                    {data}
-                  </span>
-                </Tooltip>
-              )
+              render: this.renderTextColumn
             },
             {
               title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.dep_app_name' }),
               dataIndex: 'dep_app_name',
               key: '5',
               width: '20%',
-              render: (v, data) => {
-                return (
-                  <Tooltip title={v}>
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`}
-                    >
-                      <span
-                        style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {v}
-                      </span>
-                    </Link>
-                  </Tooltip>
-                );
-              }
+              render: (v, data) => this.renderLinkColumn(
+                v,
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id}/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`
+              )
             },
             {
               title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.dep_app_group' }),
               dataIndex: 'dep_app_group',
               key: '6',
               width: '15%',
-              render: (v, data) => {
-                return (
-                  <Tooltip title={v}>
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }/overview`}
-                    >
-                      <span
-                        style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {v}
-                      </span>
-                    </Link>
-                  </Tooltip>
-                );
-              }
+              render: (v, data) => this.renderLinkColumn(
+                v,
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id}/overview`
+              )
             }
           ]}
         />

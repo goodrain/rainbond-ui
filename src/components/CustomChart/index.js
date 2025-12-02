@@ -1,15 +1,8 @@
-/* eslint-disable react/no-redundant-should-component-update */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable prettier/prettier */
-/* eslint-disable array-callback-return */
-/* eslint-disable prettier/prettier */
-/* eslint-disable import/extensions */
-/* eslint-disable react/sort-comp */
 import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import {
   arrayMove,
   SortableContainer,
@@ -19,6 +12,29 @@ import styless from './index.less';
 import RangeChart from './rangeChart';
 
 const { RangePicker } = DatePicker;
+
+// 样式常量
+const GRID_STYLES = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, 1fr)',
+  gridGap: '16px'
+};
+
+const SORTABLE_CONTAINER_STYLE = {
+  marginTop: '20px'
+};
+
+const RANGE_PICKER_STYLE = {
+  width: '390px'
+};
+
+const BUTTON_STYLE = {
+  marginLeft: '5px'
+};
+
+// 时间常量
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const ONE_HOUR_SECONDS = 60 * 60;
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl, loading }) => ({
@@ -31,49 +47,36 @@ const { RangePicker } = DatePicker;
 export default class ChartTitle extends PureComponent {
   constructor(props) {
     super(props);
+    const currentTime = new Date().getTime() / 1000;
     this.state = {
-      start: new Date().getTime() / 1000 - 60 * 60,
-      end: new Date().getTime() / 1000,
+      start: currentTime - ONE_HOUR_SECONDS,
+      end: currentTime,
       isLoading: true,
       isRender: false
     };
   }
 
-  shouldComponentUpdate(nextProps, _nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.moduleName && nextProps.moduleName === 'CustomMonitor') {
-      if (nextProps.isRender || _nextState.isRender) {
+      if (nextProps.isRender || nextState.isRender) {
         return true;
-      } else if (nextProps.RangeData.length == this.props.RangeData.length) {
+      }
+      if (nextProps.RangeData.length === this.props.RangeData.length) {
         return false;
       }
     }
-
     return true;
   }
+  // 禁用未来日期
   disabledDate = current => {
-    // Can not select days before today and today
     return current && current > moment().endOf('day');
   };
 
-  range = (start, end) => {
-    const result = [];
-    for (let i = start; i < end; i++) {
-      result.push(i);
-    }
-    return result;
-  };
-
+  // 触发重新渲染
   queryAll = () => {
-    this.setState(
-      {
-        isRender: true
-      },
-      () => {
-        this.setState({
-          isRender: false
-        });
-      }
-    );
+    this.setState({ isRender: true }, () => {
+      this.setState({ isRender: false });
+    });
   };
 
   onSortEnd = ({ oldIndex, newIndex }, e) => {
@@ -81,23 +84,24 @@ export default class ChartTitle extends PureComponent {
     const { handleSorting, RangeData = [] } = this.props;
     if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
       const arr = arrayMove(RangeData, oldIndex, newIndex);
-      const graphIds = [];
-
-      arr.map(item => {
-        graphIds.push(item.graph_id);
-      });
+      const graphIds = arr.map(item => item.graph_id);
       handleSorting(graphIds);
     }
   };
 
-  handleChangeTimes = values => {
-    let startTime = '';
-    let endTime = '';
+  handleCancelLoading = () => {
+    this.setState({ isLoading: false });
+  };
 
-    if (values && values.length > 1) {
-      startTime = moment(values[0]).valueOf() / 1000;
-      endTime = moment(values[1]).valueOf() / 1000;
+  // 处理时间范围变化
+  handleChangeTimes = values => {
+    if (!values || values.length < 2) {
+      return;
     }
+
+    const startTime = moment(values[0]).valueOf() / 1000;
+    const endTime = moment(values[1]).valueOf() / 1000;
+
     this.setState(
       {
         start: startTime,
@@ -109,6 +113,45 @@ export default class ChartTitle extends PureComponent {
         }
       }
     );
+  };
+
+  // 渲染内容区域
+  renderContent = (moduleName, RangeData, parameter, SortableList) => {
+    if (moduleName === 'ResourceMonitoring') {
+      return (
+        <Row style={{ padding: '-8px' }}>
+          {RangeData.map((item, index) => {
+            const isEven = ((index + 1) % 2) === 0;
+            const padding = isEven ? '8px 0px 8px 8px' : '8px 8px 8px 0';
+            return (
+              <Col span={12} key={item} style={{ padding }}>
+                <RangeChart {...parameter} type={item} />
+              </Col>
+            );
+          })}
+        </Row>
+      );
+    }
+
+    if (moduleName === 'CustomMonitor') {
+      return (
+        <div style={SORTABLE_CONTAINER_STYLE}>
+          <SortableList
+            axis="xy"
+            distance={1}
+            style={{ zIndex: 10 }}
+            items={RangeData}
+            onSortEnd={this.onSortEnd}
+          />
+        </div>
+      );
+    }
+
+    return RangeData.map(item => (
+      <div key={item} style={SORTABLE_CONTAINER_STYLE}>
+        <RangeChart key={item} {...parameter} type={item} />
+      </div>
+    ));
   };
 
   render() {
@@ -146,7 +189,7 @@ export default class ChartTitle extends PureComponent {
             style={{ cursor: 'all-scroll' }}
             {...parameter}
             upData={upData}
-            onCancelLoading={this.setState({ isLoading: false })}
+            onCancelLoading={this.handleCancelLoading}
             isLoading={isLoading}
             serviceId={serviceId}
             isRender={isRender}
@@ -159,87 +202,45 @@ export default class ChartTitle extends PureComponent {
         </div>
       );
     });
-    const gridStyles = {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gridGap: '16px'
-    };
-    const SortableList = SortableContainer(({ items }) => {
-      return (
-        <div style={gridStyles}>
-          {items.map(item => {
-            return (
-              <SortableItem
-                style={{ zIndex: 10 }}
-                key={item.ID}
-                index={item.sequence}
-                value={item}
-              />
-            );
-          })}
-        </div>
-      );
-    });
+
+    const SortableList = SortableContainer(({ items }) => (
+      <div style={GRID_STYLES}>
+        {items.map(item => (
+          <SortableItem
+            style={{ zIndex: 10 }}
+            key={item.ID}
+            index={item.sequence}
+            value={item}
+          />
+        ))}
+      </div>
+    ));
     return (
       <Fragment>
         <Row>
           <Col span={24} className={styless.customBox}>
             <RangePicker
-              separator={<FormattedMessage id='componentOverview.body.tab.monitor.to'/>}
-              style={{ width: '390px' }}
+              separator={<FormattedMessage id='componentOverview.body.tab.monitor.to' />}
+              style={RANGE_PICKER_STYLE}
               disabledDate={this.disabledDate}
-              onChange={value => {
-                this.handleChangeTimes(value);
-              }}
+              onChange={this.handleChangeTimes}
               defaultValue={[
-                moment(
-                  new Date(new Date().getTime() - 1 * 60 * 60 * 1000),
-                  'HH:mm:ss'
-                ),
-                moment(moment(new Date()), 'HH:mm:ss')
+                moment(new Date(new Date().getTime() - ONE_HOUR_MS), 'HH:mm:ss'),
+                moment(new Date(), 'HH:mm:ss')
               ]}
               showTime={{
                 hideDisabledOptions: true
               }}
               format="YYYY-MM-DD HH:mm:ss"
             />
-            <Button style={{ marginLeft: '5px' }} onClick={this.queryAll}>
-              {/* 查询 */}
-              <FormattedMessage id='componentOverview.body.tab.monitor.query'/>
+            <Button style={BUTTON_STYLE} onClick={this.queryAll}>
+              <FormattedMessage id='componentOverview.body.tab.monitor.query' />
             </Button>
             {operation}
           </Col>
         </Row>
 
-        {moduleName === 'ResourceMonitoring' ? (
-          <Row style={{ padding: '-8px' }}>
-            {RangeData.map((item, index) => {
-              return (
-                <Col span={12} key={item} style={{ padding: ((index+ 1) % 2) == 0 ? '8px 0px 8px 8px':'8px 8px 8px 0 ' }}>
-                  <RangeChart {...parameter} type={item} />
-                </Col>
-              );
-            })}
-          </Row>
-        ) : moduleName === 'CustomMonitor' ? (
-          <div style={{ marginTop: '20px' }}>
-            <SortableList
-              axis="xy"
-              distance={1}
-              style={{ zIndex: 10 }}
-              items={RangeData}
-              onSortEnd={this.onSortEnd}
-            />
-          </div>
-        ) : (
-          RangeData.map(item => {
-            return (
-              <div style={{ marginTop: '20px' }}>
-                <RangeChart key={item} {...parameter} type={item} />
-              </div>
-            );
-          })
-        )}
+        {this.renderContent(moduleName, RangeData, parameter, SortableList)}
       </Fragment>
     );
   }
