@@ -1,15 +1,16 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider } from 'antd';
+import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider, Progress } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/newRole'
 import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
+import ChunkUploader from '../../utils/ChunkUploader';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
@@ -48,7 +49,12 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       comNames: [],
       creatComPermission: {},
-      isDisabledUpload: false
+      isDisabledUpload: false,
+      uploadMode: 'normal', // 'normal' 或 'chunk'
+      chunkUploadProgress: 0,
+      isChunkUploading: false,
+      currentFile: null,
+      chunkUploader: null
     };
   }
   componentWillMount() {
@@ -243,6 +249,154 @@ export default class Index extends PureComponent {
   onRemove = () => {
     this.setState({ fileList: [], isDisabledUpload: false });
   };
+
+  // 切换上传方式
+  onUploadModeChange = (e) => {
+    this.setState({ uploadMode: e.target.value });
+  };
+
+  // 处理分片上传文件选择
+  handleChunkFileSelect = (file) => {
+    const { event_id, record } = this.state;
+
+    // 检查文件类型
+    const allowedTypes = ['.jar', '.war', '.zip', '.tar'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedTypes.includes(fileExt)) {
+      message.error('只支持 .jar、.war、.zip、.tar 格式的文件');
+      return false;
+    }
+
+    this.setState({ currentFile: file });
+
+    // 创建 ChunkUploader 实例
+    const uploader = new ChunkUploader(file, event_id, {
+      uploadUrl: record.upload_url, // 使用后端返回的 upload_url
+      chunkSize: 5 * 1024 * 1024, // 5MB
+      concurrency: 5
+    });
+
+    this.setState({ chunkUploader: uploader });
+
+    // 阻止默认上传行为
+    return false;
+  };
+
+  // 开始分片上传
+  handleStartChunkUpload = async () => {
+    const { chunkUploader, currentFile } = this.state;
+    const { form } = this.props;
+
+    if (!currentFile) {
+      message.warning('请先选择文件');
+      return;
+    }
+
+    if (!chunkUploader) {
+      message.error('上传器初始化失败');
+      return;
+    }
+
+    this.setState({ isChunkUploading: true, chunkUploadProgress: 0 });
+
+    try {
+      await chunkUploader.upload((progress) => {
+        this.setState({ chunkUploadProgress: progress });
+      });
+
+      notification.success({
+        message: formatMessage({ id: 'notification.success.upload_file' })
+      });
+
+      // 设置虚拟文件列表，与普通上传保持一致
+      const virtualFileList = [{
+        uid: '-1',
+        name: currentFile.name,
+        status: 'done',
+        response: { msg: 'success' }
+      }];
+
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 100,
+        existFileList: [currentFile.name],
+        isDisabledUpload: true,
+        fileList: virtualFileList
+      });
+
+      // 设置表单字段值，与普通上传保持一致
+      form.setFieldsValue({
+        packageTarFile: virtualFileList
+      });
+
+      // 刷新上传状态
+      this.handleJarWarUploadStatus();
+    } catch (error) {
+      console.error('分片上传失败:', error);
+      message.error('上传失败: ' + (error.message || '未知错误'));
+      this.setState({ isChunkUploading: false });
+    }
+  };
+
+  // 暂停分片上传
+  handlePauseChunkUpload = () => {
+    const { chunkUploader } = this.state;
+    if (chunkUploader) {
+      chunkUploader.pause();
+      this.setState({ isChunkUploading: false });
+      message.info('上传已暂停');
+    }
+  };
+
+  // 继续分片上传（断点续传）
+  handleResumeChunkUpload = async () => {
+    const { chunkUploader } = this.state;
+
+    if (!chunkUploader) {
+      message.error('未找到上传任务');
+      return;
+    }
+
+    this.setState({ isChunkUploading: true });
+
+    try {
+      await chunkUploader.resume((progress) => {
+        this.setState({ chunkUploadProgress: progress });
+      });
+
+      notification.success({
+        message: '断点续传完成'
+      });
+
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 100
+      });
+
+      // 刷新上传状态
+      this.handleJarWarUploadStatus();
+    } catch (error) {
+      console.error('断点续传失败:', error);
+      message.error('续传失败: ' + (error.message || '未知错误'));
+      this.setState({ isChunkUploading: false });
+    }
+  };
+
+  // 取消分片上传
+  handleCancelChunkUpload = async () => {
+    const { chunkUploader } = this.state;
+
+    if (chunkUploader) {
+      await chunkUploader.cancel();
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 0,
+        currentFile: null,
+        chunkUploader: null
+      });
+      message.info('上传已取消');
+    }
+  };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
@@ -350,33 +504,109 @@ export default class Index extends PureComponent {
             </Form.Item>
             <Form.Item
               {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
-              extra={formatMessage({ id: 'teamAdd.create.upload.uploadJWar' })}
+              label="上传方式"
             >
-              {getFieldDecorator('packageTarFile', {
-                rules: [
-
-                ]
-              })(
-                <Upload
-                  disabled={existFileList.length === 1}
-                  fileList={fileList}
-                  accept=".jar,.war,.zip,.tar"
-                  name="packageTarFile"
-                  onChange={this.onChangeUpload}
-                  onRemove={this.onRemove}
-                  action={record.upload_url}
-                  headers={myheaders}
-                  maxCount={1}
-                  multiple={false}
-                >
-                  <Button disabled={isDisabledUpload || existFileList.length === 1}>
-                    <Icon type="upload" />
-                    {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
-                  </Button>
-                </Upload>
-              )}
+              <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
+                <Radio value="normal">普通上传</Radio>
+                <Radio value="chunk">断点续传</Radio>
+              </Radio.Group>
             </Form.Item>
+
+            {this.state.uploadMode === 'normal' ? (
+              <Form.Item
+                {...is_language}
+                label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+                extra={formatMessage({ id: 'teamAdd.create.upload.uploadJWar' })}
+              >
+                {getFieldDecorator('packageTarFile', {
+                  rules: [
+
+                  ]
+                })(
+                  <Upload
+                    disabled={existFileList.length === 1}
+                    fileList={fileList}
+                    accept=".jar,.war,.zip,.tar"
+                    name="packageTarFile"
+                    onChange={this.onChangeUpload}
+                    onRemove={this.onRemove}
+                    action={record.upload_url}
+                    headers={myheaders}
+                    maxCount={1}
+                    multiple={false}
+                  >
+                    <Button disabled={isDisabledUpload || existFileList.length === 1}>
+                      <Icon type="upload" />
+                      {formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+                    </Button>
+                  </Upload>
+                )}
+              </Form.Item>
+            ) : (
+              <Fragment>
+                <Form.Item
+                  {...is_language}
+                  label={formatMessage({ id: 'teamAdd.create.upload.uploadFiles' })}
+                  extra={formatMessage({ id: 'teamAdd.create.upload.uploadJWar' })}
+                >
+                  {getFieldDecorator('packageTarFile', {
+                    rules: [
+                    ]
+                  })(
+                    <>
+                      <Upload
+                        disabled={existFileList.length === 1}
+                        accept=".jar,.war,.zip,.tar"
+                        beforeUpload={this.handleChunkFileSelect}
+                        maxCount={1}
+                        showUploadList={false}
+                      >
+                        <Button disabled={existFileList.length === 1}>
+                          <Icon type="upload" /> 选择文件
+                        </Button>
+                      </Upload>
+                      {this.state.currentFile && (
+                        <div style={{ marginTop: 10 }}>
+                          <div>
+                            <Icon type="file" style={{ marginRight: 8 }} />
+                            {this.state.currentFile.name}
+                            <span style={{ marginLeft: 8, color: '#999' }}>
+                              ({(this.state.currentFile.size / 1024 / 1024).toFixed(2)} MB)
+                            </span>
+                          </div>
+                          <div style={{ marginTop: 10 }}>
+                            <Progress
+                              percent={Math.floor(this.state.chunkUploadProgress)}
+                              status={this.state.isChunkUploading ? 'active' : 'normal'}
+                            />
+                          </div>
+                          <div style={{ marginTop: 10 }}>
+                            {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
+                              <Button type="primary" onClick={this.handleStartChunkUpload}>
+                                开始上传
+                              </Button>
+                            )}
+                            {this.state.isChunkUploading && (
+                              <Button onClick={this.handlePauseChunkUpload}>
+                                暂停
+                              </Button>
+                            )}
+                            {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
+                              <Button type="primary" onClick={this.handleResumeChunkUpload}>
+                                继续上传
+                              </Button>
+                            )}
+                            <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
+                              取消
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </Form.Item>
+              </Fragment>
+            )}
             <Form.Item
               {...is_language}
               label={formatMessage({ id: 'teamAdd.create.fileList' })}
