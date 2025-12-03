@@ -90,7 +90,7 @@ export async function createJarWarServices(body = {}) {
 export async function createJarWarUploadStatus(
   body = { enterprise_id, event_id },
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
@@ -109,7 +109,7 @@ export async function createJarWarUploadStatus(
 export async function deleteJarWarUploadStatus(
   body = { enterprise_id, event_id },
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
@@ -125,9 +125,9 @@ export async function deleteJarWarUploadStatus(
    Jar、War包上传文件记录
 */
 export async function createJarWarUploadRecord(
-  body = { },
+  body = {},
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/last-record`,
     {
@@ -308,7 +308,7 @@ export function getCreateCheckId(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
       method: 'post',
-      data:{
+      data: {
         event_id: body.event_id
       },
       handleError
@@ -317,7 +317,7 @@ export function getCreateCheckId(body = {}, handleError) {
 }
 
 /*
-	获取应用检测结果
+  获取应用检测结果
 */
 export function getCreateCheckResult(body = {}) {
   return request(
@@ -383,13 +383,13 @@ export function buildApp(body = {}, handleError) {
 
 /*
   Node项目设置语言和依赖
-*/ 
+*/
 export async function setNodeLanguage(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/package_tool`,
     {
       method: 'post',
-      data:{
+      data: {
         lang: body.lang,
         package_tool: body.package_tool,
         dist: body.dist
@@ -580,10 +580,10 @@ export async function helmAppInstall(body = {}, handleError) {
     {
       method: 'get',
       params: {
-        name:body.name,
-        version:body.version,
-        repo_name:body.repo_name,
-        chart_name:body.chart_name,
+        name: body.name,
+        version: body.version,
+        repo_name: body.repo_name,
+        chart_name: body.chart_name,
         app_id: body.app_id
       },
       handleError
@@ -686,7 +686,7 @@ export async function updateCustomLanguage(body = {}, handleError) {
       params: {
         lang: body.lang
       },
-      data:{
+      data: {
         dockerfile_path: body.dockerfile_path || ""
       }
     }
@@ -710,6 +710,9 @@ export async function initChunkUpload(body = {}, handleError) {
         file_md5: body.file_md5,
         chunk_size: body.chunk_size
       },
+      headers: {
+        accept: '*/*'
+      },
       handleError
     }
   );
@@ -732,6 +735,9 @@ export async function uploadChunk(body = {}, handleError) {
     {
       method: 'post',
       data: formData,
+      headers: {
+        accept: '*/*'
+      },
       handleError
     }
   );
@@ -750,6 +756,9 @@ export async function completeChunkUpload(body = {}, handleError) {
       data: {
         session_id: body.session_id
       },
+      headers: {
+        accept: '*/*'
+      },
       handleError
     }
   );
@@ -765,6 +774,9 @@ export async function getChunkUploadStatus(body = {}, handleError) {
     `${baseUrl}/upload/status/${body.session_id}`,
     {
       method: 'get',
+      headers: {
+        accept: '*/*'
+      },
       handleError
     }
   );
@@ -780,6 +792,9 @@ export async function cancelChunkUpload(body = {}, handleError) {
     `${baseUrl}/upload/${body.session_id}`,
     {
       method: 'delete',
+      headers: {
+        accept: '*/*'
+      },
       handleError
     }
   );
