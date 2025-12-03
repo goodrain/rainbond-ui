@@ -14,7 +14,18 @@ class ChunkUploader {
   constructor(file, eventID, options = {}) {
     this.file = file;
     this.eventID = eventID;
-    this.uploadUrl = options.uploadUrl || ''; // 上传 URL
+    // 从 uploadUrl 中提取路径部分（去除域名，避免跨域）
+    console.log('options.uploadUrl:', options.uploadUrl);
+    this.uploadUrl = options.uploadUrl || '';
+    // if (this.uploadUrl) {
+    //   try {
+    //     const url = new URL(this.uploadUrl);
+    //     this.uploadUrl = url.pathname + url.search + url.hash;
+    //   } catch (error) {
+    //     // 如果已经是相对路径格式，保持不变
+    //   }
+    // }
+    // console.log('Processed uploadUrl:', this.uploadUrl);
     this.sessionID = null;
     this.chunkSize = options.chunkSize || 5 * 1024 * 1024; // 默认5MB
     this.concurrency = options.concurrency || 5; // 默认5个并发
@@ -73,9 +84,9 @@ class ChunkUploader {
           session_id: this.sessionID
         });
 
-        if (res && res.bean && res.bean.data) {
-          this.uploadedChunks = res.bean.data.uploaded_chunks || [];
-          this.totalChunks = res.bean.data.total_chunks || 0;
+        if (res && res.response_data && res.response_data.bean) {
+          this.uploadedChunks = res.response_data.bean.uploaded_chunks || [];
+          this.totalChunks = res.response_data.bean.total_chunks || 0;
 
           // 更新进度
           if (this.onProgress) {
@@ -138,9 +149,10 @@ class ChunkUploader {
       file_size: this.file.size,
       chunk_size: this.chunkSize
     });
-
-    if (res && res.bean && res.bean.data) {
-      const data = res.bean.data;
+    console.log('initSession response:', res);
+    
+    if (res && res.response_data && res.response_data.bean) {
+      const data = res.response_data.bean;
       this.sessionID = data.session_id;
       this.totalChunks = data.total_chunks;
       this.uploadedChunks = data.uploaded_chunks || [];
@@ -233,7 +245,7 @@ class ChunkUploader {
       file: chunk
     });
 
-    if (res && res.bean && res.bean.data) {
+    if (res && res.response_data && res.response_data.bean) {
       // 更新已上传分片列表
       if (!this.uploadedChunks.includes(chunkIndex)) {
         this.uploadedChunks.push(chunkIndex);
@@ -259,8 +271,8 @@ class ChunkUploader {
       session_id: this.sessionID
     });
 
-    if (res && res.bean && res.bean.data) {
-      return res.bean.data.file_path;
+    if (res && res.response_data && res.response_data.bean) {
+      return res.response_data.bean.file_path;
     } else {
       throw new Error('完成上传失败');
     }
@@ -280,8 +292,8 @@ class ChunkUploader {
       session_id: this.sessionID
     });
 
-    if (res && res.bean && res.bean.data) {
-      return res.bean.data;
+    if (res && res.response_data && res.response_data.bean) {
+      return res.response_data.bean;
     }
 
     return null;
