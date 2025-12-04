@@ -1598,7 +1598,6 @@ export default class Enterprise extends PureComponent {
                 name={"authorization_code"}
                 message={formatMessage({ id: 'notification.hint.confiuration.editContent' })}
                 data={authorizationCode}
-                mode={'yaml'}
               />
             </Form>
           </Modal>
