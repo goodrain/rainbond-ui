@@ -26,7 +26,6 @@ import { routerRedux } from 'dva/router';
 import ScrollerX from '../ScrollerX';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/default_Avatar.png';
-import wechat from '../../../public/images/wechat.png';
 import { setNewbieGuide, fetchAllVersion } from '../../services/api';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
@@ -342,6 +341,8 @@ export default class GlobalHeader extends PureComponent {
     );
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
+    const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     return (
       <ScrollerX sm={900}>
         <Header className={styles.header}>
@@ -350,7 +351,7 @@ export default class GlobalHeader extends PureComponent {
             {customHeader && customHeader()}
           </div>
           <div className={styles.right}>
-            {showBill && (
+            {showAppMarket && showBill && (
               <a
                 className={styles.platform}
                 style={{ color: '#fff', fontSize: '14px', fontWeight: '600',}}
@@ -414,7 +415,7 @@ export default class GlobalHeader extends PureComponent {
                 <Popover
                   content={
                     <div className={styles.wechat}>
-                      <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={wechat} alt='客服' />
+                      <img style={{ width: '120px', height: '120px', marginTop: '12px' }} src={customerServiceQrcode || ''} alt='客服' />
                       <p>{formatMessage({ id: 'CustomerFloat.wechat_desc' })}</p>
                     </div>
                   }
