@@ -35,7 +35,8 @@ import licenseUtil from '../../utils/license';
 import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 
 

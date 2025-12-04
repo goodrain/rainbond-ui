@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Card } from 'antd';
 import { routerRedux } from 'dva/router';

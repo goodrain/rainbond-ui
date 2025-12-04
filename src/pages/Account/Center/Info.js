@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import router from 'umi/router';
-import {formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { history } from 'umi';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import rainbondUtil from '../../../utils/rainbond';
@@ -81,7 +82,7 @@ class Info extends Component {
   };
 
   selectKey = ({ key }) => {
-    router.push(`/account/center/${key}`);
+    history.push(`/account/center/${key}`);
     this.setState({
       selectKey: key,
     });

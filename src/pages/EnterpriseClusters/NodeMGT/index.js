@@ -4,7 +4,7 @@ import {
   Col,
   notification
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import NodeInfo from '../../../components/NodeMgtInfo'

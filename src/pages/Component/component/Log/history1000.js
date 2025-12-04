@@ -7,7 +7,8 @@ import { Icon, Modal, Button } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import styles from './Log.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect(null, null, null, { withRef: true })
 /** 

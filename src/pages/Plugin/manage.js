@@ -7,7 +7,7 @@ import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddOrEditConfig from '../../components/AddOrEditConfig';
 import BuildPluginVersion from '../../components/buildPluginVersion';
 import ConfirmModal from '../../components/ConfirmModal';

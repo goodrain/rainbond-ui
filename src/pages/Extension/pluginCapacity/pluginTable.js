@@ -2,7 +2,8 @@ import { Tabs, Card, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, E
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
 import VisterBtn from '../../../components/visitBtnForAlllink';

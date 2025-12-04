@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import {Card, Empty} from 'antd';
 class HealthAttribute extends PureComponent {
     constructor(props) {

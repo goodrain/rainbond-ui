@@ -10,7 +10,8 @@ import MonitorHistory from './component/monitor/pahistoryshow';
 import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
 import TraceShow from './component/monitor/trace';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const ButtonGroup = Button.Group;
 

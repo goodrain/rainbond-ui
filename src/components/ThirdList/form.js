@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';

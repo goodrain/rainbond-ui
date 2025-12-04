@@ -3,7 +3,7 @@
 import { Button, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import { getCodeBranchs } from '../../services/createApp';
 import { getGithubInfo } from '../../services/team';

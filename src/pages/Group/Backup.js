@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
 
 export default class Backup extends Component {

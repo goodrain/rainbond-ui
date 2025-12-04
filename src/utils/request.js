@@ -9,10 +9,11 @@ import axios from 'axios';
 // import store from "../index";
 // import store from '@/index'
 // const { dispatch } = store;
-import { push } from 'umi/router';
+import { history } from 'umi';
+
 import globalUtil from '../utils/global';
 import cookie from './cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const codeMessage = {
   200: `${formatMessage({id:'utils.request.back_data'})}`,
@@ -50,10 +51,12 @@ function checkStatus(response) {
 }
 
 function handleStoreDispatch(type, payload = {}) {
-  window.g_app._store.dispatch({
-    type,
-    payload
-  });
+  if (window.g_app && window.g_app._store) {
+    window.g_app._store.dispatch({
+      type,
+      payload
+    });
+  }
 }
 
 function handleData(response) {
@@ -152,17 +155,19 @@ export default function request(url, options) {
   const showLoading =
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
-  showLoading &&
+  if (showLoading && window.g_app && window.g_app._store) {
     window.g_app._store.dispatch({
       type: 'global/showLoading'
     });
+  }
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
-      showLoading &&
+      if (showLoading && window.g_app && window.g_app._store) {
         window.g_app._store.dispatch({
           type: 'global/hiddenLoading'
         });
+      }
       return handleData(response);
     })
     .catch(error => {
@@ -247,7 +252,7 @@ export default function request(url, options) {
           if (code === 10406 || code === 10413 || code === 20800) {
             const AppID = globalUtil.getAppID(url);
             if (TEAM_NAME && REGION_NAME && AppID) {
-              push(
+              history.push(
                 `/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`
                 
               );
@@ -271,7 +276,7 @@ export default function request(url, options) {
           const msg = resData.msg_show || resData.msg || resData.detail;
           if (msg && newOptions.showMessage === true) {
             if (msg.indexOf('身份认证信息未提供') > -1) {
-              push({ type: 'global/showNeedLogin' });
+              history.push({ type: 'global/showNeedLogin' });
               return;
             }
             notification.warning({ message: formatMessage({id:'utils.request.warning'}), description: msg });

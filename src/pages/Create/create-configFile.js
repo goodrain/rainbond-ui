@@ -4,7 +4,7 @@ import { Button, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Icon } from 'antd';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';

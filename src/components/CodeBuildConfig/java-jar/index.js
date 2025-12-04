@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
 import JavaJDK from "../java-jdk";

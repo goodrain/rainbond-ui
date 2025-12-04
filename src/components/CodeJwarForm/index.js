@@ -5,7 +5,8 @@ import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notifi
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/newRole'
 import globalUtil from '../../utils/global'

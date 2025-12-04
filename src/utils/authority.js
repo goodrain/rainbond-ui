@@ -1,5 +1,5 @@
 // use localStorage to store the authority info, which might be sent from server in actual project.
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 export function getAuthority() {
   return localStorage.getItem('antd-pro-authority') || 'admin';
 }

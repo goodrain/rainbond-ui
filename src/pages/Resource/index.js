@@ -6,7 +6,8 @@ import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from '
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from "../../utils/global"
 import roleUtil from '../../utils/newRole';
 import jsYaml from 'js-yaml'

@@ -1,6 +1,7 @@
 import { Button, Form, Modal } from 'antd';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import appProbeUtil from '../../../utils/appProbe-util';
 
 const FormItem = Form.Item;

@@ -9,7 +9,8 @@ import React, { PureComponent } from 'react';
 import { getServiceLog } from '../../services/app';
 import globalUtil from '../../utils/global';
 import styles from './Log.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect(null, null, null, { withRef: true })
 /** 

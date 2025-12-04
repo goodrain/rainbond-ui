@@ -8,7 +8,7 @@ import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
 import { routerRedux } from 'dva/router';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;

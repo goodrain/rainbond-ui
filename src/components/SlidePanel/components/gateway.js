@@ -3,7 +3,7 @@ import PageHeader from '../../ComponentPageHeader'
 import globalUtil from '@/utils/global';
 import { Spin } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import GatewayCertificate from '../../../pages/NewGateway/GatewayCertificate';
 import GatewayRoute from '../../../pages/NewGateway/GatewayRoute';
 import GatewayService from '../../../pages/NewGateway/GatewayService';

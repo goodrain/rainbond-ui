@@ -18,7 +18,8 @@ import {
   Skeleton,
   Tag
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import copy from 'copy-to-clipboard';

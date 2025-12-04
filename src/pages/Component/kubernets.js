@@ -1,7 +1,8 @@
 import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import DApvcinput from '../../components/DApvcinput';
 import globalUtil from '../../utils/global';

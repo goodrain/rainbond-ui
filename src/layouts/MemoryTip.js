@@ -1,7 +1,7 @@
 import { Modal } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 // 提示充值或购买资源
 @connect(({ global }) => ({

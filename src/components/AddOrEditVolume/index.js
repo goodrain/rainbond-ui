@@ -16,7 +16,8 @@ import pluginUtil from '../../utils/plugin';
 import pluginUtils from '../../utils/pulginUtils';
 import PriceCard from '../../components/PriceCard';
 import cookie from '../../utils/cookie';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 
 const FormItem = Form.Item;

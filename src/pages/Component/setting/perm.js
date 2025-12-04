@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { Form, Modal } from "antd";
 import RolePermsSelect from "../../../components/RolePermsSelect";
 

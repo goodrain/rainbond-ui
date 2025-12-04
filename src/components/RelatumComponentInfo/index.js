@@ -14,7 +14,8 @@ import {
   removeRelationedApp
 } from '../../services/app';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less'
 
 // eslint-disable-next-line react/no-redundant-should-component-update

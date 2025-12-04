@@ -3,7 +3,7 @@ import { Card, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CommandMarketForm from '../../components/CommandMarketForm';
 import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';

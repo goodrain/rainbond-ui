@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import { Button, Col, Input, Row } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 class KvInput extends Component {
   constructor(props) {

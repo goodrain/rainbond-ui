@@ -8,7 +8,7 @@ import {
   import moment from 'moment';
   import copy from 'copy-to-clipboard';
   import React, { Fragment, PureComponent } from 'react';
-  import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
   import styles from './index.less'
   
   @connect()

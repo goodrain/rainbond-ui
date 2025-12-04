@@ -18,7 +18,8 @@ import { connect } from 'dva';
 import { getUnRelationedApp } from '../../services/app';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const { Option } = Select;

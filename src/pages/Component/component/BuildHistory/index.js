@@ -21,7 +21,8 @@ import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import LogShow from '../LogShow';
 import Svg from '../../../../utils/pageHeaderSvg'
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect(({ appControl, teamControl }) => ({
   appDetail: appControl.appDetail,

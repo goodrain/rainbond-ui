@@ -15,7 +15,8 @@ import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import PulginUtiles from '../../utils/pulginUtils'
 
 

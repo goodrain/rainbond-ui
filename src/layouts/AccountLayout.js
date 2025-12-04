@@ -6,7 +6,7 @@ import { enquireScreen } from 'enquire-js';
 import CustomFooter from './CustomFooter';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';

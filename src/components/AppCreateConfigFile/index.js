@@ -18,7 +18,7 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
 import ScrollerX from '../../components/ScrollerX';

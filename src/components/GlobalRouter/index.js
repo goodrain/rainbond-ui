@@ -4,7 +4,7 @@ import { Icon, Menu,Button } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import CollectionView from '../SiderMenu/CollectionView';

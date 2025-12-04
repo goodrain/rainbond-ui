@@ -2,7 +2,8 @@
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import ClusterProgressQuery from '../ClusterProgressQuery';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 
 @connect(({ global }) => ({

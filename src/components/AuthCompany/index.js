@@ -25,7 +25,8 @@ import {
 import axios from 'axios';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';

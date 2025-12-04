@@ -3,7 +3,7 @@ import { Button, Card, Icon, List, Modal, notification, Col, Tooltip, Form, Sele
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import Ellipsis from '../../components/Ellipsis';
 import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';

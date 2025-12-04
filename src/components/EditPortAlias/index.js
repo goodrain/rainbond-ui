@@ -1,5 +1,5 @@
 import React, { PureComponent, Fragment } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from "dva";
 import {
   Row,

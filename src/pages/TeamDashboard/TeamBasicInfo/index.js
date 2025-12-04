@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Switch, Dropdown, Menu, Tooltip, Radio, Icon, Divider } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
 import NewbieGuiding from '../../../components/NewbieGuiding';

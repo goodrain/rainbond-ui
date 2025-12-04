@@ -2,7 +2,7 @@ import { connect } from 'dva';
 import { Spin, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'
 // import HttpTable from '../../components/HttpTable';

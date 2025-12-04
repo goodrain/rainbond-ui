@@ -13,7 +13,7 @@ import {
     Input
 } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { routerRedux } from 'dva/router';

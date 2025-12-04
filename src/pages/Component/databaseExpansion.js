@@ -23,7 +23,8 @@ import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/pulginUtils';
 import licenseUtil from '../../utils/license';
 import styles from './Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 
 // KubeBlocks Component 定制组件, source: ./src/pages/Component/expansion.js

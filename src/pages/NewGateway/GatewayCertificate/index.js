@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
 import { Tabs } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ManualIssuance from './ManualIssuance';
 import GlobalUtil from '../../../utils/global';
 import AutomaticIssuance from './AutomaticIssuance';

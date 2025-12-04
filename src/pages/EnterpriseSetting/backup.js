@@ -24,7 +24,8 @@ import cookie from '../../utils/cookie';
 import download from '../../utils/download';
 import sourceUtil from '../../utils/source-unit';
 import ScrollerX from '../../components/ScrollerX';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const FormItem = Form.Item;

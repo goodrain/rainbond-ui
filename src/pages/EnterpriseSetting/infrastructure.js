@@ -15,7 +15,8 @@ import PlatformBasicInformationForm from '../../components/PlatformBasicInformat
 import ScrollerX from '../../components/ScrollerX';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import OauthTable from './oauthTable';
 
 @connect(({ user, list, loading, global, index }) => ({

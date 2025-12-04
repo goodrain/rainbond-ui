@@ -7,7 +7,8 @@ import { Button, Form, Input, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import JavaJDK from '../java-jdk';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;

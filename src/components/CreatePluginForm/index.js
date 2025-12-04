@@ -2,7 +2,7 @@ import MemoryForm from '@/components/MemoryForm';
 import { Button, Checkbox, Col, Form, Input, Radio, Row, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ShowRegionKey from '../ShowRegionKey';
 
 const RadioGroup = Radio.Group;

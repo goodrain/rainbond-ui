@@ -1,7 +1,7 @@
 import { Button, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import roleUtil from '../../utils/role';
 import AddMember from '../AddMember';
 import styles from '../CreateTeam/index.less';

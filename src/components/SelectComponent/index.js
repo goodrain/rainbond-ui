@@ -2,7 +2,8 @@ import { Dropdown, Icon, Input } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import style from '../SelectTeam/index.less';
 
 @connect(({ user, appControl }) => ({

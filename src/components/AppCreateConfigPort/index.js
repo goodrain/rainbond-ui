@@ -20,7 +20,8 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddOrEditVMVolume from '../../components/AddOrEditVMVolume'
 import AddPort from '../../components/AddPort';

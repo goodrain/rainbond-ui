@@ -5,7 +5,8 @@
 import { Input, Modal, notification, Table, Tooltip, Row, Col, Select } from 'antd';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 

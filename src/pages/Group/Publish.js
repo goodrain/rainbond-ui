@@ -12,7 +12,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';

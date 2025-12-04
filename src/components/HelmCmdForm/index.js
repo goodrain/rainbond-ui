@@ -3,7 +3,7 @@
 import { Button, Form, Input, Select, Alert, List, Tooltip, Popover, Table, Radio, Upload, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { pinyin } from 'pinyin-pro';
 import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';

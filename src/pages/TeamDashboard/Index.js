@@ -20,7 +20,7 @@ import { Link } from 'dva/router';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '../../components/ScrollerX';
 import TeamBasicInfo from './TeamBasicInfo';
 import globalUtil from '../../utils/global';

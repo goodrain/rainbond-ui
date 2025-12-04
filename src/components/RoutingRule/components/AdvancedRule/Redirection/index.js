@@ -8,7 +8,7 @@ import {
     Card
 } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less'
 const { Option } = Select;
 class DAinputs extends Component {

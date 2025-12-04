@@ -18,7 +18,7 @@ import {
 import moment from 'moment';
 import PropTypes, { string } from 'prop-types';
 import globalUtil from '@/utils/global';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const { RangePicker } = DatePicker;
 // 主功能组件

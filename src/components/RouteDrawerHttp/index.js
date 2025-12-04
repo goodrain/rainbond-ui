@@ -1,7 +1,7 @@
 import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
 import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, Tooltip, Modal, Alert, Popover } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import teamUtil from '../../utils/team';

@@ -1,7 +1,7 @@
 import { Card, notification, Button, Modal, Select, message } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../../utils/global';
 import AddMember from '../../AddMember';
 import ConfirmModal from '../../ConfirmModal';

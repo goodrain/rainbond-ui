@@ -2,7 +2,7 @@ import { Tabs, Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Plugin from './pluginTable'
 import Capacity from './capacityTable'
 import ScrollerX from '@/components/ScrollerX';

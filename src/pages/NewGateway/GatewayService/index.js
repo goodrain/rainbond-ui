@@ -12,7 +12,7 @@ import {
   Popconfirm,
   Tag
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ServiceDrawer from '../../../components/ServiceDrawer';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';

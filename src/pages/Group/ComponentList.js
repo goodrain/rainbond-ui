@@ -18,7 +18,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import { batchOperation } from '../../services/app';

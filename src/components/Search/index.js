@@ -1,7 +1,7 @@
 import { Button, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 

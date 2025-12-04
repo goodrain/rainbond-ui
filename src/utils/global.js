@@ -5,7 +5,8 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import cookie from './cookie';
 import PublicColor from '../../config/theme';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+import { FormattedMessage } from 'umi';
 import styles from './utils.less';
 
 const global = {

@@ -4,7 +4,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import ShowRegionKey from '../../components/ShowRegionKey';
 import globalUtil from '../../utils/global';

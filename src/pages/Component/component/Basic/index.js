@@ -8,7 +8,8 @@ import moment from 'moment';
 import Svg from '../../../../utils/pageHeaderSvg.js';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @Form.create()
 class Index extends PureComponent {

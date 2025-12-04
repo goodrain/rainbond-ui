@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { Link } from 'umi';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import SVG from '../../utils/pageHeaderSvg'
 import globalUtil from '../../utils/global'
 import styles from "./index.less"

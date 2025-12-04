@@ -1,4 +1,4 @@
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const categoryMap = {
   'net-plugin:up': formatMessage({id:'utils.plugin.up'}),
   'net-plugin:in-and-out': formatMessage({id:'utils.plugin.in-and-out'}),

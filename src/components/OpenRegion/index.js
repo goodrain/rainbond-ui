@@ -1,7 +1,7 @@
 import { Alert, Button, Card, Modal, notification, Table } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { unOpenRegion } from '../../services/team';
 import globalUtil from '../../utils/global';
 

@@ -6,7 +6,7 @@ import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input, Select 
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';

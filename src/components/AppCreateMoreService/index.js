@@ -18,7 +18,7 @@ import {
   notification
 } from "antd";
 import { connect } from "dva";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { routerRedux } from "dva/router";
 import globalUtil from "../../utils/global";
 import httpResponseUtil from "../../utils/httpResponse";

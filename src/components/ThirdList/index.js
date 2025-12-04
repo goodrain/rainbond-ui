@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import App from '../../../public/images/code.svg';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';

@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';

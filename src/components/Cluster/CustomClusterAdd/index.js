@@ -1,7 +1,8 @@
 import { Col, Form, Input, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cloud from '../../../utils/cloud';
 import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';

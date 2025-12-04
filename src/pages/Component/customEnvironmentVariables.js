@@ -14,7 +14,8 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AddStorage from '../../components/AddStorage';
 import RelationMnt from '../../components/AddStorage/relationMnt';
 import ConfirmModal from '../../components/ConfirmModal';

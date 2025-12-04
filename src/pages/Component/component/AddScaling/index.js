@@ -6,7 +6,8 @@ import Shangxian from '../../../../../public/images/shangxian.png';
 import Testimg from '../../../../../public/images/test.png';
 import cookie from '../../../../utils/cookie';
 import styles from './AddScaling.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const { Option } = Select;

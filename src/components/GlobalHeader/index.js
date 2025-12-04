@@ -19,8 +19,8 @@ import {
   Popover
 } from 'antd';
 import { connect } from 'dva';
-import { setLocale, getLocale, } from 'umi/locale'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { setLocale, getLocale, FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
 // import Debounce from 'lodash-decorators/debounce';
 import ScrollerX from '../ScrollerX';
@@ -159,9 +159,9 @@ export default class GlobalHeader extends PureComponent {
     const { language } = this.state
     cookie.set('language', val)
     if (val === 'zh-CN') {
-      setLocale('zh-CN')
+      setLocale('zh-CN', true)
     } else if (val === 'en-US') {
-      setLocale('en-US')
+      setLocale('en-US', true)
     }
     this.setState({
       language: !language

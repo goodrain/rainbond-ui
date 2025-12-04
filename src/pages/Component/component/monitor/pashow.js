@@ -9,7 +9,8 @@ import { Button, Card, Col, Icon, Row, Table, Tooltip } from "antd";
 import { connect } from "dva";
 import numeral from "numeral";
 import React, { Fragment, PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const ButtonGroup = Button.Group;
 

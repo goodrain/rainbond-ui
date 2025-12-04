@@ -1,7 +1,7 @@
 import { Form, Input, Modal, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import TenantSelect from '../../components/TenantSelect';
 import cookie from '../../utils/cookie';
 import styles from '../CreateTeam/index.less';

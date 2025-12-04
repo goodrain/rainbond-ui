@@ -90,7 +90,6 @@ import {
   syncMarketPluginTmp,
   toBuildShape,
   toCeateSourceCode,
-  toCreatCluster,
   toCreatOauth,
   toCreatUser,
   toEditCloudBackup,
@@ -857,12 +856,6 @@ export default {
     },
     *creatUser({ payload, callback, handleError }, { call }) {
       const response = yield call(toCreatUser, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *creatCluster({ payload, callback }, { call }) {
-      const response = yield call(toCreatCluster, payload);
       if (callback) {
         callback(response);
       }

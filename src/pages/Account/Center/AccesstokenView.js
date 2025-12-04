@@ -2,7 +2,8 @@ import { Alert, Button, notification, Row, Table, Popconfirm, Card } from 'antd'
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Component, Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AccesstokenForm from '../../../components/AccesstokenForm';
 import ConfirmModal from '../../../components/ConfirmModal';
 

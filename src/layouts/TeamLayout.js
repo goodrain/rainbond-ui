@@ -12,7 +12,7 @@ import CustomFooter from "./CustomFooter"
 import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';

@@ -18,7 +18,7 @@ import {
     Dropdown,
     Input
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global'
 import download from '@/utils/download';
 import apiconfig from '../../../config/api.config';

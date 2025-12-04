@@ -8,7 +8,7 @@ import enlogo from '../../public/login_en.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
-import { setLocale, getLocale } from 'umi/locale'
+import { setLocale, getLocale } from 'umi'
 import CustomFooter from './CustomFooter';
 import cookie from '../utils/cookie';
 import styles from './UserLayout.less';
