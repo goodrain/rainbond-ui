@@ -414,7 +414,7 @@ export default class Index extends PureComponent {
     const allowedTypes = ['.tar'];
     const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     if (!allowedTypes.includes(fileExt)) {
-      message.error('只支持 .tar 格式的文件');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.fileTypeTar' }));
       return false;
     }
 
@@ -439,12 +439,12 @@ export default class Index extends PureComponent {
     const { form } = this.props;
 
     if (!currentFile) {
-      message.warning('请先选择文件');
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.selectFileFirst' }));
       return;
     }
 
     if (!chunkUploader) {
-      message.error('上传器初始化失败');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploaderInitFailed' }));
       return;
     }
 
@@ -483,7 +483,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('分片上传失败:', error);
-      message.error('上传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploadFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -494,7 +494,7 @@ export default class Index extends PureComponent {
     if (chunkUploader) {
       chunkUploader.pause();
       this.setState({ isChunkUploading: false });
-      message.info('上传已暂停');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.pauseSuccess' }));
     }
   };
 
@@ -503,7 +503,7 @@ export default class Index extends PureComponent {
     const { chunkUploader } = this.state;
 
     if (!chunkUploader) {
-      message.error('未找到上传任务');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.noUploadTask' }));
       return;
     }
 
@@ -515,7 +515,7 @@ export default class Index extends PureComponent {
       });
 
       notification.success({
-        message: '断点续传完成'
+        message: formatMessage({ id: 'teamAdd.create.upload.resumeSuccess' })
       });
 
       this.setState({
@@ -527,7 +527,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('断点续传失败:', error);
-      message.error('续传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.resumeFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -544,7 +544,7 @@ export default class Index extends PureComponent {
         currentFile: null,
         chunkUploader: null
       });
-      message.info('上传已取消');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.cancelSuccess' }));
     }
   };
   // 获取本地列表选择的镜像
@@ -866,11 +866,11 @@ export default class Index extends PureComponent {
             <>
               <Form.Item
                 {...is_language}
-                label="上传方式"
+                label={formatMessage({ id: 'teamAdd.create.upload.mode' })}
               >
                 <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
-                  <Radio value="normal">普通上传</Radio>
-                  <Radio value="chunk">断点续传</Radio>
+                  <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
+                  <Radio value="chunk">{formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}</Radio>
                 </Radio.Group>
               </Form.Item>
 
@@ -922,7 +922,7 @@ export default class Index extends PureComponent {
                         showUploadList={false}
                       >
                         <Button>
-                          <Icon type="upload" /> 选择文件
+                          <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
                         </Button>
                       </Upload>
                       {this.state.currentFile && (
@@ -943,21 +943,21 @@ export default class Index extends PureComponent {
                           <div style={{ marginTop: 10 }}>
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
                               <Button type="primary" onClick={this.handleStartChunkUpload}>
-                                开始上传
+                                {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
                               </Button>
                             )}
                             {this.state.isChunkUploading && (
                               <Button onClick={this.handlePauseChunkUpload}>
-                                暂停
+                                {formatMessage({ id: 'teamAdd.create.upload.pause' })}
                               </Button>
                             )}
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
                               <Button type="primary" onClick={this.handleResumeChunkUpload}>
-                                继续上传
+                                {formatMessage({ id: 'teamAdd.create.upload.resume' })}
                               </Button>
                             )}
                             <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
-                              取消
+                              {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
                             </Button>
                           </div>
                         </div>
@@ -1066,7 +1066,7 @@ export default class Index extends PureComponent {
             <Divider />
             <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
               <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+                {formatMessage({ id: 'teamAdd.create.advancedOptions' })} {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
               </Button>
             </div>
             {this.state.showAdvanced && (

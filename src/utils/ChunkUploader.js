@@ -14,18 +14,7 @@ class ChunkUploader {
   constructor(file, eventID, options = {}) {
     this.file = file;
     this.eventID = eventID;
-    // 从 uploadUrl 中提取路径部分（去除域名，避免跨域）
-    console.log('options.uploadUrl:', options.uploadUrl);
     this.uploadUrl = options.uploadUrl || '';
-    // if (this.uploadUrl) {
-    //   try {
-    //     const url = new URL(this.uploadUrl);
-    //     this.uploadUrl = url.pathname + url.search + url.hash;
-    //   } catch (error) {
-    //     // 如果已经是相对路径格式，保持不变
-    //   }
-    // }
-    // console.log('Processed uploadUrl:', this.uploadUrl);
     this.sessionID = null;
     this.chunkSize = options.chunkSize || 5 * 1024 * 1024; // 默认5MB
     this.concurrency = options.concurrency || 5; // 默认5个并发
