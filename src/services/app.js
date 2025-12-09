@@ -1012,12 +1012,15 @@ export async function getBuildInformation(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
     {
-      method: 'get'
+      method: 'get',
+      timeout: 10000, // 10秒超时
+      handleError
     }
   );
 }
@@ -3032,12 +3035,15 @@ export async function getAppBuidSource(
   body = {
     team_name,
     service_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/buildsource`,
     {
-      method: 'get'
+      method: 'get',
+      timeout: 10000, // 10秒超时
+      handleError
     }
   );
 }

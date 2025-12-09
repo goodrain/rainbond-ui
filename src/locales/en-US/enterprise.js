@@ -154,6 +154,9 @@ const applicationMarket = {
     'applicationMarket.localMarket.have.installNumber': 'Installation quantity',
     'applicationMarket.localMarket.have.versions': 'No version',
     'applicationMarket.localMarket.have.install': 'Install',
+    // Network timeout warning
+    'applicationMarket.localMarket.timeout.title': 'Network Connection Timeout',
+    'applicationMarket.localMarket.timeout.desc': 'App market connection timed out. Only local component library is shown. Please check your network connection and refresh the page to retry.',
     // 开源商店tabs
     'applicationMarket.cloudMarket.msg': 'Currently have',
     'applicationMarket.cloudMarket.msgs': 'permission',
