@@ -2720,6 +2720,7 @@ const global = {
       CrashLoopBackOff: '#CD0200',
       Unschedulable: '#CD0200',
       INITIATING: '#CD0200',
+      ContainerExitError: '#CD0200',
     };
     return abnormalcolor[type] || this.getPublicColor('rbd-content-color');
   },
@@ -2830,6 +2831,7 @@ const global = {
       CrashLoopBackOff: formatMessage({ id: 'global.fetchStateOptTypeText.error' }),
       'pause-service': formatMessage({ id: 'global.fetchStateOptTypeText.up' }),
       'unpause-service': formatMessage({ id: 'global.fetchStateOptTypeText.recover' }),
+      'ContainerExitError': formatMessage({ id: 'global.fetchStateOptTypeText.ContainerExitError' }),
     };
     return statusOptType[state] || state;
   },

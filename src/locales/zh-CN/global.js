@@ -192,5 +192,6 @@ const global = {
     'global.fetchStateOptTypeText.error':'运行异常',
     'global.fetchStateOptTypeText.up':'挂起',
     'global.fetchStateOptTypeText.recover':'恢复',
+    'global.fetchStateOptTypeText.ContainerExitError':'异常退出',
 }
 export default Object.assign({}, global);
