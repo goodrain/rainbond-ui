@@ -11,7 +11,7 @@ import {
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import handleAPIError from '../../utils/error';

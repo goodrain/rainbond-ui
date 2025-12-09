@@ -1,7 +1,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import logo from '../../../public/logoLogin.png';

@@ -1,6 +1,6 @@
 import { Table, Card, Empty, Row, Col, Switch } from 'antd';
 import React, { PureComponent, Fragment } from 'react'
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from "./index.less"
 export default class FlexAttribute extends PureComponent {
     constructor(props){

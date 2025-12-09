@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Button, Card, Form, Row, Icon, Col, Switch, Empty, Drawer, Tooltip } from 'antd';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import DAinput from "../DAinput";
 import DApvcinput from '../DApvcinput'
 import styles from "./index.less"

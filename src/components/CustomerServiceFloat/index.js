@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import wechat from '../../../public/images/wechat.png';
 import community from '../../../public/images/community.png';
 import globalUtil from '../../utils/global';

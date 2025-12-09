@@ -17,8 +17,8 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
 import handleAPIError from '../../utils/error';
+import { formatMessage } from '@/utils/intl';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';

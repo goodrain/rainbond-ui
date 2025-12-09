@@ -12,8 +12,10 @@ import {
   Slider
 } from 'antd';
 import { connect } from 'dva';
-import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { Link } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
+import Port from '../../components/Port';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';

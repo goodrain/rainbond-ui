@@ -20,7 +20,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';

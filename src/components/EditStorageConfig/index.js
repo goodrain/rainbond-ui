@@ -14,7 +14,8 @@ import {
   Tooltip
 } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import pluginUtil from '../../utils/plugin';
 

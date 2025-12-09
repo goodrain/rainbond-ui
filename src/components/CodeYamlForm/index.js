@@ -4,7 +4,7 @@
 import { Button, Form, Icon, Input, Upload, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup'
 import role from '@/utils/newRole';
 import globalUtil from '../../utils/global'

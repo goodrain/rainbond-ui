@@ -2,7 +2,8 @@
  * ImageComposeForm 组件的表单校验规则
  */
 
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+
 
 /**
  * 服务/应用名称校验函数

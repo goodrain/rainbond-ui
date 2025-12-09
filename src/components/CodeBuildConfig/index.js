@@ -1,9 +1,10 @@
 import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
+import globalUtil from '../../utils/global'
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';

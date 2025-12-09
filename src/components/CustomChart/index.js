@@ -2,7 +2,8 @@ import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import {
   arrayMove,
   SortableContainer,

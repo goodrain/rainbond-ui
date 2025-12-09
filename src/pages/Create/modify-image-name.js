@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const formItemLayout = {
   labelCol: {
     span: 5

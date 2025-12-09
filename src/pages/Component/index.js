@@ -65,7 +65,8 @@ import ComponentPlugin from './componentPlugin'
 import ThirdPartyServices from './ThirdPartyServices';
 import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const { Option } = Select;

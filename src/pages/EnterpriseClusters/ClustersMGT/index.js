@@ -10,7 +10,7 @@ import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
 import ScrollerX from '@/components/ScrollerX';
 import cloud from '../../../utils/cloud';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';

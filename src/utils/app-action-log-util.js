@@ -1,7 +1,7 @@
 /*
   应用操作日志模型工具
 */
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const actionCNMap = {
   deploy: formatMessage({id:'utils.app-action-log-util.deploy'}),
   restart: formatMessage({id:'utils.app-action-log-util.restart'}),

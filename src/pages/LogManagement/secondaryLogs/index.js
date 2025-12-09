@@ -2,7 +2,7 @@ import { Tabs, Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '@/components/ScrollerX';
 import ColonyLog from '../../../components/EnterpriseLog';
 import styles from '../index.less'

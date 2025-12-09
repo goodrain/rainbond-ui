@@ -60,7 +60,8 @@ import ComponentPlugin from '../../../pages/Component/componentPlugin'
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
 import PluginUtile from '../../../utils/pulginUtils'
 import { ResumeContext } from "../../../pages/Component/funContext";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';

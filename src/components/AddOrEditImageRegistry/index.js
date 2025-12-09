@@ -1,7 +1,8 @@
 import { Form, Input, Modal, Select, Button, Spin, notification } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 import {

@@ -9,7 +9,7 @@ import {
     Form,
     Skeleton
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import DApvcinput from '../../components/DApvcinput'
 import styles from "./index.less";

@@ -4,10 +4,10 @@
 import { Button, Form, Icon, Input, Radio, Upload, notification, Divider } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
-import AddGroup from '../../components/AddOrEditGroup';
-import roleUtil from '../../utils/newRole';
-import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
+import AddGroup from '../../components/AddOrEditGroup'
+import roleUtil from '../../utils/newRole'
+import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 import { pinyin } from 'pinyin-pro';

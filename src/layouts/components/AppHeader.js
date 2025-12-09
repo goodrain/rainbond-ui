@@ -2,7 +2,7 @@ import { Icon, Spin } from 'antd';
 import { Link } from 'dva/router';
 import React from 'react';
 import headerStype from '../../components/GlobalHeader/index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import SelectApp from '../../components/SelectApp';
 import SelectTeam from '../../components/SelectTeam';
 import styles from './AppHeader.less';

@@ -17,7 +17,8 @@ import {
   removeRelationedApp
 } from '../../services/app';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './relation.less'
 
 // 查看连接信息

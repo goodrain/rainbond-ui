@@ -1,7 +1,7 @@
 import { Button, Form, Input, Divider, message, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';

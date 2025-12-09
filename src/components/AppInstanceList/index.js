@@ -4,7 +4,7 @@ import { List, Progress, Empty } from 'antd';
 import React, { PureComponent } from 'react';
 import WaterWave from '../Charts/WaterWave';
 import style from './index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 class InstanceList extends PureComponent {
   constructor(arg) {

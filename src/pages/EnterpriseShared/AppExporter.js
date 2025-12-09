@@ -4,7 +4,7 @@ import { Alert, Button, Modal, notification, Select } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from '../../components/CreateTeam/index.less';
 import DescriptionList from '../../components/DescriptionList';
 

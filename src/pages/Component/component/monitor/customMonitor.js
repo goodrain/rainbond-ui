@@ -9,7 +9,8 @@ import { Button, Dropdown, Icon, Menu, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import MonitoryPoint from './monitoryPoint';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 // 样式常量
 const OPERATION_CONTAINER_STYLE = {

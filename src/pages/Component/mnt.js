@@ -22,7 +22,8 @@ import ScrollerX from '../../components/ScrollerX';
 import { addMnt, getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '@/utils/cookie';
 
 @connect(

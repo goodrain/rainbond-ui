@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Card, Form, Slider, InputNumber, Select, Radio, Input, Icon } from 'antd';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;

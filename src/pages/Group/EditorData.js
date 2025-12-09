@@ -3,7 +3,7 @@ import dagre from 'dagre';
 import { connect } from 'dva';
 import { Flow, RegisterCommand, withPropsAPI } from 'gg-editor';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import {
   addRelationedApp,
   removeRelationedApp,

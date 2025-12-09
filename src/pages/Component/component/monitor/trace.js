@@ -4,12 +4,14 @@ import handleAPIError from "@/utils/error";
 import { Alert, Button, Card, notification } from "antd";
 import { connect } from "dva";
 import React, { Fragment, PureComponent } from "react";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 // 样式常量
 const ALERT_STYLE = {
   marginBottom: "16px"
 };
+
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({

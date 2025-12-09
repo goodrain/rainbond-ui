@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { Form, Modal, Input, notification, Select } from 'antd';
 import { connect } from 'dva';
 import globalUtil from '../../../utils/global';

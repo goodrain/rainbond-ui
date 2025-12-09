@@ -22,7 +22,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import AddGroup from '../AddOrEditGroup';

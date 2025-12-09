@@ -16,7 +16,8 @@ import apiConfig from '../../../config/api.config'
 import History1000Log from './history1000';
 import ScrollerX from '@/components/ScrollerX';
 import styles from './Log.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 

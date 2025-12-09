@@ -5,11 +5,12 @@
 /* eslint-disable no-underscore-dangle */
 import { notification } from 'antd';
 import axios from 'axios';
-import { push } from 'umi/router';
 import globalUtil from '../utils/global';
 import cookie from './cookie';
 import handleAPIError from './error';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+import { history } from 'umi';
+
 
 const codeMessage = {
   200: `${formatMessage({id:'utils.request.back_data'})}`,
@@ -47,10 +48,12 @@ function checkStatus(response) {
 }
 
 function handleStoreDispatch(type, payload = {}) {
-  window.g_app._store.dispatch({
-    type,
-    payload
-  });
+  if (window.g_app && window.g_app._store) {
+    window.g_app._store.dispatch({
+      type,
+      payload
+    });
+  }
 }
 
 /**
@@ -94,7 +97,7 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       // 20800: 组件构建失败
       const AppID = globalUtil.getAppID(url);
       if (TEAM_NAME && REGION_NAME && AppID) {
-        push(`/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`);
+        history.push(`/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`);
       }
       handleStoreDispatch('global/showMemoryTip', { message: code });
       return true;
@@ -247,17 +250,19 @@ export default function request(url, options) {
   const showLoading =
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
-  showLoading &&
+  if (showLoading && window.g_app && window.g_app._store) {
     window.g_app._store.dispatch({
       type: 'global/showLoading'
     });
+  }
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
-      showLoading &&
+      if (showLoading && window.g_app && window.g_app._store) {
         window.g_app._store.dispatch({
           type: 'global/hiddenLoading'
         });
+      }
       return handleData(response);
     })
     .catch(error => {

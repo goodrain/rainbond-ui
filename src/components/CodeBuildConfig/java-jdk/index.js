@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Form, Radio, Switch, Input } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import GlobalUtils from '@/utils/global';
 
 const RadioGroup = Radio.Group;

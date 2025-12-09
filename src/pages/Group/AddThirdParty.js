@@ -1,7 +1,7 @@
 import { Button, Drawer, Icon, Row, Col } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Check from '../Create/create-check';
 import Market from '../Create/market';
 import globalUtil from '../../utils/global';

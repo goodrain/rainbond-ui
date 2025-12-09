@@ -11,7 +11,7 @@ import {
     Tooltip
 } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import BackEnd from './components/BackEnd/index'
 import Rule from "./components/Rule/index"
 import AdvancedRule from './components/AdvancedRule'

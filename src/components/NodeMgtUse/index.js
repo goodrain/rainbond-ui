@@ -6,7 +6,7 @@ import {
     Button,
     Skeleton
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import Echarts from './Echarts';
 import styles from "./index.less";

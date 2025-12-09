@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Spin } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import TolerantGateway from '@/components/TolerantGateway';
 import GatewayApi from '../../components/GatewayApi'

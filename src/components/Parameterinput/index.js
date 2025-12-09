@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-no-bind */
 import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const { TextArea } = Input;
 

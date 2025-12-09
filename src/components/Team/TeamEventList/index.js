@@ -2,8 +2,8 @@
 import { Card, List } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import React, { Fragment, PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../../utils/global';
 import handleAPIError from '../../../utils/error';
 import styles from './index.less';

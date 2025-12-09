@@ -5,8 +5,9 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import router from 'umi/router';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
+import { history } from 'umi';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import userUtil from '../../../utils/user';
@@ -185,13 +186,13 @@ export default class ClusterLink extends PureComponent {
         dataObj.etcd.secretName = values.secretName || '';
         // 页面跳转高级配置
         if (value === 'advanced') {
-          router.push({
+          history.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/advanced`,
             search: Qs.stringify({ data: dataObj, name: 'tencent', cloudserver: 'tencent' })
           });
         } else {
           // 跳转下一步
-          router.push({
+          history.push({
             pathname: `/enterprise/${eid}/provider/ACksterList/install`,
             search: Qs.stringify({
               data: dataObj,

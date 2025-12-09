@@ -29,7 +29,8 @@ import pluginUtil from '../../utils/pulginUtils';
 import licenseUtil from '../../utils/license';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 

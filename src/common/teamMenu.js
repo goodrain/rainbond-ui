@@ -1,4 +1,4 @@
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../utils/cookie';
 import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';

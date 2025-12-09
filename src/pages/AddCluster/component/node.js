@@ -5,7 +5,7 @@
 import { Col, Icon, Input, notification, Row } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 @connect(({ region }) => ({
 }))
 class DAinput extends Component {

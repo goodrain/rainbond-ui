@@ -1,7 +1,8 @@
 import { Card, Form, notification, Button } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import appProbeUtil from '../../utils/appProbe-util';
 import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';

@@ -9,8 +9,10 @@ import {
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import moment from 'moment';
+import React, { Fragment, PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
+import ScrollerX from '../../components/ScrollerX';
 import TeamBasicInfo from './TeamBasicInfo';
 import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';

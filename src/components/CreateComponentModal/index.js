@@ -3,7 +3,7 @@ import { Modal, Icon, Spin, Form, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';

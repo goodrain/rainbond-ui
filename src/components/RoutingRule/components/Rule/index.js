@@ -9,7 +9,7 @@ import {
     Tooltip
 } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import GateWayHeaders from './components/Headers';
 import styles from './index.less'
 const { Option } = Select;

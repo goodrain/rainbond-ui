@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const { TextArea } = Input;
 
 /* 修改镜像命令 修改DockerRun命令 */

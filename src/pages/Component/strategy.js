@@ -2,7 +2,8 @@
 import { Card, Form, Input, Select, Button, AutoComplete, notification, Popover } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { addRunStrategy, getRunStrategy } from '../../services/app';
 import globalUtil from '../../utils/global'

@@ -155,15 +155,6 @@ class CodeMirrorForm extends PureComponent {
           };
         }
 
-        // 检查是否包含中文
-        const chineseRegex = /[\u4e00-\u9fa5]/;
-        if (chineseRegex.test(trimmedValue)) {
-          return {
-            isValid: false,
-            error: 'YAML 内容不能包含中文字符'
-          };
-        }
-
         return { isValid: true };
       }
       return { isValid: true };

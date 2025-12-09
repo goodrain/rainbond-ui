@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import { Col, Icon, Select, Row } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 class DAinput extends Component {

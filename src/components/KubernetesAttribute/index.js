@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Card, Table, Button, Drawer, Empty, Form } from 'antd';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from "../CodeMirrorForm"
 
 @Form.create()

@@ -3,7 +3,7 @@
 import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Divider } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';

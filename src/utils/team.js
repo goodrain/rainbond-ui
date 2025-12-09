@@ -1,5 +1,5 @@
 import cookie from './cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const actionMap = {
   admin: formatMessage({id:'utils.role.admin'}),

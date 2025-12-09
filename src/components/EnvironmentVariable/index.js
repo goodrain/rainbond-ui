@@ -17,7 +17,8 @@ import globalUtil from '../../utils/global';
 import ConfirmModal from '../ConfirmModal';
 import ScrollerX from '../ScrollerX';
 import cookie from '../../utils/cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './Index.less';
 
 const { Search } = Input;

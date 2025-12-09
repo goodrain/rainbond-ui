@@ -1,8 +1,8 @@
 import { Card, notification, Button, Modal, Select, message } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
 import copy from 'copy-to-clipboard';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../../utils/global';
 import roleUtil from '../../../utils/role';
 import teamUtil from '../../../utils/team';

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Button, Table } from 'antd';
 import teamUtil from '../../utils/team';
 import cookie from '@/utils/cookie';

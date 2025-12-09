@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import globalUtil from '../utils/global';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Layout, Icon, message, notification, Modal, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 

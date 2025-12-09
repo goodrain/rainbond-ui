@@ -1,5 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';

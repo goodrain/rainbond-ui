@@ -6,7 +6,8 @@ import ScrollerX from '@/components/ScrollerX';
 import roleUtil from '@/utils/role';
 import { Alert, Button, Card, Col, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import React, { Fragment, PureComponent } from 'react';
 
 /* eslint react/no-array-index-key: 0 */

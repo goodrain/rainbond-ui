@@ -21,7 +21,8 @@ import {
 import styless from './index.less';
 import styles from '../CreateTeam/index.less';
 import RangeChart from '@/components/CustomChart/rangeChart';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 @Form.create()

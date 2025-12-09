@@ -2,7 +2,7 @@
  * AddOrEditImageRegistry 组件的表单校验规则
  */
 
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 /**
  * 不能输入汉字的校验函数（同时检查空字符串）

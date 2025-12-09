@@ -1,5 +1,5 @@
 import globalUtil from '../utils/global';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import userUtil from '../utils/user';
 import Exception from '../components/Exception'
 

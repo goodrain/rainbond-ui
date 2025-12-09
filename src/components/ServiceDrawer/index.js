@@ -2,7 +2,7 @@ import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
 import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch, notification, InputNumber } from 'antd';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 import HostAddress from '../HostAddress';
 import DAHosts from '../DAHosts'

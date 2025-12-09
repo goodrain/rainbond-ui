@@ -14,7 +14,7 @@ import {
     Tooltip,
     Switch
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import RouteDrawerHttp from '../RouteDrawerHttp';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';

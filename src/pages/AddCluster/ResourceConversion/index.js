@@ -25,8 +25,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import router from 'umi/router';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 import globalUtil from "../../../utils/global"
 import HealthAttribute from "../../../components/HealthAttribute"

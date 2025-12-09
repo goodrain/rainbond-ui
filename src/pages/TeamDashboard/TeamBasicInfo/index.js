@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Tooltip, Radio, Icon } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import Result from '../../../components/Result';
 import AddGroup from '../../../components/AddOrEditGroup';
 import NewbieGuiding from '../../../components/NewbieGuiding';
@@ -44,7 +45,7 @@ export default class index extends Component {
 
     this.state = {
       page: 1,
-      page_size: 12,
+      page_size: 11,
       query: '',
       sortValue: 1,
       loadingOverview: true,
@@ -793,8 +794,8 @@ export default class index extends Component {
                         onChange={this.handleChangePage}
                         showQuickJumper
                         showTotal={(appListTotal) => `共 ${appListTotal} 条`}
-                        hideOnSinglePage={appListTotal <= 12}
-                        pageSizeOptions={['12', '24', '36', '48', '60']}
+                        hideOnSinglePage={appListTotal <= 11}
+                        pageSizeOptions={['11', '23', '35', '47', '59']}
                       />
                     </div>
                   )}

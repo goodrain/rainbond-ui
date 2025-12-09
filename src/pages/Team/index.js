@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import TeamImg from '../../../public/images/default_Avatar.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import TeamEventList from '../../components/Team/TeamEventList';

@@ -9,7 +9,7 @@ import {
     Tooltip
 } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Filtration from './Filtration'
 import DAHosts from "../../../DAHosts"
 import Redirection from './Redirection'

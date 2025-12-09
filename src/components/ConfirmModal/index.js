@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Button, Icon, Modal } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styless from '../CreateTeam/index.less';
 import styles from './index.less';
 

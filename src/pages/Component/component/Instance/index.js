@@ -5,7 +5,8 @@ import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect()
 @Form.create()

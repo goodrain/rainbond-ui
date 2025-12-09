@@ -29,6 +29,7 @@ import styles from '../../components/PageHeader/index.less';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;

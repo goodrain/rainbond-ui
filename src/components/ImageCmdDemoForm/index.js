@@ -3,7 +3,7 @@
 import { Button, Form, Input, Select, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import role from '../../utils/newRole';

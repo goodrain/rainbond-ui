@@ -3,7 +3,8 @@
 import { Card, Form, Row, Steps } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import React, { PureComponent } from 'react';
 import RainbondClusterInit from '../../../components/Cluster/RainbondClusterInit';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';

@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';

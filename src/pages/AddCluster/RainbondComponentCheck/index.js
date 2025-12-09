@@ -3,7 +3,8 @@
 import { Card, Form, Row, Steps, Button, Col } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import React, { PureComponent } from 'react';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
