@@ -1,29 +1,27 @@
 /* eslint-disable react/sort-comp */
 import {
+  Alert,
   Button,
   Card,
-  Divider,
   Form,
-  Input,
-  InputNumber,
-  notification,
-  Spin,
-  Select,
-  Radio,
-  Table,
-  Tag,
-  Popconfirm,
   Icon,
+  InputNumber,
   Modal,
-  Alert
+  notification,
+  Popconfirm,
+  Radio,
+  Select,
+  Spin,
+  Table,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage } from '@/utils/intl';
-import globalUtil from '../../utils/global';
 import dateUtil from '../../utils/date-util';
-import styles from './Index.less';
+import handleAPIError from '../../utils/error';
+import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
@@ -37,8 +35,7 @@ const RadioGroup = Radio.Group;
  */
 
 @connect(
-  ({ user, appControl, kubeblocks }) => ({
-    currUser: user.currentUser,
+  ({ appControl, kubeblocks }) => ({
     appDetail: appControl.appDetail,
     clusterDetail: kubeblocks.clusterDetail,
     backupRepos: kubeblocks.backupRepos,
@@ -155,16 +152,16 @@ export default class Index extends PureComponent {
 
   fetchBackupRepos = () => {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
 
     dispatch({
       type: 'kubeblocks/fetchBackupRepos',
       payload: {
-        team_name,
-        region_name
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName()
       },
-      handleError: (err) => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   };
 
@@ -175,12 +172,10 @@ export default class Index extends PureComponent {
     const { dispatch, appDetail } = this.props;
     const { backupPagination } = this.state;
 
-    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
+    const serviceAlias = appDetail?.service?.service_alias;
+    if (!serviceAlias) {
       return;
     }
-
-    const team_name = globalUtil.getCurrTeamName();
-    const service_alias = appDetail.service.service_alias;
 
     const currentPage = page !== null ? page : backupPagination.page;
 
@@ -189,8 +184,8 @@ export default class Index extends PureComponent {
     dispatch({
       type: 'kubeblocks/fetchBackupList',
       payload: {
-        team_name,
-        service_alias,
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: serviceAlias,
         page: currentPage,
         page_size: backupPagination.page_size
       },
@@ -208,6 +203,7 @@ export default class Index extends PureComponent {
       },
       handleError: (err) => {
         this.setState({ loading: false });
+        handleAPIError(err);
       }
     });
   };
@@ -294,7 +290,7 @@ export default class Index extends PureComponent {
   handleBackupRepoChange = (value) => {
     const { backupRetentionTime } = this.state;
 
-    if (value && value.trim()) {
+    if (value?.trim()) {
       const defaultSchedule = 'hour';
       const defaultTimeConfig = this.getDefaultBackupTimeConfig(defaultSchedule);
 
@@ -379,7 +375,7 @@ export default class Index extends PureComponent {
       if (err) return;
 
       // 只有选择了备份仓库(启用备份功能)才需要校验备份配置参数
-      if (backupRepo && backupRepo.trim()) {
+      if (backupRepo?.trim()) {
         if (!backupSchedule) {
           notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.cycle_required' }) });
           return;
@@ -419,12 +415,12 @@ export default class Index extends PureComponent {
       }
 
       const backupConfig = {
-        backupRepo: backupRepo || "",
+        backupRepo: backupRepo || '',
         terminationPolicy: termination_policy || 'Delete',
         rbdService: { service_id: serviceId }
       };
 
-      if (backupRepo && backupRepo.trim()) {
+      if (backupRepo?.trim()) {
         let frequency = 'daily';
         switch (backupSchedule) {
           case 'hour':
@@ -464,7 +460,6 @@ export default class Index extends PureComponent {
         callback: (res) => {
           this.setState({ loading: false });
           if (res && res.status_code === 200) {
-            // 保存成功后，重新获取 clusterDetail 以确保 UI 状态同步
             dispatch({
               type: 'kubeblocks/getClusterDetail',
               payload: {
@@ -472,21 +467,21 @@ export default class Index extends PureComponent {
                 service_alias: serviceAlias
               },
               callback: () => {
-                const successMessage = backupRepo && backupRepo.trim() ?
-                  formatMessage({ id: 'kubeblocks.database.backup.config.updated' }) :
-                  formatMessage({ id: 'kubeblocks.database.backup.disabled.success' });
+                const successMessage = backupRepo?.trim()
+                  ? formatMessage({ id: 'kubeblocks.database.backup.config.updated' })
+                  : formatMessage({ id: 'kubeblocks.database.backup.disabled.success' });
                 notification.success({ message: successMessage });
                 this.setState({ editBackupInfo: false });
                 this.fetchBackupList();
               }
             });
           } else {
-            const msg = (res && res.msg_show) || formatMessage({ id: 'notification.error.save' });
-            notification.error({ message: msg });
+            notification.error({ message: res?.msg_show || formatMessage({ id: 'notification.error.save' }) });
           }
         },
-        handleError: () => {
+        handleError: (err) => {
           this.setState({ loading: false });
+          handleAPIError(err);
         }
       });
     });
@@ -540,64 +535,62 @@ export default class Index extends PureComponent {
   handleManualBackup = () => {
     const { dispatch, appDetail } = this.props;
     const { backupPagination } = this.state;
-    const team_name = globalUtil.getCurrTeamName();
-    const service_alias = appDetail.service.service_alias;
+
+    const serviceAlias = appDetail?.service?.service_alias;
+    if (!serviceAlias) {
+      notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.service_not_ready' }) });
+      return;
+    }
 
     dispatch({
       type: 'kubeblocks/createManualBackup',
-      payload: { team_name, service_alias },
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: serviceAlias
+      },
       callback: (res) => {
         if (res && res.status_code === 200) {
           notification.success({
             message: formatMessage({ id: 'kubeblocks.database.backup.manual.success' })
           });
-          // 手动备份成功后，重置到第一页并刷新列表
           this.setState({
-            backupPagination: {
-              ...backupPagination,
-              page: 1
-            }
+            backupPagination: { ...backupPagination, page: 1 }
           }, () => {
             this.fetchBackupList(1);
             this.startAutoRefresh();
           });
         } else {
-          const msg = (res && res.msg_show) ||
-            formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
-          notification.error({ message: msg });
+          notification.error({
+            message: res?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.manual.failed' })
+          });
         }
       },
       handleError: (err) => {
-        const msg = (err && err.data && err.data.msg_show) ||
-          formatMessage({ id: 'kubeblocks.database.backup.manual.failed' });
-        notification.error({ message: msg });
+        handleAPIError(err);
       }
     });
   };
 
   /**
    * 删除备份
-   * 删除指定的备份记录
    * @param {String} backupName - 要删除的备份名称
    */
   handleDeleteBackup = (backupName) => {
     const { dispatch, appDetail } = this.props;
-    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
+
+    const serviceAlias = appDetail?.service?.service_alias;
+    if (!serviceAlias) {
       notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.delete.service_incomplete' }) });
       return;
     }
 
-    const team_name = globalUtil.getCurrTeamName();
-    const service_alias = appDetail.service.service_alias;
-
-    // 保持loading状态
     this.setState({ loading: true });
 
     dispatch({
       type: 'kubeblocks/deleteBackups',
       payload: {
-        team_name,
-        service_alias,
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: serviceAlias,
         backups: [backupName]
       },
       callback: (res) => {
@@ -606,20 +599,16 @@ export default class Index extends PureComponent {
           notification.success({
             message: formatMessage({ id: 'kubeblocks.database.backup.delete.success' })
           });
-          // 删除成功后刷新当前页，如果当前页没有数据则跳转到第一页
           this.fetchBackupList();
         } else {
-          const msg = (res && res.msg_show) ||
-            formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
-          notification.error({ message: msg });
+          notification.error({
+            message: res?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.delete.failed' })
+          });
         }
       },
       handleError: (err) => {
         this.setState({ loading: false });
-        const msg = (err && err.data && err.data.msg_show) ||
-          formatMessage({ id: 'kubeblocks.database.backup.delete.failed' });
-        notification.error({ message: msg });
-        // 如果删除失败，手动刷新确保数据一致性
+        handleAPIError(err);
         this.fetchBackupList();
       }
     });
@@ -647,24 +636,27 @@ export default class Index extends PureComponent {
 
   /**
    * 执行从备份恢复操作
-   * 调用API创建新的集群，原集群保持不变
    */
   handleConfirmRestore = () => {
     const { dispatch, appDetail } = this.props;
     const { selectedBackupName } = this.state;
 
-    if (!appDetail || !appDetail.service || !appDetail.service.service_alias) {
+    const serviceAlias = appDetail?.service?.service_alias;
+    if (!serviceAlias) {
       notification.error({ message: formatMessage({ id: 'kubeblocks.database.backup.restore.service_incomplete' }) });
       return;
     }
 
     this.setState({ restoring: true });
 
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
     dispatch({
       type: 'kubeblocks/restoreFromBackup',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        service_alias: appDetail.service.service_alias,
+        team_name: teamName,
+        service_alias: serviceAlias,
         body: { backup_name: selectedBackupName }
       },
       callback: (res) => {
@@ -680,27 +672,23 @@ export default class Index extends PureComponent {
             duration: 4
           });
 
-          const serviceAlias = res?.bean?.service_alias;
+          const newServiceAlias = res?.bean?.service_alias;
           const groupId = res?.bean?.group_id;
-          const teamName = globalUtil.getCurrTeamName();
-          const regionName = globalUtil.getCurrRegionName();
 
-          if (serviceAlias && groupId) {
+          if (newServiceAlias && groupId) {
             dispatch({
               type: 'global/fetchGroups',
-              payload: {
-                team_name: teamName
-              }
+              payload: { team_name: teamName }
             });
 
             dispatch(
-              routerRedux.push(`/team/${teamName}/region/${regionName}/apps/${groupId}/overview?type=components&componentID=${serviceAlias}&tab=overview`)
+              routerRedux.push(`/team/${teamName}/region/${regionName}/apps/${groupId}/overview?type=components&componentID=${newServiceAlias}&tab=overview`)
             );
           }
         } else {
-          const msg = (res && res.msg_show) ||
-            formatMessage({ id: 'kubeblocks.database.backup.restore.failed' });
-          notification.error({ message: msg });
+          notification.error({
+            message: res?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.restore.failed' })
+          });
         }
       },
       handleError: (err) => {
@@ -709,9 +697,7 @@ export default class Index extends PureComponent {
           restoreVisible: false,
           selectedBackupName: ''
         });
-        const msg = (err && err.data && err.data.msg_show) ||
-          formatMessage({ id: 'kubeblocks.database.backup.restore.request_failed' });
-        notification.error({ message: msg });
+        handleAPIError(err);
       }
     });
   };

@@ -9,7 +9,7 @@ import globalUtil from '../utils/global';
 import cookie from './cookie';
 import handleAPIError from './error';
 import { formatMessage } from '@/utils/intl';
-import { history } from 'umi';
+import { history, getDvaApp } from 'umi';
 
 
 const codeMessage = {
@@ -48,8 +48,9 @@ function checkStatus(response) {
 }
 
 function handleStoreDispatch(type, payload = {}) {
-  if (window.g_app && window.g_app._store) {
-    window.g_app._store.dispatch({
+  const app = getDvaApp();
+  if (app && app._store) {
+    app._store.dispatch({
       type,
       payload
     });
@@ -250,18 +251,14 @@ export default function request(url, options) {
   const showLoading =
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
-  if (showLoading && window.g_app && window.g_app._store) {
-    window.g_app._store.dispatch({
-      type: 'global/showLoading'
-    });
+  if (showLoading) {
+    handleStoreDispatch('global/showLoading');
   }
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
-      if (showLoading && window.g_app && window.g_app._store) {
-        window.g_app._store.dispatch({
-          type: 'global/hiddenLoading'
-        });
+      if (showLoading) {
+        handleStoreDispatch('global/hiddenLoading');
       }
       return handleData(response);
     })

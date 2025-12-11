@@ -13,6 +13,16 @@ export default class Index extends PureComponent {
     this.socketUrl = this.props.socketUrl;
     this.eventId = this.props.eventId;
   }
+
+  escapeHtml = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
   componentDidMount() {
     this.createTmpElement();
     if (this.socketUrl) {
@@ -75,13 +85,11 @@ export default class Index extends PureComponent {
     }
   }
   getItemHtml = data => {
+    const timeStr = moment(data.time).locale('zh-cn').format('HH:mm:ss');
+    const timeHtml = `<span className="time" style="display:inline-block;margin-right: 8px;">${timeStr}</span>`;
+
     if (typeof data.message === 'string') {
-      const msg = data.message;
-      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-        data.time
-      )
-        .locale('zh-cn')
-        .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+      return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;
     }
     try {
       const { message } = data;
@@ -92,24 +100,12 @@ export default class Index extends PureComponent {
       msg += message.status || '';
       msg += message.progress || '';
       if (msg) {
-        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-          data.time
-        )
-          .locale('zh-cn')
-          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+        return `${timeHtml}<span>${this.escapeHtml(msg)}</span>`;
       }
-      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-        data.time
-      )
-        .locale('zh-cn')
-        .format('HH:mm:ss')}</span><span>${message.stream}</span>`;
+      return `${timeHtml}<span>${this.escapeHtml(message.stream)}</span>`;
     } catch (e) {
       if (data.message) {
-        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-          data.time
-        )
-          .locale('zh-cn')
-          .format('HH:mm:ss')}</span><span>${data.message || ''}</span>`;
+        return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;
       }
       return '';
     }

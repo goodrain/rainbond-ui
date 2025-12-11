@@ -8,7 +8,6 @@ import {
   Input,
   Modal,
   notification,
-  Radio,
   Row,
   Table
 } from 'antd';
@@ -16,12 +15,12 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ConfirmModal from '../../components/ConfirmModal';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
 
-const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 const { confirm } = Modal;
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
@@ -29,14 +28,7 @@ const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z
 const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 @connect(
-  ({ user, appControl }) => ({
-    currUser: user.currentUser,
-    appRequest: appControl.appRequest,
-    appRequestRange: appControl.appRequestRange,
-    requestTime: appControl.requestTime,
-    requestTimeRange: appControl.requestTimeRange,
-    appDisk: appControl.appDisk,
-    appMemory: appControl.appMemory,
+  ({ appControl }) => ({
     appDetail: appControl.appDetail
   }),
   null,
@@ -62,7 +54,6 @@ export default class Index extends PureComponent {
   }
 
   fetchParameter = () => {
-    const { appAlias } = this.props;
     return {
       team_name: globalUtil.getCurrTeamName(),
       region_name: globalUtil.getCurrRegionName(),
@@ -97,11 +88,13 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            endpoint_num:
-              res.bean.endpoint_num > 0 ? res.bean.endpoint_num : '',
+            endpoint_num: res.bean.endpoint_num > 0 ? res.bean.endpoint_num : '',
             list: res.list
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -113,7 +106,8 @@ export default class Index extends PureComponent {
   };
   handleDeleteVar = () => {
     const { ep_id } = this.state;
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'appControl/deleteInstanceList',
       payload: {
         ...this.fetchParameter(),
@@ -126,14 +120,18 @@ export default class Index extends PureComponent {
           setTimeout(() => {
             this.handleGetList();
           }, 50000);
-          notification.info({ message:  formatMessage({id:'notification.hint.need_updata'})});
+          notification.info({ message: formatMessage({ id: 'notification.hint.need_updata' }) });
         }
+      },
+      handleError: err => {
+        this.cancelDeleteVar();
+        handleAPIError(err);
       }
     });
   };
   handleModify = status => {
-    // 上online， 下offline线
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'appControl/modifyInstanceList',
       payload: {
         ...this.fetchParameter(),
@@ -148,6 +146,9 @@ export default class Index extends PureComponent {
             this.cancelDeleteVar();
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -171,8 +172,11 @@ export default class Index extends PureComponent {
           if (res && res.status_code === 200) {
             this.setState({ visible: false });
             this.handleGetList();
-            notification.info({ message: formatMessage({id:'notification.hint.need_updata'}) });
+            notification.info({ message: formatMessage({ id: 'notification.hint.need_updata' }) });
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     });
@@ -212,6 +216,9 @@ export default class Index extends PureComponent {
             api_service_key: res.bean && res.bean.api_service_key
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };

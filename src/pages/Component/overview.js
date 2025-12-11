@@ -56,9 +56,7 @@ class LogItem extends PureComponent {
     const { data } = this.props;
     if (data) {
       if (this.ref) {
-        this.ref.querySelector(
-          '.actioncn'
-        ).innerHTML = appAcionLogUtil.getActionCN(data);
+        this.ref.querySelector('.actioncn').textContent = appAcionLogUtil.getActionCN(data);
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
         }
@@ -73,9 +71,7 @@ class LogItem extends PureComponent {
           this.ref.querySelector('.actionresultcn').textContent = formatMessage({id:'componentOverview.body.tab.LogItem.hand'});
           this.context.isActionIng(true);
         }
-        this.ref.querySelector(
-          '.action-user'
-        ).innerHTML = `@${appAcionLogUtil.getActionUser(data)}`;
+        this.ref.querySelector('.action-user').textContent = `@${appAcionLogUtil.getActionUser(data)}`;
       }
     }
   }

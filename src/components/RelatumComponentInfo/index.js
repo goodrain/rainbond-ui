@@ -1,20 +1,14 @@
-/* eslint-disable guard-for-in */
 /* eslint-disable camelcase */
-/* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon, Modal, notification, Table } from 'antd';
+import { Button, Card, Icon, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import AddRelation from '../../components/AddRelation';
-import EnvironmentVariable from '../../components/EnvironmentVariable';
-import NoPermTip from '../../components/NoPermTip';
-import ScrollerX from '../../components/ScrollerX';
-import {
-  getRelatumApp,
-  removeRelationedApp
-} from '../../services/app';
-import globalUtil from '../../utils/global';
 import { FormattedMessage } from 'umi';
+import AddRelation from '../../components/AddRelation';
+import ScrollerX from '../../components/ScrollerX';
+import { getRelatumApp, removeRelationedApp } from '../../services/app';
+import handleAPIError from '../../utils/error';
+import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less'
 
@@ -46,19 +40,19 @@ export default class Index extends PureComponent {
 
   loadRelationedApp = () => {
     const { page, pageSize } = this.state;
+    const { appAlias } = this.props;
     getRelatumApp({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
+      app_alias: appAlias,
       page,
       pageSize
     }).then(res => {
       if (res) {
         let arr = res.bean.port_list;
         if (res.list && res.list.length > 0) {
-          res.list.map(item => {
+          res.list.forEach(item => {
             const { ports_list } = item;
             arr = arr.concat(ports_list);
-            return item;
           });
         }
         arr = this.isRepeat(arr);
@@ -69,17 +63,13 @@ export default class Index extends PureComponent {
           serviceId: res.bean.service_id
         });
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
+
   isRepeat = arr => {
-    const hash = {};
-    for (const i in arr) {
-      if (hash[arr[i]])
-        // hash 哈希
-        return true;
-      hash[arr[i]] = true;
-    }
-    return false;
+    return new Set(arr).size !== arr.length;
   };
   showAddRelation = () => {
     this.setState({ showAddRelation: true });
@@ -103,12 +93,15 @@ export default class Index extends PureComponent {
           this.loadRelationedApp();
           this.handleCancelAddRelation();
         }
-      }   
-    })
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
   };
 
   handleRemoveRelationed = app => {
-    const { serviceId } = this.state
+    const { serviceId } = this.state;
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: app.service_alias,
@@ -117,14 +110,16 @@ export default class Index extends PureComponent {
       if (data) {
         this.loadRelationedApp();
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
 
 
 
   render() {
-    const { showText, relationList } = this.state;
-    const { appAlias, method } = this.props;
+    const { relationList } = this.state;
+    const { appAlias } = this.props;
 
     return (
       <Fragment>

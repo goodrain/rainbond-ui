@@ -1,7 +1,8 @@
 import globalUtil from '../utils/global';
 import { formatMessage } from '@/utils/intl';
 import userUtil from '../utils/user';
-import Exception from '../components/Exception'
+import Exception from '../components/Exception';
+import { getDvaApp } from 'umi';
 
 const actionMaps = {
     admin: '管理员',
@@ -464,7 +465,8 @@ export default {
     },
     // 刷新权限信息
     refreshPermissionsInfo(appid = '', onlyRefresh = true, callback) {
-        const { dispatch } = window.g_app._store;
+        const app = getDvaApp();
+        const { dispatch } = app._store;
         let info
         dispatch({
             type: 'user/fetchCurrent',

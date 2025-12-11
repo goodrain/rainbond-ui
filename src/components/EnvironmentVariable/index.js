@@ -7,18 +7,18 @@ import {
   Input,
   Modal,
   notification,
-  Pagination,
   Table,
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
+import { FormattedMessage } from 'umi';
+import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../ConfirmModal';
 import ScrollerX from '../ScrollerX';
-import cookie from '../../utils/cookie';
-import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import styles from './Index.less';
 
 const { Search } = Input;
@@ -26,17 +26,6 @@ const { Search } = Input;
 const EditableContext = React.createContext();
 @connect()
 class EditableCell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      list: []
-    };
-  }
-
-  getInput = () => {
-    return <Input />;
-  };
-
   handleList = (attr_name, attr_value, form) => {
     if (attr_name == null && attr_value == null) {
       return false;
@@ -52,32 +41,21 @@ class EditableCell extends React.Component {
       callback: res => {
         const arr = res && res.list ? res.list : [];
         arr.unshift(attr_name ? `${attr_name}` : `${attr_value}`);
-        Array.from(new Set(arr));
-        if (arr && arr.length > 0 && arr[0] == 'null') {
+        if (arr && arr.length > 0 && arr[0] === 'null') {
           return;
         }
-        this.setState({ list: arr });
         if (attr_name) {
-          form.setFieldsValue({
-            attr_name
-          });
+          form.setFieldsValue({ attr_name });
         }
         if (attr_value) {
-          form.setFieldsValue({
-            attr_value
-          });
+          form.setFieldsValue({ attr_value });
         }
       },
       handleError: err => {
-        if (err && err.data && err.data.code == 10401) {
+        if (err && err.data && err.data.code === 10401) {
           return null;
         }
-        if (err && err.data && err.data.msg_show) {
-          notification.warning({
-            message: formatMessage({id:'notification.warn.error'}),
-            description: err.data.msg_show
-          });
-        }
+        handleAPIError(err);
       }
     });
   };
@@ -86,17 +64,10 @@ class EditableCell extends React.Component {
     const {
       editing,
       dataIndex,
-      title,
-      inputType,
       record,
-      index,
       children,
-      addVariable,
-      autoQuery,
-      form,
       ...restProps
     } = this.props;
-    const { list } = this.state;
     let placeholders = '';
     let rulesList = [];
 
@@ -300,10 +271,13 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.edit'})});
+          notification.success({ message: formatMessage({id:'notification.success.edit'}) });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -325,6 +299,9 @@ class EnvironmentVariable extends React.Component {
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -668,11 +645,15 @@ class EnvironmentVariable extends React.Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.delete'})});
+          notification.success({ message: formatMessage({id:'notification.success.delete'}) });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVariabl();
         this.handleCancelAddVariabl();
+      },
+      handleError: err => {
+        this.cancelDeleteVariabl();
+        handleAPIError(err);
       }
     });
   };
@@ -690,15 +671,19 @@ class EnvironmentVariable extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == 'inner' ? 'outer' : 'inner'
+        scope: transfer.scope === 'inner' ? 'outer' : 'inner'
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          notification.success({ message:  formatMessage({id:'notification.success.transfer'})});
+          notification.success({ message: formatMessage({id:'notification.success.transfer'}) });
           this.fetchInnerEnvs();
           this.cancelTransfer();
           this.handleCancelAddVariabl();
         }
+      },
+      handleError: err => {
+        this.cancelTransfer();
+        handleAPIError(err);
       }
     });
   };
@@ -744,11 +729,8 @@ class EnvironmentVariable extends React.Component {
         if (res && res.status_code === 200) {
           const arr = [];
           if (res.list && res.list.length > 0) {
-            res.list.map(item => {
-              const isHidden = globalUtil.confirmEnding(
-                `${item.attr_name}`,
-                'PASS'
-              );
+            res.list.forEach(item => {
+              const isHidden = globalUtil.confirmEnding(`${item.attr_name}`, 'PASS');
               if (isHidden) {
                 arr.push(item.ID);
               }
@@ -761,6 +743,10 @@ class EnvironmentVariable extends React.Component {
             loading: false
           });
         }
+      },
+      handleError: err => {
+        this.setState({ loading: false });
+        handleAPIError(err);
       }
     });
   };
@@ -780,16 +766,15 @@ class EnvironmentVariable extends React.Component {
   };
   handlePassword = (isHidden, ID) => {
     const { isAttrNameList } = this.state;
-    const arr = isAttrNameList;
     if (isHidden) {
-      const index = arr.indexOf(ID);
-      arr.splice(index, 1);
+      this.setState({
+        isAttrNameList: isAttrNameList.filter(item => item !== ID)
+      });
     } else {
-      arr.push(ID);
+      this.setState({
+        isAttrNameList: [...isAttrNameList, ID]
+      });
     }
-    this.setState({
-      isAttrNameList: arr
-    });
   };
   handleDiv = v => {
     const wraps = {

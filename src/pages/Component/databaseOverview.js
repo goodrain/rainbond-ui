@@ -1,32 +1,27 @@
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
-/* eslint-disable array-callback-return */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
 import { Button, Card, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import LogProcress from '../../components/LogProcress';
 import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
 import dateUtil from '../../utils/date-util';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import LogSocket from '../../utils/logSocket';
 import regionUtil from '../../utils/region';
-import PluginUtil from '../../utils/pulginUtils';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
+import { formatMessage } from '@/utils/intl';
 import Basic from './component/DatabaseBasic/index';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
-import Instance from './component/Instance/index';
 import DatabaseInstance from './component/databaseInstance/index';
 import styles from './Index.less';
-
-// KubeBlocks Component 定制组件, source: ./src/pages/Component/overview.js
 
 const ButtonGroup = Button.Group;
 
@@ -64,9 +59,7 @@ class LogItem extends PureComponent {
     const { data } = this.props;
     if (data) {
       if (this.ref) {
-        this.ref.querySelector(
-          '.actioncn'
-        ).innerHTML = appAcionLogUtil.getActionCN(data);
+        this.ref.querySelector('.actioncn').textContent = appAcionLogUtil.getActionCN(data);
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
         }
@@ -78,30 +71,30 @@ class LogItem extends PureComponent {
         }
         if (appAcionLogUtil.isActioning(data)) {
           this.setState({ status: 'ing' });
-          this.ref.querySelector('.actionresultcn').innerHTML = (
-            <FormattedMessage id="componentOverview.body.tab.LogItem.hand" />
-          );
+          this.ref.querySelector('.actionresultcn').textContent = formatMessage({ id: 'componentOverview.body.tab.LogItem.hand' });
           this.context.isActionIng(true);
         }
-        this.ref.querySelector(
-          '.action-user'
-        ).innerHTML = `@${appAcionLogUtil.getActionUser(data)}`;
+        this.ref.querySelector('.action-user').textContent = `@${appAcionLogUtil.getActionUser(data)}`;
       }
     }
   }
 
   loadLog() {
+    const { appAlias, data } = this.props;
+    const { logType } = this.state;
     getActionLogDetail({
-      app_alias: this.props.appAlias,
-      level: this.state.logType,
+      app_alias: appAlias,
+      level: logType,
       team_name: globalUtil.getCurrTeamName(),
-      event_id: this.props.data.event_id
-    }).then(data => {
-      if (data) {
+      event_id: data.event_id
+    }).then(res => {
+      if (res) {
         this.setState({
-          logs: data.list || []
+          logs: res.list || []
         });
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   }
   getSocketUrl = () => {
@@ -143,31 +136,19 @@ class LogItem extends PureComponent {
   onClose = () => {
     this.isDoing = false;
   };
-  onSuccess = data => {
+  onSuccess = () => {
     this.setState({ resultStatus: 'success' });
-    this.ref.querySelector('.actionresultcn').innerHTML = (
-      <FormattedMessage id="componentOverview.body.tab.LogItem.complete" />
-    );
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({ id: 'componentOverview.body.tab.LogItem.complete' });
   };
   onTimeout = data => {
     this.setState({ resultStatus: 'timeout' });
-    this.ref.querySelector('.actionresultcn').innerHTML = (
-      <FormattedMessage id="componentOverview.body.tab.LogItem.timeout" />
-    );
-
-    this.ref.querySelector(
-      '.action-error-msg'
-    ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({ id: 'componentOverview.body.tab.LogItem.timeout' });
+    this.ref.querySelector('.action-error-msg').textContent = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onFail = data => {
     this.setState({ resultStatus: 'fail' });
-    this.ref.querySelector('.actionresultcn').innerHTML = (
-      <FormattedMessage id="componentOverview.body.tab.LogItem.fail" />
-    );
-
-    this.ref.querySelector(
-      '.action-error-msg'
-    ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({ id: 'componentOverview.body.tab.LogItem.fail' });
+    this.ref.querySelector('.action-error-msg').textContent = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onComplete = data => {
     this.setState({ status: '' });
@@ -395,15 +376,7 @@ class LogList extends PureComponent {
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(
-  ({ user, appControl, teamControl, kubeblocks }) => ({
-    currUser: user.currentUser,
-    appRequest: appControl.appRequest,
-    appRequestRange: appControl.appRequestRange,
-    requestTime: appControl.requestTime,
-    requestTimeRange: appControl.requestTimeRange,
-    appDisk: appControl.appDisk,
-    appMemory: appControl.appMemory,
-    pluginsList: teamControl.pluginsList,
+  ({ appControl, kubeblocks }) => ({
     appDetail: appControl.appDetail,
     clusterDetail: kubeblocks.clusterDetail
   }),
@@ -589,12 +562,7 @@ export default class Index extends PureComponent {
     if (!componentTimers) {
       return null;
     }
-    if (err && err.data && err.data.msg_show) {
-      notification.warning({
-        message: formatMessage({ id: 'notification.warn.error' }),
-        description: err.data.msg_show
-      });
-    }
+    handleAPIError(err);
   };
   handleTimers = (timerName, callback, times) => {
     const { componentTimers } = this.state;
@@ -637,11 +605,12 @@ export default class Index extends PureComponent {
   };
 
   handleDel = item => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/delAppVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias,
+        service_alias: appAlias,
         version_id: item.build_version
       },
       callback: res => {
@@ -651,6 +620,9 @@ export default class Index extends PureComponent {
           });
           this.getVersionList();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -690,42 +662,39 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data && data.bean && data.list) {
-          // eslint-disable-next-line no-shadow
           const { bean, list, total = 0 } = data;
-          let beanobj = null;
-          list.length > 0 &&
-            list.map(item => {
-              if (item.build_version === bean.current_version) {
-                beanobj = item;
-              }
-            });
+          const beanobj = list.find(item => item.build_version === bean.current_version) || null;
           this.setState({
             current_version: bean.current_version,
             beanData: beanobj,
             dataList: list,
-            // eslint-disable-next-line react/no-unused-state
             total
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
   loadBuildSourceInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/getAppBuidSource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias
+        service_alias: appAlias
       },
       callback: data => {
         if (data) {
           this.setState({
-            buildSource:
-              data.bean && data.bean.service_source && data.bean.service_source
+            buildSource: data.bean?.service_source || null
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -793,6 +762,9 @@ export default class Index extends PureComponent {
             storageUsed: res.bean.used_storage
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -802,11 +774,7 @@ export default class Index extends PureComponent {
       status,
       componentPermissions,
       socket,
-      appDetail,
-      method,
-      pluginsList,
-      clusterDetail,
-      isShowKubeBlocksComponent
+      clusterDetail
     } = this.props;
     const {
       resourcesLoading,
@@ -814,20 +782,16 @@ export default class Index extends PureComponent {
       memory,
       beanData,
       dataList,
-      new_pods,
-      old_pods,
       runLoading,
       more,
       disk,
-      buildSource,
       isopenLog,
       recordLoading,
       has_next,
       current_version,
       pages,
       pageSize,
-      total,
-      storageUsed,
+      total
     } = this.state;
     // Database 组件直接使用 Gi 单位展示存储占用
     const storageDisplay = { value: disk, unit: 'Gi' };

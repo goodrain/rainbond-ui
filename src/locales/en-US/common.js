@@ -568,6 +568,8 @@
         'notification.warn.no_port': 'This component does not have an end port',
         'notification.warn.vm_system_disk_cannot_delete': 'Host system disk cannot be deleted',
         'notification.warn.creating': 'Creating, please do not operate frequently!',
+        'notification.warn.serviceNotFound': 'Service not found, unable to perform operation',
+        'notification.warn.scaleFailed': 'Scaling operation failed',
 
         // 失败
         'notification.error.delete':'Delete failure',

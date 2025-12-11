@@ -147,6 +147,7 @@ import {
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
+import { getDvaApp } from 'umi';
 
 export default {
   namespace: 'global',
@@ -782,7 +783,7 @@ export default {
     *putNewbieGuideConfig({ payload, callback, handleError }, { call }) {
       const response = yield call(putNewbieGuideConfig, payload, handleError);
       if (response) {
-        window.g_app._store.dispatch({
+        getDvaApp()._store.dispatch({
           type: 'global/fetchNewbieGuideConfig'
         });
         if (callback) {

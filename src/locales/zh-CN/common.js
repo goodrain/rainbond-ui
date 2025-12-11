@@ -628,6 +628,8 @@
         'notification.warn.no_port': '该组件暂无端口',
         'notification.warn.vm_system_disk_cannot_delete': '主机系统盘不能删除',
         'notification.warn.creating': '正在创建，请勿频繁操作！',
+        'notification.warn.serviceNotFound': '未找到服务信息，无法执行操作',
+        'notification.warn.scaleFailed': '伸缩操作失败',
 
         //提示
         'notification.hint.component.change':'切换成功、更新组件后生效',
