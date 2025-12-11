@@ -8,6 +8,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 import {
+  Alert,
   Button,
   Card,
   Divider,
@@ -65,6 +66,8 @@ export default class Index extends PureComponent {
       changeBuildSource: false,
       editOauth: false,
       buildSource: null,
+      buildSourceLoading: true, // 构建源加载状态
+      buildSourceTimeout: false, // 构建源接口超时标记
       showMarketAppDetail: false,
       showApp: {},
       create_status: '',
@@ -98,6 +101,8 @@ export default class Index extends PureComponent {
 
   componentDidMount() {
       this.setOauthService();
+      console.log(this.props.appDetail,'this.props.appDetail');
+      
     if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
@@ -408,6 +413,7 @@ export default class Index extends PureComponent {
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
+    this.setState({ buildSourceLoading: true, buildSourceTimeout: false });
     dispatch({
       type: 'appControl/getAppBuidSource',
       payload: {
@@ -415,6 +421,7 @@ export default class Index extends PureComponent {
         service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
       },
       callback: data => {
+        this.setState({ buildSourceLoading: false });
         if (data) {
           const { bean } = data;
           if (bean.service_source === 'package_build') {
@@ -435,6 +442,13 @@ export default class Index extends PureComponent {
             }
           });
         }
+      },
+      handleError: err => {
+        const isTimeout = err && (err.code === 'ECONNABORTED' || (err.message && err.message.includes('timeout')));
+        this.setState({
+          buildSourceLoading: false,
+          buildSourceTimeout: isTimeout
+        });
       }
     });
   };
@@ -451,8 +465,6 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          console.log(res.bean,"res.bean");
-          
           this.setState({
             thirdInfo: res.bean
           });
@@ -789,6 +801,8 @@ export default class Index extends PureComponent {
       runtimeInfo,
       thirdInfo,
       buildSource,
+      buildSourceLoading,
+      buildSourceTimeout,
       tags,
       tagsLoading,
       fullList,
@@ -855,7 +869,44 @@ export default class Index extends PureComponent {
     const languageType = versionLanguage || '';
     return (
       <Fragment>
-        {buildSource && (
+        {buildSourceLoading ? (
+          <Card
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
+            style={{
+              marginBottom: 24
+            }}
+            className={styles.tabsCard}
+          >
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <Spin tip={formatMessage({ id: 'componentOverview.body.Resource.loading' })} />
+            </div>
+          </Card>
+        ) : buildSourceTimeout ? (
+          <Card
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
+            style={{
+              marginBottom: 24
+            }}
+            className={styles.tabsCard}
+            extra={(
+              <Button onClick={this.changeBuildSource} icon='form'>
+                <FormattedMessage id='componentOverview.body.Resource.change' />
+              </Button>
+            )}
+          >
+            <Alert
+              message={formatMessage({ id: 'componentOverview.body.Resource.timeout.title' })}
+              description={formatMessage({ id: 'componentOverview.body.Resource.timeout.desc' })}
+              type="warning"
+              showIcon
+              action={
+                <Button size="small" onClick={this.loadBuildSourceInfo}>
+                  {formatMessage({ id: 'componentOverview.body.Resource.timeout.retry' })}
+                </Button>
+              }
+            />
+          </Card>
+        ) : buildSource && (
           <Card
             title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
             style={{

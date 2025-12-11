@@ -10,6 +10,7 @@ const componentOverview = {
     // 右侧按钮
     'componentOverview.header.right.web': 'Web终端',
     'componentOverview.header.right.build': '构建',
+    'componentOverview.header.build.timeout': '版本检查超时，无法确定是否有新版本可用',
     'componentOverview.header.right.update': '更新',
     'componentOverview.header.right.update.roll': '更新(滚动)',
     'componentOverview.header.right.visit': '访问',
@@ -785,6 +786,10 @@ const componentOverview = {
     'componentOverview.body.Resource.branch': '分支',
     'componentOverview.body.Resource.arch': '架构',
     'componentOverview.body.Resource.select_arch': '请选择架构',
+    'componentOverview.body.Resource.loading': '加载中...',
+    'componentOverview.body.Resource.timeout.title': '网络连接超时',
+    'componentOverview.body.Resource.timeout.desc': '获取构建源信息超时，请检查网络连接后重试。',
+    'componentOverview.body.Resource.timeout.retry': '重试',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': '自动构建设置',
     'componentOverview.body.AutoDeploy.open': '开启自动构建',
