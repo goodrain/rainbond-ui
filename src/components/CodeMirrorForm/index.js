@@ -7,16 +7,15 @@ import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
 
-require('codemirror/lib/codemirror.css');
-require('codemirror/theme/seti.css');
-require('codemirror/addon/display/fullscreen.css');
-require('../../styles/codemirror.less');
-require('codemirror/addon/display/panel');
-require('codemirror/mode/xml/xml');
-require('codemirror/mode/javascript/javascript');
-require('codemirror/mode/yaml/yaml');
-require('codemirror/addon/display/fullscreen');
-require('codemirror/addon/edit/matchbrackets');
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/seti.css';
+import 'codemirror/addon/display/fullscreen.css';
+import 'codemirror/addon/display/panel';
+import 'codemirror/mode/xml/xml';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/yaml/yaml';
+import 'codemirror/addon/display/fullscreen';
+import 'codemirror/addon/edit/matchbrackets';
 
 // eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {

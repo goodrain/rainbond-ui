@@ -24,9 +24,8 @@ import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
 import handleAPIError from '../../utils/error';
 
-require('codemirror/mode/yaml/yaml');
-require('codemirror/lib/codemirror.css');
-require('../../styles/codemirror.less');
+import 'codemirror/mode/yaml/yaml';
+import 'codemirror/lib/codemirror.css';
 
 /* 修改compose内容 */
 

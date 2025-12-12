@@ -1,5 +1,4 @@
 /* eslint-disable no-nested-ternary */
-/* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
 import {
   Button,
@@ -14,15 +13,18 @@ import {
 import { connect } from 'dva';
 import React, { Fragment } from 'react';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
 import SetMemberAppAction from '../../components/SetMemberAppAction';
 import appProbeUtil from '../../utils/appProbe-util';
 import appStatusUtil from '../../utils/appStatus-util';
+import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
+import { formatMessage } from '@/utils/intl';
 import role from '@/utils/newRole';
+import styles from './resource.less';
 import Kubernetes from './kubernets';
 import AddTag from './setting/add-tag';
 import EditHealthCheck from './setting/edit-health-check';
@@ -32,26 +34,20 @@ import ViewHealthCheck from './setting/health-check';
 import EditActions from './setting/perm';
 import ViewRunHealthCheck from './setting/run-health-check';
 import Strategy from './strategy';
-import pluginUtils from '../../utils/pulginUtils';
-import cookie from '../../utils/cookie';
-import styles from './resource.less';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @connect(
-  ({ user, appControl, teamControl, rbdPlugin, global }) => ({
+  ({ user, appControl, teamControl, global }) => ({
     currUser: user.currentUser,
     startProbe: appControl.startProbe,
     runningProbe: appControl.runningProbe,
     ports: appControl.ports,
     baseInfo: appControl.baseInfo,
-    // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
-    appControl,
-    pluginList: rbdPlugin.pluginList,
-    rainbondInfo: global.rainbondInfo,
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -117,86 +113,108 @@ export default class Index extends React.Component {
     this.setState({ deleteVar: data });
   };
   fetchBaseInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchBaseInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   fetchPorts = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   fetchTags = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchTags',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
       },
       callback: data => {
         if (data) {
           this.setState({ tags: data.used_labels });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   // 变量信息
   fetchInnerEnvs = () => {
+    const { dispatch, appAlias } = this.props;
     const { page, page_size, env_name } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'appControl/fetchInnerEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         page,
         page_size,
         env_name
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   fetchStartProbe() {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/fetchStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   }
   fetchRunningProbe() {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/fetchRunningProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
       },
-      callback: code => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   }
   loadMembers = () => {
-    const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'teamControl/fetchMember',
       payload: {
-        team_name,
-        app_alias: this.props.appAlias
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias
       },
       callback: data => {
         if (data) {
           this.setState({ memberslist: data.list });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -208,16 +226,20 @@ export default class Index extends React.Component {
     this.setState({ showAddMember: false });
   };
   handleAddMember = values => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/setMemberAction',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         ...values
       },
       callback: () => {
         this.loadMembers();
         this.hideAddMember();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -228,11 +250,12 @@ export default class Index extends React.Component {
     this.setState({ showAddVar: false });
   };
   handleSubmitAddVar = vals => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/addInnerEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
         name: vals.name
@@ -240,6 +263,9 @@ export default class Index extends React.Component {
       callback: () => {
         this.handleCancelAddVar();
         this.fetchInnerEnvs();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -258,29 +284,35 @@ export default class Index extends React.Component {
   };
 
   handleDeleteVar = () => {
-    this.props.dispatch({
+    const { dispatch, appAlias, onshowRestartTips } = this.props;
+    const { deleteVar } = this.state;
+    dispatch({
       type: 'appControl/deleteEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID
+        app_alias: appAlias,
+        ID: deleteVar.ID
       },
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
         notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
-        this.props.onshowRestartTips(true);
+        onshowRestartTips(true);
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
 
   handleTransfer = () => {
+    const { dispatch, appAlias } = this.props;
     const { transfer } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'appControl/putTransfer',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         ID: transfer.ID,
         scope: transfer.scope == 'inner' ? 'outer' : 'inner'
       },
@@ -288,6 +320,9 @@ export default class Index extends React.Component {
         this.cancelTransfer();
         this.fetchInnerEnvs();
         notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -299,12 +334,13 @@ export default class Index extends React.Component {
     this.setState({ showEditVar: null });
   };
   handleEditVar = vals => {
+    const { dispatch, appAlias } = this.props;
     const { showEditVar } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'appControl/editEvns',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         ID: showEditVar.ID,
         attr_value: vals.attr_value,
         name: vals.name
@@ -312,114 +348,138 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelEditVar();
         this.fetchInnerEnvs();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   handleStartProbeStart = isUsed => {
-    const { startProbe } = this.props;
-    this.props.dispatch({
+    const { dispatch, appAlias, startProbe } = this.props;
+    dispatch({
       type: 'appControl/editStartProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         ...startProbe,
         is_used: isUsed
       },
       callback: res => {
-        if (res && res.status_code) {
-          if (res.status_code === 200) {
-            this.fetchStartProbe();
-            if (isUsed) {
-              notification.success({ message: formatMessage({ id: 'notification.success.assembly_start' }) });
-            } else {
-              notification.success({ message: formatMessage({ id: 'notification.success.assembly_disable' }) });
-            }
+        if (res?.status_code === 200) {
+          this.fetchStartProbe();
+          if (isUsed) {
+            notification.success({ message: formatMessage({ id: 'notification.success.assembly_start' }) });
+          } else {
+            notification.success({ message: formatMessage({ id: 'notification.success.assembly_disable' }) });
           }
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   handleRunProbeStart = isUsed => {
-    const { runningProbe } = this.props;
-    this.props.dispatch({
+    const { dispatch, appAlias, runningProbe } = this.props;
+    dispatch({
       type: 'appControl/editRunProbe',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         ...runningProbe,
         is_used: isUsed
       },
       callback: () => {
         this.fetchRunningProbe();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   handleEditHealth = vals => {
-    const { startProbe } = this.props;
-    this.setState({
-      loading: true
-    });
-    if (appProbeUtil.isStartProbeUsed(this.state.editStartHealth)) {
-      this.props.dispatch({
+    const { dispatch, appAlias, startProbe } = this.props;
+    const { editStartHealth } = this.state;
+    this.setState({ loading: true });
+
+    if (appProbeUtil.isStartProbeUsed(editStartHealth)) {
+      dispatch({
         type: 'appControl/editStartProbe',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
+          app_alias: appAlias,
           ...vals,
           old_mode: startProbe.mode
         },
         callback: res => {
-          if (res && res.status_code && res.status_code === 200) {
+          if (res?.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
             notification.success({ message: formatMessage({ id: 'notification.success.assembly_edit' }) });
           }
+        },
+        handleError: (err) => {
+          this.setState({ loading: false });
+          handleAPIError(err);
         }
       });
     } else {
-      this.props.dispatch({
+      dispatch({
         type: 'appControl/addStartProbe',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
+          app_alias: appAlias,
           ...vals
         },
         callback: res => {
-          if (res && res.status_code && res.status_code === 200) {
+          if (res?.status_code === 200) {
             this.onCancelEditStartProbe();
             this.fetchStartProbe();
             notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
             notification.info({ message: formatMessage({ id: 'notification.hint.need_updata' }) });
           }
+        },
+        handleError: (err) => {
+          this.setState({ loading: false });
+          handleAPIError(err);
         }
       });
     }
   };
   handleEditRunHealth = vals => {
-    if (appProbeUtil.isRunningProbeUsed(this.state.editRunHealth)) {
-      this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    const { editRunHealth } = this.state;
+
+    if (appProbeUtil.isRunningProbeUsed(editRunHealth)) {
+      dispatch({
         type: 'appControl/editRunProbe',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
+          app_alias: appAlias,
           ...vals
         },
         callback: () => {
           this.onCancelEditRunProbe();
           this.fetchRunningProbe();
+        },
+        handleError: (err) => {
+          handleAPIError(err);
         }
       });
     } else {
-      this.props.dispatch({
+      dispatch({
         type: 'appControl/addRunProbe',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
+          app_alias: appAlias,
           ...vals
         },
         callback: () => {
           this.onCancelEditRunProbe();
           this.fetchRunningProbe();
+        },
+        handleError: (err) => {
+          handleAPIError(err);
         }
       });
     }
@@ -443,25 +503,30 @@ export default class Index extends React.Component {
     this.setState({ editRunHealth: null });
   };
   handleRemoveTag = tag => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/deleteTag',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         label_id: tag.label_id
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
         this.fetchTags();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   onAddTag = () => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/getTagInformation',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
       },
       callback: data => {
         if (data) {
@@ -470,6 +535,9 @@ export default class Index extends React.Component {
             tabData: data.list
           });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -477,11 +545,12 @@ export default class Index extends React.Component {
     this.setState({ addTag: false, tabData: [] });
   };
   handleAddTag = tags => {
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/addTag',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: appAlias,
         label_ids: tags
       },
       callback: () => {
@@ -489,6 +558,9 @@ export default class Index extends React.Component {
         notification.success({ message: formatMessage({ id: 'notification.success.assembly_add' }) });
         this.fetchTags();
         this.setState({ tabData: [] });
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -499,18 +571,22 @@ export default class Index extends React.Component {
     this.setState({ toEditAction: null });
   };
   handleEditAction = value => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    const { toEditAction } = this.state;
+    dispatch({
       type: 'appControl/editMemberAction',
       payload: {
-        team_name,
-        user_id: this.state.toEditAction.user_id,
-        app_alias: this.props.appAlias,
+        team_name: globalUtil.getCurrTeamName(),
+        user_id: toEditAction.user_id,
+        app_alias: appAlias,
         ...value
       },
       callback: () => {
         this.loadMembers();
         this.hideEditAction();
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -523,16 +599,18 @@ export default class Index extends React.Component {
   };
 
   updateComponentDetail = () => {
-    const teamNames = globalUtil.getCurrTeamName();
-    const { appAlias } = this.props;
-    this.props.dispatch({
+    const { dispatch, appAlias } = this.props;
+    dispatch({
       type: 'appControl/fetchDetail',
       payload: {
-        team_name: teamNames,
+        team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias
       },
       callback: appDetail => {
         this.setState({ currentComponent: appDetail.service });
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -546,15 +624,15 @@ export default class Index extends React.Component {
     });
   };
   handleOk_AppSetting = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias, form } = this.props;
 
-    this.props.form.validateFields((err, values) => {
+    form.validateFields((err, values) => {
       if (!err) {
         dispatch({
           type: 'appControl/updateComponentDeployType',
           payload: {
             team_name: globalUtil.getCurrTeamName(),
-            app_alias: this.props.appAlias,
+            app_alias: appAlias,
             extend_method: values.extend_method
           },
           callback: data => {
@@ -571,6 +649,9 @@ export default class Index extends React.Component {
                 }
               );
             }
+          },
+          handleError: (err) => {
+            handleAPIError(err);
           }
         });
       }

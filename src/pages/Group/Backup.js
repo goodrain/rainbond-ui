@@ -18,9 +18,9 @@ export default class Backup extends Component {
         title={formatMessage({ id: 'appBackups.title' })}
         titleSvg={pageheaderSvg.getSvg('backupSvg', 18)}
         content={
-          <p>
+           <>
             {formatMessage({ id: 'appBackups.desc' })}
-          </p>
+           </>
         }
       >
         <EnterprisePluginsPage type='AppBackUp' key='AppBackUp'/>
