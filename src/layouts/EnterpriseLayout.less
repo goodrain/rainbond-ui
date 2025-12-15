@@ -25,3 +25,49 @@
 .bgc {
     background-color: @rbd-background-color;
 }
+
+// 路由切换滑动动画
+:global {
+    // 进入：从右侧滑入，由淡变实
+    .page-zoom-enter {
+        opacity: 0;
+        transform: translate3d(25%, 0, 0);
+        will-change: transform, opacity;
+    }
+
+    .page-zoom-enter-active {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        transition:
+            transform 700ms cubic-bezier(0.19, 1, 0.22, 1),
+            opacity 600ms cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .page-zoom-enter-done {
+        will-change: auto;
+    }
+
+    // 退出：向左滑出，由实变淡
+    .page-zoom-exit {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        overflow: auto;
+        will-change: transform, opacity;
+    }
+
+    .page-zoom-exit-active {
+        opacity: 0;
+        transform: translate3d(-15%, 0, 0);
+        transition:
+            transform 600ms cubic-bezier(0.19, 1, 0.22, 1),
+            opacity 500ms cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .page-zoom-exit-done {
+        will-change: auto;
+    }
+}

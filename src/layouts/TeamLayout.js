@@ -25,7 +25,6 @@ import GlobalHeader from '../components/GlobalHeader';
 import GlobalRouter from '../components/GlobalRouter';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
-import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import Exception from '../pages/Exception/403';
 import cookie from '../utils/cookie';
@@ -39,12 +38,9 @@ import CustomerServiceFloat from '../components/CustomerServiceFloat';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
-import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
 import headerStype from '../components/GlobalHeader/index.less';
 import PluginUtil from '../utils/pulginUtils';
-import "animate.css"
-import error from '@/models/error';
 const { Content } = Layout;
 Modal.defaultProps.width = 480;
 
@@ -1007,17 +1003,14 @@ class TeamLayout extends PureComponent {
                 {this.state.GroupShow ?
                   <TransitionGroup
                     style={{
+                      position: 'relative',
                       height: 'calc(100vh - 64px)',
-                      overflow: overflow || 'auto',
+                      overflow: 'hidden',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
                     <CSSTransition
-                      timeout={300}
-                      classNames=
-                      {{
-                        enter: 'animate__animated',
-                        enterActive: 'animate__fadeIn',
-                      }}
+                      timeout={700}
+                      classNames="page-zoom"
                       unmountOnExit
                       key={this.props.location.pathname}
                     >
