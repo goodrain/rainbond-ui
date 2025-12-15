@@ -215,28 +215,23 @@ class Index extends PureComponent {
                           }}
                         >
                           {globalUtil.fetchStateOptTypeText(opt_type)}
-                          &nbsp;
+                           &nbsp;
                         </span>
                         {globalUtil.fetchOperation(final_status, status)}
                         &nbsp;
+
                         {status === 'failure' && globalUtil.fetchReason(reason)}
-                        {opt_type === 'Unschedulable' ? (
-                          <span>
-                            ({message}
-                            {(message === "节点CPU不足" || message === "节点内存不足") && (
-                              <span
-                                style={{color: '#3296fa', cursor: 'pointer'}}
-                                onClick={() => this.jumpExpansion(false)}
-                              >
-                                {formatMessage({id: 'componentOverview.body.tab.overview.handle.stretch'})}
-                              </span>
-                            )})
+
+                        
+                        {final_status === 'complete' && status === 'failure' && 
+                        <Tooltip
+                          title={message}
+                        >
+                          <span style={{color:'#A8A8A8'}}>
+                            ({message})
                           </span>
-                        ) : opt_type === 'INITIATING' ? (
-                          this.jumpMessage(message, false)
-                        ) : (
-                          Messages
-                        )}
+                        </Tooltip>
+                        }
 
                       </Tooltip>
                     </div>

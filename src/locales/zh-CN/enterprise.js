@@ -155,6 +155,9 @@ const applicationMarket = {
     'applicationMarket.localMarket.have.installNumber': '安装量',
     'applicationMarket.localMarket.have.versions': '无版本',
     'applicationMarket.localMarket.have.install': '安装',
+    // 网络超时提示
+    'applicationMarket.localMarket.timeout.title': '网络连接超时',
+    'applicationMarket.localMarket.timeout.desc': '应用市场连接超时，当前仅显示本地组件库。请检查网络连接后刷新页面重试。',
     // 开源商店tabs
     'applicationMarket.cloudMarket.msg': '市场已经正常连接,该平台具有',
     'applicationMarket.cloudMarket.msgs': '应用权限',

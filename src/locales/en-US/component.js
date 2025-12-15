@@ -10,6 +10,7 @@ const componentOverview = {
     // 右侧按钮
     'componentOverview.header.right.web': 'Terminal',
     'componentOverview.header.right.build': 'Build',
+    'componentOverview.header.build.timeout': 'Version check timed out, unable to determine if new version is available',
     'componentOverview.header.right.update': 'Upgrade',
     'componentOverview.header.right.update.roll': 'Upgrade',
     'componentOverview.header.right.visit': 'Access',
@@ -776,6 +777,10 @@ const componentOverview = {
     'componentOverview.body.Resource.branch': 'Branch',
     'componentOverview.body.Resource.arch': 'Architecture',
     'componentOverview.body.Resource.select_arch': 'Please select architecture',
+    'componentOverview.body.Resource.loading': 'Loading...',
+    'componentOverview.body.Resource.timeout.title': 'Network Connection Timeout',
+    'componentOverview.body.Resource.timeout.desc': 'Failed to get build source info due to timeout. Please check your network connection and try again.',
+    'componentOverview.body.Resource.timeout.retry': 'Retry',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': 'Auto Build Settings',
     'componentOverview.body.AutoDeploy.open': 'Turn on',

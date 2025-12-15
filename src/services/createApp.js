@@ -90,7 +90,7 @@ export async function createJarWarServices(body = {}) {
 export async function createJarWarUploadStatus(
   body = { enterprise_id, event_id },
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
@@ -109,7 +109,7 @@ export async function createJarWarUploadStatus(
 export async function deleteJarWarUploadStatus(
   body = { enterprise_id, event_id },
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
@@ -125,9 +125,9 @@ export async function deleteJarWarUploadStatus(
    Jar、War包上传文件记录
 */
 export async function createJarWarUploadRecord(
-  body = { },
+  body = {},
   handleError
-  ) {
+) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/last-record`,
     {
@@ -308,7 +308,7 @@ export function getCreateCheckId(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
       method: 'post',
-      data:{
+      data: {
         event_id: body.event_id
       },
       handleError
@@ -317,7 +317,7 @@ export function getCreateCheckId(body = {}, handleError) {
 }
 
 /*
-	获取应用检测结果
+  获取应用检测结果
 */
 export function getCreateCheckResult(body = {}) {
   return request(
@@ -383,13 +383,13 @@ export function buildApp(body = {}, handleError) {
 
 /*
   Node项目设置语言和依赖
-*/ 
+*/
 export async function setNodeLanguage(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/package_tool`,
     {
       method: 'post',
-      data:{
+      data: {
         lang: body.lang,
         package_tool: body.package_tool,
         dist: body.dist
@@ -580,10 +580,10 @@ export async function helmAppInstall(body = {}, handleError) {
     {
       method: 'get',
       params: {
-        name:body.name,
-        version:body.version,
-        repo_name:body.repo_name,
-        chart_name:body.chart_name,
+        name: body.name,
+        version: body.version,
+        repo_name: body.repo_name,
+        chart_name: body.chart_name,
         app_id: body.app_id
       },
       handleError
@@ -686,9 +686,116 @@ export async function updateCustomLanguage(body = {}, handleError) {
       params: {
         lang: body.lang
       },
-      data:{
+      data: {
         dockerfile_path: body.dockerfile_path || ""
       }
     }
   )
+}
+
+/*
+  初始化分片上传会话
+*/
+export async function initChunkUpload(body = {}, handleError) {
+  // upload_url 只包含域名，需要拼接完整路径
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/init`,
+    {
+      method: 'post',
+      data: {
+        file_name: body.file_name,
+        file_size: body.file_size,
+        file_md5: body.file_md5,
+        chunk_size: body.chunk_size
+      },
+      headers: {
+        accept: '*/*'
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  上传分片
+*/
+export async function uploadChunk(body = {}, handleError) {
+  const formData = new FormData();
+  formData.append('session_id', body.session_id);
+  formData.append('chunk_index', body.chunk_index);
+  formData.append('file', body.file);
+
+  // upload_url 只包含域名，需要拼接完整路径
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/chunk`,
+    {
+      method: 'post',
+      data: formData,
+      headers: {
+        accept: '*/*'
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  完成分片上传
+*/
+export async function completeChunkUpload(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/complete`,
+    {
+      method: 'post',
+      data: {
+        session_id: body.session_id
+      },
+      headers: {
+        accept: '*/*'
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  查询分片上传状态
+*/
+export async function getChunkUploadStatus(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/status/${body.session_id}`,
+    {
+      method: 'get',
+      headers: {
+        accept: '*/*'
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  取消分片上传
+*/
+export async function cancelChunkUpload(body = {}, handleError) {
+  const baseUrl = body.upload_url || apiconfig.baseUrl;
+
+  return request(
+    `${baseUrl}/upload/${body.session_id}`,
+    {
+      method: 'delete',
+      headers: {
+        accept: '*/*'
+      },
+      handleError
+    }
+  );
 }

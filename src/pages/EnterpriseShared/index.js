@@ -8,6 +8,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import NewbieGuiding from '@/components/NewbieGuiding';
 import {
+  Alert,
   Button,
   Checkbox,
   Col,
@@ -147,6 +148,7 @@ export default class EnterpriseShared extends PureComponent {
       tabsList: [],
       helmInfoSwitch: false,
       marketInfoSwitch: false,
+      marketTimeout: false, // 应用市场接口超时标记
     };
   }
   componentDidMount() {
@@ -379,8 +381,11 @@ export default class EnterpriseShared extends PureComponent {
       },
       handleError: res => {
         if (res) {
+          // 判断是否为超时错误
+          const isTimeout = res && (res.code === 'ECONNABORTED' || (res.message && res.message.includes('timeout')));
           this.setState({
-            marketInfoSwitch: true
+            marketInfoSwitch: true,
+            marketTimeout: isTimeout
           })
         }
       }
@@ -430,7 +435,7 @@ export default class EnterpriseShared extends PureComponent {
       handleError: res => {
         if (res) {
           this.setState({
-            marketInfoSwitch: true
+            helmInfoSwitch: true
           })
         }
       }
@@ -1483,7 +1488,8 @@ export default class EnterpriseShared extends PureComponent {
       tabsList,
       helmInfoSwitch,
       marketInfoSwitch,
-      goClusters
+      goClusters,
+      marketTimeout
     } = this.state;
     const local = [{ types: 'local' }]
     const storeTabs = [...tabsList, ...local].reverse()
@@ -1668,6 +1674,15 @@ export default class EnterpriseShared extends PureComponent {
 
     const localsContent = (
       <div style={{ padding: '0' }}>
+        {marketTimeout && (
+          <Alert
+            message={formatMessage({ id: 'applicationMarket.localMarket.timeout.title' })}
+            description={formatMessage({ id: 'applicationMarket.localMarket.timeout.desc' })}
+            type="warning"
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+        )}
         <Row style={contentStyle}>
           <Col span={15} style={contentLeftStyle}>
             <Search
