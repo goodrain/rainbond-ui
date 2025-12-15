@@ -27,6 +27,9 @@ export default function AppHeader(props) {
       ) : (
 
         <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+            /
+          </div>
           <SelectTeam
             active={false}
             className={headerStype.select}
@@ -36,8 +39,8 @@ export default function AppHeader(props) {
             currentRegion={currentRegion}
             changeTeam={changeTeam}
           />
-          <div style={{ padding: '0 6px' ,fontSize:14,fontWeight: 600}}>
-              /
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+            /
           </div>
           <SelectApp
             handleClick={handleClick}

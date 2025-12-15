@@ -21,6 +21,9 @@ export default function TeamHeader(props) {
         <Spin size="large" />
       ) : (
         <div className={headerStype.breadCrumb}>
+          <div style={{ padding: '0 4px', fontSize: 14, fontWeight: 600 }}>
+            /
+          </div>
           <SelectTeam
             active
             upDataHeader={upDataHeader}

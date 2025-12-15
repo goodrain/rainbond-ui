@@ -39,7 +39,6 @@ import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
-import headerStype from '../components/GlobalHeader/index.less';
 import PluginUtil from '../utils/pulginUtils';
 const { Content } = Layout;
 Modal.defaultProps.width = 480;
@@ -115,7 +114,11 @@ class TeamLayout extends PureComponent {
     this.getNewbieGuideConfig();
     this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
-    this.handleMenuCollapse(true);
+    // 使用 localStorage 中保存的折叠状态
+    const savedCollapsed = window.localStorage.getItem('collapsed');
+    if (savedCollapsed !== null) {
+      this.handleMenuCollapse(savedCollapsed === 'true');
+    }
     const { teamAppCreatePermission: { isAccess } } = this.state
     // 避免 SaaS 下重复调用 getUserNewbieGuideConfig
     if (isAccess) {
@@ -826,14 +829,6 @@ class TeamLayout extends PureComponent {
       groupDetail && groupDetail.app_type === 'helm'
         ? 'helm'
         : this.getMode(appID || componentID);
-    const customHeaderImg = () => {
-      return (
-        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-          <img src={fetchLogo} alt="" />
-        </div>
-      );
-    };
-
     const customHeader = () => {
       if (mode == 'team') {
         return (
@@ -951,7 +946,7 @@ class TeamLayout extends PureComponent {
           </div>
         );
       };      
-      const isApp = mode == 'team' ? false : showMenu ? !componentID : false
+      const isApp = showMenu ? (mode == 'team' ? true : !componentID) : false
       return (
           <Layout key={overflow}>
             <GlobalHeader
@@ -973,7 +968,6 @@ class TeamLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
-              customHeaderImg={teamView && customHeaderImg}
             />
 
             <Layout style={{ flexDirection: 'row' }}>
@@ -996,15 +990,14 @@ class TeamLayout extends PureComponent {
                   menuData={menuData}
                   pathname={pathname}
                   showMenu={isApp}
-                  isAppOverview
                 />
               )}
-              <div style={{ width:(mode == 'team' || componentID) ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+              <div style={{ width: componentID ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
                 {this.state.GroupShow ?
                   <TransitionGroup
                     style={{
                       position: 'relative',
-                      height: 'calc(100vh - 64px)',
+                      height: 'calc(100vh - 50px)',
                       overflow: 'hidden',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
@@ -1016,15 +1009,12 @@ class TeamLayout extends PureComponent {
                     >
                       <Content
                         style={{
-                          height: 'calc(100vh - 64px)',
+                          height: 'calc(100vh - 50px)',
                           overflow: overflow || 'auto',
                           width: '100%'
                         }}
                       >
                         <div
-                          style={{
-                            margin: marginShow ? !isApp ? '0px' : '24px 24px 0' : "0px"
-                          }}
                         >
                           {renderContent()}
                           {showFooter && <CustomFooter />}

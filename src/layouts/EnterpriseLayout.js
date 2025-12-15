@@ -22,7 +22,6 @@ import logo from '../../public/logo.png';
 import { getMenuData } from '../common/enterpriseMenu';
 import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';
-import headerStype from '../components/GlobalHeader/index.less';
 import GlobalRouter from '../components/GlobalRouter';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
@@ -113,7 +112,11 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidMount() {
-    this.handleMenuCollapse(false);
+    // 使用 localStorage 中保存的折叠状态
+    const savedCollapsed = window.localStorage.getItem('collapsed');
+    if (savedCollapsed !== null) {
+      this.handleMenuCollapse(savedCollapsed === 'true');
+    }
     this.getEnterpriseList();
     this.handleLoadEnterpriseClusters();
     if (window.location.href.includes('/shell')) {
@@ -454,21 +457,6 @@ class EnterpriseLayout extends PureComponent {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
-    const customHeaderImg = () => {
-      return (
-        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-          <img src={fetchLogo} alt="" />
-        </div>
-      );
-    };
-    const customHeader = () => {
-      return (
-        <Link style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginLeft: 20 }} className={styles.platform} onClick={this.onJumpPersonal}>
-          <Icon type="team" style={{fontSize: 16,marginRight:6}}/>
-          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
-        </Link>
-      )
-    }
     const layout = () => {
       const isAlarm = rainbondInfo?.is_alarm?.enable;
       const { showMenu, key } = this.state;
@@ -490,8 +478,6 @@ class EnterpriseLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
-              customHeaderImg={customHeaderImg}
-              customHeader={customHeader}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
@@ -518,7 +504,7 @@ class EnterpriseLayout extends PureComponent {
                 <TransitionGroup
                   style={{
                     position: 'relative',
-                    height: 'calc(100vh - 64px)',
+                    height: 'calc(100vh - 50px)',
                     overflow: 'hidden',
                     width: "100%"
                   }}>
@@ -531,7 +517,7 @@ class EnterpriseLayout extends PureComponent {
                     <Content
                       key={eid}
                       style={{
-                        height: 'calc(100vh - 64px)',
+                        height: 'calc(100vh - 50px)',
                         overflow: 'auto',
                         width: '100%'
                       }}
@@ -548,11 +534,7 @@ class EnterpriseLayout extends PureComponent {
                           />
                         </div>
                       ))}
-                      <div
-                        style={{
-                          margin: '24px 24px 0'
-                        }}
-                      >
+                      <div>
                         <Authorized
                           logined
                           authority={['admin', 'user']}

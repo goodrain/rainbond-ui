@@ -1,362 +1,484 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable no-console */
-import { Icon, Menu,Button } from 'antd';
+import { Icon, Tooltip, Popover } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
-import CollectionView from '../SiderMenu/CollectionView';
 import styles from './index.less';
 
-const { SubMenu } = Menu;
-
-// Allow menu.js config icon as string or ReactNode   icon: 'setting',   icon:
-// 'http://demo.com/icon.png',   icon: <Icon type="setting" />,
+/**
+ * 获取菜单图标
+ */
 const getIcon = icon => {
+  if (!icon) return null;
+
+  // URL 图标
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
-    return < img src={icon} alt="icon" className={styles.icon} />;
+    return <img src={icon} alt="icon" className={styles.menuIcon} />;
   }
+  // antd Icon 类型字符串
   if (typeof icon === 'string') {
-    return <Icon type={icon} />;
+    return <Icon type={icon} className={styles.menuIcon} />;
   }
-  return icon;
+  // React 组件（SVG 等）
+  return <span className={styles.menuIcon}>{icon}</span>;
 };
 
-@connect(({ loading, global }) => ({
+@connect(({ loading, global, user }) => ({
   viewLoading: loading.effects['user/addCollectionView'],
-  collapsed: global.collapsed
+  collapsed: global.collapsed,
+  currentUser: user.currentUser
 }))
 export default class GlobalRouter extends PureComponent {
   constructor(props) {
     super(props);
-    this.menus = props.menuData;
     this.state = {
-      collectionVisible: false,
-      openKeys: this.getDefaultCollapsedSubMenus(props),
-      collapsed: this.props.collapsed,
+      expandedKeys: [], // 展开的子菜单 keys
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.location.pathname !== this.props.location.pathname) {
-      this.setState({
-        openKeys: this.getDefaultCollapsedSubMenus(nextProps)
-      });
+  componentDidMount() {
+    // 初始化展开状态
+    this.initExpandedKeys();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.location?.pathname !== this.props.location?.pathname) {
+      this.initExpandedKeys();
     }
   }
 
   /**
-   * Convert pathname to openKeys
-   * /list/search/articles = > ['list','/list/search']
-   * @param  props
+   * 初始化展开的菜单
    */
-  getDefaultCollapsedSubMenus(props) {
-    const {
-      location: { pathname }
-    } = props || this.props;
-    // eg. /list/search/articles = > ['','list','search','articles']
-    let snippets = pathname.split('/');
-    // Delete the end eg.  delete 'articles' snippets.pop(); Delete the head eg.
-    // delete ''
-    snippets.shift();
-    // eg. After the operation is completed, the array should be ['list','search']
-    // eg. Forward the array as ['list','list/search']
-    snippets = snippets.map((item, index) => {
-      // If the array length > 1
-      if (index > 0) {
-        // eg. search => ['list','search'].join('/')
-        return snippets.slice(0, index + 1).join('/');
-      }
-      // index 0 to not do anything
-      return item;
-    });
-    let withapp = false;
-    snippets = snippets.map(item => {
-      const itemArr = item.split('/');
-      if (itemArr[itemArr.length - 1] === 'index') {
-        withapp = true;
-      }
-      if (itemArr[itemArr.length - 1] === 'app') {
-        withapp = true;
-        return `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`;
-      }
-      if (itemArr[itemArr.length - 2] === 'app') {
-        withapp = true;
-        return this.getOpenGroup(itemArr[itemArr.length - 1]);
-      }
-      return this.getSelectedMenuKeys(`/${item}`)[0];
-    });
-    // eg. ['list','list/search']
-    if (withapp) {
-      snippets.push(
-        `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
-      );
-    }
-    return snippets;
-  }
-  getOpenGroup(appAlias) {
-    const data = this.props.menuData;
-    const groups = data.filter(item => item.path.indexOf('groups') > -1)[0];
+  initExpandedKeys = () => {
+    const { pathname } = this.props;
+    const allItems = this.getAllMenuItems();
+    const expandedKeys = [];
 
-    if (groups) {
-      const childs = groups.children || [];
-      const currGroup = childs.filter(child => {
-        const res = (child.children || []).filter(
-          item => item.path.indexOf(appAlias) > -1
-        )[0];
-        return res;
-      })[0];
-
-      if (currGroup) {
-        return currGroup.path;
-      }
-    }
-  }
-  /**
-   * Recursively flatten the data
-   * [{path:string},{path:string}] => {path,path2}
-   * @param  menus
-   */
-  getFlatMenuKeys(menus) {
-    let keys = [];
-    menus.forEach(item => {
+    allItems.forEach(item => {
       if (item.children) {
-        keys.push(item.path);
-        keys = keys.concat(this.getFlatMenuKeys(item.children));
-      } else {
-        keys.push(item.path);
-      }
-    });
-    return keys;
-  }
-  /**
-   * Get selected child nodes
-   * /user/chen => /user/:id
-   */
-  getSelectedMenuKeys = path => {
-    const flatMenuKeys = this.getFlatMenuKeys(this.props.menuData);
-    return flatMenuKeys.filter(item => {
-      if (item == path) {
-        return true;
-      }
-      return `/${item}` == path;
-    });
-  };
-  /**
-   * 判断是否是http链接.返回 Link 或 a
-   * Judge whether it is http link.return a or Link
-   * @memberof SiderMenu
-   */
-  getMenuItemPath = (item, bool) => {
-    const { enterprise } = this.props;
-    const itemPath = this.conversionPath(item.path);
-    const icon = getIcon(item.icon);
-    const { target, name } = item;
-    // Is it a http link
-    if (/^https?:\/\//.test(itemPath)) {
-      return (
-        <a href={itemPath} target={target}>
-          {icon}
-          <span>{name}</span>
-        </a>
-      );
-    }
-    return (
-      <Link
-        to={itemPath}
-        target={target}
-        replace={itemPath === this.props.location.pathname}
-        onClick={
-          this.props.isMobile
-            ? () => {
-                this.props.onCollapse(true);
-              }
-            : undefined
+        const hasActiveChild = item.children.some(child =>
+          this.isMenuItemActive(child.path, pathname)
+        );
+        if (hasActiveChild) {
+          expandedKeys.push(item.path);
         }
-      >
-        {icon}
-        <span>{name}</span>
-      </Link>
-    );
-  };
-  /**
-   * get SubMenu or Item
-   */
-  getSubMenuOrItem = (item, bool) => {
-    if (item.children && item.children.some(child => child.name)) {
-      return (
-        <SubMenu
-          title={
-            <a>
-              {item.icon && getIcon(item.icon)}
-              <span>{item.name}</span>
-            </a>
-          }
-          key={item.path}
-        >
-          {this.getNavMenuItems(item.children, true)}
-        </SubMenu>
-      );
-    }
-    return <Menu.Item key={item.path} >{this.getMenuItemPath(item)}</Menu.Item>;
-  };
-  /**
-   * 获得菜单子节点
-   * @memberof SiderMenu
-   */
-  getNavMenuItems = (menusData, bool) => {
-    if (!menusData) {
-      return [];
-    }
+      }
+    });
 
-    return menusData
-      .filter(item => item.name && !item.hideInMenu)
-      .map(item => {
-        const ItemDom = this.getSubMenuOrItem(item, bool);
-        return this.checkPermissionItem(item.authority, ItemDom);
-      })
-      .filter(item => !!item);
+    this.setState({ expandedKeys });
   };
-  // conversion Path 转化路径
+
+  /**
+   * 判断当前是否在团队视图
+   */
+  isTeamView = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    return teamName && regionName;
+  };
+
+  /**
+   * 切换到工作空间
+   */
+  handleSwitchToWorkspace = () => {
+    const { dispatch, currentUser } = this.props;
+    const teamName = globalUtil.getCurrTeamName() || currentUser?.teams?.[0]?.team_name;
+    const regionName = globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name;
+
+    if (teamName && regionName) {
+      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/index`));
+    }
+  };
+
+  /**
+   * 切换到平台管理
+   */
+  handleSwitchToPlatform = () => {
+    const { dispatch, currentEnterprise } = this.props;
+    const eid = currentEnterprise?.enterprise_id || globalUtil.getCurrEnterpriseId();
+
+    if (eid) {
+      dispatch(routerRedux.push(`/enterprise/${eid}/index`));
+    }
+  };
+
+  /**
+   * 获取所有菜单项（展平分组）
+   */
+  getAllMenuItems = () => {
+    const { menuData } = this.props;
+    if (!menuData || !Array.isArray(menuData)) return [];
+    return menuData.reduce((acc, group) => {
+      if (group.items) {
+        return [...acc, ...group.items];
+      }
+      return acc;
+    }, []);
+  };
+
+  /**
+   * 转换路径
+   */
   conversionPath = path => {
     if (path && path.indexOf('http') === 0) {
       return path;
     }
     return `/${path || ''}`.replace(/\/+/g, '/');
   };
-  // permission to check
-  checkPermissionItem = (authority, ItemDom) => {
-    const user = this.props.currentUser;
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(user, team_name);
-    if (ItemDom.key.indexOf('source') > -1) {
-      if (user.is_sys_admin || user.is_user_enter_amdin) {
-        return ItemDom;
+
+  /**
+   * 判断菜单项是否激活
+   */
+  isMenuItemActive = (itemPath, currentPath) => {
+    const path = this.conversionPath(itemPath);
+    return path === currentPath || path === `${currentPath}/`;
+  };
+
+  /**
+   * 切换子菜单展开状态
+   */
+  toggleSubMenu = (key) => {
+    this.setState(prevState => {
+      const { expandedKeys } = prevState;
+      if (expandedKeys.includes(key)) {
+        return { expandedKeys: expandedKeys.filter(k => k !== key) };
       }
-      return null;
-    } else if (ItemDom.key.indexOf('finance') > -1) {
-      const region_name = globalUtil.getCurrRegionName();
-      const region = userUtil.hasTeamAndRegion(user, team_name, region_name);
-      if (region) {
-        // 当前是公有集群
-        if (region.region_scope === 'public') {
-          return ItemDom;
-        }
-      }
-      //  return null;
-      return ItemDom;
-    }
-    return ItemDom;
-  };
-  handleOpenChange = openKeys => {
-    // const lastOpenKey = openKeys[openKeys.length - 1]; const isMainMenu =
-    // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
-    // || item.path === lastOpenKey) );
-    this.setState({
-      openKeys: [...openKeys]
-    });
-  };
-  handleOpenCollectionVisible = () => {
-    this.setState({
-      collectionVisible: true
-    });
-  };
-  handleCloseCollectionVisible = () => {
-    this.setState({
-      collectionVisible: false
-    });
-  };
-  handleCollectionView = values => {
-    const { dispatch, location, currentEnterprise } = this.props;
-    dispatch({
-      type: 'user/addCollectionView',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        name: values.name,
-        url: location.pathname
-      },
-      callback: res => {
-        if (res) {
-          this.fetchCollectionViewInfo();
-        }
-      }
+      return { expandedKeys: [...expandedKeys, key] };
     });
   };
 
-  fetchCollectionViewInfo = () => {
-    const { dispatch, currentEnterprise, onCollapse } = this.props;
-    dispatch({
-      type: 'user/fetchCollectionViewInfo',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id
-      },
-      callback: res => {
-        if (res) {
-          onCollapse(true);
-          this.handleCloseCollectionVisible();
-        }
-      }
-    });
-  };
+  /**
+   * 切换折叠状态
+   */
   toggleCollapsed = () => {
-    const {onCollapse} = this.props
-    this.setState({
-      collapsed: !this.state.collapsed,
-    },()=>{
-      onCollapse && onCollapse(this.state.collapsed)
-      window.localStorage.setItem('collapsed', this.state.collapsed);
+    const { onCollapse, collapsed } = this.props;
+    const newCollapsed = !collapsed;
+    onCollapse && onCollapse(newCollapsed);
+    window.localStorage.setItem('collapsed', newCollapsed);
+  };
+
+  /**
+   * 权限检查
+   */
+  checkPermission = (item) => {
+    const { currentUser } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+
+    if (item.path?.indexOf('source') > -1) {
+      return currentUser?.is_sys_admin || currentUser?.is_user_enter_amdin;
+    }
+    if (item.path?.indexOf('finance') > -1) {
+      const region_name = globalUtil.getCurrRegionName();
+      const region = userUtil.hasTeamAndRegion(currentUser, team_name, region_name);
+      if (region && region.region_scope !== 'public') {
+        return true;
+      }
+    }
+    return true;
+  };
+
+  /**
+   * 渲染视图切换器
+   */
+  renderViewSwitcher = () => {
+    const { collapsed, currentUser, currentEnterprise } = this.props;
+    const isTeam = this.isTeamView();
+    const eid = currentEnterprise?.enterprise_id;
+    // 与 GlobalHeader 中的平台管理按钮使用相同的判断条件
+    const isAdmin = currentUser?.is_enterprise_admin && eid;
+
+    if (!isAdmin) {
+      return null;
+    }
+
+    // 折叠状态下显示垂直切换器
+    if (collapsed) {
+      return (
+        <div className={styles.viewSwitcherCollapsed}>
+          <Tooltip
+            title={formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
+            placement="right"
+          >
+            <div
+              className={`${styles.switcherItemCollapsed} ${!isTeam ? styles.active : ''}`}
+              onClick={this.handleSwitchToPlatform}
+            >
+              <Icon type="setting" />
+            </div>
+          </Tooltip>
+          <Tooltip
+            title={formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
+            placement="right"
+          >
+            <div
+              className={`${styles.switcherItemCollapsed} ${isTeam ? styles.active : ''}`}
+              onClick={this.handleSwitchToWorkspace}
+            >
+              <Icon type="appstore" />
+            </div>
+          </Tooltip>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.viewSwitcher}>
+        <div className={styles.switcherInner}>
+          <div
+            className={`${styles.switcherItem} ${!isTeam ? styles.active : ''}`}
+            onClick={this.handleSwitchToPlatform}
+          >
+            <Icon type="setting" className={styles.switcherIcon} />
+            <span className={styles.switcherText}>
+              {formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
+            </span>
+          </div>
+          <div
+            className={`${styles.switcherItem} ${isTeam ? styles.active : ''}`}
+            onClick={this.handleSwitchToWorkspace}
+          >
+            <Icon type="appstore" className={styles.switcherIcon} />
+            <span className={styles.switcherText}>
+              {formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
+            </span>
+          </div>
+          <div
+            className={styles.switcherSlider}
+            style={{ transform: !isTeam ? 'translateX(0)' : 'translateX(100%)' }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  /**
+   * 渲染单个菜单项
+   */
+  renderMenuItem = (item, isChild = false) => {
+    const { pathname, isMobile, onCollapse, collapsed } = this.props;
+    const itemPath = this.conversionPath(item.path);
+    const isActive = this.isMenuItemActive(item.path, pathname);
+    const isExternal = /^https?:\/\//.test(itemPath);
+
+    const handleClick = isMobile ? () => onCollapse?.(true) : undefined;
+
+    const content = (
+      <>
+        {getIcon(item.icon)}
+        {!collapsed && <span className={styles.menuText}>{item.name}</span>}
+      </>
+    );
+
+    const itemClass = `${styles.menuItem} ${isActive ? styles.active : ''} ${isChild ? styles.childItem : ''} ${collapsed ? styles.collapsed : ''}`;
+
+    let menuItem;
+    if (isExternal) {
+      menuItem = (
+        <a
+          key={item.path}
+          href={itemPath}
+          target={item.target}
+          className={itemClass}
+          onClick={handleClick}
+        >
+          {content}
+        </a>
+      );
+    } else {
+      menuItem = (
+        <Link
+          key={item.path}
+          to={itemPath}
+          className={itemClass}
+          onClick={handleClick}
+        >
+          {content}
+        </Link>
+      );
+    }
+
+    // 折叠状态使用 Tooltip 显示名称
+    if (collapsed) {
+      return (
+        <Tooltip key={item.path} title={item.name} placement="right">
+          {menuItem}
+        </Tooltip>
+      );
+    }
+
+    return menuItem;
+  };
+
+  /**
+   * 渲染带子菜单的菜单项
+   */
+  renderSubMenu = (item) => {
+    const { pathname, collapsed } = this.props;
+    const { expandedKeys } = this.state;
+    const isExpanded = expandedKeys.includes(item.path);
+
+    const visibleChildren = item.children?.filter(
+      child => child.name && !child.hideInMenu && this.checkPermission(child)
+    ) || [];
+
+    // 折叠状态使用 Popover 显示子菜单
+    if (collapsed) {
+      const popoverContent = (
+        <div className={styles.popoverMenu}>
+          {visibleChildren.map(child => {
+            const childPath = this.conversionPath(child.path);
+            const isActive = this.isMenuItemActive(child.path, pathname);
+            return (
+              <Link
+                key={child.path}
+                to={childPath}
+                className={`${styles.popoverMenuItem} ${isActive ? styles.active : ''}`}
+              >
+                {getIcon(child.icon)}
+                <span>{child.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      );
+
+      return (
+        <Popover
+          key={item.path}
+          content={popoverContent}
+          placement="right"
+          overlayClassName={styles.subMenuPopover}
+        >
+          <div className={`${styles.subMenuTitle} ${styles.collapsed}`}>
+            {getIcon(item.icon)}
+          </div>
+        </Popover>
+      );
+    }
+
+    return (
+      <div key={item.path} className={styles.subMenu}>
+        <div
+          className={`${styles.subMenuTitle} ${isExpanded ? styles.expanded : ''}`}
+          onClick={() => this.toggleSubMenu(item.path)}
+        >
+          {getIcon(item.icon)}
+          <span className={styles.menuText}>{item.name}</span>
+          <Icon
+            type="down"
+            className={`${styles.arrow} ${isExpanded ? styles.expanded : ''}`}
+          />
+        </div>
+        {isExpanded && (
+          <div className={styles.subMenuContent}>
+            {visibleChildren.map(child => this.renderMenuItem(child, true))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  /**
+   * 渲染菜单分组
+   */
+  renderMenuGroups = () => {
+    const { menuData, collapsed } = this.props;
+
+    if (!menuData || !Array.isArray(menuData)) {
+      return null;
+    }
+
+    return menuData.map(group => {
+      const { groupKey, groupName, items } = group;
+      const visibleItems = items?.filter(
+        item => item.name && !item.hideInMenu && this.checkPermission(item)
+      ) || [];
+
+      if (visibleItems.length === 0) return null;
+
+      return (
+        <div key={groupKey} className={styles.menuGroup}>
+          {!collapsed && (
+            <div className={styles.groupTitle}>{groupName}</div>
+          )}
+          <div className={styles.groupItems}>
+            {visibleItems.map(item => {
+              if (item.children && item.children.some(child => child.name)) {
+                return this.renderSubMenu(item);
+              }
+              return this.renderMenuItem(item);
+            })}
+          </div>
+        </div>
+      );
     });
   };
-  render() {
-    const { showMenu, viewLoading, pathname, menuData, isAppOverview } = this.props;
-    const { openKeys, collectionVisible } = this.state;
-    // if pathname can't match, use the nearest parent's key
-    let selectedKeys = this.getSelectedMenuKeys(pathname);
-    if (!selectedKeys.length) {
-      selectedKeys = [openKeys[openKeys.length - 1]];
+
+  /**
+   * 渲染底部收起按钮
+   */
+  renderCollapseButton = () => {
+    const { collapsed, isAppOverview } = this.props;
+
+    if (isAppOverview) return null;
+
+    const button = (
+      <div className={`${styles.collapseButton} ${collapsed ? styles.collapsed : ''}`} onClick={this.toggleCollapsed}>
+        <Icon
+          type={collapsed ? 'menu-unfold' : 'menu-fold'}
+          className={styles.collapseIcon}
+        />
+        {!collapsed && (
+          <span className={styles.collapseText}>
+            {formatMessage({ id: 'menu.collapse', defaultMessage: '收起菜单' })}
+          </span>
+        )}
+      </div>
+    );
+
+    if (collapsed) {
+      return (
+        <Tooltip
+          title={formatMessage({ id: 'menu.expand', defaultMessage: '展开菜单' })}
+          placement="right"
+        >
+          {button}
+        </Tooltip>
+      );
     }
+
+    return button;
+  };
+
+  render() {
+    const { showMenu, collapsed } = this.props;
+
     return (
       <div
-        style={{
-          display: showMenu ? 'block' : 'none',
-          width: this.state.collapsed ? '56px' : '200px',
-          transition: 'all 0.2s',
-          position: 'relative',
-        }}
-        
+        className={`${styles.menuWrapper} ${collapsed ? styles.collapsed : ''}`}
+        style={{ display: showMenu ? 'flex' : 'none' }}
       >
-        {!isAppOverview && (
-          <p onClick={this.toggleCollapsed} className={styles.menuStyle}>
-            <Icon type={this.state.collapsed ? 'right' : 'left'} />
-          </p>
-        )}
-        {/* {collectionVisible && (
-          <CollectionView
-            title={formatMessage({ id: 'sidecar.collection.add' })}
-            visible={collectionVisible}
-            loading={viewLoading}
-            onOk={this.handleCollectionView}
-            onCancel={this.handleCloseCollectionVisible}
-          />
-        )} */}
-        <Menu
-          className={styles.globalSider}
-          key="Menu"
-          mode="inline"
-          placement="left"
-          onOpenChange={this.handleOpenChange}
-          selectedKeys={selectedKeys}
-          inlineCollapsed="menu-fold"
-          defaultOpenKeys={[
-            `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
-          ]}
-          inlineCollapsed={this.state.collapsed}
-          style={{ width: this.state.collapsed ? '56px' : '200px'}}
-        >
-          {this.getNavMenuItems(menuData || [])}
-        </Menu>
+        {/* 顶部：切换器 */}
+        <div className={styles.menuHeader}>
+          {this.renderViewSwitcher()}
+        </div>
+
+        {/* 中间：菜单列表 */}
+        <div className={styles.menuContent}>
+          <nav className={styles.menuNav}>
+            {this.renderMenuGroups()}
+          </nav>
+        </div>
+
+        {/* 底部：收起按钮 */}
+        <div className={styles.menuFooter}>
+          {this.renderCollapseButton()}
+        </div>
       </div>
     );
   }
