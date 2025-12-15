@@ -10,6 +10,7 @@ const componentOverview = {
     // 右侧按钮
     'componentOverview.header.right.web': 'Terminal',
     'componentOverview.header.right.build': 'Build',
+    'componentOverview.header.build.timeout': 'Version check timed out, unable to determine if new version is available',
     'componentOverview.header.right.update': 'Upgrade',
     'componentOverview.header.right.update.roll': 'Upgrade',
     'componentOverview.header.right.visit': 'Access',
@@ -79,6 +80,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.occupy': 'Distribution',
     'componentOverview.body.tab.overview.disk': 'Disk',
     'componentOverview.body.tab.overview.version': 'Version',
+    'componentOverview.body.tab.overview.vmImage': 'VM Image',
     'componentOverview.body.tab.overview.not': 'Not yet',
     'componentOverview.body.tab.overview.codeVersion': 'Code Version',
     'componentOverview.body.tab.overview.file': 'MD5',
@@ -550,6 +552,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': 'Please select storage type',
     'componentOverview.body.AddVolumes.cancel': 'Cancel',
     'componentOverview.body.AddVolumes.confirm': 'Confirm',
+    'componentOverview.body.AddVolumes.mount_format': 'Mount Format',
+    'componentOverview.body.AddVolumes.disk': 'Disk',
+    'componentOverview.body.AddVolumes.cdrom': 'CD-ROM',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': 'Please enter the local mount path',
     'componentOverview.body.AddRelationMnt.mag_path': '{path} The path is reserved by the system. Please replace it with another path',
@@ -772,6 +777,10 @@ const componentOverview = {
     'componentOverview.body.Resource.branch': 'Branch',
     'componentOverview.body.Resource.arch': 'Architecture',
     'componentOverview.body.Resource.select_arch': 'Please select architecture',
+    'componentOverview.body.Resource.loading': 'Loading...',
+    'componentOverview.body.Resource.timeout.title': 'Network Connection Timeout',
+    'componentOverview.body.Resource.timeout.desc': 'Failed to get build source info due to timeout. Please check your network connection and try again.',
+    'componentOverview.body.Resource.timeout.retry': 'Retry',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': 'Auto Build Settings',
     'componentOverview.body.AutoDeploy.open': 'Turn on',
@@ -1130,6 +1139,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': 'Component name is required',
     'kubeblocks.database.config.error.database_type_empty': 'Database type is required',
     'kubeblocks.database.config.error.creation_failed': 'Creation failed',
+    'kubeblocks.database.config.error.k8s_name_conflict': 'English name already exists in current application, please go back and change it',
+    'kubeblocks.database.config.error.replicas_min': 'Replicas must be greater than or equal to 1',
+    'kubeblocks.database.config.error.storage_class_required': 'Please select storage class',
+    'kubeblocks.database.config.error.component_info_missing': 'Created successfully but unable to get component information, please refresh manually',
     'kubeblocks.database.config.success.created': 'Created successfully',
     
     'kubeblocks.database.create.form.database_type.label': 'Database Type',

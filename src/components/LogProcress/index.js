@@ -9,12 +9,20 @@ import LogSocket from '../../utils/logSocket';
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      datas: []
-    };
+    this.state = {};
     this.socketUrl = this.props.socketUrl;
     this.eventId = this.props.eventId;
   }
+
+  escapeHtml = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
   componentDidMount() {
     this.createTmpElement();
     if (this.socketUrl) {
@@ -72,69 +80,45 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     if (this.socket) {
-      this.socket.close() ? this.socket.close() : '';
+      this.socket.close();
       this.socket = null;
     }
-    this.state.datas = [];
   }
   getItemHtml = data => {
+    const timeStr = moment(data.time).locale('zh-cn').format('HH:mm:ss');
+    const timeHtml = `<span className="time" style="display:inline-block;margin-right: 8px;">${timeStr}</span>`;
+
     if (typeof data.message === 'string') {
-      var msg = data.message;
-      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-        data.time
-      )
-        .locale('zh-cn')
-        .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+      return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;
     }
     try {
       const { message } = data;
-      var msg = '';
+      let msg = '';
       if (message.id) {
         msg += `${message.id}:`;
       }
       msg += message.status || '';
       msg += message.progress || '';
       if (msg) {
-        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-          data.time
-        )
-          .locale('zh-cn')
-          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+        return `${timeHtml}<span>${this.escapeHtml(msg)}</span>`;
       }
-      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-        data.time
-      )
-        .locale('zh-cn')
-        .format('HH:mm:ss')}</span><span>${message.stream}</span>`;
+      return `${timeHtml}<span>${this.escapeHtml(message.stream)}</span>`;
     } catch (e) {
       if (data.message) {
-        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
-          data.time
-        )
-          .locale('zh-cn')
-          .format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+        return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;
       }
       return '';
     }
   };
   createTmpElement() {
     this.ele = document.createElement('p');
-    this.ele.cssText = 'margin-bottom:0';
+    this.ele.style.marginBottom = '0';
   }
 
-  findProgressById = id => {
-    const { datas } = this.state;
-    const d = datas.filter(data => data.message.id === id)[0];
-    return d;
-  };
   saveRef = ref => {
     this.ref = ref;
   };
-  shouldComponentUpdate() {
-    return true;
-  }
   render() {
-    const datas = this.state.datas || [];
     const logs = this.props.list || [];
 
     return (

@@ -1,18 +1,31 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Row, Col, Spin, Empty, Divider, Progress, message } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Divider } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
-import AddImage from '../../components/AddImage';
 import globalUtil from '../../utils/global';
-import PluginUtil from '../../utils/pulginUtils'
+import PluginUtil from '../../utils/pulginUtils';
 import { pinyin } from 'pinyin-pro';
 import role from '@/utils/newRole';
 import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import ChunkUploader from '../../utils/ChunkUploader';
 import styles from './index.less';
+import {
+  validateServiceName,
+  validateK8sComponentName,
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getImageSourceRules,
+  getImageAddressRules,
+  getDockerRunCmdRules,
+  getUsernameRules,
+  getPasswordRules,
+  getArchRules,
+  getAppNameRules
+} from './validations';
 const { Option } = Select;
 const { TextArea } = Input;
 const formItemLayout = {
@@ -60,10 +73,8 @@ export default class Index extends PureComponent {
       localImageTags: [],
       event_id: '',
       record: {},
-      addImage: false,
       warehouseList: [],
       isHub: true,
-      warehouseImageList: [],
       warehouseInfo: false,
       tagLoading: false,
       warehouseImageTags: [],
@@ -99,7 +110,7 @@ export default class Index extends PureComponent {
     }
   }
   handleGetWarehouse = () => {
-    const { dispatch } = this.props
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchPlatformImageHub',
       callback: data => {
@@ -108,8 +119,11 @@ export default class Index extends PureComponent {
             warehouseList: data.list
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
-    })
+    });
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -120,46 +134,62 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    role.refreshPermissionsInfo(groupId, false,this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
-    const { radioKey, event_id, checkedValues, warehouseInfo, isHub } = this.state
-    const group_id = globalUtil.getAppID()
+    const { event_id } = this.state;
+    const group_id = globalUtil.getAppID();
+
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
-          fieldsValue.arch = archInfo[0]
+        // 处理架构信息
+        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+          fieldsValue.arch = archInfo[0];
         }
+
+        // 处理本地镜像
         if (fieldsValue.docker_image && fieldsValue.image_tag) {
-          fieldsValue.docker_cmd = `${fieldsValue.docker_image}:${fieldsValue.image_tag}`
+          fieldsValue.docker_cmd = `${fieldsValue.docker_image}:${fieldsValue.image_tag}`;
         }
-        if (fieldsValue.imagefrom == 'upload') {
-          fieldsValue.docker_cmd = `event ${event_id}`
+
+        // 处理上传镜像
+        if (fieldsValue.imagefrom === 'upload') {
+          fieldsValue.docker_cmd = `event ${event_id}`;
         }
-        if(!isPublic){
-          const secretObj = imgRepostoryList && imgRepostoryList.find(item => item.secret_id === secretId)
-          if(secretObj){
-            fieldsValue.user_name = secretObj.username
-            fieldsValue.password = secretObj.password
+
+        // 处理私有镜像仓库凭证
+        if (!isPublic) {
+          const secretObj = imgRepostoryList && imgRepostoryList.find(item => item.secret_id === secretId);
+          if (secretObj) {
+            fieldsValue.user_name = secretObj.username;
+            fieldsValue.password = secretObj.password;
           }
         }
+
+        // 处理镜像代理
         const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
-        if(fieldsValue.imagefrom == 'address' && isCloudProxy){
-          fieldsValue.docker_cmd = this.processImageProxy(fieldsValue.docker_cmd)
+        if (fieldsValue.imagefrom === 'address' && isCloudProxy) {
+          fieldsValue.docker_cmd = this.processImageProxy(fieldsValue.docker_cmd);
         }
-        if(group_id){
-          fieldsValue.group_id = group_id
+
+        // 设置应用组 ID
+        if (group_id) {
+          fieldsValue.group_id = group_id;
         }
-        if(!fieldsValue.k8s_app || !fieldsValue.group_name){
-          fieldsValue.group_name = fieldsValue.service_cname
-          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname)
+
+        // 设置应用组名称和 K8s 应用名
+        if (!fieldsValue.k8s_app || !fieldsValue.group_name) {
+          fieldsValue.group_name = fieldsValue.service_cname;
+          fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname);
         }
+
         onSubmit(fieldsValue);
       }
     });
@@ -203,44 +233,12 @@ export default class Index extends PureComponent {
   }
   
   
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
-
-  handleValiateCmd = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.docker_cmd' })));
-    }
-    if (value) {
-      const Reg = /^[^\s]*$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'mirror.name.space' }))
-        );
-      }
-      callback();
-    }
-  };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
     this.setState({
       creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
-    })
+    });
     dispatch({
       type: 'appControl/getComponentNames',
       payload: {
@@ -251,44 +249,48 @@ export default class Index extends PureComponent {
         if (res && res.bean) {
           this.setState({
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
-          })
+          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (name === undefined) {
+      return '';
     }
-    return ''
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+    return cleanedPinyinName;
   }
 
   handleJarWarUpload = () => {
-    const { dispatch } = this.props
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    //获取上传事件
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    // 获取上传事件
     dispatch({
-      type: "createApp/createJarWarServices",
+      type: 'createApp/createJarWarServices',
       payload: {
         region: regionName,
         team_name: teamName,
-        component_id: '',
+        component_id: ''
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
             record: res.bean,
@@ -300,23 +302,24 @@ export default class Index extends PureComponent {
               this.loop = true;
               this.handleJarWarUploadStatus();
             }
-          })
+          });
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
-  //查询上传状态
+  // 查询上传状态
   handleJarWarUploadStatus = () => {
-    const {
-      dispatch
-    } = this.props;
-    const { event_id } = this.state
+    const { dispatch } = this.props;
+    const { event_id } = this.state;
     dispatch({
       type: 'createApp/createJarWarUploadStatus',
       payload: {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
-        event_id: event_id
+        event_id
       },
       callback: data => {
         if (data) {
@@ -324,7 +327,7 @@ export default class Index extends PureComponent {
             this.setState({
               existFileList: data.bean.package_name
             });
-            this.loop = false
+            this.loop = false;
           }
         }
         if (this.loop) {
@@ -333,47 +336,53 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+        this.loop = false;
+      }
     });
   };
-  //删除上传文件
+  // 删除上传文件
   handleJarWarUploadDelete = () => {
-    const { event_id } = this.state
-    const { dispatch } = this.props
+    const { event_id } = this.state;
+    const { dispatch } = this.props;
     dispatch({
-      type: "createApp/deleteJarWarUploadStatus",
+      type: 'createApp/deleteJarWarUploadStatus',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         event_id
       },
-      callback: (data) => {
-        if (data.bean.res == 'ok') {
+      callback: data => {
+        if (data.bean.res === 'ok') {
           this.setState({
             existFileList: []
           });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
-          })
-          this.handleJarWarUpload()
+          });
+          this.handleJarWarUpload();
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   // 切换镜像来源
-  handleChangeImageSource = (key) => {
-    const { form } = this.props
+  handleChangeImageSource = (e) => {
+    const { form } = this.props;
     this.setState({
-      radioKey: key.target.value,
+      radioKey: e.target.value,
       warehouseImageTags: [],
       checkedValues: '',
       isHub: true,
       warehouseInfo: false,
       domain: '',
       showUsernameAndPass: false
-    })
-    form.resetFields(['docker_cmd', 'user_name', 'password'])
+    });
+    form.resetFields(['docker_cmd', 'user_name', 'password']);
   }
-  //上传
+  // 上传文件
   onChangeUpload = info => {
     let { fileList } = info;
     fileList = fileList.filter(file => {
@@ -382,6 +391,7 @@ export default class Index extends PureComponent {
       }
       return true;
     });
+
     if (info && info.event && info.event.percent) {
       this.setState({
         percents: info.event.percent
@@ -396,7 +406,8 @@ export default class Index extends PureComponent {
     }
     this.setState({ fileList });
   };
-  //删除
+
+  // 删除文件
   onRemove = () => {
     this.setState({ fileList: [] });
   };
@@ -414,7 +425,7 @@ export default class Index extends PureComponent {
     const allowedTypes = ['.tar'];
     const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     if (!allowedTypes.includes(fileExt)) {
-      message.error('只支持 .tar 格式的文件');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.fileTypeTar' }));
       return false;
     }
 
@@ -439,12 +450,12 @@ export default class Index extends PureComponent {
     const { form } = this.props;
 
     if (!currentFile) {
-      message.warning('请先选择文件');
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.selectFileFirst' }));
       return;
     }
 
     if (!chunkUploader) {
-      message.error('上传器初始化失败');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploaderInitFailed' }));
       return;
     }
 
@@ -483,7 +494,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('分片上传失败:', error);
-      message.error('上传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploadFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -494,7 +505,7 @@ export default class Index extends PureComponent {
     if (chunkUploader) {
       chunkUploader.pause();
       this.setState({ isChunkUploading: false });
-      message.info('上传已暂停');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.pauseSuccess' }));
     }
   };
 
@@ -503,7 +514,7 @@ export default class Index extends PureComponent {
     const { chunkUploader } = this.state;
 
     if (!chunkUploader) {
-      message.error('未找到上传任务');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.noUploadTask' }));
       return;
     }
 
@@ -515,7 +526,7 @@ export default class Index extends PureComponent {
       });
 
       notification.success({
-        message: '断点续传完成'
+        message: formatMessage({ id: 'teamAdd.create.upload.resumeSuccess' })
       });
 
       this.setState({
@@ -527,7 +538,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('断点续传失败:', error);
-      message.error('续传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.resumeFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -544,7 +555,7 @@ export default class Index extends PureComponent {
         currentFile: null,
         chunkUploader: null
       });
-      message.info('上传已取消');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.cancelSuccess' }));
     }
   };
   // 获取本地列表选择的镜像
@@ -552,17 +563,17 @@ export default class Index extends PureComponent {
     this.setState({
       localValue: value
     }, () => {
-      this.handleGetImageTags(value)
-    })
+      this.handleGetImageTags(value);
+    });
   }
   // 获取本地镜像的Tags
   handleGetImageTags = (imageValue) => {
-    const { dispatch } = this.props
+    const { dispatch } = this.props;
     dispatch({
       type: 'createApp/getImageTags',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        repository: imageValue,
+        repository: imageValue
       },
       callback: data => {
         if (data) {
@@ -570,14 +581,17 @@ export default class Index extends PureComponent {
             localImageTags: data.list
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
-    })
+    });
   }
 
   // 获取镜像中所有的tag
   handleGetWarehouseImageTags = (value) => {
-    const { dispatch } = this.props
-    const { warehouseInfo, isHub, checkedValues, domain } = this.state
+    const { dispatch } = this.props;
+    const { warehouseInfo, isHub, checkedValues, domain } = this.state;
     dispatch({
       type: 'teamControl/fetchImageTags',
       payload: {
@@ -585,17 +599,15 @@ export default class Index extends PureComponent {
         repo: value,
         domain: isHub ? (domain || 'docker.io') : warehouseInfo.domain,
         username: warehouseInfo.username,
-        password: warehouseInfo.password,
+        password: warehouseInfo.password
       },
       callback: data => {
         if (data) {
-          if(checkedValues && data.bean.tags.length > 0){
-            const resItem = data.bean.tags.some((item)=>{
-              return item == checkedValues && item
-            })
+          if (checkedValues && data.bean.tags.length > 0) {
+            const resItem = data.bean.tags.some(item => item == checkedValues);
             this.setState({
               warehouseImageTags: resItem ? [checkedValues] : [],
-              checkedValues: checkedValues,
+              checkedValues,
               tagLoading: false
             });
           } else {
@@ -607,72 +619,72 @@ export default class Index extends PureComponent {
           }
         }
       },
-      handleError: (err) => {
-        this.setState({ 
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({
           tagLoading: false,
           warehouseImageTags: [],
-          checkedValues: '',
-        })
+          checkedValues: ''
+        });
       }
-    })
+    });
   }
   onChangeCheckbox = (e) => {
     this.setState({
       checkedValues: e.target.value
-    })
+    });
   }
+
   onChangeRegistry = (value) => {
-    const { warehouseList } = this.state
-    const { setFieldsValue } = this.props.form
-    if(value == 'DockerHub'){
+    const { warehouseList } = this.state;
+    if (value === 'DockerHub') {
       this.setState({
         warehouseImageTags: [],
         warehouseInfo: false,
         isHub: true,
         checkedValues: ''
-      })
+      });
     } else {
       this.setState({
         isHub: false,
         warehouseImageTags: [],
         warehouseInfo: false,
         checkedValues: ''
-      },()=>{
-        warehouseList.map(item => {
-          if(item.secret_id == value){
-            this.setState({
-              warehouseInfo: item
-            })
-          }
-        })
-      })
+      }, () => {
+        const selectedWarehouse = warehouseList.find(item => item.secret_id === value);
+        if (selectedWarehouse) {
+          this.setState({
+            warehouseInfo: selectedWarehouse
+          });
+        }
+      });
     }
   }
 
   onQueryImageName = (e) => {
-    const { setFieldsValue } = this.props.form
-    const { isHub } = this.state
-    this.setState({ tagLoading: true })
-    const values = e.target.value
-    const url = values.match(/([\w\.-]+)\/([\w\\/-]+)/)
+    const { isHub } = this.state;
+    this.setState({ tagLoading: true });
+
+    const values = e.target.value;
+    const url = values.match(/([\w\.-]+)\/([\w\\/-]+)/);
     const colonIndex = values.indexOf(':');
-    if(url && isHub){
+
+    if (url && isHub) {
       if (colonIndex !== -1) {
-        const resultString = values.substring(0, colonIndex);
         const tag = values.substring(colonIndex + 1);
         this.setState({
           checkedValues: tag,
           domain: url[1]
-        },() => {
-          this.handleGetWarehouseImageTags(url[2])
-        })
+        }, () => {
+          this.handleGetWarehouseImageTags(url[2]);
+        });
       } else {
         this.setState({
           checkedValues: '',
           domain: url[1]
-        },() => {
-          this.handleGetWarehouseImageTags(url[2])
-        })
+        }, () => {
+          this.handleGetWarehouseImageTags(url[2]);
+        });
       }
     } else {
       if (colonIndex !== -1) {
@@ -681,16 +693,16 @@ export default class Index extends PureComponent {
         this.setState({
           checkedValues: tag,
           domain: ''
-        },() => {
-          this.handleGetWarehouseImageTags(resultString)
-        })
+        }, () => {
+          this.handleGetWarehouseImageTags(resultString);
+        });
       } else {
         this.setState({
           checkedValues: '',
           domain: ''
-        },() => {
-          this.handleGetWarehouseImageTags(values)
-        })
+        }, () => {
+          this.handleGetWarehouseImageTags(values);
+        });
       }
     }
   }
@@ -713,22 +725,34 @@ export default class Index extends PureComponent {
       rainbondInfo,
       pluginsList
     } = this.props;
-    const { language, fileList, radioKey, existFileList, localValue, localImageTags, warehouseList, isHub, warehouseImageList, warehouseImageTags, tagLoading, checkedValues,      creatComPermission: {
-      isCreate
-    } } = this.state;
-    const group_id = globalUtil.getAppID()
+    const {
+      language,
+      fileList,
+      radioKey,
+      existFileList,
+      localValue,
+      localImageTags,
+      warehouseList,
+      isHub,
+      warehouseImageTags,
+      tagLoading,
+      checkedValues,
+      creatComPermission: { isCreate }
+    } = this.state;
+    const group_id = globalUtil.getAppID();
     const myheaders = {};
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts;
-    const isImageProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill')
-    let arch = 'amd64'
-    let archLegnth = archInfo?.length || 0
-    if (archLegnth == 2) {
-      arch = 'amd64'
-    } else if (archLegnth == 1) {
-      arch = archInfo && archInfo[0]
+    const isImageProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+
+    let arch = 'amd64';
+    const archLength = archInfo?.length || 0;
+    if (archLength === 2) {
+      arch = 'amd64';
+    } else if (archLength === 1) {
+      arch = archInfo && archInfo[0];
     }
     return (
       <Fragment>
@@ -736,16 +760,7 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({ id: 'placeholder.service_cname' })
-                },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getServiceNameRules()
             })(
               <Input
                 disabled={disableds.indexOf('service_cname') > -1}
@@ -757,15 +772,13 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
-              rules: [
-                { required: true, validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sComponentNameRules()
             })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
             {getFieldDecorator('imagefrom', {
               initialValue: 'address',
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              rules: getImageSourceRules()
             })(
               isPublic ? (
                 <Radio.Group onChange={this.handleChangeImageSource}>
@@ -795,20 +808,14 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           {radioKey === 'address' &&
-            <Form.Item 
-              {...is_language} 
+            <Form.Item
+              {...is_language}
               label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
               extra={isImageProxy ? '默认启用DockerHub镜像加速' : ''}
             >
               {getFieldDecorator('docker_cmd', {
                 initialValue: imageUrl || '',
-                rules: [
-                  { required: true, message: formatMessage({ id: 'placeholder.warehouse_not_empty' }) },
-                  // 长度255
-                  { max: 255, message: formatMessage({ id: 'mirror.length.limit' }) },
-                  // 不允许输入中文、空格
-                  { pattern: /^[^\u4e00-\u9fa5\s]*$/, message: formatMessage({ id: 'mirror.input.rule' }) }
-                ]
+                rules: getImageAddressRules()
               })(
                 <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} disabled={!isPublic} />
                 )}
@@ -818,7 +825,7 @@ export default class Index extends PureComponent {
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('docker_cmd', {
                 initialValue: '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
+                rules: getDockerRunCmdRules()
               })(
                 <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })}/>
               )}
@@ -866,11 +873,11 @@ export default class Index extends PureComponent {
             <>
               <Form.Item
                 {...is_language}
-                label="上传方式"
+                label={formatMessage({ id: 'teamAdd.create.upload.mode' })}
               >
                 <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
-                  <Radio value="normal">普通上传</Radio>
-                  <Radio value="chunk">断点续传</Radio>
+                  <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
+                  <Radio value="chunk">{formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}</Radio>
                 </Radio.Group>
               </Form.Item>
 
@@ -922,7 +929,7 @@ export default class Index extends PureComponent {
                         showUploadList={false}
                       >
                         <Button>
-                          <Icon type="upload" /> 选择文件
+                          <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
                         </Button>
                       </Upload>
                       {this.state.currentFile && (
@@ -943,21 +950,21 @@ export default class Index extends PureComponent {
                           <div style={{ marginTop: 10 }}>
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
                               <Button type="primary" onClick={this.handleStartChunkUpload}>
-                                开始上传
+                                {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
                               </Button>
                             )}
                             {this.state.isChunkUploading && (
                               <Button onClick={this.handlePauseChunkUpload}>
-                                暂停
+                                {formatMessage({ id: 'teamAdd.create.upload.pause' })}
                               </Button>
                             )}
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
                               <Button type="primary" onClick={this.handleResumeChunkUpload}>
-                                继续上传
+                                {formatMessage({ id: 'teamAdd.create.upload.resume' })}
                               </Button>
                             )}
                             <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
-                              取消
+                              {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
                             </Button>
                           </div>
                         </div>
@@ -1029,7 +1036,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('user_name', {
                 initialValue: data.user_name || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.username_1' }) }]
+                rules: getUsernameRules()
               })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
             </Form.Item>
             <Form.Item
@@ -1039,7 +1046,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('password', {
                 initialValue: data.password || '',
-                rules: [{ required: false, message: formatMessage({ id: 'placeholder.password_1' }) }]
+                rules: getPasswordRules()
               })(
                 <Input
                   autoComplete="new-password"
@@ -1050,11 +1057,11 @@ export default class Index extends PureComponent {
             </Form.Item>
           </>}
 
-          {archLegnth == 2 &&
+          {archLength === 2 &&
             <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
               {getFieldDecorator('arch', {
                 initialValue: arch,
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                rules: getArchRules()
               })(
                 <Radio.Group>
                   <Radio value='amd64'>amd64</Radio>
@@ -1064,9 +1071,21 @@ export default class Index extends PureComponent {
             </Form.Item>}
           {!group_id && <>
             <Divider />
-            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+              <Button
+                type="link"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 16,
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // color: '#1890ff'
+                }}
+                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+              >
+                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
             {this.state.showAdvanced && (
@@ -1089,13 +1108,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getAppNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                     style={{
@@ -1112,10 +1125,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
+                    rules: getK8sComponentNameRules()
                   })(<Input
                     placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                     style={{

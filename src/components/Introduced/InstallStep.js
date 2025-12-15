@@ -4,7 +4,8 @@
 import { Button, Modal, Spin, Steps, Tabs } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import authorize from '../../assets/authorize.png';
 import install from '../../assets/install.png';
 import installColor from '../../assets/install_color.png';

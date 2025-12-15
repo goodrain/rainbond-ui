@@ -1,6 +1,6 @@
 import { Card, Empty } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Duankou from "./port"
 import styles from './index.less'
 class PortAttribute extends PureComponent {

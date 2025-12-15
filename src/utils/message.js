@@ -1,4 +1,4 @@
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const map = {
   announcement: formatMessage({id:'utils.message.announcement'}),
   news: formatMessage({id:'utils.message.news'}),

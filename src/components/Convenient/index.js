@@ -12,7 +12,8 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
 

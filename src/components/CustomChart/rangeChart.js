@@ -12,7 +12,8 @@ import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styless from './index.less';
 
 @connect(({ application }) => ({ curAppDetail: application.groupDetail }))

@@ -1,12 +1,14 @@
-import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, message, Tooltip } from 'antd';
+import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
+import handleAPIError from '../../utils/error';
 import DApvcinput from '../../components/DApvcinput';
 import globalUtil from '../../utils/global';
-import ConfirmModal from "../../components/ConfirmModal"
-import styles from "./kubernets.less"
+import ConfirmModal from '../../components/ConfirmModal';
+import styles from './kubernets.less';
 import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
@@ -71,43 +73,32 @@ class Index extends PureComponent {
   }
   
   handleGetKubernetes = () => {
-    const teamName = globalUtil.getCurrTeamName()
-    const service_alias = this.props.service_alias || ''
+    const teamName = globalUtil.getCurrTeamName();
+    const { service_alias = '' } = this.props;
     getKubernetes({
       team_name: teamName,
-      service_alias: service_alias
+      service_alias
     }).then(res => {
-      const arrs = [];
-      const arr = res.list.filter((item, index) => {
-        return arrs.push(item.name)
-      })
-      this.setState({
-        allData: res.list,
-        havevalArr: arrs
-      })
-
-    })
-      .catch(err => {
-      });
+      if (res && res.list) {
+        const havevalArr = res.list.map(item => item.name);
+        this.setState({
+          allData: res.list,
+          havevalArr
+        });
+      }
+    }).catch(err => {
+      handleAPIError(err);
+    });
   }
-  //抽屉 
   onClose = () => {
-    const { drawerSwitch } = this.state
-    var str = ''
-    if (drawerSwitch == "add") {
-      str = "change"
-    } else {
-      str = "add"
-    }
+    const { drawerSwitch } = this.state;
     this.setState({
       visible: false,
-      drawerSwitch: str,
+      drawerSwitch: drawerSwitch === 'add' ? 'change' : 'add'
     });
   };
 
-  // 新增
   addAttribute = (val) => {
-    const { selectArr, havevalArr } = this.state
     this.setState({
       visible: true,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
@@ -115,443 +106,153 @@ class Index extends PureComponent {
       selectVal: undefined,
       jsonValue: '',
       strValue: ''
-    })
+    });
   }
-  // 修改
   changeBtn = (val, str, index) => {
-    const { allData, TooltipValueArr } = this.state
-    if (val.save_type == "yaml") {
-      this.setState({
-        yamlValue: val.attribute_value
-      })
-    } else if (val.save_type == "json") {
-      this.setState({
-        jsonValue: val.attribute_value
-      })
-    } else if (val.save_type == "string") {
-      this.setState({
-        strValue: val.attribute_value
-      })
-    }
+    const { allData, TooltipValueArr } = this.state;
+    const valueStateMap = {
+      yaml: { yamlValue: val.attribute_value },
+      json: { jsonValue: val.attribute_value },
+      string: { strValue: val.attribute_value }
+    };
     this.setState({
+      ...valueStateMap[val.save_type],
       minArr: allData[index],
       visible: true,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.edit_attribute' }),
       drawerSwitch: str,
       selectVal: val.name,
       TooltipValue: TooltipValueArr[val.name]
-    })
+    });
   }
 
-  // 删除
-  deleteBtn = (val, str) => {
-    const { selectVal } = this.state
-    const teamName = globalUtil.getCurrTeamName()
-    const service_alias = this.props.service_alias || ''
+  deleteBtn = () => {
+    const { selectVal } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+    const { service_alias = '' } = this.props;
     deleteKubernetes({
       team_name: teamName,
-      service_alias: service_alias,
-      value_name: selectVal,
+      service_alias,
+      value_name: selectVal
     }).then(res => {
-
-      if (res && res.response_data && res.response_data.code == 200) {
+      if (res && res.response_data && res.response_data.code === 200) {
         this.setState({
-          showDeletePort: !this.state.showDeletePort,
-        })
+          showDeletePort: false
+        });
         notification.success({
           message: formatMessage({ id: 'notification.success.attribute_delete' })
-        })
-        this.handleGetKubernetes()
+        });
+        this.handleGetKubernetes();
       }
-    })
+    }).catch(err => {
+      handleAPIError(err);
+    });
   }
 
 
   cancalDeletePort = (item) => {
-    if (item != null) {
-      this.setState({
-        selectVal: item.name,
-        showDeletePort: !this.state.showDeletePort,
-      })
-    } else {
-      this.setState({
-        showDeletePort: !this.state.showDeletePort,
-      })
-    }
-
+    const { showDeletePort } = this.state;
+    this.setState({
+      selectVal: item ? item.name : this.state.selectVal,
+      showDeletePort: !showDeletePort
+    });
   }
-  // 下拉框
+
   handleChange = (val) => {
-    const { selectVal, TooltipValueArr } = this.state
+    const { TooltipValueArr } = this.state;
     this.setState({
       selectVal: val,
       yamlValue: TooltipValueArr[val],
       TooltipValue: TooltipValueArr[val]
-    })
+    });
   }
+
   notificationFun = () => {
     notification.error({
-      message: formatMessage({ id: 'componentOverview.body.Kubernetes.null' }),
-    })
+      message: formatMessage({ id: 'componentOverview.body.Kubernetes.null' })
+    });
   }
 
-  // 提交
   handleSubmit = (e) => {
-    e.preventDefault()
-    const { selectVal, drawerSwitch, minArr, TooltipValue } = this.state
-    const { form, dispatch } = this.props;
-    const teamName = globalUtil.getCurrTeamName()
-    const service_alias = this.props.service_alias || ''
-    var list = []
+    e.preventDefault();
+    const { selectVal, TooltipValue } = this.state;
+    const { form } = this.props;
+
+    // 定义字段类型配置
+    const jsonFields = ['nodeSelector', 'labels', 'annotations'];
+    const yamlFields = [
+      'volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource',
+      'livenessProbe', 'readinessProbe', 'volumes', 'securityContext',
+      'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'
+    ];
+    const stringFields = ['serviceAccountName', 'cmd'];
+    const booleanFields = ['privileged', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC'];
+
     form.validateFields((err, value) => {
-      if (!err)
-        switch (selectVal) {
+      if (err) return;
 
-          case "nodeSelector":
-            if (value.nodeSelector[0].key && value.nodeSelector[0].value) {
-              const label = {
-                name: selectVal,
-                save_type: "json",
-                attribute_value: value.nodeSelector || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
+      const fieldValue = value[selectVal];
+      let label = null;
 
-          case 'labels':
-            if (value.labels[0].key && value.labels[0].value) {
-              const label = {
-                name: selectVal,
-                save_type: "json",
-                attribute_value: value.labels || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-          case 'annotations':
-            if (value.annotations[0].key && value.annotations[0].value) {
-              const label = {
-                name: selectVal,
-                save_type: "json",
-                attribute_value: value.annotations || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case "volumeMounts":
-            if (value.volumeMounts != null && value.volumeMounts.length > 0 && value.volumeMounts != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.volumeMounts || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case "hostAliases":
-            if (value.hostAliases != null && value.hostAliases.length > 0 && value.hostAliases != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.hostAliases || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case "volumeClaimTemplate":
-            if (value.volumeClaimTemplate != null && value.volumeClaimTemplate.length > 0 && value.volumeClaimTemplate != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.volumeClaimTemplate || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case "envFromSource":
-            if (value.envFromSource != null && value.envFromSource.length > 0 && value.envFromSource != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.envFromSource || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-          case "livenessProbe":
-            if (value.livenessProbe != null && value.livenessProbe.length > 0 && value.livenessProbe != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.livenessProbe || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-          case "readinessProbe":
-            if (value.readinessProbe != null && value.readinessProbe.length > 0 && value.readinessProbe != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.readinessProbe || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-          case "volumes":
-            if (value.volumes != null && value.volumes.length > 0 && value.volumes != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.volumes || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case "securityContext":
-            if (value.securityContext != null && value.securityContext.length > 0 && value.securityContext != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.securityContext || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'affinity':
-            if (value.affinity != null && value.affinity.length > 0) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.affinity || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'tolerations':
-            if (value.tolerations != null && value.tolerations.length > 0 && value.tolerations != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.tolerations || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'env':
-            if (value.env != null && value.env.length > 0 && value.env != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: value.env || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'serviceAccountName':
-            if (value.serviceAccountName != null && value.serviceAccountName.length > 0) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: value.serviceAccountName || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'cmd':
-            if (value.cmd != null && value.cmd.length > 0) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: value.cmd || []
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'privileged':
-            if (value.privileged != null) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: `${value.privileged}` || 'false'
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'shareProcessNamespace':
-            if (value.shareProcessNamespace != null) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: `${value.shareProcessNamespace}` || 'false'
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'dnsPolicy':
-            if (value.dnsPolicy != null) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: `${value.dnsPolicy}` || 'false',
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'dnsConfig':
-            if (value.dnsConfig != null && value.dnsConfig.length > 0 && value.dnsConfig != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: `${value.dnsConfig}` || [],
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'hostIPC':
-            if (value.hostIPC != null) {
-              const label = {
-                name: selectVal,
-                save_type: "string",
-                attribute_value: `${value.hostIPC}` || 'false'
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'resources':
-            if (value.resources != null && value.resources.length > 0 && value.resources != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: `${value.resources}` || [],
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
-
-          case 'lifecycle':
-            if (value.lifecycle != null && value.lifecycle.length > 0 && value.lifecycle != TooltipValue) {
-              const label = {
-                name: selectVal,
-                save_type: "yaml",
-                attribute_value: `${value.lifecycle}` || [],
-              }
-              this.handelAddOrEdit(label)
-            } else {
-              this.notificationFun()
-            }
-            break;
+      if (jsonFields.includes(selectVal)) {
+        if (fieldValue && fieldValue[0] && fieldValue[0].key && fieldValue[0].value) {
+          label = { name: selectVal, save_type: 'json', attribute_value: fieldValue };
         }
-    })
+      } else if (yamlFields.includes(selectVal)) {
+        if (fieldValue && fieldValue.length > 0 && fieldValue !== TooltipValue) {
+          label = { name: selectVal, save_type: 'yaml', attribute_value: fieldValue };
+        }
+      } else if (stringFields.includes(selectVal)) {
+        if (fieldValue && fieldValue.length > 0) {
+          label = { name: selectVal, save_type: 'string', attribute_value: fieldValue };
+        }
+      } else if (booleanFields.includes(selectVal)) {
+        if (fieldValue != null) {
+          label = { name: selectVal, save_type: 'string', attribute_value: String(fieldValue) };
+        }
+      }
+
+      if (label) {
+        this.handelAddOrEdit(label);
+      } else {
+        this.notificationFun();
+      }
+    });
   }
-  // 取消cancel
+
   handleCancel = () => {
-    this.setState({
-      visible: false
-    })
+    this.setState({ visible: false });
   }
 
 
-  handelAddOrEdit = (list) => {
-    const teamName = globalUtil.getCurrTeamName()
-    const service_alias = this.props.service_alias || ''
-    const { selectVal, drawerSwitch } = this.state
-    // 判断是新增还是修改
-    if (drawerSwitch == "add") {
-      addKubernetes({
-        team_name: teamName,
-        service_alias: service_alias,
-        value_name: selectVal,
-        attribute: list
-      }).then(res => {
-        if (res && res.response_data && res.response_data.code == 200) {
-          notification.success({
-            message: formatMessage({ id: 'notification.success.attribute_add' })
-          })
-          this.handleGetKubernetes()
-        }
-        this.setState({
-          visible: false
-        })
-      })
-    } else if (drawerSwitch == "change") {
-      editKubernetes({
-        team_name: teamName,
-        service_alias: service_alias,
-        value_name: selectVal,
-        attribute: list
-      }).then(res => {
-        if (res && res.response_data && res.response_data.code == 200) {
-          notification.success({
-            message: formatMessage({ id: 'notification.success.attribute_edit' })
-          })
-          this.handleGetKubernetes()
-        }
-        this.setState({
-          visible: false
-        })
-      })
-    }
+  handelAddOrEdit = (attribute) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const { service_alias = '' } = this.props;
+    const { selectVal, drawerSwitch } = this.state;
+
+    const params = {
+      team_name: teamName,
+      service_alias,
+      value_name: selectVal,
+      attribute
+    };
+
+    const apiCall = drawerSwitch === 'add' ? addKubernetes : editKubernetes;
+    const successMessageId = drawerSwitch === 'add'
+      ? 'notification.success.attribute_add'
+      : 'notification.success.attribute_edit';
+
+    apiCall(params).then(res => {
+      if (res && res.response_data && res.response_data.code === 200) {
+        notification.success({
+          message: formatMessage({ id: successMessageId })
+        });
+        this.handleGetKubernetes();
+      }
+      this.setState({ visible: false });
+    }).catch(err => {
+      handleAPIError(err);
+    });
   }
   render() {
     const { form } = this.props;

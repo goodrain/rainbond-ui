@@ -12,7 +12,8 @@ import VisterBtn from '../../../components/visitBtnForAlllink';
 import AppDeteleResource from '../../../components/AppDeteleResource'
 import RapidCopy from '../../../components/RapidCopy';
 import cookie from '../../../utils/cookie';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AppState from '../../../components/ApplicationState';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';

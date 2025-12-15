@@ -7,7 +7,6 @@ import { Button, Card, Form, Select } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent, memo } from 'react';
 import moment from 'moment';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import Ansi from '../../components/Ansi/index';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
@@ -15,6 +14,8 @@ import handleAPIError from '../../utils/error';
 import download from '@/utils/download';
 import apiConfig from '../../../config/api.config';
 import styles from './Log.less';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 

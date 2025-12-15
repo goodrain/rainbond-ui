@@ -1,5 +1,7 @@
 import { connect } from 'dva';
-import { Button, PureComponent, Result } from 'react';
+import { Button } from 'antd';
+import { PureComponent } from 'react';
+import  Result  from '../components/Result/index';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser,

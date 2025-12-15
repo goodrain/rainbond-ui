@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import SelectTeam from '../../components/SelectTeam';
 import headerStype from '../../components/GlobalHeader/index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Spin, Icon } from 'antd';
 import { Link } from 'dva/router';
 
@@ -21,6 +21,9 @@ export default function TeamHeader(props) {
         <Spin size="large" />
       ) : (
         <div className={headerStype.breadCrumb}>
+          <div style={{ padding: '0 4px', fontSize: 14, fontWeight: 600 }}>
+            /
+          </div>
           <SelectTeam
             active
             upDataHeader={upDataHeader}

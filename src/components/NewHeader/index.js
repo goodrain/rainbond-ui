@@ -8,7 +8,7 @@ import {
     Tooltip
 } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 class Headers extends Component {

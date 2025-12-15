@@ -29,6 +29,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import ConfirmModal from '../../ConfirmModal';
 import styless from '../../CreateTeam/index.less';
 import MarketAppDetailShow from '../../MarketAppDetailShow';
@@ -38,13 +39,6 @@ import { rollback } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import AppPubSubSocket from '../../../utils/appPubSubSocket';
 import appStatusUtil from '../../../utils/appStatus-util';
-import ScrollerX from '../../ScrollerX';
-import {
-  createApp,
-  createComponent,
-  createEnterprise,
-  createTeam
-} from '../../../utils/breadcrumb';
 import dateUtil from '../../../utils/date-util';
 import globalUtil from '../../../utils/global';
 import regionUtil from '../../../utils/region';
@@ -67,7 +61,8 @@ import ComponentPlugin from '../../../pages/Component/componentPlugin'
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
 import PluginUtile from '../../../utils/pulginUtils'
 import { ResumeContext } from "../../../pages/Component/funContext";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
@@ -1814,45 +1809,57 @@ class Main extends PureComponent {
             )}
           </div>
         </Modal>
-        <div style={{
-          width: '100%',
-          height: 'calc(100% - 150px)',
-          overflow: 'auto',
-          scrollbarWidth: 'none',
-          '-ms-overflow-style': 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none'
-          }
-        }}>
-          {Com ? (
-            <Com
-              key={activeTab}
-              method={method}
-              groupDetail={groupDetail}
-              componentPermissions={permissions}
-              timers={componentTimer}
-              status={status}
-              ref={this.saveRef}
-              {...data}
-              {...this.props}
-              isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
-              onshowDeployTips={msg => {
-                this.handleshowDeployTips(msg);
-              }}
-              onshowRestartTips={msg => {
-                this.handleshowRestartTips(msg);
-              }}
-              handleOperation={(msg, callback) => {
-                this.handleOperation(msg, callback);
-              }}
-              socket={this.socket}
-              onChecked={this.handleChecked}
-              isShowUpdate={this.state.isShowUpdate}
-            />
-          ) : (
-            <FormattedMessage id="componentOverview.promptModal.error" />
-          )}
-        </div>
+        <TransitionGroup
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 'calc(100% - 150px)',
+            overflow: 'hidden'
+          }}
+        >
+          <CSSTransition
+            key={activeTab}
+            timeout={700}
+            classNames="page-zoom"
+            unmountOnExit
+          >
+            <div style={{
+              width: '100%',
+              height: '100%',
+              overflow: 'auto',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}>
+              {Com ? (
+                <Com
+                  method={method}
+                  groupDetail={groupDetail}
+                  componentPermissions={permissions}
+                  timers={componentTimer}
+                  status={status}
+                  ref={this.saveRef}
+                  {...data}
+                  {...this.props}
+                  isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
+                  onshowDeployTips={msg => {
+                    this.handleshowDeployTips(msg);
+                  }}
+                  onshowRestartTips={msg => {
+                    this.handleshowRestartTips(msg);
+                  }}
+                  handleOperation={(msg, callback) => {
+                    this.handleOperation(msg, callback);
+                  }}
+                  socket={this.socket}
+                  onChecked={this.handleChecked}
+                  isShowUpdate={this.state.isShowUpdate}
+                />
+              ) : (
+                <FormattedMessage id="componentOverview.promptModal.error" />
+              )}
+            </div>
+          </CSSTransition>
+        </TransitionGroup>
 
 
         {showDeleteApp && (

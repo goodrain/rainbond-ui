@@ -24,22 +24,11 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '@/components/ScrollerX';
 import moment from 'moment';
-import AddTeam from '../../../public/images/addTeam.png';
-import Arrow from '../../../public/images/arrow.png';
-import Cpus from '../../../public/images/cpus.png';
-import CreationTeam from '../../../public/images/creationTeam.png';
 import CustomerService from '../../../public/images/CustomerService.png';
-import Element from '../../../public/images/element.png';
-import EnterpriseBj from '../../../public/images/enterpriseBj.png';
-import EnterpriseInfo from '../../../public/images/enterpriseInfo.png';
-import Memory from '../../../public/images/memory.png';
-import Records from '../../../public/images/records.png';
-import Team from '../../../public/images/team.png';
-import TeamCrew from '../../../public/images/teamCrew.png';
-import User from '../../../public/images/user.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import Consulting from '../../components/Consulting';
 import Convenient from '../../components/Convenient';
@@ -355,7 +344,7 @@ export default class Enterprise extends PureComponent {
             if (isNext && groupId && teamName) {
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}/overview`
                 )
               );
             }

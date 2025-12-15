@@ -32,7 +32,8 @@ import {
 import copy from 'copy-to-clipboard';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { rkeconfig } from '../../../services/cloud';
 import cloud from '../../../utils/cloud';
 import global from '../../../utils/global';

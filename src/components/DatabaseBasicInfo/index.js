@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Card, Form, Slider, InputNumber, Select, Radio, Input, Icon } from 'antd';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
@@ -100,68 +100,68 @@ export default class Index extends PureComponent {
                 min_cpu: newCpuValue
             });
         });
-    }
+    };
 
     handleCpuChange = (value) => {
         this.setState({
             cpuValue: value
         });
-    }
+    };
 
     checkNum = (value, type) => {
-        const { memoryMarksObj, cpuMarksObj } = this.state
-        let num = 0
+        const { memoryMarksObj, cpuMarksObj } = this.state;
+        let num = 0;
         if (type == 'memory') {
             Object.keys(memoryMarksObj).forEach(item => {
                 if (item == value) {
-                    num = memoryMarksObj[item]
+                    num = memoryMarksObj[item];
                 }
-            })
+            });
         }
         if (type == 'cpu') {
             Object.keys(cpuMarksObj).forEach(item => {
                 if (item == value) {
-                    num = cpuMarksObj[item]
+                    num = cpuMarksObj[item];
                 }
-            })
+            });
         }
-        return num
+        return num;
     }
 
     getFormValues = (data, type) => {
-        const { cpuMarksObj, memoryMarksObj } = this.state
-        let num = 0
+        const { cpuMarksObj, memoryMarksObj } = this.state;
+        let num = 0;
         if (type == 'memory') {
             Object.keys(memoryMarksObj).forEach(item => {
                 if (memoryMarksObj[item] == data) {
-                    num = item
+                    num = item;
                 }
-            })
+            });
         } else {
             Object.keys(cpuMarksObj).forEach(item => {
                 if (cpuMarksObj[item] == data) {
-                    num = item
+                    num = item;
                 }
-            })
+            });
         }
-        return num
+        return num;
     }
 
     handleSubmit = () => {
-        const { memoryMarksObj, cpuMarksObj } = this.state
+        const { memoryMarksObj, cpuMarksObj } = this.state;
         const { form, onSubmit } = this.props;
         form.validateFields((err, fieldsValue) => {
             if (!err && onSubmit && fieldsValue) {
                 Object.keys(memoryMarksObj).forEach(item => {
                     if (memoryMarksObj[item] == fieldsValue.min_memory) {
-                        fieldsValue.min_memory = item
+                        fieldsValue.min_memory = item;
                     }
-                })
+                });
                 Object.keys(cpuMarksObj).forEach(item => {
                     if (cpuMarksObj[item] == fieldsValue.min_cpu) {
-                        fieldsValue.min_cpu = item
+                        fieldsValue.min_cpu = item;
                     }
-                })
+                });
                 onSubmit(fieldsValue);
             }
         });

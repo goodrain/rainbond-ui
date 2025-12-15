@@ -4,7 +4,7 @@ import { routerRedux } from 'dva/router';
 import { Card, Spin, Button, Table, Input, Select, Pagination, Tooltip, Empty } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import ImageNameForm from '../../pages/Create/image-name';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '@/utils/global';
 import styles from './index.less';
 

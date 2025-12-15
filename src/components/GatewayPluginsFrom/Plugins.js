@@ -1,5 +1,5 @@
 // 插件体系设置
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const pluginSystem = {
     getPluginList() {

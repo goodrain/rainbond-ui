@@ -90,7 +90,6 @@ import {
   syncMarketPluginTmp,
   toBuildShape,
   toCeateSourceCode,
-  toCreatCluster,
   toCreatOauth,
   toCreatUser,
   toEditCloudBackup,
@@ -148,6 +147,7 @@ import {
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
+import { getDvaApp } from 'umi';
 
 export default {
   namespace: 'global',
@@ -783,7 +783,7 @@ export default {
     *putNewbieGuideConfig({ payload, callback, handleError }, { call }) {
       const response = yield call(putNewbieGuideConfig, payload, handleError);
       if (response) {
-        window.g_app._store.dispatch({
+        getDvaApp()._store.dispatch({
           type: 'global/fetchNewbieGuideConfig'
         });
         if (callback) {
@@ -857,12 +857,6 @@ export default {
     },
     *creatUser({ payload, callback, handleError }, { call }) {
       const response = yield call(toCreatUser, payload, handleError);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *creatCluster({ payload, callback }, { call }) {
-      const response = yield call(toCreatCluster, payload);
       if (callback) {
         callback(response);
       }

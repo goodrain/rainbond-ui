@@ -18,7 +18,8 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import cookie from '../../utils/cookie';
 import userUtil from '../../utils/user';

@@ -1,13 +1,7 @@
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-/* eslint-disable react/jsx-indent */
-/* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
-/* eslint-disable camelcase */
-/* eslint-disable eqeqeq */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 import {
+  Alert,
   Button,
   Card,
   Divider,
@@ -16,39 +10,37 @@ import {
   Input,
   Modal,
   notification,
+  Radio,
   Select,
   Spin,
   Tabs,
-  Upload,
-  Radio
+  Upload
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
 import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import { languageObj } from '../../utils/utils';
+import { formatMessage } from '@/utils/intl';
 import styles from './resource.less';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
 import ModifyUrl from '../Create/modify-url';
-import ModifyImageCmd from '../Create/modify-image-cmd';
-import ModifyImageName from '../Create/modify-image-name';
-import { ResumeContext } from './funContext'
+import { ResumeContext } from './funContext';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option, OptGroup } = Select;
 
 @connect(
-  ({ user, appControl, global }) => ({
-    currUser: user.currentUser,
-    createWay: appControl.createWay,
+  ({ global }) => ({
     rainbondInfo: global.rainbondInfo,
     enterprise: global.enterprise
   }),
@@ -65,6 +57,8 @@ export default class Index extends PureComponent {
       changeBuildSource: false,
       editOauth: false,
       buildSource: null,
+      buildSourceLoading: true, // 构建源加载状态
+      buildSourceTimeout: false, // 构建源接口超时标记
       showMarketAppDetail: false,
       showApp: {},
       create_status: '',
@@ -97,14 +91,15 @@ export default class Index extends PureComponent {
   static contextType = ResumeContext;
 
   componentDidMount() {
-      this.setOauthService();
+    this.setOauthService();
+
     if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
       this.getRuntimeInfo();
       this.loadBuildSourceInfo();
-      this.bindEvent()
-      this.handleJarWarUpload()
+      this.bindEvent();
+      this.handleJarWarUpload();
     } else {
-      this.time()
+      this.time();
     }
   }
   componentWillUnmount() {
@@ -142,66 +137,61 @@ export default class Index extends PureComponent {
     }
   };
   time = () => {
-    const time = setTimeout(() => {
-      if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias) {
+    setTimeout(() => {
+      if (this.props.appDetail?.service?.service_alias) {
         this.setOauthService();
         this.getRuntimeInfo();
         this.loadBuildSourceInfo();
-        this.bindEvent()
+        this.bindEvent();
       }
-    }, 2000)
-  }
+    }, 2000);
+  };
   // 上传文件取消
   handleUploadCancel = () => {
     this.setState({ uploadFile: false })
   }
   //上传文件确认
-  handleUploadOk = e => {
-    const {
-      dispatch,
-      appDetail
-    } = this.props;
-    const { existFileList, event_id } = this.state
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    const serviceId = appDetail && appDetail.service && appDetail.service.service_id
+  handleUploadOk = () => {
+    const { dispatch, appDetail } = this.props;
+    const { existFileList, event_id } = this.state;
+
+    const serviceId = appDetail?.service?.service_id;
     if (existFileList.length > 0) {
       dispatch({
-        type: "createApp/createJarWarSubmit",
+        type: 'createApp/createJarWarSubmit',
         payload: {
-          team_name: teamName,
+          team_name: globalUtil.getCurrTeamName(),
           event_id,
           service_id: serviceId,
-          region_name: regionName
+          region_name: globalUtil.getCurrRegionName()
         },
-        callback: (data) => {
-          this.setState({ uploadFile: false })
-          this.loadBuildSourceInfo()
+        callback: () => {
+          this.setState({ uploadFile: false });
+          this.loadBuildSourceInfo();
         },
+        handleError: (err) => {
+          handleAPIError(err);
+        }
       });
     } else {
-      this.loop = true
-      this.handleJarWarUploadStatus()
+      this.loop = true;
+      this.handleJarWarUploadStatus();
       notification.error({
         message: formatMessage({ id: 'notification.error.notDetected' })
-      })
+      });
     }
   };
   handleJarWarUpload = () => {
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    const {
-      dispatch,
-      appDetail
-    } = this.props;
-    const service_id = appDetail.service.service_id
-    //获取上传事件
+    const { dispatch, appDetail } = this.props;
+    const serviceId = appDetail?.service?.service_id;
+    if (!serviceId) return;
+
     dispatch({
-      type: "createApp/createJarWarServices",
+      type: 'createApp/createJarWarServices',
       payload: {
-        region: regionName,
-        team_name: teamName,
-        component_id: service_id,
+        region: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        component_id: serviceId
       },
       callback: (res) => {
         if (res && res.status_code === 200) {
@@ -213,36 +203,30 @@ export default class Index extends PureComponent {
               this.loop = true;
               this.handleJarWarUploadStatus();
             }
-          })
+          });
         }
       },
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
-  }
+  };
 
   //查询上传状态
   handleJarWarUploadStatus = () => {
-    const {
-      dispatch
-    } = this.props;
-    const { event_id } = this.state
+    const { dispatch } = this.props;
+    const { event_id } = this.state;
+
     dispatch({
       type: 'createApp/createJarWarUploadStatus',
       payload: {
         region: globalUtil.getCurrRegionName(),
         team_name: globalUtil.getCurrTeamName(),
-        event_id: event_id
+        event_id
       },
       callback: data => {
-        if (data) {
-          if (data.bean.package_name && data.bean.package_name.length > 0) {
-            this.setState({
-              existFileList: data.bean.package_name
-            });
-            // notification.success({
-            //   message:  formatMessage({id:'notification.success.upload_file'})
-            // })
-            // this.loop = false
-          }
+        if (data?.bean?.package_name?.length > 0) {
+          this.setState({ existFileList: data.bean.package_name });
         }
         if (this.loop) {
           setTimeout(() => {
@@ -250,32 +234,36 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
   handleJarWarUploadDelete = () => {
-    const { event_id } = this.state
-    const { dispatch } = this.props
+    const { event_id } = this.state;
+    const { dispatch } = this.props;
+
     dispatch({
-      type: "createApp/deleteJarWarUploadStatus",
+      type: 'createApp/deleteJarWarUploadStatus',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         event_id
       },
       callback: (data) => {
-        if (data.bean.res == 'ok') {
-          this.setState({
-            existFileList: []
-          });
+        if (data?.bean?.res == 'ok') {
+          this.setState({ existFileList: [] });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
-          })
-          this.handleJarWarUpload()
+          });
+          this.handleJarWarUpload();
         }
       },
+      handleError: (err) => {
+        handleAPIError(err);
+      }
     });
-  }
+  };
   //上传
   onChangeUpload = info => {
     let { fileList } = info;
@@ -314,7 +302,7 @@ export default class Index extends PureComponent {
       rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
-      enterprise.oauth_services.value.map(item => {
+      enterprise.oauth_services.value.forEach(item => {
         const { oauth_type, service_id, is_git, name, enable } = item;
         if (is_git) {
           tabList.push({
@@ -324,13 +312,8 @@ export default class Index extends PureComponent {
             id: `${service_id}`
           });
         }
-        return item;
       });
-      console.log(tabList,"tabList");
-      
-      this.setState({
-        tabList
-      });
+      this.setState({ tabList });
     }
   };
   getParams() {
@@ -346,25 +329,30 @@ export default class Index extends PureComponent {
     loadBuildState(true);
   };
   getRuntimeInfo = () => {
-    this.props.dispatch({
+    const { dispatch, appDetail } = this.props;
+    dispatch({
       type: 'appControl/getRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
+        app_alias: appDetail?.service?.service_alias
       },
       callback: data => {
         if (data) {
-          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
+          this.setState({ runtimeInfo: data.bean || {} });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   handleEditRuntime = build_env_dict => {
-    this.props.dispatch({
+    const { dispatch, appDetail } = this.props;
+    dispatch({
       type: 'appControl/editRuntimeBuildInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
+        app_alias: appDetail?.service?.service_alias,
         build_env_dict
       },
       callback: res => {
@@ -372,21 +360,28 @@ export default class Index extends PureComponent {
           notification.success({ message: formatMessage({ id: 'notification.success.modified' }) });
           this.getRuntimeInfo();
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   handleEditInfo = (val = {}) => {
-    this.props.dispatch({
+    const { dispatch, appDetail, updateDetail } = this.props;
+    dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
+        app_alias: appDetail?.service?.service_alias,
         ...val
       },
       callback: data => {
         if (data) {
-          this.props.updateDetail();
+          updateDetail();
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -406,35 +401,38 @@ export default class Index extends PureComponent {
   };
 
   loadBuildSourceInfo = () => {
-    const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
+    const { dispatch, appDetail } = this.props;
+    this.setState({ buildSourceLoading: true, buildSourceTimeout: false });
     dispatch({
       type: 'appControl/getAppBuidSource',
       payload: {
-        team_name,
-        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: appDetail?.service?.service_alias
       },
       callback: data => {
+        this.setState({ buildSourceLoading: false });
         if (data) {
           const { bean } = data;
           if (bean.service_source === 'package_build') {
-            const url = bean && bean.git_url
-            const str = url.lastIndexOf("\/");
-            const eventId = url.substring(str + 1, url.length);
-            this.setState({
-              event_id: eventId
-            })
+            const url = bean?.git_url || '';
+            const str = url.lastIndexOf('/');
+            const eventId = url.substring(str + 1);
+            this.setState({ event_id: eventId });
           }
           this.setState({ buildSource: bean }, () => {
-            if (
-              bean &&
-              bean.code_from &&
-              bean.code_from.indexOf('oauth') > -1
-            ) {
+            if (bean?.code_from?.indexOf('oauth') > -1) {
               this.loadThirdInfo();
             }
           });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
+        this.setState({
+          buildSourceLoading: false,
+          buildSourceTimeout: isTimeout
+        });
+   
       }
     });
   };
@@ -451,13 +449,11 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          console.log(res.bean,"res.bean");
-          
-          this.setState({
-            thirdInfo: res.bean
-          });
-
+          this.setState({ thirdInfo: res.bean });
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -472,95 +468,94 @@ export default class Index extends PureComponent {
     this.setState({ languageBox: false, create_status: '' });
   };
   handleUpdatelanguage = () => {
-    const { dispatch, appAlias } = this.props
-    const { codeLang } = this.state
+    const { dispatch, appAlias } = this.props;
+    const { codeLang, dockfilePath } = this.state;
+
     dispatch({
       type: 'createApp/updateCustomLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id: appAlias,
         lang: codeLang,
-        dockerfile_path: this.state.dockfilePath
+        dockerfile_path: dockfilePath
       },
-      callback: res => {
+      callback: () => {
         this.loadBuildSourceInfo();
         this.setState({ languageBox: false, create_status: '' });
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
-    })
-  }
+    });
+  };
   handleDetectGetLanguage = () => {
-    const { dispatch } = this.props;
-    const _th = this;
+    const { dispatch, appDetail } = this.props;
+    const { check_uuid } = this.state;
+
     dispatch({
       type: 'appControl/getLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
-        check_uuid: this.state.check_uuid
+        service_alias: appDetail?.service?.service_alias,
+        check_uuid
       },
       callback: res => {
-        if (res) {
-          if (res.status_code === 200) {
-            if (
-              res.bean &&
-              res.bean.check_status != 'success' &&
-              res.bean.check_status != 'failure'
-            ) {
-              setTimeout(function () {
-                _th.handleDetectGetLanguage();
-              }, 3000);
-            } else {
-              if(res.bean && res.bean.service_info){
-                res.bean.service_info.map((item)=>{
-                  if (item.type == 'language' && res.bean.check_status != 'failure') {
-                    const parts = item?.value?.split(",");
-                    this.setState({
-                      codeLang: parts[0]
-                    })
+        if (res && res.status_code === 200) {
+          const checkStatus = res.bean?.check_status;
+          if (checkStatus != 'success' && checkStatus != 'failure') {
+            setTimeout(() => {
+              this.handleDetectGetLanguage();
+            }, 3000);
+          } else {
+            if (res.bean?.service_info) {
+              res.bean.service_info.forEach((item) => {
+                if (item.type == 'language' && checkStatus != 'failure') {
+                  const parts = item?.value?.split(',');
+                  this.setState({ codeLang: parts?.[0] || '' });
+                }
+                if (item.type == 'dockerfiles' && checkStatus != 'failure') {
+                  if (item.value?.length > 0) {
+                    this.setState({ dockfilePath: item.value[0] });
                   }
-                  if (item.type == 'dockerfiles' && res.bean.check_status != 'failure') {
-                    if (item.value && item.value.length > 0) {
-                      this.setState({
-                        dockfilePath: item.value[0]
-                      })
-                    }
-                  }
-                })
-              }
-              this.loadBuildSourceInfo();
-              console.log(res.bean && res.bean.service_info,'res.bean && res.bean.service_info,');
-              
-              this.setState({
-                create_status: res.bean && res.bean.check_status,
-                service_info: res.bean && res.bean.service_info,
-                error_infos: res.bean && res.bean.error_infos
+                }
               });
             }
+            this.loadBuildSourceInfo();
+            this.setState({
+              create_status: checkStatus,
+              service_info: res.bean?.service_info,
+              error_infos: res.bean?.error_infos
+            });
           }
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
 
   handleDetectPutLanguage = () => {
-    const { dispatch } = this.props;
-    const { event_id } = this.state
+    const { dispatch, appDetail } = this.props;
+    const { event_id } = this.state;
+
     dispatch({
       type: 'appControl/putLanguage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_alias,
+        service_alias: appDetail?.service?.service_alias,
         eventId: event_id
       },
       callback: res => {
         if (res) {
+          const createStatus = res.bean?.create_status;
           this.setState(
             {
-              create_status: res.bean && res.bean.create_status,
-              check_uuid: res.bean && res.bean.check_uuid
+              create_status: createStatus,
+              check_uuid: res.bean?.check_uuid
             },
             () => {
-              if (this.state.create_status == 'failure') {
+              if (createStatus == 'failure') {
                 notification.warning({ message: formatMessage({ id: 'notification.warn.update_language' }) });
               } else {
                 this.handleDetectGetLanguage();
@@ -568,6 +563,9 @@ export default class Index extends PureComponent {
             }
           );
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -583,24 +581,28 @@ export default class Index extends PureComponent {
   handleCodeWarehouseType = props => {
     const { dispatch } = props;
     const { tabType, buildSource } = this.state;
-    const oauth_service_id = this.props.form.getFieldValue('oauth_service_id');
-    const project_full_name = this.props.form.getFieldValue('full_name');
+    const oauthServiceId = this.props.form.getFieldValue('oauth_service_id');
+    const projectFullName = this.props.form.getFieldValue('full_name');
 
     dispatch({
       type: 'global/codeWarehouseType',
       payload: {
         type: tabType,
-        full_name: project_full_name || buildSource.full_name,
-        oauth_service_id: oauth_service_id || buildSource.oauth_service_id
+        full_name: projectFullName || buildSource.full_name,
+        oauth_service_id: oauthServiceId || buildSource.oauth_service_id
       },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            tags: res.bean ? res.bean[tabType] : [],
+            tags: res.bean?.[tabType] || [],
             tagsLoading: false,
             OauthLoading: false
           });
         }
+      },
+      handleError: (err) => {
+        this.setState({ tagsLoading: false, OauthLoading: false });
+        handleAPIError(err);
       }
     });
   };
@@ -615,7 +617,7 @@ export default class Index extends PureComponent {
     const { page } = this.state;
     if (page > 1) {
       const pages = page - 1;
-      const firstPage = page == 1;
+      const firstPage = pages == 1;
       this.setState({ firstPage, page: pages }, () => {
         this.handleProvinceChange();
       });
@@ -633,10 +635,10 @@ export default class Index extends PureComponent {
 
   handleProvinceChange = id => {
     // 获取代码仓库信息
-    const { dispatch } = this.props;
-    const { setFieldsValue } = this.props.form;
+    const { dispatch, form } = this.props;
+    const { setFieldsValue } = form;
     const { tabList, buildSource, page } = this.state;
-    const oauth_service_id = this.props.form.getFieldValue('oauth_service_id');
+    const oauthServiceId = form.getFieldValue('oauth_service_id');
     this.setState({ OauthLoading: true });
 
     dispatch({
@@ -645,35 +647,27 @@ export default class Index extends PureComponent {
         page,
         oauth_service_id:
           id ||
-          oauth_service_id ||
-          (buildSource && buildSource.oauth_service_id) ||
+          oauthServiceId ||
+          buildSource?.oauth_service_id ||
           (tabList.length > 0 ? tabList[0].id : '')
       },
       callback: res => {
-        if (
-          res &&
-          res.status_code === 200 &&
-          res.bean &&
-          res.bean.repositories &&
-          res.bean.repositories.length > 0
-        ) {
-          const firstPage = page == 1;
-          const lastPage = res.bean.repositories.length < 10;
-          const setFullName = res.bean.repositories[0].project_full_name;
-          const setUrl = res.bean.repositories[0].project_url;
-          const setVersion = res.bean.repositories[0].project_default_branch;
+        if (res?.status_code === 200 && res.bean?.repositories?.length > 0) {
+          const repos = res.bean.repositories;
+          const isFirstPage = page == 1;
+          const isLastPage = repos.length < 10;
           if (id) {
             setFieldsValue({
-              full_name: setFullName,
-              git_url: setUrl,
-              code_version: setVersion
+              full_name: repos[0].project_full_name,
+              git_url: repos[0].project_url,
+              code_version: repos[0].project_default_branch
             });
           }
           this.setState(
             {
-              firstPage,
-              lastPage,
-              fullList: res.bean.repositories
+              firstPage: isFirstPage,
+              lastPage: isLastPage,
+              fullList: repos
             },
             () => {
               this.handleCodeWarehouseType(this.props);
@@ -682,42 +676,45 @@ export default class Index extends PureComponent {
         } else {
           this.setState({ tagsLoading: false, OauthLoading: false });
         }
+      },
+      handleError: (err) => {
+        this.setState({ OauthLoading: false });
+        handleAPIError(err);
       }
     });
   };
 
-  handleProjectChange = project_full_name => {
+  handleProjectChange = projectFullName => {
     this.setState({ OauthLoading: true });
     const { setFieldsValue } = this.props.form;
     const { fullList } = this.state;
 
-    fullList.map(item => {
-      if (item.project_full_name === project_full_name) {
-        setFieldsValue(
-          {
-            git_url: item.project_url,
-            code_version: item.project_default_branch
-          },
-          () => {
-            this.handleCodeWarehouseType(this.props);
-            this.setState({ OauthLoading: false });
-          }
-        );
-      }
-    });
+    const item = fullList.find(i => i.project_full_name === projectFullName);
+    if (item) {
+      setFieldsValue(
+        {
+          git_url: item.project_url,
+          code_version: item.project_default_branch
+        },
+        () => {
+          this.handleCodeWarehouseType(this.props);
+          this.setState({ OauthLoading: false });
+        }
+      );
+    }
   };
 
   handleSubmitOauth = () => {
-    const { form } = this.props;
+    const { form, dispatch, appAlias } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      this.props.dispatch({
+      dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
           arch: fieldsValue.arch || null,
           team_name: globalUtil.getCurrTeamName(),
-          service_alias: this.props.appAlias,
+          service_alias: appAlias,
           is_oauth: true,
           oauth_service_id: fieldsValue.oauth_service_id,
           full_name: fieldsValue.full_name,
@@ -729,6 +726,9 @@ export default class Index extends PureComponent {
           notification.success({ message: formatMessage({ id: 'notification.success.edit_deploy' }) });
           this.loadBuildSourceInfo();
           this.hideEditOauth();
+        },
+        handleError: (err) => {
+          handleAPIError(err);
         }
       });
     });
@@ -749,46 +749,47 @@ export default class Index extends PureComponent {
   };
   //源码
   handleModifyUrl = values => {
-    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
-    const teamName = globalUtil.getCurrTeamName()
-    this.props.dispatch({
+    const { dispatch, appDetail } = this.props;
+    const service = appDetail?.service;
+
+    dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
-        service_cname: values.service_cname ? values.service_cname : '',
-        git_url: values.git_url ? values.git_url : '',
-        team_name: teamName,
-        app_alias: appDetail.service_alias,
+        service_cname: values.service_cname || '',
+        git_url: values.git_url || '',
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: service?.service_alias,
         user_name: values.user_name,
         password: values.password
       },
       callback: data => {
         if (data) {
-          this.handleDetectPutLanguage()
+          this.handleDetectPutLanguage();
           this.handleCancelEdit();
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
   onChangeLange = (e) => {
-    const value = e.target.value
-    this.setState({
-      codeLang: value
-    })
-  }
+    this.setState({ codeLang: e.target.value });
+  };
+
   onDockfileChange = (e) => {
-    const value = e.target.value
-    this.setState({
-      dockfilePath: value
-    })
-  }
+    this.setState({ dockfilePath: e.target.value });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
 
-    const { form, match, appDetail, method } = this.props;
+    const { form, appDetail, method } = this.props;
     const {
       runtimeInfo,
       thirdInfo,
       buildSource,
+      buildSourceLoading,
+      buildSourceTimeout,
       tags,
       tagsLoading,
       fullList,
@@ -798,11 +799,7 @@ export default class Index extends PureComponent {
       fileList,
       record,
       existFileList,
-      modifyUrl,
       modifyUserpass,
-      modifyImageName,
-      modifyImageCmd,
-      showKey,
       codeLang,
       dockfilePath
     } = this.state;
@@ -855,7 +852,44 @@ export default class Index extends PureComponent {
     const languageType = versionLanguage || '';
     return (
       <Fragment>
-        {buildSource && (
+        {buildSourceLoading ? (
+          <Card
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
+            style={{
+              marginBottom: 24
+            }}
+            className={styles.tabsCard}
+          >
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <Spin tip={formatMessage({ id: 'componentOverview.body.Resource.loading' })} />
+            </div>
+          </Card>
+        ) : buildSourceTimeout ? (
+          <Card
+            title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
+            style={{
+              marginBottom: 24
+            }}
+            className={styles.tabsCard}
+            extra={(
+              <Button onClick={this.changeBuildSource} icon='form'>
+                <FormattedMessage id='componentOverview.body.Resource.change' />
+              </Button>
+            )}
+          >
+            <Alert
+              message={formatMessage({ id: 'componentOverview.body.Resource.timeout.title' })}
+              description={formatMessage({ id: 'componentOverview.body.Resource.timeout.desc' })}
+              type="warning"
+              showIcon
+              action={
+                <Button size="small" onClick={this.loadBuildSourceInfo}>
+                  {formatMessage({ id: 'componentOverview.body.Resource.timeout.retry' })}
+                </Button>
+              }
+            />
+          </Card>
+        ) : buildSource && (
           <Card
             title={<FormattedMessage id='componentOverview.body.Resource.Jianyuan' />}
             style={{
@@ -1079,15 +1113,7 @@ export default class Index extends PureComponent {
                   className={styles.ant_form_item}
                   label={<FormattedMessage id='componentOverview.body.Resource.language' />}
                 >
-                  {languageType != 'static' ? (
-                    <>
-                      {languageType}
-                    </>
-                  ) : (
-                    <>
-                      {languageType}
-                    </>
-                  )}
+                  {languageType}
                   <Button
                     size="small"
                     type="primary"
@@ -1184,18 +1210,13 @@ export default class Index extends PureComponent {
                     />
                   </p>
                   {this.state.error_infos &&
-                    this.state.error_infos.map(item => {
-                      return (
-                        <div>
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: `<span>${item.error_info ||
-                                ''} ${item.solve_advice || ''}</span>`
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
+                    this.state.error_infos.map((item, index) => (
+                      <div key={index}>
+                        <span>
+                          {item.error_info || ''} {item.solve_advice || ''}
+                        </span>
+                      </div>
+                    ))}
                 </div>
               ) : (
                 ''
@@ -1213,23 +1234,23 @@ export default class Index extends PureComponent {
                   </p>
 
                   {this.state.service_info &&
-                    this.state.service_info.map(item => {
-                      let languageArr = []
+                    this.state.service_info.map((item, idx) => {
+                      let languageArr = [];
                       if (item.type == 'language') {
-                        languageArr = item?.value?.split(",");
+                        languageArr = item?.value?.split(',') || [];
                       }
                       return item.type == 'language' ? (
-                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:
                           <Radio.Group onChange={this.onChangeLange} value={codeLang}>
-                            {languageArr.map((item) => {
-                              return <Radio value={item}>{item}</Radio>
-                            })}
+                            {languageArr.map((lang, i) => (
+                              <Radio key={i} value={lang}>{lang}</Radio>
+                            ))}
                           </Radio.Group>
                         </p>
                       ) : item.type == 'dockerfiles' ? (
                         codeLang == 'dockerfile' &&
-                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:
                           <Radio.Group onChange={this.onDockfileChange} value={dockfilePath}>
                             {(item.value || []).map((items, index) => (
@@ -1238,7 +1259,7 @@ export default class Index extends PureComponent {
                           </Radio.Group>
                         </p>
                       ) : (
-                        <p style={{ textAlign: 'center', fontSize: '14px' }}>
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
                           {item.key}:{item.value}{' '}
                         </p>
                       );

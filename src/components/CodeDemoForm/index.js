@@ -2,14 +2,13 @@
 import { Button, Form, Input, Modal, Select, Tag, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import configureGlobal from '../../utils/configureGlobal';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
-import role from '../../utils/newRole'
+import role from '../../utils/newRole';
 import cookie from '../../utils/cookie';
-import styles from './index.less';
 
 const { Option } = Select;
 
@@ -55,16 +54,17 @@ export default class Index extends PureComponent {
       creatComPermission: {}
     };
   }
-  componentDidMount(){
-    const group_id = globalUtil.getAppID()
-    if(group_id){
-      this.handleChangeGroup(group_id)
+  componentDidMount() {
+    const group_id = globalUtil.getAppID();
+    if (group_id) {
+      this.handleChangeGroup(group_id);
     }
   }
+
   handleChangeGroup = (appid) => {
     this.setState({
       creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${appid}`)
-    })
+    });
   };
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -76,24 +76,35 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit, handleType, archInfo } = this.props;
     const isService = handleType && handleType === 'Service';
-    const group_id = globalUtil.getAppID()
+    const group_id = globalUtil.getAppID();
+
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
-        if(!isService){
-          fieldsValue.k8s_app="appCodeDemo"
-          fieldsValue.is_demo = group_id ? false : true
+        // 非服务模式设置示例应用配置
+        if (!isService) {
+          fieldsValue.k8s_app = 'appCodeDemo';
+          fieldsValue.is_demo = !group_id;
         }
-        if(archInfo && archInfo.length != 2 && archInfo.length != 0){
-          fieldsValue.arch = archInfo[0]
+
+        // 处理架构信息
+        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+          fieldsValue.arch = archInfo[0];
         }
+
         onSubmit(fieldsValue);
       }
     });
   };
+
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
+  };
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   };
   fetchGroup = () => {
     this.props.dispatch({
@@ -218,11 +229,11 @@ export default class Index extends PureComponent {
     if (matches && matches.length > 1) {
       return matches[1];
     }
-    return "demo";
-  }
+    return 'demo';
+  };
 
   handleChangeDemo = value => {
-    const name = this.extractRepoName(value)
+    const name = this.extractRepoName(value);
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ service_cname: name, k8s_component_name: name, git_url: value });
     this.setState({
@@ -258,14 +269,15 @@ export default class Index extends PureComponent {
     const is_language = language ? formItemLayout : en_formItemLayout;
     const isService = handleType && handleType === 'Service';
     const showCreateGroups = showCreateGroup === void 0 ? true : showCreateGroup;
-    let arch = 'amd64'
-    let archLegnth = archInfo.length
-    if(archLegnth == 2){
-      arch = 'amd64'
-    }else if(archInfo.length == 1){
-      arch = archInfo && archInfo[0]
+
+    let arch = 'amd64';
+    const archLength = archInfo.length;
+    if (archLength === 2) {
+      arch = 'amd64';
+    } else if (archInfo.length === 1) {
+      arch = archInfo && archInfo[0];
     }
-    const group_id = globalUtil.getAppID()    
+    const group_id = globalUtil.getAppID();    
     return (
       <Form layout="vertical" hideRequiredMark>
         <Form.Item {...is_language} label={<span>{formatMessage({ id: 'teamAdd.create.code.selectDemo' })}</span>}>
@@ -354,10 +366,10 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
           {getFieldDecorator('group_id', {
-            initialValue: group_id ? Number(group_id) : language ? "源码构建示例" : "Source sample application", 
+            initialValue: group_id ? Number(group_id) : (language ? '源码构建示例' : 'Source sample application'),
             rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
           })(
-           <Select
+            <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({ id: 'placeholder.appName' })}
               disabled={true}
@@ -445,7 +457,7 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          {archLegnth == 2 && 
+          {archLength === 2 && 
           <Form.Item {...is_language} label={formatMessage({id:'enterpriseColony.mgt.node.framework'})}>
             {getFieldDecorator('arch', {
               initialValue: arch,

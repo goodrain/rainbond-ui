@@ -5,7 +5,8 @@ import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import cookie from './cookie';
 import PublicColor from '../../config/theme';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+import { FormattedMessage } from 'umi';
 import styles from './utils.less';
 
 const global = {
@@ -370,7 +371,7 @@ const global = {
       svgPersonal: (
         <svg
           t="1667275898878"
-          class="icon"
+          className="icon"
           viewBox="0 0 1036 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -478,7 +479,7 @@ const global = {
         </svg>
       ),
       codeSvg: (
-        <svg t="1743575405879" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2656" width="30" height="30">
+        <svg t="1743575405879" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2656" width="30" height="30">
           <path d="M981.333333 512l-301.696 301.696-60.330666-60.330667L860.672 512l-241.365333-241.365333 60.330666-60.330667L981.333333 512zM163.328 512l241.365333 241.365333-60.330666 60.330667L42.666667 512l301.696-301.696 60.330666 60.330667L163.328 512z" fill={this.getPublicColor()} p-id="2657">
           </path>
         </svg>
@@ -486,7 +487,7 @@ const global = {
       uploadYaml: (
         <svg
           t="1657596671157"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -505,7 +506,7 @@ const global = {
       uploadJarWar: (
         <svg
           t="1657597534344"
-          class="icon"
+          className="icon"
           viewBox="0 0 1088 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -524,7 +525,7 @@ const global = {
       helmCmd: (
         <svg
           t="1663136594822"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -538,13 +539,12 @@ const global = {
             p-id="2599"
             fill="#1296db"
             data-spm-anchor-id="a313x.7781069.0.i2"
-            class=""
           >
           </path>
         </svg>
       ),
       defaulAppImg: (
-        <svg t="1666955709192" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="52809" width="44" height="44">
+        <svg t="1666955709192" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="52809" width="44" height="44">
           <path d="M243.2 364.8l-2.133333 300.8 260.266666 153.6 264.533334-147.2 2.133333-300.8-262.4-153.6-262.4 147.2z m241.066667 401.066667L277.333333 646.4l2.133334-243.2 206.933333 108.8-2.133333 253.866667z m243.2-115.2l-206.933334 115.2 2.133334-256 206.933333-104.533334-2.133333 245.333334z m-221.866667-170.666667l-198.4-104.533333 200.533333-115.2 198.4 117.333333-200.533333 102.4z"
             fill={color || this.getPublicColor()} p-id="52810">
           </path>
@@ -1289,7 +1289,7 @@ const global = {
       Ack: (
         <svg
           t="1666080173514"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1305,7 +1305,7 @@ const global = {
       Tke: (
         <svg
           t="1666080267089"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1320,7 +1320,7 @@ const global = {
       Cce: (
         <svg
           t="1666080544957"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1334,7 +1334,7 @@ const global = {
       K8s: (
         <svg
           t="1666080944090"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1364,7 +1364,7 @@ const global = {
       teamApp: (
         <svg
           t="1666084452300"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1378,7 +1378,7 @@ const global = {
       teamComponent: (
         <svg
           t="1666084520949"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1393,7 +1393,7 @@ const global = {
       commit: (
         <svg
           t="1666086770799"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1410,7 +1410,7 @@ const global = {
       location_drawer_store: (
         <svg
           t="1663921264914"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1428,7 +1428,7 @@ const global = {
       openSource_drawer_store: (
         <svg
           t="1663923218361"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1451,7 +1451,7 @@ const global = {
       helm_drawer_store: (
         <svg
           t="1663930732998"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1470,7 +1470,7 @@ const global = {
       JarWar_svg: (
         <svg
           t="1663921712574"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1488,7 +1488,7 @@ const global = {
       yaml_svg: (
         <svg
           t="1663921748464"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1506,7 +1506,7 @@ const global = {
       helm_svg: (
         <svg
           t="1663921789055"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1523,7 +1523,7 @@ const global = {
       third_party_svg: (
         <svg
           t="1663921972176"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1551,7 +1551,7 @@ const global = {
       docker_svg: (
         <svg
           t="1663923275031"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1574,12 +1574,12 @@ const global = {
         </svg>
       ),
       codeDemo: (
-        <svg t="1743576707061" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="16283" width="30" height="30"><path d="M896 128h-298.666667a127.146667 127.146667 0 0 0-85.333333 33.28A127.146667 127.146667 0 0 0 426.666667 128H128a42.666667 42.666667 0 0 0-42.666667 42.666667v640a42.666667 42.666667 0 0 0 42.666667 42.666666h245.674667c22.442667 0 44.458667 9.130667 60.330666 25.002667l47.829334 47.829333c0.384 0.384 0.896 0.512 1.28 0.896 3.669333 3.370667 7.765333 6.357333 12.544 8.362667h0.085333a42.496 42.496 0 0 0 32.512 0h0.085333c4.778667-2.005333 8.874667-4.992 12.544-8.362667 0.384-0.384 0.896-0.512 1.28-0.896l47.829334-47.829333A85.973333 85.973333 0 0 1 650.325333 853.333333H896a42.666667 42.666667 0 0 0 42.666667-42.666666V170.666667a42.666667 42.666667 0 0 0-42.666667-42.666667zM373.674667 768H170.666667V213.333333h256c23.552 0 42.666667 19.157333 42.666666 42.666667v541.397333A172.032 172.032 0 0 0 373.674667 768zM853.333333 768h-203.008c-34.090667 0-67.584 10.496-95.658666 29.397333V256c0-23.509333 19.114667-42.666667 42.666666-42.666667h256v554.666667z" p-id="16284" fill={this.getPublicColor()}></path></svg>
+        <svg t="1743576707061" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="16283" width="30" height="30"><path d="M896 128h-298.666667a127.146667 127.146667 0 0 0-85.333333 33.28A127.146667 127.146667 0 0 0 426.666667 128H128a42.666667 42.666667 0 0 0-42.666667 42.666667v640a42.666667 42.666667 0 0 0 42.666667 42.666666h245.674667c22.442667 0 44.458667 9.130667 60.330666 25.002667l47.829334 47.829333c0.384 0.384 0.896 0.512 1.28 0.896 3.669333 3.370667 7.765333 6.357333 12.544 8.362667h0.085333a42.496 42.496 0 0 0 32.512 0h0.085333c4.778667-2.005333 8.874667-4.992 12.544-8.362667 0.384-0.384 0.896-0.512 1.28-0.896l47.829334-47.829333A85.973333 85.973333 0 0 1 650.325333 853.333333H896a42.666667 42.666667 0 0 0 42.666667-42.666666V170.666667a42.666667 42.666667 0 0 0-42.666667-42.666667zM373.674667 768H170.666667V213.333333h256c23.552 0 42.666667 19.157333 42.666666 42.666667v541.397333A172.032 172.032 0 0 0 373.674667 768zM853.333333 768h-203.008c-34.090667 0-67.584 10.496-95.658666 29.397333V256c0-23.509333 19.114667-42.666667 42.666666-42.666667h256v554.666667z" p-id="16284" fill={this.getPublicColor()}></path></svg>
       ),
       teamCode: (
         <svg
           t="1684829193134"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1598,7 +1598,7 @@ const global = {
       teamMarket: (
         <svg
           t="1684829323430"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1612,7 +1612,7 @@ const global = {
             fill={this.getPublicColor()}
             p-id="9290"
             data-spm-anchor-id="a313x.7781069.0.i13"
-            class="selected"
+            className="selected"
           >
           </path>
           <path
@@ -1632,7 +1632,6 @@ const global = {
             fill={this.getPublicColor()}
             p-id="9293"
             data-spm-anchor-id="a313x.7781069.0.i14"
-            class=""
           >
           </path>
         </svg>
@@ -1640,7 +1639,7 @@ const global = {
       teamImage: (
         <svg
           t="1684829390965"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1654,7 +1653,7 @@ const global = {
             fill={this.getPublicColor()}
             p-id="10296"
             data-spm-anchor-id="a313x.7781069.0.i23"
-            class="selected"
+            className="selected"
           >
           </path>
           <path
@@ -1722,7 +1721,7 @@ const global = {
       teamUpload: (
         <svg
           t="1684829440959"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1736,7 +1735,7 @@ const global = {
             fill={this.getPublicColor()}
             p-id="10839"
             data-spm-anchor-id="a313x.7781069.0.i32"
-            class="selected"
+            className="selected"
           >
           </path>
           <path
@@ -1749,7 +1748,7 @@ const global = {
       ),
       teamDatabase: (
         <svg
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           xmlns="http://www.w3.org/2000/svg"
           width="60"
@@ -1770,7 +1769,7 @@ const global = {
       command_drawer_store: (
         <svg
           t="1690264803495"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1789,7 +1788,7 @@ const global = {
       topology: (
         <svg
           t="1692934232529"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1808,7 +1807,7 @@ const global = {
       list: (
         <svg
           t="1692935072606"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1863,7 +1862,7 @@ const global = {
       gatewayMore: (
         <svg
           t="1701677023088"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1881,7 +1880,7 @@ const global = {
       soft: (
         <svg
           t="1694661685946"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -1905,10 +1904,10 @@ const global = {
         </svg>
       ),
       transform: (
-        <svg t="1702004518583" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10736" width="20" height="20"><path d="M533.333333 388.266667L358.4 213.333333 298.666667 277.333333l234.666666 234.666667L768 277.333333 708.266667 213.333333l-174.933334 174.933334z m0 260.266666l-174.933333-174.933333L298.666667 533.333333l234.666666 234.666667 234.666667-234.666667-59.733333-59.733333-174.933334 174.933333z" fill="#4d73b1" p-id="10737"></path></svg>
+        <svg t="1702004518583" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10736" width="20" height="20"><path d="M533.333333 388.266667L358.4 213.333333 298.666667 277.333333l234.666666 234.666667L768 277.333333 708.266667 213.333333l-174.933334 174.933334z m0 260.266666l-174.933333-174.933333L298.666667 533.333333l234.666666 234.666667 234.666667-234.666667-59.733333-59.733333-174.933334 174.933333z" fill="#4d73b1" p-id="10737"></path></svg>
       ),
       soft: (
-        <svg t="1743576566442" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14480" width="30" height="30"><path d="M456.832 460.501333a42.666667 42.666667 0 0 1 0 60.330667L380.330667 597.333333l76.501333 76.501334a42.666667 42.666667 0 0 1-60.330667 60.330666l-106.666666-106.666666a42.666667 42.666667 0 0 1 0-60.330667l106.666666-106.666667a42.666667 42.666667 0 0 1 60.330667 0zM567.168 460.501333a42.666667 42.666667 0 0 1 60.330667 0l106.666666 106.666667a42.666667 42.666667 0 0 1 0 60.330667l-106.666666 106.666666a42.666667 42.666667 0 0 1-60.330667-60.330666L643.669333 597.333333l-76.501333-76.501333a42.666667 42.666667 0 0 1 0-60.330667z" p-id="14481" fill={this.getPublicColor()}></path><path d="M581.034667 256l-35.84-71.594667a2566.570667 2566.570667 0 0 1-2.346667-4.736c-11.264-22.698667-21.205333-42.624-36.693333-57.770666a128 128 0 0 0-47.786667-29.568C437.845333 85.333333 415.573333 85.333333 390.229333 85.333333H220.245333c-22.528 0-41.898667 0-57.898666 1.28-16.853333 1.408-33.664 4.437333-49.792 12.672a128 128 0 0 0-55.936 55.936c-8.234667 16.170667-11.264 32.938667-12.629334 49.792C42.666667 221.013333 42.666667 240.426667 42.666667 262.912v430.08c0 34.346667 0 62.677333 1.877333 85.76 1.962667 23.978667 6.186667 46.037333 16.725333 66.730667a170.666667 170.666667 0 0 0 74.581334 74.581333c20.693333 10.538667 42.752 14.762667 66.730666 16.725333C225.706667 938.666667 254.037333 938.666667 288.341333 938.666667h447.274667c34.346667 0 62.72 0 85.76-1.877334 24.021333-1.962667 46.08-6.186667 66.773333-16.725333a170.666667 170.666667 0 0 0 74.581334-74.581333c10.538667-20.693333 14.762667-42.752 16.725333-66.730667 1.877333-23.082667 1.877333-51.413333 1.877333-85.76v-191.274667c0-34.346667 0-62.72-1.877333-85.76-1.962667-24.021333-6.186667-46.08-16.725333-66.773333a170.666667 170.666667 0 0 0-74.581334-74.581333c-20.693333-10.538667-42.752-14.762667-66.730666-16.725334C798.293333 256 769.962667 256 735.658667 256h-154.624zM430.506667 173.013333a42.666667 42.666667 0 0 1 15.957333 9.813334c3.84 3.84 7.381333 9.557333 22.442667 39.722666l16.725333 33.450667H128c0-19.84 0.170667-33.408 1.024-44.032 0.938667-11.605333 2.56-15.872 3.626667-18.005333a42.666667 42.666667 0 0 1 18.645333-18.645334c2.133333-1.066667 6.4-2.688 18.005333-3.626666C181.333333 170.709333 197.248 170.666667 221.866667 170.666667h163.072c33.706667 0 40.405333 0.554667 45.568 2.346666zM553.813333 341.333333h180.053334c36.565333 0 61.397333 0.042667 80.597333 1.621334 18.688 1.536 28.288 4.266667 34.944 7.68a85.333333 85.333333 0 0 1 37.290667 37.290666c3.413333 6.698667 6.186667 16.213333 7.68 34.986667 1.578667 19.2 1.621333 44.032 1.621333 80.554667v187.733333c0 36.565333 0 61.44-1.621333 80.64-1.493333 18.688-4.266667 28.245333-7.68 34.901333a85.333333 85.333333 0 0 1-37.290667 37.290667c-6.656 3.413333-16.213333 6.186667-34.944 7.68-19.2 1.578667-44.032 1.621333-80.597333 1.621333H290.133333c-36.565333 0-61.397333 0-80.597333-1.578666-18.688-1.536-28.288-4.309333-34.944-7.68a85.333333 85.333333 0 0 1-37.290667-37.333334c-3.413333-6.656-6.186667-16.213333-7.68-34.944C128 752.64 128 727.765333 128 691.2V341.333333h425.813333z" p-id="14482" fill={this.getPublicColor()}></path></svg>
+        <svg t="1743576566442" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14480" width="30" height="30"><path d="M456.832 460.501333a42.666667 42.666667 0 0 1 0 60.330667L380.330667 597.333333l76.501333 76.501334a42.666667 42.666667 0 0 1-60.330667 60.330666l-106.666666-106.666666a42.666667 42.666667 0 0 1 0-60.330667l106.666666-106.666667a42.666667 42.666667 0 0 1 60.330667 0zM567.168 460.501333a42.666667 42.666667 0 0 1 60.330667 0l106.666666 106.666667a42.666667 42.666667 0 0 1 0 60.330667l-106.666666 106.666666a42.666667 42.666667 0 0 1-60.330667-60.330666L643.669333 597.333333l-76.501333-76.501333a42.666667 42.666667 0 0 1 0-60.330667z" p-id="14481" fill={this.getPublicColor()}></path><path d="M581.034667 256l-35.84-71.594667a2566.570667 2566.570667 0 0 1-2.346667-4.736c-11.264-22.698667-21.205333-42.624-36.693333-57.770666a128 128 0 0 0-47.786667-29.568C437.845333 85.333333 415.573333 85.333333 390.229333 85.333333H220.245333c-22.528 0-41.898667 0-57.898666 1.28-16.853333 1.408-33.664 4.437333-49.792 12.672a128 128 0 0 0-55.936 55.936c-8.234667 16.170667-11.264 32.938667-12.629334 49.792C42.666667 221.013333 42.666667 240.426667 42.666667 262.912v430.08c0 34.346667 0 62.677333 1.877333 85.76 1.962667 23.978667 6.186667 46.037333 16.725333 66.730667a170.666667 170.666667 0 0 0 74.581334 74.581333c20.693333 10.538667 42.752 14.762667 66.730666 16.725333C225.706667 938.666667 254.037333 938.666667 288.341333 938.666667h447.274667c34.346667 0 62.72 0 85.76-1.877334 24.021333-1.962667 46.08-6.186667 66.773333-16.725333a170.666667 170.666667 0 0 0 74.581334-74.581333c10.538667-20.693333 14.762667-42.752 16.725333-66.730667 1.877333-23.082667 1.877333-51.413333 1.877333-85.76v-191.274667c0-34.346667 0-62.72-1.877333-85.76-1.962667-24.021333-6.186667-46.08-16.725333-66.773333a170.666667 170.666667 0 0 0-74.581334-74.581333c-20.693333-10.538667-42.752-14.762667-66.730666-16.725334C798.293333 256 769.962667 256 735.658667 256h-154.624zM430.506667 173.013333a42.666667 42.666667 0 0 1 15.957333 9.813334c3.84 3.84 7.381333 9.557333 22.442667 39.722666l16.725333 33.450667H128c0-19.84 0.170667-33.408 1.024-44.032 0.938667-11.605333 2.56-15.872 3.626667-18.005333a42.666667 42.666667 0 0 1 18.645333-18.645334c2.133333-1.066667 6.4-2.688 18.005333-3.626666C181.333333 170.709333 197.248 170.666667 221.866667 170.666667h163.072c33.706667 0 40.405333 0.554667 45.568 2.346666zM553.813333 341.333333h180.053334c36.565333 0 61.397333 0.042667 80.597333 1.621334 18.688 1.536 28.288 4.266667 34.944 7.68a85.333333 85.333333 0 0 1 37.290667 37.290666c3.413333 6.698667 6.186667 16.213333 7.68 34.986667 1.578667 19.2 1.621333 44.032 1.621333 80.554667v187.733333c0 36.565333 0 61.44-1.621333 80.64-1.493333 18.688-4.266667 28.245333-7.68 34.901333a85.333333 85.333333 0 0 1-37.290667 37.290667c-6.656 3.413333-16.213333 6.186667-34.944 7.68-19.2 1.578667-44.032 1.621333-80.597333 1.621333H290.133333c-36.565333 0-61.397333 0-80.597333-1.578666-18.688-1.536-28.288-4.309333-34.944-7.68a85.333333 85.333333 0 0 1-37.290667-37.333334c-3.413333-6.656-6.186667-16.213333-7.68-34.944C128 752.64 128 727.765333 128 691.2V341.333333h425.813333z" p-id="14482" fill={this.getPublicColor()}></path></svg>
       ),
       updateVersion: (
         <svg viewBox="0 0 1024 1024" width="14" height="14">
@@ -2039,7 +2038,7 @@ const global = {
       tip: (
         <svg
           t="1708937136752"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2058,7 +2057,7 @@ const global = {
       updateIcon: (
         <svg
           t="1719456040516"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2074,7 +2073,7 @@ const global = {
       ),
       dockerIcon: (
         <svg t="1734747752391"
-          class="icon"
+          className="icon"
           viewBox="0 0 1280 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2090,7 +2089,7 @@ const global = {
         <i className="anticon">
           <svg
             t="1676966831715"
-            class="icon"
+            className="icon"
             viewBox="0 0 1024 1024"
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -2114,7 +2113,7 @@ const global = {
       loginCloud1: (
         <svg 
           t="1741758218298" 
-          class="icon" 
+          className="icon" 
           viewBox="0 0 1097 1024" 
           version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 
@@ -2133,7 +2132,7 @@ const global = {
       loginCloud2: (
         <svg 
           t="1741764940758" 
-          class="icon" 
+          className="icon" 
           viewBox="0 0 1024 1024" 
           version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 
@@ -2158,7 +2157,7 @@ const global = {
       loginCloud3: (
         <svg 
           t="1747043510570" 
-          class="icon" 
+          className="icon" 
           viewBox="0 0 1024 1024" 
           version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 
@@ -2177,7 +2176,7 @@ const global = {
       loginCloud4: (
         <svg 
           t="1741759159553" 
-          class="icon" 
+          className="icon" 
           viewBox="0 0 1024 1024" 
           version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 
@@ -2196,7 +2195,7 @@ const global = {
       gpu: (
         <svg
           t="1738820379498"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2215,7 +2214,7 @@ const global = {
       observation: (
         <svg
           t="1738820771734"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2234,7 +2233,7 @@ const global = {
       basics: (
         <svg
           t="1738820970951"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2253,7 +2252,7 @@ const global = {
       alert: (
         <svg
           t="1738822719426"
-          class="icon"
+          className="icon"
           viewBox="0 0 1025 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2278,7 +2277,7 @@ const global = {
       scan: (
         <svg
           t="1738821465445"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2297,7 +2296,7 @@ const global = {
       pipeline: (
         <svg
           t="1738821566991"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2316,7 +2315,7 @@ const global = {
       security: (
         <svg
           t="1738821690443"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2335,7 +2334,7 @@ const global = {
       gateway: (
         <svg
           t="1705306262941"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2354,7 +2353,7 @@ const global = {
       istio: (
         <svg
           t="1738822103856"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2373,7 +2372,7 @@ const global = {
       springCloud: (
         <svg
           t="1738822219100"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2392,7 +2391,7 @@ const global = {
       gray: (
         <svg
           t="1738822351808"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -2417,7 +2416,7 @@ const global = {
       serviceSvg: (
         <svg 
           t="1741835955770" 
-          class="icon" 
+          className="icon" 
           viewBox="0 0 1024 1024" 
           version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 

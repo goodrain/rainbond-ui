@@ -8,7 +8,8 @@ import moment from 'moment';
 import Svg from '../../../../utils/pageHeaderSvg.js';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 // KubeBlocks Component 定制组件, source: ./src/pages/Component/component/Basic/index.js
 

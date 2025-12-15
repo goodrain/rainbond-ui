@@ -1,8 +1,8 @@
 import { notification } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-import router from 'umi/router';
+import { formatMessage } from '@/utils/intl';
+import { history } from 'umi';
 import PageLoading from '../components/PageLoading';
 import Exception from '../pages/Exception/403';
 import roleUtil from '../utils/role';
@@ -51,7 +51,7 @@ class TeamPermissions extends React.PureComponent {
       notification.warning({
         message: formatMessage({id:'notification.warn.team'})
       });
-      return router.push('/');
+      return history.push('/');
     }
     dispatch({
       type: 'teamControl/fetchCurrentTeamPermissions',

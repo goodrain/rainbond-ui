@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global'
 
 const { Option } = Select;

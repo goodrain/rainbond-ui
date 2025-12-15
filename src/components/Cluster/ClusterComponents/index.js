@@ -4,7 +4,8 @@ import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { getPodEvent, getRainbondComponents } from '../../../services/cloud';
 import {installClusterAllPodinfo} from '../../../services/region'
 import handleAPIError from '../../../utils/error';

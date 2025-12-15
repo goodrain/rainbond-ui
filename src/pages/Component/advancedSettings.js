@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'dva'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Menu, Row } from 'antd';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import mnt from './mnt'
 import port from './port'
 import plugin from './plugin'
@@ -137,11 +138,25 @@ export default class advancedSettings extends Component {
             ))}
           </Menu>
         </Row>
-        {Com && (
-          <Com
-            {...this.props}
-          />
-        )}
+        <TransitionGroup
+          style={{
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          {Com && (
+            <CSSTransition
+              key={activeTab[0]}
+              timeout={700}
+              classNames="page-zoom"
+              unmountOnExit
+            >
+              <div>
+                <Com {...this.props} />
+              </div>
+            </CSSTransition>
+          )}
+        </TransitionGroup>
       </div>
     )
   }

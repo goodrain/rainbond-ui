@@ -1,21 +1,26 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Input, Radio, Upload, Select, message, notification, Tooltip, Divider, Progress } from 'antd';
+import { Button, Form, Icon, Input, Radio, Upload, notification, Divider } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import React, { PureComponent, Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import React, { PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup'
 import roleUtil from '../../utils/newRole'
 import globalUtil from '../../utils/global'
 import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import ChunkUploader from '../../utils/ChunkUploader';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getArchRules,
+  getGroupNameRules
+} from './validations';
 const { Dragger } = Upload;
-const { Option } = Select;
 
 @connect(
   ({ teamControl, global, enterprise }) => ({
@@ -74,34 +79,41 @@ export default class Index extends PureComponent {
     this.loop = false;
     this.statusloop = false;
   }
-  //表单提交
+  // 表单提交
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch, archInfo, onSubmit } = this.props;
-    const teamName = globalUtil.getCurrTeamName()
-    const regionName = globalUtil.getCurrRegionName()
-    const group_id = globalUtil.getAppID()
-    const { event_id, existFileList, groupName } = this.state
+    const { form, archInfo, onSubmit } = this.props;
+    const group_id = globalUtil.getAppID();
+    const { event_id, existFileList } = this.state;
+
     form.validateFields((err, value) => {
       if (err) return;
-      if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
-        value.arch = archInfo[0]
+
+      // 处理架构信息
+      if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+        value.arch = archInfo[0];
       }
+
+      // 设置应用分组 ID
       if (group_id) {
-        value.group_id = group_id
+        value.group_id = group_id;
       }
+
+      // 处理应用名称和标识符
       if (!value.k8s_app || !value.group_name) {
-        value.group_name = value.service_cname
-        value.k8s_app = this.generateEnglishName(value.service_cname)
+        value.group_name = value.service_cname;
+        value.k8s_app = this.generateEnglishName(value.service_cname);
       }
+
+      // 检查是否有上传文件
       if (existFileList.length > 0) {
-        onSubmit(value, event_id)
+        onSubmit(value, event_id);
       } else {
-        this.loop = true
-        this.handleJarWarUploadStatus()
+        this.loop = true;
+        this.handleJarWarUploadStatus();
         notification.error({
           message: formatMessage({ id: 'notification.error.notDetected' })
-        })
+        });
       }
     });
   };
@@ -128,11 +140,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    roleUtil.refreshPermissionsInfo(groupId, false, this.callbcak)
+    roleUtil.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak = (val) => {
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleJarWarUpload = () => {
     const { dispatch } = this.props
@@ -161,6 +174,9 @@ export default class Index extends PureComponent {
           })
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
 
@@ -195,7 +211,9 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
@@ -209,7 +227,7 @@ export default class Index extends PureComponent {
         event_id
       },
       callback: (data) => {
-        if (data.bean.res == 'ok') {
+        if (data.bean.res === 'ok') {
           this.setState({
             existFileList: [],
             isDisabledUpload: false
@@ -220,6 +238,9 @@ export default class Index extends PureComponent {
           this.handleJarWarUpload()
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   //上传
@@ -263,7 +284,7 @@ export default class Index extends PureComponent {
     const allowedTypes = ['.jar', '.war', '.zip', '.tar'];
     const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     if (!allowedTypes.includes(fileExt)) {
-      message.error('只支持 .jar、.war、.zip、.tar 格式的文件');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.fileTypeJarWar' }));
       return false;
     }
 
@@ -288,12 +309,12 @@ export default class Index extends PureComponent {
     const { form } = this.props;
 
     if (!currentFile) {
-      message.warning('请先选择文件');
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.selectFileFirst' }));
       return;
     }
 
     if (!chunkUploader) {
-      message.error('上传器初始化失败');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploaderInitFailed' }));
       return;
     }
 
@@ -333,7 +354,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('分片上传失败:', error);
-      message.error('上传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploadFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -344,7 +365,7 @@ export default class Index extends PureComponent {
     if (chunkUploader) {
       chunkUploader.pause();
       this.setState({ isChunkUploading: false });
-      message.info('上传已暂停');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.pauseSuccess' }));
     }
   };
 
@@ -353,7 +374,7 @@ export default class Index extends PureComponent {
     const { chunkUploader } = this.state;
 
     if (!chunkUploader) {
-      message.error('未找到上传任务');
+      message.error(formatMessage({ id: 'teamAdd.create.upload.noUploadTask' }));
       return;
     }
 
@@ -365,7 +386,7 @@ export default class Index extends PureComponent {
       });
 
       notification.success({
-        message: '断点续传完成'
+        message: formatMessage({ id: 'teamAdd.create.upload.resumeSuccess' })
       });
 
       this.setState({
@@ -377,7 +398,7 @@ export default class Index extends PureComponent {
       this.handleJarWarUploadStatus();
     } catch (error) {
       console.error('断点续传失败:', error);
-      message.error('续传失败: ' + (error.message || '未知错误'));
+      message.error(formatMessage({ id: 'teamAdd.create.upload.resumeFailed' }) + ': ' + (error.message || 'Unknown error'));
       this.setState({ isChunkUploading: false });
     }
   };
@@ -394,7 +415,7 @@ export default class Index extends PureComponent {
         currentFile: null,
         chunkUploader: null
       });
-      message.info('上传已取消');
+      message.info(formatMessage({ id: 'teamAdd.create.upload.cancelSuccess' }));
     }
   };
   // 获取当前选取的app的所有组件的英文名称
@@ -415,27 +436,33 @@ export default class Index extends PureComponent {
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
           })
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   handleDisabledUpload = () => {
     this.setState({
       isDisabledUpload: true
@@ -470,10 +497,10 @@ export default class Index extends PureComponent {
     };
     const is_language = language ? formItemLayout : en_formItemLayout;
     let arch = 'amd64'
-    let archLegnth = archInfo?.length || 0
-    if (archLegnth == 2) {
+    let archLength = archInfo?.length || 0
+    if (archLength === 2) {
       arch = 'amd64'
-    } else if (archLegnth == 1) {
+    } else if (archLength === 1) {
       arch = archInfo && archInfo[0]
     }
     const group_id = globalUtil.getAppID()
@@ -483,32 +510,22 @@ export default class Index extends PureComponent {
           <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.component_cname' })
-                  }
-                ]
+                rules: getServiceNameRules()
               })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
               {getFieldDecorator('k8s_component_name', {
                 initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'placeholder.k8s_component_name' })
-                  }
-                ]
+                rules: getK8sComponentNameRules()
               })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
             </Form.Item>
             <Form.Item
               {...is_language}
-              label="上传方式"
+              label={formatMessage({ id: 'teamAdd.create.upload.mode' })}
             >
               <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
-                <Radio value="normal">普通上传</Radio>
-                <Radio value="chunk">断点续传</Radio>
+                <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
+                <Radio value="chunk">{formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}</Radio>
               </Radio.Group>
             </Form.Item>
 
@@ -562,7 +579,7 @@ export default class Index extends PureComponent {
                         showUploadList={false}
                       >
                         <Button disabled={existFileList.length === 1}>
-                          <Icon type="upload" /> 选择文件
+                          <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
                         </Button>
                       </Upload>
                       {this.state.currentFile && (
@@ -583,21 +600,21 @@ export default class Index extends PureComponent {
                           <div style={{ marginTop: 10 }}>
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
                               <Button type="primary" onClick={this.handleStartChunkUpload}>
-                                开始上传
+                                {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
                               </Button>
                             )}
                             {this.state.isChunkUploading && (
                               <Button onClick={this.handlePauseChunkUpload}>
-                                暂停
+                                {formatMessage({ id: 'teamAdd.create.upload.pause' })}
                               </Button>
                             )}
                             {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
                               <Button type="primary" onClick={this.handleResumeChunkUpload}>
-                                继续上传
+                                {formatMessage({ id: 'teamAdd.create.upload.resume' })}
                               </Button>
                             )}
                             <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
-                              取消
+                              {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
                             </Button>
                           </div>
                         </div>
@@ -635,18 +652,24 @@ export default class Index extends PureComponent {
                 </div>
                 {existFileList.length > 0 &&
                   <div
-                    className={styles.deleteButton}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#ff7b7b',
+                      padding: '0px 12px',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <Icon onClick={this.handleJarWarUploadDelete} type="delete" />
+                    <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
                   </div>
                 }
               </div>
             </Form.Item>
-            {archLegnth == 2 &&
+            {archLength === 2 &&
               <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                 {getFieldDecorator('arch', {
                   initialValue: arch,
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+                  rules: getArchRules()
                 })(
                   <Radio.Group>
                     <Radio value='amd64'>amd64</Radio>
@@ -657,9 +680,21 @@ export default class Index extends PureComponent {
 
             {!group_id && <>
               <Divider />
-              <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-                <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                  高级选项 {this.state.showAdvanced ? <span style={{ fontSize: 16 }}>&#94;</span> : <span style={{ fontSize: 16 }}>&#8964;</span>}
+              <div className="advanced-btn" style={{ marginBottom: 16 }}>
+                <Button
+                  type="link"
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    // color: '#1890ff'
+                  }}
+                  onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+                >
+                  <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
                 </Button>
               </div>
               {this.state.showAdvanced && (
@@ -682,13 +717,7 @@ export default class Index extends PureComponent {
                   >
                     {getFieldDecorator('group_name', {
                       initialValue: this.props.form.getFieldValue('service_cname') || '',
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                        {
-                          max: 24,
-                          message: formatMessage({ id: 'placeholder.max24' })
-                        }
-                      ]
+                      rules: getGroupNameRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
                       style={{
@@ -705,10 +734,7 @@ export default class Index extends PureComponent {
                   <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                     {getFieldDecorator('k8s_app', {
                       initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                      rules: [
-                        { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                        { validator: this.handleValiateNameSpace }
-                      ]
+                      rules: getK8sComponentNameRules()
                     })(<Input
                       placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
                       style={{

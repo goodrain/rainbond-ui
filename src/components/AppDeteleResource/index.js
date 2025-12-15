@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Button, Modal, Table, Row, Col, Icon, Tag, Badge, Tooltip, notification } from 'antd';

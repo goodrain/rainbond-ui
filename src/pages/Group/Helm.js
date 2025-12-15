@@ -40,7 +40,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Markdown from 'react-markdown';
 import { Link } from 'umi';
 import { postUpgradeRecord } from '../../services/app';

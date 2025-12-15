@@ -5,7 +5,8 @@ import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect()
 @Form.create()
@@ -15,46 +16,21 @@ class Index extends PureComponent {
     this.state = {
       visible: false,
       instanceInfo: null,
-      language : cookie.get('language') === 'zh-CN' ? true : false,
+      language: cookie.get('language') === 'zh-CN',
     };
   }
 
   showModal = podName => {
     const { isHelm = false } = this.props;
-    if (isHelm) {
-      this.fetchHelmInstanceDetails(podName);
-    } else {
-      this.fetchInstanceDetails(podName);
-    }
+    this.fetchInstanceDetails(podName, isHelm);
   };
-  fetchHelmInstanceDetails = podName => {
+
+  fetchInstanceDetails = (podName, isHelm = false) => {
     const { dispatch, appAlias } = this.props;
+    const actionType = isHelm ? 'appControl/fetchHelmInstanceDetails' : 'appControl/fetchInstanceDetails';
+
     dispatch({
-      type: 'appControl/fetchHelmInstanceDetails',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
-        pod_name: podName
-      },
-      callback: res => {
-        if (res) {
-          const isVisible = JSON.stringify(res.bean) === '{}';
-          this.setState({
-            instanceInfo: res.bean,
-            visible: !isVisible
-          });
-          message.destroy();
-          if (isVisible) {
-            message.warning(<FormattedMessage id='notification.warn.notYet'/>);
-          }
-        }
-      }
-    });
-  };
-  fetchInstanceDetails = podName => {
-    const { dispatch, appAlias } = this.props;
-    dispatch({
-      type: 'appControl/fetchInstanceDetails',
+      type: actionType,
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
@@ -94,32 +70,22 @@ class Index extends PureComponent {
   };
 
   containerState = state => {
-    const { podType } = this.props
+    const { podType } = this.props;
     const states = state ? state.toLowerCase() : state;
-    if(podType == 'job' || podType == 'job'){
-      switch (states) {
-        case 'running':
-          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.operation'/></span>;
-        case 'waiting':
-          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.waiting'/></span>;
-        case 'terminated':
-          return <span style={{ color: '#70b7fa' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.completed'/></span>;
-        default:
-          return <span>{state}</span>;
-      }
-    }else{
-      switch (states) {
-        case 'running':
-          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.operation'/></span>;
-        case 'waiting':
-          return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.waiting'/></span>;
-        case 'terminated':
-          return <span style={{ color: 'rgb(205, 2, 0)' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.terminated'/></span>;
-        default:
-          return <span>{state}</span>;
-      }
+    const isJobType = podType === 'job';
+
+    switch (states) {
+      case 'running':
+        return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.operation'/></span>;
+      case 'waiting':
+        return <span style={{ color: '#39aa56' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.waiting'/></span>;
+      case 'terminated':
+        return isJobType
+          ? <span style={{ color: '#70b7fa' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.completed'/></span>
+          : <span style={{ color: 'rgb(205, 2, 0)' }}><FormattedMessage id='componentOverview.body.tab.overview.instance.terminated'/></span>;
+      default:
+        return <span>{state}</span>;
     }
-   
   };
 
   schedulingBox = (list, isupdate) => {
@@ -429,8 +395,6 @@ class Index extends PureComponent {
           gutter={24}
           style={{
             margin: isOldPods ? '10px 0' : '0'
-            // borderTop:
-            //   old_pods && old_pods.length > 0 ? 'none' : '1px solid #e8e8e8'
           }}
         >
           {isOldPods && (

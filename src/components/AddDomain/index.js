@@ -2,7 +2,8 @@ import { Alert, Divider, Form, Icon, Input, Modal, Select } from 'antd';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;

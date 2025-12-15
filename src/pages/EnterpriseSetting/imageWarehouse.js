@@ -1,7 +1,7 @@
 import { Card, notification, Table, Row, Col, Button } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import AddOrEditImageRegistry from '../../components/AddOrEditImageRegistry';
 import EditAdmin from '../../components/EditAdmin';

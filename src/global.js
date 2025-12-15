@@ -1,6 +1,6 @@
 import { Button, message, notification } from 'antd';
 import React from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import defaultSettings from './defaultSettings';
 
 const { pwa } = defaultSettings;

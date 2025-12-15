@@ -1,5 +1,5 @@
 import { Modal } from 'antd';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const dateUtil = {
   isWebSocketOpen(websocketURL) {

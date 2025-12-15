@@ -4,7 +4,8 @@ import { connect } from 'dva';
 import { getHistoryLog } from '../../services/app';
 import globalUtil from '../../utils/global';
 import download from '@/utils/download';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 @connect(null, null, null, { withRef: true })
 

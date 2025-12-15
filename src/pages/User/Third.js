@@ -4,7 +4,7 @@ import { message } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Result from '../../components/Result';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';

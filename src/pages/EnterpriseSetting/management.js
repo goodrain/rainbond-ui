@@ -18,7 +18,8 @@ import React, { Fragment, PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
 import ScrollerX from '../../components/ScrollerX';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 @connect(({ user, loading, global }) => ({
   user: user.currentUser,

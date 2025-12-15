@@ -3,7 +3,7 @@ import { Spin, Card, Button } from 'antd';
 import Result from '../Result';
 import { connect } from 'dva';
 import PluginsUtiles from '../../utils/pulginUtils'
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";

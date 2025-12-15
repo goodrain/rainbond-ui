@@ -1,142 +1,603 @@
 @import "~antd/lib/style/themes/default.less";
-:global{
-  .ant-menu-submenu>.ant-menu-sub>.ant-menu-item:hover {
-    background: @primary-1 !important;
-  
-    a {
-      i {
-        color: @primary-color !important;
-        min-width: 16px;
-  
-        svg {
-          path {
-            fill: @primary-color !important;
-          }
-  
-          g>g {
-            stroke: @primary-color !important;
-          }
-        }
-      }
+
+// ==================== Mixin 定义 ====================
+.svgColorChange(@color) {
+  svg {
+    path {
+      fill: @color !important;
+    }
+    g > path {
+      fill: @color !important;
+    }
+    g > g {
+      stroke: @color !important;
     }
   }
 }
 
-.menuStyle {
-  position: absolute;
-  top: 40%;
-  right: -16px;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  border: 1px solid #e3e3e3;
-  border-left: none;
-  background-color: #fff;
-  line-height: 44px;
-  width: 16px;     
-  height: 44px;         
-  transform: perspective(0.3em) rotateY(3deg);  
+// ==================== 变量定义 ====================
+@menu-width: 200px;
+@menu-collapsed-width: 56px;
+@menu-item-height: 38px;
+@menu-bg: @rbd-background-color;
+// @menu-bg: #fff;
+
+@menu-text-color: #333;
+@menu-text-secondary: #666;
+@menu-text-muted: #999;
+@menu-hover-bg: #f5f5f5;
+@menu-active-bg: #f0f7ff;
+@menu-border-color: #f0f0f0;
+@transition-duration: 0.3s;
+@transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+// ==================== 菜单容器 ====================
+.menuWrapper {
+  display: flex;
+  flex-direction: column;
+  width: @menu-width;
+  height: calc(100vh - 50px);
+  background: @menu-bg;
+  // border-right: 1px solid @menu-border-color;
+  transition: width @transition-duration @transition-timing;
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+
+  &.collapsed {
+    width: @menu-collapsed-width;
+  }
 }
 
-.globalSider {
-  height: calc(100vh - 64px);
-  width: 56px;
+// ==================== 顶部区域 ====================
+.menuHeader {
+  flex-shrink: 0;
+}
+
+// ==================== 中间菜单区域 ====================
+.menuContent {
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 
-  :global {
-    .ant-menu-inline-collapsed {
-      width: 56px;
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 2px;
+
+    &:hover {
+      background: #ccc;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.menuNav {
+  padding: 8px 12px;
+  transition: padding @transition-duration @transition-timing;
+}
+
+// ==================== 底部区域 ====================
+.menuFooter {
+  flex-shrink: 0;
+}
+
+// ==================== 视图切换器 ====================
+.viewSwitcher {
+  padding: 0 12px 12px;
+  opacity: 1;
+  transition: opacity @transition-duration @transition-timing;
+}
+
+.switcherInner {
+  position: relative;
+  display: flex;
+  background: #e6edff;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.switcherItem {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.3s ease;
+  color: @menu-text-muted;
+
+  &:hover {
+    color: @menu-text-secondary;
+  }
+
+  &.active {
+    color: @menu-text-color;
+  }
+}
+
+.switcherIcon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.switcherText {
+  font-size: 12px;
+  white-space: nowrap;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.switcherSlider {
+  position: absolute;
+  z-index: 1;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ==================== 菜单分组 ====================
+.menuGroup {
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.groupTitle {
+  padding: 16px 12px 8px;
+  font-size: 12px;
+  color: @menu-text-muted;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 1;
+  transform: translateX(0);
+  height: auto;
+  max-height: 40px;
+  transition: opacity @transition-duration @transition-timing,
+              transform @transition-duration @transition-timing,
+              padding @transition-duration @transition-timing,
+              max-height @transition-duration @transition-timing;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.groupItems {
+  // 分组内的菜单项容器
+}
+
+// ==================== 菜单项 ====================
+.menuItem {
+  display: flex;
+  align-items: center;
+  height: @menu-item-height;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: @menu-text-color;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all @transition-duration @transition-timing,
+              width @transition-duration @transition-timing,
+              padding @transition-duration @transition-timing,
+              margin @transition-duration @transition-timing;
+  position: relative;
+  margin-bottom: 2px;
+
+  &:hover {
+    background: @menu-active-bg;
+    color: @primary-color;
+
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
+    }
+  }
+
+  &.active {
+    background: @menu-active-bg;
+    color: @primary-color;
+
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
+    }
+  }
+
+  &.childItem {
+    padding-left: 44px;
+    height: 34px;
+  }
+
+  &.collapsed {
+    justify-content: center;
+    padding: 0;
+    border-radius: 8px;
+    margin: 0 auto 2px;
+    width: 40px;
+    height: 40px;
+
+    .menuIcon {
+      margin-right: 0;
+    }
+  }
+}
+
+.menuIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  font-size: 18px;
+  color: @menu-text-secondary;
+  transition: all @transition-duration ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  // SVG 图标样式
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: all @transition-duration ease;
+
+    path, circle, rect, polygon, polyline, line, ellipse {
+      transition: all @transition-duration ease;
+    }
+  }
+
+  // antd Icon
+  :global(.anticon) {
+    font-size: 18px;
+  }
+}
+
+.menuText {
+  flex: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity @transition-duration @transition-timing,
+              transform @transition-duration @transition-timing;
+
+  .menuWrapper.collapsed & {
+    opacity: 0;
+    transform: translateX(-10px);
+    width: 0;
+    margin: 0;
+  }
+}
+
+// ==================== 子菜单 ====================
+.subMenu {
+  margin-bottom: 2px;
+}
+
+.subMenuTitle {
+  display: flex;
+  align-items: center;
+  height: @menu-item-height;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: @menu-text-color;
+  cursor: pointer;
+  transition: all @transition-duration @transition-timing,
+              width @transition-duration @transition-timing,
+              padding @transition-duration @transition-timing,
+              margin @transition-duration @transition-timing;
+
+  &:hover {
+    background: @menu-active-bg;
+    color: @primary-color;
+
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
+    }
+  }
+
+  &.expanded {
+    color: @primary-color;
+
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
+    }
+  }
+
+  &.collapsed {
+    justify-content: center;
+    padding: 0;
+    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+
+    .menuIcon {
+      margin-right: 0;
+    }
+  }
+}
+
+.arrow {
+  font-size: 12px;
+  color: @menu-text-muted;
+  transition: transform @transition-duration @transition-timing,
+              opacity @transition-duration @transition-timing;
+  margin-left: auto;
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+
+  .menuWrapper.collapsed & {
+    opacity: 0;
+    width: 0;
+  }
+}
+
+.subMenuContent {
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== 底部收起按钮 ====================
+.collapseButton {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  margin: 8px 12px;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: @menu-text-secondary;
+  transition: all @transition-duration @transition-timing,
+              width @transition-duration @transition-timing,
+              padding @transition-duration @transition-timing,
+              margin @transition-duration @transition-timing;
+
+  &:hover {
+    color: @primary-color;
+    background: @menu-active-bg;
+  }
+
+  &.collapsed {
+    justify-content: center;
+    padding: 0;
+    margin: 8px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.collapseIcon {
+  font-size: 18px;
+  min-width: 20px;
+  transition: transform @transition-duration @transition-timing;
+}
+
+.collapseText {
+  margin-left: 12px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity @transition-duration @transition-timing,
+              transform @transition-duration @transition-timing;
+
+  .menuWrapper.collapsed & {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+// ==================== 折叠状态下的特殊处理 ====================
+.menuWrapper.collapsed {
+  .menuNav {
+    padding: 8px;
+  }
+
+  .groupTitle {
+    opacity: 0;
+    transform: translateX(-10px);
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .menuGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+
+    // 分组之间的分割线
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 12px;
+      right: 12px;
+      height: 1px;
+      background: #d9d9d9;
     }
 
-    .ant-menu-item {
-      padding: 0 20px !important;
-      line-height: 56px !important;
-      height: 56px !important;
+    // 最后一个分组不需要分割线
+    &:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
 
-      a {
-        i {
-          min-width: 16px;
-        }
+      &::after {
+        display: none;
       }
     }
+  }
 
-    .ant-menu-item:hover {
-      background: @primary-1 !important;
+  .groupItems {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-      a {
-        i {
-          color: @primary-color !important;
-          min-width: 16px;
+  // 底部收起按钮上方的分割线
+  .menuFooter {
+    position: relative;
 
-          svg {
-            path {
-              fill: @primary-color !important;
-            }
-
-            g>g {
-              stroke: @primary-color !important;
-            }
-          }
-        }
-      }
-    }
-
-    // 选中边框
-    .ant-menu-item::after {
-      display: none;
-    }
-
-    .ant-menu-item-selected::after {
-      display: none;
-    }
-
-    .ant-menu-item::before {
+    &::before {
+      content: '';
       position: absolute;
       top: 0;
-      left: 0 !important;
-      bottom: 0;
-      border-right: 3px solid @primary-color;
-      transform: scaleY(0.0001);
-      opacity: 0;
-      transition: transform 0.15s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
-      content: '';
+      left: 12px;
+      right: 12px;
+      height: 1px;
+      background: #d9d9d9;
     }
+  }
+}
 
-    .ant-menu-item-selected::before {
-      transform: scaleY(1);
-      opacity: 1;
-      transition: transform 0.15s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
+// ==================== 折叠状态下的视图切换器 ====================
+.viewSwitcherCollapsed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  background: #e6edff;
+  margin: 0 8px 8px;
+  border-radius: 10px;
+  animation: fadeIn @transition-duration @transition-timing;
+  position: relative;
+
+  // 底部分割线
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background: #d9d9d9;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.switcherItemCollapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: @menu-text-muted;
+  transition: all 0.3s ease;
+  font-size: 18px;
+
+  &:first-child {
+    margin-bottom: 4px;
+  }
+
+  &:hover {
+    color: @menu-text-secondary;
+  }
+
+  &.active {
+    background: #fff;
+    color: @menu-text-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// ==================== Popover 子菜单样式 ====================
+.popoverMenu {
+  min-width: 120px;
+}
+
+.popoverMenuItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: @menu-text-color;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  .menuIcon {
+    margin-right: 8px;
+  }
+
+  &:hover {
+    background: @menu-active-bg;
+    color: @primary-color;
+
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
     }
+  }
 
-    // 选中字体
-    .ant-menu-item.ant-menu-item-selected {
-      a {
-        i {
-          color: @primary-color !important;
-          min-width: 16px;
+  &.active {
+    background: @menu-active-bg;
+    color: @primary-color;
 
-          svg {
-            path {
-              fill: @primary-color !important;
-            }
-
-            g>g {
-              stroke: @primary-color !important;
-            }
-          }
-        }
-      }
+    .menuIcon {
+      color: @primary-color;
+      .svgColorChange(@primary-color);
     }
+  }
+}
 
-    .ant-menu-submenu>.ant-menu-submenu-title {
-      left: 0;
-      padding: 0 20px !important;
-      text-overflow: clip;
-      a>span {
-        color: #444444;
-      }
-    }
-    .ant-menu-submenu>.ant-menu-sub>.ant-menu-item{
-      padding: 0 36px !important;
+:global {
+  .subMenuPopover {
+    .ant-popover-inner-content {
+      padding: 4px;
     }
   }
 }

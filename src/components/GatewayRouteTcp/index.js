@@ -15,7 +15,7 @@ import {
     Tag,
     Tooltip
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';

@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import { Col, Icon, Input, Row } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 class DAinput extends Component {
   constructor(props) {
     super(props);

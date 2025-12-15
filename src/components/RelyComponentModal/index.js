@@ -3,7 +3,8 @@ import { Button, Table, Modal, Tooltip } from 'antd';
 import styless from '../CreateTeam/index.less';
 import globalUtil from '../../utils/global';
 import { Link } from 'dva/router';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 class RelyComponentModal extends PureComponent {
   render() {

@@ -3,7 +3,8 @@
 import { Button, Checkbox, Col, Form, Modal, Row } from "antd";
 import { connect } from "dva";
 import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from "../../components/CreateTeam/index.less";
 
 const FormItem = Form.Item;

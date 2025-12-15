@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Form, Checkbox, Row, Col, Select, Input, Button, Icon } from 'antd';
 
 let uuid = 0;

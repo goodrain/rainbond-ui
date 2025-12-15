@@ -24,7 +24,7 @@ import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import WatchMore from './component/index';
 import styles from './index.less';
 

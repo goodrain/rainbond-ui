@@ -1,7 +1,7 @@
 import { List, Table, Tag, Card, Button, notification, Modal } from 'antd';
 import { connect } from 'dva';
 import React, { Component, Fragment } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import oauthUtil from '../../../utils/oauth';
 import OauthForm from '../../../components/OauthForm';
 import rainbondUtil from '../../../utils/rainbond';

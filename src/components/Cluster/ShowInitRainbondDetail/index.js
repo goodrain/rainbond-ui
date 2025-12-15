@@ -1,7 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cloud from '../../../utils/cloud';
 import globalUtil from '../../../utils/global';
 import ClusterProgressQuery from '../ClusterProgressQuery';

@@ -11,6 +11,21 @@ const enterpriseMenu = {
   'menu.enterprise.extension': '功能扩展',
   'menu.enterprise.setting': '企业设置',
   'menu.enterprise.order': '订购',
+  'menu.enterprise.observability': '可观测性',
+  'menu.enterprise.billing': '计量计费',
+  'menu.enterprise.plugins': '插件列表',
+  // 分组标题
+  'menu.group.basic': '基础功能',
+  'menu.group.observability': '可观测性',
+  'menu.group.commercial': '商业功能',
+  'menu.group.administration': '管理功能',
+  'menu.group.plugins': '插件系统',
+  // 视图切换器
+  'menu.switcher.workspace': '工作空间',
+  'menu.switcher.platform': '平台管理',
+  // 收起菜单
+  'menu.collapse': '收起菜单',
+  'menu.expand': '展开菜单',
 }
 const teamMenu = {
   'menu.team.dashboard': '团队总览',

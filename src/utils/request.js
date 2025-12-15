@@ -5,14 +5,12 @@
 /* eslint-disable no-underscore-dangle */
 import { notification } from 'antd';
 import axios from 'axios';
-// import { routerRedux } from 'dva/router';
-// import store from "../index";
-// import store from '@/index'
-// const { dispatch } = store;
-import { push } from 'umi/router';
 import globalUtil from '../utils/global';
 import cookie from './cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import handleAPIError from './error';
+import { formatMessage } from '@/utils/intl';
+import { history, getDvaApp } from 'umi';
+
 
 const codeMessage = {
   200: `${formatMessage({id:'utils.request.back_data'})}`,
@@ -50,10 +48,111 @@ function checkStatus(response) {
 }
 
 function handleStoreDispatch(type, payload = {}) {
-  window.g_app._store.dispatch({
-    type,
-    payload
-  });
+  const app = getDvaApp();
+  if (app && app._store) {
+    app._store.dispatch({
+      type,
+      payload
+    });
+  }
+}
+
+/**
+ * 处理特殊业务错误码（需要特殊UI交互的错误）
+ * @returns {boolean} 是否是特殊错误码（已处理）
+ */
+function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION_NAME, url) {
+  switch (code) {
+    case 10400:
+      // 用户未激活
+      handleStoreDispatch('global/setNouse', { isNouse: true });
+      return true;
+
+    case 10403:
+      // 访问资源所属团队与当前团队不一致
+      if (resData.data?.bean?.service_team_name) {
+        location.href = globalUtil.replaceUrlTeam(resData.data.bean.service_team_name);
+      }
+      return true;
+
+    case 10404:
+      // 访问资源集群与当前集群不一致
+      if (resData.data?.bean?.service_region) {
+        location.href = globalUtil.replaceUrlRegion(resData.data.bean.service_region);
+      }
+      return true;
+
+    case 10405:
+      // 需要登录
+      handleStoreDispatch('global/showNeedLogin');
+      if (options.handleError) {
+        options.handleError(error);
+      }
+      return true;
+
+    case 10406:
+    case 10413:
+    case 20800:
+      // 10406: 集群资源不足
+      // 10413: 租户资源不足
+      // 20800: 组件构建失败
+      const AppID = globalUtil.getAppID(url);
+      if (TEAM_NAME && REGION_NAME && AppID) {
+        history.push(`/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`);
+      }
+      handleStoreDispatch('global/showMemoryTip', { message: code });
+      return true;
+
+    case 10407:
+      // 需要企业认证
+      cookie.setGuide('appStore', 'true');
+      if (resData.data?.bean?.name) {
+        handleStoreDispatch('global/showAuthCompany', {
+          market_name: resData.data.bean.name
+        });
+      }
+      return true;
+
+    case 10408:
+      // 余额不足
+      handleStoreDispatch('global/showNoMoneyTip', {
+        message: resData.msg_show
+      });
+      return true;
+
+    case 10409:
+      // 应用市场连接超时
+      cookie.setGuide('appStore', 'true');
+      notification.warning({
+        message: formatMessage({id:'utils.request.connection_timedout'})
+      });
+      return true;
+
+    case 10410:
+      // 显示付费提示
+      handleStoreDispatch('global/showPayTip');
+      return true;
+
+    case 10411:
+    case 10421:
+      // 集群请求错误，静默处理
+      if (options.noModels) {
+        return false; // 让外层处理 Promise.reject
+      }
+      return true;
+
+    case 20001:
+    case 20002:
+    case 20003:
+      // 服务成熟度相关错误
+      if (options.handleError) {
+        options.handleError(error);
+      }
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 function handleData(response) {
@@ -152,17 +251,15 @@ export default function request(url, options) {
   const showLoading =
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
-  showLoading &&
-    window.g_app._store.dispatch({
-      type: 'global/showLoading'
-    });
+  if (showLoading) {
+    handleStoreDispatch('global/showLoading');
+  }
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
-      showLoading &&
-        window.g_app._store.dispatch({
-          type: 'global/hiddenLoading'
-        });
+      if (showLoading) {
+        handleStoreDispatch('global/hiddenLoading');
+      }
       return handleData(response);
     })
     .catch(error => {
@@ -173,121 +270,46 @@ export default function request(url, options) {
       if (error.response) {
         const { response } = error;
         // 请求已发出，但服务器响应的状态码不在 2xx 范围
-        
+
         let resData = {};
         try {
-          resData = error.response.data;
+          resData = error.response.data || {};
         } catch (e) {
           console.log(e);
         }
         const { code = '' } = resData;
-        let isNext = false;
-        switch (code) {
-          case 10403:
-            // 访问资源所属团队与当前团队不一致
-            location.href = globalUtil.replaceUrlTeam(
-              resData.data.bean.service_team_name
-            );
-            break;
-          case 10404:
-            // 访问资源集群与当前集群不一致
-            location.href = globalUtil.replaceUrlRegion(
-              resData.data.bean.service_region
-            );
-            break;
-          case 10400:
-            handleStoreDispatch('global/setNouse', {
-              isNouse: true
-            });
-            break;
-          // case 10402:
-          //   push(
-          //     `/team/${currTeamName}/region/${currRegionName}/exception/403`
-          //   );
-          //   break;
-          case 10405:
-            handleStoreDispatch('global/showNeedLogin');
-            if (newOptions.handleError) {
-              newOptions.handleError(error);
-            }
-            break;
-          case 10407:
-            cookie.setGuide('appStore', 'true');
-            handleStoreDispatch('global/showAuthCompany', {
-              market_name: resData.data.bean.name
-            });
-            break;
-          case 10408:
-            handleStoreDispatch('global/showNoMoneyTip', {
-              message: resData.msg_show
-            });
-            break;
-          case 10409:
-            cookie.setGuide('appStore', 'true');
-            notification.warning({ message: formatMessage({id:'utils.request.connection_timedout'}) });
-            break;
-          case 10410:
-            handleStoreDispatch('global/showPayTip');
-            break;
-          default:
-            isNext = true;
-            break;
-        }
-        if (isNext) {
-          // Service maturity
-          if (code >= 20001 && code <= 20003) {
-            if (newOptions.handleError) {
-              newOptions.handleError(response);
-            }
-            return
-          }
-          // 10406: Cluster resource shortage
-          // 10413: Insufficient tenant resources
-          // 20800: Component build failed
-          if (code === 10406 || code === 10413 || code === 20800) {
-            const AppID = globalUtil.getAppID(url);
-            if (TEAM_NAME && REGION_NAME && AppID) {
-              push(
-                `/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`
-                
-              );
-            }
-            handleStoreDispatch('global/showMemoryTip', {
-              message: code
-            });
-            return;
-          }
-          // cluster request error, ignore it
-          if (code === 10421 || code === 10411) {
-            if (newOptions.noModels) {
-              return Promise.reject(error);
-            }
-            return;
-          }
+
+        // 处理特殊业务错误码（需要特殊处理的错误）
+        const isSpecialCode = handleSpecialErrorCode(code, resData, newOptions, error, TEAM_NAME, REGION_NAME, url);
+
+        if (!isSpecialCode) {
+          // 调用自定义错误处理
           if (newOptions.handleError) {
-            newOptions.handleError(response);
+            newOptions.handleError(error);
             return;
           }
-          const msg = resData.msg_show || resData.msg || resData.detail;
-          if (msg && newOptions.showMessage === true) {
-            if (msg.indexOf('身份认证信息未提供') > -1) {
-              push({ type: 'global/showNeedLogin' });
-              return;
-            }
-            notification.warning({ message: formatMessage({id:'utils.request.warning'}), description: msg });
-          }
+
+          // 使用统一错误处理
+          handleAPIError(error);
+
+          // 如果需要返回 Promise.reject
           if (newOptions.noModels) {
             return Promise.reject(error);
           }
         }
       } else {
-        // Something happened in setting up the request that triggered an Error
+        // 网络错误或请求配置错误
         if (newOptions.handleError) {
           return newOptions.handleError(error);
         }
         if (newOptions.noModels) {
           return Promise.reject(error);
         }
+        // 默认提示
+        notification.error({
+          message: formatMessage({id:'utils.request.warning'}),
+          description: formatMessage({id:'utils.request.server_error'})
+        });
       }
     });
 }

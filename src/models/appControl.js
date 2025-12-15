@@ -15,7 +15,6 @@ import {
   addVolume,
   batchDelete,
   batchMove,
-  batchReStart,
   batchStart,
   batchStop,
   bindDomain,
@@ -290,12 +289,6 @@ export default {
     },
     *putUpdateRolling({ payload, callback }, { call }) {
       const response = yield call(updateRolling, payload);
-      if (response && callback) {
-        callback(response);
-      }
-    },
-    *putBatchReStart({ payload, callback, handleError }, { call }) {
-      const response = yield call(batchReStart, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -689,8 +682,8 @@ export default {
         callback(response);
       }
     },
-    *getBuildInformation({ payload, callback }, { call }) {
-      const response = yield call(getBuildInformation, payload);
+    *getBuildInformation({ payload, callback, handleError }, { call }) {
+      const response = yield call(getBuildInformation, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -1116,8 +1109,8 @@ export default {
         callback(response);
       }
     },
-    *getAppBuidSource({ payload, callback }, { call }) {
-      const response = yield call(getAppBuidSource, payload);
+    *getAppBuidSource({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAppBuidSource, payload, handleError);
       if (response && callback) {
         callback(response);
       }

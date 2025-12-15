@@ -5,7 +5,7 @@
 import { Alert, Button, Col, Drawer, Icon, Row, Spin, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CodeGitRepostory from '../../components/GitRepostory';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';

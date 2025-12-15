@@ -3,10 +3,8 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { SearchAddon } from 'xterm-addon-search';
 import { WebLinksAddon } from 'xterm-addon-web-links';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-const React = require('react');
-const className = require('classnames');
+import React from 'react';
+import className from 'classnames';
 
 class XTerm extends React.Component {
   constructor(props, context) {
@@ -92,5 +90,6 @@ class XTerm extends React.Component {
     });
   }
 }
-exports.default = XTerm;
-exports.XTerm = XTerm;
+
+export default XTerm;
+export { XTerm };

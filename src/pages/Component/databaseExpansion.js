@@ -3,37 +3,29 @@ import {
   Alert,
   Button,
   Card,
-  Col,
-  Divider,
   Form,
-  Input,
   InputNumber,
-  message,
   notification,
-  Row,
-  Spin,
-  Slider
+  Slider,
+  Spin
 } from 'antd';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { FormattedMessage } from 'umi';
 import InstanceList from '../../components/AppInstanceList';
 import NoPermTip from '../../components/NoPermTip';
-import globalUtil from '../../utils/global';
-import pluginUtil from '../../utils/pulginUtils';
-import licenseUtil from '../../utils/license';
-import styles from './Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import cookie from '../../utils/cookie';
-
-// KubeBlocks Component 定制组件, source: ./src/pages/Component/expansion.js
+import handleAPIError from '../../utils/error';
+import globalUtil from '../../utils/global';
+import licenseUtil from '../../utils/license';
+import pluginUtil from '../../utils/pulginUtils';
+import { formatMessage } from '@/utils/intl';
+import styles from './Index.less';
 
 @connect(
-  ({ user, appControl, teamControl, rbdPlugin, kubeblocks }) => ({
-    currUser: user.currentUser,
-    baseInfo: appControl.baseInfo,
+  ({ appControl, teamControl, rbdPlugin, kubeblocks }) => ({
     instances: appControl.pods,
-    scaling: appControl.scalingRules,
     features: teamControl.features,
     pluginList: rbdPlugin.pluginList,
     clusterDetail: kubeblocks.clusterDetail
@@ -214,33 +206,37 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
-    if (!this.state.showBill) {
+    const { showBill, memoryMarks, cpuMarks, memoryMarksObj, cpuMarksObj } = this.state;
+    const { appDetail, dispatch } = this.props;
+
+    if (!showBill) {
       this.setState({
-        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G' },
-        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core' },
-        memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-        cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 16000: 8 },
+        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...memoryMarks, 9: '32G' },
+        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...cpuMarks, 8: '16Core' },
+        memoryMarksObj: { 0: 0, ...memoryMarksObj, 32768: 9 },
+        cpuMarksObj: { 0: 0, ...cpuMarksObj, 16000: 8 },
         memorySliderMax: 9,
         memorySliderMin: 0,
         cpuSliderMax: 8,
         cpuSliderMin: 0
-      })
+      });
     }
-    if (this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.service_id) {
-      // 获取实例信息
+
+    if (appDetail?.service?.service_id) {
       this.fetchInstanceInfo();
-      // 获取 KubeBlocks 集群详情
-      const { dispatch } = this.props;
       dispatch({
         type: 'kubeblocks/getClusterDetail',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          service_alias: this.props.appDetail.service.service_alias
+          service_alias: appDetail.service.service_alias
         },
         callback: (res) => {
           if (res && res.status_code === 200) {
             this.initFromClusterDetail();
           }
+        },
+        handleError: (err) => {
+          handleAPIError(err);
         }
       });
       this.timeClick = setInterval(() => {
@@ -263,9 +259,9 @@ export default class Index extends PureComponent {
 
   handlePodClick = (podName, manageName) => {
     const adPopup = window.open('about:blank');
-    const { appAlias } = this.props;
+    const { appAlias, dispatch } = this.props;
     if (podName && manageName) {
-      this.props.dispatch({
+      dispatch({
         type: 'appControl/managePod',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
@@ -275,33 +271,36 @@ export default class Index extends PureComponent {
         },
         callback: () => {
           adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
+        },
+        handleError: (err) => {
+          adPopup.close();
+          handleAPIError(err);
         }
       });
     }
   };
 
   fetchInstanceInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchPods',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: appAlias
       },
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            // 接口变化
-            instances: (res.list.new_pods || []).concat(
-              res.list.old_pods || []
-            ),
+            instances: (res.list.new_pods || []).concat(res.list.old_pods || []),
             loading: false
           });
         } else {
-          this.setState({
-            loading: false
-          });
+          this.setState({ loading: false });
         }
+      },
+      handleError: (err) => {
+        this.setState({ loading: false });
+        handleAPIError(err);
       }
     });
   };
@@ -337,7 +336,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         rule_id: id,
-        service_alias: appDetail && appDetail.service && appDetail.service.service_alias
+        service_alias: appDetail?.service?.service_alias
       },
       callback: res => {
         if (res) {
@@ -360,27 +359,25 @@ export default class Index extends PureComponent {
             obj.min_replicas = Number(editInfo.minNum);
             const arr = res.bean.metrics;
             if (editInfo.cpuValue) {
-              arr.map((item, index) => {
-                if (item.metric_name == 'cpu') {
-                  obj.metrics[index].metric_target_value = Number(
-                    editInfo.cpuValue
-                  );
+              arr.forEach((item, index) => {
+                if (item.metric_name === 'cpu') {
+                  obj.metrics[index].metric_target_value = Number(editInfo.cpuValue);
                 }
               });
             }
-
             if (editInfo.memoryValue) {
-              arr.map((item, index) => {
-                if (item.metric_name == 'memory') {
-                  obj.metrics[index].metric_target_value = Number(
-                    editInfo.memoryValue
-                  );
+              arr.forEach((item, index) => {
+                if (item.metric_name === 'memory') {
+                  obj.metrics[index].metric_target_value = Number(editInfo.memoryValue);
                 }
               });
             }
             this.changeScalingRules(obj);
           }
         }
+      },
+      handleError: (err) => {
+        handleAPIError(err);
       }
     });
   };
@@ -412,11 +409,11 @@ export default class Index extends PureComponent {
     let rulesInfocpuValue = 1;
     let rulesInfomemoryValue = 1;
     if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
-      rulesInfo.metrics.map(item => {
-        if (item.metric_name == 'cpu') {
+      rulesInfo.metrics.forEach(item => {
+        if (item.metric_name === 'cpu') {
           rulesInfocpuValue = Number(item.metric_target_value);
         }
-        if (item.metric_name == 'memory') {
+        if (item.metric_name === 'memory') {
           rulesInfomemoryValue = Number(item.metric_target_value);
         }
       });
@@ -515,16 +512,16 @@ export default class Index extends PureComponent {
     const { form, dispatch, appDetail } = this.props;
     form.validateFields((err, values) => {
       if (err) return;
-      // 与创建接口一致的资源段转换（仅数据，不发请求）
       const resourceBody = this.buildScaleResourceBody(values);
 
       const serviceId = appDetail?.service?.service_id;
-      if (!serviceId) {
-        notification.warning({ message: '未找到服务 ID，无法执行伸缩' });
+      const serviceAlias = appDetail?.service?.service_alias;
+      if (!serviceId || !serviceAlias) {
+        notification.warning({ message: formatMessage({ id: 'notification.warn.serviceNotFound' }) });
         return;
       }
+
       this.setState({ pendingScaleBody: resourceBody });
-      const serviceAlias = this.props.appDetail.service.service_alias;
       dispatch({
         type: 'kubeblocks/scaleCluster',
         payload: {
@@ -541,7 +538,6 @@ export default class Index extends PureComponent {
         callback: (res) => {
           if (res && res.status_code === 200) {
             notification.success({ message: formatMessage({ id: 'notification.success.save' }) });
-            // 刷新详情，恢复只读
             dispatch({
               type: 'kubeblocks/getClusterDetail',
               payload: {
@@ -554,12 +550,15 @@ export default class Index extends PureComponent {
             });
             this.setState({ editBillInfo: false });
           } else {
-            notification.warning({ message: res?.msg_show || '伸缩失败' });
+            notification.warning({ message: res?.msg_show || formatMessage({ id: 'notification.warn.scaleFailed' }) });
           }
+        },
+        handleError: (err) => {
+          handleAPIError(err);
         }
       });
     });
-  }
+  };
   handleMemoryChange = (value) => {
     const { form } = this.props;
     const memoryToCpuMap = {
@@ -624,33 +623,20 @@ export default class Index extends PureComponent {
     if (!this.canView()) return <NoPermTip />;
     const { clusterDetail, appAlias, form, appDetail, method } = this.props;
 
-    if (clusterDetail && clusterDetail.resource) {
+    if (clusterDetail?.resource) {
       this.initFromClusterDetail();
     }
 
-    let notAllowScaling = false;
-    if (appDetail) {
-      if (globalUtil.isSingletonComponent(method)) {
-        notAllowScaling = true;
-      }
-    }
+    const notAllowScaling = appDetail && globalUtil.isSingletonComponent(method);
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const { getFieldDecorator, getFieldValue } = form;
+    const { getFieldDecorator } = form;
     const {
-      page_num,
-      page_size,
-      total,
       loading,
-      enableGPU,
-      language,
-      dataSource,
-      setUnit,
       memoryMarks,
       cpuMarks,
       cpuValue,
       memoryValue,
-      showBill,
       memorySliderMax,
       memorySliderMin,
       cpuSliderMax,
@@ -659,7 +645,6 @@ export default class Index extends PureComponent {
     if (!clusterDetail) {
       return null;
     }
-    const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
       labelCol: {
         xs: {

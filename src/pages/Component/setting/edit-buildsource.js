@@ -3,7 +3,8 @@
 import { Alert, Form, Input, Modal, notification, Select, Tabs, Radio, Upload, Button, Icon, Checkbox } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import ShowRegionKey from '../../../components/ShowRegionKey';
 import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
@@ -20,17 +21,17 @@ export default class ChangeBuildSource extends PureComponent {
     super(props);
     this.state = {
       branch: this.props.branch || [],
-      buildSource: this.props.buildSource || null,
-      showUsernameAndPass: this.props.buildSource.user !== '',
+      buildSource: this.props?.buildSource || null,
+      showUsernameAndPass: this.props?.buildSource?.user !== '' ? true : false,
       showKey: false,
       isFlag: true,
       tabValue: 'source_code',
-      gitUrl: this.props.buildSource.git_url,
-      serverType: this.props.buildSource.server_type
-        ? this.props.buildSource.server_type
+      gitUrl: this.props?.buildSource?.git_url,
+      serverType: this.props?.buildSource?.server_type
+        ? this.props?.buildSource?.server_type
         : 'git',
-      showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
-      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
+      showCode: appUtil.isCodeAppByBuildSource(this.props?.buildSource),
+      showImage: appUtil.isImageAppByBuildSource(this.props?.buildSource),
       tabKey: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
       // tar包镜像上传相关状态
@@ -53,7 +54,7 @@ export default class ChangeBuildSource extends PureComponent {
       this.loadBranch();
     }
     const { buildSource } = this.props
-    if (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') {
+    if (buildSource?.service_source == "docker_image" || buildSource?.service_source == 'docker_run') {
       this.setState({
         tabKey: '2',
         tabValue: 'docker_run'
@@ -118,7 +119,7 @@ export default class ChangeBuildSource extends PureComponent {
   handleSubmit = () => {
     const { form, buildSource } = this.props;
     const { tabValue } = this.state
-    const archLegnth = buildSource.arch.length
+    const archLegnth = buildSource?.arch.length
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.version_type == 'tag') {
@@ -509,7 +510,7 @@ export default class ChangeBuildSource extends PureComponent {
         <Option value="oss">OSS</Option>
       </Select>
     );
-    let codeVersion = this.state.buildSource.code_version;
+    let codeVersion = this.state?.buildSource?.code_version;
     let versionType = 'branch';
     if (codeVersion && codeVersion.indexOf('tag:') === 0) {
       versionType = 'tag';
@@ -526,7 +527,7 @@ export default class ChangeBuildSource extends PureComponent {
         <Option value="tag">Tag</Option>
       </Select>
     );
-    const archLegnth = buildSource.arch.length
+    const archLegnth = buildSource?.arch.length
     return (
       <>
       <Modal
@@ -554,7 +555,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.address' />}
                 >
                   {getFieldDecorator('git_url', {
-                    initialValue: buildSource.service_source == "source_code" && buildSource.git_url ? buildSource.git_url : '',
+                    initialValue: buildSource?.service_source == "source_code" && buildSource?.git_url ? buildSource.git_url : '',
                     force: true,
                     rules: [
                       { required: true, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_address' }), },
@@ -573,7 +574,7 @@ export default class ChangeBuildSource extends PureComponent {
                     label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.version' />}
                   >
                     {getFieldDecorator('code_version', {
-                      initialValue: buildSource.service_source == "source_code" && codeVersion ? codeVersion : '',
+                      initialValue: buildSource?.service_source == "source_code" && codeVersion ? codeVersion : '',
                       rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_version' }), }]
                     })(
                       <Input
@@ -594,8 +595,8 @@ export default class ChangeBuildSource extends PureComponent {
                       // buildSource.user_name ||
                       // buildSource.user ||
                       //   '',
-                      (buildSource.service_source == "source_code") &&
-                        (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
+                      (buildSource?.service_source == "source_code") &&
+                        (buildSource?.user_name || buildSource?.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' }), }]
                   })(<Input autoComplete="off" placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' })} />)}
                 </Form.Item>
@@ -604,7 +605,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password' />}
                 >
                   {getFieldDecorator('password', {
-                    initialValue: buildSource.service_source == "source_code" && buildSource.password ? buildSource.password : '',
+                    initialValue: buildSource?.service_source == "source_code" && buildSource?.password ? buildSource.password : '',
                     rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_password' }) }]
                   })(
                     <Input
@@ -638,7 +639,7 @@ export default class ChangeBuildSource extends PureComponent {
                 >
                   <div style={{ display: 'flex', gap: 8 }}>
                     {getFieldDecorator('image', {
-                      initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') && buildSource.image ? buildSource.image : '',
+                      initialValue: (buildSource?.service_source == "docker_image" || buildSource?.service_source == 'docker_run') && buildSource?.image ? buildSource.image : '',
                       rules: [
                         { required: true, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.image_name_null' }), },
                         {
@@ -668,7 +669,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Start' />}
                 >
                   {getFieldDecorator('cmd', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == "docker_run") && buildSource.cmd ? buildSource.cmd : '',
+                    initialValue: (buildSource?.service_source == "docker_image" || buildSource?.service_source == "docker_run") && buildSource?.cmd ? buildSource.cmd : '',
                   })(<Input placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_Start' })} />)}
                 </FormItem>
 
@@ -678,8 +679,8 @@ export default class ChangeBuildSource extends PureComponent {
                 >
                   {getFieldDecorator('user_name', {
                     initialValue:
-                      (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') &&
-                        (buildSource.user_name || buildSource.user) ? (buildSource.user_name || buildSource.user) : '',
+                      (buildSource?.service_source == "docker_image" || buildSource?.service_source == 'docker_run') &&
+                        (buildSource?.user_name || buildSource?.user) ? (buildSource.user_name || buildSource.user) : '',
                     rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' }), }]
                   })(<Input autoComplete="off" placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_name' })} />)}
                 </Form.Item>
@@ -688,7 +689,7 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.password' />}
                 >
                   {getFieldDecorator('password', {
-                    initialValue: (buildSource.service_source == "docker_image" || buildSource.service_source == 'docker_run') && buildSource.password ? buildSource.password : '',
+                    initialValue: (buildSource?.service_source == "docker_image" || buildSource?.service_source == 'docker_run') && buildSource?.password ? buildSource.password : '',
                     rules: [{ required: false, essage: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_password' }) }]
                   })(
                     <Input

@@ -2,7 +2,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { Card, Progress, Badge, Popover, Alert, Collapse, Button, Spin } from 'antd';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Result from '../Result'
 import global from '@/utils/global';
 import styles from './index.less';
