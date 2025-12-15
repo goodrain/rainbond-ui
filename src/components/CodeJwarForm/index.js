@@ -14,7 +14,6 @@ import ChunkUploader from '../../utils/ChunkUploader';
 import styles from './index.less';
 import { getUploadInformation } from '../../services/app';
 import { pinyin } from 'pinyin-pro';
-import styles from './index.less';
 import {
   getServiceNameRules,
   getK8sComponentNameRules,
