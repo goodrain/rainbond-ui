@@ -159,7 +159,7 @@ export default class Enterprise extends PureComponent {
         }
       },
       handleError: error => {
-        if (error && error.data && error.data.code === 400) {
+        if (error?.response?.data?.code === 400) {
           this.setState({
             authorizationCode: error.data.data.bean.authz_code,
             enterpriseAuthorization: null,
