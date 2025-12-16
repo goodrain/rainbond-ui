@@ -31,7 +31,7 @@ import oauthUtil from '../../utils/oauth';
 import ThirForm from './form.js';
 import styles from './Index.less';
 
-@connect()
+@connect(null, null, null, { withRef: true })
 @Form.create()
 class Index extends React.Component {
   constructor(props) {

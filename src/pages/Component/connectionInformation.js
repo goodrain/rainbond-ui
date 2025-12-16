@@ -4,7 +4,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 
-@connect()
+@connect(null, null, null, { withRef: true })
 export default class Index extends React.Component {
   render() {
     const { appAlias } = this.props;
