@@ -18,7 +18,7 @@ import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import { getMenuData } from '../common/enterpriseMenu';
 import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';

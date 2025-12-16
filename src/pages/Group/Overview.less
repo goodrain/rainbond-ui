@@ -1,11 +1,22 @@
+// 菜单宽度变量（与 GlobalRouter 保持一致）
+@menu-width: 200px;
+@menu-collapsed-width: 56px;
+@transition-duration: 0.3s;
+@transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
 .container {
   width: 100%;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 62px);
   position: relative;
-  background-color: rgb(240, 245, 255);
+  background-color: #fff;
   background-image: radial-gradient(rgba(12, 12, 12, 0.1) 1.5px, transparent 0);
   background-size: 30px 30px;
   background-position: -5px -5px;
+  transition: width @transition-duration @transition-timing;
+
+  &.collapsed {
+    // 收起状态下的特殊样式
+  }
 }
 
 .iconContainer {

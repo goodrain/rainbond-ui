@@ -16,7 +16,7 @@ import { formatMessage } from '@/utils/intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import { getAppMenuData } from '../common/appMenu';
 import { getHelmMenuData } from '../common/helmMenu';
 import { getMenuData } from '../common/teamMenu';
@@ -108,7 +108,7 @@ class TeamLayout extends PureComponent {
     };
   }
 
-  componentWillMount() {
+  componentWillMount() {    
     this.fetchLicenses();
     this.getEnterpriseList();
     this.getNewbieGuideConfig();

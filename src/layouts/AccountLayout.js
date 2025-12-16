@@ -9,7 +9,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import GlobalHeader from '../components/GlobalHeader';
 import PageLoading from '../components/PageLoading';
 import SiderMenu from '../components/SiderMenu';
