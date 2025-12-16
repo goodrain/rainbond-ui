@@ -16,7 +16,7 @@ import pluginUtile from '../../utils/pulginUtils'
 import global from '@/utils/global';
 import UpdateVersion from './updateVersion';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
-import defaultLogo from '../../../public/logo.png';
+import defaultLogo from '../../../public/logo-icon.png';
 import styles from "./index.less"
 
 

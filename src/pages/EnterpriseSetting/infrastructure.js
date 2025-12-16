@@ -4,7 +4,7 @@
 import { Card, Col, notification, Row, Spin, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import defaultLogo from '../../../public/logo.png';
+import defaultLogo from '../../../public/logo-icon.png';
 import CertificateForm from '../../components/CertificateForm';
 import CloudBackupForm from '../../components/CloudBackupForm';
 import ConfirmModal from '../../components/ConfirmModal';

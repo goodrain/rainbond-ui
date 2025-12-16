@@ -1,5 +1,12 @@
 @import "~antd/lib/style/themes/default.less";
 
+/* 阿里妈妈灵动体 */
+@font-face {
+  font-family: "阿里妈妈灵动体 VF Thin";
+  src: url("//at.alicdn.com/wf/webfont/7KiQMFCgdyUH/gUm9OLr5cWDR.woff2") format("woff2"),
+       url("//at.alicdn.com/wf/webfont/7KiQMFCgdyUH/nKiluyHMsEVt.woff") format("woff");
+  font-display: swap;
+}
 .header {
   padding: 0 12px 0 0;
   background: @rbd-background-color;
@@ -77,9 +84,10 @@
 
 .enterpriseName {
   margin-left: 10px;
-  font-size: 24px;
+  font-size: 22px;
+  font-family: "阿里妈妈灵动体 VF Thin", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-weight: 900;
-  color: #333;
+  color: #1a1a2e;
   max-width: 160px;
   opacity: 1;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
