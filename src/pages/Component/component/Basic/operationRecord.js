@@ -223,7 +223,7 @@ class Index extends PureComponent {
                         {status === 'failure' && globalUtil.fetchReason(reason)}
 
                         
-                        {final_status === 'complete' && status === 'failure' && 
+                        {status === 'failure' && 
                         <Tooltip
                           title={message}
                         >

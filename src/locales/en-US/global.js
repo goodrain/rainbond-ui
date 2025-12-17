@@ -192,5 +192,7 @@ const global = {
     'global.fetchStateOptTypeText.error':'Abnormal operation',
     'global.fetchStateOptTypeText.up':'Hang up',
     'global.fetchStateOptTypeText.recover':'Recover',
+    'global.fetchStateOptTypeText.ContainerExitError':'Container exit error',
+
 }
 export default Object.assign({}, global);
