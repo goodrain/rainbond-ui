@@ -96,6 +96,18 @@ export default class GlobalHeader extends PureComponent {
       }
     }
   }
+
+  componentDidUpdate(prevProps) {
+    // 检测路由变化，更新 isTeamView 状态
+    const currentTeam = globalUtil.getCurrTeamName();
+    const currentRegion = globalUtil.getCurrRegionName();
+    const newIsTeamView = currentTeam !== '' && currentRegion !== '';
+
+    if (this.state.isTeamView !== newIsTeamView) {
+      this.setState({ isTeamView: newIsTeamView });
+    }
+  }
+
   fetchPipePipeline = (eid, region_name) => {
     const { dispatch } = this.props;
     dispatch({
@@ -372,16 +384,19 @@ export default class GlobalHeader extends PureComponent {
     );
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
+    // 企业视图下始终显示完整 logo + 文字，不受折叠状态影响
+    const showFullLogo = !isTeamView || !collapsed;
+
     return (
       <ScrollerX sm={900}>
         <Header className={styles.header}>
           <div className={styles.left}>
             <div
-              className={`${styles.logoWrapper} ${collapsed ? styles.logoCollapsed : ''}`}
+              className={`${styles.logoWrapper} ${isTeamView && collapsed ? styles.logoCollapsed : ''} ${!isTeamView ? styles.logoEnterprise : ''}`}
               onClick={this.onLogoClick}
             >
               <img src={fetchLogo} alt="logo" />
-              {!collapsed && (
+              {showFullLogo && (
                 <span className={styles.enterpriseName}>
                   {(rainbondInfo?.title?.enable && rainbondInfo?.title?.value)|| 'Rainbond'}
                 </span>

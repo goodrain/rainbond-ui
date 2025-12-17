@@ -27,7 +27,7 @@ export default function AppHeader(props) {
       ) : (
 
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600, color:'rgb(16 24 40/0.14)' }}>
             /
           </div>
           <SelectTeam
@@ -39,7 +39,7 @@ export default function AppHeader(props) {
             currentRegion={currentRegion}
             changeTeam={changeTeam}
           />
-          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 , color:'rgb(16 24 40/0.14)'}}>
             /
           </div>
           <SelectApp

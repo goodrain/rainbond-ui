@@ -63,8 +63,8 @@ export const getSecretIdRules = (imageList) => [
     validator: createSecretValidator(imageList)
   },
   {
-    max: 32,
-    message: formatMessage({ id: 'placeholder.max32' })
+    max: 16,
+    message: formatMessage({ id: 'placeholder.max16' })
   }
 ];
 

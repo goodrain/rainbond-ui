@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': 'Modify component name',
     'componentOverview.EditName.input_en_name': 'Please enter the English name of the component',
-    'componentOverview.EditName.Cannot': 'Cannot be greater than 32 characters',
+    'componentOverview.EditName.Cannot': 'Cannot be greater than 16 characters',
     'componentOverview.EditName.only': 'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
     'componentOverview.EditName.edit': 'Modify component name',
     'componentOverview.EditName.name': 'Component Name',
