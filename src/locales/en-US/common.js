@@ -699,6 +699,7 @@
         'placeholder.notAttrName':'Component addresses must be different',
         'placeholder.nameSpaceReg':'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
         'placeholder.max32':'The value cannot exceed 32 characters',
+        'placeholder.max16':'The value cannot exceed 16 characters',
         'placeholder.nonsupport':'Does not support{ nonsupport }',
         'placeholder.nonsupport.regAddress':'Address',
         'placeholder.roleName':'Please enter a role name',

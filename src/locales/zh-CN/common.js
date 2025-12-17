@@ -707,6 +707,7 @@
         'placeholder.notAttrName':'组件地址不能相同',
         'placeholder.nameSpaceReg':'只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
         'placeholder.max32':'不能大于32个字符',
+        'placeholder.max16':'不能大于16个字符',
         'placeholder.nonsupport':'不支持{ nonsupport }',
         'placeholder.nonsupport.regAddress':'地址',
         'placeholder.roleName':'请输入角色名称',

@@ -191,8 +191,8 @@ export default class Index extends PureComponent {
       }
       callback();
     }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
+    if (value.length > 16) {
+      return callback(new Error(formatMessage({ id: 'placeholder.max16' })));
     }
   };
   handleChange = (values) => {

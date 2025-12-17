@@ -45,8 +45,8 @@ export const validateK8sComponentName = (_, value, callback) => {
     return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
   }
 
-  if (value.length > 32) {
-    return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
+  if (value.length > 16) {
+    return callback(new Error(formatMessage({ id: 'placeholder.max16' })));
   }
 
   // K8s 命名规范：必须以小写字母开头，只能包含小写字母、数字和连字符，必须以字母或数字结尾

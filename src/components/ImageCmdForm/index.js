@@ -92,8 +92,8 @@ export default class Index extends PureComponent {
       }
       callback();
     }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({id: 'placeholder.max32'})));
+    if (value.length > 16) {
+      return callback(new Error(formatMessage({id: 'placeholder.max16'})));
     }
   };
   // 获取当前选取的app的所有组件的英文名称

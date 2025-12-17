@@ -40,7 +40,7 @@ export const validateK8sComponentName = (_, value, callback) => {
     return callback(new Error(formatMessage({ id: 'componentOverview.EditName.input_en_name' })));
   }
 
-  if (value.length > 32) {
+  if (value.length > 16) {
     return callback(new Error(formatMessage({ id: 'componentOverview.EditName.Cannot' })));
   }
 

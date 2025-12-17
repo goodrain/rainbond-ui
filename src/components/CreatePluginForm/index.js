@@ -157,8 +157,8 @@ export default class Index extends PureComponent {
             rules: [
               { required: true, message: formatMessage({id:'placeholder.plugin.plugin_alias'}) },
               {
-                max: 32,
-                message: formatMessage({id:'placeholder.max32'})
+                max: 16,
+                message: formatMessage({id:'placeholder.max16'})
               }
             ]
           })(
