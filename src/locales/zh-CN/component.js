@@ -10,6 +10,7 @@ const componentOverview = {
     // 右侧按钮
     'componentOverview.header.right.web': 'Web终端',
     'componentOverview.header.right.build': '构建',
+    'componentOverview.header.build.timeout': '版本检查超时，无法确定是否有新版本可用',
     'componentOverview.header.right.update': '更新',
     'componentOverview.header.right.update.roll': '更新(滚动)',
     'componentOverview.header.right.visit': '访问',
@@ -80,6 +81,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.occupy': '占用',
     'componentOverview.body.tab.overview.disk': '磁盘',
     'componentOverview.body.tab.overview.version': '版本号',
+    'componentOverview.body.tab.overview.vmImage': '虚拟机镜像',
     'componentOverview.body.tab.overview.not': '暂无',
     'componentOverview.body.tab.overview.codeVersion': '代码版本',
     'componentOverview.body.tab.overview.file': '文件MD5',
@@ -561,6 +563,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': '请选择存储类型',
     'componentOverview.body.AddVolumes.cancel': '取消',
     'componentOverview.body.AddVolumes.confirm': '确认',
+    'componentOverview.body.AddVolumes.mount_format': '挂载格式',
+    'componentOverview.body.AddVolumes.disk': '磁盘',
+    'componentOverview.body.AddVolumes.cdrom': '光盘',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': '请输入本地挂载路径',
     'componentOverview.body.AddRelationMnt.mag_path': '{path}路径为系统保留路径，请更换其他路径',
@@ -785,6 +790,10 @@ const componentOverview = {
     'componentOverview.body.Resource.branch': '分支',
     'componentOverview.body.Resource.arch': '架构',
     'componentOverview.body.Resource.select_arch': '请选择架构',
+    'componentOverview.body.Resource.loading': '加载中...',
+    'componentOverview.body.Resource.timeout.title': '网络连接超时',
+    'componentOverview.body.Resource.timeout.desc': '获取构建源信息超时，请检查网络连接后重试。',
+    'componentOverview.body.Resource.timeout.retry': '重试',
     // tabs栏>Resource>AutoDeploy
     'componentOverview.body.AutoDeploy.automatic': '自动构建设置',
     'componentOverview.body.AutoDeploy.open': '开启自动构建',
@@ -1144,6 +1153,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': '组件名称不能为空',
     'kubeblocks.database.config.error.database_type_empty': '数据库类型不能为空',
     'kubeblocks.database.config.error.creation_failed': '创建失败',
+    'kubeblocks.database.config.error.k8s_name_conflict': '当前应用下英文名已存在，请返回上一步更换英文名',
+    'kubeblocks.database.config.error.replicas_min': '副本数量必须大于等于1',
+    'kubeblocks.database.config.error.storage_class_required': '请选择存储类',
+    'kubeblocks.database.config.error.component_info_missing': '创建成功但无法获取组件信息，请手动刷新页面',
     'kubeblocks.database.config.success.created': '创建成功',
     
     'kubeblocks.database.create.form.database_type.label': '数据库类型',

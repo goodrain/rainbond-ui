@@ -1,5 +1,5 @@
 import globalUtil from '../utils/global';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 const actionMaps = {
   admin: '管理员',

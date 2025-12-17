@@ -11,7 +11,8 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import moment from 'moment';
 import globalUtil from '../../../utils/global';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import Result from '@/components/Result';
 import styles from '../ClusterComponents/index.less'
 

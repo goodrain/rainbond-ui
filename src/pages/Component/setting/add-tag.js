@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react";
 import { Modal, Tag, notification } from "antd";
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const CheckableTag = Tag.CheckableTag;
 

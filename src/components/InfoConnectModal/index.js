@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Table, Button, Modal } from 'antd';
 const confirm = Modal.confirm;

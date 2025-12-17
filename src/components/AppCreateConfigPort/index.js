@@ -1,57 +1,41 @@
 import {
-  Affix,
   Button,
-  Card,
   Col,
   Form,
   Icon,
   Input,
   notification,
-  Radio,
   Row,
   Table,
   Tooltip,
-  Select,
-  AutoComplete,
   Collapse,
-  Tag,
-  message
+  Tag
 } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
-import AddOrEditVMVolume from '../../components/AddOrEditVMVolume'
+import AddOrEditVMVolume from '../../components/AddOrEditVMVolume';
 import AddPort from '../../components/AddPort';
-import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import AddStorage from '../../components/AddStorage';
 import ScrollerX from '../../components/ScrollerX';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditPortAlias from '../../components/EditPortAlias';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
-import ViewRelationInfo from '../../components/ViewRelationInfo';
 import {
   addMnt,
-  batchAddRelationedApp,
-  getMnt,
-  getRelationedApp,
-  removeRelationedApp
+  getMnt
 } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import CodeBuildConfig from '../CodeBuildConfig';
+import handleAPIError from '../../utils/error';
 import styles from './setting.less';
-
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option, OptGroup } = Select;
 const { Panel } = Collapse;
 
 // 端口
@@ -63,9 +47,7 @@ class Ports extends PureComponent {
     super(props);
     this.state = {
       showEditAlias: null,
-      showDeleteDomain: null,
       showDeletePort: null,
-      showDeleteDomain: null,
       showAddPort: false,
       ports: []
     };
@@ -86,6 +68,9 @@ class Ports extends PureComponent {
         this.setState({
           ports: (data && data.list) || []
         });
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -102,6 +87,9 @@ class Ports extends PureComponent {
       callback: () => {
         this.fetchPorts();
         callback();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -123,6 +111,9 @@ class Ports extends PureComponent {
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -136,6 +127,9 @@ class Ports extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -149,6 +143,9 @@ class Ports extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -162,6 +159,9 @@ class Ports extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -175,6 +175,9 @@ class Ports extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -195,6 +198,9 @@ class Ports extends PureComponent {
       callback: () => {
         this.cancalDeletePort();
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -217,6 +223,9 @@ class Ports extends PureComponent {
       callback: () => {
         this.onCancelAddPort();
         this.fetchPorts();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -284,15 +293,6 @@ class Ports extends PureComponent {
             onCancel={this.cancalDeletePort}
           />
         )}
-        {this.state.showDeleteDomain && (
-          <ConfirmModal
-            title={formatMessage({ id: 'confirmModal.domain.delete.title' })}
-            desc={formatMessage({ id: 'confirmModal.delete.domain.desc' })}
-            subDesc={this.state.showDeleteDomain.domain}
-            onOk={this.handleSubmitDeleteDomain}
-            onCancel={this.cancalDeleteDomain}
-          />
-        )}
         {this.state.showAddPort && (
           <AddPort
             isImageApp={isImageApp}
@@ -343,6 +343,9 @@ class Mnt extends PureComponent {
             volumes: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -359,6 +362,9 @@ class Mnt extends PureComponent {
             volumeOpts: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -397,6 +403,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.fetchVolumes();
         this.handleCancelAddVar();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -438,6 +447,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -452,6 +464,9 @@ class Mnt extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -582,11 +597,11 @@ class ConfigFiles extends PureComponent {
       showAddVars: null,
       editor: null,
       toDeleteMnt: null,
-      toDeleteVolume: null,
+      toDeleteVolume: null
     };
   }
   componentDidMount() {
-    this.fetchVolumes()
+    this.fetchVolumes();
     this.fetchBaseInfo();
   }
 
@@ -604,6 +619,9 @@ class ConfigFiles extends PureComponent {
             volumes: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -614,6 +632,9 @@ class ConfigFiles extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -655,6 +676,9 @@ class ConfigFiles extends PureComponent {
             this.handleCancelAddVars();
             notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     } else {
@@ -671,6 +695,9 @@ class ConfigFiles extends PureComponent {
             this.handleCancelAddVars();
             notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     }
@@ -689,6 +716,9 @@ class ConfigFiles extends PureComponent {
           this.onCancelDeleteVolume();
           this.fetchVolumes();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -816,6 +846,9 @@ class VmMnt extends PureComponent {
             volumes: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -832,6 +865,9 @@ class VmMnt extends PureComponent {
             volumeOpts: data.list || []
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -870,6 +906,9 @@ class VmMnt extends PureComponent {
       callback: () => {
         this.fetchVolumes();
         this.handleCancelAddVar();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -895,9 +934,9 @@ class VmMnt extends PureComponent {
     this.setState({ toDeleteMnt: mnt });
   };
   onDeleteVolume = data => {
-    if(data.first){
-      notification.warning({ message: '主机系统盘不能删除' });
-    }else{
+    if (data.first) {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.vm_system_disk_cannot_delete' }) });
+    } else {
       this.setState({ toDeleteVolume: data });
     }
   };
@@ -915,6 +954,9 @@ class VmMnt extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -929,6 +971,9 @@ class VmMnt extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1078,19 +1123,11 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    this.handleFetchPorts()
-    this.handleFetchVolumes()
-    this.handleLoadMntList()
-    this.handleFetchInnerEnvs()
+    this.handleFetchPorts();
+    this.handleFetchVolumes();
+    this.handleLoadMntList();
+    this.handleFetchInnerEnvs();
   }
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
-  handleType = type => {
-    if (this.state.type !== type) {
-      this.setState({ type });
-    }
-  };
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
@@ -1109,13 +1146,16 @@ export default class Index extends PureComponent {
       callback: data => {
         this.setState({
           portsData: (data && data.list) || [],
-          isPortFlag: true,
+          isPortFlag: true
         });
         if (!isFlag) {
           this.setState({
-            iconPort: data && data.list.length > 0 ? true : false
-          })
+            iconPort: data && data.list.length > 0
+          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1132,14 +1172,17 @@ export default class Index extends PureComponent {
         if (data) {
           this.setState({
             volumesData: data.list || [],
-            isVolumesFlag: true,
+            isVolumesFlag: true
           });
           if (!isFlag) {
             this.setState({
-              iconVolume: data && data.list.length > 0 ? true : false
-            })
+              iconVolume: data && data.list.length > 0
+            });
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1155,19 +1198,22 @@ export default class Index extends PureComponent {
         if (data) {
           this.setState({
             mntDataList: data.list || [],
-            isMntFlag: true,
+            isMntFlag: true
           });
           if (!isFlag) {
             this.setState({
-              iconMnt: data && data.list.length > 0 ? true : false
-            })
+              iconMnt: data && data.list.length > 0
+            });
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   handleFetchInnerEnvs = (isFlag) => {
-    const { dispatch, appAlias, type } = this.props;
+    const { dispatch } = this.props;
 
     const obj = {
       team_name: globalUtil.getCurrTeamName(),
@@ -1183,14 +1229,17 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({
             innerEnvsList: res.list,
-            isInnerEnvsFlag: true,
+            isInnerEnvsFlag: true
           });
           if (!isFlag) {
             this.setState({
-              iconEnv: res && res.list.length > 0 ? true : false
-            })
+              iconEnv: res && res.list.length > 0
+            });
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1336,7 +1385,7 @@ export default class Index extends PureComponent {
                   <Ports appDetail={appDetail} />
                 </Panel>
               </Collapse>}
-            {isVolumesFlag && method != 'vm' &&
+            {isVolumesFlag && method !== 'vm' &&
               <Collapse style={{ marginTop: '40px' }} onChange={this.callbackVolume} defaultActiveKey={volumesData.length > 0 ? 'volume' : ''} expandIconPosition='right'>
                 <Panel
                   header={
@@ -1365,7 +1414,7 @@ export default class Index extends PureComponent {
                 </Panel>
               </Collapse>
             }
-            {isInnerEnvsFlag && method != 'vm' &&
+            {isInnerEnvsFlag && method !== 'vm' &&
               <Collapse style={{ marginTop: '40px' }} onChange={this.callbackEnv} defaultActiveKey={innerEnvsList.length > 0 ? 'env' : ''} expandIconPosition='right'>
                 <Panel
                   header={

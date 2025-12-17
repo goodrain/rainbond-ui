@@ -1,7 +1,8 @@
 import { Button, Checkbox, Form, message, Modal } from 'antd';
 import React, { PureComponent } from 'react';
 import styles from '../CreateTeam/index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;

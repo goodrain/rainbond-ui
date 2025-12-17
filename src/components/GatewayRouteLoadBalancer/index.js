@@ -19,7 +19,7 @@ import {
     Icon,
     Divider
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import styles from './index.less';

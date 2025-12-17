@@ -2,19 +2,21 @@ import { Tabs } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import Management from './management';
 import rainbondUtil from '../../utils/rainbond';
 import pluginUtile from '../../utils/pulginUtils'
 import global from '@/utils/global';
 import UpdateVersion from './updateVersion';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage'
-import defaultLogo from '../../../public/logo.png';
+import defaultLogo from '../../../public/logo-icon.png';
 import styles from "./index.less"
 
 
@@ -145,6 +147,39 @@ export default class EnterpriseSetting extends PureComponent {
       objectStorageLongin,
     } = this.props
 
+    const renderContent = () => {
+      switch (activeKey) {
+        case 'infrastructure':
+          return <Infrastructure {...this.props} />;
+        case 'management':
+          return adminer ? <Management {...this.props} /> : null;
+        case 'individuation':
+          return showEnterprisePlugin ? (
+            <EnterprisePluginsPage
+              key="Customization"
+              type="Customization"
+              componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }}
+            />
+          ) : null;
+        case 'backup':
+          return adminer ? <BackupManage {...this.props} /> : null;
+        case 'upload':
+          return showEnterprisePlugin ? <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" /> : null;
+        case 'OverMark':
+          return showEnterprisePlugin ? (
+            <EnterprisePluginsPage
+              key="OverMark"
+              type="OverMark"
+              componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }}
+            />
+          ) : null;
+        case 'updateversion':
+          return <UpdateVersion {...this.props} />;
+        default:
+          return null;
+      }
+    };
+
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseSetting.PageHeaderLayout.title' />}
@@ -157,103 +192,64 @@ export default class EnterpriseSetting extends PureComponent {
           activeKey={activeKey}
           type="card"
           className={styles.tabBarStyle}
-          destroyInactiveTabPane
         >
           <TabPane
-            tab={
-              <div>
-                <FormattedMessage id='enterpriseSetting.TabPane.basicsSetting' />
-              </div>
-            }
+            tab={<FormattedMessage id='enterpriseSetting.TabPane.basicsSetting' />}
             key="infrastructure"
-          >
-            <Infrastructure {...this.props} />
-          </TabPane>
+          />
           {adminer && (
             <TabPane
-              tab={
-                <div>
-                  <FormattedMessage id='enterpriseSetting.TabPane.enterpriseAdmin' />
-                </div>
-              }
-              key="management">
-              <Management {...this.props} />
-            </TabPane>
+              tab={<FormattedMessage id='enterpriseSetting.TabPane.enterpriseAdmin' />}
+              key="management"
+            />
           )}
-          {showEnterprisePlugin &&
-            <TabPane
-              tab={<div>
-                <FormattedMessage id='enterpriseSetting.TabPane.individuation' />
-              </div>}
-              key="individuation"
-            >
-              <EnterprisePluginsPage
-                key="Customization"
-                type="Customization"
-                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
-                }
-              />
-            </TabPane>
-          }
-          {adminer && (
-            <TabPane
-              tab={
-                <div>
-                  <FormattedMessage id='enterpriseSetting.TabPane.dataBackups' />
-                </div>
-              }
-              key="backup"
-            >
-              <BackupManage {...this.props} />
-            </TabPane>
-          )}
-          {/* <TabPane
-            tab={
-              <div>
-                <FormattedMessage id='enterpriseSetting.TabPane.mirrorWarehouse' />
-              </div>
-            }
-            key="image"
-          >
-            <ImageWarehouse {...this.props} />
-          </TabPane> */}
           {showEnterprisePlugin && (
             <TabPane
-              tab={
-                <div>
-                  <FormattedMessage id='enterpriseSetting.TabPane.upload' />
-                </div>
-              }
-              key="upload">
-              <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" />
-            </TabPane>
+              tab={<FormattedMessage id='enterpriseSetting.TabPane.individuation' />}
+              key="individuation"
+            />
           )}
-          {showEnterprisePlugin &&
+          {adminer && (
             <TabPane
-              tab={<div>
-                超分比例
-              </div>}
+              tab={<FormattedMessage id='enterpriseSetting.TabPane.dataBackups' />}
+              key="backup"
+            />
+          )}
+          {showEnterprisePlugin && (
+            <TabPane
+              tab={<FormattedMessage id='enterpriseSetting.TabPane.upload' />}
+              key="upload"
+            />
+          )}
+          {showEnterprisePlugin && (
+            <TabPane
+              tab="超分比例"
               key="OverMark"
-            >
-              <EnterprisePluginsPage
-                key="OverMark"
-                type="OverMark"
-                componentData={{ eid: eid, loading: objectStorageLongin, data: this.handlePlatformBasicInfo() }
-                }
-              />
-            </TabPane>
-          }
+            />
+          )}
           <TabPane
-            tab={
-              <div>
-                <FormattedMessage id='enterpriseSetting.TabPane.updateVersion' />
-              </div>
-            }
+            tab={<FormattedMessage id='enterpriseSetting.TabPane.updateVersion' />}
             key="updateversion"
-          >
-            <UpdateVersion {...this.props} />
-          </TabPane>
+          />
         </Tabs>
+        <TransitionGroup
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            minHeight: 400
+          }}
+        >
+          <CSSTransition
+            key={activeKey}
+            timeout={700}
+            classNames="page-zoom"
+            unmountOnExit
+          >
+            <div style={{ width: '100%' }}>
+              {renderContent()}
+            </div>
+          </CSSTransition>
+        </TransitionGroup>
       </PageHeaderLayout>
     );
   }

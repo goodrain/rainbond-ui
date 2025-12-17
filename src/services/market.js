@@ -67,6 +67,7 @@ export async function fetchMarketsTab(param, handleError) {
       params: {
         extend: true
       },
+      timeout: 90000,
       handleError
     }
   );

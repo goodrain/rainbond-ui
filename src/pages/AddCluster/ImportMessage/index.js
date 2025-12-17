@@ -2,10 +2,8 @@
 /* eslint-disable consistent-return */
 import { Button, Card, Form, Input, Row, Steps, Select, Collapse, Icon, Checkbox, Tooltip, Empty, Spin } from 'antd';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import router from 'umi/router';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import Message from './message';

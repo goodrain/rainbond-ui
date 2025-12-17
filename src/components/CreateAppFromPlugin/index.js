@@ -2,7 +2,7 @@
 import { Button, Form, Modal, Radio, Select, Tag } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';

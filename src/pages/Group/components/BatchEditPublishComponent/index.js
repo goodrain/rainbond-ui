@@ -2,7 +2,7 @@
 /* eslint-disable react/sort-comp */
 import { Button, Checkbox, Divider, Form, message, Modal } from 'antd';
 import { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 @Form.create()
 class BatchEditPublishComponent extends PureComponent {
   constructor(arg) {

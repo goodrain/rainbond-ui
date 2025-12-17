@@ -8,7 +8,8 @@ import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
 // eslint-disable-next-line import/first
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect()
 @Form.create()
@@ -21,7 +22,6 @@ class Index extends PureComponent {
       showSocket: false
     };
   }
-  componentDidMount() {}
 
   handleMore = () => {
     const { handleMore } = this.props;
@@ -70,19 +70,17 @@ class Index extends PureComponent {
     }
     return '';
   };
-  jumpExpansion = (bool = false, serivce_alias) => {
+  jumpExpansion = (bool = false, service_alias) => {
     if (!bool) {
       this.props.dispatch(
         routerRedux.push(
-          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=expansion`
         )
       );
     } else {
       this.props.dispatch(
         routerRedux.push(
-          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${serivce_alias}&tab=overview`
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${service_alias}&tab=overview`
         )
       );
     }
@@ -92,65 +90,67 @@ class Index extends PureComponent {
     const match = val.match(regex);
     const msgregex = /(.+)(?=\[)/;
     const message = val.match(msgregex);
+    const messageText = message?.[1] || '';
 
     if (bool) {
-      return message && message[1] ? message[1] : '';
+      return messageText;
     }
 
     let arr = [];
     if (match && match.length > 1) {
-      const arrayStr = match[0];
-      arr = JSON.parse(arrayStr);
+      arr = JSON.parse(match[0]);
+    }
+
+    if (!arr || arr.length === 0) {
+      return <>({messageText})</>;
+    }
+
+    if (arr.length > 3) {
+      return (
+        <>
+          ({messageText}
+          <span
+            style={{ color: '#3296fa', cursor: 'pointer' }}
+            onClick={() => this.showJumpModal(arr)}
+          >
+            {formatMessage({ id: 'componentOverview.body.tab.overview.handle.Dependent' })}
+          </span>
+          )
+        </>
+      );
     }
 
     return (
       <>
-        ({message && message[1] ? message[1] : ''}
-        {arr &&
-          arr.length > 0 &&
-          arr.map((item, index) => {
-            if (arr.length > 3) {
-              return (
-                <span
-                  style={{ color: '#3296fa', cursor: 'pointer' }}
-                  onClick={() => {
-                    this.showJumpModal(arr);
-                  }}
-                >
-                  {formatMessage({ id: 'componentOverview.body.tab.overview.handle.Dependent' })}
-                </span>
-              );
-            }
-            return (
-              <span
-                style={{ color: '#3296fa', cursor: 'pointer' }}
-                onClick={() => {
-                  this.jumpExpansion(true, item.serivce_alias);
-                }}
-              >
-                {item.service_cname}
-              </span>
-            );
-          })}
+        ({messageText}
+        {arr.map((item, index) => (
+          <span
+            key={index}
+            style={{ color: '#3296fa', cursor: 'pointer' }}
+            onClick={() => this.jumpExpansion(true, item.service_alias)}
+          >
+            {item.service_cname}
+          </span>
+        ))}
         )
       </>
     );
   };
-  showJumpModal = (arr) =>{
+  showJumpModal = (arr) => {
     this.setState({
       showModal: true,
       showModalArr: arr
-    })
-  }
-  hideModal = () =>{
+    });
+  };
+
+  hideModal = () => {
     this.setState({
-      showModal: false,
-    })
-  }
+      showModal: false
+    });
+  };
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket, showModalArr, showModal } = this.state;
-    const logsvg = globalUtil.fetchSvg('logs', '#cccccc');
     let showLogEvent = '';
     const statusMap = {
       success: 'logpassed',
@@ -159,7 +159,6 @@ class Index extends PureComponent {
     };
     return (
       <Card
-      // bordered={false}
       title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>}
       loading={recordLoading}>
         <Row gutter={24}>
@@ -188,7 +187,7 @@ class Index extends PureComponent {
                   showLogEvent = event_id;
                 }
                 const UserNames = this.showUserName(user_name);
-                const Messages = globalUtil.fetchMessageLange(message,status,opt_type)
+                const Messages = globalUtil.fetchMessageLange(message, status, opt_type);
                 return (
                   <div
                     key={event_id}
@@ -209,7 +208,7 @@ class Index extends PureComponent {
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={ opt_type == 'INITIATING' ? this.jumpMessage(message,true): Messages}>
+                      <Tooltip title={ opt_type === 'INITIATING' ? this.jumpMessage(message,true): Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(opt_type)
@@ -259,14 +258,13 @@ class Index extends PureComponent {
                       </span>
                     </div>
                       <div style={{ position: 'static' }} className="table-wrap">
-                      { opt_type != 'Unschedulable' && opt_type != 'INITIATING' &&
+                      { opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
                       syn_type === 0 && (
                         <Tooltip
                           visible={final_status === ''}
                           placement="top"
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
-                          // title="查看日志"
                             title={
                               <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
                             }
@@ -282,7 +280,7 @@ class Index extends PureComponent {
                               this.showLogModal(event_id, final_status === '', opt_type);
                             }}
                           >
-                            {globalUtil.fetchSvg('logs', status == 'failure' && opt_type == 'build-service' ? '#CE0601':'#cccccc')}
+                            {globalUtil.fetchSvg('logs', status === 'failure' && opt_type === 'build-service' ? '#CE0601':'#cccccc')}
                           </div>
                         </Tooltip>
                       )
@@ -301,7 +299,6 @@ class Index extends PureComponent {
                     textAlign: 'center'
                   }}
                 >
-                  {/* 暂无操作记录 */}
                   <FormattedMessage id='componentOverview.body.tab.overview.handle.handler'/>
                 </div>
               ))}
@@ -325,7 +322,6 @@ class Index extends PureComponent {
         </Row>
         {logVisible && (
           <LogShow
-            // title="日志"
             title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>}
             width="90%"
             onOk={this.handleCancel}
@@ -342,9 +338,15 @@ class Index extends PureComponent {
           footer={null}
         >
           <div>
-          {showModalArr && showModalArr.length > 0 && showModalArr.map((item,index) =>{
-            return <p style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.service_alias)}}>{item.service_cname}</p>
-          })}
+            {showModalArr && showModalArr.length > 0 && showModalArr.map((item, index) => (
+              <p
+                key={index}
+                style={{color: '#3296fa', cursor: 'pointer'}}
+                onClick={() => this.jumpExpansion(true, item.service_alias)}
+              >
+                {item.service_cname}
+              </p>
+            ))}
           </div>
         </Modal>
       </Card>

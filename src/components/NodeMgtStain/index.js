@@ -11,7 +11,7 @@ Skeleton,
 notification,
 Empty
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import DApvcinputSelect from '../../components/DApvcinputSelect'
 import styles from "./index.less";

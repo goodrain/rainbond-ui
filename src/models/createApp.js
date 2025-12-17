@@ -10,7 +10,6 @@ import {
   createJarWarUploadRecord,
   createJarWarFormSubmit,
   createJarWarSubmit,
-  createJarWarUpload,
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
@@ -118,14 +117,6 @@ export default {
     },
     *createJarWarUploadRecord({ payload, callback }, { call }) {
       const data = yield call(createJarWarUploadRecord, payload);
-      if (data && callback) {
-        setTimeout(() => {
-          callback(data);
-        });
-      }
-    },
-    *createJarWarUpload({ payload, callback }, { call }) {
-      const data = yield call(createJarWarUpload, payload);
       if (data && callback) {
         setTimeout(() => {
           callback(data);

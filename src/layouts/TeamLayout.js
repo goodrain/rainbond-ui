@@ -12,11 +12,11 @@ import CustomFooter from "./CustomFooter"
 import { enquireScreen } from 'enquire-js';
 import PropTypes from 'prop-types';
 import { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import { getAppMenuData } from '../common/appMenu';
 import { getHelmMenuData } from '../common/helmMenu';
 import { getMenuData } from '../common/teamMenu';
@@ -25,7 +25,6 @@ import GlobalHeader from '../components/GlobalHeader';
 import GlobalRouter from '../components/GlobalRouter';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
-import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import Exception from '../pages/Exception/403';
 import cookie from '../utils/cookie';
@@ -39,12 +38,8 @@ import CustomerServiceFloat from '../components/CustomerServiceFloat';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
-import Logo from '../../public/logo.png'
 import styles from './EnterpriseLayout.less'
-import headerStype from '../components/GlobalHeader/index.less';
 import PluginUtil from '../utils/pulginUtils';
-import "animate.css"
-import error from '@/models/error';
 const { Content } = Layout;
 Modal.defaultProps.width = 480;
 
@@ -113,13 +108,17 @@ class TeamLayout extends PureComponent {
     };
   }
 
-  componentWillMount() {
+  componentWillMount() {    
     this.fetchLicenses();
     this.getEnterpriseList();
     this.getNewbieGuideConfig();
     this.getUserNewbieGuideConfig();
     this.fetchUserInfo();
-    this.handleMenuCollapse(true);
+    // 使用 localStorage 中保存的折叠状态
+    const savedCollapsed = window.localStorage.getItem('collapsed');
+    if (savedCollapsed !== null) {
+      this.handleMenuCollapse(savedCollapsed === 'true');
+    }
     const { teamAppCreatePermission: { isAccess } } = this.state
     // 避免 SaaS 下重复调用 getUserNewbieGuideConfig
     if (isAccess) {
@@ -208,6 +207,12 @@ class TeamLayout extends PureComponent {
         overflow: overview ? 'hidden' : 'auto'
       };
 
+      // 检查是否需要清空 currentComponent
+      const componentID = globalUtil.getComponentID(this.props.location);
+      if (!componentID && this.state.currentComponent) {
+        nextState.currentComponent = null;
+      }
+
       // 仅在状态有变化时才更新，避免无意义 setState
       const needUpdate = Object.keys(nextState).some(k => this.state[k] !== nextState[k]);
       if (needUpdate) {
@@ -246,7 +251,7 @@ class TeamLayout extends PureComponent {
           }
         },
         handleError: (error) => {
-          if (error && error.data && error.data.code === 400) {
+          if (error?.response?.data?.code === 400) {
             this.setState({
               licenseInfo: null,
               isAuthorizationLoading: false,
@@ -804,13 +809,9 @@ class TeamLayout extends PureComponent {
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
+    // 避免在 render 中调用 setState，这些逻辑已在生命周期中处理
     if (appID && (!currentApp || !groupDetail.ID)) {
-      this.fetchAppDetail(appID);
-      this.handleMenuCollapse(true);
-      this.setState({
-        overflow: 'hidden',
-        GroupShow: true
-      });
+      // this.fetchAppDetail 和状态更新已在 componentWillReceiveProps 中处理
       // return <PageLoading />;
     } else if (
       currentComponent &&
@@ -821,22 +822,13 @@ class TeamLayout extends PureComponent {
     } else if (componentID) {
       // 避免在 render 中发起请求；改由生命周期在参数变化时触发
       // return <GlobalHeader />;
-    } else {
-      this.setState({ currentComponent: null });
     }
+    // else 分支的 setState 也移除，避免在 render 中更新状态
 
     const mode =
       groupDetail && groupDetail.app_type === 'helm'
         ? 'helm'
         : this.getMode(appID || componentID);
-    const customHeaderImg = () => {
-      return (
-        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-          <img src={fetchLogo} alt="" />
-        </div>
-      );
-    };
-
     const customHeader = () => {
       if (mode == 'team') {
         return (
@@ -954,7 +946,7 @@ class TeamLayout extends PureComponent {
           </div>
         );
       };      
-      const isApp = mode == 'team' ? false : showMenu ? !componentID : false
+      const isApp = showMenu ? (mode == 'team' ? true : !componentID) : false
       return (
           <Layout key={overflow}>
             <GlobalHeader
@@ -976,7 +968,6 @@ class TeamLayout extends PureComponent {
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
-              customHeaderImg={teamView && customHeaderImg}
             />
 
             <Layout style={{ flexDirection: 'row' }}>
@@ -999,38 +990,31 @@ class TeamLayout extends PureComponent {
                   menuData={menuData}
                   pathname={pathname}
                   showMenu={isApp}
-                  isAppOverview
                 />
               )}
-              <div style={{ width:(mode == 'team' || componentID) ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
+              <div style={{ width: componentID ? '100%' : collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)', }}>
                 {this.state.GroupShow ?
                   <TransitionGroup
                     style={{
-                      height: 'calc(100vh - 64px)',
-                      overflow: overflow || 'auto',
+                      position: 'relative',
+                      height: 'calc(100vh - 50px)',
+                      overflow: 'hidden',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
                     <CSSTransition
-                      timeout={300}
-                      classNames=
-                      {{
-                        enter: 'animate__animated',
-                        enterActive: 'animate__fadeIn',
-                      }}
+                      timeout={700}
+                      classNames="page-zoom"
                       unmountOnExit
                       key={this.props.location.pathname}
                     >
                       <Content
                         style={{
-                          height: 'calc(100vh - 64px)',
+                          height: 'calc(100vh - 50px)',
                           overflow: overflow || 'auto',
                           width: '100%'
                         }}
                       >
                         <div
-                          style={{
-                            margin: marginShow ? !isApp ? '0px' : '24px 24px 0' : "0px"
-                          }}
                         >
                           {renderContent()}
                           {showFooter && <CustomFooter />}

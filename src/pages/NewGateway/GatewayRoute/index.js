@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import {
     Tabs
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import GatewayRouteHttp from '../../../components/GatewayRouteHttp';
 import GatewayRouteTcp from '../../../components/GatewayRouteTcp';
 import GatewayRouteLoadBalancer from '../../../components/GatewayRouteLoadBalancer';

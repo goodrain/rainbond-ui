@@ -2,7 +2,7 @@
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';

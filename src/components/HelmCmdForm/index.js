@@ -1,18 +1,24 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Alert, List, Tooltip, Popover, Table, Radio, Upload, Icon } from 'antd';
+import { Button, Form, Input, Alert, Tooltip, Popover, Table, Radio, Upload, Icon, notification } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { pinyin } from 'pinyin-pro';
 import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import cookie from '../../utils/cookie';
 import role from '@/utils/newRole';
 import styles from './index.less';
+import {
+  getGroupNameRules,
+  getK8sAppNameRules,
+  getImageSourceRules,
+  getHelmCmdRules
+} from './validations';
 
-const { Option } = Select;
 const { TextArea } = Input;
 
 const formItemLayout = {
@@ -86,6 +92,7 @@ export default class Index extends PureComponent {
         })
       },
       handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -97,12 +104,13 @@ export default class Index extends PureComponent {
   };
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
-    role.refreshPermissionsInfo(groupId, false, this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     setFieldsValue({ group_id: groupId });
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleSubmit = e => {
     e.preventDefault();
@@ -116,7 +124,7 @@ export default class Index extends PureComponent {
 
       // 如果已经有group_id，直接调用Helm创建接口
       if (group_id) {
-        if (fieldsValue.imagefrom == 'upload') {
+        if (fieldsValue.imagefrom === 'upload') {
           fieldsValue.event_id = event_id
         }
         onSubmit(fieldsValue, isService);
@@ -148,7 +156,7 @@ export default class Index extends PureComponent {
             // 为Helm接口添加group_id
             fieldsValue.group_id = res.group_id;
 
-            if (fieldsValue.imagefrom == 'upload') {
+            if (fieldsValue.imagefrom === 'upload') {
               fieldsValue.event_id = event_id
             }
 
@@ -162,23 +170,6 @@ export default class Index extends PureComponent {
       });
     });
   };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
-  };
   showStoreMoudle = () => {
     this.setState({
       addStoreVisible: !this.state.addStoreVisible,
@@ -191,15 +182,9 @@ export default class Index extends PureComponent {
     })
   }
   handleClickChange = (val) => {
-    if (val == false) {
-      this.setState({
-        clicked: false
-      })
-    } else {
-      this.setState({
-        clicked: !this.state.clicked
-      })
-    }
+    this.setState({
+      clicked: val === false ? false : !this.state.clicked
+    });
   }
   // 切换 Helm 安装方式
   handleChangeHelm = (key) => {
@@ -235,6 +220,9 @@ export default class Index extends PureComponent {
           })
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   //查询上传状态
@@ -268,7 +256,9 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
@@ -282,7 +272,7 @@ export default class Index extends PureComponent {
         event_id
       },
       callback: (data) => {
-        if (data.bean.res == 'ok') {
+        if (data.bean.res === 'ok') {
           this.setState({
             existFileList: []
           });
@@ -292,9 +282,12 @@ export default class Index extends PureComponent {
           this.handleJarWarUpload()
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
-  //上传
+  // 上传
   onChangeUpload = info => {
     let { fileList } = info;
     fileList = fileList.filter(file => {
@@ -303,18 +296,6 @@ export default class Index extends PureComponent {
       }
       return true;
     });
-    if (info && info.event && info.event.percent) {
-      this.setState({
-        percents: info.event.percent
-      });
-    }
-
-    const { status } = info.file;
-    if (status === 'done') {
-      this.setState({
-        percents: false
-      });
-    }
     this.setState({ fileList });
   };
   //删除
@@ -327,24 +308,27 @@ export default class Index extends PureComponent {
     })
   }
 
-   // 生成英文名
-   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   render() {
     const {
       groups,
@@ -389,28 +373,19 @@ export default class Index extends PureComponent {
           >
             {getFieldDecorator('group_name', {
               initialValue: this.props.form.getFieldValue('service_cname') || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getGroupNameRules()
             })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.newApp.appEngName' })}>
             {getFieldDecorator('k8s_app', {
               initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-              rules: [
-                { required: true, message: formatMessage({ id: 'popover.newApp.appEngName.placeholder' }) },
-                { validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sAppNameRules()
             })(<Input placeholder={formatMessage({ id: 'popover.newApp.appEngName.placeholder' })} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
             {getFieldDecorator('imagefrom', {
               initialValue: 'cmd',
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
+              rules: getImageSourceRules()
             })(
               <Radio.Group onChange={this.handleChangeHelm}>
                 <Radio value='cmd'>{formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}</Radio>
@@ -419,11 +394,11 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
           {/* 已对接商店地址 */}
-          {radioKey == 'cmd' &&
+          {radioKey === 'cmd' &&
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
               {getFieldDecorator('helm_cmd', {
                 initialValue: data.docker_cmd || '',
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.helmCmdMsg' }) }]
+                rules: getHelmCmdRules()
               })(
                 <TextArea style={{ minHeight: '200px' }} placeholder={formatMessage({ id: 'placeholder.helm_cmd' })} />
               )}
@@ -444,9 +419,9 @@ export default class Index extends PureComponent {
               </Popover>
             </Form.Item>
           }
-          {radioKey == 'upload' &&
+          {radioKey === 'upload' &&
             <>
-              <Form.Item
+            <Form.Item
                 {...is_language}
                 label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
                 extra={formatMessage({ id: 'teamAdd.create.image.extra_helm_chart' })}

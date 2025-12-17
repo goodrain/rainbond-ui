@@ -16,11 +16,12 @@ import pluginUtil from '../../utils/plugin';
 import pluginUtils from '../../utils/pulginUtils';
 import PriceCard from '../../components/PriceCard';
 import cookie from '../../utils/cookie';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
-
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const { Option } = Select;
 
 @Form.create()
 @connect(
@@ -36,22 +37,22 @@ export default class AddVolumes extends PureComponent {
     super(props);
     this.state = {
       volumeCapacityValidation: {},
-      language: cookie.get('language') === 'zh-CN' ? true : false,
+      language: cookie.get('language') === 'zh-CN',
       volume_type: '',
-      showBill: pluginUtils.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
+      showBill: pluginUtils.isInstallPlugin(this.props.pluginList, 'rainbond-bill')
     };
   }
   componentDidMount = () => {
     const { data } = this.props;
-    if(this.state.showBill){
+    if (this.state.showBill) {
       this.setState({
         volume_type: 'volcengine'
-      })
-    }else{
+      });
+    } else {
       if (data && data.volume_type) {
         this.setState({
           volume_type: data.volume_type
-        })
+        });
       }
     }
   };
@@ -66,7 +67,7 @@ export default class AddVolumes extends PureComponent {
           return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath' /> });
         }
         if (method == 'vm') {
-          values.volume_type = 'vm-file'
+          values.volume_type = 'vm-file';
         }
         onSubmit(values);
       }
@@ -100,8 +101,7 @@ export default class AddVolumes extends PureComponent {
     this.setVolumeCapacityValidation(e.target.value);
     this.setState({
       volume_type: e.target.value
-    })
-
+    });
   };
   setVolumeCapacityValidation = volume_type => {
     const { volumeOpts } = this.props;
@@ -199,7 +199,7 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 18 }
       }
     };
-    const en_formItemLayout = {
+    const enFormItemLayout = {
       labelCol: {
         xs: { span: 24 },
         sm: { span: 7 }
@@ -209,7 +209,7 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 17 }
       }
     };
-    const is_language = language ? formItemLayout : en_formItemLayout
+    const layoutConfig = language ? formItemLayout : enFormItemLayout;
     return (
       <Drawer
         title={this.props.editor ? <FormattedMessage id='componentOverview.body.AddVolumes.edit' /> : <FormattedMessage id='componentOverview.body.AddVolumes.add' />}
@@ -226,7 +226,7 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.name' />}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.name' />}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
@@ -252,7 +252,7 @@ export default class AddVolumes extends PureComponent {
             )}
           </FormItem>
           {method == 'vm' ? (
-            <FormItem {...is_language} label={'挂载格式'}>
+            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.mount_format' />}>
               {getFieldDecorator('volume_path', {
                 initialValue: data.volume_path || '',
                 rules: [
@@ -267,13 +267,13 @@ export default class AddVolumes extends PureComponent {
                   defaultValue={'/disk'}
                 >
                   <Option value="/lun">LUN</Option>
-                  <Option value="/disk">磁盘</Option>
-                  <Option value="/cdrom">光盘</Option>
+                  <Option value="/disk"><FormattedMessage id='componentOverview.body.AddVolumes.disk' /></Option>
+                  <Option value="/cdrom"><FormattedMessage id='componentOverview.body.AddVolumes.cdrom' /></Option>
                 </Select>
               )}
             </FormItem>
           ) : (
-            <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_path' />}>
+            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_path' />}>
               {getFieldDecorator('volume_path', {
                 initialValue: data.volume_path || '',
                 rules: [
@@ -286,9 +286,9 @@ export default class AddVolumes extends PureComponent {
             </FormItem>
           )}
           {method != 'vm' &&
-            <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
+            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
-                initialValue:  this.state.showBill ? 'volcengine' : data.volume_type || "memoryfs",
+                initialValue: this.state.showBill ? 'volcengine' : data.volume_type || 'memoryfs'
               })(
                 <RadioGroup onChange={this.handleChange}>
                   {volumeOpts.map(item => {
@@ -308,8 +308,8 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           }
-          {volume_type !== "volcengine" &&
-            <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
+          {volume_type !== 'volcengine' &&
+            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
               {getFieldDecorator('volume_capacity', {
                 initialValue: defaultVolumeCapacity || 10,
                 rules: [

@@ -40,7 +40,8 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import publicColor from '../../../config/theme'
 import pluginUtile from '../../utils/pulginUtils'
 

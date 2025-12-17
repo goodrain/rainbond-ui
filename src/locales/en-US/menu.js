@@ -9,6 +9,22 @@ const enterpriseMenu = {
   'menu.enterprise.log': 'Platform Log',
   'menu.enterprise.extension': 'Extension',
   'menu.enterprise.setting': 'Setting',
+  'menu.enterprise.order': 'Orders',
+  'menu.enterprise.observability': 'Observability',
+  'menu.enterprise.billing': 'Billing',
+  'menu.enterprise.plugins': 'Plugins',
+  // Group titles
+  'menu.group.basic': 'Basic',
+  'menu.group.observability': 'Observability',
+  'menu.group.commercial': 'Commercial',
+  'menu.group.administration': 'Administration',
+  'menu.group.plugins': 'Plugins',
+  // View switcher
+  'menu.switcher.workspace': 'Workspace',
+  'menu.switcher.platform': 'Platform',
+  // Collapse menu
+  'menu.collapse': 'Collapse',
+  'menu.expand': 'Expand',
 };
 
 const teamMenu = {

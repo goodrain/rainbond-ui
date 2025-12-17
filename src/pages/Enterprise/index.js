@@ -24,22 +24,11 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '@/components/ScrollerX';
 import moment from 'moment';
-import AddTeam from '../../../public/images/addTeam.png';
-import Arrow from '../../../public/images/arrow.png';
-import Cpus from '../../../public/images/cpus.png';
-import CreationTeam from '../../../public/images/creationTeam.png';
 import CustomerService from '../../../public/images/CustomerService.png';
-import Element from '../../../public/images/element.png';
-import EnterpriseBj from '../../../public/images/enterpriseBj.png';
-import EnterpriseInfo from '../../../public/images/enterpriseInfo.png';
-import Memory from '../../../public/images/memory.png';
-import Records from '../../../public/images/records.png';
-import Team from '../../../public/images/team.png';
-import TeamCrew from '../../../public/images/teamCrew.png';
-import User from '../../../public/images/user.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import Consulting from '../../components/Consulting';
 import Convenient from '../../components/Convenient';
@@ -170,9 +159,9 @@ export default class Enterprise extends PureComponent {
         }
       },
       handleError: error => {
-        if (error && error.data && error.data.code === 400) {
+        if (error?.response?.data?.code === 400) {
           this.setState({
-            authorizationCode: error.data.data.bean.authz_code,
+            authorizationCode:null,
             enterpriseAuthorization: null,
             isAuthorizationLoading: false,
           });
@@ -355,7 +344,7 @@ export default class Enterprise extends PureComponent {
             if (isNext && groupId && teamName) {
               dispatch(
                 routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}`
+                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}/overview`
                 )
               );
             }
@@ -1070,7 +1059,7 @@ export default class Enterprise extends PureComponent {
       }
     };
     return (
-      <div>
+      <div style={{padding:12, background:'#fff'}}>
         {convenientVisible && (
           <Convenient
             {...this.props}
@@ -1107,7 +1096,7 @@ export default class Enterprise extends PureComponent {
           >
             <Fragment>
               <div className={enterpriseStyles.enterpriseBox}>
-                <div className={enterpriseStyles.enterpriseInfo} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                <div className={enterpriseStyles.enterpriseInfo} style={{border: '1px solid #e8e8e8'}} >
                   <div className={enterpriseStyles.enterpriseInfo_left} >
                     {enterpriseInfo && (
                       <div className={enterpriseStyles.enterpriseId}>
@@ -1178,7 +1167,7 @@ export default class Enterprise extends PureComponent {
 
                   </div>
                 </div>
-                <div className={enterpriseStyles.enterpriseData} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                <div className={enterpriseStyles.enterpriseData} style={{border: '1px solid #e8e8e8'}}>
                   <div className={enterpriseStyles.piece}>
                     <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
                     <p>
@@ -1231,7 +1220,7 @@ export default class Enterprise extends PureComponent {
               bordered={false}
               bodyStyle={{ padding: 0 }}
             >
-              <div className={enterpriseStyles.authorization} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              <div className={enterpriseStyles.authorization} style={{border: '1px solid #e8e8e8'}}>
                 <div className={enterpriseStyles.authorization_code}>
                   <div className={enterpriseStyles.authorization_title}>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</div>
                   <div className={enterpriseStyles.authorization_code_content}>
@@ -1351,7 +1340,7 @@ export default class Enterprise extends PureComponent {
                 //内存单位
                 const memoryTotalUnit = (total_memory && this.handlUnit(total_memory, 'MB')) || 'MB';
                 return (
-                  <div className={enterpriseStyles.clusterInfo} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                  <div className={enterpriseStyles.clusterInfo} style={{border: '1px solid #e8e8e8'}}>
                     <div className={enterpriseStyles.clusterInfo_title}>
                       <div className={enterpriseStyles.clusterName}>
                         {region_alias}
@@ -1479,7 +1468,7 @@ export default class Enterprise extends PureComponent {
                   </div>
                 )
               })) : (
-                <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+                <div className={enterpriseStyles.clusterInfo_Empty} style={{border: '1px solid #e8e8e8'}}>
                   <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_cluster' })} />
                 </div>
               )}
@@ -1501,7 +1490,7 @@ export default class Enterprise extends PureComponent {
             bodyStyle={{ padding: 0, }}
           >
             {appAlertList.length > 0 && (
-              <div className={enterpriseStyles.appAlert} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              <div className={enterpriseStyles.appAlert} style={{border: '1px solid #e8e8e8'}}>
                 <div style={{
                   height: 170,
                   overflowX: "hidden",
@@ -1556,12 +1545,12 @@ export default class Enterprise extends PureComponent {
               </div>
             )}
             {appAlertLoding && (
-              <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{border: '1px solid #e8e8e8'}}>
                 <Spin></Spin>
               </div>
             )}
             {!appAlertLoding && appAlertList.length == 0 && (
-              <div className={enterpriseStyles.clusterInfo_Empty} style={{ boxShadow: 'rgb(36 46 66 / 16%) 2px 4px 10px 0px' }}>
+              <div className={enterpriseStyles.clusterInfo_Empty} style={{border: '1px solid #e8e8e8'}}>
                 <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_errorInfo' })} />
               </div>
             )}

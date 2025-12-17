@@ -33,7 +33,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cloud from '../../utils/cloud';
 import { getKubeConfig } from '../../services/cloud';
@@ -122,7 +123,7 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       handleError: error => {
-        if (error && error.data && error.data.code === 400) {
+        if (error?.response?.data?.code === 400) {
           this.setState({
             licenseInfo: null,
             isAuthorizationLoading: false,

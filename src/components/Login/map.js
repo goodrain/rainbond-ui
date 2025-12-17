@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input, Icon } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const map = {

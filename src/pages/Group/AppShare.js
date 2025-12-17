@@ -35,7 +35,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CreateAppModels from '../../components/CreateAppModels';
 import FooterToolbar from '../../components/FooterToolbar';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -638,7 +638,7 @@ export default class Main extends PureComponent {
         if (res && res.code === 404) {
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }

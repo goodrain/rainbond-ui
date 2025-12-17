@@ -13,26 +13,20 @@ import {
 import React, { PureComponent } from 'react';
 import pluginUtil from '../../utils/plugin';
 import cookie from '../../utils/cookie';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const { Option } = Select;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' ? true : false };
+    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' };
   }
-  componentDidMount = () => {
-    const { data } = this.props;
-    if (data && data.volume_type) {
-      // this.setVolumeCapacityValidation(data.volume_type);
-    } else {
-      // this.setVolumeCapacityValidation('share-file');
-    }
-  };
   // eslint-disable-next-line react/sort-comp
   handleSubmit = e => {
     e.preventDefault();
@@ -41,25 +35,25 @@ export default class AddVolumes extends PureComponent {
       if (!err && onSubmit) {
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
-          return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath'/> });
+          return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath' /> });
         }
-        values.volume_type = 'vm-file'
+        values.volume_type = 'vm-file';
         onSubmit(values);
       }
     });
   };
   checkMountPath = (_, value, callback) => {
     if (value === '' || !value) {
-      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_null'/>);
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_null' />);
       return;
     }
 
     if (pluginUtil.isMountPath(value)) {
-      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_path'/>);
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_path' />);
       return;
     }
     if (value && value.length > 100) {
-      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_max'/>);
+      callback(<FormattedMessage id='componentOverview.body.AddVolumes.callback_max' />);
       return;
     }
 
@@ -92,11 +86,11 @@ export default class AddVolumes extends PureComponent {
   checkVolumeCapacity = (rules, value, callback) => {
     if (value) {
       if (value > 1000) {
-        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Max'})}`);
+        callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Max' })}`);
         return;
       }
       if (value < 0) {
-        callback(`${formatMessage({id:'componentOverview.body.AddVolumes.Min'})}`);
+        callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Min' })}`);
         return;
       }
     }
@@ -131,7 +125,7 @@ export default class AddVolumes extends PureComponent {
       fileArr[length - 1] == 'yml' ||
       fileArr[length - 1] == 'xml';
     if (!isRightType) {
-      message.error(formatMessage({id:'notification.error.upload'}), 5);
+      message.error(formatMessage({ id: 'notification.error.upload' }), 5);
       return false;
     }
     return true;
@@ -171,7 +165,7 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 18 }
       }
     };
-    const en_formItemLayout = {
+    const enFormItemLayout = {
       labelCol: {
         xs: { span: 24 },
         sm: { span: 7 }
@@ -181,10 +175,10 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 17 }
       }
     };
-    const is_language = language ? formItemLayout : en_formItemLayout
+    const layoutConfig = language ? formItemLayout : enFormItemLayout;
     return (
       <Drawer
-        title={this.props.editor ? <FormattedMessage id='componentOverview.body.AddVolumes.edit'/> : <FormattedMessage id='componentOverview.body.AddVolumes.add'/>}
+        title={this.props.editor ? <FormattedMessage id='componentOverview.body.AddVolumes.edit' /> : <FormattedMessage id='componentOverview.body.AddVolumes.add' />}
         placement="right"
         width={500}
         closable={false}
@@ -198,32 +192,31 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...is_language} label= {<FormattedMessage id='componentOverview.body.AddVolumes.name'/>}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.name' />}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'componentOverview.body.AddVolumes.required'})
-
+                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.required' })
                 },
                 {
                   max: 40,
-                  message: formatMessage({id:'componentOverview.body.AddVolumes.max'})
+                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.max' })
                 },
                 {
                   pattern: /^[a-zA-Z0-9]([-a-zA-Z0-9_]*[a-zA-Z0-9])?$/,
-                  message: formatMessage({id:'componentOverview.body.AddVolumes.pattern'})
+                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.pattern' })
                 }
               ]
             })(
               <Input
-                placeholder= {formatMessage({id:'componentOverview.body.AddVolumes.required'})}
+                placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.required' })}
                 disabled={!!this.props.editor}
               />
             )}
           </FormItem>
-          <FormItem {...is_language} label={'挂载格式'}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.mount_format' />}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
@@ -233,24 +226,23 @@ export default class AddVolumes extends PureComponent {
                 }
               ]
             })(
-            <Select
-              getPopupContainer={triggerNode => triggerNode.parentNode}
-              defaultValue={'/disk'}
-            >
-              <Option value="/lun">LUN</Option>
-              <Option value="/disk">磁盘</Option>
-              <Option value="/cdrom">光盘</Option>
-            </Select>
+              <Select
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                defaultValue={'/disk'}
+              >
+                <Option value="/lun">LUN</Option>
+                <Option value="/disk"><FormattedMessage id='componentOverview.body.AddVolumes.disk' /></Option>
+                <Option value="/cdrom"><FormattedMessage id='componentOverview.body.AddVolumes.cdrom' /></Option>
+              </Select>
             )}
           </FormItem>
-          <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity'/>}>
+          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
             {getFieldDecorator('volume_capacity', {
               initialValue: defaultVolumeCapacity,
               rules: [
                 {
                   min: 0,
-                  message: formatMessage({id:'componentOverview.body.AddVolumes.min'})
-
+                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.min' })
                 },
                 {
                   validator: this.checkVolumeCapacity
@@ -261,8 +253,8 @@ export default class AddVolumes extends PureComponent {
                 type="number"
                 placeholder={
                   !!this.props.editor && data.volume_capacity === 0
-                    ? formatMessage({id:'componentOverview.body.AddVolumes.unlimited'})
-                    : formatMessage({id:'componentOverview.body.AddVolumes.input'})
+                    ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
+                    : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
                 }
                 min={1}
                 disabled={!!this.props.editor}
@@ -289,10 +281,10 @@ export default class AddVolumes extends PureComponent {
             }}
             onClick={this.handleCancel}
           >
-            <FormattedMessage id='componentOverview.body.AddVolumes.cancel'/>
+            <FormattedMessage id='componentOverview.body.AddVolumes.cancel' />
           </Button>
           <Button onClick={this.handleSubmit} type="primary">
-            <FormattedMessage id='componentOverview.body.AddVolumes.confirm'/>
+            <FormattedMessage id='componentOverview.body.AddVolumes.confirm' />
           </Button>
         </div>
       </Drawer>

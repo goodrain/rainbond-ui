@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import RoutingRule from '@/components/RoutingRule';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';

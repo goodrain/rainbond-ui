@@ -17,7 +17,7 @@ import {
     Icon,
     InputNumber
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import PluginSystem from './Plugins'
 import DApvcinput from './components/DApvcinput';

@@ -5,7 +5,7 @@ import { Button, Card, Form, Icon, Modal } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CodeMirror from 'react-codemirror';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
@@ -22,10 +22,10 @@ import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
+import handleAPIError from '../../utils/error';
 
-require('codemirror/mode/yaml/yaml');
-require('codemirror/lib/codemirror.css');
-require('../../styles/codemirror.less');
+import 'codemirror/mode/yaml/yaml';
+import 'codemirror/lib/codemirror.css';
 
 /* 修改compose内容 */
 
@@ -45,6 +45,8 @@ class ModifyCompose extends PureComponent {
       if (data && data.bean) {
         this.setState({ compose: data.bean.compose_content });
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   }
   handleSubmit = e => {
@@ -57,8 +59,7 @@ class ModifyCompose extends PureComponent {
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const data = this.props.data || {};
+    const { getFieldDecorator } = this.props.form;
     const options = {
       lineNumbers: true,
       theme: 'monokai',
@@ -130,7 +131,6 @@ export default class CreateCheck extends PureComponent {
   }
 
   componentDidMount() {
-    const team_name = globalUtil.getCurrTeamName();
     this.getCheckuuid();
     this.mount = true;
     this.bindEvent();
@@ -141,7 +141,6 @@ export default class CreateCheck extends PureComponent {
     this.unbindEvent();
   }
   getCheckuuid = () => {
-    const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
     const params = this.getParams();
     getComposeCheckuuid({
@@ -152,10 +151,13 @@ export default class CreateCheck extends PureComponent {
         if (!data.bean.check_uuid) {
           this.startCheck();
         } else {
-          this.state.check_uuid = data.bean.check_uuid;
-          this.loopStatus();
+          this.setState({ check_uuid: data.bean.check_uuid }, () => {
+            this.loopStatus();
+          });
         }
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
   getParams() {
@@ -188,15 +190,18 @@ export default class CreateCheck extends PureComponent {
       }
     ).then(data => {
       if (data) {
-        this.state.check_uuid = data.bean.check_uuid;
         this.setState({
+          check_uuid: data.bean.check_uuid,
           eventId: data.bean.check_event_id,
           appDetail: data.bean
+        }, () => {
+          if (loopStatus !== false) {
+            this.loopStatus();
+          }
         });
-        if (loopStatus !== false) {
-          this.loopStatus();
-        }
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
 
@@ -221,6 +226,9 @@ export default class CreateCheck extends PureComponent {
           });
         }
       })
+      .catch(err => {
+        handleAPIError(err);
+      })
       .finally(() => {
         if (this.mount && this.state.status === 'checking') {
           setTimeout(() => {
@@ -230,9 +238,6 @@ export default class CreateCheck extends PureComponent {
       });
   };
 
-  handleCreate = () => {
-    const appAlias = this.getAppAlias();
-  };
   showModifyCompose = () => {
     this.setState({ modifyCompose: true });
   };
@@ -252,7 +257,6 @@ export default class CreateCheck extends PureComponent {
   };
   handleBuild = () => {
     const team_name = globalUtil.getCurrTeamName();
-    const { appDetail } = this.state;
     const params = this.getParams();
     this.props.dispatch({
       type: 'application/buildCompose',
@@ -265,6 +269,9 @@ export default class CreateCheck extends PureComponent {
           type: 'global/fetchGroups',
           payload: {
             team_name
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
         this.props.dispatch(
@@ -274,6 +281,9 @@ export default class CreateCheck extends PureComponent {
             }/overview`
           )
         );
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -291,6 +301,9 @@ export default class CreateCheck extends PureComponent {
           type: 'global/fetchGroups',
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
 
@@ -299,6 +312,9 @@ export default class CreateCheck extends PureComponent {
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
           )
         );
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -348,6 +364,9 @@ export default class CreateCheck extends PureComponent {
       },
       callback: data => {
         this.cancelModifyCompose();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -362,7 +381,7 @@ export default class CreateCheck extends PureComponent {
       <div>
         {this.state.eventId && (
           <LogProcress
-            opened={true}
+            opened
             socketUrl={this.socketUrl}
             eventId={this.state.eventId}
           />

@@ -4,7 +4,8 @@ import { Button, Col, Collapse, Icon, Modal, Row, Spin, Card, Table, Description
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../ConfirmModal'
 import Ansi from '../../Ansi/index';
 import styles from './index.less'

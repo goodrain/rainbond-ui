@@ -2,9 +2,8 @@ import { Icon, Spin } from 'antd';
 import { Link } from 'dva/router';
 import React from 'react';
 import headerStype from '../../components/GlobalHeader/index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import SelectApp from '../../components/SelectApp';
-import SelectComponent from '../../components/SelectComponent';
 import SelectTeam from '../../components/SelectTeam';
 import styles from './AppHeader.less';
 
@@ -28,6 +27,9 @@ export default function AppHeader(props) {
       ) : (
 
         <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+            /
+          </div>
           <SelectTeam
             active={false}
             className={headerStype.select}
@@ -37,8 +39,8 @@ export default function AppHeader(props) {
             currentRegion={currentRegion}
             changeTeam={changeTeam}
           />
-          <div style={{ padding: '0 6px' ,fontSize:14,fontWeight: 600}}>
-              /
+          <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600 }}>
+            /
           </div>
           <SelectApp
             handleClick={handleClick}

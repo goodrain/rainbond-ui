@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { Card, Row, Col, Empty, Select } from 'antd';
 import globalUtil from '../../utils/global';
 import styles from './index.less'

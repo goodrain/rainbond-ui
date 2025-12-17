@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
 import ReactMarkdown from 'react-markdown';

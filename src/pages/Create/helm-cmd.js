@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import {
   Row,
   Col,

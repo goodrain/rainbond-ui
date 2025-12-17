@@ -5,7 +5,7 @@ import { Button, Card, Icon, List, notification, Progress } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';

@@ -1,49 +1,61 @@
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Card, Icon, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
-import styles from './Index.less';
+import handleAPIError from '../../utils/error';
 import CreatePluginForm from '../../components/CreatePluginForm';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import styles from './Index.less';
 
 @connect()
 export default class Index extends PureComponent {
+  // 提交创建插件
   handleSubmit = val => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/createPlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...val,
+        ...val
       },
       callback: data => {
-        this.props.dispatch(
+        dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${data &&
-            data.bean.plugin_id}`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
+              data && data.bean.plugin_id
+            }`
           )
         );
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   render() {
-    const content = <div className={styles.pageHeaderContent} />;
+    const { dispatch } = this.props;
 
     return (
       <PageHeaderLayout
         title={formatMessage({ id: 'teamPlugin.create.title' })}
-        content="创建一个属于您的插件，创建好的插件可以在组件中使用。"
+        content={formatMessage({ id: 'teamPlugin.create.desc' })}
         titleSvg={pageheaderSvg.getSvg('apiSvg', 18)}
         extraContent={
-          <Button onClick={() => {
-            const { dispatch } = this.props;
-            dispatch(
-              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
-            );
-          }} type="default">
-              <Icon type="home" />{formatMessage({ id: 'global.fetchAccessText.plugin' })}
+          <Button
+            onClick={() => {
+              dispatch(
+                routerRedux.push(
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`
+                )
+              );
+            }}
+            type="default"
+          >
+            <Icon type="home" />
+            {formatMessage({ id: 'global.fetchAccessText.plugin' })}
           </Button>
         }
       >
@@ -51,7 +63,7 @@ export default class Index extends PureComponent {
           <div
             style={{
               width: 500,
-              margin: '20px auto',
+              margin: '20px auto'
             }}
           >
             <CreatePluginForm isCreate onSubmit={this.handleSubmit} />

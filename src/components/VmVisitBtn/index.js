@@ -17,7 +17,8 @@ import {
   import { CopyToClipboard } from 'react-copy-to-clipboard';
   import globalUtil from '../../utils/global';
   import { openInNewTab } from '../../utils/utils';
-  import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+  import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
   
   @connect(({ user, appControl, global }) => ({
     visitInfo: appControl.visitInfo,

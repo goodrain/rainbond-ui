@@ -2,7 +2,7 @@ import { Tabs, Card, Col, Table, Button, Drawer, Form, Row, notification } from 
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import global from '../../utils/global'
 import AddOrEditMenuForm from '../../components/AddOrEditMenuForm';
 import ConfirmModal from '../../components/ConfirmModal';

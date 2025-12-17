@@ -7,7 +7,6 @@
 /* eslint-disable no-nested-ternary */
 import {
   Alert,
-  Badge,
   Button,
   Col,
   Form,
@@ -21,13 +20,22 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import role from '@/utils/newRole';
 import { pinyin } from 'pinyin-pro';
 import rainbondUtil from '../../utils/rainbond';
+import {
+  getServiceNameRules,
+  getK8sComponentNameRules,
+  getEndpointsTypeRules,
+  getNamespaceRules,
+  getServiceNameK8sRules,
+  getGroupNameRules
+} from './validations';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -95,11 +103,12 @@ export default class Index extends PureComponent {
   handleAddGroup = groupId => {
     const { setFieldsValue } = this.props.form;
     setFieldsValue({ group_id: groupId });
-    role.refreshPermissionsInfo(groupId, false, this.callbcak)
+    role.refreshPermissionsInfo(groupId, false, this.handlePermissionCallback);
     this.cancelAddGroup();
   };
-  callbcak=(val)=>{
-    this.setState({ creatComPermission: val })
+
+  handlePermissionCallback = (val) => {
+    this.setState({ creatComPermission: val });
   }
   handleChange = () => {
     this.setState({
@@ -113,12 +122,12 @@ export default class Index extends PureComponent {
     form.validateFields({ force: true },(err, fieldsValue) => {
       if (err) {
         if (
-          fieldsValue.type != '' &&
-          fieldsValue.type != undefined &&
-          (fieldsValue.servers == '' ||
-            fieldsValue.servers == undefined ||
-            fieldsValue.key == '' ||
-            fieldsValue.key == undefined)
+          fieldsValue.type !== '' &&
+          fieldsValue.type !== undefined &&
+          (fieldsValue.servers === '' ||
+            fieldsValue.servers === undefined ||
+            fieldsValue.key === '' ||
+            fieldsValue.key === undefined)
         ) {
           this.setState({
             visible: true
@@ -212,13 +221,13 @@ export default class Index extends PureComponent {
     }
     if (typeof value === 'object') {
       value.map(item => {
-        if (item == '') {
+        if (item === '') {
           callback(formatMessage({ id: 'placeholder.componentAddress' }));
           return null;
         }
 
         if (
-          this.state.endpointsType == 'static' &&
+          this.state.endpointsType === 'static' &&
           !regs.test(item || '') &&
           !rega.test(item || '') &&
           !rege.test(item || '')
@@ -239,26 +248,9 @@ export default class Index extends PureComponent {
         value.search('1.1.1.1') !== -1 ||
         value.search('localhost') !== -1
     ) {
-      callback(`${formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })}${value == '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
+      callback(`${formatMessage({ id: 'placeholder.nonsupport' }, { nonsupport: value })}${value === '1.1.1.1' ? formatMessage({ id: 'placeholder.nonsupport.regAddress' }) : formatMessage({ id: 'placeholder.nonsupport.regLoopBack' })}`);
     }
     callback();
-  };
-  handleValiateNameSpace = (_, value, callback) => {
-    if (!value) {
-      return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
-    }
-    if (value && value.length <= 32) {
-      const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (!Reg.test(value)) {
-        return callback(
-          new Error(formatMessage({ id: 'placeholder.nameSpaceReg' }))
-        );
-      }
-      callback();
-    }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
-    }
   };
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
@@ -278,27 +270,33 @@ export default class Index extends PureComponent {
             comNames: res.bean.component_names && res.bean.component_names.length > 0 ? res.bean.component_names : []
           })
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 生成英文名
   generateEnglishName = (name) => {
-    if (name != undefined) {
-      const { comNames } = this.state;
-      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
-      const cleanedPinyinName = pinyinName.toLowerCase();
-      if (comNames && comNames.length > 0) {
-        const isExist = comNames.some(item => item === cleanedPinyinName);
-        if (isExist) {
-          const random = Math.floor(Math.random() * 10000);
-          return `${cleanedPinyinName}${random}`;
-        }
-        return cleanedPinyinName;
-      }
-      return cleanedPinyinName;
+    if (!name) {
+      return '';
     }
-    return ''
-  }
+
+    const { comNames } = this.state;
+    const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+    const cleanedPinyinName = pinyinName.toLowerCase();
+
+    // 检查名称是否已存在
+    if (comNames && comNames.length > 0) {
+      const isExist = comNames.some(item => item === cleanedPinyinName);
+      if (isExist) {
+        const random = Math.floor(Math.random() * 10000);
+        return `${cleanedPinyinName}${random}`;
+      }
+    }
+
+    return cleanedPinyinName;
+  };
   render() {
     const {
       groups,
@@ -333,17 +331,11 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [
-                { required: true, message: formatMessage({ id: 'placeholder.component_cname' }) },
-                {
-                  max: 24,
-                  message: formatMessage({ id: 'placeholder.max24' })
-                }
-              ]
+              rules: getServiceNameRules()
             })(
               <Input
                 placeholder={formatMessage({ id: 'placeholder.component_cname' })}
-                style={((language == false) && (isService == true)) ? {
+                style={((language === false) && (isService === true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -364,12 +356,10 @@ export default class Index extends PureComponent {
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
-              rules: [
-                { required: true, validator: this.handleValiateNameSpace }
-              ]
+              rules: getK8sComponentNameRules()
             })(
               <Input
-                style={((language == false) && (isService == true)) ? {
+                style={((language === false) && (isService === true)) ? {
                   display: 'inline-block',
                   width: 200,
                   marginRight: 15,
@@ -391,7 +381,7 @@ export default class Index extends PureComponent {
 
           <FormItem {...is_language} label={formatMessage({ id: 'teamAdd.create.third.componentRegister' })}>
             {getFieldDecorator('endpoints_type', {
-              rules: [{ required: true, message: formatMessage({ id: 'placeholder.endpoints' }) }],
+              rules: getEndpointsTypeRules(),
               initialValue: this.state.endpointsType
             })(
               <RadioGroup
@@ -403,7 +393,7 @@ export default class Index extends PureComponent {
             )}
           </FormItem>
 
-          {endpointsType == 'static' && (
+          {endpointsType === 'static' && (
             <FormItem
               {...is_language}
               label={
@@ -442,7 +432,7 @@ export default class Index extends PureComponent {
                           />
                         </Col>
                         <Col span={4} style={{ textAlign: 'center' }}>
-                          {index == 0 ? (
+                          {index === 0 ? (
                             <Icon
                               type="plus-circle"
                               onClick={() => {
@@ -470,11 +460,11 @@ export default class Index extends PureComponent {
             <div>
               <FormItem {...is_language} label="Namespace">
                 {getFieldDecorator('namespace', {
-                  rules: [{ required: false, message: formatMessage({ id: "placeholder.nameSpaceMsg" }) }],
+                  rules: getNamespaceRules(),
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService == true)) ? {
+                    style={((language === false) && (isService === true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -496,11 +486,11 @@ export default class Index extends PureComponent {
               </FormItem>
               <FormItem {...is_language} label="Service">
                 {getFieldDecorator('serviceName', {
-                  rules: [{ required: true, message: formatMessage({ id: "placeholder.serviceName" }) }],
+                  rules: getServiceNameK8sRules(),
                   initialValue: ''
                 })(
                   <Input
-                    style={((language == false) && (isService == true)) ? {
+                    style={((language === false) && (isService === true)) ? {
                       display: 'inline-block',
                       width: 200,
                       marginRight: 15,
@@ -524,9 +514,21 @@ export default class Index extends PureComponent {
 
           {!group_id && <div style={{ width: '100%' }}>
             <Divider />
-            <div className="advanced-btn" style={{ justifyContent: 'flex-start', marginLeft: 2 }}>
-              <Button type="link" style={{ fontWeight: 500, fontSize: 18, padding: 0 }} onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}>
-                高级选项 {this.state.showAdvanced ? <span style={{fontSize:16}}>&#94;</span> : <span style={{fontSize:16}}>&#8964;</span>}
+            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+              <Button
+                type="link"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 16,
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // color: '#1890ff'
+                }}
+                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+              >
+                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
             {this.state.showAdvanced && (
@@ -549,13 +551,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('group_name', {
                     initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'popover.newApp.appName.placeholder' }) },
-                      {
-                        max: 24,
-                        message: formatMessage({ id: 'placeholder.max24' })
-                      }
-                    ]
+                    rules: getGroupNameRules()
                   })(<Input 
                       placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} 
                       style={{
@@ -572,10 +568,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: [
-                      { required: true, message: formatMessage({ id: 'placeholder.k8s_component_name' }) },
-                      { validator: this.handleValiateNameSpace }
-                    ]
+                    rules: getK8sComponentNameRules()
                   })(<Input 
                         placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} 
                          style={{
@@ -611,13 +604,13 @@ export default class Index extends PureComponent {
                   )
                   : !handleType && (
                     <div>
-                      {endpointsType == 'api' && apiMessage}
+                      {endpointsType === 'api' && apiMessage}
                       <Button onClick={this.handleSubmit} type="primary">
                         {formatMessage({ id: 'teamAdd.create.btn.create' })}
                       </Button>
                     </div>
                   )}
-                {isService && endpointsType == 'api' && apiMessage}
+                {isService && endpointsType === 'api' && apiMessage}
               </div>
             </Form.Item>
           ) : null}

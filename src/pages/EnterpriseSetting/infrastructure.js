@@ -4,7 +4,7 @@
 import { Card, Col, notification, Row, Spin, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import defaultLogo from '../../../public/logo.png';
+import defaultLogo from '../../../public/logo-icon.png';
 import CertificateForm from '../../components/CertificateForm';
 import CloudBackupForm from '../../components/CloudBackupForm';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -15,7 +15,8 @@ import PlatformBasicInformationForm from '../../components/PlatformBasicInformat
 import ScrollerX from '../../components/ScrollerX';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import OauthTable from './oauthTable';
 
 @connect(({ user, list, loading, global, index }) => ({

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Table, Row, Button, Modal } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import moment from 'moment';
 import GlobalUtil from '../../../utils/global';
