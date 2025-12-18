@@ -13,7 +13,7 @@ export default ({
   top,
   ...restProps
 }) => (
-  <div style={{ margin: '0', padding: '12px', boxSizing: 'border-box', backgroundColor: '#fff' }} className={wrapperClassName}>
+  <div className={`${styles.pageHeaderWrapper} ${wrapperClassName || ''}`}>
     {top}
     <PageHeader key="pageheader" {...restProps} linkElement={Link} />
     {children ? <div className={restProps.tabList && restProps.tabList.length> 0 ? styles.contents : styles.content} >{children}</div> : null}

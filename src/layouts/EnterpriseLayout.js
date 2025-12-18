@@ -2,10 +2,10 @@
 /* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
-import { Layout, Alert, Icon } from 'antd';
+import { Layout } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
-import { Redirect, routerRedux, Link } from 'dva/router';
+import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import deepEqual from 'lodash.isequal';
 import memoizeOne from 'memoize-one';
@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
@@ -95,15 +94,6 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false,
-      alertInfo: [],
-      offLineDisNew: [
-        {
-          key: 'welcome',
-          value: true
-        },
-        { key: 'applicationInfo', value: true },
-        { key: 'installApp', value: true }
-      ],
       showMenu: true,
       pluginList: {},
       key: true,
@@ -179,51 +169,12 @@ class EnterpriseLayout extends PureComponent {
     });
   }
 
-  // 获取平台公共信息(判断用户是否是离线)
+  // 获取平台公共信息
   handleGetEnterpeiseMsg = (data, eid) => {
-    const { dispatch } = this.props;
-    const { offLineDisNew } = this.state;
-    dispatch({
-      type: 'global/fetchRainbondInfo',
-      callback: res => {
-        // 判断是否是离线的状态
-        if (
-          res &&
-          res.is_offline !== 'false' &&
-          (res.is_offline || res.is_offline === 'true')
-        ) {
-          dispatch({
-            type: 'global/putNewbieGuideConfig',
-            payload: {
-              arr: [...offLineDisNew]
-            },
-            callback: res => {
-              if (res) {
-                const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
-                dispatch({
-                  type: 'global/fetchNewbieGuideConfig',
-                  callback: res => {
-                    if (
-                      res &&
-                      res.list &&
-                      res.list.length === 3 &&
-                      isNewbieGuide
-                    ) {
-                      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-                    }
-                  }
-                });
-              }
-            }
-          });
-        } else {
-          const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
-          if (isNewbieGuide) {
-            this.getNewbieGuideConfig(eid);
-          }
-        }
-      }
-    });
+    const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
+    if (isNewbieGuide) {
+      this.getNewbieGuideConfig(eid);
+    }
   };
   // get enterprise list
   getEnterpriseList = () => {
@@ -242,7 +193,6 @@ class EnterpriseLayout extends PureComponent {
               if (ready) {
                 this.redirectEnterpriseView();
                 this.load();
-                this.getAlertInfo()
               } else {
                 this.handleJumpLogin();
               }
@@ -361,7 +311,6 @@ class EnterpriseLayout extends PureComponent {
       return null;
     }
     const { dispatch } = this.props;
-    // this.fetchEnterpriseService(eid);
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -376,45 +325,6 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  fetchEnterpriseService = eid => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'order/fetchEnterpriseService',
-      payload: {
-        enterprise_id: eid
-      }
-    });
-  };
-  getAlertInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'global/getRainbondAlert',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.bean) {
-          //获取平台报警信息
-          if (res.list.length > 0) {
-            this.setState({
-              alertInfo: res.list
-            })
-          }
-        }
-      }, handleError: err => {
-        console.log(err)
-      }
-    });
-  }
-  onJumpPersonal = () => {
-    const { dispatch, currentUser } = this.props;
-    dispatch(routerRedux.replace(this.getLoginRole(currentUser)));
-  }
   getLoginRole = (currUser) => {
     const { teams } = currUser;
     if (teams && teams.length > 0) {
@@ -445,7 +355,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, pluginList, clusterList } = this.state;
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href
@@ -458,7 +368,6 @@ class EnterpriseLayout extends PureComponent {
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const layout = () => {
-      const isAlarm = rainbondInfo?.is_alarm?.enable;
       const { showMenu, key } = this.state;
       const currentHref = window.location.href;
       const showTransition = currentHref.includes('/addCluster') || currentHref.includes('/provider');
@@ -523,18 +432,7 @@ class EnterpriseLayout extends PureComponent {
                       }}
                       className={styles.bgc}
                     >
-                      {/* 报警信息 */}
-                      {isAlarm && alertInfo.length > 0 && alertInfo.map((item, index) => (
-                        <div key={item.fingerprint || index} className={styles.alerts}>
-                          <Alert
-                            style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: '1px solid red' }}
-                            message={item.annotations.description || item.annotations.summary}
-                            type="warning"
-                            showIcon
-                          />
-                        </div>
-                      ))}
-                      <div>
+                      <div style={{ minHeight: 'calc(100vh - 50px)' }}>
                         <Authorized
                           logined
                           authority={['admin', 'user']}

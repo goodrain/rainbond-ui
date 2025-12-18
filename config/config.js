@@ -32,19 +32,19 @@ export default {
   routes: routerConfig,
   proxy: {
     '/console': {
-      target: 'http://127.0.0.1:7070',
+      target: 'http://14.103.232.114:7070',
       changeOrigin: true
     },
     '/data': {
-      target: 'http://127.0.0.1:7070',
+      target: 'http://14.103.232.114:7070',
       changeOrigin: true
     },
     '/openapi/v1': {
-      target: 'http://127.0.0.1:7070',
+      target: 'http://14.103.232.114:7070',
       changeOrigin: true
     },
     '/enterprise-server': {
-      target: 'http://127.0.0.1:7070',
+      target: 'http://14.103.232.114:7070',
       changeOrigin: true
     },
   }
