@@ -13,8 +13,11 @@ module.exports = {
 'rbd-label-color': '#8d9bad', // rainbond 标签色
 
 // 卡片阴影
+'rbd-min-card-shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.05) 0px 1px 2px 0px',
 'rbd-card-shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.06) 0px 1px 2px 0px, rgba(16, 24, 40, 0.1) 0px 1px 3px 0px',
 'rbd-card-shadow-hover': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.03) 0px 4px 6px -2px, rgba(16, 24, 40, 0.08) 0px 12px 16px -4px',
+'rbd-card-shadow-hover-min': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.03) 0px 2px 4px -1px, rgba(16, 24, 40, 0.08) 0px 6px 8px -2px',
+
 // 特大号醒目文字
 'rbd-display-size': '36px',
 'rbd-display-color': '#495464',

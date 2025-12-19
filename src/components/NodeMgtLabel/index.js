@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import {
-    Card,
-    Row,
-    Col,
     Button,
     Tooltip,
     Drawer,
@@ -49,7 +46,7 @@ class Index extends Component {
         })
     }
     render() {
-        const { form, labelList, clusterInfo, showLable } = this.props;
+        const { form, labelList, clusterInfo, showLable, titleIcon, titleText } = this.props;
         const { getFieldDecorator, setFieldsValue } = form;
         const arr = Object.entries(labelList)
         const labelListArr = []
@@ -59,44 +56,33 @@ class Index extends Component {
             obj.value = item[1]
             labelListArr.push(obj)
         })
-        const formItemLayouts = {
-            labelCol: {
-                xs: {
-                    span: 8
-                },
-                sm: {
-                    span: 8
-                }
-            },
-            wrapperCol: {
-                xs: {
-                    span: 16
-                },
-                sm: {
-                    span: 16
-                }
-            }
-        };
         return (
             <>
-                <Card
-                    extra={showLable && <Button icon="form" onClick={this.handleClick}>{formatMessage({id:'enterpriseColony.mgt.node.editLable'})}</Button>}
-                >
-                    {showLable ?
-                        <div className={styles.labelStyle}>
-                            {labelListArr && labelListArr.length > 0 && labelListArr.map((ele, index) => {
-                                return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
-                                    <div className={styles.tipText_style}>
-                                        <span>{ele.key}</span>
-                                        <span>{ele.value}</span>
-                                    </div>
-                                </Tooltip>
-                            })}
+                <div className={styles.cardContainer}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.titleStyle}>
+                            <span>{titleIcon}</span>
+                            <span>{titleText}</span>
                         </div>
-                        :
-                        <Skeleton active />
-                    }
-                </Card>
+                        {showLable && <Button icon="form" onClick={this.handleClick}>{formatMessage({id:'enterpriseColony.mgt.node.editLable'})}</Button>}
+                    </div>
+                    <div className={styles.cardBody}>
+                        {showLable ?
+                            <div className={styles.labelStyle}>
+                                {labelListArr && labelListArr.length > 0 && labelListArr.map((ele, index) => {
+                                    return <Tooltip key={index} placement="top" title={<div><p style={{ color: '#fff' }}>Key: {ele.key}</p><p style={{ color: '#fff' }}>Value: {ele.value}</p></div>}>
+                                        <div className={styles.tipText_style}>
+                                            <span>{ele.key}</span>
+                                            <span>{ele.value}</span>
+                                        </div>
+                                    </Tooltip>
+                                })}
+                            </div>
+                            :
+                            <Skeleton active />
+                        }
+                    </div>
+                </div>
                 <Drawer
                     title={formatMessage({id:'enterpriseColony.mgt.node.editLable'})}
                     placement="right"
@@ -119,7 +105,6 @@ class Index extends Component {
                         <Button type="primary" onClick={this.handleSubmit}>{formatMessage({id:'button.confirm'})}</Button>
                     </div>
                 </Drawer>
-
             </>
         );
     }

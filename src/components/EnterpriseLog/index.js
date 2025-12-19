@@ -1,15 +1,12 @@
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable eqeqeq */
-/* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-string-refs */
-import { Button, Card, Form, Select } from 'antd';
+import { Button, Form, Select } from 'antd';
 import { connect } from 'dva';
-import React, { Fragment, PureComponent, memo } from 'react';
+import React, { PureComponent, memo } from 'react';
 import moment from 'moment';
 import Ansi from '../../components/Ansi/index';
-import NoPermTip from '../../components/NoPermTip';
-import appUtil from '../../utils/app';
 import handleAPIError from '../../utils/error';
 import download from '@/utils/download';
 import apiConfig from '../../../config/api.config';
@@ -27,12 +24,8 @@ export default class Index extends PureComponent {
     this.state = {
       containerLog: [],
       logs: [],
-      instances: [],
       started: true,
-      filter: '',
       pod_name: instances && instances.length > 0 && instances[0].pod_name,
-      container_name: '',
-      refreshValue: 5,
     };
     this.messageBuffer = [];
     this.batchUpdateTimer = null;
@@ -100,36 +93,6 @@ export default class Index extends PureComponent {
       }
     });
   };
-  setLogs = logs => {
-    const { filter, pod_name: podName } = this.state;
-
-    let newlogs = logs.filter(item => filter === '' || item.indexOf(filter) !== -1);
-
-    newlogs = newlogs.map(item => {
-      if (item.indexOf(filter) !== -1) {
-        return item.replace(filter, `\x1b[33m${filter}\x1b[0m`);
-      }
-      return item;
-    });
-
-    if (newlogs.length > this.MAX_LOGS) {
-      newlogs = newlogs.slice(-this.MAX_LOGS);
-    }
-
-    const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
-    this.setState(upDataInfo);
-  };
-  hanleTimer = () => {
-    const { refreshValue } = this.state;
-    this.closeTimer();
-    if (!refreshValue) {
-      return;
-    }
-    const ss = setTimeout(() => {
-      this.fetchContainerLog();
-    }, refreshValue * 1000);
-    this.setState({ time: ss });
-  };
   hanleConsoTimer = () => {
     this.closeTimer();
     const ss = setTimeout(() => {
@@ -162,9 +125,6 @@ export default class Index extends PureComponent {
       this.eventSourceLogs.close();
     };
   };
-  canView() {
-    return appUtil.canManageAppLog(this.props.appDetail);
-  }
   handleStop = () => {
     this.setState({ started: false });
     if (this.eventSourceLogs) {
@@ -176,25 +136,19 @@ export default class Index extends PureComponent {
     this.fetchContainerLog();
   };
 
-  onChangeCascader = value => {
+  onChangePod = value => {
+    if (this.eventSourceLogs) {
+      this.eventSourceLogs.close();
+    }
     this.setState(
       {
         pod_name: value,
-        container_name: value[1].slice(3)
+        containerLog: []
       },
       () => {
         this.fetchContainerLog();
       }
     );
-  };
-  handleChange = value => {
-    this.setState({ refreshValue: value }, () => {
-      if (value) {
-        this.hanleTimer();
-      } else {
-        this.closeTimer();
-      }
-    });
   };
   downloadLogs = () => {
     const time = Date.parse(new Date());
@@ -203,101 +157,70 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const {
-      logs,
-      pod_name,
-      containerLog,
-      started,
-      refreshValue,
-      time
-    } = this.state;
-    const { instances, type, RbdName, region } = this.props;
+    const { logs, containerLog, started } = this.state;
+    const { instances, type } = this.props;
     return (
-      <Card
-          style={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5, marginTop: 24 }}
-          title={
-            !type && (
-              <Fragment>
-                {started ? (
-                  <Button onClick={this.handleStop}>
-                    {/* 暂停推送 */}
-                    <FormattedMessage id='componentOverview.body.tab.log.push' />
-                  </Button>
-                ) : (
-                  <Button onClick={this.handleStart}>
-                    {/* 开始推送 */}
-                    <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
-                  </Button>
-                )}
-              </Fragment>
+      <div className={styles.logContainer}>
+        <div className={styles.logHeader}>
+          {!type && (
+            started ? (
+              <Button onClick={this.handleStop}>
+                <FormattedMessage id='componentOverview.body.tab.log.push' />
+              </Button>
+            ) : (
+              <Button onClick={this.handleStart}>
+                <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
+              </Button>
             )
-          }
-          extra={
-            <Fragment>
-              {!type ?
-                <></>
-                :
-                <Button onClick={this.downloadLogs} icon='download' type='primary' >
-                  {formatMessage({ id: 'LogEnterprise.download' })}
-                </Button>
-              }
-            </Fragment>
-          }
-          bodyStyle={{ borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}
-        >
-          <Form layout="inline" name="logFilter" style={{ marginBottom: '16px', display: type ? 'flex' : "block", justifyContent: "space-between" }}>
-            {!type &&
-              <Form.Item
-                name="container"
-                label={formatMessage({ id: 'LogEnterprise.node' })}
-                style={{ marginRight: '10px' }}
-                className={styles.podCascader}
-              >
-                <Select defaultValue={instances && instances.length > 0 && instances[0].pod_name} placeholder={formatMessage({ id: 'LogEnterprise.find' })} style={{ width: 340 }} onChange={this.onChangeCascader}>
-                  {instances && instances.length > 0 && instances.map(item => {
-                    const { node_name, pod_name } = item
-                    return <Option value={pod_name}>{pod_name}（{node_name}）</Option>
+          )}
+          {type && (
+            <Button onClick={this.downloadLogs} icon='download' type='primary'>
+              {formatMessage({ id: 'LogEnterprise.download' })}
+            </Button>
+          )}
+        </div>
+        <div className={styles.logBody}>
+          {!type && (
+            <Form layout="inline" style={{ marginBottom: 16 }}>
+              <Form.Item label={formatMessage({ id: 'LogEnterprise.node' })}>
+                <Select
+                  defaultValue={instances && instances.length > 0 && instances[0].pod_name}
+                  placeholder={formatMessage({ id: 'LogEnterprise.find' })}
+                  style={{ width: 340 }}
+                  onChange={this.onChangePod}
+                >
+                  {instances && instances.length > 0 && instances.map((item, index) => {
+                    const { node_name, pod_name: podName } = item;
+                    return <Option key={index} value={podName}>{podName}（{node_name}）</Option>;
                   })}
                 </Select>
               </Form.Item>
-            }
-          </Form>
+            </Form>
+          )}
           <div className={styles.logStyle} ref="box">
             {containerLog && containerLog.length > 0 &&
               containerLog.map((item, index) => (
-                <LogItem
-                  key={index}
-                  item={item}
-                  index={index}
-                  isContainer={true}
-                />
+                <LogItem key={index} item={item} index={index} isContainer={true} />
               ))
             }
             {logs && logs.length > 0 &&
               logs.map((log, index) => (
-                <LogItem
-                  key={index}
-                  log={log}
-                  index={index}
-                  isContainer={false}
-                  type={type}
-                />
+                <LogItem key={index} log={log} index={index} isContainer={false} />
               ))
             }
           </div>
-        </Card>
+        </div>
+      </div>
     );
   }
 }
 
-const LogItem = memo(({ item, log, index, isContainer, type }) => {
+const LogItem = memo(({ item, log, index, isContainer }) => {
   if (isContainer) {
     return (
-      <div>
-        <span style={{ color: '#666666' }}>
-          <span>{index + 1}</span>
-        </span>
-        <span style={{ width: '100%', color: '#FFF' }}>
+      <div className={styles.logItem}>
+        <span className={styles.logIndex}>{index + 1}</span>
+        <span className={styles.logContent}>
           <Ansi>{item}</Ansi>
         </span>
       </div>
@@ -305,14 +228,12 @@ const LogItem = memo(({ item, log, index, isContainer, type }) => {
   }
 
   const colonIndex = log.indexOf(':');
-  const logContent = log.substring(colonIndex + 1, log.length);
+  const logContent = log.substring(colonIndex + 1);
 
   return (
-    <div>
-      <span style={{ color: '#666666' }}>
-        <span>{log === '' ? '' : `${index + 1}`}</span>
-      </span>
-      <span style={{ color: '#FFF' }}>
+    <div className={styles.logItem}>
+      <span className={styles.logIndex}>{log === '' ? '' : index + 1}</span>
+      <span className={styles.logContent}>
         <Ansi>{logContent}</Ansi>
       </span>
     </div>

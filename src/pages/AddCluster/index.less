@@ -1,23 +1,28 @@
 @import '~antd/lib/style/themes/default.less';
 @import '../../utils/utils.less';
-h3{
+
+h3 {
   font-size: @rbd-sub-title-size;
   color: @rbd-sub-title-color;
   line-height: @rbd-sub-title-line-height;
 }
-p{
+
+p {
   font-size: @rbd-content-size;
   color: @rbd-content-color;
   line-height: @rbd-content-line-height;
 }
+
 .import {
-  border: solid #ecf0f1 2px;
-  max-height: 100px;
+  padding: 12px;
+  max-height: 124px;
   text-decoration: none;
   display: flex;
   cursor: pointer;
   margin: 12px;
-  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background-color: @rbd-background-color;
+  box-shadow: @rbd-card-shadow;
 }
 
 .importicon {
@@ -53,7 +58,8 @@ p{
 .provider:hover,
 .import:hover,
 .providerActive {
-  border: solid @primary-color 2px;
+  // border: solid @primary-color 2px;
+  box-shadow: @rbd-card-shadow-hover;
 }
 
 .providericon {

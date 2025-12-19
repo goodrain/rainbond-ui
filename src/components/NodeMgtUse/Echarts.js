@@ -21,30 +21,29 @@ export default class Chart extends Component {
                 {
                     text: cname,
                     x: 'center',
-                    top: '30%',
+                    top: '35%',
                     textStyle: {
                         color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: '600',
-
                     },
                 },
                 {
                     text: uvalue,
                     x: 'center',
-                    y: '40%',
+                    top: '48%',
                     textStyle: {
-                        fontSize: 20,
+                        fontSize: 18,
                         color: svalue> 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor('rbd-content-color-secondary'),
                         fontFamily: 'DINAlternate-Bold, DINAlternate',
-                        foontWeight: '600',
+                        fontWeight: '600',
                     },
                 },
             ],
-            backgroundColor: '#fff',
+            backgroundColor: 'transparent',
             polar: {
-                radius: ['42%', '52%'],
-                center: ['50%', '40%'],
+                radius: ['55%', '70%'],
+                center: ['50%', '50%'],
             },
             angleAxis: {
                 max: 100,

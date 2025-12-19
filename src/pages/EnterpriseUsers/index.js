@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
+import { Button, Input, notification, Table } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
@@ -12,20 +12,11 @@ import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import ScrollerX from '@/components/ScrollerX';
-import styles from './index.less'
 
-const FormItem = Form.Item;
+const { Search } = Input;
 
-@connect(({ user, list, loading, global, index }) => ({
-  user: user.currentUser,
-  list,
-  loading: loading.models.list,
-  rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
-  isRegist: global.isRegist,
-  oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo
+@connect(({ user, global }) => ({
+  user: user.currentUser
 }))
 export default class EnterpriseUsers extends PureComponent {
   constructor(props) {
@@ -365,100 +356,69 @@ export default class EnterpriseUsers extends PureComponent {
         content={<FormattedMessage id='enterpriseUser.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getPageHeaderSvg('users', 18)}
       >
-        <ScrollerX sm={840}>
-          <Card 
-          className={styles.cardBody}
-          title={
-            <Col>
-              <Form layout="inline" style={{ display: 'inline-block' }}>
-                <FormItem>
-                  <Input
-                    placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
-                    onChange={e => this.handelChange(e.target.value)}
-                    onPressEnter={this.handleSearch}
-                    style={{ width: 250 }}
-                  />
-                </FormItem>
-                <FormItem>
-                  <Button
-                    type="primary"
-                    onClick={this.handleSearch}
-                    icon="search"
-                  >
-                    {/* 搜索 */}
-                    <FormattedMessage id='button.search' />
-                  </Button>
-                </FormItem>
-              </Form>
-            </Col>
-          }
-          extra={
-            <Col  style={{ textAlign: 'right' }}>
+        {delVisible && (
+          <ConfirmModal
+            onOk={this.handleDelete}
+            title={formatMessage({ id: 'confirmModal.user.delete.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
+            onCancel={this.cancelDelUser}
+          />
+        )}
+        {userVisible && (
+          <CreatUser
+            eid={eid}
+            loading={Loading}
+            userInfo={userInfo}
+            title={text}
+            onOk={this.handleUser}
+            onCancel={this.canceUser}
+          />
+        )}
+        {currentUserInfo && (
+          <CurrentTeams
+            eid={eid}
+            userInfo={currentUserInfo}
+            onCancel={() => {
+              this.handleCurrentUserId(false);
+            }}
+          />
+        )}
+        <div>
+          {/* 搜索栏和按钮 */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+            <Search
+              placeholder={formatMessage({ id: 'placeholder.searchUser.user' })}
+              onSearch={this.handleSearch}
+              onChange={e => this.handelChange(e.target.value)}
+              style={{ width: 300, marginRight: 16 }}
+            />
+            <div style={{ flex: 1, textAlign: 'right' }}>
               {adminer && (
-                <Button
-                  type="primary"
-                  icon="plus"
-                  style={{ float: 'right' }}
-                  onClick={this.addUser}
-                >
-                  {/* 新增用户 */}
+                <Button type="primary" icon="plus" onClick={this.addUser}>
                   <FormattedMessage id='enterpriseUser.button.adduser' />
-
                 </Button>
               )}
-            </Col>
-          }
-          >
-
-            {delVisible && (
-              <ConfirmModal
-                onOk={this.handleDelete}
-                title={formatMessage({ id: 'confirmModal.user.delete.title' })}
-                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-                desc={formatMessage({ id: 'confirmModal.delete.user.desc' })}
-                onCancel={this.cancelDelUser}
-              />
-            )}
-
-            {userVisible && (
-              <CreatUser
-                eid={eid}
-                loading={Loading}
-                userInfo={userInfo}
-                title={text}
-                onOk={this.handleUser}
-                onCancel={this.canceUser}
-              />
-            )}
-            {currentUserInfo && (
-              <CurrentTeams
-                eid={eid}
-                userInfo={currentUserInfo}
-                onCancel={() => {
-                  this.handleCurrentUserId(false);
-                }}
-              />
-            )}
-            <div style={{padding:24}}>
-            <Table
-              pagination={{
-                current: page,
-                pageSize,
-                total,
-                onChange: this.onPageChange,
-                showQuickJumper: true,
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-                onShowSizeChange: this.onPageChange,
-                hideOnSinglePage: total <= 10
-              }}
-              dataSource={adminList}
-              columns={columns}
-            />
             </div>
-
-          </Card>
-        </ScrollerX>
+          </div>
+          {/* 表格 */}
+          <Table
+            rowKey="user_id"
+            pagination={{
+              current: page,
+              pageSize,
+              total,
+              onChange: this.onPageChange,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              onShowSizeChange: this.onPageChange,
+              hideOnSinglePage: total <= 10
+            }}
+            dataSource={adminList}
+            columns={columns}
+          />
+        </div>
       </PageHeaderLayout>
     );
   }

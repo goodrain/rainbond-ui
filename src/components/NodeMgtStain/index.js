@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import {
-Card,
-Row,
-Col,
 Button,
-Tooltip,
-Drawer,
 Form,
 Skeleton,
 notification,
@@ -83,11 +78,11 @@ class Index extends Component {
     }
     render() {
         const { editState, showSubmit } = this.state
-        const { form, taintsList, showTaints } = this.props;
+        const { form, taintsList, showTaints, titleIcon, titleText } = this.props;
         const { getFieldDecorator, setFieldsValue } = form;
 
         const exportButton = (
-            <>
+            <div className={styles.buttonGroup}>
                 {showSubmit &&
                     <Button type="primary" icon="diff" onClick={this.handleSubmit} style={{ marginRight: 15 }}>{formatMessage({ id: 'enterpriseColony.mgt.node.submit' })}</Button>
                 }
@@ -95,38 +90,44 @@ class Index extends Component {
                     <Button icon="form" onClick={this.editStain}>{formatMessage({ id: 'enterpriseColony.mgt.node.editStain' })}</Button>
                     :
                     <Button icon="close-circle" onClick={this.cancelStain}>{formatMessage({ id: 'enterpriseColony.mgt.node.editCancel' })}</Button>}
-
-            </>
+            </div>
         )
         const bool = taintsList && taintsList.length == 1 ? true : false
         return (
             <>
-                <Card
-                    extra={showTaints && exportButton}
-                >
-                    {showTaints ?
-                        <Form onSubmit={this.handleSubmit}>
-                            {(taintsList.length > 0 || !editState) ?
-                                (<Form.Item >
-                                    {getFieldDecorator(`taints`, {
-                                        initialValue: taintsList.length > 0 ? taintsList : [],
-                                        rules: [{ required: false, message: formatMessage({ id: 'enterpriseColony.mgt.node.key' }), }]
-                                    })(
-                                        <DApvcinputSelect
-                                            editState={editState}
-                                            removeShow={bool}
-                                            setspan={8}
-                                            removeValue={this.removeValue}
-                                        />)}
-                                </Form.Item>) : (
-                                    <Empty />
-                                )
-                            }
-                        </Form>
-                        :
-                        <Skeleton active />
-                    }
-                </Card>
+                <div className={styles.cardContainer}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.titleStyle}>
+                            <span>{titleIcon}</span>
+                            <span>{titleText}</span>
+                        </div>
+                        {showTaints && exportButton}
+                    </div>
+                    <div className={styles.cardBody}>
+                        {showTaints ?
+                            <Form onSubmit={this.handleSubmit}>
+                                {(taintsList.length > 0 || !editState) ?
+                                    (<Form.Item >
+                                        {getFieldDecorator(`taints`, {
+                                            initialValue: taintsList.length > 0 ? taintsList : [],
+                                            rules: [{ required: false, message: formatMessage({ id: 'enterpriseColony.mgt.node.key' }), }]
+                                        })(
+                                            <DApvcinputSelect
+                                                editState={editState}
+                                                removeShow={bool}
+                                                setspan={8}
+                                                removeValue={this.removeValue}
+                                            />)}
+                                    </Form.Item>) : (
+                                        <Empty />
+                                    )
+                                }
+                            </Form>
+                            :
+                            <Skeleton active />
+                        }
+                    </div>
+                </div>
             </>
         );
     }

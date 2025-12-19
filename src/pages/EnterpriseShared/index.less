@@ -130,7 +130,6 @@
   cursor: default;
   width: 28px;
   background: @primary-color;
-  box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.3);
   height: 70px;
   display: flex;
   flex-wrap: wrap;
@@ -462,6 +461,21 @@
       .ant-pagination-options {
         display: none !important;
       }
+    }
+  }
+}
+.localsContent{
+  :global{
+    .ant-card-bordered{
+      border: none;
+      background: @rbd-background-color;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: @rbd-card-shadow;
+      transition: all 0.3s;
+    }
+    .ant-card-bordered:hover{
+      box-shadow: @rbd-card-shadow-hover-min;
     }
   }
 }

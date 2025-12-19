@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
-/* eslint-disable react/no-unused-state */
 /* eslint-disable react/sort-comp */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
@@ -10,7 +8,6 @@ import NewbieGuiding from '@/components/NewbieGuiding';
 import {
   Alert,
   Button,
-  Checkbox,
   Col,
   Divider,
   Empty,
@@ -24,11 +21,10 @@ import {
   Row,
   Spin,
   Tabs,
-  Tooltip,
-  Select
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -57,14 +53,12 @@ import TagList from './TagList';
 
 const { TabPane } = Tabs;
 const { Search } = Input;
-const { Option } = Select;
 
 @connect(({ user, global, loading }) => ({
   user: user.currentUser,
   novices: global.novices,
   enterprise: global.enterprise,
-  upAppMarketLoading: loading.effects['market/upAppMarket'],
-  createAppMarketLoading: loading.effects['market/createAppMarket']
+  upAppMarketLoading: loading.effects['market/upAppMarket']
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -1031,7 +1025,7 @@ export default class EnterpriseShared extends PureComponent {
           })}
         <Lists
           key={appId}
-          stylePro={{ margin: '10px' }}
+          // stylePro={{ margin: '10px' }}
           Cols={
             <div
               className={styles.h70}
@@ -1144,7 +1138,6 @@ export default class EnterpriseShared extends PureComponent {
               >
                 <div
                   className={styles.installBox}
-                  style={{ background: '#fff' }}
                   onClick={e => {
                     e.stopPropagation();
                     if (
@@ -1168,7 +1161,7 @@ export default class EnterpriseShared extends PureComponent {
                   }}
                 >
                   {globalUtil.fetchSvg('InstallApp')}
-                  <div style={{ background: '#fff' }}>
+                  <div>
                     <FormattedMessage id='applicationMarket.localMarket.have.install' />
                   </div>
                 </div>
@@ -1402,9 +1395,6 @@ export default class EnterpriseShared extends PureComponent {
       }
     });
   };
-  // 筛选应用列表类型
-  handleChangeType = (key) => {
-  }
   jump = () => {
     const {
       dispatch,
@@ -1549,7 +1539,7 @@ export default class EnterpriseShared extends PureComponent {
     const contentStyle = {
       display: 'flex',
       alignItems: 'center',
-      padding: '10px 0',
+      padding: '0 0 10px 0',
       margin: "10px 0",
     };
     const contentLeftStyle = {
@@ -1673,7 +1663,7 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const localsContent = (
-      <div style={{ padding: '0' }}>
+      <div style={{ padding: '0' }} className={styles.localsContent}>
         {marketTimeout && (
           <Alert
             message={formatMessage({ id: 'applicationMarket.localMarket.timeout.title' })}
@@ -1746,7 +1736,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     const marketContent = (
-      <div style={{ padding: '0px' }}>
+      <div style={{ padding: '0px' }} className={styles.localsContent}>
         {isMarket && (
           <Row style={contentStyle}>
             <Col span={20} style={contentLeftStyle}>
@@ -1819,7 +1809,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     const helmContent = (
-      <div style={{ padding: '0px 24px' }}>
+      <div style={{ padding: '0px' }} className={styles.localsContent}>
         <Row style={contentStyle}>
           <Col span={16} style={contentLeftStyle}>
             <Search
