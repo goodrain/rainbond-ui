@@ -1,9 +1,50 @@
+.cardContainer {
+    background: #fff;
+    margin: 2px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: @rbd-min-card-shadow;
+    border: 1px solid rgba(16, 24, 40, 0.08);
+}
+
+.cardHeader {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardBody {
+    padding: 0 24px 24px;
+
+}
+
+.titleStyle {
+    display: flex;
+    align-items: center;
+
+    span:nth-of-type(1) {
+        margin-right: 6px;
+
+        svg {
+            vertical-align: bottom;
+        }
+    }
+
+    span:nth-of-type(2) {
+        font-weight: bolder;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-sub-title-color;
+        line-height: @rbd-sub-title-line-height;
+    }
+}
+
 .labelStyle{
     width: 100%;
     display: flex;
     flex-wrap: wrap;
     .tipText_style{
-        width: 20%;   
+        width: 20%;
         margin: 0 60px 10px 0px;
         padding: 6px;
         background-color: #f0f4f8;
@@ -32,7 +73,7 @@
             border-radius: 5px;
             background-color: #39435a;
             color: #fff;
-            
+
         }
     }
 }

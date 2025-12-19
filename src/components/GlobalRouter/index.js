@@ -410,7 +410,7 @@ export default class GlobalRouter extends PureComponent {
 
       return (
         <div key={groupKey} className={styles.menuGroup}>
-          {!collapsed && (
+          {!collapsed && groupName && (
             <div className={styles.groupTitle}>{groupName}</div>
           )}
           <div className={styles.groupItems}>

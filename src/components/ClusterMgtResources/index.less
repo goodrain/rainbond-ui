@@ -1,65 +1,101 @@
 @import "~antd/lib/style/themes/default.less";
-.titleStyle {
+
+.resourceRow {
     display: flex;
     width: 100%;
+    justify-content: space-between;
+    gap: 24px;
+    
+}
 
-    div {
-        width: 25%;
-        text-align: center;
+.resourceItem {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 0;
+    background-color: @rbd-background-color;
+    border-radius: 12px;
+    
+}
 
-        p {
-            font-size: @rbd-sub-title-size;
-            color: @rbd-content-color-secondary;
-            line-height: @rbd-sub-title-line-height;
-            span {
-                color: @primary-color;
-                font-size: @rbd-title-size;
-                line-height: @rbd-title-line-height;
-                font-weight: bolder;
-                margin-right: 4px;
-            }
+.resourceTitle {
+    p {
+        font-size: @rbd-sub-title-size;
+        color: @rbd-content-color-secondary;
+        line-height: @rbd-sub-title-line-height;
+        margin-bottom: 8px;
+        font-weight: 500;
+
+        span {
+            color: @primary-color;
+            font-size: @rbd-title-size;
+            line-height: @rbd-title-line-height;
+            font-weight: bolder;
+            margin-right: 4px;
         }
     }
 }
 
-.chartsStyle {
-    width: 100%;
+.resourceChart {
     display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 25%;
+.resourceValue {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    min-height: 80px;
 
+    p {
+        margin-bottom: 0 !important;
+        color: @rbd-success-status;
+        font-size: 40px;
 
-    }
-    div:nth-of-type(3){
-        p {
-            margin-bottom: 0 !important;
-            color: #2CC66A;
-            font-size: 40px;
-            margin-right: 6px;
-
-            span {
-                color: #8d9bad;
-                font-size: 20px;
-            }
+        span {
+            color: @rbd-content-color-secondary;
+            font-size: 20px;
         }
-
     }
-    div:nth-of-type(4){
-        p {
-            margin-bottom: 0 !important;
-            color: @rbd-success-status;
-            font-size: 40px;
-            margin-right: 6px;
+}
 
-            span {
-                color: @rbd-content-color-secondary;
-                font-size: 20px;
-            }
+.cardContainer {
+    background: #fff;
+    margin: 2px;
+    border-radius: 12px;
+    box-shadow: @rbd-min-card-shadow;
+    border: 1px solid rgba(16, 24, 40, 0.08);
+    margin-bottom: 16px;
+}
+
+.cardHeader {
+    padding: 16px 24px;
+}
+
+.cardBody {
+    padding: 0 24px 24px;
+}
+
+.cardTitleStyle {
+    display: flex;
+    align-items: center;
+
+    span:nth-of-type(1) {
+        margin-right: 6px;
+
+        svg {
+            vertical-align: bottom;
         }
+    }
 
+    span:nth-of-type(2) {
+        font-weight: bolder;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-sub-title-color;
+        line-height: @rbd-sub-title-line-height;
     }
 }

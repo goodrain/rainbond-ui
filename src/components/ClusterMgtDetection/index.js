@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import {
-    Card,
     Button,
     Table,
     Badge,
     Skeleton,
-    Collapse,
     Row,
     Col,
-    Empty,
-    Descriptions,
     Modal
 } from 'antd';
 import { Link } from 'umi';
@@ -18,10 +14,6 @@ import { formatMessage } from '@/utils/intl';
 import SVG from '../../utils/pageHeaderSvg'
 import globalUtil from '../../utils/global'
 import styles from "./index.less"
-import Item from 'antd/lib/list/Item';
-import { loadRegionConfig } from '@/services/cloud';
-
-const { Panel } = Collapse;
 @connect(({ user }) => ({
     user: user.currentUser
   }))
@@ -154,7 +146,7 @@ class Index extends Component {
         }
     }
     render() {
-        const { dashboardList, dashboardShow } = this.props
+        const { dashboardList, dashboardShow, titleIcon, titleText } = this.props
         const { activeKey, activePod, showPodSwitch, modalTitle } = this.state
         const columns = [
             {
@@ -204,27 +196,30 @@ class Index extends Component {
 
         const column = [
             {
+                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.comName' }),
                 dataIndex: 'name',
                 key: 'name',
-                className: styles.columnMoney,
+                align: 'center',
                 width: '25%',
                 render: val => {
                     return <span className={styles.svgStyle}>{SVG.getSvg('chipSvg', 40)}<span>{val}</span></span>
                 }
             },
             {
+                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' }),
                 dataIndex: 'status',
                 key: 'status',
-                className: styles.columnMoney,
+                align: 'center',
                 width: '25%',
                 render: val => {
                     return this.getComStatus(val)
                 }
             },
             {
+                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.num' }),
                 dataIndex: 'number',
                 key: 'number',
-                className: styles.columnMoney,
+                align: 'center',
                 width: '25%',
                 render: (item, row) => {
                     const { all_pods, run_pods } = row
@@ -232,12 +227,13 @@ class Index extends Component {
                 }
             },
             {
+                title: formatMessage({ id: 'enterpriseColony.mgt.cluster.edit' }),
                 dataIndex: 'edit',
                 key: 'edit',
-                className: styles.columnMoney,
+                align: 'center',
                 width: '25%',
                 render: (item, row) => {
-                    const { name } = row                   
+                    const { name } = row
                     return <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                     {this.renderPodlog(name)}
                     <div style={{ color: globalUtil.getPublicColor(), cursor: 'pointer' }} onClick={() => this.showActivePod(row)}>
@@ -250,25 +246,21 @@ class Index extends Component {
 
         return (
             <>
-                <Card
-                    className={styles.collapseStyle}
-                >
-                    {dashboardShow ?
-                        (
-                            <div>
-                                <Row>
-                                    <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.comName' })}</Col>
-                                    <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.statues' })}</Col>
-                                    <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.num' })}</Col>
-                                    <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.edit' })}</Col>
-                                </Row>
-                                <Table rowKey={(record,index) => index} columns={column} dataSource={dashboardList} pagination={false} />
-                            </div>
-                        ) : (
+                <div className={styles.cardContainer}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.titleStyle}>
+                            <span>{titleIcon}</span>
+                            <span>{titleText}</span>
+                        </div>
+                    </div>
+                    <div className={styles.cardBody}>
+                        {dashboardShow ?
+                            <Table rowKey={(record,index) => index} columns={column} dataSource={dashboardList} pagination={false} />
+                            :
                             <Skeleton active />
-                        )
-                    }
-                </Card>
+                        }
+                    </div>
+                </div>
                 <Modal
                     title={modalTitle}
                     visible={showPodSwitch}

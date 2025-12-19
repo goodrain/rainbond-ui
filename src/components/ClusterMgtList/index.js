@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  Card,
   Button,
   Table,
   Badge,
@@ -155,7 +154,7 @@ class Index extends Component {
     })
   }
   render() {
-    const { nodeList, rowClusterInfo, showInfo, form, eventId } = this.props
+    const { nodeList, rowClusterInfo, showInfo, form, eventId, titleIcon, titleText } = this.props
     const { selectArr, isShowAddNodeModal } = this.state
     const eid = global.getCurrEnterpriseId()
     const { getFieldDecorator } = form;
@@ -309,22 +308,31 @@ class Index extends Component {
     };    
     return (
       <>
-        <Card
-          extra={rowClusterInfo && rowClusterInfo.provider == "rke" && <Button icon="plus" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.addNode'})}</Button>}
-        >
-          {showInfo ?
-            <Table
-              columns={columns}
-              rowKey={(record,index) => index}
-              dataSource={nodeList}
-              pagination={pagination}
-              onRow={this.onClickRow}
-              rowClassName={styles.rowStyle}
-            />
-            :
-            <Skeleton active />
-          }
-        </Card>
+        <div className={styles.cardContainer}>
+          <div className={styles.cardHeader}>
+            <div className={styles.titleStyle}>
+              <span>{titleIcon}</span>
+              <span>{titleText}</span>
+            </div>
+            {rowClusterInfo && rowClusterInfo.provider == "rke" && (
+              <Button icon="plus" onClick={this.clusterNodeAdd}>{formatMessage({id:'enterpriseColony.mgt.cluster.addNode'})}</Button>
+            )}
+          </div>
+          <div className={styles.cardBody}>
+            {showInfo ?
+              <Table
+                columns={columns}
+                rowKey={(record,index) => index}
+                dataSource={nodeList}
+                pagination={pagination}
+                onRow={this.onClickRow}
+                rowClassName={styles.rowStyle}
+              />
+              :
+              <Skeleton active />
+            }
+          </div>
+        </div>
         {isShowAddNodeModal && (
           <RKEClusterCmd onCancel={this.handleAddNodeClose} eventId={eventId}/>
         )}

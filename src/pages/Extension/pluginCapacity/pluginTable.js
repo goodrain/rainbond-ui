@@ -324,24 +324,24 @@ class Index extends PureComponent {
             >
                 <path
                     d="M512.45099 1024L64.997835 767.475541 64.383834 255.475541 511.222988 0l447.453156 256.524459 0.614001 512-446.839155 255.475541z m401.454255-745.192425l-402.682257-234.266926L109.154733 277.758657l0.614001 467.433768 402.682256 234.266926 402.068256-233.218008-0.614001-467.433768z"
-                    fill="#4e74ae"
+                    fill={global.getPublicColor()}
                     p-id="5738"
                 >
                 </path>
                 <path
                     d="M491.063292 511.232499h44.770899v356.632189h-44.770899z"
-                    fill="#4e74ae"
+                    fill={global.getPublicColor()}
                     p-id="5739"
                 >
                 </path>
                 <path
                     d="M524.424008 530.599111l-22.38545-38.579724 310.198371-178.213761 22.38545 38.579724-310.198371 178.213761z"
-                    fill="#4e74ae"
+                    fill={global.getPublicColor()}
                     p-id="5740">
                 </path>
                 <path
                     d="M524.424008 492.019387l-22.38545 38.579724-310.172788-178.213761 22.38545-38.579724 310.172788 178.213761z"
-                    fill="#4e74ae"
+                    fill={global.getPublicColor()}
                     p-id="5741">
                 </path>
             </svg>
@@ -364,7 +364,7 @@ class Index extends PureComponent {
                                 urls,
                                 alias,
                                 enable_status
-                            } = item
+                            } = item                            
                             return (
                                 <div className={styles.boxs}>
                                     <Col span={2} className={styles.icons}>
@@ -418,11 +418,13 @@ class Index extends PureComponent {
                                 version,
                                 alias,
                             } = item
+                            console.log(global.getPublicColor(),"global.getPublicColor()");
+                            
                             return (
                                 <div className={styles.boxs}>
                                     <Col span={2} className={styles.icons}>
                                         <div className={styles.imgs}>
-                                            {global.fetchSvg(icon)}
+                                            {global.fetchSvg(icon,global.getPublicColor())}
                                         </div>
                                     </Col>
                                     <Col span={12}>

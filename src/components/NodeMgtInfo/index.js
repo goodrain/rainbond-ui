@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import {
-  Card,
-  Row,
-  Col,
   Button,
   Badge,
   Descriptions,
@@ -13,7 +10,6 @@ import {
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
 import styles from "./index.less";
 
 @connect()
@@ -73,92 +69,93 @@ class Index extends Component {
     }
   }
   render() {
-    const { nodeDetail, showInfo } = this.props
-    const titleContent = (
-      <>
-        <span>{nodeDetail && nodeDetail.name}</span>
-        <span style={{ marginLeft: 10 }}>{this.getStatus(nodeDetail && nodeDetail.status)}</span>
-      </>
-    )
-    const extraContent = (
-      <>
-        {nodeDetail.unschedulable == false ?
-          <Button
-            onClick={() => {
-              this.handelActive('unschedulable', nodeDetail.name)
-            }}
-            style={{ marginRight: 20 }}
-          >
-            {formatMessage({id:"enterpriseColony.mgt.cluster.banDispatch"})}
-          </Button>
-          :
-          <Button
-            onClick={() => {
-              this.handelActive('reschedulable', nodeDetail.name)
-            }}
-            style={{ marginRight: 20 }}
-          >
-            {formatMessage({id:"enterpriseColony.mgt.cluster.dispatch"})}
-          </Button>
-        }
-
-        <Button
-          onClick={() => {
-            this.handelActive('evict', nodeDetail.name)
-          }}
-        >
-          {formatMessage({id:"enterpriseColony.mgt.cluster.evacuation"})}
-        </Button>
-      </>
-    )
+    const { nodeDetail, showInfo, titleIcon, titleText } = this.props
     return (
       <>
-        <Card
-          title={showInfo && titleContent}
-          extra={showInfo && extraContent}
-          className={styles.description}
-          bodyStyle={{
-            padding: '24px 24px 12px'
-          }}
-        >
-          {showInfo ?
-            <Descriptions >
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.ip"})}>
-                {nodeDetail && nodeDetail.ip || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.container"})}>
-                {nodeDetail && nodeDetail.container_runtime || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.framework"})}>
-                {nodeDetail && nodeDetail.architecture || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.type"})}>
-                {nodeDetail && nodeDetail.roles && nodeDetail.roles.length > 0 ?
-                  nodeDetail.roles.map((item, index) => {
-                    return <Tag key={index}>
-                      {item}
-                    </Tag>
-                  }) : '-'
-                }
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingVs"})}>
-                {nodeDetail && nodeDetail.os_version || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.time"})}>
-                {nodeDetail && nodeDetail.create_time || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingType"})}>
-                {nodeDetail && nodeDetail.os_type || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.coreVs"})}>
-                {nodeDetail && nodeDetail.kernel || '-'}
-              </Descriptions.Item>
-            </Descriptions>
-            :
-            <Skeleton active />
-          }
-
-        </Card>
+        <div className={styles.cardContainer}>
+          <div className={styles.cardHeader}>
+            <div className={styles.titleStyle}>
+              <span>{titleIcon}</span>
+              <span>{titleText}</span>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            <div className={styles.infoHeader}>
+              <div className={styles.infoTitle}>
+                <span>{nodeDetail && nodeDetail.name}</span>
+                <span style={{ marginLeft: 10 }}>{this.getStatus(nodeDetail && nodeDetail.status)}</span>
+              </div>
+              {showInfo && (
+                <div className={styles.infoExtra}>
+                  {nodeDetail.unschedulable == false ?
+                    <Button
+                      onClick={() => {
+                        this.handelActive('unschedulable', nodeDetail.name)
+                      }}
+                      style={{ marginRight: 20 }}
+                    >
+                      {formatMessage({id:"enterpriseColony.mgt.cluster.banDispatch"})}
+                    </Button>
+                    :
+                    <Button
+                      onClick={() => {
+                        this.handelActive('reschedulable', nodeDetail.name)
+                      }}
+                      style={{ marginRight: 20 }}
+                    >
+                      {formatMessage({id:"enterpriseColony.mgt.cluster.dispatch"})}
+                    </Button>
+                  }
+                  <Button
+                    onClick={() => {
+                      this.handelActive('evict', nodeDetail.name)
+                    }}
+                  >
+                    {formatMessage({id:"enterpriseColony.mgt.cluster.evacuation"})}
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className={styles.description}>
+              {showInfo ?
+                <Descriptions >
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.ip"})}>
+                    {nodeDetail && nodeDetail.ip || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.container"})}>
+                    {nodeDetail && nodeDetail.container_runtime || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.framework"})}>
+                    {nodeDetail && nodeDetail.architecture || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.type"})}>
+                    {nodeDetail && nodeDetail.roles && nodeDetail.roles.length > 0 ?
+                      nodeDetail.roles.map((item, index) => {
+                        return <Tag key={index}>
+                          {item}
+                        </Tag>
+                      }) : '-'
+                    }
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingVs"})}>
+                    {nodeDetail && nodeDetail.os_version || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.time"})}>
+                    {nodeDetail && nodeDetail.create_time || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.operatingType"})}>
+                    {nodeDetail && nodeDetail.os_type || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={formatMessage({id:"enterpriseColony.mgt.node.coreVs"})}>
+                    {nodeDetail && nodeDetail.kernel || '-'}
+                  </Descriptions.Item>
+                </Descriptions>
+                :
+                <Skeleton active />
+              }
+            </div>
+          </div>
+        </div>
       </>
     );
   }
