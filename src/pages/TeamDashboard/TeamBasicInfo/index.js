@@ -392,7 +392,7 @@ export default class index extends Component {
   handleCloseCreateComponent = () => {
     this.setState({ createComponentVisible: false });
   }
-  
+
   // 取消新建应用
   cancelAddApp = () => {
     this.setState({
@@ -645,7 +645,11 @@ export default class index extends Component {
         {this.renderGuide()}
         {(index?.overviewInfo?.region_health || loadingOverview) && (
           <>
-            <div data-guide="team-overview">
+            <div data-guide="team-overview" className={styles.teamOverview}>
+              <div className={styles.sectionHeader}>
+                <span>{globalUtil.fetchSvg('enterpriseDataSvg')}</span>
+                <h2>{formatMessage({ id: 'teamOverview.overview.title' })}</h2>
+              </div>
               <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
                 <Col span={4}>
                   <div className={styles.basicInfo}>
@@ -685,58 +689,54 @@ export default class index extends Component {
                 </Col>
               </Row>
             </div>
-            <Card
-              title={
-                <div>
-                  {formatMessage({ id: 'versionUpdata_6_1.appList' })}
+            <div className={styles.appListHeader}>
+              <div className={styles.appListHeaderTop}>
+                <div className={styles.sectionHeader}>
+                  <span>{globalUtil.fetchSvg('clustersInfoSvg')}</span>
+                  <h2>{formatMessage({ id: 'versionUpdata_6_1.appList' })}</h2>
+                </div>
+                <div className={styles.appListToolbar}>
                   <Radio.Group
-                    style={{ marginLeft: '14px' }}
-                    value={isTableView ? 'table' : 'card'}
-                    onChange={(e) => this.handleViewChange(e.target.value === 'table')}
-                  >
-                    <Radio.Button value="card">
-                      <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.card' })}>
-                        <Icon type="appstore" />
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button value="table">
-                      <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.table' })}>
-                        <Icon type="table" />
-                      </Tooltip>
-                    </Radio.Button>
-                  </Radio.Group>
-                </div>}
-              bordered={false}
-              className={styles.appListCard}
-              loading={appListLoading}
-              extra={
-                <>
-                  <Search
-                    placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
-                    onSearch={this.onSearch}
-                    value={query}
-                    allowClear
-                    onChange={(e) => {
-                      this.setState({ query: e.target.value });
-                    }}
-                    style={{ width: 300, marginRight: 10 }}
-                  />
-                  <Select
-                    style={{ width: this.state.language ? '140px' : '170px' }}
-                    placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
-                    defaultValue={1}
-                    onChange={this.handleSortChange}
-                  >
-                    <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
-                      <FormattedMessage id="teamOverview.runStatusSort" />
-                    </Option>
-                    <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
-                      <FormattedMessage id="teamOverview.updateTimeSort" />
-                    </Option>
+                  value={isTableView ? 'table' : 'card'}
+                  onChange={(e) => this.handleViewChange(e.target.value === 'table')}
+                  style={{marginRight: 12}}
+                >
+                  <Radio.Button value="card">
+                    <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.card' })}>
+                      <Icon type="appstore" />
+                    </Tooltip>
+                  </Radio.Button>
+                  <Radio.Button value="table">
+                    <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.table' })}>
+                      <Icon type="table" />
+                    </Tooltip>
+                  </Radio.Button>
+                </Radio.Group>
+                <Search
+                  placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
+                  onSearch={this.onSearch}
+                  value={query}
+                  allowClear
+                  onChange={(e) => {
+                    this.setState({ query: e.target.value });
+                  }}
+                  style={{ width: 180, marginRight: 10 }}
+                />
+                <Select
+                  style={{ width: this.state.language ? '140px' : '170px' }}
+                  placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
+                  defaultValue={1}
+                  onChange={this.handleSortChange}
+                >
+                  <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
+                    <FormattedMessage id="teamOverview.runStatusSort" />
+                  </Option>
+                  <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
+                    <FormattedMessage id="teamOverview.updateTimeSort" />
+                  </Option>
                   </Select>
-                </>
-              }
-            >
+                </div>
+              </div>
               {!appListLoading && isAppList && (
                 <>
                   {isTableView ? (
@@ -801,7 +801,7 @@ export default class index extends Component {
                   )}
                 </>
               )}
-            </Card>
+            </div>
           </>
         )}
         {loadedOverview && index?.overviewInfo && !index?.overviewInfo?.region_health && (

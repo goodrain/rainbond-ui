@@ -196,7 +196,6 @@ export default class PageHeader extends PureComponent {
               <div className={styles.row} style={{ marginBottom: '4px' }}>
                 {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}
                 {title && <h1 className={styles.title}>{title}</h1>}
-                {action && <div className={styles.action}>{action}</div>}
               </div>
               <div className={styles.row}>
                 {content && <div className={styles.content}>{content}</div>}
@@ -205,10 +204,11 @@ export default class PageHeader extends PureComponent {
           </div>
         </div>
         {extraContent?.props?.children &&
-          <div className={styles.row} style={{ margin: '24px 0px', textAlign: "left" }}>
+          <div className={styles.row} style={{ margin: '24px 0px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             {extraContent && (
               <div className={styles.extraContent}>{extraContent}</div>
             )}
+                {action && <div className={styles.action}>{action}</div>}
           </div>
         }
         {tabList && tabList.length && helmInfoSwitch && marketInfoSwitch && (

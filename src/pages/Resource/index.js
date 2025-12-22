@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
-import { Button, Card, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
+import { Button, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -470,47 +470,39 @@ class Index extends PureComponent {
           </Button>
         }
       >
-        <Card
-          className={styles.CardStyle}
-          style={{
-            borderRadius: 5
-          }}
-          extra={
-            <div
-              style={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: isDelete && selectedRowKeys && selectedRowKeys.length > 0 ? 'space-between' : "end"
-              }}
-            >
-              {isDelete && selectedRowKeys && selectedRowKeys.length > 0 &&
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.deleteButton();
-                    this.setState({
-                      handelType: 'multiple'
-                    })
-                  }}
-                  icon='delete'
-                >
-                  <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete' />
-                </Button>
-              }
-              {isCreate &&
-                <Button
-                  type="primary"
-                  icon="plus"
-                  onClick={() => {
-                    this.handleConfigurationOperation();
-                  }}
-                >
-                  {formatMessage({ id: 'addKubenetesResource.btn.add' })}
-                </Button>
-              }
-            </div>
-          }
-        >
+        <div className={styles.resourceContainer}>
+          <div
+            className={styles.resourceHeader}
+            style={{
+              justifyContent: isDelete && selectedRowKeys && selectedRowKeys.length > 0 ? 'space-between' : 'flex-end'
+            }}
+          >
+            {isDelete && selectedRowKeys && selectedRowKeys.length > 0 &&
+              <Button
+                type="primary"
+                onClick={() => {
+                  this.deleteButton();
+                  this.setState({
+                    handelType: 'multiple'
+                  })
+                }}
+                icon='delete'
+              >
+                <FormattedMessage id='componentOverview.body.tab.monitor.CustomMonitor.delete' />
+              </Button>
+            }
+            {isCreate &&
+              <Button
+                type="primary"
+                icon="plus"
+                onClick={() => {
+                  this.handleConfigurationOperation();
+                }}
+              >
+                {formatMessage({ id: 'addKubenetesResource.btn.add' })}
+              </Button>
+            }
+          </div>
           {loadingSwitch ? (
             <div className={styles.loadingStyle}>
               <Spin size="large" />
@@ -523,10 +515,8 @@ class Index extends PureComponent {
               rowKey={record => record.ID}
               pagination={paginationProps}
             />
-
           )}
-
-        </Card>
+        </div>
         <Drawer
           title={title}
           placement="right"

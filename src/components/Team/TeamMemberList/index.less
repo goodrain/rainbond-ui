@@ -1,5 +1,37 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../../utils/utils.less";
+
+.memberListContainer {
+  background-color: #fff;
+}
+
+.memberListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+
+  span {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  h2 {
+    font-size: @rbd-sub-title-size;
+    color: @text-color;
+    line-height: @rbd-sub-title-line-height;
+    font-weight: 600;
+    margin: 0;
+    font-family: PingFangSC-Medium;
+  }
+}
+
 .projectList {
   :global {
     .ant-card-meta-description {
