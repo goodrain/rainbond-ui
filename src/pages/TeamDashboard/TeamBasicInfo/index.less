@@ -1,14 +1,11 @@
 .basicInfoRow {
-  height: 166px;
   box-sizing: border-box;
-  padding: 24px 0;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
   margin: 12px 0px;
   .basicInfo {
     text-align: center;
-    border-radius: 4px;
+    border-radius: 12px;
     padding: 16px;
+    background-color: @rbd-background-color;
 
     .basicInfoTitle {
       font-weight: 700;
@@ -176,11 +173,9 @@
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  padding: 0px 12px;
   > div {
     width: 24%;
     height: 140px;
-    margin-top: 30px;
     .teamHotAppItem {
       border: 1px solid #e8e8e8;
       width: 100%;
@@ -325,7 +320,7 @@
 .tableCreateBtnWrapper {
   margin-bottom: 16px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 
 .addNewAppCard {
@@ -378,4 +373,60 @@
       font-weight: 500;
     }
   }
+}
+// 卡片内标题
+.sectionHeader {
+  display: flex;
+  align-items: center;
+
+  span {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  h2 {
+    font-size: @rbd-sub-title-size;
+    color: @text-color;
+    line-height: @rbd-sub-title-line-height;
+    font-weight: 600;
+    margin: 0;
+    font-family: PingFangSC-Medium;
+  }
+}
+
+.teamOverview{
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: @rbd-card-shadow;
+  margin-bottom: 18px;
+}
+.teamOverview:hover{
+  box-shadow: @rbd-card-shadow-hover;
+}
+.appListHeader{
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: @rbd-card-shadow;
+}
+.appListHeader:hover{
+  box-shadow: @rbd-card-shadow-hover;
+}
+
+.appListHeaderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .sectionHeader {
+    padding-bottom: 0;
+  }
+}
+
+.appListToolbar {
+  display: flex;
+  align-items: center;
 }

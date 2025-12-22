@@ -2,6 +2,7 @@
 
 //总览页面
 const teamOverview = {
+  'teamOverview.overview.title': 'Team Overview',
   'teamOverview.app.name': 'Apps',
   'teamOverview.appNum': 'Application number',
   'teamOverview.component.name': 'Components',

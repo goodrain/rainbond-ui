@@ -1,4 +1,4 @@
-import { Card, notification, Button, Modal, Select, message } from 'antd';
+import { notification, Button, Modal, Select, message } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import copy from 'copy-to-clipboard';
@@ -11,6 +11,7 @@ import AddMember from '../../AddMember';
 import ConfirmModal from '../../ConfirmModal';
 import ScrollerX from '../../ScrollerX';
 import TeamMemberTable from '../../TeamMemberTable';
+import styles from './index.less';
 
 const { Option } = Select;
 
@@ -321,18 +322,16 @@ export default class MemberList extends PureComponent {
 
     return (
       <div>
-        <Card
-          style={{ marginBottom: 24 }}
-          bodyStyle={{ paddingTop: 12 }}
-          title={formatMessage({ id: 'teamManage.tabs.member.title' })}
-          extra={
-            canInviteMember && (
+        <div className={styles.memberListContainer}>
+          <div className={styles.memberListHeader}>
+            <div className={styles.sectionHeader}>
+            </div>
+            {canInviteMember && (
               <Button onClick={this.showInviteModal} type="primary" icon="plus">
                 {formatMessage({ id: 'versionUpdata_6_1.teamManage.invite.modal.submit' })}
               </Button>
-            )
-          }
-        >
+            )}
+          </div>
           <ScrollerX sm={600}>
             <TeamMemberTable
               users={currUser}
@@ -345,7 +344,7 @@ export default class MemberList extends PureComponent {
               pagination={pagination}
             />
           </ScrollerX>
-        </Card>
+        </div>
         {showAddMember && (
           <AddMember
             roles={roles}

@@ -205,39 +205,6 @@ export default class Index extends PureComponent {
     return (
       <div className={styles.container}>
         <Spin spinning={loading || indexLoading}>
-          <div className={styles.header}>
-            <div className={styles.left}>
-              <div className={styles.teamName}>
-                {currentTeam?.team_alias}
-              </div>
-            </div>
-            <div className={styles.right}>
-              {this.getPluginsMenu()}
-              {this.setTeamMenu(pluginsList, 'pipeline') && (
-                <Button
-                  style={{ marginRight: 10 }}
-                  onClick={() => this.navigateTo(`/team/${teamName}/region/${regionName}/Pipeline`)}
-                >
-                  {globalUtil.fetchSvg('pipeLine', false, '14px')}
-                  {formatMessage({ id: 'menu.team.pipeline' })}
-                </Button>
-              )}
-              <Button
-                style={{ marginRight: 10 }}
-                onClick={() => this.navigateTo(`/team/${teamName}/region/${regionName}/myplugns`)}
-              >
-                <Icon type="setting" />
-                {formatMessage({ id: 'global.fetchAccessText.plugin' })}
-              </Button>
-              <Button
-                data-guide="team-setting"
-                onClick={() => this.navigateTo(`/team/${teamName}/region/${regionName}/team`)}
-              >
-                <Icon type="setting" />
-                {formatMessage({ id: 'versionUpdata_6_1.setting' })}
-              </Button>
-            </div>
-          </div>
           <div className={styles.content}>
             <TeamBasicInfo noviceGuide={noviceGuide} pluginsList={pluginsList} />
           </div>

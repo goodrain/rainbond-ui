@@ -1,32 +1,21 @@
 import {
   Button,
-  Card,
   notification,
   Popconfirm,
   Row,
   Table,
   Typography,
-  Modal,
   Form,
-  Icon,
-  Tooltip,
-  Col,
   Input
 } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { routerRedux } from 'dva/router';
-import copy from 'copy-to-clipboard';
-import CodeMirror from 'react-codemirror';
 import LicenseDrawer from '../../../components/LicenseDrawer';
-import CodeMirrorForm from '@/components/CodeMirrorForm';
-import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
-import { createEnterprise, createTeam } from '../../../utils/breadcrumb';
 import globalUtil from '../../../utils/global';
-import pageheaderSvg from '../../../utils/pageHeaderSvg';
 import roleUtil from '../../../utils/role';
+import styles from './index.less';
 
 const { Paragraph } = Typography;
 const FormItem = Form.Item;
@@ -443,81 +432,57 @@ class Control extends Component {
         }
       }
     ];
-    let breadcrumbList = [];
-    breadcrumbList = createTeam(
-      createEnterprise(breadcrumbList, currentEnterprise),
-      currentTeam,
-      currentRegionName
-    );
-    breadcrumbList.push({ title: formatMessage({ id: 'teamGateway.strategy.manage' }) });
     const str = `    - allowedRoutes:\n        namespaces:\n          from: All\n      name: https\n      port: 443\n      protocol: HTTPS\n      tls:\n        certificateRefs:\n          - group: ''\n            kind: Secret\n            name: ${name}\n        mode: Terminate\n`
     return (
-      <div
-      //   title={formatMessage({ id: 'teamGateway.certificate.title' })}
-      //   breadcrumbList={breadcrumbList}
-      //   content={formatMessage({ id: 'teamGateway.certificate.desc' })}
-      //   titleSvg={pageheaderSvg.getSvg('certificateSvg', 18)}
-      >
-        <Card
-          title={
-            <Col>
-              <Form layout="inline" style={{ display: 'inline-block' }}>
-                <FormItem>
-                  <Input
-                    placeholder={formatMessage({ id: 'teamGateway.certificate.table.search' })}
-                    onChange={e => this.handelChange(e.target.value)}
-                    onPressEnter={this.handleSearch}
-                    style={{ width: 250 }}
-                  />
-                </FormItem>
-                <FormItem>
-                  <Button
-                    type="primary"
-                    onClick={this.handleSearch}
-                    icon="search"
-                  >
-                    {/* 搜索 */}
-                    <FormattedMessage id='button.search' />
-                  </Button>
-                </FormItem>
-              </Form>
-            </Col>
-          }
-          extra={
-            isCreate && (
+      <div className={styles.certificateContainer}>
+        <div className={styles.certificateHeader}>
+          <Form layout="inline" className={styles.searchForm}>
+            <FormItem>
+              <Input
+                placeholder={formatMessage({ id: 'teamGateway.certificate.table.search' })}
+                onChange={e => this.handelChange(e.target.value)}
+                onPressEnter={this.handleSearch}
+                style={{ width: 250 }}
+              />
+            </FormItem>
+            <FormItem>
               <Button
                 type="primary"
-                icon="plus"
-                style={{ float: 'right' }}
-                onClick={this.handleCick}
+                onClick={this.handleSearch}
+                icon="search"
               >
-                {formatMessage({ id: 'teamGateway.certificate.btn.add' })}
+                <FormattedMessage id='button.search' />
               </Button>
-            )
-          }
-          style={{ borderRadius: 5 }}
-          // id={isBoxShadow ? 'box-shadow' : 'border-color'}
-          bodyStyle={{ padding: '0' }}
-        >
-          <Table
-            pagination={{
-              total,
-              pageSize,
-              onChange: this.onPageChange,
-              current: page,
-              total: total,
-              showQuickJumper: true,
-              showSizeChanger: true,
-              showTotal: (total) => `共 ${total} 条`,
-              onShowSizeChange: this.onPageChange,
-              hideOnSinglePage: total<=10
-            }}
-            rowKey={this.rowKey}
-            dataSource={licenseList}
-            columns={columns}
-            loading={this.state.licenseLoading}
-          />
-        </Card>
+            </FormItem>
+          </Form>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              onClick={this.handleCick}
+            >
+              {formatMessage({ id: 'teamGateway.certificate.btn.add' })}
+            </Button>
+          )}
+        </div>
+        <Table
+          pagination={{
+            total,
+            pageSize,
+            onChange: this.onPageChange,
+            current: page,
+            total: total,
+            showQuickJumper: true,
+            showSizeChanger: true,
+            showTotal: (total) => `共 ${total} 条`,
+            onShowSizeChange: this.onPageChange,
+            hideOnSinglePage: total <= 10
+          }}
+          rowKey={this.rowKey}
+          dataSource={licenseList}
+          columns={columns}
+          loading={this.state.licenseLoading}
+        />
         {this.state.visibleDrawer && (
           <LicenseDrawer
             ref={this.saveForm}
