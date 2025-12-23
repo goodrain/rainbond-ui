@@ -193,8 +193,8 @@ const global = {
     'global.fetchStateOptTypeText.up':'挂起',
     'global.fetchStateOptTypeText.recover':'恢复',
     'global.fetchStateOptTypeText.ContainerExitError':'异常退出',
-    'global.fetchStateOptTypeText.ReadinessUnhealthy':'就绪检查异常',
-    'global.fetchStateOptTypeText.LivenessRestart':'存活检查异常',
-    'global.fetchStateOptTypeText.StartupProbeFailure':'启动检查异常',
+    'global.fetchStateOptTypeText.ReadinessUnhealthy':'健康检测不通过',
+    'global.fetchStateOptTypeText.LivenessRestart':'健康检测不通过',
+    'global.fetchStateOptTypeText.StartupProbeFailure':'健康检测不通过',
 }
 export default Object.assign({}, global);
