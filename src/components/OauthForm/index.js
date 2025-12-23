@@ -138,8 +138,8 @@ class CreateOAuthForm extends PureComponent {
               rules: [
                 { required: true, message: formatMessage({ id: 'placeholder.appShare.appPublish.name' }) },
                 {
-                  max: 32,
-                  message: formatMessage({ id: 'placeholder.max32' })
+                  max: 16,
+                  message: formatMessage({ id: 'placeholder.max16' })
                 }
               ]
             })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}

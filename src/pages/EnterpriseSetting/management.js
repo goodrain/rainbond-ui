@@ -1,32 +1,18 @@
 import roleUtil from '@/utils/role';
 import userUtil from '@/utils/user';
-import {
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Empty,
-  Icon,
-  Menu,
-  notification,
-  Row,
-  Spin
-} from 'antd';
+import { Button, notification, Spin, Table } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import AddAdmin from '../../components/AddAdmin';
 import ConfirmModal from '../../components/ConfirmModal';
 import ScrollerX from '../../components/ScrollerX';
-import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
-@connect(({ user, loading, global }) => ({
+
+@connect(({ user, global }) => ({
   user: user.currentUser,
-  loading: loading.models.list,
-  rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
-  oauthLongin: loading.effects['global/creatOauth']
 }))
 export default class Management extends PureComponent {
   constructor(props) {
@@ -73,9 +59,6 @@ export default class Management extends PureComponent {
         }
       }
     });
-  };
-  handleEdit = info => {
-    this.setState({ showAddAdmin: true, info });
   };
   handleCreateAdmin = values => {
     const {
@@ -174,155 +157,52 @@ export default class Management extends PureComponent {
     } = this.state;
     const userId = user && user.user_id;
 
-    const adminLists = adminList && adminList.length > 0 && adminList;
-    const moreSvg = () => (
-      <svg
-        t="1581212425061"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="1314"
-        width="32"
-        height="32"
-      >
-        <path
-          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1315"
-          fill="#999999"
-        />
-        <path
-          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1316"
-          fill="#999999"
-        />
-        <path
-          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1317"
-          fill="#999999"
-        />
-      </svg>
-    );
-
-    const managementMenu = item => {
-      return (
-        <Menu>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.showDelTeam(item.user_id);
-              }}
-            >
-              {/* 删除管理员 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete' />
+    const columns = [
+      {
+        title: formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.designation' }),
+        dataIndex: 'nick_name',
+        key: 'nick_name',
+        width: '20%',
+      },
+      {
+        title: formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.name' }),
+        dataIndex: 'real_name',
+        key: 'real_name',
+        width: '20%',
+      },
+      {
+        title: formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.role' }),
+        dataIndex: 'roles',
+        key: 'roles',
+        width: '25%',
+        render: roles => (
+          roles && roles.map((item, index) => (
+            <span key={index} style={{ marginRight: 5 }}>
+              {roleUtil.roleMap(item)}
+            </span>
+          ))
+        ),
+      },
+      {
+        title: formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.time' }),
+        dataIndex: 'create_time',
+        key: 'create_time',
+        width: '20%',
+        render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      {
+        title: formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.operation' }),
+        key: 'action',
+        width: '15%',
+        render: (_, record) => (
+          userId !== record.user_id && (
+            <a onClick={() => this.showDelTeam(record.user_id)}>
+              {formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.Menu.delete' })}
             </a>
-          </Menu.Item>
-        </Menu>
-      );
-    };
-    const operation = (
-      <Button
-        type="primary"
-        onClick={this.onAddAdmin}
-        icon="plus"
-      >
-        {/* 添加管理员 */}
-        <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time.add' />
-      </Button>
-    );
-    const managementAdmin = (
-      <Card
-        extra={
-          adminer && operation
-        }
-      >
-        {adminLists && (
-          <Row
-            className={styles.teamMinTit}
-            type="flex"
-            align="middle"
-            style={{ padding: 16, background: '#FAFAFA' }}
-          >
-            <Col span={5} style={{paddingLeft:14}}>
-              {/* 名称 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.designation' />
-            </Col>
-            <Col span={5} style={{paddingLeft:14}}>
-              {/* 姓名 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.name' />
-            </Col>
-            <Col span={6} style={{paddingLeft:14}}>
-              {/* 角色 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.role' />
-            </Col>
-            <Col span={5} style={{paddingLeft:14}}>
-              {/* 时间 */}
-              <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.time' />
-            </Col>
-            <Col span={3} style={{paddingLeft:14}}>
-              {/* 时间 */}
-              操作
-            </Col>
-          </Row>
-        )}
-        {adminLists ? (
-          adminLists.map(item => {
-            const {
-              user_id: id,
-              create_time: createTime,
-              nick_name: nickName,
-              real_name: realName,
-              roles
-            } = item;
-            return (
-              <Card
-                key={id}
-                style={{ marginBottom: '10px' }}
-                bodyStyle={{ padding: 0 }}
-                style={{ border: 0, borderBottom: '1px solid #F1F0F3' }}
-                hoverable
-              >
-                <Row
-                  type="flex"
-                  align="middle"
-                  style={{ paddingLeft: '24px', height: '70px' }}
-                >
-                  <Col span={5}>{nickName}</Col>
-                  <Col span={5}>{realName}</Col>
-                  <Col span={6}>
-                    {roles.map(items => {
-                      return (
-                        <span style={{ marginRight: '5px' }}>
-                          {roleUtil.roleMap(items)}
-                        </span>
-                      );
-                    })}
-                  </Col>
-                  <Col span={5}>
-                    {moment(createTime).format('YYYY-MM-DD HH:mm:ss')}
-                  </Col>
-                  <Col span={3} >
-                    {userId != id &&
-                      <a
-                        href="javascript:;"
-                        onClick={() => {
-                          this.showDelTeam(item.user_id);
-                        }}
-                      >
-                        {/* 删除管理员 */}
-                        <FormattedMessage id='enterpriseSetting.enterpriseAdmin.col.Menu.delete' />
-                      </a>
-                    }
-                  </Col>
-                </Row>
-              </Card>
-            );
-          })
-        ) : (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-        )}
-      </Card>
-    );
+          )
+        ),
+      },
+    ];
 
     return (
       <ScrollerX sm={840}>
@@ -343,13 +223,26 @@ export default class Management extends PureComponent {
             onCancel={this.hideDelAdmin}
           />
         )}
-
         {enterpriseAdminLoading ? (
           <div className={styles.example}>
             <Spin />
           </div>
         ) : (
-          managementAdmin
+          <div className={styles.adminContainer}>
+            <div className={styles.adminHeader}>
+              {adminer && (
+                <Button type="primary" onClick={this.onAddAdmin} icon="plus">
+                  {formatMessage({ id: 'enterpriseSetting.enterpriseAdmin.col.time.add' })}
+                </Button>
+              )}
+            </div>
+            <Table
+              columns={columns}
+              dataSource={adminList}
+              rowKey="user_id"
+              pagination={false}
+            />
+          </div>
         )}
       </ScrollerX>
     );

@@ -2,19 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
 import NewbieGuiding from '@/components/NewbieGuiding';
-import ScrollerX from '@/components/ScrollerX';
-import {
-  Card,
-  Col,
-  Divider,
-  Dropdown,
-  Form,
-  Input,
-  Menu,
-  Row,
-  Steps,
-  Typography
-} from 'antd';
+import { Col, Divider, Dropdown, Menu, Row } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -24,26 +12,12 @@ import BaseAddCluster from '../../components/Cluster/BaseAddCluster';
 import CustomClusterAdd from '../../components/Cluster/CustomClusterAdd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
-import cloud from '../../utils/cloud';
-import rainbondUtil from '../../utils/rainbond';
-import global from '../../utils/global'
 import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
-const { Step } = Steps;
-const { Paragraph } = Typography;
-
-@Form.create()
-@connect(({ user, list, loading, global, index }) => ({
-  user: user.currentUser,
-  list,
-  loading: loading.models.list,
-  rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
-  isRegist: global.isRegist,
-  oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo
+@connect(({ user }) => ({
+  user: user.currentUser
 }))
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
@@ -54,11 +28,7 @@ export default class EnterpriseClusters extends PureComponent {
       adminer,
       addClusterShow: false,
       addCustomClusterShow: false,
-      selectProvider: 'ack',
-      currentStep: 0,
       guideStep: 2,
-      loading: false,
-      initTask: {},
       clusters: null
     };
   }
@@ -73,10 +43,6 @@ export default class EnterpriseClusters extends PureComponent {
   componentDidMount() {
     this.loadClusters();
   }
-
-  setProvider = value => {
-    this.setState({ selectProvider: value });
-  };
 
   loadClusters = () => {
     const {
@@ -184,42 +150,6 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
   };
-  preStep = () => {
-    const { currentStep } = this.state;
-    this.setState({ currentStep: currentStep - 1 });
-  };
-  loadSteps = () => {
-    const steps = [
-      {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.supplier' })
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.cluster' })
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.Initialize' })
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.clusterInit' })
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.addCluster.docking' })
-      }
-    ];
-    return steps;
-  };
-  showInitTaskDetail = selectTask => {
-    this.setState({ showInitTaskDetail: true, initTask: selectTask });
-  };
-  completeInit = task => {
-    this.setState({
-      currentStep: 3,
-      selectProvider: task.providerName
-    });
-  };
-  cancelShowInitDetail = () => {
-    this.setState({ showInitTaskDetail: false });
-  };
 
   handleGuideStep = guideStep => {
     this.setState({
@@ -257,12 +187,7 @@ export default class EnterpriseClusters extends PureComponent {
     const {
       addClusterShow,
       addCustomClusterShow,
-      selectProvider,
-      currentStep,
       guideStep,
-      loading,
-      showInitTaskDetail,
-      initTask,
       clusters
     } = this.state;
     const {
@@ -271,7 +196,6 @@ export default class EnterpriseClusters extends PureComponent {
       }
     } = this.props;
 
-    const K8sCluster = rainbondUtil.isEnableK8sCluster() || false;
     const menu = (
       <Menu>
         <Menu.Item>
@@ -300,117 +224,104 @@ export default class EnterpriseClusters extends PureComponent {
         extraContent={extraContent}
         titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 18)}
       >
-        <ScrollerX sm={840}>
-          <Card style={{
-            marginBottom: '16px',
-            borderRadius: 5,
-          }}>
-            <Row>
-              <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure' /></h3>
-              <Divider />
-            </Row>
-            <Row>
-              <Col span={12}>
-                <div
-                  onClick={() => this.toClusterList('rke')}
-                  className={styles.import}
-                >
-                  <div className={styles.importicon}>{globalUtil.fetchSvg('hostIcon')}</div>
-                  <div className={styles.importDesc}>
-                    <h3><FormattedMessage id='enterpriseColony.addCluster.host' /></h3>
-                    <p><FormattedMessage id='enterpriseColony.addCluster.automatically' /></p>
-                  </div>
+        <div style={{ marginBottom: '16px' }}>
+          <h3><FormattedMessage id='enterpriseColony.addCluster.infrastructure' /></h3>
+          <Row>
+            <Col span={12}>
+              <div
+                onClick={() => this.toClusterList('rke')}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{globalUtil.fetchSvg('hostIcon')}</div>
+                <div className={styles.importDesc}>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.host' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.automatically' /></p>
                 </div>
-                {guideStep === 2 &&
-                  clusters &&
-                  clusters.length === 0 &&
-                  this.handleNewbieGuiding({
-                    tit: formatMessage({ id: 'enterpriseColony.addCluster.install' }),
-                    configName: 'hostInstall',
-                    desc: formatMessage({ id: 'enterpriseColony.addCluster.common' }),
-                    nextStep: 3,
-                    svgPosition: { marginLeft: '58px' }
-                  })}
-              </Col>
-              <Col span={12}>
-                <div
-                  onClick={() => {
-                    this.handleInstallRegion('helm');
-                  }}
-                  className={styles.import}
-                >
-                  <div className={styles.importicon}>{globalUtil.fetchSvg('kubernetesIcon')}</div>
-                  <div className={styles.importDesc}>
-                    <h3><FormattedMessage id='enterpriseColony.addCluster.colony' /></h3>
-                    <p> <FormattedMessage id='enterpriseColony.addCluster.management' /></p>
-                  </div>
+              </div>
+              {guideStep === 2 &&
+                clusters &&
+                clusters.length === 0 &&
+                this.handleNewbieGuiding({
+                  tit: formatMessage({ id: 'enterpriseColony.addCluster.install' }),
+                  configName: 'hostInstall',
+                  desc: formatMessage({ id: 'enterpriseColony.addCluster.common' }),
+                  nextStep: 3,
+                  svgPosition: { marginLeft: '58px' }
+                })}
+            </Col>
+            <Col span={12}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('helm');
+                }}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{globalUtil.fetchSvg('kubernetesIcon')}</div>
+                <div className={styles.importDesc}>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.colony' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.management' /></p>
                 </div>
-              </Col>
-            </Row>
-          </Card>
-          <Card style={{
-            borderRadius: 5,
-          }}>
-            <Row>
-              <h3><FormattedMessage id='enterpriseColony.addCluster.service' /></h3>
-              <Divider />
-            </Row>
-            <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <Col style={{ width: '33%' }}>
-                <div
-                  onClick={() => {
-                    this.handleInstallRegion('aliyun');
-                  }}
-                  className={styles.import}
-                >
-                  <div className={styles.importicon}>{globalUtil.fetchSvg('aliIcon')}</div>
-                  <div className={styles.importDesc}>
-                    <h3><FormattedMessage id='enterpriseColony.addCluster.ali' /></h3>
-                    <p><FormattedMessage id='enterpriseColony.addCluster.manage' /></p>
-                  </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
+        <div>
+          <h3><FormattedMessage id='enterpriseColony.addCluster.service' /></h3>
+          <Row style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <Col style={{ width: '33%' }}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('aliyun');
+                }}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{globalUtil.fetchSvg('aliIcon')}</div>
+                <div className={styles.importDesc}>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.ali' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.manage' /></p>
                 </div>
-              </Col>
-              <Col style={{ width: '33%' }}>
-                <div
-                  onClick={() => {
-                    this.handleInstallRegion('huawei');
-                  }}
-                  className={styles.import}
-                >
-                  <div className={styles.importicon}>{globalUtil.fetchSvg('huaweiIcon')}</div>
-                  <div className={styles.importDesc}>
-                    <h3><FormattedMessage id='enterpriseColony.addCluster.huawei' /></h3>
-                    <p><FormattedMessage id='enterpriseColony.addCluster.Docking' /></p>
-                  </div>
+              </div>
+            </Col>
+            <Col style={{ width: '33%' }}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('huawei');
+                }}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{globalUtil.fetchSvg('huaweiIcon')}</div>
+                <div className={styles.importDesc}>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.huawei' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.Docking' /></p>
                 </div>
-              </Col>
-              <Col style={{ width: '33%' }}>
-                <div
-                  onClick={() => {
-                    this.handleInstallRegion('tencent');
-                  }}
-                  className={styles.import}
-                >
-                  <div className={styles.importicon}>{globalUtil.fetchSvg('tencentIcon')}</div>
-                  <div className={styles.importDesc}>
-                    <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun' /></h3>
-                    <p><FormattedMessage id='enterpriseColony.addCluster.clusters' /></p>
-                  </div>
+              </div>
+            </Col>
+            <Col style={{ width: '33%' }}>
+              <div
+                onClick={() => {
+                  this.handleInstallRegion('tencent');
+                }}
+                className={styles.import}
+              >
+                <div className={styles.importicon}>{globalUtil.fetchSvg('tencentIcon')}</div>
+                <div className={styles.importDesc}>
+                  <h3><FormattedMessage id='enterpriseColony.addCluster.tenxun' /></h3>
+                  <p><FormattedMessage id='enterpriseColony.addCluster.clusters' /></p>
                 </div>
-              </Col>
-            </Row>
-          </Card>
-          {addClusterShow && (
-            <BaseAddCluster
-              eid={eid}
-              onOk={this.addClusterOK}
-              onCancel={this.cancelAddCluster}
-            />
-          )}
-          {addCustomClusterShow && (
-            <CustomClusterAdd eid={eid} onCancel={this.cancelAddCustomCluster} />
-          )}
-        </ScrollerX>
+              </div>
+            </Col>
+          </Row>
+        </div>
+        {addClusterShow && (
+          <BaseAddCluster
+            eid={eid}
+            onOk={this.addClusterOK}
+            onCancel={this.cancelAddCluster}
+          />
+        )}
+        {addCustomClusterShow && (
+          <CustomClusterAdd eid={eid} onCancel={this.cancelAddCustomCluster} />
+        )}
       </PageHeaderLayout>
     );
   }

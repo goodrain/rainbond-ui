@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': '修改组件名称',
     'componentOverview.EditName.input_en_name': '请输入组件英文名称',
-    'componentOverview.EditName.Cannot': '不能大于32个字符',
+    'componentOverview.EditName.Cannot': '不能大于16个字符',
     'componentOverview.EditName.only': '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
     'componentOverview.EditName.edit': '修改组件名称',
     'componentOverview.EditName.name': '组件名称',

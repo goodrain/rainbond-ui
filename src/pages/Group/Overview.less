@@ -7,11 +7,12 @@
 .container {
   width: 100%;
   height: calc(100vh - 62px);
+  overflow: hidden;
   position: relative;
-  background-color: #fff;
   background-image: radial-gradient(rgba(12, 12, 12, 0.1) 1.5px, transparent 0);
   background-size: 30px 30px;
   background-position: -5px -5px;
+  padding: 18px;
   transition: width @transition-duration @transition-timing;
 
   &.collapsed {
@@ -52,7 +53,7 @@
 .componentMenu {
   position: absolute;
   top: 120px;
-  left: 0;
+  left: 18px;
   width: 200px;
 }
 

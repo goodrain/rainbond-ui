@@ -1,5 +1,5 @@
 /* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon, List, Modal, notification } from 'antd';
+import { Button, Icon, List, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -294,6 +294,107 @@ class PluginList extends PureComponent {
     return item.plugin_alias;
   };
 
+  // 渲染插件卡片
+  renderPluginCard = (item, operationPermissions) => {
+    const { isCreate, isDelete } = operationPermissions;
+    const { installLoading, currentType } = this.state;
+    const isInstalled = item.has_install !== false;
+
+    const handleAction = () => {
+      if (isInstalled) {
+        // 已安装，跳转到管理页面
+        const { dispatch } = this.props;
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${item.plugin_id}`
+          )
+        );
+      } else if (isCreate) {
+        // 未安装，执行安装
+        this.onInstallPlugin(item);
+      }
+    };
+
+    const getButtonText = () => {
+      if (isInstalled) {
+        return formatMessage({ id: 'teamPlugin.btn.manage' });
+      }
+      return formatMessage({ id: 'teamPlugin.btn.install' });
+    };
+
+    const getButtonIcon = () => {
+      if (isInstalled) {
+        return 'setting';
+      }
+      return 'download';
+    };
+
+    return (
+      <div className={styles.pluginCard}>
+        <div className={styles.pluginCardContent}>
+          <div className={styles.pluginCardLogo}>
+            <Icon
+              style={{ fontSize: 40, color: 'rgba(0, 0, 0, 0.2)' }}
+              type="api"
+            />
+          </div>
+          <div className={styles.pluginCardInfo}>
+            <div className={styles.pluginCardHeader}>
+              <span
+                className={styles.pluginCardName}
+                title={item.plugin_alias}
+                onClick={handleAction}
+              >
+                {item.plugin_alias}
+              </span>
+            </div>
+            <div className={styles.pluginCardType}>
+              {pluginUtil.getCategoryCN(item.plugin_type || item.category)}
+            </div>
+            <div className={styles.pluginCardDesc} title={item.desc}>
+              {item.desc}
+            </div>
+          </div>
+        </div>
+        <div className={styles.pluginCardAction}>
+          {isInstalled ? (
+            <div className={styles.pluginCardBtnGroup}>
+              {isDelete && (
+                <button
+                  className={styles.pluginCardDeleteBtn}
+                  onClick={() => this.onDeletePlugin(item)}
+                >
+                  <Icon type="delete" />
+                  {formatMessage({ id: 'teamPlugin.btn.delete' })}
+                </button>
+              )}
+              <button
+                className={styles.pluginCardPrimaryBtn}
+                onClick={handleAction}
+              >
+                <Icon type="setting" />
+                {formatMessage({ id: 'teamPlugin.btn.manage' })}
+              </button>
+            </div>
+          ) : (
+            <button
+              className={styles.pluginCardPrimaryBtn}
+              onClick={handleAction}
+              disabled={!isCreate || (currentType && currentType === item.plugin_type && installLoading)}
+            >
+              {currentType && currentType === item.plugin_type && installLoading ? (
+                <Icon type="loading" />
+              ) : (
+                <Icon type="download" />
+              )}
+              {formatMessage({ id: 'teamPlugin.btn.install' })}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // 获取默认插件列表
   fetchDefaultPlugin = () => {
     const { dispatch } = this.props;
@@ -493,67 +594,36 @@ class PluginList extends PureComponent {
               // eslint-disable-next-line no-nested-ternary
               item ? (
                 <List.Item key={item.id}>
-                  <Card
-                    className={styles.card}
-                    actions={this.getAction(item, operationPermissions)}
-                  >
-                    <Card.Meta
-                      style={{ height: 100, overflow: 'auto' }}
-                      avatar={
-                        <Icon
-                          style={{ fontSize: 50, color: 'rgba(0, 0, 0, 0.2)' }}
-                          type="api"
-                        />
-                      }
-                      title={this.getItemTitle(item)}
-                      description={
-                        <Fragment>
-                          <p
-                            style={{
-                              display: 'block',
-                              color: 'rgb(220, 220, 220)',
-                              marginBottom: 8
-                            }}
-                          >
-                            {' '}
-                            {pluginUtil.getCategoryCN(
-                              item.plugin_type || item.category
-                            )}{' '}
-                          </p>
-                          <Ellipsis className={styles.item} lines={3}>
-                            {item.desc}
-                          </Ellipsis>
-                        </Fragment>
-                      }
-                    />
-                  </Card>
+                  {this.renderPluginCard(item, operationPermissions)}
                 </List.Item>
               ) : operationPermissions.isCreate ? (
                 <List.Item key={item.id}>
-                  <div 
-                    className={styles.newButton}
-                    onMouseEnter={this.appOver}
-                    onMouseLeave={this.appOut}
-                  >
-                    {
-                      !appOutPlugin && (
-                        <div style={{ display: appOutPlugin ? 'none' : 'block'}}>
-                        <Icon type="plus" style={{fontSize:'40px',fontWeight:'bolder',marginTop:'50px'}}/>
-                        <p style={{marginTop:'20px',fontSize:'14px'}}>{formatMessage({id: 'teamPlugin.hint'})}</p>
-                        </div>
-                      )
-                    }
-                    {
-                      appOutPlugin && (
-                      <div className={styles.changeBtn} >
-                        <div onClick={this.handleInstall} className={styles.appBtn}>{formatMessage({id: 'teamPlugin.btn.marketAdd'})}</div>
-                        <div onClick={this.handleCreate} className={styles.instBtn}>{formatMessage({id: 'teamPlugin.btn.add'})}</div>
+                  <div className={styles.addPluginCard}>
+                    <div className={styles.addPluginContent}>
+                      <div className={styles.addPluginIcon}>
+                        <Icon type="plus" />
                       </div>
-                    )
-                    
-                  }
+                      <div className={styles.addPluginText}>
+                        {formatMessage({id: 'teamPlugin.hint'})}
+                      </div>
+                    </div>
+                    <div className={styles.addPluginActions}>
+                      <button
+                        className={styles.addPluginBtn}
+                        onClick={this.handleInstall}
+                      >
+                        <Icon type="appstore" />
+                        {formatMessage({id: 'teamPlugin.btn.marketAdd'})}
+                      </button>
+                      <button
+                        className={styles.addPluginBtnPrimary}
+                        onClick={this.handleCreate}
+                      >
+                        <Icon type="plus" />
+                        {formatMessage({id: 'teamPlugin.btn.add'})}
+                      </button>
+                    </div>
                   </div>
-                 
                 </List.Item>
               ) : (
                 <div />

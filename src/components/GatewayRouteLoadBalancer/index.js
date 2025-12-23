@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import {
     Table,
-    Card,
     Button,
     Row,
     Col,
@@ -11,13 +10,11 @@ import {
     notification,
     Popconfirm,
     Tag,
-    Tooltip,
     Modal,
     Select,
     InputNumber,
     Spin,
-    Icon,
-    Divider
+    Icon
 } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
@@ -906,52 +903,48 @@ export default class GatewayRouteLoadBalancer extends Component {
 
         return (
             <div className={styles.container}>
-                <Card>
-                    <Row style={{ marginBottom: 16 }}>
-                        <Col span={12}>
-                            <Input.Search
-                                placeholder={formatMessage({ id: 'componentOverview.body.LoadBalancer.search' })}
-                                value={searchKey}
-                                onChange={(e) => this.setState({ searchKey: e.target.value })}
-                                onSearch={this.handleSearch}
-                                style={{ width: 300 }}
-                            />
-                        </Col>
-                        <Col span={12} style={{ textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <Button
-                                type="link"
-                                icon="question-circle"
-                                onClick={() => window.open('https://www.rainbond.com/docs/how-to-guides/app-ops/gateway', '_blank')}
-                                style={{ marginRight: 8, padding: '4px 8px' }}
-                            >
-                                {formatMessage({ id: 'componentOverview.body.LoadBalancer.documentation' })}
-                            </Button>
-                            {isCreate && (
-                                <Button
-                                    type="primary"
-                                    onClick={() => this.showModal()}
-                                >
-                                    {formatMessage({ id: 'componentOverview.body.LoadBalancer.create' })}
-                                </Button>
-                            )}
-                        </Col>
-                    </Row>
-
-                    <Table
-                        columns={columns}
-                        dataSource={dataSource}
-                        loading={tableLoading}
-                        rowKey="name"
-                        pagination={{
-                            pageSize: this.state.pageSize,
-                            current: this.state.page,
-                            total: dataSource.length,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
-                            showTotal: (total) => formatMessage({ id: 'componentOverview.body.LoadBalancer.total_records' }, { total })
-                        }}
+                <div className={styles.gatewayHeader}>
+                    <Input.Search
+                        placeholder={formatMessage({ id: 'componentOverview.body.LoadBalancer.search' })}
+                        value={searchKey}
+                        onChange={(e) => this.setState({ searchKey: e.target.value })}
+                        onSearch={this.handleSearch}
+                        style={{ width: 300 }}
                     />
-                </Card>
+                    <div className={styles.headerRight}>
+                        <Button
+                            type="link"
+                            icon="question-circle"
+                            onClick={() => window.open('https://www.rainbond.com/docs/how-to-guides/app-ops/gateway', '_blank')}
+                            style={{ marginRight: 8, padding: '4px 8px' }}
+                        >
+                            {formatMessage({ id: 'componentOverview.body.LoadBalancer.documentation' })}
+                        </Button>
+                        {isCreate && (
+                            <Button
+                                type="primary"
+                                onClick={() => this.showModal()}
+                            >
+                                {formatMessage({ id: 'componentOverview.body.LoadBalancer.create' })}
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
+                <Table
+                    columns={columns}
+                    dataSource={dataSource}
+                    loading={tableLoading}
+                    rowKey="name"
+                    pagination={{
+                        pageSize: this.state.pageSize,
+                        current: this.state.page,
+                        total: dataSource.length,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total) => formatMessage({ id: 'componentOverview.body.LoadBalancer.total_records' }, { total })
+                    }}
+                />
 
                 <Modal
                     title={type === 'add' ? formatMessage({ id: 'componentOverview.body.LoadBalancer.create' }) : formatMessage({ id: 'componentOverview.body.LoadBalancer.edit' })}

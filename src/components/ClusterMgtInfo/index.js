@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  Card,
   Row,
   Col,
   Button,
@@ -547,7 +546,9 @@ class Index extends Component {
       rowClusterInfo,
       form,
       showInfo = false,
-      nodeType
+      nodeType,
+      titleIcon,
+      titleText
     } = this.props;
     const {
       region_alias,
@@ -639,90 +640,97 @@ class Index extends Component {
     };
     return (
       <>
-        <Card
-        >
-          {!showInfo && <Skeleton active />}
-          {showInfo &&
-            <>
-              <Row className={styles.InfoStyle}>
-                {/* logo */}
-                <Col span={3}>
-                  {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
-                </Col>
-                {/* 名称 */}
-                <Col span={3}>
-                  <p>{region_alias}</p>
-                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
-                </Col>
-                {/* 状态 */}
-                <Col span={3}>
-                  <p>{this.clusterStatus(status, health_status)}</p>
-                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
-                </Col>
-                {/* 按钮 */}
-                <Col span={15}>
-                  <Button
-                    onClick={this.handleEdit}
-                    icon="edit"
-                  >
-                    <FormattedMessage id='enterpriseColony.table.handle.edit' />
-                  </Button>
-                  <Button
-                    onClick={this.importEven}
-                    icon='download'
-                  >
-                    <FormattedMessage id='enterpriseColony.table.handle.import' />
-                  </Button>
-                  <Link
-                    to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
-                    target="_blank"
-                  >
-                    <Button icon="code">
-                      {formatMessage({ id: 'otherEnterprise.shell.line' })}
-                    </Button>
-                  </Link>
-                  {rowClusterInfo.scope != 'default' && (
+        <div className={styles.cardContainer}>
+          <div className={styles.cardHeader}>
+            <div className={styles.titleStyle}>
+              <span>{titleIcon}</span>
+              <span>{titleText}</span>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            {!showInfo && <Skeleton active />}
+            {showInfo &&
+              <>
+                <Row className={styles.InfoStyle}>
+                  {/* logo */}
+                  <Col span={3}>
+                    {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
+                  </Col>
+                  {/* 名称 */}
+                  <Col span={3}>
+                    <p>{region_alias}</p>
+                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
+                  </Col>
+                  {/* 状态 */}
+                  <Col span={3}>
+                    <p>{this.clusterStatus(status, health_status)}</p>
+                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
+                  </Col>
+                  {/* 按钮 */}
+                  <Col span={15}>
                     <Button
-                      onClick={() => this.delEven('delete')}
-                      icon="delete"
+                      onClick={this.handleEdit}
+                      icon="edit"
                     >
-                      <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                      <FormattedMessage id='enterpriseColony.table.handle.edit' />
                     </Button>
-                  )}
-                </Col>
-              </Row>
-              {/* 基本信息 */}
-              {health_status !== 'failure' &&
-                <Row className={styles.ClusterInfo}>
-                  <Descriptions >
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
-                      <span className={styles.nodeType}>
-                        {
-                          nodeType &&
-                            Object.keys(nodeType).length > 0 ?
-                            Object.keys(nodeType).map(item => {
-                              return <span>{nodeType[item]} {item} </span>
-                            })
-                            :
-                            "-"
-                        }
-                      </span>
-                    </Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
-                      {arch.length > 0 && arch.map((item) => {
-                        return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
-                      })}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
-                  </Descriptions>
+                    <Button
+                      onClick={this.importEven}
+                      icon='download'
+                    >
+                      <FormattedMessage id='enterpriseColony.table.handle.import' />
+                    </Button>
+                    <Link
+                      to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
+                      target="_blank"
+                    >
+                      <Button icon="code">
+                        {formatMessage({ id: 'otherEnterprise.shell.line' })}
+                      </Button>
+                    </Link>
+                    {rowClusterInfo.scope != 'default' && (
+                      <Button
+                        onClick={() => this.delEven('delete')}
+                        icon="delete"
+                      >
+                        <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                      </Button>
+                    )}
+                  </Col>
                 </Row>
-              }
-            </>
-          }
-        </Card >
+                {/* 基本信息 */}
+                {health_status !== 'failure' &&
+                  <Row className={styles.ClusterInfo}>
+                    <Descriptions >
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
+                        <span className={styles.nodeType}>
+                          {
+                            nodeType &&
+                              Object.keys(nodeType).length > 0 ?
+                              Object.keys(nodeType).map(item => {
+                                return <span>{nodeType[item]} {item} </span>
+                              })
+                              :
+                              "-"
+                          }
+                        </span>
+                      </Descriptions.Item>
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                        {arch.length > 0 && arch.map((item) => {
+                          return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
+                        })}
+                      </Descriptions.Item>
+                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
+                    </Descriptions>
+                  </Row>
+                }
+              </>
+            }
+          </div>
+        </div>
         {/* 删除弹框 */}
         {
           delVisible && (

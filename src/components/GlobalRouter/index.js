@@ -35,8 +35,16 @@ const getIcon = icon => {
 export default class GlobalRouter extends PureComponent {
   constructor(props) {
     super(props);
+    // 初始化时计算一次 isTeamView，避免后续多次更新导致闪烁
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const { currentUser, currentEnterprise } = props;
+    const eid = currentEnterprise?.enterprise_id;
     this.state = {
       expandedKeys: [], // 展开的子菜单 keys
+      isTeamView: !!(teamName && regionName), // 缓存视图状态
+      // 缓存管理员状态，避免数据加载导致的闪烁
+      isAdmin: !!(currentUser?.is_enterprise_admin && eid),
     };
   }
 
@@ -48,6 +56,17 @@ export default class GlobalRouter extends PureComponent {
   componentDidUpdate(prevProps) {
     if (prevProps.location?.pathname !== this.props.location?.pathname) {
       this.initExpandedKeys();
+    }
+
+    // 首次加载时 currentUser/currentEnterprise 可能为空，需要在数据加载后更新一次 isAdmin
+    const { currentUser, currentEnterprise } = this.props;
+    const { isAdmin } = this.state;
+    const eid = currentEnterprise?.enterprise_id;
+    const newIsAdmin = !!(currentUser?.is_enterprise_admin && eid);
+
+    // 只在从 false 变为 true 时更新一次，避免后续闪烁
+    if (!isAdmin && newIsAdmin) {
+      this.setState({ isAdmin: newIsAdmin });
     }
   }
 
@@ -71,15 +90,6 @@ export default class GlobalRouter extends PureComponent {
     });
 
     this.setState({ expandedKeys });
-  };
-
-  /**
-   * 判断当前是否在团队视图
-   */
-  isTeamView = () => {
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    return teamName && regionName;
   };
 
   /**
@@ -186,11 +196,8 @@ export default class GlobalRouter extends PureComponent {
    * 渲染视图切换器
    */
   renderViewSwitcher = () => {
-    const { collapsed, currentUser, currentEnterprise } = this.props;
-    const isTeam = this.isTeamView();
-    const eid = currentEnterprise?.enterprise_id;
-    // 与 GlobalHeader 中的平台管理按钮使用相同的判断条件
-    const isAdmin = currentUser?.is_enterprise_admin && eid;
+    const { collapsed } = this.props;
+    const { isTeamView: isTeam, isAdmin } = this.state; // 使用缓存的状态，避免多次更新
 
     if (!isAdmin) {
       return null;
@@ -403,7 +410,7 @@ export default class GlobalRouter extends PureComponent {
 
       return (
         <div key={groupKey} className={styles.menuGroup}>
-          {!collapsed && (
+          {!collapsed && groupName && (
             <div className={styles.groupTitle}>{groupName}</div>
           )}
           <div className={styles.groupItems}>

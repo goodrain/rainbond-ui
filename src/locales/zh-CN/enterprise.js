@@ -1261,6 +1261,7 @@ const enterpriseSetting = {
     'enterpriseSetting.enterpriseAdmin.col.name': '姓名',
     'enterpriseSetting.enterpriseAdmin.col.role': '角色',
     'enterpriseSetting.enterpriseAdmin.col.time': '时间',
+    'enterpriseSetting.enterpriseAdmin.col.operation': '操作',
     'enterpriseSetting.enterpriseAdmin.col.Menu.delete': '删除管理员',
     'enterpriseSetting.enterpriseAdmin.col.Menu.edit': '编辑管理员',
     'enterpriseSetting.enterpriseAdmin.col.time.add': '添加管理员',

@@ -31,7 +31,7 @@ const DEMO_CONFIGS = {
 };
 
 const DEFAULT_ARCH = 'amd64';
-const MAX_NAME_LENGTH = 32;
+const MAX_NAME_LENGTH = 16;
 const MAX_SERVICE_NAME_LENGTH = 24;
 
 const formItemLayout = {
@@ -123,7 +123,7 @@ export default class Index extends PureComponent {
     }
     
     if (value.length > MAX_NAME_LENGTH) {
-      return callback(new Error(formatMessage({ id: 'placeholder.max32' })));
+      return callback(new Error(formatMessage({ id: 'placeholder.max16' })));
     }
 
     const nameSpaceRegex = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;

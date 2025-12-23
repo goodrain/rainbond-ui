@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
-import { Card, List } from 'antd';
+import { List, Spin } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../../utils/global';
 import handleAPIError from '../../../utils/error';
@@ -98,38 +98,34 @@ export default class EventList extends PureComponent {
 
       return (
         <List.Item key={ID}>
-          <List.Item.Meta
-            title={
+          <div className={styles.eventItem}>
+            <div className={styles.eventInfo}>
+              <a className={styles.username}>{user_name}</a>
+              <span className={styles.event}>
+                {' '}
+                {globalUtil.fetchStateOptTypeText(opt_type)}
+              </span>
+              &nbsp;
+              {target === 'service' && (
+                <Link to={linkTo} className={styles.event}>
+                  {service_name}
+                </Link>
+              )}
               <span>
-                <a className={styles.username}>{user_name}</a>
-                <span className={styles.event}>
-                  {' '}
-                  {globalUtil.fetchStateOptTypeText(opt_type)}
-                </span>
-                &nbsp;
-                {target === 'service' && (
-                  <Link to={linkTo} className={styles.event}>
-                    {service_name}
-                  </Link>
-                )}
-                <span>
-                  {formatMessage({ id: 'teamManage.tabs.dynamic.meta.app' })}
-                </span>
-                <span
-                  style={{
-                    color: globalUtil.fetchAbnormalcolor(opt_type)
-                  }}
-                >
-                  {globalUtil.fetchOperation(final_status, status)}
-                </span>
+                {formatMessage({ id: 'teamManage.tabs.dynamic.meta.app' })}
               </span>
-            }
-            description={
-              <span className={styles.datatime_float} title={updatedAt}>
-                {globalUtil.fetchdayTime(create_time)}
+              <span
+                style={{
+                  color: globalUtil.fetchAbnormalcolor(opt_type)
+                }}
+              >
+                {globalUtil.fetchOperation(final_status, status)}
               </span>
-            }
-          />
+            </div>
+            <span className={styles.eventTime} title={updatedAt}>
+              {globalUtil.fetchdayTime(create_time)}
+            </span>
+          </div>
         </List.Item>
       );
     });
@@ -146,21 +142,22 @@ export default class EventList extends PureComponent {
     };
 
     return (
-      <Card
-        bodyStyle={{ paddingTop: 12 }}
-        title={formatMessage({ id: 'teamManage.tabs.dynamic' })}
-        loading={activitiesLoading}
-      >
-        <List
-          pagination={total > pageSize ? pagination : false}
-          loading={activitiesLoading}
-          size="large"
-        >
-          <div className={styles.activitiesList}>
-            {this.renderActivities()}
+      <div className={styles.eventListContainer}>
+        <div className={styles.eventListHeader}>
+          <div className={styles.sectionHeader}>
           </div>
-        </List>
-      </Card>
+        </div>
+        <Spin spinning={activitiesLoading}>
+          <List
+            pagination={total > pageSize ? pagination : false}
+            size="large"
+          >
+            <div className={styles.activitiesList}>
+              {this.renderActivities()}
+            </div>
+          </List>
+        </Spin>
+      </div>
     );
   }
 }

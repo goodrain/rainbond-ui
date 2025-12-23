@@ -4,17 +4,16 @@ import EditGroupName from '@/components/AddOrEditGroup';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import AppDirector from '@/components/AppDirector';
 import globalUtil from '@/utils/global';
-import { notification, Button, Dropdown, Menu, Icon, Tag, Modal, Divider, Row, Col, Tooltip, Badge } from 'antd';
+import { notification, Button, Dropdown, Menu, Icon, Tag, Modal, Divider, Row, Col, Tooltip, Badge, Spin } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { buildApp } from '../../../services/createApp';
-import VisterBtn from '../../../components/visitBtnForAlllink';
+import VisterBtnWithIcon from './VisterBtnWithIcon';
 import AppDeteleResource from '../../../components/AppDeteleResource'
 import RapidCopy from '../../../components/RapidCopy';
 import cookie from '../../../utils/cookie';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import AppState from '../../../components/ApplicationState';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
 import sourceUtil from '../../../utils/source-unit';
@@ -69,7 +68,8 @@ export default class app extends Component {
         unit: 'MB'
       },
       showComponentList: false,
-      showCreateComponentModal: false
+      showCreateComponentModal: false,
+      headerLeftExpanded: false
     };
   }
   componentDidMount() {
@@ -436,6 +436,7 @@ export default class app extends Component {
       {
         key: 'addComponent',
         type: 'button',
+        icon: 'plus',
         text: <FormattedMessage id="versionUpdata_6_4.overview.add" defaultMessage="添加" />,
         show: isCreate && !isSlidePanel,
         disabled: false,
@@ -445,11 +446,12 @@ export default class app extends Component {
         key: 'visitor',
         show: linkList && linkList.length > 0,
         type: 'component', // 特殊标识组件类型
-        component: <VisterBtn linkList={linkList} type={!isSlidePanel ? 'default' : 'primary'} /> // 直接传入组件
+        component: <VisterBtnWithIcon linkList={linkList} type={!isSlidePanel ? 'default' : 'primary'} /> // 直接传入组件
       },
       {
         key: 'appRelease',
         type: 'button',
+        icon: 'file-text',
         text: <FormattedMessage id="versionUpdata_6_4.overview.template" />,
         show: isAppRelease && !isSlidePanel,
         disabled: false,
@@ -458,6 +460,7 @@ export default class app extends Component {
       {
         key: 'appUpgrade',
         type: 'badge',
+        icon: 'arrow-up',
         text: <FormattedMessage id="versionUpdata_6_4.overview.upgrade" />,
         show: isAppUpgrade && !isSlidePanel && upgradableNum !== 0,
         disabled: false,
@@ -574,6 +577,7 @@ export default class app extends Component {
             type={index === 0 ? "primary" : "default"}
             onClick={op.onClick}
             disabled={op.disabled}
+            icon={op.icon}
           >
             {op.text}
           </Button>
@@ -593,6 +597,7 @@ export default class app extends Component {
             key={op.key}
             onClick={op.onClick}
             disabled={op.disabled}
+            icon={op.icon}
             style={{ marginRight: 8 }}
           >
             {op.text}
@@ -611,6 +616,7 @@ export default class app extends Component {
       content.push(
         <Button
           key="appDetail"
+          icon="profile"
           onClick={() => this.handleOpenAddComponentOrAppDetail('appDetail')}
           style={{marginRight:8}}
         >
@@ -846,10 +852,6 @@ export default class app extends Component {
       )
     );
   };
-  // 高级设置按钮
-  handleAdvancedSettings = () => {
-    return null;
-  };
   render() {
     const {
       currApp,
@@ -903,36 +905,42 @@ export default class app extends Component {
     return (
       <div className={styles.container}>
         <div className={styles.header_container}>
-          <div className={styles.header_left}>
-            <div className={styles.header_left_title}>
-              <div className={styles.header_left_title_icon}>
-                {pageheaderSvg.getSvg('apphome', 22)}
+          <div
+            className={styles.header_left}
+            onMouseEnter={() => this.setState({ headerLeftExpanded: true })}
+            onMouseLeave={() => this.setState({ headerLeftExpanded: false })}
+          >
+            <Icon
+              type="info-circle"
+              theme="filled"
+              className={styles.header_left_icon}
+            />
+            <div className={`${styles.header_left_content} ${this.state.headerLeftExpanded ? styles.header_left_content_expanded : ''}`}>
+              <div className={styles.header_left_title}>
+                <div className={styles.header_left_title_name}>
+                  {currApp.group_name || '-'}
+                </div>
+                {isEdit &&
+                  <Icon
+                    style={{
+                      cursor: 'pointer',
+                      marginLeft: '5px',
+                      marginRight: '12px'
+                    }}
+                    onClick={this.toEdit}
+                    type="edit"
+                  />
+                }
+                {currApp.app_arch &&
+                  currApp.app_arch.length > 0 &&
+                  currApp.app_arch.map((item, index) => {
+                    return <Tag key={index}>{item}</Tag>
+                  })}
               </div>
-              <div className={styles.header_left_title_name}>
-                {currApp.group_name || '-'}
-              </div>
-              {isEdit &&
-                <Icon
-                  style={{
-                    cursor: 'pointer',
-                    marginLeft: '5px',
-                    marginRight: '12px'
-                  }}
-                  onClick={this.toEdit}
-                  type="edit"
-                />
-              }
-              <AppState AppStatus={resources.status} />
-              {currApp.app_arch &&
-                currApp.app_arch.length > 0 &&
-                currApp.app_arch.map((item) => {
-                  return <Tag>{item}</Tag>
-                })}
             </div>
           </div>
           <div className={styles.header_right}>
             {this.checkPermissions()}
-            {this.handleAdvancedSettings()}
           </div>
         </div>
         {addComponentOrAppDetail && (

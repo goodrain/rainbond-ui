@@ -36,16 +36,21 @@ function menuData(teamName, regionName, permissionsInfo, pluginList) {
 
   const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Team');
 
-  // ============ 第一组：基础功能 ============
-  const basicItems = [
-    {
-      name: formatMessage({ id: 'menu.team.dashboard' }),
-      icon: getMenuSvg.getSvg('dashboard'),
-      path: `team/${teamName}/region/${regionName}/index`,
-      authority: ['admin', 'user']
-    }
-  ];
+  // ============ 第一组：团队总览（无标题） ============
+  menuGroups.push({
+    groupKey: 'overview',
+    groupName: '', // 无标题
+    items: [
+      {
+        name: formatMessage({ id: 'menu.team.dashboard' }),
+        icon: getMenuSvg.getSvg('dashboard'),
+        path: `team/${teamName}/region/${regionName}/index`,
+        authority: ['admin', 'user']
+      }
+    ]
+  });
 
+  // ============ 第二组：管理功能 ============
   if (permissionsInfo) {
     const {
       isTeamPluginManage,
@@ -55,9 +60,11 @@ function menuData(teamName, regionName, permissionsInfo, pluginList) {
       isTeamRegistryAuth
     } = results();
 
+    const adminItems = [];
+
     // 流水线
     if (setTeamMenu(pluginList, 'pipeline')) {
-      basicItems.push({
+      adminItems.push({
         name: formatMessage({ id: 'menu.team.pipeline' }),
         icon: getMenuSvg.getSvg('Pipeline'),
         path: `team/${teamName}/region/${regionName}/Pipeline`,
@@ -67,7 +74,7 @@ function menuData(teamName, regionName, permissionsInfo, pluginList) {
 
     // 插件管理
     if (isTeamPluginManage) {
-      basicItems.push({
+      adminItems.push({
         name: formatMessage({ id: 'menu.team.plugin' }),
         icon: getMenuSvg.getSvg('api'),
         path: `team/${teamName}/region/${regionName}/myplugns`,
@@ -75,61 +82,39 @@ function menuData(teamName, regionName, permissionsInfo, pluginList) {
       });
     }
 
-    menuGroups.push({
-      groupKey: 'basic',
-      groupName: formatMessage({ id: 'menu.group.basic', defaultMessage: '基础功能' }),
-      items: basicItems
-    });
-
-    // ============ 第二组：管理功能 ============
+    // 团队设置
     if (isTeamDynamic || isTeamRegion || isTeamRole || isTeamRegistryAuth) {
+      adminItems.push({
+        name: formatMessage({ id: 'menu.team.setting' }),
+        icon: getMenuSvg.getSvg('setting'),
+        path: `team/${teamName}/region/${regionName}/team`,
+        authority: ['admin', 'user']
+      });
+    }
+
+    if (adminItems.length > 0) {
       menuGroups.push({
         groupKey: 'administration',
         groupName: formatMessage({ id: 'menu.group.administration', defaultMessage: '管理功能' }),
-        items: [
-          {
-            name: formatMessage({ id: 'menu.team.setting' }),
-            icon: getMenuSvg.getSvg('setting'),
-            path: `team/${teamName}/region/${regionName}/team`,
-            authority: ['admin', 'user']
-          }
-        ]
+        items: adminItems
       });
     }
 
-    // ============ 第三组：插件系统 ============
+    // ============ 第三组：插件 ============
     if (newbieGuide !== 'false' && pluginArr && pluginArr.length > 0) {
-      const pluginChildren = [];
-      pluginArr.forEach(item => {
-        pluginChildren.push({
-          name: item.display_name,
-          icon: getMenuSvg.getSvg('plugin'),
-          path: `${item.name}`,
-          authority: ['admin', 'user']
-        });
-      });
+      const pluginItems = pluginArr.map(item => ({
+        name: item.display_name,
+        icon: getMenuSvg.getSvg('plugin'),
+        path: `team/${teamName}/region/${regionName}/plugins/${item.name}`,
+        authority: ['admin', 'user']
+      }));
 
       menuGroups.push({
         groupKey: 'plugins',
-        groupName: formatMessage({ id: 'menu.group.plugins', defaultMessage: '插件系统' }),
-        items: [
-          {
-            name: formatMessage({ id: 'menu.enterprise.plugins', defaultMessage: '插件列表' }),
-            icon: getMenuSvg.getSvg('plugin'),
-            path: `team/${teamName}/region/${regionName}/plugins`,
-            authority: ['admin', 'user'],
-            children: pluginChildren
-          }
-        ]
+        groupName: formatMessage({ id: 'menu.group.plugins', defaultMessage: '插件' }),
+        items: pluginItems
       });
     }
-  } else {
-    // 无权限信息时只显示基础菜单
-    menuGroups.push({
-      groupKey: 'basic',
-      groupName: formatMessage({ id: 'menu.group.basic', defaultMessage: '基础功能' }),
-      items: basicItems
-    });
   }
 
   return menuGroups;

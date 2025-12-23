@@ -7,7 +7,6 @@ import { Redirect, routerRedux } from 'dva/router';
 import AppShape from './AppShape'
 import PageHeaderSvg from '@/utils/pageHeaderSvg'
 import AppHeader from '@/components/SlidePanel/components/app'
-import EditorTopology from './EditorTopology';
 import roleUtil from '@/utils/newRole'
 import styles from './Overview.less'
 
@@ -199,22 +198,6 @@ export default class Overview extends Component {
     )
   }
 
-  handleChangeType = (newType, oldType) => {    
-    if (this.state.type === 'EditorTopology') {
-      this.setState({ isExiting: true });
-      setTimeout(() => {
-        this.setState({
-          isExiting: false,
-          type: newType
-        });
-      }, 400);
-    } else {
-      this.setState({ type: newType });
-    }
-    if(oldType === 'EditorTopology') {
-      document.getElementById('myframe').contentWindow.location.reload(true);
-    }
-  }
 
   render() {
     const { isDev, isVisible, componentID, type, apps, addComponentOrAppDetail, isExiting, refresh, tableDataLoading } = this.state;
@@ -241,38 +224,14 @@ export default class Overview extends Component {
           <>
             {tableDataLoading &&
               <AppShape
-                iframeHeight={'calc(100vh - 188px)'}
+                iframeHeight={'calc(100vh - 120px)'}
                 group_id={globalUtil.getAppID()}
                 apps={apps}
               />
             }
 
-            {type == 'EditorTopology' && (
-              <div
-                className={`${styles.content_container} ${styles.animatedContainer} ${isExiting ? styles.exit : ''}`}
-                style={{ width: '100%', height: 'calc(100vh - 60px)' }}
-              >
-                <EditorTopology
-                  iframeHeight={'calc(100vh - 148px)'}
-                  group_id={globalUtil.getAppID()}
-                  changeType={types => {
-                    this.changeType(types);
-                  }}
-                />
-              </div>
-            )}
           </>
         )}
-
-        {type == 'EditorTopology' &&
-          <Button
-            onClick={() => this.handleChangeType('AppShape', 'EditorTopology')}
-            style={{ position: 'absolute', top: 72, right: 6, zIndex: 999 }}
-            type='link'
-          >
-            <Icon type="close" style={{ fontSize: 20 }} />
-          </Button>
-        }
         <SlidePanel
           isVisible={isVisible}
           componentID={componentID}

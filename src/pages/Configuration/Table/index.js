@@ -4,15 +4,12 @@ import { batchOperation } from '@/services/app';
 import {
   Badge,
   Button,
-  Card,
   Form,
   Input,
   Modal,
   notification,
   Popover,
-  Row,
-  Table,
-  Col
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -208,64 +205,53 @@ export default class ConfigurationTable extends PureComponent {
             subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
-        <Card
-          style={{
-            borderRadius: 5
-          }}
-          className={styles.cardBody}
-        >
-          <Row className={styles.cardHeader}>
-            <Col span={20}>
-              <Form layout="inline" style={{ display: 'inline-block' }}>
-                <FormItem>
-                  <Input
-                    placeholder={formatMessage({ id: 'appConfiguration.placeholder' })}
-                    onChange={this.handelChange}
-                    onPressEnter={this.handleEnter}
-                    style={{ width: 250 }}
-                  />
-                </FormItem>
-                <FormItem>
-                  <Button type="primary" onClick={this.handleSearch} icon="search">
-                    {formatMessage({ id: 'appConfiguration.btn.search' })}
-                  </Button>
-                </FormItem>
-              </Form>
-            </Col>
-            <Col span={4}>
-              {isCreate && (
-                <Button
-                  type="primary"
-                  icon="plus"
-                  style={{ float: 'right', margin: '4px 0 0' }}
-                  onClick={() => {
-                    this.handleConfigurationOperation();
-                  }}
-                >
-                  {formatMessage({ id: 'appConfiguration.btn.add' })}
+        <div className={styles.configContainer}>
+          <div className={styles.configHeader}>
+            <Form layout="inline" className={styles.searchForm}>
+              <FormItem>
+                <Input
+                  placeholder={formatMessage({ id: 'appConfiguration.placeholder' })}
+                  onChange={this.handelChange}
+                  onPressEnter={this.handleEnter}
+                  style={{ width: 250 }}
+                />
+              </FormItem>
+              <FormItem>
+                <Button type="primary" onClick={this.handleSearch} icon="search">
+                  {formatMessage({ id: 'appConfiguration.btn.search' })}
                 </Button>
-              )}
-            </Col>
-          </Row>
-          <div style={{ padding: 24 }}>
-            <Table
-              size="default"
-              rowKey={(record, index) => index}
-              pagination={{
-                size: 'default',
-                current: page,
-                pageSize,
-                total,
-                onChange: this.onPageChange,
-                onShowSizeChange: this.onPageChange,
-                showQuickJumper: true,
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-                hideOnSinglePage: total<=10
-              }}
-              dataSource={apps || []}
-              loading={loading}
-              columns={[
+              </FormItem>
+            </Form>
+            {isCreate && (
+              <Button
+                type="primary"
+                icon="plus"
+                onClick={() => {
+                  this.handleConfigurationOperation();
+                }}
+              >
+                {formatMessage({ id: 'appConfiguration.btn.add' })}
+              </Button>
+            )}
+          </div>
+          <Table
+            size="default"
+            rowKey={(record, index) => index}
+            pagination={{
+              size: 'default',
+              current: page,
+              pageSize,
+              total,
+              onChange: this.onPageChange,
+              onShowSizeChange: this.onPageChange,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              hideOnSinglePage: total <= 10
+            }}
+            dataSource={apps || []}
+            loading={loading}
+            columns={[
                 {
                   title: formatMessage({ id: 'appConfiguration.table.name' }),
                   dataIndex: 'config_group_name'
@@ -366,9 +352,8 @@ export default class ConfigurationTable extends PureComponent {
                   }
                 }
               ]}
-            />
-          </div>
-        </Card>
+          />
+        </div>
       </div>
     );
   }

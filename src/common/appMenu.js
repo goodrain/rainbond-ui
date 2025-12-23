@@ -32,18 +32,25 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
 
   const menuGroups = [];
 
-  // ============ 第一组：基础功能 ============
-  const basicItems = [
-    {
-      name: formatMessage({ id: 'menu.app.dashboard' }),
-      icon: getMenuSvg.getSvg('dashboard'),
-      path: `team/${teamName}/region/${regionName}/apps/${appID}/overview`,
-      authority: ['admin', 'user']
-    }
-  ];
+  // ============ 第一组：应用总览（无标题） ============
+  menuGroups.push({
+    groupKey: 'overview',
+    groupName: '', // 无标题
+    items: [
+      {
+        name: formatMessage({ id: 'menu.app.dashboard' }),
+        icon: getMenuSvg.getSvg('dashboard'),
+        path: `team/${teamName}/region/${regionName}/apps/${appID}/overview`,
+        authority: ['admin', 'user']
+      }
+    ]
+  });
+
+  // ============ 第二组：管理功能 ============
+  const adminItems = [];
 
   if (isAppRelease) {
-    basicItems.push({
+    adminItems.push({
       name: formatMessage({ id: 'menu.app.publish' }),
       icon: getMenuSvg.getSvg('publish'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/publish`,
@@ -52,7 +59,7 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
   }
 
   if (isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate) {
-    basicItems.push({
+    adminItems.push({
       name: formatMessage({ id: 'menu.app.gateway' }),
       icon: getMenuSvg.getSvg('gateway'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
@@ -61,22 +68,13 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
   }
 
   if (isAppUpgrade) {
-    basicItems.push({
+    adminItems.push({
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: getMenuSvg.getSvg('upgrade'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
       authority: ['admin', 'user']
     });
   }
-
-  menuGroups.push({
-    groupKey: 'basic',
-    groupName: formatMessage({ id: 'menu.group.basic', defaultMessage: '基础功能' }),
-    items: basicItems
-  });
-
-  // ============ 第二组：管理功能 ============
-  const adminItems = [];
 
   if (PluginUtil.isInstallEnterprisePlugin(pluginList) && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
     adminItems.push({
@@ -113,30 +111,19 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     });
   }
 
-  // ============ 第三组：插件系统 ============
+  // ============ 第三组：插件 ============
   if (pluginArr && pluginArr.length > 0) {
-    const pluginChildren = [];
-    pluginArr.forEach(item => {
-      pluginChildren.push({
-        name: item.display_name,
-        icon: getMenuSvg.getSvg('plugin'),
-        path: `${item.name}`,
-        authority: ['admin', 'user']
-      });
-    });
+    const pluginItems = pluginArr.map(item => ({
+      name: item.display_name,
+      icon: getMenuSvg.getSvg('plugin'),
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/plugins/${item.name}`,
+      authority: ['admin', 'user']
+    }));
 
     menuGroups.push({
       groupKey: 'plugins',
-      groupName: formatMessage({ id: 'menu.group.plugins', defaultMessage: '插件系统' }),
-      items: [
-        {
-          name: formatMessage({ id: 'menu.enterprise.plugins', defaultMessage: '插件列表' }),
-          icon: getMenuSvg.getSvg('plugin'),
-          path: `team/${teamName}/region/${regionName}/apps/${appID}/plugins`,
-          authority: ['admin', 'user'],
-          children: pluginChildren
-        }
-      ]
+      groupName: formatMessage({ id: 'menu.group.plugins', defaultMessage: '插件' }),
+      items: pluginItems
     });
   }
 

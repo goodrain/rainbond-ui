@@ -19,12 +19,12 @@
 @menu-width: 200px;
 @menu-collapsed-width: 56px;
 @menu-item-height: 38px;
-@menu-bg: @rbd-background-color;
-// @menu-bg: #fff;
+// @menu-bg: @rbd-background-color;
+@menu-bg: #fff;
 
-@menu-text-color: #333;
-@menu-text-secondary: #666;
-@menu-text-muted: #999;
+@menu-text-color: rgb(73, 84, 100);
+@menu-text-secondary: #676f83;
+@menu-text-muted: #676f83;
 @menu-hover-bg: rgba(0, 0, 0, 0.04);  // 轻微灰色叠加
 @menu-active-bg: #e0ebff;              // 更深的蓝色
 @menu-border-color: #f0f0f0;
@@ -40,6 +40,7 @@
   background: @menu-bg;
   // border-right: 1px solid @menu-border-color;
   transition: width @transition-duration @transition-timing;
+  border-right: 1px solid @border-color-base;
   position: relative;
   user-select: none;
   overflow: hidden;
@@ -52,6 +53,7 @@
 // ==================== 顶部区域 ====================
 .menuHeader {
   flex-shrink: 0;
+  padding-top: 12px;
 }
 
 // ==================== 中间菜单区域 ====================
@@ -99,7 +101,7 @@
 .switcherInner {
   position: relative;
   display: flex;
-  background: #e6edff;
+  background: @rbd-background-color;
   border-radius: 10px;
   padding: 4px;
 }
@@ -115,15 +117,12 @@
   padding: 10px 4px;
   cursor: pointer;
   border-radius: 8px;
-  transition: color 0.3s ease;
   color: @menu-text-muted;
-
-  &:hover {
-    color: @menu-text-secondary;
-  }
+  font-weight: 500;
 
   &.active {
-    color: @menu-text-color;
+    color: @primary-color;
+    border: 1px solid #fff;
   }
 }
 
@@ -146,7 +145,7 @@
   left: 4px;
   width: calc(50% - 4px);
   height: calc(100% - 8px);
-  background: #fff;
+  background: @menu-active-bg;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -193,7 +192,8 @@
   color: @menu-text-color;
   text-decoration: none;
   cursor: pointer;
-  transition: all @transition-duration @transition-timing,
+  font-weight: 500;
+  transition: background @transition-duration @transition-timing,
               width @transition-duration @transition-timing,
               padding @transition-duration @transition-timing,
               margin @transition-duration @transition-timing;
@@ -202,11 +202,10 @@
 
   &:hover {
     background: @menu-hover-bg;
-    color: @primary-color;
+    color: @menu-text-color;
 
     .menuIcon {
-      color: @primary-color;
-      .svgColorChange(@primary-color);
+      color: @menu-text-secondary;
     }
   }
 
@@ -219,7 +218,6 @@
       .svgColorChange(@primary-color);
     }
 
-    // active 状态下 hover 保持 active 样式
     &:hover {
       background: @menu-active-bg;
     }
@@ -254,7 +252,7 @@
   margin-right: 12px;
   font-size: 18px;
   color: @menu-text-secondary;
-  transition: all @transition-duration ease;
+  transition: margin @transition-duration ease;
 
   img {
     width: 100%;
@@ -266,11 +264,6 @@
   svg {
     width: 18px;
     height: 18px;
-    transition: all @transition-duration ease;
-
-    path, circle, rect, polygon, polyline, line, ellipse {
-      transition: all @transition-duration ease;
-    }
   }
 
   // antd Icon
@@ -282,6 +275,7 @@
 .menuText {
   flex: 1;
   font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -311,18 +305,18 @@
   border-radius: 8px;
   color: @menu-text-color;
   cursor: pointer;
-  transition: all @transition-duration @transition-timing,
+  font-weight: 500;
+  transition: background @transition-duration @transition-timing,
               width @transition-duration @transition-timing,
               padding @transition-duration @transition-timing,
               margin @transition-duration @transition-timing;
 
   &:hover {
     background: @menu-hover-bg;
-    color: @primary-color;
+    color: @menu-text-color;
 
     .menuIcon {
-      color: @primary-color;
-      .svgColorChange(@primary-color);
+      color: @menu-text-secondary;
     }
   }
 
@@ -391,14 +385,15 @@
   border-radius: 8px;
   cursor: pointer;
   color: @menu-text-secondary;
-  transition: all @transition-duration @transition-timing,
+  font-weight: 500;
+  transition: background @transition-duration @transition-timing,
               width @transition-duration @transition-timing,
               padding @transition-duration @transition-timing,
               margin @transition-duration @transition-timing;
 
   &:hover {
-    color: @primary-color;
     background: @menu-hover-bg;
+    color: @menu-text-secondary;
   }
 
   &.collapsed {
@@ -419,6 +414,7 @@
 .collapseText {
   margin-left: 12px;
   font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
   opacity: 1;
   transform: translateX(0);
@@ -503,11 +499,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 8px;
-  background: #e6edff;
+  padding: 12px 14px;
+  background: @rbd-background-color;
   margin: 0 8px 8px;
   border-radius: 10px;
-  animation: fadeIn @transition-duration @transition-timing;
   position: relative;
 
   // 底部分割线
@@ -522,41 +517,28 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .switcherItemCollapsed {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   cursor: pointer;
   color: @menu-text-muted;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
   font-size: 18px;
+  font-weight: 500;
 
   &:first-child {
     margin-bottom: 4px;
   }
 
-  &:hover {
-    color: @menu-text-secondary;
-  }
-
   &.active {
-    background: #fff;
-    color: @menu-text-color;
+    background: @menu-active-bg;
+    color: @primary-color;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #fff;
   }
 }
 
@@ -572,7 +554,8 @@
   color: @menu-text-color;
   text-decoration: none;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: background 0.2s ease;
 
   .menuIcon {
     margin-right: 8px;
@@ -580,11 +563,10 @@
 
   &:hover {
     background: @menu-hover-bg;
-    color: @primary-color;
+    color: @menu-text-color;
 
     .menuIcon {
-      color: @primary-color;
-      .svgColorChange(@primary-color);
+      color: @menu-text-secondary;
     }
   }
 

@@ -1,5 +1,6 @@
 @import '~antd/lib/style/themes/default.less';
 @import '../../utils/utils.less';
+
 @customScroll: {
   overflow-x: hidden;
 
@@ -21,7 +22,10 @@
   &:hover::-webkit-scrollbar-track {
     background: hsla(0, 0%, 53%, 0.1);
   }
-};
+}
+
+;
+
 .clearAvatar {
   :global {
     .ant-card-meta-avatar {
@@ -29,97 +33,121 @@
     }
   }
 }
+
 .cardList {
   margin-bottom: -24px;
+
+  :global {
+    .ant-list-item {
+
+      .ant-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: @rbd-card-shadow;
+        background: @rbd-background-color;
+
+        .ant-card-actions {
+          border: 0;
+          color: @primary-color;
+          background: @rbd-background-color;
+
+          &>li {
+            color: @text-color;
+          }
+        }
+      }
+
+      .ant-card:hover {
+        box-shadow: @rbd-card-shadow-hover;
+      }
+    }
+  }
 
   .card {
     border-radius: 5px;
     overflow: hidden;
+
     :global {
+
       .ant-card-meta-title {
         margin-bottom: 2px;
 
-        & > a {
+        &>a {
           color: @heading-color;
         }
       }
 
-      .ant-card-actions {
-        background: #f7f9fa;
-      }
 
       .ant-card-body:hover {
-        .ant-card-meta-title > a {
+        .ant-card-meta-title>a {
           color: @primary-color;
         }
       }
     }
   }
 }
+
 .cards {
   :global {
-    .ant-card-actions > li > span {
+    .ant-card-actions>li>span {
       width: 100%;
     }
 
     .ant-card-meta-title {
       margin-bottom: 2px;
 
-      & > a {
+      &>a {
         color: @heading-color;
       }
     }
 
-    .ant-card-actions {
-      background: #f7f9fa !important;
-    }
 
     .ant-card-body:hover {
-      .ant-card-meta-title > a {
+      .ant-card-meta-title>a {
         color: @primary-color;
       }
     }
   }
 }
+
 .cards_helm {
   :global {
-    .ant-card-actions > li > span {
+    .ant-card-actions>li>span {
       width: 100%;
     }
 
     .ant-card-meta-title {
       margin-bottom: 2px;
 
-      & > a {
+      &>a {
         color: @heading-color;
       }
     }
 
-    .ant-card-actions {
-      background: #f7f9fa !important;
-    }
 
     .ant-card-body:hover {
-      .ant-card-meta-title > a {
+      .ant-card-meta-title>a {
         color: @primary-color;
       }
     }
-    .ant-card-body{
-      background: url(../../../public/images/helm-corner-mark.jpg) no-repeat 100%  0 ;
+
+    .ant-card-body {
+      background: url(../../../public/images/helm-corner-mark.jpg) no-repeat 100% 0;
       background-size: 100px 100px;
     }
   }
 }
+
 .cards_helm_drawer {
   :global {
-    .ant-card-actions > li > span {
+    .ant-card-actions>li>span {
       width: 100%;
     }
 
     .ant-card-meta-title {
       margin-bottom: 2px;
 
-      & > a {
+      &>a {
         color: @heading-color;
       }
     }
@@ -129,16 +157,18 @@
     }
 
     .ant-card-body:hover {
-      .ant-card-meta-title > a {
+      .ant-card-meta-title>a {
         color: @primary-color;
       }
     }
-    .ant-card-body{
-      background: url(../../../public/images/helm-corner-mark.jpg) no-repeat 100%  0 ;
+
+    .ant-card-body {
+      background: url(../../../public/images/helm-corner-mark.jpg) no-repeat 100% 0;
       background-size: 80px 80px;
     }
   }
 }
+
 .extraImg {
   margin-top: -60px;
   text-align: center;
@@ -158,9 +188,10 @@
   text-align: center;
   height: 188px;
   border: 1px solid #e8e8e8;
-  border-radius: 5px ;
+  border-radius: 5px;
 }
-.changeBtn{
+
+.changeBtn {
   width: 100%;
   position: relative;
   border-color: @border-color-base;
@@ -172,22 +203,25 @@
   cursor: pointer;
   font-size: 16px;
   padding: 48px 0px;
-  
-  .appBtn{
+
+  .appBtn {
     width: 90%;
     margin: 0 auto;
     text-align: center;
     height: 66px;
     line-height: 66px;
-    background:#f7f9fa;
+    background: #f7f9fa;
     margin-top: -30px;
     border: 1px solid rgb(232, 232, 232);
   }
-  .appBtn:hover,.instBtn:hover{
+
+  .appBtn:hover,
+  .instBtn:hover {
     border: 1px solid rgb(216, 215, 215);
-    color:  @primary-color;
+    color: @primary-color;
   }
-  .instBtn{
+
+  .instBtn {
     width: 90%;
     margin: 20px auto;
     text-align: center;
@@ -207,7 +241,7 @@
 }
 
 .cardTitle {
-  color:  @primary-color;
+  color: @primary-color;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -234,12 +268,12 @@
   display: flex;
   align-items: center;
 
-  & > span {
+  &>span {
     width: 48px;
     display: inline-block;
   }
 
-  & > a {
+  &>a {
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
@@ -253,12 +287,12 @@
   display: flex;
   align-items: center;
 
-  & > span {
+  &>span {
     width: 58px;
     display: inline-block;
   }
 
-  & > a {
+  &>a {
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
@@ -281,7 +315,7 @@
   height: 26px;
   line-height: 26px;
 
-  & > span {
+  &>span {
     width: 56px;
     display: inline-block;
   }
@@ -311,12 +345,13 @@
   .overScroll {
     width: 67%;
 
-    & > div {
+    &>div {
       height: 26px;
       width: 100%;
       display: flex;
       flex-wrap: wrap;
       @customScroll();
+
       :global {
         .ant-tag {
           padding: 0 5px !important;
@@ -326,7 +361,7 @@
         }
       }
 
-      & > div {
+      &>div {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -389,6 +424,7 @@
   .stepDescription {
     left: 8px;
   }
+
   .pageHeaderContent {
     padding-bottom: 30px;
   }
@@ -461,7 +497,7 @@
   position: relative;
   left: 38px;
 
-  & > div {
+  &>div {
     margin-top: 8px;
     margin-bottom: 4px;
   }
@@ -470,40 +506,47 @@
 .textSecondary {
   color: @text-color-secondary;
 }
-.ulBox{
+
+.ulBox {
   list-style: none;
-  
+
 }
-.ulBox .liBox{
+
+.ulBox .liBox {
   width: 100%;
   height: 70px;
   border: 1px solid #e8e8e8;
   margin-bottom: 10px;
-  padding: 12px  24px;
+  padding: 12px 24px;
   display: flex;
   flex-flow: row;
   align-items: center;
 }
-.app_logo{
+
+.app_logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  img{
+
+  img {
     min-width: 44px;
     max-width: 60px;
     min-height: 44px;
     max-height: 60px;
   }
 }
-.app_title{
+
+.app_title {
   width: 50%;
   margin-left: 24px;
   padding: 2px;
-  h3{
+
+  h3 {
     margin-bottom: 0px;
     color: #4d73d1;
   }
-  p{
+
+  p {
     margin-bottom: 0px;
     white-space: nowrap;
     overflow: hidden;
@@ -514,23 +557,27 @@
     color: @rbd-auxiliary-color-secondary;
   }
 }
-.versions{
+
+.versions {
   height: 70px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin-right: 30px;
-  span{
+
+  span {
     color: #999;
     padding: 0px 10px;
   }
 }
-.tags{
+
+.tags {
   width: 30%;
   height: 70px;
   display: flex;
   align-items: center;
-  div{
+
+  div {
     margin-right: 5px;
     max-width: 60px;
     white-space: nowrap;
@@ -544,6 +591,411 @@
     color: @rbd-auxiliary-color-secondary;
   }
 }
-.installBtn{
 
+.installBtn {}
+
+.localApplication {}
+
+// New horizontal app card style
+.appCard {
+  position: relative;
+  background: @rbd-background-color;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: @rbd-card-shadow;
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: @rbd-card-shadow-hover;
+  }
+}
+
+.appCardContent {
+  display: flex;
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.appCardLogo {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.appCardInfo {
+  flex: 1;
+  margin-left: 16px;
+  overflow: hidden;
+}
+
+.appCardHeader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.appCardName {
+  font-size: 16px;
+  font-weight: 600;
+  color: @text-color;
+  cursor: pointer;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.appCardArch {
+  :global {
+    .ant-tag {
+      margin: 0;
+      border-radius: 12px;
+      font-size: 12px;
+      padding: 0 6px;
+      height: 20px;
+      line-height: 18px;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      color: @text-color-secondary;
+    }
+  }
+}
+
+.appCardVersion {
+  font-size: 14px;
+  color: @text-color-secondary;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.appCardDesc {
+  font-size: 13px;
+  color: @text-color-secondary;
+  line-height: 20px;
+  height: 40px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appCardAction {
+  width: 100%;
+}
+
+.appCardInstallBtn {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  background: #3d4d66;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2d3d56;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  :global {
+    .anticon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+  }
+}
+
+// Plugin page card styles (separate from market app card)
+.pluginCard {
+  position: relative;
+  background: @rbd-background-color;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: @rbd-card-shadow;
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: @rbd-card-shadow-hover;
+  }
+}
+
+.pluginCardContent {
+  display: flex;
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.pluginCardLogo {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pluginCardInfo {
+  flex: 1;
+  margin-left: 16px;
+  overflow: hidden;
+}
+
+.pluginCardHeader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.pluginCardName {
+  font-size: 16px;
+  font-weight: 600;
+  color: @text-color;
+  cursor: pointer;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.pluginCardType {
+  font-size: 14px;
+  color: @text-color-secondary;
+  margin-bottom: 8px;
+}
+
+.pluginCardDesc {
+  font-size: 13px;
+  color: @text-color-secondary;
+  line-height: 20px;
+  height: 40px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pluginCardAction {
+  width: 100%;
+}
+
+.pluginCardBtnGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.pluginCardPrimaryBtn {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  background: #3d4d66;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2d3d56;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  :global {
+    .anticon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+  }
+}
+
+.pluginCardDeleteBtn {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  color: #666;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    color: #ff4d4f;
+    border-color: #ff4d4f;
+  }
+
+  :global {
+    .anticon {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+  }
+}
+
+// Add plugin card style
+.addPluginCard {
+  position: relative;
+  background: @rbd-background-color;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 180px;
+  box-shadow: @rbd-card-shadow;
+  transition: box-shadow 0.3s;
+  border: 1px dashed #e3e3e3;
+
+  &:hover {
+    box-shadow: @rbd-card-shadow-hover;
+    border-color: @primary-color;
+  }
+}
+
+.addPluginContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.addPluginIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+
+  :global {
+    .anticon {
+      font-size: 28px;
+      color: #999;
+    }
+  }
+}
+
+.addPluginText {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.addPluginActions {
+  display: flex;
+  gap: 8px;
+}
+
+.addPluginBtn {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  color: #666;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    color: @primary-color;
+    border-color: @primary-color;
+  }
+
+  :global {
+    .anticon {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+  }
+}
+
+.addPluginBtnPrimary {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  background: #3d4d66;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2d3d56;
+  }
+
+  :global {
+    .anticon {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+  }
 }

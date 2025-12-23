@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 const echarts = require('echarts');
 import global from '@/utils/global'
 
+
 export default class Chart extends Component {
   constructor(props) {
     super(props)
@@ -69,7 +70,7 @@ export default class Chart extends Component {
       [1, "rgb(199, 222, 239)"],
     ];
     const option = {
-      backgroundColor: "#fff",
+      backgroundColor: "#f2f4f7",
       title: {
         //分配率文字配置
         show: true,

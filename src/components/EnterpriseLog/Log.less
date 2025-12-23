@@ -1,45 +1,49 @@
+.logContainer {
+}
+
+.logHeader {
+  padding: 12px 0px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.logBody {
+}
+
 .logStyle {
   background: #212121;
   min-height: 300px;
   padding: 15px;
   max-height: 600px;
   overflow: auto;
+  border-radius: 5px;
+}
 
-  div {
-    margin-bottom: 0;
-    display: flex;
-    min-height: 19px;
-    font-size: 12px;
-    line-height: 19px;
+.logItem {
+  margin-bottom: 0;
+  display: flex;
+  min-height: 19px;
+  font-size: 12px;
+  line-height: 19px;
 
-    span:nth-of-type(1) {
-      display: inline-block;
-      min-width: 40px;
-      padding-right: 6px;
-
-      span {
-        display: inline-block;
-        width: 20px;
-        text-align: right;
-      }
-    }
-
-    span:nth-of-type(2) {
-      width: 80%;
-    }
-
-    span:nth-of-type(3) {
-      width: 14%;
-      border-radius: 6px;
-      height: 16px;
-      text-align: center;
-      line-height: 16px;
-    }
-  }
-
-  div:hover {
+  &:hover {
     background: #444444;
   }
+}
+
+.logIndex {
+  display: inline-block;
+  min-width: 40px;
+  padding-right: 6px;
+  color: #666666;
+  text-align: right;
+}
+
+.logContent {
+  flex: 1;
+  color: #FFF;
+  word-break: break-word;
 }
 
 .podCascader {

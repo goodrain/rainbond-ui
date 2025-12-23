@@ -1255,6 +1255,7 @@ const enterpriseSetting = {
     'enterpriseSetting.enterpriseAdmin.col.name': 'Full name',
     'enterpriseSetting.enterpriseAdmin.col.role': 'Role',
     'enterpriseSetting.enterpriseAdmin.col.time': 'Time',
+    'enterpriseSetting.enterpriseAdmin.col.operation': 'Operation',
     'enterpriseSetting.enterpriseAdmin.col.Menu.delete': 'Delete administrator',
     'enterpriseSetting.enterpriseAdmin.col.Menu.edit': 'Edit administrator',
     'enterpriseSetting.enterpriseAdmin.col.time.add': 'Add administrator',

@@ -771,7 +771,6 @@ export default class Main extends PureComponent {
         onChange={this.handleTabChange}
         style={{
           background: '#fff',
-          padding: handleType ? '0 20px 20px' : '20px '
         }}
       >
         {tabList.map(item => {
@@ -792,185 +791,88 @@ export default class Main extends PureComponent {
   };
   // eslint-disable-next-line react/sort-comp
   renderApp = (item, isInstall, type) => {
-    const { scopeMax, handleType } = this.state;
+    const { scopeMax } = this.state;
     const cloud = scopeMax != 'localApplication';
-    const title = item => (
-      <div
-        title={item.app_name || item.name || ''}
-        style={{ display: 'flex', alignItems: 'center' }}
-      >
-        <div
-          style={{
-            maxWidth: '170px',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis'
-          }}
-        >
-          <a
-            onClick={() => {
-              this.showMarketAppDetail(item);
-            }}
-            style={{
-              marginRight: '12px',
-            }}
-          >
-            {item.app_name || item.name}
-          </a>
-        </div>
-        <div>
-          {item.arch &&
-            item.arch.length > 0 &&
-            item.arch.map((item) => {
-              return <Tag>{item}</Tag>
-            })}
-        </div>
-      </div>
-    );
-    const versionBox = (
-      <div title={item.version} className={PluginStyles.cardVersionStyle}>
-        <span>版本:</span>
-        <div className={PluginStyles.overScroll}>
-          <div>
-            {item.versions_info &&
-              item.versions_info.map((items, index) => {
-                return (
-                  <Tag
-                    title={items.version}
-                    className={PluginStyles.cardVersionTagStyle}
-                    color="blue"
-                    size="small"
-                    key={index}
-                  >
-                    {items.version}
-                  </Tag>
-                );
-              })}
-            {item.versions &&
-              item.versions.map((itemx, index) => {
-                return (
-                  <Tag
-                    className={PluginStyles.cardVersionTagStyle}
-                    color="blue"
-                    size="small"
-                    title={itemx.app_version || itemx.version}
-                    key={index}
-                  >
-                    {itemx.app_version || itemx.version}
-                  </Tag>
-                );
-              })}
-          </div>
-        </div>
-      </div>
-    );
-    const fastactions = [
-      <Tooltip title={isInstall ? '点击安装' : '不可安装'}>
-        <div
-          onClick={() => {
-            if (isInstall) {
-              this.showCreate(item);
-            }
-          }}
-        >
-          <div className={PluginStyles.cardTitle}>
-            <span title={item.app_name}>{item.app_name}</span>
-          </div>
-          {versionBox}
-        </div>
-      </Tooltip>
-    ];
-    const defaultActions = isInstall
-      ? [
-        <span
-          onClick={() => {
-            if (type === 'helm') {
-              this.handleHelmIntall(item);
-            } else {
-              this.showCreate(item);
-            }
-          }}
-        >
-          {formatMessage({ id: 'button.install' })}
-        </span>
-      ]
-      : [];
-    const appIcon = require('../../../public/images/app_icon.jpg');
+    const appIcon = require('../../../public/logo-icon.png');
+
+    // Get version display
+    const getVersionDisplay = () => {
+      let version = '';
+      if (item.versions_info && item.versions_info.length > 0) {
+        version = item.versions_info[0].version;
+      } else if (item.versions && item.versions.length > 0) {
+        version = item.versions[0].app_version || item.versions[0].version;
+      } else {
+        version = item.version || '';
+      }
+      // Add 'v' prefix if version exists and doesn't start with 'v'
+      if (version && !version.toLowerCase().startsWith('v')) {
+        return `v${version}`;
+      }
+      return version;
+    };
+
+    const handleInstall = () => {
+      if (!isInstall) return;
+      if (type === 'helm') {
+        this.handleHelmIntall(item);
+      } else {
+        this.showCreate(item);
+      }
+    };
+
     return (
       <Fragment>
-        {(item.is_official == true || item.is_official == 1) && (
-          <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
-        )}
-        <Card
-          className={
-            handleType
-              ? `${PluginStyles.cards} ${PluginStyles.clearAvatar}`
-              : PluginStyles.cards
-          }
-          actions={handleType ? fastactions : defaultActions}
-        >
-          <Card.Meta
-            className={PluginStyles.cardsMetas}
-            style={
-              handleType && {
-                height: 80,
-                overflow: 'hidden',
-                display: 'flex',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }
-            }
-            avatar={
+        <div className={PluginStyles.appCard}>
+          {(item.is_official == true || item.is_official == 1) && (
+            <GoodrainRZ style={{ position: 'absolute', right: 8, top: 8 }} />
+          )}
+          <div className={PluginStyles.appCardContent}>
+            <div
+              className={PluginStyles.appCardLogo}
+              onClick={() => this.showMarketAppDetail(item)}
+            >
               <img
-                style={
-                  handleType
-                    ? { width: 80, height: 80, margin: ' 0 auto' }
-                    : { width: 110, height: 110, margin: ' 0 auto' }
-                }
-                alt={item.title}
-                src={
-                  cloud
-                    ? item.logo || item.icon || appIcon
-                    : item.pic || appIcon
-                }
-                height={handleType ? 154 : 80}
-                onClick={() => {
-                  this.showMarketAppDetail(item);
-                }}
+                alt={item.app_name || item.name}
+                src={cloud ? item.logo || item.icon || appIcon : item.pic || appIcon}
               />
-            }
-            title={handleType ? '' : title(item)}
-            description={
-              handleType ? (
-                ''
-              ) : (
-                <Fragment>
-                  <span
-                    style={{
-                      display: 'block',
-                      color: 'rgb(200, 200, 200)',
-                      marginBottom: 2,
-                      fontSize: 12
-                    }}
-                  >
-                    {versionBox}
-                    {!cloud && (
-                      <div className={PluginStyles.memoryStyle}>
-                        <span>内存: </span>
-                        {sourceUtil.unit(item.min_memory || 128, 'MB')}
-                      </div>
-                    )}
-                  </span>
-                  <Ellipsis className={PluginStyles.item} lines={3}>
-                    <span title={item.describe || item.description}>
-                      {item.describe || item.description}
-                    </span>
-                  </Ellipsis>
-                </Fragment>
-              )
-            }
-          />
-        </Card>
+            </div>
+            <div className={PluginStyles.appCardInfo}>
+              <div className={PluginStyles.appCardHeader}>
+                <span
+                  className={PluginStyles.appCardName}
+                  title={item.app_name || item.name}
+                  onClick={() => this.showMarketAppDetail(item)}
+                >
+                  {item.app_name || item.name}
+                </span>
+                <div className={PluginStyles.appCardArch}>
+                  {item.arch &&
+                    item.arch.length > 0 &&
+                    item.arch.map((archItem, index) => (
+                      <Tag key={index}>{archItem}</Tag>
+                    ))}
+                </div>
+              </div>
+              <div className={PluginStyles.appCardVersion}>
+                {getVersionDisplay()}
+              </div>
+              <div className={PluginStyles.appCardDesc} title={item.describe || item.description}>
+                {item.describe || item.description}
+              </div>
+            </div>
+          </div>
+          <div className={PluginStyles.appCardAction}>
+            <button
+              className={PluginStyles.appCardInstallBtn}
+              onClick={handleInstall}
+              disabled={!isInstall}
+            >
+              <Icon type="download" />
+              {formatMessage({ id: 'button.install' })}
+            </button>
+          </div>
+        </div>
       </Fragment>
     );
   };
@@ -1248,7 +1150,7 @@ export default class Main extends PureComponent {
             defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
-              width: 500
+              width: 300
             }}
           />
         </span>
@@ -1442,6 +1344,7 @@ export default class Main extends PureComponent {
                 <div>{helmLoading ? SpinBox : helmCardList}</div>
               ) : scopeMax === 'localApplication' ? (
                 <div
+                className={PluginStyles.localApplication}
                   style={{
                     marginBottom:
                       !moreState &&
