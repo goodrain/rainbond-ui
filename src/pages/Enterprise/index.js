@@ -5,8 +5,10 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-expressions */
 import {
+  Alert,
   Card,
   Empty,
+  Icon,
   notification,
   Spin,
   Badge,
@@ -74,6 +76,8 @@ export default class Enterprise extends PureComponent {
       hasNewVs: true,
       typeStatusCpu: false,
       typeStatusMemory: false,
+      platformHealth: null,
+      platformHealthLoading: true,
     };
   }
   componentWillMount() {
@@ -110,6 +114,28 @@ export default class Enterprise extends PureComponent {
       }
     })
   }
+  // 获取平台健康状态
+  fetchPlatformHealth = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchPlatformHealth',
+      callback: res => {        
+        if (res && res.status_code === 200) {
+          this.setState({
+            platformHealth: res.bean,
+            platformHealthLoading: false
+          });
+        }
+      },
+      handleError: () => {
+        this.setState({
+          platformHealth: null,
+          platformHealthLoading: false
+        });
+      }
+    });
+  };
+
   // 获取企业授权信息
   handleGetEnterpriseAuthorization = () => {
     const { dispatch } = this.props;
@@ -307,6 +333,7 @@ export default class Enterprise extends PureComponent {
       this.getEnterpriseInfo();
       this.handleLoadEnterpriseClusters(eid);
       this.handleAppAlertInfo();
+      this.fetchPlatformHealth();
       if (adminer) {
         this.getOverviewApp();
         this.getOverview();
@@ -674,6 +701,8 @@ export default class Enterprise extends PureComponent {
       hasNewVs,
       typeStatusCpu,
       typeStatusMemory,
+      platformHealth,
+      platformHealthLoading,
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -695,6 +724,7 @@ export default class Enterprise extends PureComponent {
     const authorizationSvg = globalUtil.fetchSvg('authorizationSvg');
     const editCodeSvg = globalUtil.fetchSvg('editCodeSvg');
     const switchSvg = globalUtil.fetchSvg('switchSvg');
+    const healthSvg = globalUtil.fetchSvg('healthSvg');
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -844,6 +874,44 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
         </Spin>
+        {/* 平台健康检测 - 只在有问题时显示 */}
+        {platformHealth && platformHealth.issues && platformHealth.issues.length > 0 && (
+          <div className={enterpriseStyles.cardContainer}>
+            <div className={enterpriseStyles.cardHeader}>
+              <span>{healthSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.platformHealth.title' })}</h2>
+            </div>
+            <div className={enterpriseStyles.cardBody}>
+              <div className={enterpriseStyles.platformHealthContent}>
+                {platformHealth.issues.map((issue, index) => (
+                  <div
+                    key={index}
+                    className={`${enterpriseStyles.healthIssueCard} ${enterpriseStyles.issueError}`}
+                  >
+                    <div className={enterpriseStyles.issueIconArea}>
+                      <span className={`${enterpriseStyles.issueDot} ${enterpriseStyles.dotError}`} />
+                      <span className={enterpriseStyles.issueTypeIcon}>
+                        <Icon type="close-circle" style={{ color: '#ff4d4f', fontSize: '16px' }} />
+                      </span>
+                    </div>
+                    <div className={enterpriseStyles.issueContent}>
+                      <div className={enterpriseStyles.issueHeader}>
+                        <span className={enterpriseStyles.issueMessage}>{issue.message}</span>
+                        <span className={`${enterpriseStyles.issueStatusTag} ${enterpriseStyles.tagError}`}>
+                          {formatMessage({ id: 'enterpriseOverview.platformHealth.serious' })}
+                        </span>
+                      </div>
+                      <div className={enterpriseStyles.issueDesc}>
+                        {issue.name} ({issue.instance})
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 企业授权信息 */}
         {isNeedAuthz && !isAuthorizationLoading && (
           <div className={enterpriseStyles.cardContainer}>
@@ -1102,82 +1170,70 @@ export default class Enterprise extends PureComponent {
             </div>
           </Spin>
         </div>
-        {/* 应用报警 */}
-        <div className={enterpriseStyles.cardContainer}>
-          <div className={enterpriseStyles.cardHeader}>
-            <span>{appErrorSvg}</span>
-            <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
-          </div>
-          <Spin spinning={overviewAppInfoLoading}>
-            <div className={enterpriseStyles.cardBody}>
-              {appAlertList.length > 0 && (
-                <div className={enterpriseStyles.appAlertContent}>
-                  <div style={{
-                    height: 170,
-                    overflowX: "hidden",
-                    overflowY: 'scroll'
-                  }}>
-                    {appAlertList.map(item => {
-                      const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
-                      return (
-                        <div className={enterpriseStyles.contentAlert}>
-                          <div>
-                            <span
-                              className={enterpriseStyles.spanStyle}
-                              onClick={() => {
-                                this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {tenant_alias}
-                            </span>
-                            &nbsp;
-                            {formatMessage({ id: 'enterpriseOverview.team.group' })}
-                            &nbsp;
-                            <span
-                              className={enterpriseStyles.spanStyle}
-                              onClick={() => {
-                                this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {group_name}
-                            </span>
-                            &nbsp;{formatMessage({ id: 'enterpriseOverview.overview.component' })}&nbsp;
-                            <span
-                              className={enterpriseStyles.spanStyle}
-                              onClick={() => {
-                                this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {service_cname}
-                            </span>
-                            &nbsp;
-                            <span style={{ color: globalUtil.getPublicColor('error-color') }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
-                          </div>
-                          <div>
-                            <span style={{ marginTop: '2px' }}>
-                              {globalUtil.fetchSvg('runTime')}
-                            </span>
-                            {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-              {appAlertLoding && (
-                <div className={enterpriseStyles.clusterInfo_Empty}>
-                  <Spin></Spin>
-                </div>
-              )}
-              {!appAlertLoding && appAlertList.length == 0 && (
-                <div className={enterpriseStyles.clusterInfo_Empty}>
-                  <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_errorInfo' })} />
-                </div>
-              )}
+        {/* 应用报警 - 只在有数据时显示 */}
+        {!appAlertLoding && appAlertList.length > 0 && (
+          <div className={enterpriseStyles.cardContainer}>
+            <div className={enterpriseStyles.cardHeader}>
+              <span>{appErrorSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
             </div>
-          </Spin>
-        </div>
+            <div className={enterpriseStyles.cardBody}>
+              <div className={enterpriseStyles.appAlertContent}>
+                <div style={{
+                  height: 170,
+                  overflowX: "hidden",
+                  overflowY: 'scroll'
+                }}>
+                  {appAlertList.map(item => {
+                    const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
+                    return (
+                      <div className={enterpriseStyles.contentAlert}>
+                        <div>
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {tenant_alias}
+                          </span>
+                          &nbsp;
+                          {formatMessage({ id: 'enterpriseOverview.team.group' })}
+                          &nbsp;
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {group_name}
+                          </span>
+                          &nbsp;{formatMessage({ id: 'enterpriseOverview.overview.component' })}&nbsp;
+                          <span
+                            className={enterpriseStyles.spanStyle}
+                            onClick={() => {
+                              this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
+                            }}
+                          >
+                            {service_cname}
+                          </span>
+                          &nbsp;
+                          <span style={{ color: globalUtil.getPublicColor('error-color') }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                        </div>
+                        <div>
+                          <span style={{ marginTop: '2px' }}>
+                            {globalUtil.fetchSvg('runTime')}
+                          </span>
+                          {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         {isAuthorizationCode &&

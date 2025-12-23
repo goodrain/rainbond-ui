@@ -16,13 +16,20 @@ import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
-import roleUtil from  '../../../../utils/newRole'
+import roleUtil from '../../../../utils/newRole';
 import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import LogShow from '../LogShow';
-import Svg from '../../../../utils/pageHeaderSvg'
+import operationCardStyle from '../Basic/operation.less'
+import Svg from '../../../../utils/pageHeaderSvg';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+
+// 构建类型常量
+const BUILD_KIND = {
+  SOURCE: '源码构建',
+  LOCAL_FILE: '本地文件'
+};
 
 @connect(({ appControl, teamControl }) => ({
   appDetail: appControl.appDetail,
@@ -95,10 +102,126 @@ class Index extends PureComponent {
     }
   };
 
+  // 根据构建类型获取对应的值
   getKindValue = (kind, sourceValue, packageValue, imageValue) => {
-    if (kind === '源码构建') return sourceValue;
-    if (kind === '本地文件') return packageValue;
+    if (kind === BUILD_KIND.SOURCE) return sourceValue;
+    if (kind === BUILD_KIND.LOCAL_FILE) return packageValue;
     return imageValue;
+  };
+
+  // 判断是否为源码构建
+  isSourceBuild = kind => kind === BUILD_KIND.SOURCE;
+
+  // 判断是否为本地文件构建
+  isLocalFileBuild = kind => kind === BUILD_KIND.LOCAL_FILE;
+
+  // 获取构建详情配置
+  getBuildDetailConfig = item => {
+    const { kind, code_commit_msg, image_domain, code_branch, image_repo, code_version, image_tag } = item;
+    const isSource = this.isSourceBuild(kind);
+    const isLocal = this.isLocalFileBuild(kind);
+
+    return [
+      {
+        icon: isSource ? 'msg' : isLocal ? 'fileName' : 'jingxiang',
+        labelId: isSource
+          ? 'componentOverview.body.tab.overview.buildHistory.submitInformation'
+          : isLocal
+          ? 'componentOverview.body.tab.overview.buildHistory.fileName'
+          : 'componentOverview.body.tab.overview.buildHistory.address',
+        value: isSource || isLocal ? code_commit_msg : image_domain
+      },
+      {
+        icon: isSource ? 'fenzhi' : isLocal ? 'upLoad' : 'jingxiang',
+        labelId: isSource
+          ? 'componentOverview.body.tab.overview.buildHistory.CodeBranch'
+          : isLocal
+          ? 'componentOverview.body.tab.overview.buildHistory.uploadTime'
+          : 'componentOverview.body.tab.overview.buildHistory.imageName',
+        value: isSource || isLocal ? code_branch : image_repo
+      },
+      {
+        icon: isSource ? 'code' : isLocal ? 'MD5' : 'jingxiangTga',
+        labelId: isSource
+          ? 'componentOverview.body.tab.overview.buildHistory.codeVersion'
+          : isLocal
+          ? 'componentOverview.body.tab.overview.buildHistory.file'
+          : 'componentOverview.body.tab.overview.buildHistory.tag',
+        value: isSource ? (code_version ? code_version.substr(0, 8) : '') : isLocal ? code_version : image_tag
+      }
+    ];
+  };
+
+  // 获取状态背景类名
+  getStatusClassName = status => {
+    if (status === 'success') return styles.historyCardSuccess;
+    if (status === 'failure') return styles.historyCardFailure;
+    return styles.historyCardUnknown;
+  };
+
+  // 获取状态文字颜色
+  getStatusTextColor = status => {
+    if (status === 'success') return globalUtil.getPublicColor('rbd-success-status');
+    if (status === 'failure') return globalUtil.getPublicColor('rbd-error-status');
+    return '#9d9d9d';
+  };
+
+  // 渲染构建详情项
+  renderBuildDetailItem = (item, index) => (
+    <div className={styles.historyInfoItem} key={index}>
+      <Tooltip title={<FormattedMessage id={item.labelId} />}>
+        {Svg.getSvg(item.icon, 14, 'text-color-secondary')}
+      </Tooltip>
+      <Tooltip title={item.value || ''}>
+        <span className={styles.historyInfoValue}>{item.value || '-'}</span>
+      </Tooltip>
+    </div>
+  );
+
+  // 渲染操作按钮
+  renderActions = (item, current_version, isUpgrade, isRollback, isDelete) => {
+    const { build_version, status, upgrade_or_rollback, event_id } = item;
+
+    return (
+      <div className={styles.historyActions}>
+        <a onClick={() => this.showModal(event_id)}>
+          <FormattedMessage id="componentOverview.body.tab.overview.buildHistory.log" />
+        </a>
+        {upgrade_or_rollback == 1 && isUpgrade && (
+          <Popconfirm
+            title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.popUpgrade" />}
+            onConfirm={() => this.handleRolback(item)}
+          >
+            <span>
+              <Divider type="vertical" />
+              <a><FormattedMessage id="componentOverview.body.tab.overview.buildHistory.upgrade" /></a>
+            </span>
+          </Popconfirm>
+        )}
+        {upgrade_or_rollback == -1 && status == 'success' && build_version != current_version && isRollback && current_version && (
+          <Popconfirm
+            title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.poprollback" />}
+            onConfirm={() => this.handleRolback(item)}
+          >
+            <span>
+              <Divider type="vertical" />
+              <a><FormattedMessage id="componentOverview.body.tab.overview.buildHistory.roolback" /></a>
+            </span>
+          </Popconfirm>
+        )}
+        {build_version !== current_version && isDelete && current_version && status.length > 0 && (
+          <Popconfirm
+            title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.popDelete" />}
+            onConfirm={() => this.handleDel(item)}
+          >
+            <span>
+              <Divider type="vertical" />
+              <a><FormattedMessage id="componentOverview.body.tab.overview.buildHistory.delete" /></a>
+            </span>
+          </Popconfirm>
+        )}
+      </div>
+    );
   };
 
   render() {
@@ -112,12 +235,13 @@ class Index extends PureComponent {
       onPageChange,
       onShowSizeChange,
     } = this.props;
-    const { EventID, logVisible, language, appUpgradePermission:{isUpgrade, isRollback} } = this.state;
+    const { EventID, logVisible, appUpgradePermission: { isUpgrade, isRollback } } = this.state;
+
     return (
       <Row gutter={24}>
         {logVisible && (
           <LogShow
-            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildLog'/>}
+            title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.buildLog" />}
             EventID={EventID}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
@@ -126,449 +250,110 @@ class Index extends PureComponent {
         )}
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
-            bordered={false}
-            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.buildVersionHistory'/>}
-            style={{ margin: '20px 0' }}
+            title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.buildVersionHistory" />}
+            style={{ margin: '12px 0 0 ' }}
+            className={operationCardStyle.operationCard}
           >
-            <div className={styles.buildHistoryBox}>
-              <ul className={styles.buildHistoryList}>
-                {dataList &&
-                  dataList.length > 0 &&
-                  dataList.map(item => {
-                    const {
-                      code_commit_msg,
-                      image_domain,
-                      build_user,
-                      code_version,
-                      status,
-                      create_time,
-                      build_version,
-                      finish_time,
-                      upgrade_or_rollback,
-                      event_id,
-                      image_repo,
-                      code_branch,
-                      image_tag,
-                      kind,
-                    } = item;
-                    return (
-                      <li
-                        key={build_version}
-                        className={`${styles.rowLi} ${language ? styles.prRow : styles.en_prRow } ${
-                          status === 'success'
-                            ? styles.passed
-                            : status === 'failure'
-                            ? styles.failed
-                            : styles.canceled
-                        } `}
-                      >
-                        <div className={`${language ? styles.lineone : styles.en_lineone} ${styles.fadeOute}`}>
-                          <div
-                            className={`${styles.rowRtem} ${styles.buildInfo}`}
-                          >
-                            <div
-                              className={` ${styles.alcen}  ${
-                                styles.rowBranch
-                              }`}
+            <div className={styles.historyListWrapper}>
+              {dataList &&
+                dataList.length > 0 &&
+                dataList.map(item => {
+                  const { build_version, build_user, status, create_time, finish_time } = item;
+                  const statusClassName = this.getStatusClassName(status);
+                  const statusTextColor = this.getStatusTextColor(status);
+                  const buildDetailConfig = this.getBuildDetailConfig(item);
+                  const isCurrentVersion = build_version && current_version && build_version === current_version;
+
+                  return (
+                    <div
+                      key={build_version}
+                      className={`${styles.historyCard} ${statusClassName}`}
+                    >
+                      {/* 第一行：版本号 + 状态 + 操作 */}
+                      <div className={styles.historyRow}>
+                        <div className={styles.historyRowLeft}>
+                          <span className={styles.historyStatus} style={{ color: statusTextColor }}>
+                            {status === 'success' ? globalUtil.fetchSvg('success') : status === 'failure' ? (
+                              <span style={{ color: statusTextColor, fontWeight: 'bold', marginRight: 4 }}>!</span>
+                            ) : globalUtil.fetchSvg('close')}
+                            <Tooltip
+                              title={isCurrentVersion
+                                ? build_version + formatMessage({ id: 'componentOverview.body.tab.overview.buildHistory.currentVersion' })
+                                : build_version}
                             >
-                              <span className={`${styles.statusIcon} `}>
-                                {status === 'success' ? (
-                                  globalUtil.fetchSvg('success')
-                                ) : status === 'failure' ? (
-                                  <span
-                                    className={styles.icon}
-                                    style={{
-                                      textAlign: 'center',
-                                      color: globalUtil.getPublicColor('rbd-error-status'),
-                                      display: 'inline-block',
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    !
-                                  </span>
-                                ) : (
-                                  globalUtil.fetchSvg('close')
+                              <span className={styles.historyVersion}>
+                                {build_version}
+                                {isCurrentVersion && (
+                                  <FormattedMessage id="componentOverview.body.tab.overview.buildHistory.currentVersion" />
                                 )}
                               </span>
-                              <a
-                                className={` ${styles.alcen} ${
-                                  styles.passeda
-                                } `}
-                              >
-                                <Tooltip
-                                title={
-                                  build_version &&
-                                  current_version &&
-                                  build_version === current_version ?
-                                  build_version + formatMessage({id:'componentOverview.body.tab.overview.buildHistory.currentVersion'}) :
-                                  build_version
-                                }
-                                >
-                                <font
-                                  className={styles.nowarpCorolText}
-                                  style={{
-                                    width: 180,
-                                    color:
-                                      status === 'success'
-                                        ? globalUtil.getPublicColor('rbd-success-status')
-                                        : status === 'failure'
-                                        ? globalUtil.getPublicColor('rbd-error-status')
-                                        : '#9d9d9d',
-                                    textOverflow: 'ellipsis',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap'
-                                  }}
-                                >
-                                  {build_version}
-                                  {build_version &&
-                                    current_version &&
-                                    build_version === current_version &&
-                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.currentVersion'/>}
-                                </font>
-                                </Tooltip>
-                              </a>
-                            </div>
-                            <div
-                              className={` ${styles.alcen} ${
-                                styles.rowMessage
-                              } `}
-                            >
-                              <Tooltip
-                                title={
-                                  kind === '源码构建'
-                                    ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.submitInformation'/>
-                                    : kind === '本地文件'
-                                    ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.fileName'/>
-                                    : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.address'/>
-                                }
-                              >
-                                {kind && Svg.getSvg((kind === '源码构建' ? 'msg' : kind === '本地文件' ? 'fileName' : 'jingxiang'), 12, 'rbd-content-color-secondary')}
-                              </Tooltip>
-
-                              <Tooltip
-                                title={
-                                  kind &&
-                                  (kind === '源码构建'
-                                    ? code_commit_msg && code_commit_msg
-                                    : kind === '本地文件'
-                                    ? code_commit_msg && code_commit_msg
-                                    : image_domain && image_domain)
-                                }
-                              >
-                                <span
-                                  className={styles.nowarpCorolText}
-                                  style={{
-                                    width: '90%',
-                                  }}
-                                >
-                                  {kind &&
-                                    (kind === '源码构建'
-                                      ? code_commit_msg && code_commit_msg
-                                      : kind === '本地文件'
-                                      ? code_commit_msg && code_commit_msg
-                                      : image_domain && image_domain)}
-                                </span>
-                              </Tooltip>
-                            </div>
-                          </div>
-
-                          <div
-                            className={`${styles.rowRtem} ${
-                              styles.buildCommitter
-                            } ${styles.alcen}`}
-                          >
-                            <div
-                              style={{
-                                width: '210px',
-                              }}
-                            >
-                              <a
-                                style={{
-                                  width: '100%',
-                                  cursor: 'auto',
-                                }}
-                              >
-                                <font
-                                  className={styles.nowarpCorolText}
-                                  style={{
-                                    width: '90%',
-                                  }}
-                                >
-                                  {build_user && ` @&nbsp;${build_user}`}
-                                </font>
-                              </a>
-                            </div>
-                            <div
-                              className={` ${styles.alcen} ${styles.calcwd} `}
-                            >
-                              <a
-                                className={`${styles.alcen}`}
-                                style={{
-                                  width: '50%',
-                                  cursor: 'auto',
-                                }}
-                              >
-                                <Tooltip
-                                  title={
-                                    kind === '源码构建'
-                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.CodeBranch'/>
-                                      : kind === '本地文件'
-                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.uploadTime'/>
-                                      : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.imageName'/>
-                                  }
-                                >
-                                  {kind && Svg.getSvg((kind === '源码构建' ? 'fenzhi' : kind === '本地文件' ? 'upLoad' : 'jingxiang'), 12, 'rbd-content-color-secondary')}
-                                </Tooltip>
-
-                                <Tooltip
-                                  title={
-                                    kind &&
-                                    (kind === '源码构建'
-                                      ? code_branch && code_branch
-                                      : kind === '本地文件'
-                                      ? code_branch && code_branch
-                                      : image_repo && image_repo)
-                                  }
-                                >
-                                  <span
-                                    className={styles.nowarpCorolText}
-                                    style={{
-                                      width: '90%',
-                                    }}
-                                  >
-                                    {kind &&
-                                      (kind === '源码构建'
-                                        ? code_branch && code_branch
-                                        : kind === '本地文件'
-                                        ? code_branch && code_branch
-                                        : image_repo && image_repo)}
-                                  </span>
-                                </Tooltip>
-                              </a>
-                              <a
-                                className={` ${styles.alcen} `}
-                                style={{
-                                  width: '50%',
-                                  cursor: 'auto',
-                                }}
-                              >
-                                <Tooltip
-                                  title={
-                                    kind === '源码构建'
-                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.codeVersion'/>
-                                      : kind === '本地文件'
-                                      ? <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.file'/>
-                                      : <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.tag'/>
-                                  }
-                                >
-                                  <span
-                                    className={` ${styles.alcen} ${styles.buildwidth} `}
-                                    style={{ color: 'rgba(0, 0, 0, 0.65)' }}
-                                  >
-                                    {kind && Svg.getSvg((kind === '源码构建' ? 'code' : kind === '本地文件' ? 'MD5' : 'jingxiangTga'), 12, 'rbd-content-color-secondary')}
-                                  </span>
-                                </Tooltip>
-
-                                <Tooltip
-                                  title={
-                                    kind &&
-                                    (kind === '源码构建'
-                                      ? code_version
-                                      : kind === '本地文件'
-                                      ? code_version
-                                      : image_tag && image_tag)
-                                  }
-                                >
-                                  <font
-                                    className={styles.nowarpCorolText}
-                                    style={{
-                                      width: '90%',
-                                    }}
-                                  >
-                                    {kind &&
-                                      (kind === '源码构建'
-                                        ? code_version && code_version.substr(0, 8)
-                                        : kind === '本地文件'
-                                        ? code_version && code_version
-                                        : image_tag || '')}
-                                  </font>
-                                </Tooltip>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                        <div className={`${language ? styles.linetwo: styles.en_linetwo}`}>
-                          <div className={`${styles.rowRtem} ${styles.alcen}`}>
-                            <a
-                              className={
-                                status === 'success'
-                                  ? styles.passeda
-                                  : status === 'failure'
-                                  ? styles.faileda
-                                  : styles.canceleda
-                              }
-                            >
-                              {globalUtil.fetchSvg(
-                                'logState',
-                                status === 'failure'
-                                  ? '#39AA56#db4545'
-                                  : globalUtil.getPublicColor('rbd-success-status')
-                              )}
-                              <font
-                                style={{
-                                  fontSize: '14px',
-                                  color:
-                                    status === 'failure'
-                                      ? '#39AA56#db4545'
-                                      : globalUtil.getPublicColor('rbd-success-status')
-                                }}
-                              >
-                                {this.showStatus(status)}
-                              </font>
-                            </a>
-                          </div>
-                          <div className={`${styles.rowRtem} `} />
-                        </div>
-                        <div className={`${language ? styles.linestree :  styles.en_linestree}`}>
-                          <div
-                            className={`${styles.rowRtem} ${
-                              styles.rowDuration
-                            }`}
-                          >
-                            <div className={styles.alcen}>
-                              <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.runTime'/>}>
-                                {globalUtil.fetchSvg('runTime')}
-                              </Tooltip>
-
-                              <time className={styles.labelAlign}>
-                                <font
-                                  style={{
-                                    display: 'inline-block',
-                                    color: globalUtil.getPublicColor('rbd-content-color')
-                                  }}
-                                >
-                                  {globalUtil.fetchTime(
-                                    finish_time
-                                      ? new Date(finish_time).getTime() -
-                                          new Date(create_time).getTime()
-                                      : Date.parse(new Date()) -
-                                          new Date(create_time).getTime()
-                                  )}
-                                </font>
-                              </time>
-                            </div>
-                          </div>
-                          <div
-                            className={`${styles.rowRtem} ${
-                              styles.rowCalendar
-                            } ${styles.alcen}`}
-                          >
-                            <div className={styles.alcen}>
-                              <Tooltip title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.creationTime'/>}>
-                                {globalUtil.fetchSvg('createTime')}
-                              </Tooltip>
-
-                              <time className={styles.labelAlign}>
-                                <font
-                                  style={{
-                                    display: 'inline-block',
-                                    color: globalUtil.getPublicColor('rbd-content-color')
-                                  }}
-                                >
-                                  {create_time &&
-                                    moment(create_time)
-                                      .locale('zh-cn')
-                                      .format('YYYY-MM-DD HH:mm:ss')}
-                                </font>
-                              </time>
-                            </div>
-                          </div>
-                        </div>
-                        <div className={`${language ? styles.linefour : styles.en_linefour}`}>
-                          <span>
-                            <a
-                              style={{ fontSize: '12px' }}
-                              onClick={() => {
-                                this.showModal(event_id);
-                              }}
-                            >
-                              <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.log'/>
-                            </a>
+                            </Tooltip>
                           </span>
-                          {upgrade_or_rollback == 1 && isUpgrade ? (
-                            <Popconfirm
-                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popUpgrade'/>}
-                              onConfirm={() => {
-                                this.handleRolback(item);
-                              }}
-                            >
-                              <span>
-                                <Divider type="vertical" />
-                                <a style={{ fontSize: '12px' }}>
-                                  <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.upgrade'/>
-                                </a>
-                              </span>
-                            </Popconfirm>
-                          ) : upgrade_or_rollback == -1 &&
-                            status == 'success' &&
-                            build_version != current_version &&
-                            isRollback &&
-                            current_version ? (
-                            <Popconfirm
-                              title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.poprollback'/>}
-                              onConfirm={() => {
-                                this.handleRolback(item);
-                              }}
-                            >
-                              <span>
-                                <Divider type="vertical" />
-                                <a style={{ fontSize: '12px' }}>
-                                  {/* 回滚 */}
-                                  <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.roolback'/>
-                                </a>
-                              </span>
-                            </Popconfirm>
-                          ) : (
-                            ''
-                          )}
-
-                          <Popconfirm
-                            title={<FormattedMessage id='componentOverview.body.tab.overview.buildHistory.popDelete'/>}
-                            onConfirm={() => {
-                              this.handleDel(item);
-                            }}
-                          >
-                            {build_version !== current_version &&
-                              isDelete &&
-                              current_version &&
-                              status.length > 0 &&
-                              (
-                                <span>
-                                  <Divider type="vertical" />
-                                  <a style={{ fontSize: '12px' }}>
-                                    <FormattedMessage id='componentOverview.body.tab.overview.buildHistory.delete'/>
-                                  </a>
-                                </span>
-                              )}
-                          </Popconfirm>
+                          <span className={styles.historyStatusText} style={{ color: statusTextColor }}>
+                            {this.showStatus(status)}
+                          </span>
                         </div>
-                      </li>
-                    );
-                  })}
-              </ul>
+                        <div className={styles.historyRowRight}>
+                          {this.renderActions(item, current_version, isUpgrade, isRollback, isDelete)}
+                        </div>
+                      </div>
+
+                      {/* 第二行：左列（构建详情） + 右列（时间信息） */}
+                      <div className={styles.historyColumns}>
+                        {/* 左列：构建详情 */}
+                        <div className={styles.historyColumnLeft}>
+                          {buildDetailConfig.map((config, index) => this.renderBuildDetailItem(config, index))}
+                          {build_user && (
+                            <div className={styles.historyInfoItem}>
+                              {Svg.getSvg('user', 14, 'text-color-secondary')}
+                              <Tooltip title={build_user}>
+                                <span className={styles.historyInfoValue}>@{build_user}</span>
+                              </Tooltip>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 右列：时间信息 */}
+                        <div className={styles.historyColumnRight}>
+                          <div className={styles.historyInfoItem}>
+                            <Tooltip title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.runTime" />}>
+                              {Svg.getSvg('runTime', 14, 'text-color-secondary')}
+                            </Tooltip>
+                            <span className={styles.historyInfoValue}>
+                              {globalUtil.fetchTime(
+                                finish_time
+                                  ? new Date(finish_time).getTime() - new Date(create_time).getTime()
+                                  : Date.parse(new Date()) - new Date(create_time).getTime()
+                              )}
+                            </span>
+                          </div>
+                          <div className={styles.historyInfoItem}>
+                            <Tooltip title={<FormattedMessage id="componentOverview.body.tab.overview.buildHistory.creationTime" />}>
+                              {globalUtil.fetchSvg('runTime', 14, 'text-color-secondary')}
+                            </Tooltip>
+                            <span className={styles.historyInfoValue}>
+                              {create_time && moment(create_time).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
             <div style={{ textAlign: 'right', marginTop: '24px' }}>
-              {Number(total) >pageSize &&               
-              <Pagination
-                current={pages}
-                pageSize={pageSize}
-                showSizeChanger
-                total={Number(total)}
-                defaultCurrent={1}
-                onChange={onPageChange}
-                pageSizeOptions={['5', '10', '20', '50']}
-                onShowSizeChange={onShowSizeChange}
-              />}
+              {Number(total) > pageSize && (
+                <Pagination
+                  current={pages}
+                  pageSize={pageSize}
+                  showSizeChanger
+                  total={Number(total)}
+                  defaultCurrent={1}
+                  onChange={onPageChange}
+                  pageSizeOptions={['5', '10', '20', '50']}
+                  onShowSizeChange={onShowSizeChange}
+                />
+              )}
             </div>
           </Card>
         </Col>

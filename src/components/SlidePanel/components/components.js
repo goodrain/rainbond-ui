@@ -1172,6 +1172,7 @@ class Main extends PureComponent {
         show: isStart && !appStatusUtil.canStop(status),
         type: 'button',
         text: <FormattedMessage id='componentOverview.header.right.start' />,
+        icon: 'play-circle',
         disabled: !appStatusUtil.canStart(status),
         onClick: () => this.handleOpenHelpfulHints('start')
       },
@@ -1180,6 +1181,7 @@ class Main extends PureComponent {
         show: method !== 'vm' && !isShowThirdParty && isConstruct && !isShowKubeBlocksComponent, // 数据库组件不显示构建按钮
         type: 'button',
         text: <FormattedMessage id='componentOverview.header.right.build' />,
+        icon: 'build',
         loading: buildInformationLoading,
         onClick: this.handleOpenBuild,
         badge: this.state.BuildState && {
@@ -1284,6 +1286,7 @@ class Main extends PureComponent {
                 />
               </Tooltip>
             ) : null}
+            {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
             {op.text}
           </Button>
         ) : op.type === 'link' ? (
@@ -1295,6 +1298,7 @@ class Main extends PureComponent {
               style={{ marginRight: 8 }}
               className="ant-btn"
             >
+              {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
               {op.text}
             </Link>
           </Button>
@@ -1351,6 +1355,7 @@ class Main extends PureComponent {
                   />
                 </Tooltip>
               ) : null}
+              {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
               {op.text}
             </Button>
           ) : op.type === 'link' ? (
@@ -1360,6 +1365,7 @@ class Main extends PureComponent {
                 to={op.path}
                 target={op.target}
               >
+                {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
                 {op.text}
               </Link>
             </Button>

@@ -947,3 +947,132 @@
   .char5 {
   animation-delay: 0.4s;
   }
+
+// 平台健康检测内容区域
+.platformHealthContent {
+    font-family: PingFangSC-Medium;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+// 健康问题卡片
+.healthIssueCard {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.issueError {
+    background: #fff2f0;
+}
+
+.issueWarning {
+    background: #fffbe6;
+}
+
+// 图标区域
+.issueIconArea {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-right: 18px;
+}
+
+.issueDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dotError {
+    background: #ff4d4f;
+    animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% {
+        box-shadow: 0 0 4px rgba(255, 77, 79, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(255, 77, 79, 0.9);
+    }
+}
+
+.dotWarning {
+    background: #faad14;
+}
+
+.issueTypeIcon {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+// 内容区域
+.issueContent {
+    flex: 1;
+}
+
+.issueHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.issueMessage {
+    font-size: 16px;
+    font-weight: 600;
+    color: @text-color;
+}
+
+.issueStatusTag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.tagError {
+    color: #ff4d4f;
+    background: #fff2f0;
+}
+
+
+.issueDesc {
+    font-size: 14px;
+    color: @text-color-secondary;
+}
+
+.issueMetrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.metricItem {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.metricLabel {
+    color: @text-color-secondary;
+    margin-right: 4px;
+}
+
+.metricValue {
+    color: @text-color;
+    font-weight: 500;
+}

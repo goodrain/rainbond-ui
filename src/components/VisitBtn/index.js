@@ -177,6 +177,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -255,6 +256,7 @@ export default class Index extends PureComponent {
               openInNewTab(links[0]);
             }}
           >
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -315,7 +317,8 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           <Button type={this.props.btntype}>
-            <a href={links[0]} target="_blank">
+            <Icon type="link" style={{ marginRight: 4 }} />
+            <a href={links[0]} target="_blank" style={{color:'#fff'}}>
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
             </a>
@@ -331,6 +334,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
@@ -382,6 +386,7 @@ export default class Index extends PureComponent {
               this.handleClickLinkTcp(links[0])
             }}
           >
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -441,6 +446,7 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           <Button type={this.props.btntype}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank">
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
@@ -457,6 +463,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
@@ -577,6 +584,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>

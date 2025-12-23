@@ -163,6 +163,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.handle.Dependent': 'View dependent component',
     'componentOverview.body.tab.overview.handle.stretch': 'Go to set',
     'componentOverview.body.tab.overview.handle.DependentCom': 'Dependent component',
+    'componentOverview.body.tab.overview.handle.noMore': 'No more',
     // LogItem
     'componentOverview.body.tab.LogItem.hand': 'Have in hand',
     'componentOverview.body.tab.LogItem.complete': 'Complete',

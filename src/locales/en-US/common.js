@@ -3,6 +3,7 @@
     const unit = {
         'unit.entries':' ',
         'unit.base':'To the bottom!',
+        'unit.component':' Components',
     }
     //弹框
     const popover = {

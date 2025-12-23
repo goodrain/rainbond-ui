@@ -2023,7 +2023,7 @@ export default class CreateCheck extends React.Component {
         content={formatMessage({ id: 'versionUpdata_6_1.content4' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
       >
-        {ServiceGetData ? box : <Card>{box}</Card>}
+        {ServiceGetData ? box : <Card bordered={false}>{box}</Card>}
 
         {modifyImageName && (
           <ModifyImageName
