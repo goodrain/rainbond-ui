@@ -193,6 +193,8 @@ const global = {
     'global.fetchStateOptTypeText.up':'Hang up',
     'global.fetchStateOptTypeText.recover':'Recover',
     'global.fetchStateOptTypeText.ContainerExitError':'Container exit error',
-
+    'global.fetchStateOptTypeText.ReadinessUnhealthy':'Health check failed',
+    'global.fetchStateOptTypeText.LivenessRestart':'Health check failed',
+    'global.fetchStateOptTypeText.StartupProbeFailure':'Health check failed',
 }
 export default Object.assign({}, global);
