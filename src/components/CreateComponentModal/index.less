@@ -1,3 +1,5 @@
+@import "~antd/lib/style/themes/default.less";
+
 .createComponentModal {
   :global {
     .ant-modal-header {
@@ -18,11 +20,12 @@
 }
 
 .modalTitle {
+
   display: flex;
   align-items: center;
   font-size: 20px;
   font-weight: 600;
-  color: #262626;
+  color: @text-color;
   animation: fadeIn 0.3s ease;
 
   .backIcon {
@@ -50,8 +53,8 @@
     justify-content: center;
     font-size: 20px;
     margin-right: 10px;
-    color: #262626;
-    background: #f5f5f5;
+    color: @text-color;
+    background: @rbd-background-color;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -84,7 +87,7 @@
 
 .subtitle {
   font-size: 14px;
-  color: #8c8c8c;
+  color: @text-color-secondary;
   margin-top: 12px;
   margin-bottom: 24px;
   line-height: 1.6;
@@ -108,42 +111,42 @@
   }
 }
 
+
 .menuItem {
   display: flex;
   align-items: center;
   padding: 15px;
-  background: #ffffff;
+  background: @rbd-background-color;
   border-radius: 12px;
-  border: 1px solid #e8e8e8;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: @rbd-card-shadow;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
 
   &:hover {
-    background: #fafafa;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.08);
+    background: @primary-1;
+    box-shadow: @rbd-card-shadow-hover;
     transform: translateY(-2px);
 
     .menuIcon {
-      color: #262626;
-      background: #e6e6e6;
+      color: @text-color;
+      background: @primary-2;
       transform: scale(1.08) rotate(2deg);
     }
 
     .menuTitle {
-      color: #262626;
+      color: @text-color;
       transform: translateX(3px);
     }
 
     .arrowIcon {
-      color: #262626;
+      color: @text-color;
       transform: translateX(3px);
     }
   }
 
   &:active {
-    background: #f5f5f5;
+    background: @primary-1;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
     transform: translateY(0) scale(0.98);
   }
@@ -152,13 +155,13 @@
     width: 38px;
     height: 38px;
     border-radius: 12px;
-    background: #f5f5f5;
+    background: @rbd-background-color;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 14px;
     font-size: 20px;
-    color: #595959;
+    color: @text-color-secondary;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     // 图标内的 SVG 和 Icon 元素
@@ -174,7 +177,7 @@
   .menuTitle {
     flex: 1;
     font-size: 16px;
-    color: #262626;
+    color: @text-color;
     font-weight: 500;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }

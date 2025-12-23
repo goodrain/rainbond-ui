@@ -142,7 +142,8 @@ import {
   putUserNewbieGuideConfig,
   fetchLoginLogs,
   fetchOperationLogs,
-  fetchUserSource
+  fetchUserSource,
+  fetchPlatformHealth
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1174,6 +1175,12 @@ export default {
     },
     *fetchUserSource({ payload, callback }, { call }) {
       const response = yield call(fetchUserSource, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchPlatformHealth({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchPlatformHealth, payload, handleError);
       if (response && callback) {
         callback(response);
       }

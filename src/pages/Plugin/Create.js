@@ -59,15 +59,8 @@ export default class Index extends PureComponent {
           </Button>
         }
       >
-        <Card>
-          <div
-            style={{
-              width: 500,
-              margin: '20px auto'
-            }}
-          >
+        <Card bordered={false}>
             <CreatePluginForm isCreate onSubmit={this.handleSubmit} />
-          </div>
         </Card>
       </PageHeaderLayout>
     );

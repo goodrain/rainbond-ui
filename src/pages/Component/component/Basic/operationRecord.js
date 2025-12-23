@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Card, Col, Form, Icon, Row, Tooltip, Modal } from 'antd';
+import { Card, Col, Form, Icon, Row, Tooltip, Modal, Spin } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -19,9 +19,87 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       selectEventID: '',
-      showSocket: false
+      showSocket: false,
+      isLoadingMore: false
     };
+    this.sentinelRef = React.createRef();
+    this.observer = null;
+    this.debounceTimer = null;
   }
+
+  componentDidMount() {
+    this.setupObserver();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { logList, has_next } = this.props;
+    // 当列表数据更新后，重置加载状态并重新设置观察器
+    if (prevProps.logList !== logList) {
+      if (this.state.isLoadingMore) {
+        this.setState({ isLoadingMore: false });
+      }
+      // 数据更新后重新设置观察器
+      setTimeout(() => this.setupObserver(), 100);
+    }
+    // 当 has_next 变化时重新设置观察器
+    if (prevProps.has_next !== has_next) {
+      this.setupObserver();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+  }
+
+  // 设置 IntersectionObserver
+  setupObserver = () => {
+    const { has_next } = this.props;
+
+    // 清除旧的观察器
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+
+    // 如果没有更多数据，不需要观察
+    if (!has_next || !this.sentinelRef.current) return;
+
+    this.observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          this.loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    this.observer.observe(this.sentinelRef.current);
+  };
+
+  // 防抖加载更多
+  loadMore = () => {
+    const { has_next, handleNextPage } = this.props;
+    const { isLoadingMore } = this.state;
+
+    if (!has_next || isLoadingMore) return;
+
+    // 防抖处理
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+
+    this.debounceTimer = setTimeout(() => {
+      this.setState({ isLoadingMore: true });
+      if (handleNextPage) {
+        handleNextPage();
+      }
+    }, 200);
+  };
 
   handleMore = () => {
     const { handleMore } = this.props;
@@ -150,7 +228,7 @@ class Index extends PureComponent {
   };
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
-    const { logVisible, selectEventID, showSocket, showModalArr, showModal } = this.state;
+    const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
     const statusMap = {
       success: 'logpassed',
@@ -160,7 +238,9 @@ class Index extends PureComponent {
     return (
       <Card
       title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>}
-      loading={recordLoading}>
+      loading={recordLoading}
+      className={styles.operationCard}
+      >
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
@@ -201,7 +281,7 @@ class Index extends PureComponent {
                         .format('YYYY-MM-DD HH:mm:ss')}
                     >
                       <div
-                        style={{ wordBreak: 'break-word', lineHeight: '17px' }}
+                        style={{ wordBreak: 'break-word', lineHeight: '16px' }}
                       >
                         {globalUtil.fetchdayTime(create_time)}
                       </div>
@@ -215,15 +295,15 @@ class Index extends PureComponent {
                           }}
                         >
                           {globalUtil.fetchStateOptTypeText(opt_type)}
-                           &nbsp;
+                          &nbsp;
                         </span>
                         {globalUtil.fetchOperation(final_status, status)}
                         &nbsp;
 
                         {status === 'failure' && globalUtil.fetchReason(reason)}
 
-                        
-                        {status === 'failure' && 
+
+                        {status === 'failure' &&
                         <Tooltip
                           title={message}
                         >
@@ -302,21 +382,23 @@ class Index extends PureComponent {
                   <FormattedMessage id='componentOverview.body.tab.overview.handle.handler'/>
                 </div>
               ))}
+            {/* 哨兵元素：当滚动到这里时触发加载更多 */}
             {has_next && (
-              <p
-                style={{
-                  textAlign: 'center',
-                  fontSize: 30
-                }}
-              >
-                <Icon
-                  style={{
-                    cursor: 'pointer'
-                  }}
-                  onClick={this.props.handleNextPage}
-                  type="down"
-                />
-              </p>
+              <div
+                ref={this.sentinelRef}
+                style={{ height: 1, marginBottom: 10 }}
+              />
+            )}
+            {isLoadingMore && (
+              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                <Spin size="small" />
+              </div>
+            )}
+            {/* 已到底提示 */}
+            {!has_next && logList && logList.length > 0 && (
+              <div style={{ textAlign: 'center', padding: '10px 0', color: '#999', fontSize: 12 }}>
+                <FormattedMessage id="componentOverview.body.tab.overview.handle.noMore" defaultMessage="没有更多了" />
+              </div>
             )}
           </Col>
         </Row>

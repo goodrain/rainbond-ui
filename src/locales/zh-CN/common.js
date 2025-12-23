@@ -3,6 +3,7 @@
     const unit = {
         'unit.entries':'个',
         'unit.base':'已经到底了!',
+        'unit.component':'个组件',
     }
     //弹框
     const popover = {

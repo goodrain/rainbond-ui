@@ -1,83 +1,106 @@
-.typeBtnWrap{
+.typeBtnWrap {
 	text-align: center;
-    font-size: @rbd-sub-title-size;
-    color: @rbd-sub-title-color;
-    line-height: @rbd-sub-title-line-height;
-	float:left;
+	font-size: @rbd-sub-title-size;
+	color: @rbd-sub-title-color;
+	line-height: @rbd-sub-title-line-height;
+	float: left;
 	width: 150px;
 	margin-right: 24px;
+
 	.typeBtn {
 		display: block;
 		cursor: pointer;
-		height:40px;
+		height: 40px;
 		line-height: 40px;
 		width: 150px;
-		margin-bottom:-3px;
+		margin-bottom: -3px;
 		position: relative;
+
 		:global {
-		    .anticon {visibility: hidden;margin-left: 30px}
+			.anticon {
+				visibility: hidden;
+				margin-left: 30px
+			}
 		}
+
 		border:1px solid #e8e8e8;
 		margin-bottom: -1px;
 		background: #fafafa;
 
 	}
+
 	.typeBtn:first-child {
-	   	border-top-left-radius: 2px;
+		border-top-left-radius: 2px;
 		border-top-right-radius: 2px;
 	}
+
 	.typeBtn:last-child {
-	   	border-bottom-left-radius: 2px;
+		border-bottom-left-radius: 2px;
 		border-bottom-right-radius: 2px;
 	}
+
 	.active {
 		background: #fff;
-		z-index:1;
-		
+		z-index: 1;
+
 		:global {
-		    .anticon {visibility: visible;}
+			.anticon {
+				visibility: visible;
+			}
 		}
 	}
 
 }
-.en_typeBtnWrap{
+
+.en_typeBtnWrap {
 	text-align: center;
-    font-size: @rbd-sub-title-size;
-    color: @rbd-sub-title-color;
-    line-height: @rbd-sub-title-line-height;
-	float:left;
+	font-size: @rbd-sub-title-size;
+	color: @rbd-sub-title-color;
+	line-height: @rbd-sub-title-line-height;
+	float: left;
 	width: 180px;
 	margin-right: 24px;
+
 	.en_typeBtn {
 		display: block;
 		cursor: pointer;
-		height:40px;
+		height: 40px;
 		line-height: 40px;
 		width: 180px;
-		margin-bottom:-3px;
+		margin-bottom: -3px;
 		position: relative;
+
 		:global {
-		    .anticon {visibility: hidden;margin-left: 15px}
+			.anticon {
+				visibility: hidden;
+				margin-left: 15px
+			}
 		}
+
 		border:1px solid #e8e8e8;
 		margin-bottom: -1px;
 		background: #fafafa;
 
 	}
+
 	.en_typeBtn:first-child {
-	   	border-top-left-radius: 2px;
+		border-top-left-radius: 2px;
 		border-top-right-radius: 2px;
 	}
+
 	.en_typeBtn:last-child {
-	   	border-bottom-left-radius: 2px;
+		border-bottom-left-radius: 2px;
 		border-bottom-right-radius: 2px;
 	}
+
 	.active {
 		background: #fff;
-		z-index:1;
-		
+		z-index: 1;
+
 		:global {
-		    .anticon {visibility: visible;}
+			.anticon {
+				visibility: visible;
+			}
 		}
 	}
 
@@ -85,56 +108,78 @@
 
 .content {
 	min-height: 500px;
-}
 
-.ant_radio_disabled{
-    :global{
-        span{
-			color: @rbd-content-color;
-        }
-		.ant-form-explain{
+	:global {
+		.ant-collapse {
+			border-radius: 12px;
+			border: none;
 
+			.ant-collapse-header {
+				background: @rbd-background-color;
+				border-radius:12px!important;
+
+			}
+			.ant-collapse-content{
+				border: none;
+				&> .ant-collapse-content-box{
+					padding: 12px 0 0;
+				}
+			}
+			.ant-collapse-item{
+				border: none;
+			}
 		}
-    }
+	}
 }
 
-.ports {
+.ant_radio_disabled {
+	:global {
+		span {
+			color: @rbd-content-color;
+		}
 
-	
+		.ant-form-explain {}
+	}
 }
-.selectRow{
-	:global{
-		.ant-form-explain{
+
+.ports {}
+
+.selectRow {
+	:global {
+		.ant-form-explain {
 			margin-left: 230px;
 		}
-    }
+	}
 }
-.panelTitle{
+
+.panelTitle {
 	width: 200px;
 	display: inline-block;
-    font-size: @rbd-sub-title-size;
-    color: @rbd-sub-title-color;
-    line-height: @rbd-sub-title-line-height;
+	font-size: @rbd-sub-title-size;
+	color: @rbd-sub-title-color;
+	line-height: @rbd-sub-title-line-height;
 	font-weight: 600;
 }
-.panelSpan{
+
+.panelSpan {
 	width: 540px;
 	display: inline-block;
 	white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	vertical-align: -7px;
-    font-size: @rbd-content-size;
-    line-height: @rbd-content-line-height;
-    color: @rbd-content-color-secondary;
+	font-size: @rbd-content-size;
+	line-height: @rbd-content-line-height;
+	color: @rbd-content-color-secondary;
 }
-.spanList{
+
+.spanList {
 	display: inline-block;
 	width: 340px;
 	margin-top: 4px;
 	margin-left: 20px;
 	white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	vertical-align: -7px;
 }
