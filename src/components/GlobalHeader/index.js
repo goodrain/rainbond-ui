@@ -28,6 +28,7 @@ import wechat from '../../../public/images/wechat.png';
 import defaultLogo from '../../../public/logo-icon.png';
 import { setNewbieGuide } from '../../services/api';
 import ChangePassword from '../ChangePassword';
+import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
@@ -51,7 +52,8 @@ export default class GlobalHeader extends PureComponent {
       showBill: false,
       isTeamView: globalUtil.getCurrTeamName() !== '' && globalUtil.getCurrRegionName() !== '',
       balance: null,
-      balanceStatus: ''
+      balanceStatus: '',
+      showProductDrawer: false
     };
   }
   componentDidMount() {
@@ -144,7 +146,7 @@ export default class GlobalHeader extends PureComponent {
   };
 
   handleMenuClick = ({ key }) => {
-    const { dispatch, currentUser } = this.props;
+    const { dispatch, currentUser, rainbondInfo } = this.props;
     const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
     const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
 
@@ -156,7 +158,8 @@ export default class GlobalHeader extends PureComponent {
         this.showChangePass();
         break;
       case 'bill':
-        dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
+        // 跳转到门户的账户中心
+        this.handlePortalNavigation('account-center');
         break;
       case 'logout':
         window.sessionStorage.removeItem('Pipeline');
@@ -164,6 +167,18 @@ export default class GlobalHeader extends PureComponent {
         break;
       default:
         break;
+    }
+  };
+
+  handlePortalNavigation = (key) => {
+    const { rainbondInfo } = this.props;
+    const portalSite = rainbondInfo?.portal_site;
+    const token = cookie.get('token');
+
+    if (portalSite && token) {
+      // 构造跳转URL，携带token和key参数
+      const url = `${portalSite}?token=${token}&redirect=${key}`;
+      window.location.href = url;
     }
   };
 
@@ -217,10 +232,16 @@ export default class GlobalHeader extends PureComponent {
     });
   };
   handleBalanceBill = () => {
-    const { dispatch, currentUser } = this.props;
-    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
-    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
-    dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
+    // 点击余额跳转到门户的账户中心
+    this.handlePortalNavigation('account-center');
+  }
+
+  toggleProductDrawer = () => {
+    this.setState({ showProductDrawer: !this.state.showProductDrawer });
+  }
+
+  closeProductDrawer = () => {
+    this.setState({ showProductDrawer: false });
   }
   render() {
     const { currentUser, customHeader, rainbondInfo, collapsed, logo, enterprise } = this.props;
@@ -256,7 +277,7 @@ export default class GlobalHeader extends PureComponent {
     )
 
     const docsUrl = (rainbondInfo?.document?.enable && `${rainbondInfo?.document?.value?.platform_url}${language ? 'docs/tutorial/via-rainbond-deploy-sourceandmiddleware' : 'en/docs/tutorial/via-rainbond-deploy-sourceandmiddleware'}`) || (language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/')
-
+    const portalSite = rainbondInfo?.portal_site
     const menuTextMap = {
       userCenter: 'GlobalHeader.core',
       bill: 'GlobalHeader.account',
@@ -285,6 +306,16 @@ export default class GlobalHeader extends PureComponent {
       <ScrollerX sm={900}>
         <Header className={styles.header}>
           <div className={styles.left}>
+            {showBill && portalSite && 
+              <div
+                className={styles.productIcon}
+                onClick={this.toggleProductDrawer}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 4h16M2 10h16M2 16h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+            }
             <div
               className={`${styles.logoWrapper} ${isTeamView && collapsed ? styles.logoCollapsed : ''} ${!isTeamView ? styles.logoEnterprise : ''}`}
               onClick={this.onLogoClick}
@@ -390,6 +421,10 @@ export default class GlobalHeader extends PureComponent {
               onCancel={this.cancelChangePass}
             />
           )}
+          <ProductServiceDrawer
+            visible={this.state.showProductDrawer}
+            onClose={this.closeProductDrawer}
+          />
         </Header>
       </ScrollerX>
     );
