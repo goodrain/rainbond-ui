@@ -183,7 +183,7 @@ class ShareEvent extends React.Component {
     return (
       <div>
         <List.Item>
-          <Card style={{ width: '100%' }} hoverable>
+          <Card style={{ width: '100%' }} hoverable bodyStyle={{padding:'8px 12px'}}>
             <List.Item.Meta
               title={
                 <div
@@ -478,7 +478,7 @@ export default class shareCheck extends PureComponent {
     const { shareEventList, showDelete } = this.state;
     if (!shareEventList.length) return null;
     return (
-      <Card>
+      <Card style={{margin: 18}}>
         <Card bordered={false}>{this.renderBody()}</Card>
         {showDelete && (
           <ConfirmModal

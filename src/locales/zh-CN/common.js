@@ -314,7 +314,7 @@
 
         //友情提示
         'confirmModal.friendly_reminder.title':'友情提示',
-        'confirmModal.friendly_reminder.pages.desc':'{ codeObj }当前应用下的全部组件？',
+        'confirmModal.friendly_reminder.pages.desc':'{codeObj}当前应用下的全部组件？',
         
         //应用复制
         'confirmModal.app.title.copy':'应用复制',
@@ -361,7 +361,7 @@
         //移交团队
         'confirmModal.MoveTeam.title':'移交团队',
         'confirmModal.MoveTeam.subDesc':'移交后您将失去所有权',
-        'confirmModal.MoveTeam.desc':'确定要把团队移交给 { nick_name } 吗？',
+        'confirmModal.MoveTeam.desc':'确定要把团队移交给 {nick_name} 吗？',
 
         //开通集群
         'confirmModal.openRegion.title':'开通集群',
@@ -709,7 +709,7 @@
         'placeholder.nameSpaceReg':'只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
         'placeholder.max32':'不能大于32个字符',
         'placeholder.max16':'不能大于16个字符',
-        'placeholder.nonsupport':'不支持{ nonsupport }',
+        'placeholder.nonsupport':'不支持{nonsupport}',
         'placeholder.nonsupport.regAddress':'地址',
         'placeholder.roleName':'请输入角色名称',
         'placeholder.permissions':'权限分配!',

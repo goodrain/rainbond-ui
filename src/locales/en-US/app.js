@@ -86,7 +86,7 @@ const appOverview = {
   'appOverview.helm.pages.yaml.yamlMsg': 'Fill in the configuration',
   'appOverview.helm.pages.yaml.templateFile': 'Values file',
   'appOverview.helm.pages.alert.message': 'If the application version does not exist, select a new version',
-  'appOverview.helm.pages.current_version': '{ version } current version',
+  'appOverview.helm.pages.current_version': '{version} current version',
   'appOverview.helm.pages.version': 'Version',
   'appOverview.helm.pages.overrides': 'Configuration Values',
   'appOverview.helm.pages.over_hr': 'General configuration',
@@ -526,7 +526,7 @@ const helmAppInstall = {
   'helmAppInstall.index.need_time':'This may take some time, please be patient...',
   'helmAppInstall.index.key':'Keyword',
   'helmAppInstall.index.new':'Latest version',
-  'helmAppInstall.index.now_version':'The current version is { lowVs }',
+  'helmAppInstall.index.now_version':'The current version is {lowVs}',
   'helmAppInstall.index.error':'Cause of failure:',
   // 升级页面
   'helmAppInstall.Upgrade.store':'Through the App Store（',
