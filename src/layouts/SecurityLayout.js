@@ -29,21 +29,71 @@ class SecurityLayout extends React.PureComponent {
     }
   }
 
-  checkAndSetPortalToken = () => {
-    // 从URL参数中获取token
-    const urlParams = new URLSearchParams(window.location.search);
-    const portalToken = urlParams.get('token');
+  componentDidUpdate(prevProps) {
+    // 监听路由变化，确保token参数不会在导航时重新出现
+    if (this.props.location !== prevProps.location) {
+      this.checkAndCleanToken();
+    }
+  }
 
-    if (portalToken) {
-      // 如果URL中有token，设置到cookie中
-      cookie.set('token', portalToken);
-
-      // 清除URL中的token参数，避免token暴露在地址栏
-      urlParams.delete('token');
-      const newSearch = urlParams.toString();
+  checkAndCleanToken = () => {
+    // 检查并清除可能重新出现的token参数
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has('token')) {
+      searchParams.delete('token');
+      const newSearch = searchParams.toString();
       const newUrl = `${window.location.pathname}${newSearch ? '?' + newSearch : ''}${window.location.hash}`;
       window.history.replaceState(null, '', newUrl);
     }
+  }
+
+  checkAndSetPortalToken = () => {
+    let portalToken = null;
+
+    // 情况1: token在hash前面 (?token=xxx#/path)
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has('token')) {
+      portalToken = searchParams.get('token');
+    }
+
+    // 情况2: token在hash后面 (#/path?token=xxx)
+    if (!portalToken && window.location.hash) {
+      const hashParts = window.location.hash.split('?');
+      if (hashParts.length > 1) {
+        const hashParams = new URLSearchParams(hashParts[1]);
+        if (hashParams.has('token')) {
+          portalToken = hashParams.get('token');
+        }
+      }
+    }
+
+    // 如果找到token，设置到cookie并清除URL
+    if (portalToken) {
+      cookie.set('token', portalToken);
+      // 清除URL中的所有token参数并重定向到干净的路径
+      this.cleanTokenFromUrl();
+    }
+  }
+
+  cleanTokenFromUrl = () => {
+    // 获取hash路径（不包含参数）
+    let hashPath = window.location.hash;
+    if (hashPath.includes('?')) {
+      hashPath = hashPath.split('?')[0];
+    }
+
+    // 如果没有hash路径，默认跳转到根路径
+    if (!hashPath || hashPath === '#' || hashPath === '#/') {
+      hashPath = '#/';
+    }
+
+    // 构造干净的URL - 只保留pathname和hash，完全移除search参数
+    const pathname = window.location.pathname;
+    const cleanUrl = pathname + hashPath;
+
+    // 使用replaceState更新URL，不刷新页面
+    window.history.replaceState(null, '', cleanUrl);
+
   }
 
   fetchUserInfo = () => {
