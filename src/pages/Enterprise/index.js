@@ -78,6 +78,8 @@ export default class Enterprise extends PureComponent {
       typeStatusMemory: false,
       platformHealth: null,
       platformHealthLoading: true,
+      healthDetailVisible: false,
+      currentHealthIssue: null,
     };
   }
   componentWillMount() {
@@ -134,6 +136,29 @@ export default class Enterprise extends PureComponent {
         });
       }
     });
+  };
+
+  // 显示健康问题详情
+  showHealthDetail = (issue, regionAlias) => {
+    this.setState({
+      healthDetailVisible: true,
+      currentHealthIssue: { ...issue, regionAlias }
+    });
+  };
+
+  // 关闭健康问题详情
+  closeHealthDetail = () => {
+    this.setState({
+      healthDetailVisible: false,
+      currentHealthIssue: null
+    });
+  };
+
+  // 根据 region_name 获取 region_alias
+  getRegionAlias = (regionName) => {
+    const { clusters } = this.state;
+    const cluster = clusters.find(c => c.region_name === regionName);
+    return cluster ? cluster.region_alias : regionName;
   };
 
   // 获取企业授权信息
@@ -703,6 +728,8 @@ export default class Enterprise extends PureComponent {
       typeStatusMemory,
       platformHealth,
       platformHealthLoading,
+      healthDetailVisible,
+      currentHealthIssue,
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -875,7 +902,9 @@ export default class Enterprise extends PureComponent {
           </div>
         </Spin>
         {/* 平台健康检测 - 只在有问题时显示 */}
-        {platformHealth && platformHealth.issues && platformHealth.issues.length > 0 && (
+        {platformHealth && platformHealth.regions && Object.keys(platformHealth.regions).some(
+          regionName => platformHealth.regions[regionName].issues && platformHealth.regions[regionName].issues.length > 0
+        ) && (
           <div className={enterpriseStyles.cardContainer}>
             <div className={enterpriseStyles.cardHeader}>
               <span>{healthSvg}</span>
@@ -883,34 +912,78 @@ export default class Enterprise extends PureComponent {
             </div>
             <div className={enterpriseStyles.cardBody}>
               <div className={enterpriseStyles.platformHealthContent}>
-                {platformHealth.issues.map((issue, index) => (
-                  <div
-                    key={index}
-                    className={`${enterpriseStyles.healthIssueCard} ${enterpriseStyles.issueError}`}
-                  >
-                    <div className={enterpriseStyles.issueIconArea}>
-                      <span className={`${enterpriseStyles.issueDot} ${enterpriseStyles.dotError}`} />
-                      <span className={enterpriseStyles.issueTypeIcon}>
-                        <Icon type="close-circle" style={{ color: '#ff4d4f', fontSize: '16px' }} />
-                      </span>
-                    </div>
-                    <div className={enterpriseStyles.issueContent}>
-                      <div className={enterpriseStyles.issueHeader}>
-                        <span className={enterpriseStyles.issueMessage}>{issue.message}</span>
-                        <span className={`${enterpriseStyles.issueStatusTag} ${enterpriseStyles.tagError}`}>
-                          {formatMessage({ id: 'enterpriseOverview.platformHealth.serious' })}
-                        </span>
+                {Object.keys(platformHealth.regions).map(regionName => {
+                  const regionData = platformHealth.regions[regionName];
+                  const regionAlias = this.getRegionAlias(regionName);
+                  if (!regionData.issues || regionData.issues.length === 0) return null;
+
+                  return (
+                    <div key={regionName} className={enterpriseStyles.regionHealthGroup}>
+                      {/* 问题列表 */}
+                      <div className={enterpriseStyles.regionHealthIssues}>
+                        {regionData.issues.map((issue, index) => (
+                          <div
+                            key={index}
+                            className={enterpriseStyles.healthIssueCard}
+                          >
+                            <div className={enterpriseStyles.issueIconWrapper}>
+                              <Icon type="warning" theme="filled" />
+                            </div>
+                            <div className={enterpriseStyles.issueContent}>
+                              <div className={enterpriseStyles.issueMessage}>{issue.message} - {regionAlias}</div>
+                            </div>
+                            <div
+                              className={enterpriseStyles.issueViewDetail}
+                              onClick={() => this.showHealthDetail(issue, regionAlias)}
+                            >
+                              {formatMessage({ id: 'enterpriseOverview.platformHealth.viewDetail' })}
+                              <Icon type="right" style={{ marginLeft: 4, fontSize: 12 }} />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className={enterpriseStyles.issueDesc}>
-                        {issue.name} ({issue.instance})
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
         )}
+
+        {/* 健康问题详情弹窗 */}
+        <Modal
+          title={formatMessage({ id: 'enterpriseOverview.platformHealth.detailTitle' })}
+          visible={healthDetailVisible}
+          onCancel={this.closeHealthDetail}
+          footer={null}
+          width={640}
+        >
+          {currentHealthIssue && (
+            <div className={enterpriseStyles.healthDetailContent}>
+              <div className={enterpriseStyles.healthDetailItem}>
+                <span className={enterpriseStyles.healthDetailLabel}>
+                  {formatMessage({ id: 'enterpriseOverview.platformHealth.cluster' })}:
+                </span>
+                <span className={enterpriseStyles.healthDetailValue}>{currentHealthIssue.regionAlias}</span>
+              </div>
+              <div className={enterpriseStyles.healthDetailItem}>
+                <span className={enterpriseStyles.healthDetailLabel}>
+                  {formatMessage({ id: 'enterpriseOverview.platformHealth.message' })}:
+                </span>
+                <span className={enterpriseStyles.healthDetailValue}>{currentHealthIssue.message}</span>
+              </div>
+              <div className={enterpriseStyles.healthDetailSolution}>
+                <div className={enterpriseStyles.healthDetailSolutionTitle}>
+                  <Icon type="bulb" style={{ marginRight: 8, color: '#faad14' }} />
+                  {formatMessage({ id: 'enterpriseOverview.platformHealth.solution' })}
+                </div>
+                <pre className={enterpriseStyles.healthDetailSolutionContent}>
+                  {currentHealthIssue.solution}
+                </pre>
+              </div>
+            </div>
+          )}
+        </Modal>
 
         {/* 企业授权信息 */}
         {isNeedAuthz && !isAuthorizationLoading && (

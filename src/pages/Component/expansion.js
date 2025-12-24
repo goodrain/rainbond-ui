@@ -1257,7 +1257,7 @@ export default class Index extends PureComponent {
               <div style={{ minHeight: '190px' }} />
             </Spin>
           ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: 24 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               <InstanceList
                 method={method}
                 handlePodClick={this.handlePodClick}

@@ -188,15 +188,21 @@ export default class Index extends PureComponent {
         ...data
       },
       callback: () => {
+        this.handleUpDataHeader();
         dispatch({
           type: 'user/fetchCurrent',
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          callback: () => {
+            dispatch({
+              type: 'global/IsUpDataHeader',
+              payload: { isUpData: false }
+            });
           }
         });
         this.loadOverview();
         this.hideEditName();
-        this.handleUpDataHeader();
       },
       handleError: err => {
         handleAPIError(err);

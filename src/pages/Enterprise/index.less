@@ -958,83 +958,137 @@
 // 健康问题卡片
 .healthIssueCard {
     display: flex;
-    align-items: center;
-    padding: 16px;
+    align-items: flex-start;
+    padding: 12px 24px;
     border-radius: 12px;
     margin-bottom: 12px;
+    background: #fff5f5;
     transition: all 0.3s ease;
+    align-items: center;
 
     &:last-child {
         margin-bottom: 0;
     }
 
     &:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(255, 77, 79, 0.15);
     }
 }
 
-.issueError {
-    background: #fff2f0;
-}
-
-.issueWarning {
-    background: #fffbe6;
-}
-
-// 图标区域
-.issueIconArea {
+// 图标容器
+.issueIconWrapper {
     display: flex;
     align-items: center;
-    gap: 18px;
-    margin-right: 18px;
-}
-
-.issueDot {
-    width: 10px;
-    height: 10px;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
+    background: rgba(255, 77, 79, 0.1);
+    margin-right: 16px;
+    flex-shrink: 0;
+    position: relative;
+
+    // 脉冲扩散特效
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid rgba(255, 77, 79, 0.4);
+        animation: pulse-ring 4s ease-out infinite;
+    }
+
+    :global {
+        .anticon {
+            font-size: 16px;
+            color: #ff4d4f;
+            position: relative;
+            z-index: 1;
+        }
+    }
 }
 
-.dotError {
-    background: #ff4d4f;
-    animation: breathe 2s ease-in-out infinite;
-}
-
-@keyframes breathe {
-    0%, 100% {
-        box-shadow: 0 0 4px rgba(255, 77, 79, 0.4);
+@keyframes pulse-ring {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 1;
     }
     50% {
-        box-shadow: 0 0 12px rgba(255, 77, 79, 0.9);
+        width: 180%;
+        height: 180%;
+        opacity: 0;
     }
-}
-
-.dotWarning {
-    background: #faad14;
-}
-
-.issueTypeIcon {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
+    100% {
+        width: 180%;
+        height: 180%;
+        opacity: 0;
+    }
 }
 
 // 内容区域
 .issueContent {
     flex: 1;
+    min-width: 0;
 }
 
-.issueHeader {
+// 顶部行：严重标签 + 集群名
+.issueTopRow {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
+// 严重程度标签
+.issueSeverityTag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ff4d4f;
+    background: rgba(255, 77, 79, 0.15);
+    border-radius: 4px;
+}
+
+// 集群名称
+.issueClusterName {
+    font-size: 14px;
+    color: @text-color-secondary;
+}
+
+// 错误消息
 .issueMessage {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
     color: @text-color;
+}
+
+// 描述信息
+.issueDesc {
+    font-size: 14px;
+    color: @text-color-secondary;
+    line-height: 1.5;
+}
+
+// 查看详情按钮
+.issueViewDetail {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ff4d4f;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px 0;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
 }
 
 .issueStatusTag {
@@ -1075,4 +1129,143 @@
 .metricValue {
     color: @text-color;
     font-weight: 500;
+}
+
+// 集群健康分组
+.regionHealthGroup {
+    margin-bottom: 20px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.regionHealthHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f6f8fc 0%, #f0f2f5 100%);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.regionHealthTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text-color;
+    display: flex;
+    align-items: center;
+}
+
+.regionHealthStatus {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.issueCount {
+    font-size: 13px;
+    color: @text-color-secondary;
+    padding-left: 16px;
+    border-left: 1px solid #e8e8e8;
+}
+
+.regionHealthIssues {
+    padding-left: 8px;
+}
+
+// 问题操作按钮
+.issueActions {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    flex-shrink: 0;
+}
+
+// 分类标签
+.issueCategoryTag {
+    font-size: 12px;
+    color: @text-color-secondary;
+    background: #f5f5f5;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+// 优先级样式
+.issueP0 {
+    color: #ff4d4f;
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+}
+
+.issueP1 {
+    color: #faad14;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+}
+
+.issueP2 {
+    color: #1890ff;
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+}
+
+// 详情弹窗样式
+.healthDetailContent {
+    padding: 8px 0;
+}
+
+.healthDetailItem {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.healthDetailLabel {
+    width: 80px;
+    min-width: 80px;
+    font-weight: 500;
+    color: @text-color-secondary;
+    flex-shrink: 0;
+}
+
+.healthDetailValue {
+    flex: 1;
+    color: @text-color;
+    word-break: break-all;
+}
+
+.healthDetailSolution {
+    margin-top: 20px;
+    padding: 16px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+}
+
+.healthDetailSolutionTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text-color;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.healthDetailSolutionContent {
+    font-size: 13px;
+    color: @text-color;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    margin: 0;
+    padding: 12px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
 }
