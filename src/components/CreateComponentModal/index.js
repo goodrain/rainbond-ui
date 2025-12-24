@@ -1294,9 +1294,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setCurrentView('main');
       setSelectedPlugin(null);
     } else if (currentView === 'thirdList') {
-      // 从 ThirdList 视图返回到源码菜单
-      setCurrentView('code');
-      setSelectedOauthService(null);
+      // 检查 ThirdList 是否正在显示表单
+      if (thirdListFormRef.current && thirdListFormRef.current.isShowingForm && thirdListFormRef.current.isShowingForm()) {
+        // 如果正在显示表单，返回到列表视图
+        thirdListFormRef.current.backToList();
+      } else {
+        // 否则返回到源码菜单
+        setCurrentView('code');
+        setSelectedOauthService(null);
+      }
     } else if (currentView === 'imageRepo') {
       // 从镜像仓库视图返回到镜像菜单
       setCurrentView('image');
@@ -2087,6 +2093,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 currentUser={currentUser}
                 archInfo={archInfo}
                 handleSubmit={handleThirdListSubmit}
+                handleCancel={handleBack}
               />
             )}
           </div>

@@ -12,6 +12,8 @@ import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import role from '../../utils/newRole'
+import pageheaderSvg from '../../utils/pageHeaderSvg';
+
 import {
   getComposeByComposeId,
   getComposeCheckuuid,
@@ -588,7 +590,11 @@ export default class CreateCheck extends PureComponent {
     const { status, modifyCompose, showDelete } = this.state;
     const params = this.getParams();
     return (
-      <PageHeaderLayout>
+      <PageHeaderLayout
+              title={formatMessage({ id: 'versionUpdata_6_1.check' })}
+        content={formatMessage({ id: 'versionUpdata_6_1.content4' })}
+        titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
+      >
         <Card bordered={false}>
           <div
             style={{

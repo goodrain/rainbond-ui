@@ -92,7 +92,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.codeBranch': '代码分支',
     'componentOverview.body.tab.overview.uploadTime': '上传时间',
     'componentOverview.body.tab.overview.image': '镜像tag',
-    'componentOverview.body.tab.overview.moreVersion': '查看更多版本',
+    'componentOverview.body.tab.overview.moreVersion': '更多版本',
     'componentOverview.body.tab.overview.return': '返回实例列表',
     'componentOverview.body.tab.overview.unlimited': '不限制',
     'componentOverview.body.tab.overview.databaseType': '数据库类型',
@@ -165,6 +165,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.handle.Dependent': '查看依赖组件',
     'componentOverview.body.tab.overview.handle.stretch': '去设置',
     'componentOverview.body.tab.overview.handle.DependentCom': '依赖组件',
+    'componentOverview.body.tab.overview.handle.noMore': '没有更多了',
     // LogItem
     'componentOverview.body.tab.LogItem.hand': '进行中',
     'componentOverview.body.tab.LogItem.complete': '完成',

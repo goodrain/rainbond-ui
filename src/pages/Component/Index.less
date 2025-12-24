@@ -58,7 +58,7 @@
     }
 
     .ant-card-body {
-      padding: 17px 32px 4px !important;
+      padding: 0 !important;
     }
   }
 }
@@ -84,18 +84,18 @@
 .errorDescBox {
   margin: 0 !important;
 
-  & > div:nth-of-type(2) {
-    & > div:nth-of-type(1) {
+  &>div:nth-of-type(2) {
+    &>div:nth-of-type(1) {
       padding-left: 17%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(2) {
+    &>div:nth-of-type(2) {
       padding-left: 10%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(3) {
+    &>div:nth-of-type(3) {
       width: 10% !important;
     }
   }
@@ -104,32 +104,32 @@
 .automaTictelescopingBOX {
   margin: 0 !important;
 
-  & > div:nth-of-type(1) {
-    & > div:nth-of-type(1) {
+  &>div:nth-of-type(1) {
+    &>div:nth-of-type(1) {
       padding-left: 6.2%;
     }
 
-    & > div:nth-of-type(2) {
+    &>div:nth-of-type(2) {
       padding-left: 6%;
     }
 
-    & > div:nth-of-type(3) {
+    &>div:nth-of-type(3) {
       padding-left: 6%;
     }
   }
 
-  & > div:nth-of-type(2) {
-    & > div:nth-of-type(1) {
+  &>div:nth-of-type(2) {
+    &>div:nth-of-type(1) {
       padding-left: 18%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(2) {
+    &>div:nth-of-type(2) {
       padding-left: 12%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(3) {
+    &>div:nth-of-type(3) {
       width: 10% !important;
     }
   }
@@ -156,6 +156,7 @@
     }
   }
 }
+
 .en_automaTictelescopingTitle {
   padding: 0 !important;
   display: flex;
@@ -186,8 +187,9 @@
   :global {
     .ant-input-group-addon .ant-select .ant-select-selection {
       border: 1px solid #e3e3e3;
-      }
-    .ant-form-item-label > label {
+    }
+
+    .ant-form-item-label>label {
       font-size: 14px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
@@ -230,40 +232,40 @@
 }
 
 .automaTictelescoping {
-  & > div {
+  &>div {
     padding: 10px 0 !important;
     display: flex;
     align-items: center;
   }
 
-  & > div:nth-of-type(1) {
+  &>div:nth-of-type(1) {
     border-right: 1px solid rgba(237, 239, 241, 1);
 
-    & > div:nth-of-type(1) {
+    &>div:nth-of-type(1) {
       padding-left: 6.8%;
     }
 
-    & > div:nth-of-type(2) {
+    &>div:nth-of-type(2) {
       padding-left: 0.2%;
     }
 
-    & > div:nth-of-type(3) {
+    &>div:nth-of-type(3) {
       padding-left: 0.2%;
     }
   }
 
-  & > div:nth-of-type(2) {
-    & > div:nth-of-type(1) {
+  &>div:nth-of-type(2) {
+    &>div:nth-of-type(1) {
       padding-left: 16.5%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(2) {
+    &>div:nth-of-type(2) {
       padding-left: 9.5%;
       width: 45% !important;
     }
 
-    & > div:nth-of-type(3) {
+    &>div:nth-of-type(3) {
       width: 10% !important;
     }
   }
@@ -272,8 +274,10 @@
   border-radius: 2px;
   border: 1px solid rgba(237, 239, 241, 1);
 }
+
 .customFormItem {
   width: 100%;
+
   :global {
     .ant-form-item-children {
       display: flex;
@@ -282,6 +286,7 @@
     }
   }
 }
+
 .clearCard {
   :global {
     .ant-card-head {
@@ -292,12 +297,12 @@
 
 .horizontalExpansionRecordTable {
   :global {
-    .ant-table-thead > tr > th {
+    .ant-table-thead>tr>th {
       text-align: center !important;
       border-bottom: none !important;
     }
 
-    .ant-table-tbody > tr > td {
+    .ant-table-tbody>tr>td {
       border-bottom: none !important;
       font-size: @rbd-content-size;
       color: @rbd-content-color !important;
@@ -517,7 +522,7 @@
 }
 
 .instanceBox {
-  & > div {
+  &>div {
     background: #eee;
   }
 }
@@ -659,14 +664,11 @@
 }
 
 .buildBox {
-  background: linear-gradient(
-      to right,
-      #00D777  0,
+  background: linear-gradient(to right,
+      #00D777 0,
       #00D777 10px,
       #fff 10px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
   border-radius: 2px;
   border: 1px solid #eaeaea;
   font-size: @rbd-sub-title-size;
@@ -707,7 +709,8 @@
           font-size: @rbd-content-size;
           color: @rbd-content-color-secondary;
           line-height: @rbd-content-line-height;
-          svg{
+
+          svg {
             margin-right: 6px;
           }
         }
@@ -721,7 +724,7 @@
         font-size: @rbd-content-size;
         color: @primary-color;
         line-height: @rbd-content-line-height;
-        
+
       }
     }
 
@@ -770,48 +773,309 @@
   }
 }
 
-.logpassed {
-  background: linear-gradient(
-      to right,
-      #00D777  0,
-      #00D777  5px,
-      #fff 5px,
-      #fff 100%
-    )
-    no-repeat;
+// 横向三行布局卡片
+.basicCard {
+  background: linear-gradient(to right, #00D777 0px, #fff 60px, #fff 100%);
+  border-radius: 12px;
+  border: 1px solid;
+  border-color: #00D777;
+  padding: 10px 24px 10px 60px;
 }
 
-.logfailed {
-  background: linear-gradient(
-      to right,
+.basicRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.basicRowLeft {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.basicRowRight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  a {
+    font-size: @rbd-content-size;
+    color: @primary-color;
+    line-height: @rbd-content-line-height;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: darken(@primary-color, 10%);
+    }
+  }
+}
+
+.basicLabel {
+  display: flex;
+  align-items: center;
+  font-size: @rbd-content-size;
+  color: @rbd-content-color-secondary;
+  line-height: @rbd-content-line-height;
+
+  svg {
+    margin-right: 6px;
+  }
+}
+
+.basicValue {
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.basicStatus {
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 500;
+}
+
+.basicInfoItem {
+  display: flex;
+  align-items: center;
+  font-size: @rbd-content-size;
+  color: @text-color-secondary;
+  line-height: @rbd-content-line-height;
+  min-width: 500px;
+
+  svg {
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+}
+
+.basicInfoValue {
+  color: @text-color;
+  padding: 0 12px;
+  min-width: 60px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// 双列布局
+.basicColumns {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 6px;
+}
+
+.basicColumnLeft {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.basicColumnRight {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 16px;
+  border-left: 1px solid #f0f0f0;
+}
+
+// 构建历史列表样式
+.historyListWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.historyCard {
+  border-radius: 6px;
+  border: none;
+  padding: 8px 16px 8px 20px;
+  transition: box-shadow 0.3s ease;
+  border: 1px solid #e3e3e3;
+}
+
+.historyCardSuccess {
+  background: linear-gradient(to right,
+      #00D777 0,
+      #00D777 5px,
+      #fff 5px,
+      #fff  100%) no-repeat;
+}
+
+.historyCardFailure {
+  background: linear-gradient(to right,
       #CD0200 0,
       #CD0200 5px,
       #fff 5px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
 }
 
-.logfored {
-  background: linear-gradient(
-      to right,
-      #F69D4A 0,
-      #F69D4A 5px,
-      #fff 5px,
-      #fff 100%
-    )
-    no-repeat;
-}
-
-.logcanceled {
-  background: linear-gradient(
-      to right,
+.historyCardUnknown {
+  background: linear-gradient(to right,
       #9d9d9d 0,
       #9d9d9d 5px,
       #fff 5px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
+}
+
+.historyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.historyRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.historyRowRight {
+  display: flex;
+  align-items: center;
+}
+
+.historyStatus {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+
+  svg {
+    margin-right: 6px;
+  }
+}
+
+.historyVersion {
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.historyStatusText {
+  font-size: @rbd-content-size;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.historyActions {
+  display: flex;
+  align-items: center;
+
+  a {
+    font-size: @rbd-content-size;
+    color: @primary-color;
+    line-height: 1;
+
+    &:hover {
+      color: darken(@primary-color, 10%);
+    }
+  }
+}
+
+.historyColumns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.historyColumnLeft {
+  width: 65%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.historyColumnRight {
+  width: 33%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding-left: 16px;
+  border-left: 1px solid #f0f0f0;
+}
+
+.historyInfoItem {
+  display: flex;
+  align-items: center;
+  font-size: @rbd-content-size;
+  color: @text-color-secondary;
+  line-height: 1;
+
+  svg {
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+}
+
+.historyInfoValue {
+  color: @text-color;
+  padding-left: 4px;
+  max-width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.logpassed {
+  background: linear-gradient(to right,
+      #00D777 0,
+      #00D777 5px,
+      #fff 5px,
+      #fff 100%) no-repeat;
+}
+
+.logfailed {
+  background: linear-gradient(to right,
+      #CD0200 0,
+      #CD0200 5px,
+      #fff 5px,
+      #fff 100%) no-repeat;
+}
+
+.logfored {
+  background: linear-gradient(to right,
+      #F69D4A 0,
+      #F69D4A 5px,
+      #fff 5px,
+      #fff 100%) no-repeat;
+}
+
+.logcanceled {
+  background: linear-gradient(to right,
+      #9d9d9d 0,
+      #9d9d9d 5px,
+      #fff 5px,
+      #fff 100%) no-repeat;
 }
 
 .loginfo {
@@ -957,6 +1221,7 @@ font {
   color: @rbd-success-status;
   font-size: @rbd-content-size !important;
   line-height: @rbd-content-line-height;
+
   .icon {
     color: @rbd-success-status;
   }
@@ -994,6 +1259,7 @@ font {
   display: flex;
   align-items: center;
 }
+
 .en_alcen {
   display: flex;
   align-items: center;
@@ -1001,42 +1267,34 @@ font {
   font-size: @rbd-content-size;
   color: @rbd-content-color-secondary;
   line-height: @rbd-content-line-height;
-  svg{
+
+  svg {
     margin-right: 6px;
   }
 }
 
 .passed {
-  background: linear-gradient(
-      to right,
+  background: linear-gradient(to right,
       #00D777 0,
-      #00D777  10px,
+      #00D777 10px,
       #fff 10px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
 }
 
 .failed {
-  background: linear-gradient(
-      to right,
+  background: linear-gradient(to right,
       #CD0200 0,
       #CD0200 10px,
       #fff 10px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
 }
 
 .canceled {
-  background: linear-gradient(
-      to right,
+  background: linear-gradient(to right,
       #9d9d9d 0,
       #9d9d9d 10px,
       #fff 10px,
-      #fff 100%
-    )
-    no-repeat;
+      #fff 100%) no-repeat;
 }
 
 .rowLi {
@@ -1052,6 +1310,7 @@ font {
   flex-flow: row nowrap;
   align-items: center;
 }
+
 .en_prRow {
   display: flex;
   justify-content: flex-start;
@@ -1107,6 +1366,7 @@ font {
       padding: 6px;
       border-right: 1px solid #eff0ec;
     }
+
     .en_lineone {
       padding: 0;
       white-space: nowrap;
@@ -1121,6 +1381,7 @@ font {
       width: 15%;
       margin-left: 10px;
     }
+
     .en_linetwo {
       padding: 6px;
       white-space: nowrap;
@@ -1132,6 +1393,7 @@ font {
       padding: 6px;
       width: 20%;
     }
+
     .en_linestree {
       padding: 6px;
       width: 20%;
@@ -1145,6 +1407,7 @@ font {
       text-align: right;
       padding: 6px;
     }
+
     .en_linefour {
       // flex        : 0 0 22%;
       width: 15%;
@@ -1162,11 +1425,9 @@ font {
       right: 0;
       width: 2em;
       height: 100%;
-      background: linear-gradient(
-        -90deg,
-        #fff 30%,
-        rgba(255, 255, 255, 0) 100%
-      );
+      background: linear-gradient(-90deg,
+          #fff 30%,
+          rgba(255, 255, 255, 0) 100%);
     }
 
     .rowRtem {
@@ -1226,7 +1487,7 @@ font {
     flex: 0 1 72px;
     margin-bottom: 8px;
 
-    & > span {
+    &>span {
       border-radius: 72px;
       display: block;
       width: 72px;
@@ -1268,20 +1529,20 @@ font {
     position: relative;
     display: inline-block;
 
-    > p:first-child {
+    >p:first-child {
       color: @text-color-secondary;
       font-size: @font-size-base;
       line-height: 22px;
       margin-bottom: 4px;
     }
 
-    > p {
+    >p {
       color: @heading-color;
       font-size: 30px;
       line-height: 38px;
       margin: 0;
 
-      > span {
+      >span {
         color: @text-color-secondary;
         font-size: 20px;
       }
@@ -1793,6 +2054,7 @@ font {
     }
   }
 }
+
 .nodeSelect {
   width: 80% !important;
 }
@@ -1800,10 +2062,12 @@ font {
 .commandWidth {
   width: 85% !important;
 }
+
 .memorySelect {
   width: 100% !important;
   margin-left: 0 !important;
 }
+
 @media screen and (max-width: 1300px) and (min-width: 1000px) {
   .commandText {
     width: 72px !important;
@@ -1811,6 +2075,7 @@ font {
 }
 
 @media screen and (max-width: 1500px) and (min-width: 1300px) {
+
   .calcwd,
   .rowMessage {
     width: 60% !important;
@@ -1833,36 +2098,37 @@ font {
   .automaTictelescopingBOX {
     margin: 0 !important;
 
-    & > div:nth-of-type(1) {
-      & > div:nth-of-type(1) {
+    &>div:nth-of-type(1) {
+      &>div:nth-of-type(1) {
         padding-left: 6.2%;
       }
 
-      & > div:nth-of-type(2) {
+      &>div:nth-of-type(2) {
         padding-left: 4%;
       }
 
-      & > div:nth-of-type(3) {
+      &>div:nth-of-type(3) {
         padding-left: 4%;
       }
     }
 
-    & > div:nth-of-type(2) {
-      & > div:nth-of-type(1) {
+    &>div:nth-of-type(2) {
+      &>div:nth-of-type(1) {
         padding-left: 18.5%;
         width: 45% !important;
       }
 
-      & > div:nth-of-type(2) {
+      &>div:nth-of-type(2) {
         padding-left: 11.5%;
         width: 45% !important;
       }
 
-      & > div:nth-of-type(3) {
+      &>div:nth-of-type(3) {
         width: 10% !important;
       }
     }
   }
+
   .calcwd,
   .rowMessage {
     width: 68% !important;
@@ -1873,6 +2139,7 @@ font {
   .commandWidth {
     width: 90% !important;
   }
+
   .calcwd,
   .rowMessage {
     width: 73% !important;
@@ -1881,32 +2148,32 @@ font {
   .automaTictelescopingBOX {
     margin: 0 !important;
 
-    & > div:nth-of-type(1) {
-      & > div:nth-of-type(1) {
+    &>div:nth-of-type(1) {
+      &>div:nth-of-type(1) {
         padding-left: 6.2%;
       }
 
-      & > div:nth-of-type(2) {
+      &>div:nth-of-type(2) {
         padding-left: 4%;
       }
 
-      & > div:nth-of-type(3) {
+      &>div:nth-of-type(3) {
         padding-left: 4%;
       }
     }
 
-    & > div:nth-of-type(2) {
-      & > div:nth-of-type(1) {
+    &>div:nth-of-type(2) {
+      &>div:nth-of-type(1) {
         padding-left: 19%;
         width: 45% !important;
       }
 
-      & > div:nth-of-type(2) {
+      &>div:nth-of-type(2) {
         padding-left: 12%;
         width: 45% !important;
       }
 
-      & > div:nth-of-type(3) {
+      &>div:nth-of-type(3) {
         width: 10% !important;
       }
     }

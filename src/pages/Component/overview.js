@@ -781,8 +781,8 @@ export default class Index extends PureComponent {
           <Card
             loading={runLoading}
             title={<FormattedMessage id='componentOverview.body.tab.overview.instance.title'/>}
-            style={{ margin: '20px 0', minHeight: '170px' }}
-            bodyStyle={{ padding: '0', background: '#F0F2F5' }}
+            style={{ margin: '12px 0', borderRadius: 12, overflow: 'hidden' }}
+            bodyStyle={{ padding: '0px', background: '#F0F2F5' }}
           >
             <Instance
               status={status}

@@ -696,6 +696,12 @@ export default class app extends Component {
           type: 'global/fetchGroups',
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          callback: () => {
+            dispatch({
+              type: 'global/IsUpDataHeader',
+              payload: { isUpData: false }
+            });
           }
         });
       }

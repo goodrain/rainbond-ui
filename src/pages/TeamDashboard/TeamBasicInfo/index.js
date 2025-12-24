@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col, Card, Table, Button, Select, Input, Spin, Pagination, Tag, notification, Empty, Tooltip, Radio, Icon } from 'antd';
+import { Row, Col, Card, Table, Button, Input, Spin, Pagination, Tag, notification, Empty, Tooltip, Icon, Select } from 'antd';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -18,7 +18,6 @@ import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
-
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
@@ -57,6 +56,7 @@ export default class index extends Component {
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       isTableView: savedViewState === 'true',
+      isTransitioning: false,
       language: cookie.get('language') === 'zh-CN',
       storageUsed: 0,
       guideStep: shouldShowGuide ? 'team-overview' : '',
@@ -434,9 +434,20 @@ export default class index extends Component {
   };
   // 添加视图切换处理函数
   handleViewChange = (checked) => {
-    window.localStorage.setItem('isTableView', checked);
-    this.setState({
-      isTableView: checked
+    // 先触发退出动画
+    this.setState({ isTransitioning: true }, () => {
+      // 等待退出动画完成后切换视图
+      setTimeout(() => {
+        window.localStorage.setItem('isTableView', checked);
+        this.setState({
+          isTableView: checked
+        }, () => {
+          // 切换完成后触发进入动画
+          setTimeout(() => {
+            this.setState({ isTransitioning: false });
+          }, 50);
+        });
+      }, 200);
     });
   };
   // 添加卡片视图渲染函数
@@ -448,7 +459,7 @@ export default class index extends Component {
       <svg t="1735296415486" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="16" height="16"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
     )
     const visterSvg = (
-      <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='#195AC3'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='#195AC3'></path></svg>
+      <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='currentColor'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='currentColor'></path></svg>
     )
     const addNewAppSvg = (
       <svg t="1735296415486" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="48" height="48"><path d="M801.171 483.589H544V226.418c0-17.673-14.327-32-32-32s-32 14.327-32 32v257.171H222.83c-17.673 0-32 14.327-32 32s14.327 32 32 32H480v257.17c0 17.673 14.327 32 32 32s32-14.327 32-32v-257.17h257.171c17.673 0 32-14.327 32-32s-14.327-32-32-32z" p-id="4280" fill='#195AC3'></path></svg>
@@ -494,34 +505,53 @@ export default class index extends Component {
                     ));
                   }}
                 >
-                  <div className={styles.appStatus} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
-                  <div className={styles.appItemDetail}>
-                    <Tooltip placement="topLeft" title={item.group_name}>
-                      <div className={styles.appTitle}>{item.group_name}</div>
-                    </Tooltip>
-                    <div className={styles.statusText} style={{ background: globalUtil.appStatusColor(item.status) }}>
-                      {globalUtil.appStatusText(item.status)}
-                    </div>
-                    <div className={styles.bottomBox}>
-                      <div className={styles.component}><FormattedMessage id="teamOverview.component.name" />: {item.services_num}<FormattedMessage id="unit.entries" /></div>
-                      <div className={styles.updateTime}>
-                        {item.update_time &&
-                          moment(item.update_time).fromNow()}
-                        &nbsp;<FormattedMessage id="teamOverview.update" />
+                  <div className={styles.appStatusBar} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
+                  <div className={styles.appCardContent}>
+                    {/* 第一行：图标 + 应用名 + 访问按钮 */}
+                    <div className={styles.appCardHeader}>
+                      <div className={styles.appCardHeaderLeft}>
+                        <span
+                          className={styles.appIcon}
+                          style={{ background: globalUtil.appStatusColor(item.status, 0.1) }}
+                        >
+                          {globalUtil.fetchSvg('appIconSvg', globalUtil.appStatusColor(item.status), 28)}
+                        </span>
+                        <Tooltip placement="topLeft" title={item.group_name}>
+                          <span className={styles.appName}>{item.group_name}</span>
+                        </Tooltip>
                       </div>
-                    </div>
-                    <div className={styles.btn}>
-                      {item.status === 'RUNNING' && (
-                        <div className={styles.visterBtn}>
-                          {visterSvg}
-                          {item.accesses.length > 0 && (
+                      <div className={styles.appCardHeaderRight} onClick={(e) => e.stopPropagation()}>
+                        {item.status === 'RUNNING' && item.accesses.length > 0 && item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0) && (
+                          <>
+                            {visterSvg}
                             <VisterBtn
                               linkList={item.accesses}
                               type="link"
                             />
-                          )}
-                        </div>
-                      )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {/* 第二行：运行状态 */}
+                    <div className={styles.appCardStatus}>
+                      <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
+                      <span className={styles.statusText} style={{ color: globalUtil.appStatusColor(item.status) }}>
+                        {globalUtil.appStatusText(item.status)}
+                      </span>
+                    </div>
+                    {/* 分割线 */}
+                    <div className={styles.appCardDivider}></div>
+                    {/* 第三行：组件数 + 更新时间 */}
+                    <div className={styles.appCardFooter}>
+                      <span className={styles.componentCount}>
+                        <Icon type="menu" style={{ marginRight: 4 }} />
+                        {item.services_num} <FormattedMessage id="unit.component" />
+                      </span>
+                      <span className={styles.updateTime}>
+                        <Icon type="clock-circle" style={{ marginRight: 4 }} />
+                        {item.update_time && moment(item.update_time).fromNow()}
+                        <FormattedMessage id="teamOverview.update" />
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -551,10 +581,15 @@ export default class index extends Component {
         isAccess: isAppCreate
       },
       isTableView,
-      storageUsed
+      isTransitioning,
+      storageUsed,
+      sortValue
     } = this.state;
     const { index, pluginsList } = this.props;
     const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    const visterSvg = (
+      <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='currentColor'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='currentColor'></path></svg>
+    );
     const columns = [
       {
         title: formatMessage({ id: 'versionUpdata_6_1.appName' }),
@@ -696,73 +731,138 @@ export default class index extends Component {
                   <h2>{formatMessage({ id: 'versionUpdata_6_1.appList' })}</h2>
                 </div>
                 <div className={styles.appListToolbar}>
-                  <Radio.Group
-                  value={isTableView ? 'table' : 'card'}
-                  onChange={(e) => this.handleViewChange(e.target.value === 'table')}
-                  style={{marginRight: 12}}
-                >
-                  <Radio.Button value="card">
+                  <div className={styles.customToggle}>
                     <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.card' })}>
-                      <Icon type="appstore" />
+                      <div
+                        className={`${styles.toggleItem} ${!isTableView ? styles.active : ''}`}
+                        onClick={() => this.handleViewChange(false)}
+                      >
+                        <span className={styles.toggleIcon}>
+                          {globalUtil.fetchSvg('cardViewSvg', 22)}
+                        </span>
+                      </div>
                     </Tooltip>
-                  </Radio.Button>
-                  <Radio.Button value="table">
                     <Tooltip title={formatMessage({ id: 'versionUpdata_6_1.appList.table' })}>
-                      <Icon type="table" />
+                      <div
+                        className={`${styles.toggleItem} ${isTableView ? styles.active : ''}`}
+                        onClick={() => this.handleViewChange(true)}
+                      >
+                        <span className={styles.toggleIcon}>
+                          {globalUtil.fetchSvg('tableViewSvg', 22)}
+                        </span>
+                      </div>
                     </Tooltip>
-                  </Radio.Button>
-                </Radio.Group>
-                <Search
-                  placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
-                  onSearch={this.onSearch}
-                  value={query}
-                  allowClear
-                  onChange={(e) => {
-                    this.setState({ query: e.target.value });
-                  }}
-                  style={{ width: 180, marginRight: 10 }}
-                />
-                <Select
-                  style={{ width: this.state.language ? '140px' : '170px' }}
-                  placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
-                  defaultValue={1}
-                  onChange={this.handleSortChange}
-                >
-                  <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
-                    <FormattedMessage id="teamOverview.runStatusSort" />
-                  </Option>
-                  <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
-                    <FormattedMessage id="teamOverview.updateTimeSort" />
-                  </Option>
+                  </div>
+                  <Search
+                    placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
+                    onSearch={this.onSearch}
+                    value={query}
+                    allowClear
+                    onChange={(e) => {
+                      this.setState({ query: e.target.value });
+                    }}
+                    style={{ width: 180, marginRight: 10 }}
+                  />
+                  <Select
+                    style={{ width: this.state.language ? '140px' : '170px' }}
+                    placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
+                    value={sortValue}
+                    onChange={this.handleSortChange}
+                  >
+                    <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
+                      <FormattedMessage id="teamOverview.runStatusSort" />
+                    </Option>
+                    <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
+                      <FormattedMessage id="teamOverview.updateTimeSort" />
+                    </Option>
                   </Select>
                 </div>
               </div>
               {!appListLoading && isAppList && (
-                <>
+                <div className={`${styles.viewContainer} ${isTransitioning ? styles.viewExiting : styles.viewEntering}`}>
                   {isTableView ? (
-                    <>
+                    <div className={styles.tableListView}>
+                      {/* 新建应用行 */}
                       {isAppCreate && (
-                        <div className={styles.tableCreateBtnWrapper}>
-                          <Button
-                            type="primary"
-                            onClick={() => {
-                              this.onJumpToWizard()
-                            }}
-                            data-guide="create-app"
-                          >
+                        <div
+                          className={styles.tableCreateRow}
+                          onClick={() => this.onJumpToWizard()}
+                          data-guide="create-app"
+                        >
+                          <span className={styles.tableCreateIcon}>
+                            <Icon type="plus" />
+                          </span>
+                          <span className={styles.tableCreateText}>
                             {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                          </Button>
+                          </span>
                         </div>
                       )}
+                      {/* 应用列表 */}
                       {teamHotAppList.length > 0 ? (
-                        <Table
-                          dataSource={teamHotAppList}
-                          columns={columns}
-                          pagination={false}
-                          rowClassName={this.getRowClassName}
-                          rowKey={(record) => record.group_id}
-                          loading={appListLoading}
-                        />
+                        teamHotAppList.map((item) => (
+                          <div
+                            key={item.group_id}
+                            className={styles.tableAppRow}
+                          >
+                            <div className={styles.tableAppStatusBar} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
+                            <div
+                              className={styles.tableAppContent}
+                              onClick={() => {
+                                const { dispatch } = this.props;
+                                dispatch(routerRedux.push(
+                                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/overview`
+                                ));
+                              }}
+                            >
+                              <span
+                                className={styles.tableAppIcon}
+                                style={{ background: globalUtil.appStatusColor(item.status, 0.1) }}
+                              >
+                                {globalUtil.fetchSvg('appIconSvg', globalUtil.appStatusColor(item.status), 24)}
+                              </span>
+                              <div className={styles.tableAppInfo}>
+                                <Tooltip placement="topLeft" title={item.group_name}>
+                                  <span className={styles.tableAppName}>{item.group_name}</span>
+                                </Tooltip>
+                                <div className={styles.tableAppMeta}>
+                                  <span className={styles.tableAppStatus}>
+                                    <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
+                                    <span style={{ color: globalUtil.appStatusColor(item.status) }}>{globalUtil.appStatusText(item.status)}</span>
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
+                                    <Icon type="menu" style={{ marginRight: 4 }} />
+                                    {item.services_num} <FormattedMessage id="unit.component" />
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
+                                    {formatMessage({ id: 'versionUpdata_6_1.memory' })}: {item.used_mem || 0} MB
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
+                                    CPU: {item.used_cpu || 0} m
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
+                                    <Icon type="clock-circle" style={{ marginRight: 4 }} />
+                                    {item.update_time && moment(item.update_time).fromNow()} <FormattedMessage id="teamOverview.update" />
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className={styles.tableAppActions} onClick={(e) => e.stopPropagation()}>
+                              {item.status === 'RUNNING' && item.accesses.length > 0 && item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0) && (
+                                <span className={styles.tableActionBtn}>
+                                  {visterSvg}
+                                  <VisterBtn
+                                    linkList={item.accesses}
+                                    type="link"
+                                  />
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))
                       ) : (
                         <div className={styles.appListEmpty}>
                           <Empty
@@ -770,7 +870,7 @@ export default class index extends Component {
                           />
                         </div>
                       )}
-                    </>
+                    </div>
                   ) : (
                     <>
                       {this.renderCardView()}
@@ -799,7 +899,7 @@ export default class index extends Component {
                       />
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
           </>

@@ -745,12 +745,6 @@ export default class Index extends PureComponent {
             </div>
           }
         >
-          <div
-            style={{
-              maxWidth: 500,
-              margin: '0 auto'
-            }}
-          >
             <CreatePluginForm
               allDisabled={false}
               Modifys
@@ -759,7 +753,6 @@ export default class Index extends PureComponent {
               data={currInfo}
               submitText={formatMessage({id:'teamOther.manage.modification'})}
             />
-          </div>
         </Card>
         <Card
           style={{

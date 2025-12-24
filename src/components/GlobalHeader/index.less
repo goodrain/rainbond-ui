@@ -1,12 +1,5 @@
 @import "~antd/lib/style/themes/default.less";
 
-/* 阿里妈妈灵动体 */
-@font-face {
-  font-family: "阿里妈妈灵动体 VF Thin";
-  src: url("//at.alicdn.com/wf/webfont/7KiQMFCgdyUH/gUm9OLr5cWDR.woff2") format("woff2"),
-       url("//at.alicdn.com/wf/webfont/7KiQMFCgdyUH/nKiluyHMsEVt.woff") format("woff");
-  font-display: swap;
-}
 .header {
   padding: 0 12px 0 0;
   background: @rbd-background-color;
@@ -75,11 +68,6 @@
   padding-left: 12px;
   padding-right: 10px;
   margin-right: 0px;
-
-  img {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 // 企业视图下常驻显示时的样式
@@ -88,11 +76,13 @@
 }
 
 .enterpriseName {
-  margin-left: 10px;
+  padding-top: 8px;
+  line-height: 50px;
+  margin-left: 4px;
   font-size: 22px;
-  font-family: "阿里妈妈灵动体 VF Thin", "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-weight: 900;
-  color: #1a1a2e;
+  font-family: "Now", "Montserrat", sans-serif;
+  font-weight: bold;
+  color: #3399ff;
   max-width: 160px;
   opacity: 1;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

@@ -26,6 +26,7 @@ const teamOverview = {
   'teamOverview.update': 'Update',
   'teamOverview.memory': 'Memory',
   'teamOverview.visit': 'Access',
+  'teamOverview.view': 'View',
   'teamOverview.appList': 'App list',
   'teamOverview.result.title':'The cluster end is not responding, Try again later.',
   'teamOverview.result.description':'If the loading fails, contact the cluster administrator to check the cluster status',

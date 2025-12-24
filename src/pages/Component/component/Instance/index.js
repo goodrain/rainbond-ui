@@ -404,7 +404,7 @@ class Index extends PureComponent {
               md={10}
               lg={10}
               xl={10}
-              style={{ background: '#fff', padding: '15px 0' }}
+              style={{ background: '#fff', }}
             >
               {oldPods &&
                 this.schedulingBox(oldPods, oldPods && oldPods.length)}
@@ -427,7 +427,7 @@ class Index extends PureComponent {
             md={isOldPods ? 10 : 24}
             lg={isOldPods ? 10 : 24}
             xl={isOldPods ? 10 : 24}
-            style={{ background: '#fff', padding: '15px 0' }}
+            style={{ background: '#fff', }}
           >
             {newPods && this.schedulingBox(newPods, oldPods && oldPods.length)}
           </Col>
