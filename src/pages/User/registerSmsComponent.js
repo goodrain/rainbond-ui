@@ -1,10 +1,11 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
-import { Button, Col, Form, Input, Row, Divider } from 'antd';
+import { Button, Col, Form, Input, Row, Divider, Icon } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Component } from 'react';
+import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 import userUtil from '../../utils/global';
@@ -127,98 +128,129 @@ export default class RegisterComponent extends Component {
     const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const { time } = this.state;
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <FormItem {...formItemLayout}>
-          {getFieldDecorator('nick_name', {
-            rules: [
-              { required: true, message: '请输入用户名' },
-              {
-                min: 3,
-                message: '最小长度3位'
-              },
-              {
-                max: 24,
-                message: '最大长度24位'
-              },
-              {
-                pattern: /^[a-z](?:[a-z0-9]|-(?=[a-z0-9]))*$/,
-                message: '只支持小写字母、数字和-组合'
-              }
-            ]
-          })(
-            <Input autoComplete="off" size="large" placeholder={'用户名'} />
-          )}
-        </FormItem>
-        {/* 手机号 */}
-        <FormItem>
-          {getFieldDecorator('phone', {
-            rules: [
-              { required: true, message: '手机号' },
-              {
-                pattern: /^1[3-9]\d{9}$/,
-                message: '手机号格式错误！'
-              }
-            ],
-          })(<Input autoComplete="off" size="large" placeholder={'手机号'} />)}
-        </FormItem>
-        
-        {/* 验证码 */}
-        <FormItem>
-          <Row gutter={8}>
-            <Col span={16}>
-              {getFieldDecorator('code', {
+      <div className={styles.registerWrapper}>
+        <Form onSubmit={this.handleSubmit}>
+          <div className={styles.formItem}>
+            <label><FormattedMessage id="login.registerSmsComponent.username.label" defaultMessage="用户名" /></label>
+            <FormItem {...formItemLayout}>
+              {getFieldDecorator('nick_name', {
                 rules: [
-                  { required: true, message: '请输入验证码' },
-                  { len: 6, message: '请输入6位验证码' }
+                  { required: true, message: formatMessage({ id: 'login.registerSmsComponent.username.required', defaultMessage: '请输入用户名' }) },
+                  {
+                    min: 3,
+                    message: formatMessage({ id: 'login.registerSmsComponent.username.min', defaultMessage: '最小长度3位' })
+                  },
+                  {
+                    max: 24,
+                    message: formatMessage({ id: 'login.registerSmsComponent.username.max', defaultMessage: '最大长度24位' })
+                  },
+                  {
+                    pattern: /^[a-z](?:[a-z0-9]|-(?=[a-z0-9]))*$/,
+                    message: formatMessage({ id: 'login.registerSmsComponent.username.pattern', defaultMessage: '只支持小写字母、数字和-组合' })
+                  }
+                ]
+              })(
+                <Input
+                  autoComplete="off"
+                  size="large"
+                  prefix={<Icon type="user" className={styles.prefixIcon} />}
+                  placeholder={formatMessage({ id: 'login.registerSmsComponent.username.placeholder', defaultMessage: '请输入用户名' })}
+                />
+              )}
+            </FormItem>
+          </div>
+          <div className={styles.formItem}>
+            <label><FormattedMessage id="login.registerSmsComponent.phone.label" defaultMessage="手机号" /></label>
+            <FormItem {...formItemLayout}>
+              {getFieldDecorator('phone', {
+                rules: [
+                  { required: true, message: formatMessage({ id: 'login.registerSmsComponent.phone.required', defaultMessage: '请输入手机号' }) },
+                  {
+                    pattern: /^1[3-9]\d{9}$/,
+                    message: formatMessage({ id: 'login.registerSmsComponent.phone.pattern', defaultMessage: '手机号格式错误！' })
+                  }
                 ],
-              })(<Input 
-                placeholder={'请输入验证码'}
-              />)}
-            </Col>
-            <Col span={8}>
-              <Button
-                disabled={this.state.countdown > 0}
-                onClick={this.handleSendCode}
-                style={{ width: '100%', marginTop: '-16px', color: '#000' }}
-              >
-                {this.state.countdown > 0 ? `${this.state.countdown}s` : '获取验证码'}
-              </Button>
-            </Col>
-          </Row>
-        </FormItem>
-        <FormItem>
-          <Button
-            size="large"
-            loading={type === 'register' ? submitting : thirdsubmitting}
-            className={styles.submit}
-            style={{ width: '100%' }}
-            type="primary"
-            htmlType="submit"
-          >
-            {firstRegist
-              ? '管理员注册'
-              : type === 'register'
-                ? '注册'
-                : '注册并绑定'}
-          </Button>
-
-          {!firstRegist && type === 'register' && (
-            <Link className={styles.login} to={this.getRedirectParams()}>
-              使用已有账户登录
-            </Link>
-          )}
-        </FormItem>
-        {firstRegist && (
-          <Row>
-            <Col
-              span={24}
-              style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
+              })(
+                <Input
+                  autoComplete="off"
+                  size="large"
+                  prefix={<Icon type="mobile" className={styles.prefixIcon} />}
+                  placeholder={formatMessage({ id: 'login.registerSmsComponent.phone.placeholder', defaultMessage: '请输入手机号' })}
+                />
+              )}
+            </FormItem>
+          </div>
+          <div className={styles.formItem}>
+            <label><FormattedMessage id="login.registerSmsComponent.code.label" defaultMessage="验证码" /></label>
+            <FormItem {...formItemLayout}>
+              <Row gutter={8}>
+                <Col span={16}>
+                  {getFieldDecorator('code', {
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'login.registerSmsComponent.code.required', defaultMessage: '请输入验证码' }) },
+                      { len: 6, message: formatMessage({ id: 'login.registerSmsComponent.code.len', defaultMessage: '请输入6位验证码' }) }
+                    ],
+                  })(
+                    <Input
+                      size="large"
+                      prefix={<Icon type="safety-certificate" className={styles.prefixIcon} />}
+                      placeholder={formatMessage({ id: 'login.registerSmsComponent.code.placeholder', defaultMessage: '请输入验证码' })}
+                    />
+                  )}
+                </Col>
+                <Col span={8}>
+                  <Button
+                    size="large"
+                    disabled={this.state.countdown > 0}
+                    onClick={this.handleSendCode}
+                    style={{ width: '100%' }}
+                  >
+                    {this.state.countdown > 0
+                      ? `${this.state.countdown}s`
+                      : <FormattedMessage id="login.registerSmsComponent.getCode" defaultMessage="获取验证码" />
+                    }
+                  </Button>
+                </Col>
+              </Row>
+            </FormItem>
+          </div>
+          <FormItem>
+            <Button
+              size="large"
+              loading={type === 'register' ? submitting : thirdsubmitting}
+              className={styles.submit}
+              style={{ width: '100%' }}
+              type="primary"
+              htmlType="submit"
             >
-              请注意：注册使用即同意产品发行版用户许可协议。
-            </Col>
-          </Row>
-        )}
-      </Form>
+              {firstRegist
+                ? <FormattedMessage id="login.registerSmsComponent.adminRegister" defaultMessage="管理员注册" />
+                : type === 'register'
+                  ? <FormattedMessage id="login.registerSmsComponent.register" defaultMessage="注册" />
+                  : <FormattedMessage id="login.registerSmsComponent.registerAndBind" defaultMessage="注册并绑定" />
+              }
+            </Button>
+          </FormItem>
+          {!firstRegist && type === 'register' && (
+            <div className={styles.loginLink}>
+              <span><FormattedMessage id="login.registerSmsComponent.hasAccount" defaultMessage="已有账户？" /></span>
+              <Link to={this.getRedirectParams()}>
+                <FormattedMessage id="login.registerSmsComponent.goLogin" defaultMessage="立即登录" />
+              </Link>
+            </div>
+          )}
+          {firstRegist && (
+            <Row>
+              <Col
+                span={24}
+                style={{ fontSize: 12, marginTop: -12, color: '#666666' }}
+              >
+                <FormattedMessage id="login.registerSmsComponent.agreement" defaultMessage="请注意：注册使用即同意产品发行版用户许可协议。" />
+              </Col>
+            </Row>
+          )}
+        </Form>
+      </div>
     );
   }
 }

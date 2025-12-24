@@ -79,29 +79,38 @@ export default class LoginComponent extends Component {
     const { thirdLogin, userLogin, type } = this.props;
     const { mobile } = this.state;
     return (
-      <div>
+      <div className={styles.loginWrapper}>
+
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
-          <Mobile 
-            name="phone" 
-            placeholder={'请输入手机号'} 
-            onChange={this.handleMobileChange}
-          />
-          <Captcha 
-            name="code"
-            placeholder={'请输入验证码'}
-            countDown={120}
-            mobile={mobile}
-            onGetCaptcha={this.onGetCaptcha}
-          />
+          <div className={styles.formItem}>
+            <label><FormattedMessage id="login.loginSmsComponent.phone.label" defaultMessage="手机号" /></label>
+            <Mobile
+              name="phone"
+              placeholder={formatMessage({id: 'login.loginSmsComponent.phone.placeholder', defaultMessage: '请输入手机号'})}
+              onChange={this.handleMobileChange}
+            />
+          </div>
+          <div className={styles.formItem}>
+            <label><FormattedMessage id="login.loginSmsComponent.code.label" defaultMessage="验证码" /></label>
+            <Captcha
+              name="code"
+              placeholder={formatMessage({id: 'login.loginSmsComponent.code.placeholder', defaultMessage: '请输入验证码'})}
+              countDown={120}
+              mobile={mobile}
+              onGetCaptcha={this.onGetCaptcha}
+            />
+          </div>
           <Submit loading={type !== 'thirdLogin' ? userLogin : thirdLogin}>
-            {type === 'thirdLogin' ? '登录并绑定' : '登录'}
+            {type === 'thirdLogin' ? <FormattedMessage id="login.loginComponent.loginandband" defaultMessage="登录并绑定"/> : <FormattedMessage id="login.loginComponent.login" defaultMessage="登录"/>}
           </Submit>
           <div className={styles.other}>
             {this.props.isRegist && type !== 'thirdLogin' && (
-              <Link className={styles.register} to={this.getRedirectParams()}>
-                {/* <FormattedMessage id= 'login.loginComponent.register'/> */}
-                注册账户
-              </Link>
+              <div className={styles.registerLink}>
+                <span><FormattedMessage id="login.loginComponent.noAccount" defaultMessage="还没有账户？" /></span>
+                <Link to={this.getRedirectParams()}>
+                  <FormattedMessage id="login.loginComponent.registerAccount" defaultMessage="注册账户"/>
+                </Link>
+              </div>
             )}
           </div>
         </Login>

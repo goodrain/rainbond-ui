@@ -312,7 +312,7 @@
         'confirmModal.delete.team.Gateway': 'Are you sure you want to delete it?',
         //友情提示
         'confirmModal.friendly_reminder.title':'Friendly reminder',
-        'confirmModal.friendly_reminder.pages.desc':'{ codeObj } All the components in the current application?',
+        'confirmModal.friendly_reminder.pages.desc':'{codeObj} All the components in the current application?',
         
         //应用复制
         'confirmModal.app.title.copy':'Application replication',
@@ -358,7 +358,7 @@
         //移交团队
         'confirmModal.MoveTeam.title':'Handed over team',
         'confirmModal.MoveTeam.subDesc':'You will lose ownership after the handover',
-        'confirmModal.MoveTeam.desc':'Are you sure to hand over the team to { nick_name }?',
+        'confirmModal.MoveTeam.desc':'Are you sure to hand over the team to {nick_name}?',
 
         //开通集群
         'confirmModal.openRegion.title':'Open clusters',
@@ -701,7 +701,7 @@
         'placeholder.nameSpaceReg':'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
         'placeholder.max32':'The value cannot exceed 32 characters',
         'placeholder.max16':'The value cannot exceed 16 characters',
-        'placeholder.nonsupport':'Does not support{ nonsupport }',
+        'placeholder.nonsupport':'Does not support{nonsupport}',
         'placeholder.nonsupport.regAddress':'Address',
         'placeholder.roleName':'Please enter a role name',
         'placeholder.permissions':'To allocate!',
