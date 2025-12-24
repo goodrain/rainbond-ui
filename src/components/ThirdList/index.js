@@ -245,6 +245,18 @@ class Index extends React.Component {
     });
   };
 
+  // 暴露给父组件：判断是否正在显示表单
+  isShowingForm = () => {
+    return this.state.visible;
+  };
+
+  // 暴露给父组件：返回列表视图
+  backToList = () => {
+    this.setState({
+      visible: false
+    });
+  };
+
   handleDetection = () => {
     if (this.timer) {
       clearTimeout(this.timer);
@@ -617,15 +629,7 @@ class Index extends React.Component {
             </div>
           </div>
         ) : (
-          <Card bordered={false}  className={styles.listCard}
-            extra={
-              <Button
-                onClick={this.handleCancel}
-              >
-                {formatMessage({ id: 'componentOverview.body.ThirdList.back_to_list' })}
-              </Button>
-            }
-          >
+          <Card bordered={false} className={styles.listCard}>
             <ThirForm
               wrappedComponentRef={this.thirdFormRef}
               onSubmit={this.props.handleSubmit}

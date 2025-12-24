@@ -23,9 +23,8 @@ export default function AppHeader(props) {
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
-        <Spin size="large" />
+        <Spin size="small" />
       ) : (
-
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <div style={{ padding: '0 6px', fontSize: 14, fontWeight: 600, color:'rgb(16 24 40/0.14)' }}>
             /

@@ -18,7 +18,7 @@ export default function TeamHeader(props) {
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
-        <Spin size="large" />
+        <Spin size="small" />
       ) : (
         <div className={headerStype.breadCrumb}>
           <div style={{ padding: '0 4px', fontSize: 14, fontWeight: 600, color:'rgb(16 24 40/0.14)' }}>

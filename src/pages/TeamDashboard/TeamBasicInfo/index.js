@@ -836,6 +836,14 @@ export default class index extends Component {
                                   </span>
                                   <span className={styles.tableDivider}>·</span>
                                   <span className={styles.tableMetaItem}>
+                                    {formatMessage({ id: 'versionUpdata_6_1.memory' })}: {item.used_mem || 0} MB
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
+                                    CPU: {item.used_cpu || 0} m
+                                  </span>
+                                  <span className={styles.tableDivider}>·</span>
+                                  <span className={styles.tableMetaItem}>
                                     <Icon type="clock-circle" style={{ marginRight: 4 }} />
                                     {item.update_time && moment(item.update_time).fromNow()} <FormattedMessage id="teamOverview.update" />
                                   </span>
