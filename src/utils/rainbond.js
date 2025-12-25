@@ -169,6 +169,9 @@ export default {
       bean.document.enable &&
       bean.document.value.platform_url) ||
     '',
+  // 判断平台是否配置了应用市场
+  isShowAppMarket: (bean = {}) =>
+    (bean && bean.show_app_market && bean.show_app_market.enable) || false,
   OauthParameter: (paraName = '') => {
     const url = document.location.toString();
     const arrObj = url.split('?');

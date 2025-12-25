@@ -123,6 +123,26 @@ const login = {
     'login.registerComponent.smslink':'来源',
     'login.registerComponent.smsusers':'用户',
     'login.registerComponent.smsphone':'手机号',
+    // UserLayout - SaaS mode
+    'layout.userLayout.saas.subtitle':'无门槛免费试用，一键部署任意应用',
+    'layout.userLayout.saas.feature1.title':'高可用性',
+    'layout.userLayout.saas.feature1.desc':'SLA 99.95% 可用性承诺，技术支持',
+    'layout.userLayout.saas.feature2.title':'按需计费',
+    'layout.userLayout.saas.feature2.desc':'业务实际使用量，分钟级按需付费',
+    'layout.userLayout.saas.feature3.title':'开箱即用',
+    'layout.userLayout.saas.feature3.desc':'整合资源，无需运维，专注业务开发',
+    'layout.userLayout.saas.feature4.title':'应用市场',
+    'layout.userLayout.saas.feature4.desc':'上百款应用即点即用，涵盖AI、博客、低代码等类型',
+    'layout.userLayout.saas.welcomeText':'开启平台之旅',
+    'layout.userLayout.saas.agreement':'登录即表示您同意我们的',
+    'layout.userLayout.saas.termsOfService':'服务协议',
+    'layout.userLayout.saas.and':'和',
+    'layout.userLayout.saas.privacyPolicy':'隐私条款',
+    // UserLayout - Normal mode
+    'layout.userLayout.normal.title1':'无需学习 Kubernetes',
+    'layout.userLayout.normal.title2':'的容器平台',
+    'layout.userLayout.normal.description':'在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理',
+    'layout.userLayout.normal.companyInfo':'北京好雨科技有限公司出品',
 }
 
 export default Object.assign({}, login);

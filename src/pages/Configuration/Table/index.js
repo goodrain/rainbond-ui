@@ -252,106 +252,109 @@ export default class ConfigurationTable extends PureComponent {
             dataSource={apps || []}
             loading={loading}
             columns={[
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.name' }),
-                  dataIndex: 'config_group_name'
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.createTime' }),
-                  dataIndex: 'create_time',
-                  align: 'center',
-                  render: val => {
-                    return `${moment(val)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')}`;
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.componentNum' }),
-                  dataIndex: 'services_num',
-                  align: 'center',
-                  render: (val, data) => {
-                    return (
-                      <div>
-                        {val ? (
-                          <Popover
-                            placement="top"
-                            title={formatMessage({ id: 'appConfiguration.table.take_effect_component' })}
-                            content={
-                              <div>
-                                {data.services.map(item => {
-                                  const {
-                                    service_cname: name,
-                                    service_alias: alias
-                                  } = item;
-                                  return (
-                                    <Link
-                                      key={alias}
-                                      to={`/team/${teamName}/region/${regionName}/components/${alias}/overview`}
-                                    >
-                                      {name}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            }
-                            trigger="click"
-                          >
-                            <a>{val}</a>
-                          </Popover>
-                        ) : (
-                          0
-                        )}
-                      </div>
-                    );
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.status' }),
-                  dataIndex: 'enable',
-                  align: 'center',
-                  render: val => {
-                    return (
-                      <div>
-                        <Badge
-                          status={val ? 'success' : 'error'}
-                          text={<span>{val ? formatMessage({ id: 'appConfiguration.table.take_effect' }) : formatMessage({ id: 'appConfiguration.table.not_take_effect' })}</span>}
-                        />
-                      </div>
-                    );
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.operate' }),
-                  dataIndex: 'action',
-                  align: 'center',
-
-                  render: (val, data) => {
-                    return (
-                      <div>
-                        {isEdit && (
-                          <a
-                            onClick={() => {
-                              this.handleConfigurationOperation(data);
-                            }}
-                          >
-                            {formatMessage({ id: 'appConfiguration.table.btn.edit' })}
-                          </a>
-                        )}
-                        {isDelete && (
-                          <a
-                            onClick={() => {
-                              this.handleDelete(data);
-                            }}
-                          >
-                            {formatMessage({ id: 'appConfiguration.table.btn.delete' })}
-                          </a>
-                        )}
-                      </div>
-                    );
-                  }
+              {
+                title: formatMessage({ id: 'appConfiguration.table.name' }),
+                dataIndex: 'config_group_name'
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.createTime' }),
+                dataIndex: 'create_time',
+                align: 'center',
+                render: val => {
+                  return `${moment(val)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')}`;
                 }
-              ]}
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.componentNum' }),
+                dataIndex: 'services_num',
+                align: 'center',
+                render: (val, data) => {
+                  return (
+                    <div>
+                      {val ? (
+                        <Popover
+                          placement="top"
+                          title={formatMessage({ id: 'appConfiguration.table.take_effect_component' })}
+                          content={
+                            <div>
+                              {data.services.map(item => {
+                                const {
+                                  service_cname: name,
+                                  service_alias: alias
+                                } = item;
+                                return (
+                                  <Link
+                                    key={alias}
+                                    to={
+                                      // `/team/${teamName}/region/${regionName}/components/${alias}/overview`
+                                      `/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${alias}&tab=overview`
+                                    }
+                                  >
+                                    {name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          }
+                          trigger="click"
+                        >
+                          <a>{val}</a>
+                        </Popover>
+                      ) : (
+                        0
+                      )}
+                    </div>
+                  );
+                }
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.status' }),
+                dataIndex: 'enable',
+                align: 'center',
+                render: val => {
+                  return (
+                    <div>
+                      <Badge
+                        status={val ? 'success' : 'error'}
+                        text={<span>{val ? formatMessage({ id: 'appConfiguration.table.take_effect' }) : formatMessage({ id: 'appConfiguration.table.not_take_effect' })}</span>}
+                      />
+                    </div>
+                  );
+                }
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.operate' }),
+                dataIndex: 'action',
+                align: 'center',
+
+                render: (val, data) => {
+                  return (
+                    <div>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleConfigurationOperation(data);
+                          }}
+                        >
+                          {formatMessage({ id: 'appConfiguration.table.btn.edit' })}
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDelete(data);
+                          }}
+                        >
+                          {formatMessage({ id: 'appConfiguration.table.btn.delete' })}
+                        </a>
+                      )}
+                    </div>
+                  );
+                }
+              }
+            ]}
           />
         </div>
       </div>

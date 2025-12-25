@@ -198,7 +198,11 @@ export default class Index extends PureComponent {
               如需要提供访问服务, 请
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  // advancedSettings
+                }
               >
                 配置端口
               </Link>
@@ -290,7 +294,11 @@ export default class Index extends PureComponent {
                 http协议端口需打开外部访问服务, 去
                 <Link
                   onClick={this.hiddenModal}
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                  to={
+                    // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                  }
                 >
                   打开
                 </Link>
@@ -355,7 +363,11 @@ export default class Index extends PureComponent {
               需要配置端口信息, 去
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                }
               >
                 配置
               </Link>
@@ -420,7 +432,10 @@ export default class Index extends PureComponent {
                 http协议端口需打开外部访问服务, 去
                 <Link
                   onClick={this.hiddenModal}
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                  to={
+                    // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  }
                 >
                   打开
                 </Link>
@@ -484,7 +499,11 @@ export default class Index extends PureComponent {
               需要配置端口信息, 去
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                }
               >
                 配置
               </Link>

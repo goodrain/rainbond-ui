@@ -14,7 +14,6 @@ import DAinput from '../DAinput';
 import DAHosts from '../DAHosts'
 import DAPath from '../DAPath'
 import NewHeader from '../NewHeader'
-import Wechat from '../../../public/images/wechat.png'
 import cookie from '@/utils/cookie';
 import { closeTeamRegion } from '@/services/team';
 const { Option } = Select;
@@ -25,7 +24,8 @@ const { Option } = Select;
     groups: global.groups,
     currentTeam: teamControl.currentTeam,
     currentEnterprise: enterprise.currentEnterprise,
-    pluginsList: teamControl.pluginsList
+    pluginsList: teamControl.pluginsList,
+    rainbondInfo: global.rainbondInfo,
 }))
 
 export default class index extends Component {
@@ -552,7 +552,8 @@ export default class index extends Component {
             editInfo,
             appID,
             currUser,
-            pluginsList
+            pluginsList,
+            rainbondInfo
         } = this.props;
         const {
             serviceComponentList,
@@ -629,6 +630,9 @@ export default class index extends Component {
             serviceComponentList &&
             serviceComponentList.length > 0 &&
             serviceComponentList[0].service_id;
+
+        const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
+
         const containerPort =
             editInfo && editInfo.container_port && editInfo.container_port;
         const containerPorts =
@@ -636,7 +640,7 @@ export default class index extends Component {
         const isOk = !(componentLoading || portLoading);
         const content = (
             <div className={styles.popoverContent}>
-                <img src={Wechat} alt="domainRecord" />
+                <img src={customerServiceQrcode} alt="domainRecord" />
                 <p>{formatMessage({ id: 'teamNewGateway.NewGateway.TCP.contact' })}</p>
             </div>
         )

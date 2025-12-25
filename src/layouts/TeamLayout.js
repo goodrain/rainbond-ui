@@ -890,6 +890,7 @@ class TeamLayout extends PureComponent {
     const safeEnterprise = enterprise || {};
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, safeEnterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
+    const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
     const pluginsLoaded = Array.isArray(showPipeline);
     const layout = () => {
@@ -1078,7 +1079,7 @@ class TeamLayout extends PureComponent {
         )}
         {pluginsLoaded ? (
           showEnterprisebase && !isSaas ? null : (
-            <CustomerServiceFloat isSaas={isSaas} />
+            <CustomerServiceFloat customerServiceQrcode={customerServiceQrcode} isSaas={isSaas} />
           )
         ) : null}
       </Fragment>

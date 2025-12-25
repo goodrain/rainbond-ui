@@ -85,6 +85,8 @@ export default class Index extends PureComponent {
         app_alias
       },
       callback: data => {
+        console.log(data,"====");
+        
         this.setState({ appDetail: data });
       },
       handleError: data => {

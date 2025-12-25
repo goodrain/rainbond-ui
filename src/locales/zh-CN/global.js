@@ -196,5 +196,6 @@ const global = {
     'global.fetchStateOptTypeText.ReadinessUnhealthy':'健康检测不通过',
     'global.fetchStateOptTypeText.LivenessRestart':'健康检测不通过',
     'global.fetchStateOptTypeText.StartupProbeFailure':'健康检测不通过',
+    'global.fetchStateOptTypeText.HealthCheckPassed':'健康检测通过',
 }
 export default Object.assign({}, global);

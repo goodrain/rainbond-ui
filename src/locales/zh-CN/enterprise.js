@@ -2,7 +2,7 @@
 
 const enterpriseOverview = {
     // 企业信息
-    'enterpriseOverview.information.message': '企业信息',
+    'enterpriseOverview.information.message': '平台信息',
     'enterpriseOverview.information.team': '我的团队/项目',
     'enterpriseOverview.information.dynamic': '动态',
     'enterpriseOverview.information.dataScreen': '数据总览',
