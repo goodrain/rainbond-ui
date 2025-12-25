@@ -54,7 +54,7 @@ const appMenu = {
   'menu.app.configgroups': '应用配置',
   'menu.app.upgrade': '应用升级',
   'menu.app.dynamic': '应用动态',
-  'menu.app.k8s': 'k8s资源',
+  'menu.app.k8s': 'K8s 资源',
   'menu.app.gray': '灰度发布',
 };
 

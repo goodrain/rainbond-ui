@@ -645,7 +645,7 @@ export default class Index extends PureComponent {
           )}
         </Row>
         {!ports.length ? (
-          <Card>
+          <Card bodyStyle={{padding:12}}>
             <p style={{ marginTop: 100, marginBottom: 100, fontSize: 20, textAlign: 'center' }}>
               <FormattedMessage id="componentOverview.body.Port.msg" />
               <a onClick={this.showAddPort} href="javascript:;">
@@ -654,7 +654,7 @@ export default class Index extends PureComponent {
             </p>
           </Card>
         ) : (
-          <Card>
+          <Card bodyStyle={{padding:12}}>
             <ScrollerX sm={700}>
               {ports.map(port => (
                 <Port

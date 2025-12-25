@@ -337,7 +337,7 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                      <div style={{ position: 'static' }} className="table-wrap">
+                      {/* <div style={{ position: 'static' }} className="table-wrap">
                       { opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
                       syn_type === 0 && (
                         <Tooltip
@@ -365,7 +365,7 @@ class Index extends PureComponent {
                         </Tooltip>
                       )
                     }
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}

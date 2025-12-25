@@ -16,6 +16,7 @@ import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
+import globalUtil from '../../../utils/global';
 import styles from './index.less'
 
 const { confirm } = Modal;

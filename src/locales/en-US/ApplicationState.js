@@ -18,6 +18,8 @@ const ApplicationState =    {
     'ApplicationState.pending-upgrade':'Upgrading',
     'ApplicationState.pending-rollback':'Rolling back',
     'ApplicationState.leave_unused':'Unused',
+    'ApplicationState.waiting':'Waiting',
+    'ApplicationState.WAITING':'Waiting',
 
 }
 

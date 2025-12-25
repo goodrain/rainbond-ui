@@ -414,47 +414,55 @@ export default class Index extends PureComponent {
       lokiUrl
     } = this.state;
     return (
-      <Card
-        title={
-          <Fragment>
+      <div className={styles.logContainer}>
+        <div className={styles.logHeader}>
+          <div className={styles.logHeaderLeft}>
+            <div className={styles.logStatus}>
+              <span className={`${styles.statusDot} ${started ? styles.statusActive : styles.statusInactive}`} />
+              <span className={styles.statusText}>
+                {started
+                  ? <FormattedMessage id='componentOverview.body.tab.log.streaming' defaultMessage="实时推送中" />
+                  : <FormattedMessage id='componentOverview.body.tab.log.paused' defaultMessage="已暂停" />
+                }
+              </span>
+            </div>
             {started ? (
-              <Button onClick={this.handleStop}>
+              <Button type="default" size="small" onClick={this.handleStop} className={styles.controlBtn}>
                 <FormattedMessage id='componentOverview.body.tab.log.push' />
               </Button>
             ) : (
-              <Button onClick={this.handleStart}>
+              <Button type="primary" size="small" onClick={this.handleStart} className={styles.controlBtn}>
                 <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
               </Button>
             )}
-          </Fragment>
-        }
-        extra={
-          <Fragment>
-            {this.state.isHistoryLogs && <a onClick={this.showHistoryLogs}>
-              <FormattedMessage id='componentOverview.body.tab.log.history' />
-            </a>}
-          </Fragment>
-        }
-      >
-        <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
-          <Form.Item
-            name="filter"
-            label={<FormattedMessage id='componentOverview.body.tab.log.text' />}
-            style={{ marginRight: '10px' }}
-          >
+          </div>
+          <div className={styles.logHeaderRight}>
+            {this.state.isHistoryLogs && (
+              <Button type="link" onClick={this.showHistoryLogs} className={styles.historyBtn}>
+                <FormattedMessage id='componentOverview.body.tab.log.history' />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.logToolbar}>
+          <div className={styles.toolbarItem}>
+            <span className={styles.toolbarLabel}>
+              <FormattedMessage id='componentOverview.body.tab.log.text' />
+            </span>
             <Input.Search
-              style={{ width: '300px' }}
+              className={styles.searchInput}
               placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
               onSearch={this.onFinish}
+              allowClear
             />
-          </Form.Item>
-          <Form.Item
-            name="container"
-            label={<FormattedMessage id='componentOverview.body.tab.log.container' />}
-            style={{ marginRight: '10px' }}
-            className={styles.podCascader}
-          >
+          </div>
+          <div className={styles.toolbarItem}>
+            <span className={styles.toolbarLabel}>
+              <FormattedMessage id='componentOverview.body.tab.log.container' />
+            </span>
             <Cascader
+              className={styles.cascaderInput}
               defaultValue={[`${formatMessage({ id: 'componentOverview.body.tab.log.allLogs' })}`]}
               fieldNames={{
                 label: 'name',
@@ -465,41 +473,45 @@ export default class Index extends PureComponent {
               onChange={this.onChangeCascader}
               placeholder={formatMessage({ id: 'componentOverview.body.tab.log.select' })}
             />
-          </Form.Item>
-        </Form>
-        <div className={styles.logsss} ref={this.boxRef}>
-          {(containerLog &&
-            containerLog.length > 0 &&
-            containerLog.map((item, index) => {
-              return (
-                <LogItem
-                  key={index}
-                  item={item}
-                  index={index}
-                  isContainer={true}
-                />
-              );
-            })) ||
-            (logs &&
-              logs.length > 0 &&
-              logs.map((log, index) => {
+          </div>
+        </div>
+
+        <div className={styles.logContent}>
+          <div className={styles.logsss} ref={this.boxRef}>
+            {(containerLog &&
+              containerLog.length > 0 &&
+              containerLog.map((item, index) => {
                 return (
                   <LogItem
                     key={index}
-                    log={log}
+                    item={item}
                     index={index}
-                    logs={logs}
-                    showHighlighted={showHighlighted}
-                    onHighlightClick={this.handleHighlightClick}
-                    isContainer={false}
+                    isContainer={true}
                   />
                 );
-              }))}
+              })) ||
+              (logs &&
+                logs.length > 0 &&
+                logs.map((log, index) => {
+                  return (
+                    <LogItem
+                      key={index}
+                      log={log}
+                      index={index}
+                      logs={logs}
+                      showHighlighted={showHighlighted}
+                      onHighlightClick={this.handleHighlightClick}
+                      isContainer={false}
+                    />
+                  );
+                }))}
+          </div>
         </div>
+
         {showHistoryLog && (
           <HistoryLog onCancel={this.hideHistoryLogs} appAlias={appAlias} url={lokiUrl} />
         )}
-      </Card>
+      </div>
     );
   }
 }

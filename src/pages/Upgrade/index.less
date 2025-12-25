@@ -8,18 +8,15 @@
   :global {
     .ant-btn-primary[disabled] {
       color: #fff !important;
-      background-color: #1890ff !important;
-      border-color: #1890ff !important;
+      background-color: @primary-color !important;
+      border-color: @primary-color !important;
     }
   }
 }
 .versions {
-  color: #4d73b1;
+  color: @primary-color;
 }
 .cardList {
-  margin-bottom: -4px;
-  padding: 10px 25px;
-
   .card {
     :global {
       .ant-card-meta-avatar {
@@ -102,7 +99,6 @@
   align-items: center;
   font-size: 14px;
   line-height: 50px;
-  border-bottom: 1px solid #666;
 
   span {
     color: rgba(0, 0, 0, 0.85);
@@ -228,19 +224,16 @@
 }
 
 .active {
-  // width    : calc(100% + 1px);
-  background: #e6f7ff;
+  background: @primary-3;
   z-index: 1;
-  color: #1990ff !important;
-  border-right: 3px solid #1890ff;
+  color: @primary-color !important;
 
   :global {
     .anticon {
       visibility: visible;
     }
-
     .ant-checkbox-wrapper {
-      color: #1990ff !important;
+      color: @primary-color !important;
     }
   }
 }

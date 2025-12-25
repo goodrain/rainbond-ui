@@ -340,6 +340,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const group_id = globalUtil.getAppID();
+    const timestamp = new Date().getTime();
+
 
     const installApp = (finalGroupId, isNewApp = false) => {
       dispatch({
@@ -367,6 +369,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch(
                   routerRedux.push(
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
+                  )
+                );
+              }else{
+                dispatch(
+                  routerRedux.push(
+                    `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
                   )
                 );
               }
@@ -424,6 +432,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const group_id = globalUtil.getAppID();
+    const timestamp = new Date().getTime();
 
     const installApp = (finalGroupId, isNewApp = false) => {
       dispatch({
@@ -450,6 +459,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch(
                   routerRedux.push(
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
+                  )
+                );
+              } else {
+                dispatch(
+                  routerRedux.push(
+                    `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
                   )
                 );
               }

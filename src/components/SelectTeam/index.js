@@ -110,6 +110,9 @@ export default class SelectTeam extends PureComponent {
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
     const currentTeamLink = `/team/${currentTeam?.team_name}/region/${currentRegion?.team_region_name}/index`;
     const currentEnterpriseTeamPageLink = this.getLoginRole(currentUser)
+    // 从最新的 userTeamList 中获取当前团队的最新名称
+    const updatedCurrentTeam = userTeamList.find(team => team.team_name === currentTeam?.team_name);
+    const displayTeamAlias = updatedCurrentTeam?.team_alias || currentTeam?.team_alias;
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
@@ -209,7 +212,7 @@ export default class SelectTeam extends PureComponent {
                   <div className={style.selectButtonContent}>
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
-                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                      <span className={style.selectButtonTeamText}>{displayTeamAlias}</span>
                     </div>
                   </div>
                   <Icon
@@ -225,7 +228,7 @@ export default class SelectTeam extends PureComponent {
                   <div className={style.selectButtonContent}>
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
-                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                      <span className={style.selectButtonTeamText}>{displayTeamAlias}</span>
                     </div>
                   </div>
                 </div>
