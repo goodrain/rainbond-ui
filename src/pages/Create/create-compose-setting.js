@@ -85,7 +85,7 @@ export default class Index extends PureComponent {
                         handleAPIError(err);
                     }
                 });
-                this.props.dispatch(routerRedux.replace(`/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${params.group_id}`))
+                this.props.dispatch(routerRedux.replace(`/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${params.group_id}/overview`))
             },
             handleError: err => {
                 handleAPIError(err);

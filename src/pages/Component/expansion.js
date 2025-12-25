@@ -1279,7 +1279,9 @@ export default class Index extends PureComponent {
                 <FormattedMessage id='componentOverview.body.Expansion.modify' />
                 {' '}
                 <Link
-                  to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
+                  to={
+                  `/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  }
                 >
                   <FormattedMessage id='componentOverview.body.Expansion.set' />
                 </Link>
@@ -1527,11 +1529,12 @@ export default class Index extends PureComponent {
 
                     <div className={styles.automaTictelescopingContent}>
                       {getFieldDecorator('minNum', {
-                        initialValue:
+                        initialValue: String(
                           (rulesList &&
                             rulesList.length > 0 &&
                             rulesList[0].min_replicas) ||
                           0
+                        )
                       })(
                         <Input
                           disabled={!automaticTelescopic}
@@ -1544,11 +1547,12 @@ export default class Index extends PureComponent {
 
                     <div className={styles.automaTictelescopingContent}>
                       {getFieldDecorator('maxNum', {
-                        initialValue:
+                        initialValue: String(
                           (rulesList &&
                             rulesList.length > 0 &&
                             rulesList[0].max_replicas) ||
-                          1,
+                          1
+                        ),
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -1572,11 +1576,12 @@ export default class Index extends PureComponent {
                     {cpuUse && (
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator('cpuValue', {
-                          initialValue:
+                          initialValue: String(
                             this.setMetric_target_value(
                               rulesList[0].metrics,
                               'cpu'
-                            ) || 1,
+                            ) || 1
+                          ),
                           rules: [
                             {
                               pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -1599,11 +1604,12 @@ export default class Index extends PureComponent {
                     {memoryUse && (
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator('memoryValue', {
-                          initialValue:
+                          initialValue: String(
                             this.setMetric_target_value(
                               rulesList[0].metrics,
                               'memory'
-                            ) || 1,
+                            ) || 1
+                          ),
                           rules: [
                             {
                               pattern: new RegExp(/^[0-9]\d*$/, 'g'),

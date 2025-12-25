@@ -740,8 +740,11 @@ export default class Index extends React.Component {
                   width: '15%',
                   render: (v, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                        }/environmentConfiguration`}
+                      to={
+                        // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
+                        // }/environmentConfiguration`
+                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${data.dep_app_alias}&tab=environmentConfiguration`
+                      }
                     >
                       {v}
                     </Link>

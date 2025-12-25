@@ -717,7 +717,10 @@ export default class Index extends PureComponent {
                 <FormattedMessage id='componentOverview.body.Expansion.modify' />
                 {' '}
                 <Link
-                  to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
+                  to={
+                    // `/team/${teamName}/region/${regionName}/components/${appAlias}/setting`
+                  `/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  }
                 >
                   <FormattedMessage id='componentOverview.body.Expansion.set' />
                 </Link>

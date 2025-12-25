@@ -122,7 +122,8 @@ export default class componentVersion extends PureComponent {
       form,
       data: dataPro = {},
       team_name: teamName,
-      region_name: regionName
+      region_name: regionName,
+      group_id
     } = this.props;
     const { list, loading } = this.state;
     const { getFieldDecorator } = form;
@@ -136,7 +137,7 @@ export default class componentVersion extends PureComponent {
         render: (v, data) => {
           return (
             <Link
-              to={`/team/${teamName}/region/${regionName}/components/${data.service_alias}/overview`}
+              to={`/team/${teamName}/region/${regionName}/apps/${group_id}/overview?type=components&componentID=${data.service_alias}&tab=overview`}
             >
               {v}
             </Link>
