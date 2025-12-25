@@ -1,6 +1,6 @@
 //整体导航栏信息
 const enterpriseMenu = {
-  'menu.enterprise.dashboard': '企业总览',
+  'menu.enterprise.dashboard': '平台总览',
   'menu.enterprise.share': '应用市场',
   'menu.enterprise.team': '项目/团队',
   'menu.enterprise.cluster': '集群管理',
@@ -9,7 +9,7 @@ const enterpriseMenu = {
   'menu.enterprise.audit': '审计',
   'menu.enterprise.log': '平台日志',
   'menu.enterprise.extension': '功能扩展',
-  'menu.enterprise.setting': '企业设置',
+  'menu.enterprise.setting': '平台设置',
   'menu.enterprise.order': '订购',
   'menu.enterprise.observability': '可观测性',
   'menu.enterprise.billing': '计量计费',

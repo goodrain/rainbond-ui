@@ -110,6 +110,10 @@ class UserLayout extends React.PureComponent {
     if (!rainbondInfo || !isRender) {
       return null;
     }
+    const loginSlogan = rainbondInfo && rainbondInfo.login_slogan && rainbondInfo.login_slogan.value || '';
+    const loginTitle = rainbondInfo && rainbondInfo.login_title && rainbondInfo.login_title.value || '';
+    const serviceAgreementUrl = rainbondInfo && rainbondInfo.service_agreement_url && rainbondInfo.service_agreement_url.value || '';
+    const privacyPolicyUrl = rainbondInfo && rainbondInfo.privacy_policy_url && rainbondInfo.privacy_policy_url.value || '';
     return (
       <div style={{ height:'100%' }}>
         {isSaas ? (
@@ -162,13 +166,13 @@ class UserLayout extends React.PureComponent {
             </div>
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
-                <h2>Rainbond Cloud</h2>
+                <h2>{loginTitle || 'Rainbond Cloud'}</h2>
                 <p><FormattedMessage id="layout.userLayout.saas.welcomeText" defaultMessage="开启平台之旅" /></p>
                 <div className={styles.loginForm}>
                   {children}
                 </div>
                 <div className={styles.loginFooter}>
-                  <FormattedMessage id="layout.userLayout.saas.agreement" defaultMessage="登录即表示您同意我们的" /> <a target='_blank' href="https://www.rainbond.com/server"><FormattedMessage id="layout.userLayout.saas.termsOfService" defaultMessage="服务协议" /></a> <FormattedMessage id="layout.userLayout.saas.and" defaultMessage="和" /> <a target='_blank' href="https://www.rainbond.com/privacy"><FormattedMessage id="layout.userLayout.saas.privacyPolicy" defaultMessage="隐私条款" /></a>
+                登录即表示您同意我们的 <a target='_blank' href={serviceAgreementUrl || "https://www.rainbond.com/server"}>服务协议</a> 和 <a target='_blank' href={privacyPolicyUrl || "https://www.rainbond.com/privacy"}>隐私条款</a>
                 </div>
               </div>
             </div>

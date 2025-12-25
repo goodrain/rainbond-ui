@@ -196,5 +196,6 @@ const global = {
     'global.fetchStateOptTypeText.ReadinessUnhealthy':'Health check failed',
     'global.fetchStateOptTypeText.LivenessRestart':'Health check failed',
     'global.fetchStateOptTypeText.StartupProbeFailure':'Health check failed',
+    'global.fetchStateOptTypeText.HealthCheckPassed':'Health check passed',
 }
 export default Object.assign({}, global);

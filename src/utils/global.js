@@ -3010,6 +3010,7 @@ const global = {
       ReadinessUnhealthy: formatMessage({ id: 'global.fetchStateOptTypeText.ReadinessUnhealthy' }),
       LivenessRestart: formatMessage({ id: 'global.fetchStateOptTypeText.LivenessRestart' }),
       StartupProbeFailure: formatMessage({ id: 'global.fetchStateOptTypeText.StartupProbeFailure' }),
+      HealthCheckPassed: formatMessage({ id: 'global.fetchStateOptTypeText.HealthCheckPassed' }),
     };
     return statusOptType[state] || state;
   },

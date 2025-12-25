@@ -16,6 +16,7 @@ import pluginUtile from '../../utils/pulginUtils';
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import handleAPIError from '../../utils/error';
+import userUtil from '../../utils/user';
 import styles from './index.less';
 import MoveTeam from './move_team';
 
@@ -194,11 +195,19 @@ export default class Index extends PureComponent {
           payload: {
             team_name: globalUtil.getCurrTeamName()
           },
-          callback: () => {
-            dispatch({
+          callback: res => {
+                        dispatch({
               type: 'global/IsUpDataHeader',
               payload: { isUpData: false }
             });
+            if (res && res.bean) {
+              const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+              // 更新 Redux store 中的团队信息
+              dispatch({
+                type: 'teamControl/fetchCurrentTeam',
+                payload: team
+              });
+            }
           }
         });
         this.loadOverview();

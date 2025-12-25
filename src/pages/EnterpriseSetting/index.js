@@ -130,7 +130,8 @@ export default class EnterpriseSetting extends PureComponent {
         favicon: fetchFavicon,
         footer,
         showSecurityRestrictions,
-        login_image
+        login_image,
+        rainbondInfo
       };
     }
     return infos

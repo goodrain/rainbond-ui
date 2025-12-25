@@ -18,6 +18,8 @@ import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';
 import userUtil from '../../utils/user';
 import handleAPIError from '../../utils/error';
+import teamUtil from '../../utils/team';
+import MoveTeam from '../Team/move_team';
 import styles from './NewIndex.less';
 @connect(({ user, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
@@ -36,7 +38,9 @@ export default class Index extends PureComponent {
       userTeamList: [],
       showPipeline: [],
       currentTeam: this.props.currentTeam || {},
-      indexLoading: true
+      indexLoading: true,
+      showEditName: false,
+      logoInfo: false
     };
   }
   componentDidMount() {
@@ -152,8 +156,7 @@ export default class Index extends PureComponent {
             type: 'teamControl/fetchCurrentTeam',
             payload: team
           });
-        } else {
-          this.setState({ indexLoading: false });
+          this.loadOverview();
         }
       },
       handleError: err => {
@@ -162,7 +165,59 @@ export default class Index extends PureComponent {
       }
     });
   };
-  // 生成插件菜单
+
+  // 获取团队下的基本信息
+  loadOverview = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchOverview',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            logoInfo: res.bean.logo || false
+          });
+        }
+      },
+      handleError: () => {
+      }
+    });
+  };
+
+  showEditName = () => {
+    this.setState({ showEditName: true });
+  };
+
+  hideEditName = () => {
+    this.setState({ showEditName: false });
+  };
+
+  handleEditName = data => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/editTeamAlias',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        ...data
+      },
+      callback: () => {
+        // 重新调用 fetchGroup 来更新整个状态
+        this.fetchGroup();
+        this.hideEditName();
+      }
+    });
+  };
+
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: { isUpData: true }
+    });
+  };
   getPluginsMenu = () => {
     const { showPipeline } = this.state;
 
@@ -197,7 +252,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { currentTeam, loading, indexLoading } = this.state;
+    const { currentTeam, loading, indexLoading, showEditName,logoInfo } = this.state;
     const { pluginsList, noviceGuide } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
@@ -209,6 +264,14 @@ export default class Index extends PureComponent {
             <TeamBasicInfo noviceGuide={noviceGuide} pluginsList={pluginsList} />
           </div>
         </Spin>
+        {showEditName && (
+          <MoveTeam
+            teamAlias={currentTeam.team_alias}
+            imageUrlTeam={logoInfo}
+            onSubmit={this.handleEditName}
+            onCancel={this.hideEditName}
+          />
+        )}
       </div>
     );
   }

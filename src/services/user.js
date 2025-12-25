@@ -420,7 +420,9 @@ export async function updateUserInfo(body = {}, handleError) {
     data: {
       real_name: body.real_name,
       email: body.email,
-      logo: body.logo
+      logo: body.logo,
+      phone: body.phone,
+      verification_code: body.verification_code
     },
     handleError
   });
