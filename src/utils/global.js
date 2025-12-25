@@ -3018,6 +3018,7 @@ const global = {
       StartupProbeFailure: formatMessage({ id: 'global.fetchStateOptTypeText.StartupProbeFailure' }),
       HealthCheckPassed: formatMessage({ id: 'global.fetchStateOptTypeText.HealthCheckPassed' }),
       CreateContainerConfigError: formatMessage({ id: 'global.fetchStateOptTypeText.CreateContainerConfigError' }),
+      ImagePullBackOff: formatMessage({ id: 'global.fetchStateOptTypeText.ImagePullBackOff' }),
     };
     return statusOptType[state] || state;
   },

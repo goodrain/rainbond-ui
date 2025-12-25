@@ -200,5 +200,6 @@ const global = {
     'global.fetchStateOptTypeText.StartupProbeFailure':'健康检测不通过',
     'global.fetchStateOptTypeText.HealthCheckPassed':'健康检测通过',
     'global.fetchStateOptTypeText.CreateContainerConfigError': '容器配置生成失败',
+    'global.fetchStateOptTypeText.ImagePullBackOff': '镜像拉取失败',
 }
 export default Object.assign({}, global);

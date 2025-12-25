@@ -200,5 +200,6 @@ const global = {
     'global.fetchStateOptTypeText.StartupProbeFailure':'Health check failed',
     'global.fetchStateOptTypeText.HealthCheckPassed':'Health check passed',
     'global.fetchStateOptTypeText.CreateContainerConfigError': 'Container configuration generation failed',
+    'global.fetchStateOptTypeText.ImagePullBackOff': 'Image pull failed',
 }
 export default Object.assign({}, global);
