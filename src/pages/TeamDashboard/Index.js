@@ -28,6 +28,8 @@ import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
 import PluginUtil from '../../utils/pulginUtils'
 import userUtil from '../../utils/user';
+import teamUtil from '../../utils/team';
+import MoveTeam from '../Team/move_team';
 import styles from './NewIndex.less';
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -58,6 +60,8 @@ export default class Index extends PureComponent {
       isNeedAuthz: false,
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
+      showEditName: false,
+      logoInfo: false
     };
   }
   componentDidMount() {
@@ -162,8 +166,62 @@ export default class Index extends PureComponent {
             type: 'teamControl/fetchCurrentTeam',
             payload: team
           });
+          this.loadOverview();
         }
       },
+    });
+  };
+
+  // 获取团队下的基本信息
+  loadOverview = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'index/fetchOverview',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName()
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            logoInfo: res.bean.logo || false
+          });
+        }
+      },
+      handleError: () => {
+      }
+    });
+  };
+
+  showEditName = () => {
+    this.setState({ showEditName: true });
+  };
+
+  hideEditName = () => {
+    this.setState({ showEditName: false });
+  };
+
+  handleEditName = data => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/editTeamAlias',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        ...data
+      },
+      callback: () => {
+        // 重新调用 fetchGroup 来更新整个状态
+        this.fetchGroup();
+        this.hideEditName();
+      }
+    });
+  };
+
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: { isUpData: true }
     });
   };
   getPluginsMenu = () => {
@@ -227,7 +285,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { currentTeam } = this.state
+    const { currentTeam, showEditName, logoInfo } = this.state;
     const { pluginsList, noviceGuide } = this.props;
     return (
       <div className={styles.container} key={this.state.loading}>
@@ -236,6 +294,13 @@ export default class Index extends PureComponent {
             <div className={styles.left}>
               <div className={styles.teamName}>
                 {this.state.currentTeam?.team_alias}
+                {teamUtil.canEditTeamName(currentTeam) && (
+                  <Icon
+                    onClick={this.showEditName}
+                    type="edit"
+                    style={{ marginLeft: 8, cursor: 'pointer', fontSize: 14 }}
+                  />
+                )}
               </div>
             </div>
             <div className={styles.right}>
@@ -291,6 +356,14 @@ export default class Index extends PureComponent {
             <TeamBasicInfo noviceGuide={noviceGuide} pluginsList={pluginsList} />
           </div>
         </Spin>
+        {showEditName && (
+          <MoveTeam
+            teamAlias={currentTeam.team_alias}
+            imageUrlTeam={logoInfo}
+            onSubmit={this.handleEditName}
+            onCancel={this.hideEditName}
+          />
+        )}
       </div>
 
     );

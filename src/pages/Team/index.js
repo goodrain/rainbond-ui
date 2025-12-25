@@ -15,6 +15,7 @@ import globalUtil from '../../utils/global';
 import pluginUtile from '../../utils/pulginUtils'
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
 import styles from './index.less';
 import MoveTeam from './move_team';
 
@@ -166,22 +167,33 @@ export default class Index extends PureComponent {
     this.setState({ showDelTeam: false });
   };
   handleEditName = data => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'teamControl/editTeamAlias',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...data
       },
       callback: () => {
-        this.props.dispatch({ 
+        // 刷新用户信息,会自动更新 Redux 中的 currentTeam
+        dispatch({
           type: 'user/fetchCurrent',
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          callback: res => {
+            if (res && res.bean) {
+              const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+              // 更新 Redux store 中的团队信息
+              dispatch({
+                type: 'teamControl/fetchCurrentTeam',
+                payload: team
+              });
+            }
           }
-         });
+        });
         this.loadOverview();
         this.hideEditName();
-        this.handleUpDataHeader();
       }
     });
   };
