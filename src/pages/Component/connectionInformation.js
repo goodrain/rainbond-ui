@@ -5,7 +5,7 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 
-@connect()
+@connect(null, null, null, { withRef: true })
 export default class Index extends React.Component {
   render() {
     const { appAlias } = this.props;
