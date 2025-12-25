@@ -1175,7 +1175,6 @@ export default class Main extends PureComponent {
               marginBottom: 24
             }}
             title={formatMessage({ id: 'appPublish.btn.record.list.title.versions' })}
-            bordered={false}
             bodyStyle={{
               padding: 0
             }}
@@ -1345,7 +1344,6 @@ export default class Main extends PureComponent {
                 marginBottom: 24
               }}
               title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_component_config' })}
-              bordered={false}
               bodyStyle={{
                 padding: 0
               }}
@@ -1434,7 +1432,6 @@ export default class Main extends PureComponent {
                 marginBottom: 24
               }}
               title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_pluginMsg' })}
-              bordered={false}
             >
               <Table
                 size="middle"
@@ -1465,7 +1462,6 @@ export default class Main extends PureComponent {
               marginBottom: 128
             }}
             title={formatMessage({ id: 'appPublish.btn.record.list.title.k8s' })}
-            bordered={false}
           >
             <Table
               size="middle"

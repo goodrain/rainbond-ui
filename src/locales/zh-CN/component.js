@@ -592,7 +592,7 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.inputFolderName': '请输入文件夹名称',
     'componentOverview.body.DirectoryPersistence.path': '路径：',
     // tabs栏>Port
-    'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效；请确保端口列表与你的程序监听端口保持一致。无法访问',
+    'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效，请确保端口列表与你的程序监听端口保持一致。无法访问',
     'componentOverview.body.Port.troubleshoot': '按以下思路排查。',
     'componentOverview.body.Port.add': '添加端口',
     'componentOverview.body.Port.msg': '如需要提供访问服务，请',

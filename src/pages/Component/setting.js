@@ -795,6 +795,7 @@ export default class Index extends React.Component {
           }}
           title={<FormattedMessage id='componentOverview.body.setting.information' />}
           className={styles.tabsCard}
+            bodyStyle={{padding:12}}
         >
           {method != 'vm' ? (
             <Form>
@@ -864,6 +865,7 @@ export default class Index extends React.Component {
             style={{
               marginBottom: 24
             }}
+            bodyStyle={{padding:12}}
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormattedMessage id='componentOverview.body.setting.health' />

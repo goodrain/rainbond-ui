@@ -1,16 +1,21 @@
 @import '~antd/lib/style/themes/default.less';
 @import '../../../utils/utils.less';
 
+// Main container styles
 .customBtn {
     text-align: center;
     width: 100%;
-    margin-top: 5px;
+    margin-top: 20px;
+    padding: 16px 0;
+    border-radius: 0 0 8px 8px;
 }
 
 .versions {
-    color: #4d73b1;
+    color: @primary-color;
+    font-weight: 500;
 }
 
+// Card list styles
 .cardList {
     margin-bottom: -4px;
     padding: 10px 25px;
@@ -59,9 +64,11 @@
     }
 }
 
+// Tabs container
 .tabss {
     background: #fff;
     min-height: 500px;
+    border-radius: 8px;
 
     :global {
         .ant-tabs-bar {
@@ -82,29 +89,38 @@
     }
 }
 
+// Text styling for changes
 .textzt {
     color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    line-height: 1.8;
+    padding: 4px 0;
 
     span {
         display: inline-block;
-        margin: 0 2px;
-        color: rgb(35, 155, 36) !important;
+        margin: 0 4px;
+        padding: 2px 8px;
+        color: #fff !important;
+        background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
     }
 }
 
+// Version selector area
 .zsldis {
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
     font-size: 14px;
-    line-height: 50px;
-    border-bottom: 1px solid #666;
+    padding: 16px 20px;
+    border-radius: 8px 0 0 0;
 
     span {
         color: rgba(0, 0, 0, 0.85);
         display: inline-block;
-        height: 50px;
-        line-height: 50px;
+        font-weight: 500;
     }
 
     p {
@@ -113,26 +129,44 @@
 
     :global {
         .ant-form-item-label {
-            line-height: 50px !important;
+            line-height: 32px !important;
+
+            label {
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.85);
+            }
         }
 
         .ant-form-item {
             margin-bottom: 0;
         }
+
+        .ant-select {
+            .ant-select-selection {
+                border-radius: 6px;
+                border-color: @primary-color;
+
+                &:hover {
+                    border-color: @primary-5;
+                }
+            }
+        }
     }
 }
 
+// Main content border
 .zslbor,
 .zsllbor {
-    // border   : 1px solid #666;
-    height: 500px;
-    // overflow : auto;
+    height: 520px;
+    background: #fff;
+    overflow: hidden;
 }
 
 .zsllbor {
     padding: 20px;
 }
 
+// Extra image
 .extraImg {
     width: 195px;
     margin-top: -60px;
@@ -143,6 +177,7 @@
     }
 }
 
+// New button
 .newButton {
     width: 100%;
     height: 188px;
@@ -183,18 +218,13 @@
     }
 }
 
+// Checkbox area
 .zslcheck {
     display: flex;
     justify-content: center;
+    padding: 0 12px;
 
     .zslIcon {
-        // position  : absolute;
-        // left      : 0;
-        // display   : inline-block;
-        // width     : 20px;
-        // height    : 20px;
-        // background: #fff;
-        // z-index   : 999;
         margin-right: 5px;
     }
 
@@ -205,30 +235,59 @@
     :global {
         .ant-checkbox-wrapper {
             width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .ant-form-item {
+            width: 100%;
         }
     }
 }
 
+// Checkbox group
 .zslGroup {
     font-size: 14px;
-    margin-top: 20px;
     width: 100%;
 }
 
+// Component list item
 .zslMt {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px;
-    line-height: 60px;
+    min-height: 52px;
+    padding: 8px 16px;
+    margin: 4px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+        background: @primary-1;
+        border-color: fade(@primary-color, 20%);
+    }
+
+    :global {
+        .ant-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+
+            span:last-child {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+    }
 }
 
+// Active component item
 .active {
-    // width    : calc(100% + 1px);
-    background: #e6f7ff;
-    z-index: 1;
-    color: #1990ff !important;
-    border-right: 3px solid #1890ff;
+    background: linear-gradient(135deg, @primary-1 0%, fade(@primary-color, 8%) 100%) !important;
+    border: 1px solid fade(@primary-color, 30%) !important;
+    box-shadow: 0 2px 8px fade(@primary-color, 15%);
 
     :global {
         .anticon {
@@ -236,30 +295,34 @@
         }
 
         .ant-checkbox-wrapper {
-            color: #1990ff !important;
+            color: @primary-color !important;
+            font-weight: 500;
         }
     }
 }
 
+// Detail section header
 .zslcen {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     text-align: left;
     color: rgba(0, 0, 0, 0.85);
     width: 100%;
-    height: 50px;
-    line-height: 50px;
-    padding-left: 20px;
+    height: 56px;
+    line-height: 56px;
+    padding: 0 24px;
+    border-radius: 0 8px 0 0;
+
 }
 
 .zslborl {
-    border-bottom: 1px solid #666;
+    border-bottom: 1px solid #e8e8e8;
     text-align: center;
     margin: 0px !important;
 }
 
 .zslborr {
-    border-right: 1px solid #666;
+    border-right: 1px solid #e8e8e8;
     height: 60px;
     line-height: 60px;
 }
@@ -269,6 +332,7 @@
     line-height: 60px;
 }
 
+// List content
 .listContent {
     font-size: 0;
     width: 55%;
@@ -293,6 +357,7 @@
     }
 }
 
+// Standard list styles
 .standardList {
     :global {
         .ant-card-head {
@@ -317,6 +382,44 @@
             width: 48px;
             height: 48px;
             line-height: 48px;
+        }
+
+        // Enhanced list item styles
+        .ant-list-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0 !important;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: #fafafa;
+            }
+
+            &:last-child {
+                border-bottom: none !important;
+            }
+        }
+
+        .ant-list-item-meta-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 8px;
+
+            &::before {
+                content: '';
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                background: @primary-color;
+                border-radius: 50%;
+                margin-right: 10px;
+                vertical-align: middle;
+            }
+        }
+
+        .ant-list-item-meta-description {
+            font-size: 14px;
+            line-height: 1.8;
         }
     }
 
@@ -355,6 +458,7 @@
     }
 }
 
+// Responsive styles
 @media screen and (max-width: @screen-xs) {
     .standardList {
         :global {

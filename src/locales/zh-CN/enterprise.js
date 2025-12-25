@@ -1199,11 +1199,11 @@ const enterpriseUser = {
 // 设置
 const enterpriseSetting = {
     // PageHeaderLayout
-    'enterpriseSetting.PageHeaderLayout.title': '企业设置',
-    'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供。',
+    'enterpriseSetting.PageHeaderLayout.title': '平台设置',
+    'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等平台设置功能，更丰富的企业管理资源管理功能在资源管理平台提供。',
     // tabs>TabPane
     'enterpriseSetting.TabPane.basicsSetting': '基础设置',
-    'enterpriseSetting.TabPane.enterpriseAdmin': '企业管理员',
+    'enterpriseSetting.TabPane.enterpriseAdmin': '平台管理员',
     'enterpriseSetting.TabPane.dataBackups': '数据备份',
     'enterpriseSetting.TabPane.mirrorWarehouse': '镜像仓库',
     'enterpriseSetting.TabPane.upload': '组件语言版本',

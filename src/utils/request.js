@@ -96,7 +96,7 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       // 10406: 集群资源不足
       // 10413: 租户资源不足
       // 20800: 组件构建失败
-      const AppID = globalUtil.getAppID(url);
+      const AppID = globalUtil.getAppID();
       if (TEAM_NAME && REGION_NAME && AppID) {
         history.push(`/team/${TEAM_NAME}/region/${REGION_NAME}/apps/${AppID}/overview`);
       }

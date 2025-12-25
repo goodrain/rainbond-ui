@@ -1175,7 +1175,9 @@ export default class Index extends PureComponent {
     if (!this.canView()) return <NoPermTip />;
     const { type } = this.state;
     return (
-      <Card>
+      <Card
+      bodyStyle={{padding: 12}}
+      >
         <p
           style={{
             overflow: 'hidden'

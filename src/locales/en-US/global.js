@@ -25,6 +25,8 @@ const global = {
     'global.fetchStateText.succeeded':'Completed',
     'global.fetchStateText.failed':'Failed',
     'global.fetchStateText.SUCCEEDED':'Completed',
+    'global.fetchStateText.witching':'Waiting',
+    'global.fetchStateText.WAITING':'Waiting',
 
     // fetchGovernanceMode
     'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE':'Native Service ',
@@ -197,5 +199,6 @@ const global = {
     'global.fetchStateOptTypeText.LivenessRestart':'Health check failed',
     'global.fetchStateOptTypeText.StartupProbeFailure':'Health check failed',
     'global.fetchStateOptTypeText.HealthCheckPassed':'Health check passed',
+    'global.fetchStateOptTypeText.CreateContainerConfigError': 'Container configuration generation failed',
 }
 export default Object.assign({}, global);

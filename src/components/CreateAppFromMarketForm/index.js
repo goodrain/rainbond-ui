@@ -115,7 +115,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { is_deploy } = this.state;
     const { form, onSubmit } = this.props;
-    const group_id = globalUtil.getAppID()
+    const group_id = globalUtil.getAppID()    
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if(group_id){

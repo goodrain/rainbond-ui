@@ -323,6 +323,8 @@ const global = {
       RUNNING: '#00D777', // 运行中 绿色
       running: '#00D777', // 运行中 绿色
       starting: '#F69D4A', // 启动中
+      waiting: '#F69D4A', // 等待中
+      WAITING: '#F69D4A', // 等待中
       Starting: '#F69D4A', // 启动中
       NOTREADY: '#F69D4A', // 未就绪
       checking: 'F69D4A', // 检测中
@@ -2620,6 +2622,8 @@ const global = {
 
   fetchStateBJColor(status) {
     const statusColorMap = {
+      waiting:
+        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 等待中 黄色  
       running:
         'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 运行中 绿色
       succeeded:
@@ -2649,6 +2653,8 @@ const global = {
   },
   fetchStateText(state) {
     const statusColorMap = {
+      waiting: formatMessage({ id: 'global.fetchStateText.witching' }),
+      WAITING: formatMessage({ id: 'global.fetchStateText.WAITING' }),
       RUNNING: formatMessage({ id: 'global.fetchStateText.RUNNING' }),
       running: formatMessage({ id: 'global.fetchStateText.running' }),
       starting: formatMessage({ id: 'global.fetchStateText.starting' }),
@@ -3011,6 +3017,7 @@ const global = {
       LivenessRestart: formatMessage({ id: 'global.fetchStateOptTypeText.LivenessRestart' }),
       StartupProbeFailure: formatMessage({ id: 'global.fetchStateOptTypeText.StartupProbeFailure' }),
       HealthCheckPassed: formatMessage({ id: 'global.fetchStateOptTypeText.HealthCheckPassed' }),
+      CreateContainerConfigError: formatMessage({ id: 'global.fetchStateOptTypeText.CreateContainerConfigError' }),
     };
     return statusOptType[state] || state;
   },
@@ -3101,6 +3108,8 @@ const global = {
   appStatusColor(AppStatus, opacity) {
     // 应用状态的标识颜色
     const appStateColor = {
+      waiting: '#F69D4A',
+      WAITING: '#F69D4A',
       RUNNING: '#52c41a',
       STARTING: '#52c41a',
       CLOSED: '#000000',
@@ -3129,6 +3138,8 @@ const global = {
   appStatusText(AppStatus) {
     //   应用状态
     const appState = {
+      waiting: formatMessage({ id: 'ApplicationState.waiting' }),
+      WAITING: formatMessage({ id: 'ApplicationState.WAITING' }),
       RUNNING: formatMessage({ id: 'ApplicationState.RUNNING' }),
       STARTING: formatMessage({ id: 'ApplicationState.STARTING' }),
       CLOSED: formatMessage({ id: 'ApplicationState.CLOSED' }),

@@ -18,6 +18,8 @@ const ApplicationState =    {
     'ApplicationState.pending-upgrade':'升级中',
     'ApplicationState.pending-rollback':'回滚中',
     'ApplicationState.leave_unused':'闲置',
+    'ApplicationState.waiting':'等待中',
+    'ApplicationState.WAITING':'等待中',
 }
 
 export default Object.assign({}, ApplicationState);
