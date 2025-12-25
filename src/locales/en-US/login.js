@@ -123,6 +123,26 @@ const login = {
     'login.registerComponent.smslink':'Link',
     'login.registerComponent.smsusers':'User',
     'login.registerComponent.smsphone':'Phone',
+    // UserLayout - SaaS mode
+    'layout.userLayout.saas.subtitle':'Free trial with no barriers, one-click deployment for any application',
+    'layout.userLayout.saas.feature1.title':'High Availability',
+    'layout.userLayout.saas.feature1.desc':'SLA 99.95% availability guarantee with technical support',
+    'layout.userLayout.saas.feature2.title':'Pay-as-you-go',
+    'layout.userLayout.saas.feature2.desc':'Pay per minute based on actual business usage',
+    'layout.userLayout.saas.feature3.title':'Out-of-the-box',
+    'layout.userLayout.saas.feature3.desc':'Integrated resources, no maintenance required, focus on development',
+    'layout.userLayout.saas.feature4.title':'App Store',
+    'layout.userLayout.saas.feature4.desc':'Hundreds of apps ready to use, covering AI, blogs, low-code and more',
+    'layout.userLayout.saas.welcomeText':'Start your journey',
+    'layout.userLayout.saas.agreement':'By signing in, you agree to our',
+    'layout.userLayout.saas.termsOfService':'Terms of Service',
+    'layout.userLayout.saas.and':'and',
+    'layout.userLayout.saas.privacyPolicy':'Privacy Policy',
+    // UserLayout - Normal mode
+    'layout.userLayout.normal.title1':'Container Platform',
+    'layout.userLayout.normal.title2':'Without Learning K8s',
+    'layout.userLayout.normal.description':'Build, deploy, assemble and manage applications on Kubernetes without K8s expertise, with full graphical management',
+    'layout.userLayout.normal.companyInfo':'Powered by Beijing Goodrain Technology',
 }
 
 export default Object.assign({}, login);
