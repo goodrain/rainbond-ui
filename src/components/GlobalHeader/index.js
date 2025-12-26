@@ -158,7 +158,7 @@ export default class GlobalHeader extends PureComponent {
         break;
       case 'bill':
         // 跳转到门户的账户中心
-        this.handlePortalNavigation('account-center');
+        this.handleBalanceBill();
         break;
       case 'logout':
         window.sessionStorage.removeItem('Pipeline');
@@ -231,8 +231,16 @@ export default class GlobalHeader extends PureComponent {
     });
   };
   handleBalanceBill = () => {
-    // 点击余额跳转到门户的账户中心
-    this.handlePortalNavigation('account-center');
+    const { dispatch, currentUser, rainbondInfo } = this.props;
+    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
+    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
+    const portalSite = rainbondInfo?.portal_site
+    if(portalSite){
+      // 点击余额跳转到门户的账户中心
+      this.handlePortalNavigation('account-center');
+    } else {
+      dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
+    }
   }
 
   toggleProductDrawer = () => {
