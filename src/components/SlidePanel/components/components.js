@@ -1195,7 +1195,7 @@ class Main extends PureComponent {
         show: method !== 'vm' && isVisitWebTerminal && !isShowThirdParty && !isShowKubeBlocksComponent,
         type: 'link',
         text: <FormattedMessage id='componentOverview.header.right.web' />,
-        path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole`,
+        path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole?apps=${globalUtil.getAppID()}`,
         target: '_blank'
       },
       {
