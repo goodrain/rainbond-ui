@@ -3,7 +3,8 @@
 */
 
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { Input, Table, Modal, notification, Tooltip } from 'antd';
@@ -47,7 +48,7 @@ export default class Index extends PureComponent {
     const { onSubmit } = this.props;
     const { selectedRowKeys } = this.state;
     if (!selectedRowKeys.length) {
-      notification.warning({ message:  formatMessage({id:'notification.warn.catalogue'})});
+      notification.warning({ message: formatMessage({ id: 'notification.warn.catalogue' }) });
       return;
     }
 
@@ -56,24 +57,24 @@ export default class Index extends PureComponent {
       const data = this.state.list[index];
       return {
         id: data.dep_vol_id,
-        path: this.state.localpaths[data.dep_vol_id],
+        path: this.state.localpaths[data.dep_vol_id]
       };
     });
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: formatMessage({id:'notification.warn.fillIn'}) });
+      notification.warning({ message: formatMessage({ id: 'notification.warn.fillIn' }) });
       return;
     }
     let mag = '';
     const isMountList = res.filter(item => {
       const { path } = item;
       if (path === '') {
-        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'})}`;
+        mag = formatMessage({ id: 'componentOverview.body.AddRelationMnt.mag' });
       }
       const isMountPath = pluginUtil.isMountPath(path);
       if (isMountPath) {
-        mag = `${formatMessage({id:'componentOverview.body.AddRelationMnt.mag'},{path:path})}`;
+        mag = formatMessage({ id: 'componentOverview.body.AddRelationMnt.mag_path' }, { path });
       }
       return path !== '' && !isMountPath;
     });
@@ -123,7 +124,7 @@ export default class Index extends PureComponent {
   };
   isDisabled = (data, index) =>
     this.state.selectedRowKeys.indexOf(index) === -1;
-  handleChange = (value, data, index) => {
+  handleChange = (value, data) => {
     const local = this.state.localpaths;
     local[data.dep_vol_id] = value;
     this.setState({ localpaths: local });
@@ -147,7 +148,7 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title={<FormattedMessage id="componentOverview.body.AddRelationMnt.title"/>}
+        title={<FormattedMessage id="componentOverview.body.AddRelationMnt.title" />}
         width={1150}
         visible
         onOk={this.handleSubmit}
@@ -155,89 +156,89 @@ export default class Index extends PureComponent {
       >
         <Search
           style={{ width: '350px', marginBottom: '20px' }}
-          placeholder={formatMessage({id:'componentOverview.body.AddRelationMnt.placeholder'})}
+          placeholder={formatMessage({ id: 'componentOverview.body.AddRelationMnt.placeholder' })}
           onSearch={this.handleSearchTeamList}
         />
 
         <Table
           pagination={pagination}
-          rowKey={(record,index) => index}
+          rowKey={(record, index) => index}
           dataSource={this.state.list}
           rowSelection={rowSelection}
           style={{ width: '100%', overflowX: 'auto' }}
           columns={[
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.localpath'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.localpath' }),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',
               render: (localpath, data, index) => (
                 <Input
                   onChange={e => {
-                    this.handleChange(e.target.value, data, index);
+                    this.handleChange(e.target.value, data);
                   }}
                   disabled={this.isDisabled(data, index)}
                 />
-              ),
+              )
             },
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_name'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.dep_vol_name' }),
               dataIndex: 'dep_vol_name',
               key: '2',
               width: '15%',
-              render: (data, index) => (
+              render: data => (
                 <Tooltip title={data}>
                   <span
                     style={{
                       wordBreak: 'break-all',
-                      wordWrap: 'break-word',
+                      wordWrap: 'break-word'
                     }}
                   >
                     {data}
                   </span>
                 </Tooltip>
-              ),
+              )
             },
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_path'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.dep_vol_path' }),
               dataIndex: 'dep_vol_path',
               key: '3',
               width: '15%',
-              render: (data, index) => (
+              render: data => (
                 <Tooltip title={data}>
                   <span
                     style={{
                       wordBreak: 'break-all',
-                      wordWrap: 'break-word',
+                      wordWrap: 'break-word'
                     }}
                   >
                     {data}
                   </span>
                 </Tooltip>
-              ),
+              )
             },
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_vol_type'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.dep_vol_type' }),
               dataIndex: 'dep_vol_type',
               key: '4',
               width: '15%',
-              render: (text, record) => {
+              render: text => {
                 return (
                   <Tooltip title={text}>
                     <span
                       style={{
                         wordBreak: 'break-all',
-                        wordWrap: 'break-word',
+                        wordWrap: 'break-word'
                       }}
                     >
                       {getVolumeTypeShowName(null, text)}
                     </span>
                   </Tooltip>
                 );
-              },
+              }
             },
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_name'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.dep_app_name' }),
               dataIndex: 'dep_app_name',
               key: '5',
               width: '15%',
@@ -252,7 +253,7 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordWrap: 'break-word'
                         }}
                       >
                         {v}
@@ -260,10 +261,10 @@ export default class Index extends PureComponent {
                     </Link>
                   </Tooltip>
                 );
-              },
+              }
             },
             {
-              title:formatMessage({id:'componentOverview.body.AddRelationMnt.dep_app_group'}),
+              title: formatMessage({ id: 'componentOverview.body.AddRelationMnt.dep_app_group' }),
               dataIndex: 'dep_app_group',
               key: '6',
               width: '15%',
@@ -278,7 +279,7 @@ export default class Index extends PureComponent {
                       <span
                         style={{
                           wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordWrap: 'break-word'
                         }}
                       >
                         {v}
@@ -286,8 +287,8 @@ export default class Index extends PureComponent {
                     </Link>
                   </Tooltip>
                 );
-              },
-            },
+              }
+            }
           ]}
         />
       </Modal>

@@ -6,8 +6,8 @@ import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
-import { setLocale, getLocale } from 'umi/locale'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { setLocale, getLocale, FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';

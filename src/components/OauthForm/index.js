@@ -2,7 +2,7 @@
 import { Button, Form, Input, Modal, Select, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Application from '../../../public/images/application.svg';
 import Branches from '../../../public/images/branches.svg';
 import styless from '../CreateTeam/index.less';
@@ -138,8 +138,8 @@ class CreateOAuthForm extends PureComponent {
               rules: [
                 { required: true, message: formatMessage({ id: 'placeholder.appShare.appPublish.name' }) },
                 {
-                  max: 32,
-                  message: formatMessage({ id: 'placeholder.max32' })
+                  max: 16,
+                  message: formatMessage({ id: 'placeholder.max16' })
                 }
               ]
             })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}

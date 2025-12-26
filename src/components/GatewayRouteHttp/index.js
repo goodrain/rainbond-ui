@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'dva';
 import {
     Table,
-    Card,
     Button,
     Row,
     Col,
@@ -14,7 +13,7 @@ import {
     Tooltip,
     Switch
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import RouteDrawerHttp from '../RouteDrawerHttp';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
@@ -351,10 +350,15 @@ export default class index extends Component {
             },
         };
         return (
-            <div>
-                <Card
-                    extra={
-                        isCreate &&
+            <div className={styles.gatewayContainer}>
+                <div className={styles.gatewayHeader}>
+                    <Input.Search
+                        placeholder={formatMessage({ id: 'teamGateway.strategy.table.searchTips' })}
+                        onSearch={this.handleSearch}
+                        style={{ width: 300 }}
+                        allowClear
+                    />
+                    {isCreate && (
                         <Button
                             icon="plus"
                             type="primary"
@@ -362,40 +366,25 @@ export default class index extends Component {
                         >
                             {formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.add' })}
                         </Button>
-                    }
-                    bodyStyle={{ padding: '0' }}
-                >
-                    {/* 添加搜索框 */}
-                    <div style={{ padding: '12px' }}>
-                        <Row>
-                            <Col span={8}>
-                                <Input.Search
-                                    placeholder={formatMessage({ id: 'teamGateway.strategy.table.searchTips' })}
-                                    onSearch={this.handleSearch}
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                />
-                            </Col>
-                        </Row>
-                    </div>
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        loading={tableLoading}
-                        rowKey={record => record.name || record.serviceName}
-                        pagination={{
-                            current: page,
-                            pageSize: pageSize,
-                            total: dataSource.length ,
-                            onChange: this.onPageChange,
-                            showQuickJumper: true,
-                            showSizeChanger: true,
-                            showTotal: (total) => `共 ${total} 条`,
-                            onShowSizeChange: this.onPageChange,
-                            hideOnSinglePage: dataSource.length <= 10
-                        }}
-                    />
-                </Card>
+                    )}
+                </div>
+                <Table
+                    dataSource={dataSource}
+                    columns={columns}
+                    loading={tableLoading}
+                    rowKey={record => record.name || record.serviceName}
+                    pagination={{
+                        current: page,
+                        pageSize: pageSize,
+                        total: dataSource.length,
+                        onChange: this.onPageChange,
+                        showQuickJumper: true,
+                        showSizeChanger: true,
+                        showTotal: (total) => `共 ${total} 条`,
+                        onShowSizeChange: this.onPageChange,
+                        hideOnSinglePage: dataSource.length <= 10
+                    }}
+                />
                 {routeDrawer &&
                     <RouteDrawerHttp
                         visible={routeDrawer}

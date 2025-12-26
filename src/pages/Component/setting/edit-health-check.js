@@ -2,7 +2,8 @@ import { Form, Input, Modal, Radio, Select } from 'antd';
 import React, { PureComponent } from 'react';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../../utils/cookie';
 
 const FormItem = Form.Item;
@@ -295,7 +296,7 @@ export default class EditHealthCheck extends PureComponent {
 
           <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.initialization' />}>
             {getFieldDecorator('initial_delay_second', {
-              initialValue: data.initial_delay_second || '2',
+              initialValue: data.initial_delay_second || '5',
               rules: [
                 {
                   required: true,
@@ -308,7 +309,7 @@ export default class EditHealthCheck extends PureComponent {
           </FormItem>
           <FormItem {...is_language} label={<FormattedMessage id='componentOverview.body.EditHealthCheck.time' />}>
             {getFieldDecorator('period_second', {
-              initialValue: data.period_second || '3',
+              initialValue: data.period_second || '10',
               rules: [
                 {
                   required: true,

@@ -1,7 +1,7 @@
 /*
     配置应用各个状态下的各种对应信息
 */
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const appStatusMap = {
   running: {
     statusCN: formatMessage({id:'utils.app.Operation'}),

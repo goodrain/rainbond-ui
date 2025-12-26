@@ -2,7 +2,7 @@ import { DefaultFooter } from '@ant-design/pro-layout';
 import { connect } from 'dva';
 import { Icon } from 'antd';
 import React, { Component } from 'react'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../utils/cookie';
 import PluginUtil from '../utils/pulginUtils';
 import styles from './PageHeaderLayout.less';

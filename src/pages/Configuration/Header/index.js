@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { routerRedux } from 'dva/router';

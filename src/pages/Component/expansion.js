@@ -4,39 +4,35 @@ import {
   Button,
   Card,
   Col,
-  Divider,
   Form,
   Icon,
   Input,
-  message,
   notification,
   Row,
   Select,
   Spin,
   Switch,
   Table,
-  AutoComplete,
   Slider
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Deleteimg from '../../../public/images/delete.png';
 import InstanceList from '../../components/AppInstanceList';
 import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
-import { horizontal, vertical } from '../../services/app';
 import globalUtil from '../../utils/global';
 import PriceCard from '../../components/PriceCard';
 import pluginUtil from '../../utils/pulginUtils';
 import licenseUtil from '../../utils/license';
-import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
 import styles from './Index.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 
 
 const { Option } = Select;
@@ -90,8 +86,7 @@ export default class Index extends PureComponent {
       errorCpuValue: '',
       errorMemoryValue: '',
       enableGPU: licenseUtil.haveFeature(this.props.features, 'GPU'),
-      language: cookie.get('language') === 'zh-CN' ? true : false,
-      dataSource: [],
+      language: cookie.get('language') === 'zh-CN',
       showBill: pluginUtil.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
       memorySliderMin: 1,
       memorySliderMax: 8,
@@ -169,9 +164,9 @@ export default class Index extends PureComponent {
   checkNum = (value, type) => {
     const { memoryMarksObj, cpuMarksObj, showBill } = this.state;
     let num = 0;
-    if (type == 'memory') {
+    if (type === 'memory') {
       Object.keys(memoryMarksObj).forEach(item => {
-        if (item == value) {
+        if (Number(item) === Number(value)) {
           num = memoryMarksObj[item];
         }
       });
@@ -180,9 +175,9 @@ export default class Index extends PureComponent {
         num = 10; // 自定义选项的滑块位置
       }
     }
-    if (type == 'cpu') {
+    if (type === 'cpu') {
       Object.keys(cpuMarksObj).forEach(item => {
-        if (item == value) {
+        if (Number(item) === Number(value)) {
           num = cpuMarksObj[item];
         }
       });
@@ -194,49 +189,59 @@ export default class Index extends PureComponent {
     return num;
   }
 
-  getPrice = (bool) => {
-    const { memoryMarksObj, cpuMarksObj, cpuValue, memoryValue, showBill } = this.state;
-    if ((cpuValue == 0 && memoryValue == 0) || bool) {
-      const extendInfo = this.props.extendInfo;
-      const cpuValueRaw = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
-      const memoryValueRaw = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
-      
-      const mValue = this.checkNum(memoryValueRaw, 'memory');
-      const cValue = this.checkNum(cpuValueRaw, 'cpu');
-      
-      const isCustomMemory = mValue === 10;
-      const isCustomCpu = cValue === 9;
-      
-      // 智能选择内存单位
-      let memoryUnit = 'MB';
-      let memoryDisplayValue = '';
-      if (isCustomMemory && memoryValueRaw > 0) {
-        // 如果内存值大于等于1024MB且能被1024整除，或者大于等于1024且转换为GB后是整数或简单小数，使用GB
-        if (memoryValueRaw >= 1024) {
-          const gbValue = memoryValueRaw / 1024;
-          // 如果GB值是整数或者小数位不超过2位的简单小数，使用GB
-          if (Number.isInteger(gbValue) || gbValue.toFixed(2) == gbValue) {
-            memoryUnit = 'GB';
-            memoryDisplayValue = gbValue.toString();
-          } else {
-            memoryUnit = 'MB';
-            memoryDisplayValue = memoryValueRaw.toString();
-          }
+  // 计算并返回内存单位和显示值
+  calculateMemoryUnit = (memoryValueRaw, isCustomMemory) => {
+    let memoryUnit = 'MB';
+    let memoryDisplayValue = '';
+
+    if (isCustomMemory && memoryValueRaw > 0) {
+      if (memoryValueRaw >= 1024) {
+        const gbValue = memoryValueRaw / 1024;
+        if (Number.isInteger(gbValue) || parseFloat(gbValue.toFixed(2)) === gbValue) {
+          memoryUnit = 'GB';
+          memoryDisplayValue = gbValue.toString();
         } else {
           memoryUnit = 'MB';
           memoryDisplayValue = memoryValueRaw.toString();
         }
+      } else {
+        memoryUnit = 'MB';
+        memoryDisplayValue = memoryValueRaw.toString();
       }
+    }
 
-      this.setState({
-        cpuValue: cValue,
-        memoryValue: mValue,
-        isCustomMemory: isCustomMemory,
-        isCustomCpu: isCustomCpu,
-        customMemoryValue: memoryDisplayValue,
-        customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
-        customMemoryUnit: memoryUnit
-      });
+    return { memoryUnit, memoryDisplayValue };
+  }
+
+  // 从 extendInfo 初始化或重置配置值
+  initializeConfigValues = () => {
+    const extendInfo = this.props.extendInfo;
+    const cpuValueRaw = extendInfo?.current_cpu ?? (extendInfo?.current_cpu === 0 ? 0 : 100);
+    const memoryValueRaw = extendInfo?.current_memory ?? (extendInfo?.current_memory === 0 ? 0 : 512);
+
+    const mValue = this.checkNum(memoryValueRaw, 'memory');
+    const cValue = this.checkNum(cpuValueRaw, 'cpu');
+
+    const isCustomMemory = mValue === 10;
+    const isCustomCpu = cValue === 9;
+
+    const { memoryUnit, memoryDisplayValue } = this.calculateMemoryUnit(memoryValueRaw, isCustomMemory);
+
+    return {
+      cpuValue: cValue,
+      memoryValue: mValue,
+      isCustomMemory,
+      isCustomCpu,
+      customMemoryValue: memoryDisplayValue,
+      customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
+      customMemoryUnit: memoryUnit
+    };
+  }
+
+  getPrice = (bool) => {
+    const { cpuValue, memoryValue } = this.state;
+    if ((cpuValue === 0 && memoryValue === 0) || bool) {
+      this.setState(this.initializeConfigValues());
     }
   }
   componentDidMount() {
@@ -287,43 +292,6 @@ export default class Index extends PureComponent {
     } = this.props;
     return isTelescopic;
   }
-  handleVertical = () => {
-    const { form, appAlias, extendInfo } = this.props;
-    const { getFieldValue } = form;
-    const { setUnit } = this.state;
-    const memory = getFieldValue('memory');
-    const gpu = Number(getFieldValue('gpu'));
-    const cpu = Number(getFieldValue('new_cpu'));
-    var memoryNum = 0;
-    if (setUnit) {
-      memoryNum = setUnit == "G" ? memory * 1024 : memory
-    } else {
-      memoryNum = sourceUtil.getUnit(extendInfo.current_memory) == "G" ? Number(memory * 1024) : Number(memory)
-    }
-    vertical({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: appAlias,
-      new_memory: memoryNum,
-      new_gpu: gpu,
-      new_cpu: cpu
-    }).then(data => {
-      if (data && !data.status) {
-        notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-      }
-    });
-  };
-  handleHorizontal = () => {
-    const node = this.props.form.getFieldValue('node');
-    horizontal({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
-      new_node: node
-    }).then(data => {
-      if (data && !data.status) {
-        notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-      }
-    });
-  };
 
   openEditModal = type => {
     const { dispatch, appDetail } = this.props;
@@ -360,6 +328,9 @@ export default class Index extends PureComponent {
               );
             }
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     }
@@ -401,7 +372,9 @@ export default class Index extends PureComponent {
       },
       handleError: res => {
         if (res && res.status === 403) {
-          this.props.dispatch(routerRedux.push('/exception/403'));
+          dispatch(routerRedux.push('/exception/403'));
+        } else {
+          handleAPIError(res);
         }
       }
     });
@@ -417,17 +390,14 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            // 接口变化
-            instances: (res.list.new_pods || []).concat(
-              res.list.old_pods || []
-            ),
-            loading: false
-          });
-        } else {
-          this.setState({
+            instances: (res.list.new_pods || []).concat(res.list.old_pods || []),
             loading: false
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ loading: false });
       }
     });
   };
@@ -474,9 +444,11 @@ export default class Index extends PureComponent {
               this.getScalingRules();
             }
           );
-        } else {
-          notification.success({ message: formatMessage({ id: 'notification.error.close' }) });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ automaLoading: false });
       }
     });
   };
@@ -520,13 +492,15 @@ export default class Index extends PureComponent {
               this.getScalingRules();
             }
           );
-        } else {
-          this.setState({
-            showEditAutoScaling: false,
-            addindicators: false,
-            loading: false
-          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({
+          showEditAutoScaling: false,
+          addindicators: false,
+          automaLoading: false
+        });
       }
     });
   };
@@ -600,10 +574,16 @@ export default class Index extends PureComponent {
                 _th.getScalingRules();
               }
             );
-          } else {
-            notification.success({ message: formatMessage({ id: 'notification.success.Failed' }) });
-            _th.setState({ showEditAutoScaling: false, addindicators: false });
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
+          _th.setState({
+            showEditAutoScaling: false,
+            addindicators: false,
+            toDeleteMnt: false,
+            automaLoading: false
+          });
         }
       });
     }
@@ -631,12 +611,14 @@ export default class Index extends PureComponent {
             loading: false,
             automaLoading: false
           });
-        } else {
-          this.setState({
-            loading: false,
-            automaLoading: false
-          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({
+          loading: false,
+          automaLoading: false
+        });
       }
     });
   };
@@ -664,6 +646,9 @@ export default class Index extends PureComponent {
             sclaingRecord: res.bean.data
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -677,30 +662,17 @@ export default class Index extends PureComponent {
   };
 
   setMetric_target_value = (arr, types, Symbol = false) => {
-    let values = 0;
-    arr &&
-      arr.length > 0 &&
-      arr.map(item => {
-        const { metric_name, metric_target_value, metric_target_type } = item;
-        if (types === metric_name) {
-          values = Symbol ? metric_target_type : metric_target_value;
-          return metric_target_value;
-        }
-      });
-    return values === undefined ? 0 : values;
+    if (!arr || arr.length === 0) return 0;
+
+    const item = arr.find(item => item.metric_name === types);
+    if (!item) return 0;
+
+    return Symbol ? item.metric_target_type : item.metric_target_value;
   };
 
-  setMetric_target_show = (arr, types, Symbol = false) => {
-    let values = false;
-    arr &&
-      arr.length > 0 &&
-      arr.map(item => {
-        const { metric_name } = item;
-        if (types === metric_name) {
-          values = true;
-        }
-      });
-    return values;
+  setMetric_target_show = (arr, types) => {
+    if (!arr || arr.length === 0) return false;
+    return arr.some(item => item.metric_name === types);
   };
 
   onChangeAutomaticTelescopic = () => {
@@ -750,27 +722,26 @@ export default class Index extends PureComponent {
             obj.min_replicas = Number(editInfo.minNum);
             const arr = res.bean.metrics;
             if (editInfo.cpuValue) {
-              arr.map((item, index) => {
-                if (item.metric_name == 'cpu') {
-                  obj.metrics[index].metric_target_value = Number(
-                    editInfo.cpuValue
-                  );
+              arr.forEach((item, index) => {
+                if (item.metric_name === 'cpu') {
+                  obj.metrics[index].metric_target_value = Number(editInfo.cpuValue);
                 }
               });
             }
 
             if (editInfo.memoryValue) {
-              arr.map((item, index) => {
-                if (item.metric_name == 'memory') {
-                  obj.metrics[index].metric_target_value = Number(
-                    editInfo.memoryValue
-                  );
+              arr.forEach((item, index) => {
+                if (item.metric_name === 'memory') {
+                  obj.metrics[index].metric_target_value = Number(editInfo.memoryValue);
                 }
               });
             }
             this.changeScalingRules(obj);
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -802,11 +773,11 @@ export default class Index extends PureComponent {
     let rulesInfocpuValue = 1;
     let rulesInfomemoryValue = 1;
     if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
-      rulesInfo.metrics.map(item => {
-        if (item.metric_name == 'cpu') {
+      rulesInfo.metrics.forEach(item => {
+        if (item.metric_name === 'cpu') {
           rulesInfocpuValue = Number(item.metric_target_value);
         }
-        if (item.metric_name == 'memory') {
+        if (item.metric_name === 'memory') {
           rulesInfomemoryValue = Number(item.metric_target_value);
         }
       });
@@ -896,16 +867,12 @@ export default class Index extends PureComponent {
       errorType: type
     });
   };
-  selectAfterChange = (val) => {
-    this.setState({
-      setUnit: val
-    })
-  }
+
   handleFromData = () => {
     const { form, appAlias, extendInfo, dispatch } = this.props;
     const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
     form.validateFields((err, values) => {
-      if (!err) return;
+      if (err) return;
       const { new_memory, new_cpu } = values;
 
       let memory, cpu;
@@ -920,13 +887,10 @@ export default class Index extends PureComponent {
         // 根据选择的单位转换为MB
         memory = customMemoryUnit === 'GB' ? memValue * 1024 : memValue;
       } else {
-        memory = Object.keys(memoryMarksObj).find(item => {
-          if (memoryMarksObj[item] == new_memory) {
-            return item;
-          }
-        });
+        const key = Object.keys(memoryMarksObj).find(item => memoryMarksObj[item] === new_memory);
+        memory = key ? Number(key) : 0;
       }
-      
+
       // 处理自定义CPU值
       if (isCustomCpu && new_cpu === 9) {
         if (customCpuValue && customCpuValue !== '') {
@@ -936,11 +900,8 @@ export default class Index extends PureComponent {
           return;
         }
       } else {
-        cpu = Object.keys(cpuMarksObj).find(item => {
-          if (cpuMarksObj[item] == new_cpu) {
-            return item;
-          }
-        });
+        const key = Object.keys(cpuMarksObj).find(item => cpuMarksObj[item] === new_cpu);
+        cpu = key ? Number(key) : 0;
       }
       
       dispatch({
@@ -953,19 +914,14 @@ export default class Index extends PureComponent {
           new_cpu: Number(cpu),
           new_node: values.node
         },
-        callback: (data) => {
+        callback: () => {
           notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
-
+          this.setState({ editBillInfo: false });
         },
         handleError: (err) => {
-          notification.error({
-            message: err.data.msg_show || '操作失败'
-          })
-
+          handleAPIError(err);
+          this.setState({ editBillInfo: false });
         }
-      })
-      this.setState({
-        editBillInfo: false
       })
     })
   }
@@ -1146,40 +1102,31 @@ export default class Index extends PureComponent {
   }
 
   getFormValues = (data, type) => {
-    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state
-    let num = 0
-    if (type == 'memory') {
+    const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
+    let num = 0;
+
+    if (type === 'memory') {
       if (isCustomMemory && data === 10) {
         if (customMemoryValue && customMemoryValue !== '') {
           // 自定义内存值，根据单位转换为MB
           num = customMemoryUnit === 'GB' ? parseFloat(customMemoryValue) * 1024 : parseFloat(customMemoryValue);
-        } else {
-          num = 0; // 如果没有输入值，返回0
         }
       } else {
-        Object.keys(memoryMarksObj).forEach(item => {
-          if (memoryMarksObj[item] == data) {
-            num = item
-          }
-        })
+        const key = Object.keys(memoryMarksObj).find(item => memoryMarksObj[item] === data);
+        num = key ? Number(key) : 0;
       }
     } else {
       if (isCustomCpu && data === 9) {
         if (customCpuValue && customCpuValue !== '') {
           // 自定义CPU值，转换为m
           num = parseFloat(customCpuValue) * 1000;
-        } else {
-          num = 0; // 如果没有输入值，返回0
         }
       } else {
-        Object.keys(cpuMarksObj).forEach(item => {
-          if (cpuMarksObj[item] == data) {
-            num = item
-          }
-        })
+        const key = Object.keys(cpuMarksObj).find(item => cpuMarksObj[item] === data);
+        num = key ? Number(key) : 0;
       }
     }
-    return num
+    return num;
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
@@ -1212,8 +1159,6 @@ export default class Index extends PureComponent {
       errorMemoryValue,
       enableGPU,
       language,
-      dataSource,
-      setUnit,
       memoryMarks,
       cpuMarks,
       cpuValue,
@@ -1230,16 +1175,17 @@ export default class Index extends PureComponent {
       customMemoryUnit,
       customMemoryError
     } = this.state;
-    if (extendInfo && Object.keys(extendInfo).length > 0) {
-      this.getPrice()
+
+    // 确保在首次渲染时初始化价格信息
+    if (extendInfo && Object.keys(extendInfo).length > 0 && cpuValue === 0 && memoryValue === 0) {
+      // 使用 setTimeout 避免在 render 中直接调用 setState
+      setTimeout(() => this.getPrice(), 0);
     }
+
     if (!extendInfo) {
       return null;
-    } else {
-      this.setState({
-        dataSource: extendInfo.memory_list || []
-      })
     }
+
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
       labelCol: {
@@ -1311,7 +1257,7 @@ export default class Index extends PureComponent {
               <div style={{ minHeight: '190px' }} />
             </Spin>
           ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: 24 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               <InstanceList
                 method={method}
                 handlePodClick={this.handlePodClick}
@@ -1333,7 +1279,9 @@ export default class Index extends PureComponent {
                 <FormattedMessage id='componentOverview.body.Expansion.modify' />
                 {' '}
                 <Link
-                  to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
+                  to={
+                  `/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  }
                 >
                   <FormattedMessage id='componentOverview.body.Expansion.set' />
                 </Link>
@@ -1364,49 +1312,15 @@ export default class Index extends PureComponent {
                   </Button>
                   <Button icon='close-circle' onClick={() => {
                     const { form } = this.props;
-                    const extendInfo = this.props.extendInfo;
-                    const cpuValueRaw = extendInfo?.current_cpu ? extendInfo?.current_cpu : (extendInfo?.current_cpu == 0 ? 0 : 100);
-                    const memoryValueRaw = extendInfo?.current_memory ? extendInfo?.current_memory : (extendInfo?.current_memory == 0 ? 0 : 512);
-                    
-                    const mValue = this.checkNum(memoryValueRaw, 'memory');
-                    const cValue = this.checkNum(cpuValueRaw, 'cpu');
-                    
-                    const isCustomMemory = mValue === 10;
-                    const isCustomCpu = cValue === 9;
-
-                    // 智能选择内存单位
-                    let memoryUnit = 'MB';
-                    let memoryDisplayValue = '';
-                    if (isCustomMemory && memoryValueRaw > 0) {
-                      if (memoryValueRaw >= 1024) {
-                        const gbValue = memoryValueRaw / 1024;
-                        if (Number.isInteger(gbValue) || gbValue.toFixed(2) == gbValue) {
-                          memoryUnit = 'GB';
-                          memoryDisplayValue = gbValue.toString();
-                        } else {
-                          memoryUnit = 'MB';
-                          memoryDisplayValue = memoryValueRaw.toString();
-                        }
-                      } else {
-                        memoryUnit = 'MB';
-                        memoryDisplayValue = memoryValueRaw.toString();
-                      }
-                    }
+                    const values = this.initializeConfigValues();
 
                     this.setState({
-                      cpuValue: cValue,
-                      memoryValue: mValue,
-                      isCustomMemory: isCustomMemory,
-                      isCustomCpu: isCustomCpu,
-                      customMemoryValue: memoryDisplayValue,
-                      customCpuValue: isCustomCpu ? (cpuValueRaw / 1000).toString() : '',
-                      customMemoryUnit: memoryUnit,
+                      ...values,
                       editBillInfo: false
                     }, () => {
-                      // 在状态更新完成后恢复表单值
                       form.setFieldsValue({
-                        new_memory: mValue,
-                        new_cpu: cValue
+                        new_memory: values.memoryValue,
+                        new_cpu: values.cpuValue
                       });
                     });
                   }}>
@@ -1615,11 +1529,12 @@ export default class Index extends PureComponent {
 
                     <div className={styles.automaTictelescopingContent}>
                       {getFieldDecorator('minNum', {
-                        initialValue:
+                        initialValue: String(
                           (rulesList &&
                             rulesList.length > 0 &&
                             rulesList[0].min_replicas) ||
                           0
+                        )
                       })(
                         <Input
                           disabled={!automaticTelescopic}
@@ -1632,11 +1547,12 @@ export default class Index extends PureComponent {
 
                     <div className={styles.automaTictelescopingContent}>
                       {getFieldDecorator('maxNum', {
-                        initialValue:
+                        initialValue: String(
                           (rulesList &&
                             rulesList.length > 0 &&
                             rulesList[0].max_replicas) ||
-                          1,
+                          1
+                        ),
                         rules: [
                           {
                             pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -1660,11 +1576,12 @@ export default class Index extends PureComponent {
                     {cpuUse && (
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator('cpuValue', {
-                          initialValue:
+                          initialValue: String(
                             this.setMetric_target_value(
                               rulesList[0].metrics,
                               'cpu'
-                            ) || 1,
+                            ) || 1
+                          ),
                           rules: [
                             {
                               pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -1687,11 +1604,12 @@ export default class Index extends PureComponent {
                     {memoryUse && (
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator('memoryValue', {
-                          initialValue:
+                          initialValue: String(
                             this.setMetric_target_value(
                               rulesList[0].metrics,
                               'memory'
-                            ) || 1,
+                            ) || 1
+                          ),
                           rules: [
                             {
                               pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -1844,15 +1762,14 @@ export default class Index extends PureComponent {
                   key: 'record_type',
                   align: 'center',
                   width: '13%',
-                  render: record_type => (
-                    <div>
-                      {record_type === 'hpa'
-                        ? <FormattedMessage id='componentOverview.body.Expansion.horizontalAutomatic' />
-                        : record_type === 'manual'
-                          ? <FormattedMessage id='componentOverview.body.Expansion.manualTelescopic' />
-                          : <FormattedMessage id='componentOverview.body.Expansion.vertical' />}
-                    </div>
-                  )
+                  render: record_type => {
+                    const typeMap = {
+                      hpa: 'componentOverview.body.Expansion.horizontalAutomatic',
+                      manual: 'componentOverview.body.Expansion.manualTelescopic'
+                    };
+                    const messageId = typeMap[record_type] || 'componentOverview.body.Expansion.vertical';
+                    return <FormattedMessage id={messageId} />;
+                  }
                 },
                 {
                   title: formatMessage({ id: 'componentOverview.body.Expansion.operator' }),

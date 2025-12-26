@@ -4,7 +4,7 @@ import md5 from 'js-md5';
 import React, { PureComponent } from 'react';
 import 'xterm/css/xterm.css';
 import { ConnectionFactory } from '../../../../utils/webconsole/websocket';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { protocols, WebTTY } from '../../../../utils/webconsole/webtty';
 import { Xterm as XTermCustom } from '../../../../utils/webconsole/xterm';
 import XTerm from '../ReactXTerm/react-xterm';

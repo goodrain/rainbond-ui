@@ -14,8 +14,21 @@
   display: flex;
   align-items: center;
 }
+.infrastructureCard:hover{
+  box-shadow: @rbd-card-shadow-hover;
+  transition: box-shadow 0.3s ease-in-out;
+}
 .infrastructureCard{
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: @rbd-card-shadow;
+  border: 1px solid #e3e3e3;
+
   :global{
+    .ant-card-body{
+      padding: 16px;
+    }
     .ant-col-3 span{
       font-size: @rbd-content-size;
       color: @rbd-content-color;
@@ -76,7 +89,7 @@
       // padding-top: 26px;
       background-color: #fff;
       // box-shadow: #242e4229 2px 4px 10px 0px !important;
-      padding: 24px 0;
+      padding: 12px 0;
       // z-index: 99;
     }
 
@@ -223,4 +236,21 @@
   span:nth-of-type(2){
     color: @success-color;
   }
+}
+
+.adminContainer {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: @rbd-card-shadow;
+}
+
+.adminHeader {
+  padding: 0 0 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.adminBody {
+  padding: 0;
 }

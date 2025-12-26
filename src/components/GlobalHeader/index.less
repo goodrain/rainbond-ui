@@ -2,7 +2,9 @@
 
 .header {
   padding: 0 12px 0 0;
-  background: @primary-color;
+  background: @rbd-background-color;
+  // background: #fff;
+
   box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
   position: relative;
 }
@@ -11,12 +13,12 @@
   display: flex;
   align-items: center;
   margin: 0;
-  color: #fff;
+  color: #333;
   font-size: 18px;
   padding-left: 1.5em;
   padding-right: .5em;
-  height: 60px;
-  line-height: 60px;
+  height: 50px;
+  line-height: 50px;
   margin-right: 20px;
   float: left;
   cursor: pointer;
@@ -31,10 +33,59 @@
   }
 
   a {
-    color: #fff;
+    color: #333;
     font-size: 18px;
     text-decoration: none;
   }
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 0px;
+  height: 50px;
+  margin-right: 40px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.logoCollapsed {
+  padding-left: 12px;
+  padding-right: 10px;
+  margin-right: 0px;
+}
+
+// 企业视图下常驻显示时的样式
+.logoEnterprise {
+  padding-left: 10px;
+}
+
+.enterpriseName {
+  padding-top: 8px;
+  line-height: 50px;
+  margin-left: 4px;
+  font-size: 22px;
+  font-family: "Now", "Montserrat", sans-serif;
+  font-weight: bold;
+  color: #3399ff;
+  max-width: 160px;
+  opacity: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .select {
@@ -44,8 +95,8 @@
 
 .itemBox {
   float: left;
-  color: #fff;
-  line-height: 60px;
+  color: #333;
+  line-height: 50px;
 }
 
 .item {
@@ -53,7 +104,7 @@
   display: flex;
   align-items: center;
   font-size: 16px;
-  color: #ffffff;
+  color: #333;
 
   svg {
     margin-right: 10px;
@@ -69,19 +120,19 @@
 }
 
 .itemlink {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(51, 51, 51, 0.85);
 }
 
 .breadCrumb {
   width: 100%;
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
 }
 
 .itemseparator {
   margin: 0 8px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(51, 51, 51, 0.85);
 }
 
 .select:first {
@@ -140,7 +191,7 @@
 
 .noticeIcon {
   i {
-    color: #fff
+    color: #333
   }
 }
 
@@ -152,7 +203,7 @@
 }
 
 .logo {
-  height: 60px;
+  height: 50px;
   line-height: 58px;
   vertical-align: top;
   display: inline-block;
@@ -183,14 +234,14 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
 i.trigger {
   font-size: 20px;
-  line-height: 60px;
+  line-height: 50px;
   cursor: pointer;
   transition: all .3s, padding 0s;
   vertical-align: middle;
@@ -209,11 +260,11 @@ i.trigger {
 
   .tit {
     margin-right: 10px;
-    color: #ffffff;
+    color: #333;
   }
 
   .dropdown {
-    color: #fff;
+    color: #333;
     cursor: pointer;
   }
 }
@@ -243,6 +294,35 @@ i.trigger {
   align-items: center;
 }
 
+.productIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #333;
+  cursor: pointer;
+  margin-left: 8px;
+  margin-right: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: @primary-color;
+  }
+
+  &:active {
+    transform: scale(0.95);
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
 .right {
   float: right;
   display: flex;
@@ -259,18 +339,18 @@ i.trigger {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    ˝>i {
+    >i {
       font-size: 16px;
       padding: 4px;
-      color: #fff;
+      color: #333;
     }
 
     .name {
-      color: #fff;
+      color: #333;
     }
 
   }
@@ -287,8 +367,8 @@ i.trigger {
   .account {
     .avatar {
       margin: 0px 8px;
-      color: @primary-color;
-      background: rgba(255, 255, 255, .85);
+      color: #fff;
+      background: @primary-color;
       vertical-align: middle;
     }
   }
@@ -303,21 +383,23 @@ i.trigger {
 
 :global {
   .ant-layout-header {
-    height: 60px;
+    height: 50px;
     line-height: 0px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-bottom: 1px solid @border-color-base;
   }
 }
 
 .balance {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
   margin-right: 12px;
   font-size: 12px;
   cursor: pointer;
   padding: 4px 14px;
   border-radius: 5px;
+  color: #333;
 
   .balanceTitle {
     margin-top: 8px;
@@ -332,14 +414,14 @@ i.trigger {
 }
 
 .balance:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .iconContainer {
   display: flex;
   align-items: center;
   height: 30px;
-  border-left: 1px solid #5e8cbd;
+  border-left: 1px solid #e8e8e8;
   padding-left: 12px;
   margin-left: 12px;
 }

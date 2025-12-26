@@ -7,15 +7,16 @@ import { Button, Card, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import LogProcress from '../../components/LogProcress';
 import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
 import dateUtil from '../../utils/date-util';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
-import LogSocket from '../../utils/logSocket';
-import regionUtil from '../../utils/region';
 import PluginUtil from '../../utils/pulginUtils'
+import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
@@ -46,13 +47,8 @@ class LogItem extends PureComponent {
     appRolback: PropTypes.func
   };
   showLogType = () => {
-    if (this.state.status === 'ing') {
-      return 'none';
-    }
-
-    if (this.state.opened === false) {
-      return 'none';
-    }
+    const { status, opened } = this.state;
+    if (status === 'ing' || !opened) return 'none';
     return '';
   };
 
@@ -60,9 +56,7 @@ class LogItem extends PureComponent {
     const { data } = this.props;
     if (data) {
       if (this.ref) {
-        this.ref.querySelector(
-          '.actioncn'
-        ).innerHTML = appAcionLogUtil.getActionCN(data);
+        this.ref.querySelector('.actioncn').textContent = appAcionLogUtil.getActionCN(data);
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
         }
@@ -74,17 +68,15 @@ class LogItem extends PureComponent {
         }
         if (appAcionLogUtil.isActioning(data)) {
           this.setState({ status: 'ing' });
-          this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.hand'/>;
+          this.ref.querySelector('.actionresultcn').textContent = formatMessage({id:'componentOverview.body.tab.LogItem.hand'});
           this.context.isActionIng(true);
         }
-        this.ref.querySelector(
-          '.action-user'
-        ).innerHTML = `@${appAcionLogUtil.getActionUser(data)}`;
+        this.ref.querySelector('.action-user').textContent = `@${appAcionLogUtil.getActionUser(data)}`;
       }
     }
   }
 
-  loadLog() {
+  loadLog = () => {
     getActionLogDetail({
       app_alias: this.props.appAlias,
       level: this.state.logType,
@@ -97,7 +89,7 @@ class LogItem extends PureComponent {
         });
       }
     });
-  }
+  };
   getSocketUrl = () => {
     const currTeam = userUtil.getTeamByTeamName(
       this.props.currUser,
@@ -114,66 +106,41 @@ class LogItem extends PureComponent {
     }
     return '';
   };
-  createSocket() {
-    const { data } = this.props;
-    const socketUrls = this.getSocketUrl();
-    if (socketUrls) {
-      const isThrough = dateUtil.isWebSocketOpen(socketUrls);
-      if (isThrough && isThrough === 'through') {
-        this.socket = new LogSocket({
-          url: this.getSocketUrl(),
-          eventId: data.event_id,
-          onMessage: data => {
-            const { logs } = this.state;
-            logs.unshift(data);
-            this.setState({
-              logs: [].concat(logs)
-            });
-          }
-        });
-      }
-    }
-  }
+
   onClose = () => {
     this.isDoing = false;
   };
   onSuccess = data => {
     this.setState({ resultStatus: 'success' });
-    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.complete'/>;
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({id:'componentOverview.body.tab.LogItem.complete'});
   };
   onTimeout = data => {
     this.setState({ resultStatus: 'timeout' });
-    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.timeout'/>;
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({id:'componentOverview.body.tab.LogItem.timeout'});
 
     this.ref.querySelector(
       '.action-error-msg'
-    ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
+    ).textContent = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onFail = data => {
     this.setState({ resultStatus: 'fail' });
-    this.ref.querySelector('.actionresultcn').innerHTML = <FormattedMessage id='componentOverview.body.tab.LogItem.fail'/>;
+    this.ref.querySelector('.actionresultcn').textContent = formatMessage({id:'componentOverview.body.tab.LogItem.fail'});
 
     this.ref.querySelector(
       '.action-error-msg'
-    ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
+    ).textContent = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onComplete = data => {
     this.setState({ status: '' });
     this.context.isActionIng(false);
     this.close();
   };
-  getLogContHeight() {
+  getLogContHeight = () => {
     const { status, opened } = this.state;
-    if (status === 'ing' && !opened) {
-      return 15;
-    }
-
-    if (opened) {
-      return 'auto';
-    }
-
+    if (status === 'ing' && !opened) return 15;
+    if (opened) return 'auto';
     return 0;
-  }
+  };
   open = () => {
     this.setState(
       {
@@ -205,17 +172,12 @@ class LogItem extends PureComponent {
   saveRef = ref => {
     this.ref = ref;
   };
-  getResultClass() {
-    const { data } = this.props;
-    if (this.state.resultStatus === 'fail') {
-      return styles.fail;
-    }
-
-    if (this.state.resultStatus === 'success') {
-      return styles.success;
-    }
+  getResultClass = () => {
+    const { resultStatus } = this.state;
+    if (resultStatus === 'fail') return styles.fail;
+    if (resultStatus === 'success') return styles.success;
     return '';
-  }
+  };
   handleRollback = () => {
     this.context.appRolback(
       appAcionLogUtil.getRollbackVersion(this.props.data)
@@ -445,17 +407,14 @@ export default class Index extends PureComponent {
   componentWillReceiveProps(nextProps) {
     const { status: newStatus, timers: newTimers } = nextProps;
     const { status, timers } = this.props;
+
     if (newStatus !== status) {
-      // eslint-disable-next-line react/no-unused-state
       this.setState({ status: newStatus });
     }
+
     if (newTimers !== timers) {
       this.setState({ componentTimers: newTimers }, () => {
-        if (newTimers) {
-          this.load();
-        } else {
-          this.closeTimer();
-        }
+        newTimers ? this.load() : this.closeTimer();
       });
     }
   }
@@ -557,12 +516,7 @@ export default class Index extends PureComponent {
     if (!componentTimers) {
       return null;
     }
-    if (err && err.data && err.data.msg_show) {
-      notification.warning({
-        message: formatMessage({id:'notification.warn.error'}),
-        description: err.data.msg_show
-      });
-    }
+    handleAPIError(err);
   };
   handleTimers = (timerName, callback, times) => {
     const { componentTimers } = this.state;
@@ -585,12 +539,6 @@ export default class Index extends PureComponent {
       }
     );
   };
-  getStartTime() {
-    return new Date().getTime() / 1000 - 60 * 60;
-  }
-  getStep() {
-    return 60;
-  }
 
   handleRollback = data => {
     this.context.appRolback(data);
@@ -619,6 +567,9 @@ export default class Index extends PureComponent {
           });
           this.getVersionList();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -645,9 +596,10 @@ export default class Index extends PureComponent {
   };
   getVersionList = update => {
     const { setShowUpgrade, appAlias, dispatch } = this.props;
-    update && setShowUpgrade();
-
     const { pages, pageSize } = this.state;
+
+    if (update) setShowUpgrade();
+
     dispatch({
       type: 'appControl/getAppVersionList',
       payload: {
@@ -658,42 +610,40 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data && data.bean && data.list) {
-          // eslint-disable-next-line no-shadow
           const { bean, list, total = 0 } = data;
-          let beanobj = null;
-          list.length > 0 &&
-            list.map(item => {
-              if (item.build_version === bean.current_version) {
-                beanobj = item;
-              }
-            });
+          const beanobj = list.find(item => item.build_version === bean.current_version) || null;
+
           this.setState({
             current_version: bean.current_version,
             beanData: beanobj,
             dataList: list,
-            // eslint-disable-next-line react/no-unused-state
             total
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
   loadBuildSourceInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/getAppBuidSource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias
+        service_alias: appAlias
       },
       callback: data => {
-        if (data) {
+        if (data && data.bean && data.bean.service_source) {
           this.setState({
-            buildSource:
-              data.bean && data.bean.service_source && data.bean.service_source
+            buildSource: data.bean.service_source
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -747,7 +697,6 @@ export default class Index extends PureComponent {
     });
   };
 
-  // 获取存储实际占用
   getStorageUsed = () => {
     const { dispatch, appDetail } = this.props;
     dispatch({
@@ -756,14 +705,17 @@ export default class Index extends PureComponent {
         service_id: appDetail?.service?.service_id
       },
       callback: res => {
-        if (res) {
+        if (res && res.bean && res.bean.used_storage) {
           this.setState({
             storageUsed: res.bean.used_storage
-          })
+          });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
-  }
+  };
 
   render() {
     const { status, componentPermissions, socket, appDetail, method, pluginsList } = this.props;
@@ -792,7 +744,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Basic
-          isThird={appDetail && appDetail.is_third}
+          isThird={appDetail?.is_third}
           buildSource={buildSource}
           beanData={beanData}
           resourcesLoading={resourcesLoading}
@@ -803,7 +755,7 @@ export default class Index extends PureComponent {
           onPageChange={this.onPageChange}
           handleMore={this.handleMore}
           more={more}
-          socket={socket && socket}
+          socket={socket}
           method={method}
           showStorageUsed={showStorageUsed}
           storageUsed={storageUsed}
@@ -819,7 +771,7 @@ export default class Index extends PureComponent {
             onShowSizeChange={this.onShowSizeChange}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={socket && socket}
+            socket={socket}
             pages={pages}
             pageSize={pageSize}
             total={total}
@@ -827,11 +779,10 @@ export default class Index extends PureComponent {
         )}
         {!more && (
           <Card
-            // bordered={0}
             loading={runLoading}
             title={<FormattedMessage id='componentOverview.body.tab.overview.instance.title'/>}
-            style={{ margin: '20px 0', minHeight: '170px' }}
-            bodyStyle={{ padding: '0', background: '#F0F2F5' }}
+            style={{ margin: '12px 0', borderRadius: 12, overflow: 'hidden' }}
+            bodyStyle={{ padding: '0px', background: '#F0F2F5' }}
           >
             <Instance
               status={status}
@@ -839,14 +790,14 @@ export default class Index extends PureComponent {
               new_pods={new_pods}
               old_pods={old_pods}
               appAlias={this.props.appAlias}
-              socket={socket && socket}
-              podType={appDetail && appDetail.service && appDetail.service.extend_method}
+              socket={socket}
+              podType={appDetail?.service?.extend_method}
             />
           </Card>
         )}
         {!more && (
           <OperationRecord
-            socket={socket && socket}
+            socket={socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}

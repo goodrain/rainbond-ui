@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': 'Modify component name',
     'componentOverview.EditName.input_en_name': 'Please enter the English name of the component',
-    'componentOverview.EditName.Cannot': 'Cannot be greater than 32 characters',
+    'componentOverview.EditName.Cannot': 'Cannot be greater than 16 characters',
     'componentOverview.EditName.only': 'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
     'componentOverview.EditName.edit': 'Modify component name',
     'componentOverview.EditName.name': 'Component Name',
@@ -80,6 +80,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.occupy': 'Distribution',
     'componentOverview.body.tab.overview.disk': 'Disk',
     'componentOverview.body.tab.overview.version': 'Version',
+    'componentOverview.body.tab.overview.vmImage': 'VM Image',
     'componentOverview.body.tab.overview.not': 'Not yet',
     'componentOverview.body.tab.overview.codeVersion': 'Code Version',
     'componentOverview.body.tab.overview.file': 'MD5',
@@ -162,6 +163,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.handle.Dependent': 'View dependent component',
     'componentOverview.body.tab.overview.handle.stretch': 'Go to set',
     'componentOverview.body.tab.overview.handle.DependentCom': 'Dependent component',
+    'componentOverview.body.tab.overview.handle.noMore': 'No more',
     // LogItem
     'componentOverview.body.tab.LogItem.hand': 'Have in hand',
     'componentOverview.body.tab.LogItem.complete': 'Complete',
@@ -551,6 +553,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': 'Please select storage type',
     'componentOverview.body.AddVolumes.cancel': 'Cancel',
     'componentOverview.body.AddVolumes.confirm': 'Confirm',
+    'componentOverview.body.AddVolumes.mount_format': 'Mount Format',
+    'componentOverview.body.AddVolumes.disk': 'Disk',
+    'componentOverview.body.AddVolumes.cdrom': 'CD-ROM',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': 'Please enter the local mount path',
     'componentOverview.body.AddRelationMnt.mag_path': '{path} The path is reserved by the system. Please replace it with another path',
@@ -1135,6 +1140,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': 'Component name is required',
     'kubeblocks.database.config.error.database_type_empty': 'Database type is required',
     'kubeblocks.database.config.error.creation_failed': 'Creation failed',
+    'kubeblocks.database.config.error.k8s_name_conflict': 'English name already exists in current application, please go back and change it',
+    'kubeblocks.database.config.error.replicas_min': 'Replicas must be greater than or equal to 1',
+    'kubeblocks.database.config.error.storage_class_required': 'Please select storage class',
+    'kubeblocks.database.config.error.component_info_missing': 'Created successfully but unable to get component information, please refresh manually',
     'kubeblocks.database.config.success.created': 'Created successfully',
     
     'kubeblocks.database.create.form.database_type.label': 'Database Type',

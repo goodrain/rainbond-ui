@@ -5,7 +5,7 @@
 import { Form, Icon, Input, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 import { addGroup } from '../../services/application';
 import handleAPIError from '../../utils/error';
@@ -220,8 +220,8 @@ export default class EditGroupName extends PureComponent {
       }
       callback();
     }
-    if (value.length > 32) {
-      return callback(new Error(formatMessage({id:'placeholder.max32'})));
+    if (value.length > 16) {
+      return callback(new Error(formatMessage({id:'placeholder.max16'})));
     }
   };
   render() {

@@ -7,14 +7,9 @@ import {
   Alert,
   Badge,
   Button,
-  Card,
-  Col,
-  Form,
   Icon,
-  InputNumber,
   Modal,
   notification,
-  Row,
   Table,
   Tooltip,
   Menu,
@@ -24,19 +19,16 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import ScrollerX from '@/components/ScrollerX';
-import copy from 'copy-to-clipboard';
-import CodeMirror from 'react-codemirror';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import ConfirmModal from '../../components/ConfirmModal';
-import InstallStep from '../../components/Introduced/InstallStep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import userUtil from '../../utils/user';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cloud from '../../utils/cloud';
-import { getKubeConfig } from '../../services/cloud';
 import styles from "./index.less"
 
 const { confirm } = Modal;
@@ -53,35 +45,20 @@ const { confirm } = Modal;
   overviewInfo: index.overviewInfo,
   novices: global.novices
 }))
-@Form.create()
 export default class EnterpriseClusters extends PureComponent {
   constructor(props) {
     super(props);
-    const { user, rainbondInfo, novices, enterprise } = this.props;
+    const { user, enterprise } = this.props;
     const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
-      isNewbieGuide: rainbondUtil.isEnableNewbieGuide(enterprise),
       adminer,
       clusters: null,
       editClusterShow: false,
       regionInfo: false,
       text: '',
       delVisible: false,
-      showTenantList: false,
-      loadTenants: false,
-      tenantTotal: 0,
-      tenants: [],
-      tenantPage: 1,
-      tenantPageSize: 5,
-      showTenantListRegion: '',
-      showClusterIntroduced: rainbondUtil.handleNewbie(
-        novices,
-        'successInstallClusters'
-      ),
-      setTenantLimitShow: false,
       guideStep: 1,
       jumpSwitch: true,
-      kubeConfig: '',
       handleType: '',
       isAddClusters: false,
       clusterLoadings: true,
@@ -116,16 +93,14 @@ export default class EnterpriseClusters extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            isAuthorizationLoading: false,
             licenseInfo: res.bean,
           });
         }
       },
       handleError: error => {
-        if (error && error.data && error.data.code === 400) {
+        if (error?.response?.data?.code === 400) {
           this.setState({
             licenseInfo: null,
-            isAuthorizationLoading: false,
           });
         }
       }
@@ -277,22 +252,6 @@ export default class EnterpriseClusters extends PureComponent {
       regionInfo: false
     });
   };
-  getKubeConfig = item => {
-    const {
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    getKubeConfig({
-      clusterID: item.provider_cluster_id,
-      enterprise_id: eid,
-      providerName: item.provider,
-    }).then(res => {
-      if (res && res.status_code && res.status_code === 200) {
-        this.setState({ kubeConfig: res.config });
-      }
-    });
-  };
 
   handlUnit = num => {
     if (num) {
@@ -326,120 +285,10 @@ export default class EnterpriseClusters extends PureComponent {
     });
   };
 
-  showRegions = item => {
-    this.setState(
-      {
-        showTenantList: true,
-        regionAlias: item.region_alias,
-        regionName: item.region_name,
-        showTenantListRegion: item.region_id,
-        loadTenants: true
-      },
-      this.loadRegionTenants
-    );
-  };
-
-  loadRegionTenants = () => {
-    const { tenantPage, tenantPageSize, showTenantListRegion } = this.state;
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'region/fetchEnterpriseClusterTenants',
-      payload: {
-        enterprise_id: eid,
-        page: tenantPage,
-        pageSize: tenantPageSize,
-        region_id: showTenantListRegion
-      },
-      callback: data => {
-        if (data && data.bean) {
-          this.setState({
-            tenants: data.bean.tenants,
-            tenantTotal: data.bean.total,
-            loadTenants: false
-          });
-        } else {
-          this.setState({ loadTenants: false });
-        }
-      },
-      handleError: () => {
-        this.setState({ loadTenants: false });
-      }
-    });
-  };
-
-  setTenantLimit = item => {
-    this.setState({
-      setTenantLimitShow: true,
-      limitTenantName: item.tenant_name,
-      limitTeamName: item.team_name,
-      initLimitValue: item.set_limit_memory
-    });
-  };
   handleIsAddClusters = isAddClusters => {
     this.setState({
       isAddClusters
     });
-  };
-  submitLimit = e => {
-    e.preventDefault();
-    const {
-      match: {
-        params: { eid }
-      },
-      form
-    } = this.props;
-    const { limitTenantName, showTenantListRegion } = this.state;
-    form.validateFields(
-      {
-        force: true
-      },
-      (err, values) => {
-        if (!err) {
-          this.setState({ limitSummitLoading: true });
-          this.props.dispatch({
-            type: 'region/setEnterpriseTenantLimit',
-            payload: {
-              enterprise_id: eid,
-              region_id: showTenantListRegion,
-              tenant_name: limitTenantName,
-              limit_memory: values.limit_memory
-            },
-            callback: () => {
-              notification.success({
-                message: formatMessage({ id: 'notification.success.setting_successfully' })
-              });
-              this.setState({
-                limitSummitLoading: false,
-                setTenantLimitShow: false
-              });
-              this.loadRegionTenants();
-            },
-            handleError: () => {
-              notification.warning({
-                message: formatMessage({ id: 'notification.error.setting_failed' })
-              });
-              this.setState({ limitSummitLoading: false });
-            }
-          });
-        }
-      }
-    );
-  };
-
-  hideTenantListShow = () => {
-    this.setState({
-      showTenantList: false,
-      showTenantListRegion: '',
-      tenants: []
-    });
-  };
-  handleTenantPageChange = page => {
-    this.setState({ tenantPage: page }, this.loadRegionTenants);
   };
   handleNewbieGuiding = info => {
     const { nextStep } = info;
@@ -470,145 +319,6 @@ export default class EnterpriseClusters extends PureComponent {
       guideStep
     });
   };
-  handleJoinTeams = teamName => {
-    const { regionName } = this.state;
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'teamControl/joinTeam',
-      payload: {
-        team_name: teamName
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.onJumpTeam(teamName, regionName);
-        }
-      }
-    });
-  };
-  onJumpTeam = (team_name, region) => {
-    const { dispatch } = this.props;
-    dispatch(routerRedux.push(`/team/${team_name}/region/${region}/index`));
-  };
-  handleClusterIntroduced = () => {
-    this.putNewbieGuideConfig('successInstallClusters');
-    this.setState({
-      showClusterIntroduced: false
-    });
-  };
-  putNewbieGuideConfig = configName => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/putNewbieGuideConfig',
-      payload: {
-        arr: [{ key: configName, value: true }]
-      }
-    });
-  };
-
-  // 开始应用安装回调
-  onStartInstall = type => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    this.handleClusterIntroduced();
-    // 从应用商店安装应用
-    if (type === '2') {
-      dispatch(routerRedux.push(`/enterprise/${eid}/shared/local?init=true`));
-    } else {
-      // 自定义安装
-      this.fetchMyTeams();
-    }
-  };
-
-  // 查看应用实例
-  onViewInstance = () => {
-    this.fetchMyTeams(true);
-  };
-
-  fetchMyTeams = (isNext = false) => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    const { clusters } = this.state;
-    dispatch({
-      type: 'global/fetchMyTeams',
-      payload: {
-        enterprise_id: eid,
-        page: 1,
-        page_size: 1
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (res && res.list.length > 0) {
-            const teamName = res.list[0].team_name;
-            if (isNext && teamName) {
-              this.fetchApps(teamName, true);
-            } else if (teamName && clusters) {
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/create/code`
-                )
-              );
-            }
-          } else {
-            return notification.warn({
-              message: formatMessage({ id: 'notification.warn.create_team' })
-            });
-          }
-        }
-      }
-    });
-  };
-
-  fetchApps = (teamName = '', isNext = false) => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    const { clusters } = this.state;
-    dispatch({
-      type: 'global/fetchEnterpriseApps',
-      payload: {
-        enterprise_id: eid,
-        page: 1,
-        page_size: 1
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          if (res && res.list.length > 0) {
-            const groupId = res.list[0].ID;
-            if (isNext && groupId && teamName && clusters) {
-              dispatch(
-                routerRedux.push(
-                  `/team/${teamName}/region/${clusters[0].region_name}/apps/${groupId}/overview`
-                )
-              );
-            }
-          } else {
-            return notification.warn({
-              message: formatMessage({ id: 'notification.warn.app' })
-            });
-          }
-        }
-      }
-    });
-  };
-  // 添加shell
-  terminalCallout = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'region/terminalCallout',
-      payload: true,
-    });
-  }
   // 行点击事件
   onClickRow = (record) => {
     return {
@@ -642,29 +352,14 @@ export default class EnterpriseClusters extends PureComponent {
       match: {
         params: { eid }
       },
-      clusterLoading,
-      form
+      clusterLoading
     } = this.props;
     const {
       clusters,
       text,
       regionInfo,
       delVisible,
-      showTenantList,
-      tenants,
-      loadTenants,
-      regionAlias,
-      tenantTotal,
-      tenantPage,
-      tenantPageSize,
-      setTenantLimitShow,
-      limitTeamName,
-      limitSummitLoading,
-      initLimitValue,
       guideStep,
-      isNewbieGuide,
-      showClusterIntroduced,
-      kubeConfig,
       handleType,
       isAddClusters,
       licenseInfo,
@@ -673,13 +368,6 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.state;
     const region_nums = (licenseInfo && licenseInfo.expect_cluster) || 0;
     const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
-    const { getFieldDecorator } = form;
-    const pagination = {
-      onChange: this.handleTenantPageChange,
-      total: tenantTotal,
-      pageSize: tenantPageSize,
-      current: tenantPage
-    };
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -945,72 +633,6 @@ export default class EnterpriseClusters extends PureComponent {
       }
     ];
 
-    const tenantColumns = [
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.team_name' }),
-        dataIndex: 'team_name',
-        align: 'center',
-        render: (_, item) => {
-          return (
-            <a
-              onClick={() => {
-                this.handleJoinTeams(item.tenant_name);
-              }}
-            >
-              {item.team_name}
-            </a>
-          );
-        }
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.memory_request' }),
-        dataIndex: 'memory_request',
-        align: 'center'
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.cpu_request' }),
-        dataIndex: 'cpu_request',
-        align: 'center'
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.set_limit_memory' }),
-        dataIndex: 'set_limit_memory',
-        align: 'center'
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.running_app_num' }),
-        dataIndex: 'running_app_num',
-        align: 'center'
-      },
-      {
-        title: formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.method' }),
-        dataIndex: 'method',
-        align: 'center',
-        width: '100px',
-        render: (_, item) => {
-          return [
-            <a
-              onClick={() => {
-                this.setTenantLimit(item);
-              }}
-            >
-              {formatMessage({ id: 'enterpriseColony.table.handle.quota.table.label.method.btn' })}
-            </a>
-          ];
-        }
-      }
-    ];
-
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
-      },
-      wrapperCol: {
-        xs: { span: 20 },
-        sm: { span: 12 }
-      }
-    };
     return (
       <PageHeaderLayout
         title={<FormattedMessage id='enterpriseColony.PageHeaderLayout.title' />}
@@ -1018,133 +640,91 @@ export default class EnterpriseClusters extends PureComponent {
         titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 20)}
       >
         <ScrollerX sm={1150}>
-          <Card
-            extra={<Row>
-              <Col span={24} style={{ textAlign: 'right' }}>
-                {/* <Button onClick={this.terminalCallout}icon="code">
-                {formatMessage({ id: 'otherEnterprise.shell.line' })}
-              </Button> */}
-                <div
-                  style={{
-                    display: 'inline-block',
-                    height: '40px',
-                    width: '120px',
-                    textAlign: 'center',
-                    marginLeft: 14
-                  }}
-                  onMouseLeave={() => {
-                    this.handleIsAddClusters(false);
-                  }}
-                  onMouseEnter={() => {
-                    this.handleIsAddClusters(isNeedAuthz && isAdd);
-                  }}
-                >
-                  <Tooltip
-                    title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
-                    visible={isAddClusters}
-                  >
-                    <Link to={`/enterprise/${eid}/addCluster`}>
-                      <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
-                        <FormattedMessage id='enterpriseColony.button.text' />
-                      </Button>
-                    </Link>
-                  </Tooltip>
-                </div>
-                <Button
-                  style={{ marginLeft: '22px' }}
-                  onClick={() => {
-                    this.loadClusters();
-                  }}
-                >
-                  <Icon type="reload" />
-                </Button>
-                {guideStep === 1 &&
-                  this.props.novices &&
-                  rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
-                  clusters &&
-                  clusters.length === 0 &&
-                  this.handleNewbieGuiding({
-                    // tit: '去添加集群',
-                    tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
-                    // desc: '支持添加多个计算集群，请按照向导进行第一个集群的添加',
-                    desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
-                    nextStep: 2,
-                    configName: 'addCluster',
-                    isSuccess: false,
-                    conPosition: { right: '100px', bottom: '-180px' },
-                    svgPosition: { right: '170px', marginTop: '-11px' }
-                  })}
-              </Col>
-            </Row>}
-          >
-            {delVisible && (
-              <ConfirmModal
-                loading={delclusterLongin}
-                title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
-                subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-                desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
-                onOk={() => this.handleDelete(false)}
-                onCancel={this.cancelClusters}
-              />
-            )}
-
-            {this.state.editClusterShow && (
-              <EditClusterInfo
-                regionInfo={regionInfo}
-                title={text}
-                eid={eid}
-                onOk={this.cancelEditClusters}
-                onCancel={this.cancelEditClusters}
-              />
-            )}
-            <Alert
-              style={{ marginBottom: '16px' }}
-              message={<FormattedMessage id='enterpriseColony.alert.message' />}
-            />
-            <Table
-              rowKey={(record, index) => index}
-              loading={clusterLoading}
-              dataSource={clusters}
-              columns={columns}
-              pagination={false}
-              onRow={this.onClickRow}
-              rowClassName={styles.rowStyle}
-            />
-          </Card>
-        </ScrollerX>
-        {kubeConfig && (
-          <Modal
-            visible
-            width={1000}
-            maskClosable={false}
-            onCancel={() => {
-              this.setState({ kubeConfig: '' });
-            }}
-            title="KubeConfig"
-            bodyStyle={{ background: '#000' }}
-            onOk={() => {
-              copy(kubeConfig);
-              notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
-            }}
-            okText={<FormattedMessage id='button.copy' />}
-          >
-            <div className={styles.cmd}>
-              <CodeMirror
-                value={kubeConfig}
-                options={{
-                  mode: { name: 'javascript', json: true },
-                  lineNumbers: true,
-                  theme: 'seti',
-                  lineWrapping: true,
-                  smartIndent: true,
-                  matchBrackets: true,
-                  scrollbarStyle: null,
-                  showCursorWhenSelecting: true,
-                  height: 500
-                }}
-              />
+          {/* 第一行：按钮区域靠右 */}
+          <div style={{ textAlign: 'right', marginBottom: 16 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                height: '40px',
+                width: '120px',
+                textAlign: 'center'
+              }}
+              onMouseLeave={() => {
+                this.handleIsAddClusters(false);
+              }}
+              onMouseEnter={() => {
+                this.handleIsAddClusters(isNeedAuthz && isAdd);
+              }}
+            >
+              <Tooltip
+                title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
+                visible={isAddClusters}
+              >
+                <Link to={`/enterprise/${eid}/addCluster`}>
+                  <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
+                    <FormattedMessage id='enterpriseColony.button.text' />
+                  </Button>
+                </Link>
+              </Tooltip>
             </div>
-          </Modal>
+            <Button
+              style={{ marginLeft: '22px' }}
+              onClick={() => {
+                this.loadClusters();
+              }}
+            >
+              <Icon type="reload" />
+            </Button>
+            {guideStep === 1 &&
+              this.props.novices &&
+              rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+              clusters &&
+              clusters.length === 0 &&
+              this.handleNewbieGuiding({
+                tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
+                desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
+                nextStep: 2,
+                configName: 'addCluster',
+                isSuccess: false,
+                conPosition: { right: '100px', bottom: '-180px' },
+                svgPosition: { right: '170px', marginTop: '-11px' }
+              })}
+          </div>
+          {/* 第二行：提示信息 */}
+          <Alert
+            style={{ marginBottom: '16px' }}
+            message={<FormattedMessage id='enterpriseColony.alert.message' />}
+          />
+          {/* 第三行：表格 */}
+          <Table
+            rowKey={(record, index) => index}
+            loading={clusterLoading}
+            dataSource={clusters}
+            columns={columns}
+            pagination={false}
+            onRow={this.onClickRow}
+            rowClassName={styles.rowStyle}
+          />
+        </ScrollerX>
+        {/* 模态框 */}
+        {delVisible && (
+          <ConfirmModal
+            loading={delclusterLongin}
+            title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
+            onOk={() => this.handleDelete(false)}
+            onCancel={this.cancelClusters}
+          />
+        )}
+        {this.state.editClusterShow && (
+          <EditClusterInfo
+            regionInfo={regionInfo}
+            title={text}
+            eid={eid}
+            onOk={this.cancelEditClusters}
+            onCancel={this.cancelEditClusters}
+          />
         )}
       </PageHeaderLayout>
     );

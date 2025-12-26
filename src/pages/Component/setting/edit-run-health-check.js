@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Radio, Select } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import KVinput from '../../../components/KVinput';
 import appProbeUtil from '../../../utils/appProbe-util';
 

@@ -3,6 +3,7 @@
     const unit = {
         'unit.entries':' ',
         'unit.base':'To the bottom!',
+        'unit.component':' Components',
     }
     //弹框
     const popover = {
@@ -207,6 +208,7 @@
         'status.app.backups.yolkStroke':'Backup Export',
         'status.app.backups.imported':'Backup has been imported',
         'status.loading':'Loading...',
+        'status.checking':'Checking...',
         'status.not_mount':'Not mount',
         'status.mounted':'Mounted',
         'status.not_export':'Not exported',
@@ -297,6 +299,8 @@
         'confirmModal.delete.project_team_delete.desc':'Are you sure you want to remove all resources under this project/team and project/team?',
         'confirmModal.delete.user.desc':'Are you sure you want to delete this user?',
         'confirmModal.delete.plugin.desc':'Are you sure you want to remove this plugin?',
+        'confirmModal.plugin.delete.force.title':'This plugin is in use by components',
+        'confirmModal.plugin.delete.force.content':'Do you want to force delete it?',
         'confirmModal.delete.configuration_item.desc':'Sure you want to remove this configuration item?',
         'confirmModal.delete.drop_procedure.desc':'Sure you want to delete this store?',
         'confirmModal.delete.drop_versions.desc':'Are you sure you want to remove the current version?',
@@ -308,7 +312,7 @@
         'confirmModal.delete.team.Gateway': 'Are you sure you want to delete it?',
         //友情提示
         'confirmModal.friendly_reminder.title':'Friendly reminder',
-        'confirmModal.friendly_reminder.pages.desc':'{ codeObj } All the components in the current application?',
+        'confirmModal.friendly_reminder.pages.desc':'{codeObj} All the components in the current application?',
         
         //应用复制
         'confirmModal.app.title.copy':'Application replication',
@@ -354,7 +358,7 @@
         //移交团队
         'confirmModal.MoveTeam.title':'Handed over team',
         'confirmModal.MoveTeam.subDesc':'You will lose ownership after the handover',
-        'confirmModal.MoveTeam.desc':'Are you sure to hand over the team to { nick_name }?',
+        'confirmModal.MoveTeam.desc':'Are you sure to hand over the team to {nick_name}?',
 
         //开通集群
         'confirmModal.openRegion.title':'Open clusters',
@@ -563,6 +567,10 @@
         'notification.success.wait_patiently':'Update, please wait patiently',
         'notification.warn.save': 'You need to save the modified basic information in deployment properties first!',
         'notification.warn.no_port': 'This component does not have an end port',
+        'notification.warn.vm_system_disk_cannot_delete': 'Host system disk cannot be deleted',
+        'notification.warn.creating': 'Creating, please do not operate frequently!',
+        'notification.warn.serviceNotFound': 'Service not found, unable to perform operation',
+        'notification.warn.scaleFailed': 'Scaling operation failed',
 
         // 失败
         'notification.error.delete':'Delete failure',
@@ -580,6 +588,7 @@
         'notification.error.none_deployed':'The current component is not deployed',
         'notification.error.setting_failed':'Setup failed. Please try again later',
         'notification.error.json_format_failed':'The format is incorrect. Enter the correct JSON format',
+        'notification.error.fail':'Operation failed',
 
         // 警告
         'notification.warn.team':'Please join the team first!',
@@ -691,7 +700,8 @@
         'placeholder.notAttrName':'Component addresses must be different',
         'placeholder.nameSpaceReg':'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
         'placeholder.max32':'The value cannot exceed 32 characters',
-        'placeholder.nonsupport':'Does not support{ nonsupport }',
+        'placeholder.max16':'The value cannot exceed 16 characters',
+        'placeholder.nonsupport':'Does not support{nonsupport}',
         'placeholder.nonsupport.regAddress':'Address',
         'placeholder.roleName':'Please enter a role name',
         'placeholder.permissions':'To allocate!',

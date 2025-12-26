@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 /*
   access_type : no_port|无端口、

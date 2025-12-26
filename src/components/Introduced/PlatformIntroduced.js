@@ -1,6 +1,6 @@
 import { Button, Col, Modal, Row } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from '../CreateTeam/index.less';
 import styless from './index.less';
 

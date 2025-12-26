@@ -15,22 +15,21 @@ import {
   Popconfirm,
   Spin,
   Tooltip,
-  Modal,
   Popover
 } from 'antd';
 import { connect } from 'dva';
-import { setLocale, getLocale, } from 'umi/locale'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { setLocale, FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
-// import Debounce from 'lodash-decorators/debounce';
 import ScrollerX from '../ScrollerX';
 import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/default_Avatar.png';
+import defaultLogo from '../../../public/logo-icon.png';
 import { setNewbieGuide, fetchAllVersion } from '../../services/api';
 import ChangePassword from '../ChangePassword';
+import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
-import { Link } from 'umi';
 import globalUtil from '../../utils/global';
 const { Header } = Layout;
 
@@ -39,7 +38,7 @@ const { Header } = Layout;
   appDetail: appControl.appDetail,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
-  // enterpriseServiceInfo: order.enterpriseServiceInfo
+  collapsed: global.collapsed
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -48,52 +47,43 @@ export default class GlobalHeader extends PureComponent {
     this.state = {
       isNewbieGuide: false && rainbondUtil.isEnableNewbieGuide(enterprise),
       showChangePassword: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false,
-      treeData: [],
-      isVersionUpdate: false,
+      language: cookie.get('language') === 'zh-CN',
       showBill: false,
       isTeamView: globalUtil.getCurrTeamName() !== '' && globalUtil.getCurrRegionName() !== '',
       balance: null,
-      balanceStatus: ''
+      balanceStatus: '',
+      showProductDrawer: false
     };
   }
   componentDidMount() {
-    const { is_enterprise, currentUser } = this.props
+    const { currentUser } = this.props
     const eid = globalUtil.getCurrEnterpriseId() || currentUser?.enterprise_id
     const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
     if (region_name) {
       this.fetchPipePipeline(eid, region_name)
     }
-    let lan = navigator.systemLanguage || navigator.language;
-    const Language = cookie.get('language')
-    if (Language == null) {
-      if (lan.toLowerCase().indexOf('zh') !== -1) {
-        const language = 'zh-CN'
-        cookie.set('language', language)
-        const lang = cookie.get('language')
-        setLocale('zh-CN')
-        this.setState({
-          language: true,
-        })
-      } else if (lan.toLowerCase().indexOf('en') !== -1) {
-        const language = 'en-US'
-        cookie.set('language', language)
-        const lang = cookie.get('language')
-        setLocale('en-US')
-        this.setState({
-          language: false,
-        })
-      } else {
-        const language = 'zh-CN'
-        cookie.set('language', language)
-        const lang = cookie.get('language')
-        setLocale('zh-CN')
-        this.setState({
-          language: true,
-        })
-      }
+    // 初始化语言设置
+    if (!cookie.get('language')) {
+      const browserLang = navigator.systemLanguage || navigator.language;
+      const isZh = browserLang.toLowerCase().indexOf('zh') !== -1 || browserLang.toLowerCase().indexOf('en') === -1;
+      const language = isZh ? 'zh-CN' : 'en-US';
+      cookie.set('language', language);
+      setLocale(language);
+      this.setState({ language: isZh });
     }
   }
+
+  componentDidUpdate(prevProps) {
+    // 检测路由变化，更新 isTeamView 状态
+    const currentTeam = globalUtil.getCurrTeamName();
+    const currentRegion = globalUtil.getCurrRegionName();
+    const newIsTeamView = currentTeam !== '' && currentRegion !== '';
+
+    if (this.state.isTeamView !== newIsTeamView) {
+      this.setState({ isTeamView: newIsTeamView });
+    }
+  }
+
   fetchPipePipeline = (eid, region_name) => {
     const { dispatch } = this.props;
     dispatch({
@@ -125,46 +115,76 @@ export default class GlobalHeader extends PureComponent {
         })
       }
     });
-
   };
-  handleMenuClick = ({ key }) => {
-    const { dispatch, currentUser } = this.props;
-    const { language } = this.state
-    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
-    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
-    if (key === 'userCenter') {
-      dispatch(routerRedux.push(`/account/center/personal`));
-    }
-    if (key === 'cpw') {
-      this.showChangePass();
-    }
-    if (key === 'bill') {
-      dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
-    }
-    if (key === 'zh_en') {
-      if (language) {
-        this.handleMenuCN("en-US")
-      } else {
-        this.handleMenuCN("zh-CN");
+
+  /**
+   * 获取用户默认导航路径
+   */
+  getLoginRole = (currUser) => {
+    const { teams } = currUser || {};
+    if (teams && teams.length > 0) {
+      const { team_name, region } = teams[0];
+      const { team_region_name } = region?.[0] || {};
+      if (team_name && team_region_name) {
+        return `/team/${globalUtil.getCurrTeamName() || team_name}/region/${globalUtil.getCurrRegionName() || team_region_name}/index`;
       }
     }
-    if (key === 'logout') {
-      window.sessionStorage.removeItem('Pipeline')
-      dispatch({ type: 'user/logout' });
+    if (currUser?.is_enterprise_admin) {
+      return `/enterprise/${currUser?.enterprise_id}/index`;
+    }
+    return '/';
+  };
+
+  /**
+   * Logo 点击跳转
+   */
+  onLogoClick = () => {
+    const { dispatch, currentUser } = this.props;
+    const link = this.getLoginRole(currentUser);
+    dispatch(routerRedux.replace(link));
+  };
+
+  handleMenuClick = ({ key }) => {
+    const { dispatch, currentUser, rainbondInfo } = this.props;
+    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
+    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
+
+    switch (key) {
+      case 'userCenter':
+        dispatch(routerRedux.push(`/account/center/personal`));
+        break;
+      case 'cpw':
+        this.showChangePass();
+        break;
+      case 'bill':
+        // 跳转到门户的账户中心
+        this.handlePortalNavigation('account-center');
+        break;
+      case 'logout':
+        window.sessionStorage.removeItem('Pipeline');
+        dispatch({ type: 'user/logout' });
+        break;
+      default:
+        break;
+    }
+  };
+
+  handlePortalNavigation = (key) => {
+    const { rainbondInfo } = this.props;
+    const portalSite = rainbondInfo?.portal_site;
+    const token = cookie.get('token');
+
+    if (portalSite && token) {
+      // 构造跳转URL，携带token和key参数
+      const url = `${portalSite}?token=${token}&redirect=${key}`;
+      window.location.href = url;
     }
   };
 
   handleMenuCN = (val) => {
-    const { language } = this.state
-    cookie.set('language', val)
-    if (val === 'zh-CN') {
-      setLocale('zh-CN')
-    } else if (val === 'en-US') {
-      setLocale('en-US')
-    }
-    this.setState({
-      language: !language
-    })
+    cookie.set('language', val);
+    setLocale(val, true);
+    this.setState({ language: val === 'zh-CN' });
   }
   showChangePass = () => {
     this.setState({ showChangePassword: true });
@@ -184,15 +204,6 @@ export default class GlobalHeader extends PureComponent {
     });
   };
 
-  // toggle = () => {
-  //   const { collapsed, onCollapse } = this.props;
-  //   onCollapse(!collapsed);
-  // };
-  // @Debounce(600)
-  handleVip = () => {
-    const { dispatch, eid } = this.props;
-    dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
-  };
   handlIsOpenNewbieGuide = () => {
     const { eid, dispatch } = this.props;
     setNewbieGuide({
@@ -219,46 +230,23 @@ export default class GlobalHeader extends PureComponent {
       });
     });
   };
-  // 获取所有主机版本
-  fetchAllVersion = () => {
-    const { dispatch, rainbondInfo } = this.props
-    const currentVersion = rainbondInfo.version.value.split('-')[0]
-    fetchAllVersion().then(res => {
-      if (res) {
-        res.forEach((item, index) => {
-          if (item.split('-')[0] === currentVersion && index !== 0) {
-            window.sessionStorage.setItem('isShowUpdateVersion', currentVersion)
-            this.setState({
-              isVersionUpdate: true,
-            })
-          }
-        })
-      }
-    }).catch(e => { console.log(e) })
-  }
-  // 跳转到版本更新页面
-  handleRouteupdate = () => {
-    const { dispatch, eid } = this.props
-    this.setState({
-      isVersionUpdate: false
-    }, () => {
-      dispatch(routerRedux.push(`/enterprise/${eid}/setting?showupdate=true`));
-    })
-  }
-  handleShowUpdate = () => {
-    this.setState({
-      isVersionUpdate: true,
-    })
-  };
   handleBalanceBill = () => {
-    const { dispatch, currentUser } = this.props;
-    const region_name = globalUtil.getCurrRegionName() || currentUser?.teams[0]?.region[0]?.team_region_name;
-    const team_name = globalUtil.getCurrTeamName() || currentUser?.teams[0]?.team_name;
-    dispatch(routerRedux.push(`/team/${team_name}/region/${region_name}/plugins/rainbond-bill`));
+    // 点击余额跳转到门户的账户中心
+    this.handlePortalNavigation('account-center');
+  }
+
+  toggleProductDrawer = () => {
+    this.setState({ showProductDrawer: !this.state.showProductDrawer });
+  }
+
+  closeProductDrawer = () => {
+    this.setState({ showProductDrawer: false });
   }
   render() {
-    const { currentUser, customHeader, rainbondInfo, collapsed, eid, is_space = false, is_enterprise = false, customHeaderImg } = this.props;
-    const { language, treeData, isVersionUpdate, isTeamView, showBill, balance, balanceStatus } = this.state
+    const { currentUser, customHeader, rainbondInfo, collapsed, logo, enterprise } = this.props;
+    const { language, isTeamView, showBill, balance, balanceStatus } = this.state;
+    // 获取 Logo，优先使用 props 传入的，否则从 rainbondInfo 和 enterprise 获取
+    const fetchLogo = logo || rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
     if (!currentUser) {
       return null;
     }
@@ -278,96 +266,81 @@ export default class GlobalHeader extends PureComponent {
       </svg>
     );
     const handleBillSvg = () => (
-      <svg t="1736330635739" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5523" width="16" height="16"><path d="M793.1904 742.4H220.5696a20.48 20.48 0 1 1 0-40.96h572.6208a20.48 20.48 0 0 1 0 40.96z" p-id="5524"></path><path d="M856.2688 952.32H157.4912A105.2672 105.2672 0 0 1 51.2 848.1792V175.8208A105.2672 105.2672 0 0 1 157.4912 71.68h698.7776A105.2672 105.2672 0 0 1 962.56 175.8208v672.3584A105.2672 105.2672 0 0 1 856.2688 952.32zM156.672 112.64A64 64 0 0 0 92.16 175.8208v672.3584A64 64 0 0 0 156.672 911.36h700.416a64 64 0 0 0 64.512-63.1808V175.8208A64 64 0 0 0 857.088 112.64z" p-id="5525"></path><path d="M777.4208 460.8H635.6992a20.48 20.48 0 1 1 0-40.96h141.7216a20.48 20.48 0 1 1 0 40.96M417.5872 386.4576H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96M417.5872 472.064H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96" p-id="5526"></path><path d="M325.2224 555.3152a20.48 20.48 0 0 1-20.48-20.48V365.4656a20.48 20.48 0 1 1 40.96 0v169.3696a20.48 20.48 0 0 1-20.48 20.48" p-id="5527"></path><path d="M323.7888 389.12a20.48 20.48 0 0 1-18.2272-11.264l-93.0816-184.32a20.48 20.48 0 0 1 36.5568-18.432l93.0816 184.32a20.48 20.48 0 0 1-9.1136 27.5456 19.7632 19.7632 0 0 1-9.216 2.2528" p-id="5528"></path><path d="M329.6256 386.048a19.6608 19.6608 0 0 1-9.728-2.4576 20.48 20.48 0 0 1-8.2944-27.7504l92.9792-172.544A20.48 20.48 0 0 1 440.32 202.752l-92.16 172.544a20.48 20.48 0 0 1-18.0224 10.752" p-id="5529"></path></svg>
+      <svg t="1736330635739" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5523" width="16" height="16"><path d="M793.1904 742.4H220.5696a20.48 20.48 0 1 1 0-40.96h572.6208a20.48 20.48 0 0 1 0 40.96z" p-id="5524"></path><path d="M856.2688 952.32H157.4912A105.2672 105.2672 0 0 1 51.2 848.1792V175.8208A105.2672 105.2672 0 0 1 157.4912 71.68h698.7776A105.2672 105.2672 0 0 1 962.56 175.8208v672.3584A105.2672 105.2672 0 0 1 856.2688 952.32zM156.672 112.64A64 64 0 0 0 92.16 175.8208v672.3584A64 64 0 0 0 156.672 911.36h700.416a64 64 0 0 0 64.512-63.1808V175.8208A64 64 0 0 0 857.088 112.64z" p-id="5525"></path><path d="M777.4208 460.8H635.6992a20.48 20.48 0 1 1 0-40.96h141.7216a20.48 20.48 0 1 1 0 40.96M417.5872 386.4576H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96M417.5872 472.064H224.3584a20.48 20.48 0 0 1 0-40.96h193.2288a20.48 20.48 0 0 1 0 40.96" p-id="5526"></path><path d="M325.2224 555.3152a20.48 20.48 0 0 1-20.48-20.48V365.4656a20.48 20.48 0 1 1 40.96 0v169.3696a20.48 20.48 0 0 1-20.48 20.48" p-id="5527"></path><path d="M323.7888 389.12a20.48 20.48 0 0 1-18.2272-11.264l-93.0816-184.32a20.48 20.48 0 0 1 36.5568-18.432l93.0816 184.32a20.48 20.48 0 0 1-9.1136 27.5456 19.7632 19.7632 0 0 1-9.216 2.2528" p-id="5528"></path><path d="M329.6256 386.048a19.6608 19.6608 0 0 1-9.728-2.4576 20.48 20.48 0 0 1-8.2944-27.7504l92.9792-172.544A20.48 20.48 0 0 1 440.32 202.752l-92.16 172.544a20.48 20.48 0 0 1-18.0224 10.752" p-id="5529"></path></svg>
     )
     const languageSvg = () => (
-      <svg t="1742959338405" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15135" width="20" height="20">
-        <path d="M364.16 259.776a361.408 361.408 0 0 1-73.024 124.16 385.664 385.664 0 0 1-80.64-124.16H364.16z m128.576 0v-51.968H297.856l38.528-12.16c-5.376-18.368-18.816-47.104-30.464-67.84l-56.896 16.64c10.304 19.84 20.16 44.928 25.088 63.36H85.056v51.968h70.336c24.192 63.232 55.104 116.992 95.424 161.408-46.592 36.288-104.384 61.888-174.272 79.36 10.752 12.096 26.432 37.184 32.256 49.728 72.128-20.608 132.16-50.176 181.44-90.56 47.04 39.488 104.832 69.12 175.168 87.872 8.064-14.72 23.744-38.08 35.84-49.728-66.752-15.68-123.2-41.728-169.344-77.568 38.976-43.52 69.44-96 92.288-160.512h68.544zM693.76 739.84l11.264-41.472a2728.96 2728.96 0 0 0 32.256-123.904h2.048c11.264 40.96 21.504 84.48 33.28 123.904l11.264 41.472H693.76zM826.88 896h79.36l-121.856-378.88h-89.088L573.952 896h76.8l26.624-97.28h122.88L826.88 896zM768 160H576a32 32 0 0 0 0 64h192q13.248 0 22.656 9.344 9.344 9.408 9.344 22.656v192a32 32 0 0 0 64 0V256q0-39.744-28.16-67.84-28.096-28.16-67.84-28.16zM192 928q-39.744 0-67.84-28.16-28.16-28.096-28.16-67.84v-192a32 32 0 0 1 64 0v192q0 13.248 9.344 22.656 9.408 9.344 22.656 9.344h192a32 32 0 0 1 0 64H192z" p-id="15136" fill="#ffffff">
-        </path>
-      </svg>
-    )
-    const handleHandBookSvg = (
-      <svg
-        t="1742968884083"
-        class="icon"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="1660"
-        width="18"
-        height="18"
-      >
-        <path
-          d="M512 80c238.588 0 432 193.412 432 432s-193.412 432-432 432S80 750.588 80 512 273.412 80 512 80z m0 64c-203.24 0-368 164.76-368 368s164.76 368 368 368 368-164.76 368-368-164.76-368-368-368z"
-          fill="#fff"
-          p-id="1661"
-        >
-        </path>
-        <path
-          d="M549.84 630.16v-12.24c0-17.28 3.6-33.12 11.52-47.52 6.48-12.96 16.56-25.92 30.24-37.44 33.84-29.52 54-48.24 60.48-56.16 18-23.04 27.36-52.56 27.36-87.84 0-43.2-14.4-77.76-43.2-102.96-28.8-25.92-66.24-38.16-112.32-38.16-53.28 0-95.04 15.12-125.28 46.08-30.24 30.24-45.36 71.28-45.36 123.84h75.6c0-31.68 6.48-56.16 19.44-73.44 14.4-20.88 38.16-30.96 70.56-30.96 25.92 0 46.8 7.2 61.2 21.6 13.68 14.4 20.88 33.84 20.88 59.04 0 18.72-7.2 36-20.16 52.56l-12.24 13.68c-44.64 39.6-72 69.12-81.36 89.28-10.08 18.72-14.4 41.76-14.4 68.4v12.24h77.04zM510.96 772c14.4 0 27.36-5.04 37.44-14.4 10.08-10.08 15.84-22.32 15.84-37.44 0-15.12-5.04-27.36-15.12-36.72-10.08-10.08-23.04-14.4-38.16-14.4-14.4 0-27.36 4.32-37.44 14.4-10.08 9.36-15.12 21.6-15.12 36.72 0 14.4 5.04 26.64 15.12 36.72 10.08 10.08 23.04 15.12 37.44 15.12z"
-          fill="#fff"
-          p-id="1662"
-        >
+      <svg t="1742959338405" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15135" width="20" height="20">
+        <path d="M364.16 259.776a361.408 361.408 0 0 1-73.024 124.16 385.664 385.664 0 0 1-80.64-124.16H364.16z m128.576 0v-51.968H297.856l38.528-12.16c-5.376-18.368-18.816-47.104-30.464-67.84l-56.896 16.64c10.304 19.84 20.16 44.928 25.088 63.36H85.056v51.968h70.336c24.192 63.232 55.104 116.992 95.424 161.408-46.592 36.288-104.384 61.888-174.272 79.36 10.752 12.096 26.432 37.184 32.256 49.728 72.128-20.608 132.16-50.176 181.44-90.56 47.04 39.488 104.832 69.12 175.168 87.872 8.064-14.72 23.744-38.08 35.84-49.728-66.752-15.68-123.2-41.728-169.344-77.568 38.976-43.52 69.44-96 92.288-160.512h68.544zM693.76 739.84l11.264-41.472a2728.96 2728.96 0 0 0 32.256-123.904h2.048c11.264 40.96 21.504 84.48 33.28 123.904l11.264 41.472H693.76zM826.88 896h79.36l-121.856-378.88h-89.088L573.952 896h76.8l26.624-97.28h122.88L826.88 896zM768 160H576a32 32 0 0 0 0 64h192q13.248 0 22.656 9.344 9.344 9.408 9.344 22.656v192a32 32 0 0 0 64 0V256q0-39.744-28.16-67.84-28.096-28.16-67.84-28.16zM192 928q-39.744 0-67.84-28.16-28.16-28.096-28.16-67.84v-192a32 32 0 0 1 64 0v192q0 13.248 9.344 22.656 9.408 9.344 22.656 9.344h192a32 32 0 0 1 0 64H192z" p-id="15136" fill="#333">
         </path>
       </svg>
     )
 
     const docsUrl = (rainbondInfo?.document?.enable && `${rainbondInfo?.document?.value?.platform_url}${language ? 'docs/tutorial/via-rainbond-deploy-sourceandmiddleware' : 'en/docs/tutorial/via-rainbond-deploy-sourceandmiddleware'}`) || (language ? 'https://www.rainbond.com/docs/' : 'https://www.rainbond.com/en/docs/')
-    const MenuItems = (key, component, text) => {
-      return (
-        <Menu.Item key={key}>
-          <Icon
-            component={component}
-            style={{
-              marginRight: 8
-            }}
-          />
-          {text == 1 && <FormattedMessage id="GlobalHeader.core" />}
-          {text == 2 && <FormattedMessage id="GlobalHeader.account" />}
-          {text == 3 && <FormattedMessage id="GlobalHeader.language" />}
-          {text == 4 && <FormattedMessage id="GlobalHeader.exit" />}
-        </Menu.Item>
-      );
+    const portalSite = rainbondInfo?.portal_site
+    const menuTextMap = {
+      userCenter: 'GlobalHeader.core',
+      bill: 'GlobalHeader.account',
+      logout: 'GlobalHeader.exit'
     };
+    const MenuItems = (key, component) => (
+      <Menu.Item key={key}>
+        <Icon component={component} style={{ marginRight: 8 }} />
+        <FormattedMessage id={menuTextMap[key]} />
+      </Menu.Item>
+    );
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu onClick={this.handleMenuClick}>
-          {MenuItems('userCenter', handleUserSvg, 1)}
-          {showBill && MenuItems('bill', handleBillSvg, 2)}
-          {!rainbondUtil.logoutEnable(rainbondInfo) &&
-            MenuItems('logout', handleLogoutSvg, 4)}
+          {MenuItems('userCenter', handleUserSvg)}
+          {showBill && MenuItems('bill', handleBillSvg)}
+          {!rainbondUtil.logoutEnable(rainbondInfo) && MenuItems('logout', handleLogoutSvg)}
         </Menu>
       </div>
     );
-    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
     const platformUrl = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const showFullLogo = !isTeamView || !collapsed;
+    const actionStyle = { verticalAlign: '-7px', color: '#333' };
+
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
     const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     return (
       <ScrollerX sm={900}>
         <Header className={styles.header}>
           <div className={styles.left}>
-            {customHeaderImg && customHeaderImg()}
+            {showBill && portalSite && 
+              <div
+                className={styles.productIcon}
+                onClick={this.toggleProductDrawer}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 4h16M2 10h16M2 16h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+            }
+            <div
+              className={`${styles.logoWrapper} ${isTeamView && collapsed ? styles.logoCollapsed : ''} ${!isTeamView ? styles.logoEnterprise : ''}`}
+              onClick={this.onLogoClick}
+            >
+              <img src={fetchLogo} alt="logo" />
+              {showFullLogo && (
+                <span className={styles.enterpriseName}>
+                  {(rainbondInfo?.title?.enable && rainbondInfo?.title?.value)|| 'Rainbond'}
+                </span>
+              )}
+            </div>
             {customHeader && customHeader()}
           </div>
           <div className={styles.right}>
             {showAppMarket && showBill && (
               <a
                 className={styles.platform}
-                style={{ color: '#fff', fontSize: '14px', fontWeight: '600',}}
+                style={{ color: '#333', fontSize: '14px', fontWeight: '600',}}
                 href='https://hub.grapps.cn/marketplace'
                 target='_blank'
               >
                 <Icon type="shop" style={{ fontSize: 16, marginRight: 6 }}/>
                 <FormattedMessage id="GlobalHeader.market" />
               </a>
-            )}
-            {/* 平台管理 */}
-            {currentUser.is_enterprise_admin && (
-              <Link className={styles.platform} style={{ color: '#fff', fontSize: '14px', fontWeight: '600', margin: '0px 14px' }} to={`/enterprise/${eid}/index`}>
-                <Icon type="desktop" style={{ fontSize: 16, marginRight: 6, verticalAlign: 'sub' }} />
-                <FormattedMessage id="GlobalHeader.platform" />
-              </Link>
             )}
 
             {isNewbieGuide && (
@@ -379,7 +352,7 @@ export default class GlobalHeader extends PureComponent {
               >
                 <a
                   className={styles.action}
-                  style={{ color: '#fff' }}
+                  style={{ color: '#333' }}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -390,9 +363,9 @@ export default class GlobalHeader extends PureComponent {
             <div className={styles.iconContainer}>
               {showBill && balance != null && (
                 <div
-                  onClick={() => { this.handleBalanceBill() }}
+                  onClick={this.handleBalanceBill}
                   className={styles.balance}
-                  style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#fff' }}
+                  style={{ color: balanceStatus !== 'NORMAL' ? '#f50' : '#333' }}
                 >
                   <div className={styles.balanceTitle}>{formatMessage({ id: 'GlobalHeader.balance' })}</div>
                   <div className={styles.balanceNum}>¥{balance.toFixed(2)}</div>
@@ -402,12 +375,12 @@ export default class GlobalHeader extends PureComponent {
                 <Tooltip title={formatMessage({ id: 'GlobalHeader.help' })}>
                   <a
                     className={styles.action}
-                    style={{ verticalAlign: '-7px', color: '#fff' }}
+                    style={actionStyle}
                     href={docsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Icon type="read" style={{fontSize: 16}}/>
+                    <Icon type="read" style={{ fontSize: 16 }}/>
                   </a>
                 </Tooltip>
               )}
@@ -420,18 +393,14 @@ export default class GlobalHeader extends PureComponent {
                     </div>
                   }
                 >
-                  <a
-                    className={styles.action}
-                    style={{ verticalAlign: '-7px', color: '#fff' }}
-                    rel="noopener noreferrer"
-                  >
-                    {globalUtil.fetchSvg('serviceSvg', '#fff', 18)}
+                  <a className={styles.action} style={actionStyle}>
+                    {globalUtil.fetchSvg('serviceSvg', '#333', 18)}
                   </a>
                 </Popover>
               )}
               <a
                 className={styles.action}
-                style={{ verticalAlign: '-7px', color: '#fff' }}
+                style={actionStyle}
                 onClick={() => this.handleMenuCN(language ? 'en-US' : 'zh-CN')}
               >
                 {languageSvg()}
@@ -440,41 +409,23 @@ export default class GlobalHeader extends PureComponent {
                 <Dropdown overlay={menu}>
                   <span className={`${styles.action} ${styles.account}`}>
                     <Avatar size='default' className={styles.avatar} src={currentUser?.logo || userIcon} />
-                    {/* <span className={styles.name}>{currentUser.user_name}</span> */}
                   </span>
                 </Dropdown>
               ) : (
-                <Spin
-                  size="small"
-                  style={{
-                    marginLeft: 8
-                  }}
-                />
+                <Spin size="small" style={{ marginLeft: 8 }} />
               )}
             </div>
           </div>
-          {/* change password */}
           {this.state.showChangePassword && (
             <ChangePassword
               onOk={this.handleChangePass}
               onCancel={this.cancelChangePass}
             />
           )}
-          {/* 版本更新弹窗 */}
-          {isVersionUpdate && (
-            <Modal
-              title={formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
-              visible
-              onOk={this.handleRouteupdate}
-              onCancel={() => {
-                this.setState({
-                  isVersionUpdate: false
-                })
-              }}
-            >
-              <p>{formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.tip' })}</p>
-            </Modal>
-          )}
+          <ProductServiceDrawer
+            visible={this.state.showProductDrawer}
+            onClose={this.closeProductDrawer}
+          />
         </Header>
       </ScrollerX>
     );

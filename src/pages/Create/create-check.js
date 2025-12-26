@@ -6,7 +6,8 @@ import { Button, Card, Icon, Modal, notification, Radio, Tooltip, Input, Select 
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import handleAPIError from '../../utils/error';
+import { formatMessage } from '@/utils/intl';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
@@ -71,7 +72,7 @@ export default class CreateCheck extends React.Component {
       codeLanguage: '',
       source_from: '',
       ports: '',
-      language: cookie.get('language') === 'zh-CN' ? true : false,
+      language: cookie.get('language') === 'zh-CN',
       Directory: "dist",
       imageAddress: null,
       dockfilePath: ''
@@ -129,6 +130,9 @@ export default class CreateCheck extends React.Component {
           });
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   /**
@@ -154,24 +158,6 @@ export default class CreateCheck extends React.Component {
       dist: Directory || 'dist'
     };
   };
-  handleCurrentTeamPermissions = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'user/fetchCurrent',
-      payload: {
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        if (res && res.bean) {
-          const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
-          dispatch({
-            type: 'teamControl/fetchCurrentTeamPermissions',
-            payload: team && team.tenant_actions
-          });
-        }
-      },
-    });
-  };
   getDetail = () => {
     this.props.dispatch({
       type: 'appControl/fetchDetail',
@@ -184,6 +170,9 @@ export default class CreateCheck extends React.Component {
           this.setState({ appDetail: appDetail.service });
           this.getCheckuuid();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -453,6 +442,9 @@ export default class CreateCheck extends React.Component {
         },
         callback: res => {
           this.handleJump(`create/create-configFile/${appAlias}`);
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       })
     } else {
@@ -486,6 +478,9 @@ export default class CreateCheck extends React.Component {
       },
       callback: res => {
 
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     })
   }
@@ -559,6 +554,9 @@ export default class CreateCheck extends React.Component {
                       callback: res => {
                         this.setState({ buildAppLoading: false });
                         this.loadingBuild = false
+                      },
+                      handleError: err => {
+                        handleAPIError(err);
                       }
                     });
                     window.sessionStorage.removeItem('codeLanguage');
@@ -577,10 +575,15 @@ export default class CreateCheck extends React.Component {
                 handleError: err => {
                   this.setState({ buildAppLoading: false });
                   this.loadingBuild = false
-                  notification.error({ message: err.data.msg_show })
+                  handleAPIError(err);
                 }
               })
             }
+          },
+          handleError: err => {
+            this.setState({ buildAppLoading: false });
+            this.loadingBuild = false
+            handleAPIError(err);
           }
         })
       } else {
@@ -599,6 +602,9 @@ export default class CreateCheck extends React.Component {
                 type: 'global/fetchGroups',
                 payload: {
                   team_name: teamName
+                },
+                handleError: err => {
+                  handleAPIError(err);
                 }
               });
               if (ServiceGetData && isDeploy) {
@@ -613,7 +619,7 @@ export default class CreateCheck extends React.Component {
           handleError: err => {
             this.setState({ buildAppLoading: false });
             this.loadingBuild = false
-            notification.error({ message: err.data.msg_show })
+            handleAPIError(err);
           }
         })
       }
@@ -784,6 +790,9 @@ export default class CreateCheck extends React.Component {
           type: 'global/fetchGroups',
           payload: {
             team_name: teamName
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
         });
         if (ServiceGetData) {
@@ -948,6 +957,9 @@ export default class CreateCheck extends React.Component {
           this.startCheck(false);
           this.cancelModifyUserpass();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -984,6 +996,9 @@ export default class CreateCheck extends React.Component {
           this.startCheck(false);
           this.handleCancelEdit();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1021,6 +1036,9 @@ export default class CreateCheck extends React.Component {
           this.startCheck(false);
           this.cancelModifyImageName();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1058,6 +1076,9 @@ export default class CreateCheck extends React.Component {
           this.startCheck(false);
           this.cancelModifyImageCmd();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -2002,7 +2023,7 @@ export default class CreateCheck extends React.Component {
         content={formatMessage({ id: 'versionUpdata_6_1.content4' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
       >
-        {ServiceGetData ? box : <Card>{box}</Card>}
+        {ServiceGetData ? box : <Card bordered={false}>{box}</Card>}
 
         {modifyImageName && (
           <ModifyImageName

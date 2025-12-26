@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import {
-    Card,
     Row,
     Col,
-    Button,
     Skeleton
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import Echarts from './Echarts';
 import styles from "./index.less";
@@ -24,7 +22,7 @@ class Index extends Component {
     render() {
         const allocation = formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })
         const use = formatMessage({ id: 'enterpriseColony.mgt.node.used' })
-        const { nodeDetail, showInfo } = this.props;
+        const { nodeDetail, showInfo, titleIcon, titleText } = this.props;
         const
             {
                 cap_cpu,
@@ -56,67 +54,70 @@ class Index extends Component {
         
         return (
             <>
-                <Card
-                    style={
-                        {
-                            position: 'relative'
+                <div className={styles.cardContainer}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.cardTitleStyle}>
+                            <span>{titleIcon}</span>
+                            <span>{titleText}</span>
+                        </div>
+                    </div>
+                    <div className={styles.cardBody}>
+                        {nodeDetail && Object.keys(nodeDetail).length > 0 && showInfo ?
+                            <Row className={styles.resourceRow} gutter={24}>
+                                <Col span={6}>
+                                    <div className={styles.resourceItem}>
+                                        <div className={styles.resourceTitle}>CPU</div>
+                                        <div className={styles.resourceChart}>
+                                            <Echarts keys={'upcpu' + `${1}`} cname={allocation} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='200px' sheight='150px' />
+                                        </div>
+                                        <div className={styles.resourceBottom}>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_cpu.toFixed(2)}</span>Core</p>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.assigned' })}<span>{cap_cpu.toFixed(2)}</span>Core</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div className={styles.resourceItem}>
+                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.memory' })}</div>
+                                        <div className={styles.resourceChart}>
+                                            <Echarts keys={'upcpu' + `${0}`} cname={allocation} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='200px' sheight='150px' />
+                                        </div>
+                                        <div className={styles.resourceBottom}>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_memory.toFixed(2)}</span>GB</p>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalMemory' })}<span>{cap_memory.toFixed(2)}</span>GB</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div className={styles.resourceItem}>
+                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.root' })}</div>
+                                        <div className={styles.resourceChart}>
+                                            <Echarts keys={'upcpu' + `${2}`} cname={use} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='200px' sheight='150px' />
+                                        </div>
+                                        <div className={styles.resourceBottom}>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_root_partition.toFixed(2)}</span>GB</p>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalRoot' })}<span>{cap_root_partition.toFixed(2)}</span>GB</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div className={styles.resourceItem}>
+                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.vessel' })}</div>
+                                        <div className={styles.resourceChart}>
+                                            <Echarts keys={'upcpu' + `${3}`} cname={use} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='200px' sheight='150px' />
+                                        </div>
+                                        <div className={styles.resourceBottom}>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
+                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalvessel' })}<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                            :
+                            <Skeleton active />
                         }
-                    }
-                    bodyStyle={
-                        {
-                            padding: !showInfo ? 24 : '12px 0px 12px'
-                        }
-                    }
-                >
-                    {nodeDetail && Object.keys(nodeDetail).length > 0 && showInfo ?
-                        <>
-                            <Row className={styles.titleStyle}>
-                                <Col span={6}>CPU</Col>
-                                <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.node.memory' })}</Col>
-                                <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.node.root' })}</Col>
-                                <Col span={6}>{formatMessage({ id: 'enterpriseColony.mgt.node.vessel' })}</Col>
-                            </Row>
-
-                            <Row className={styles.EchartsStyle}>
-                                <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${1}`} cname={allocation} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='250px' sheight='200px' />
-                                </Col>
-                                <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${0}`} cname={allocation} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='250px' sheight='200px' />
-                                </Col>
-                                <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${2}`} cname={use} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='250px' sheight='200px' />
-
-                                </Col>
-                                <Col span={6}>
-                                    <Echarts keys={'upcpu' + `${3}`} cname={use} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='250px' sheight='200px' />
-                                </Col>
-                            </Row>
-
-                            <Row className={styles.bottomStyle}>
-                                <Col span={6}>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_cpu.toFixed(2)}</span>Core</p>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.assigned' })}<span>{cap_cpu.toFixed(2)}</span>Core</p>
-                                </Col>
-                                <Col span={6}>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_memory.toFixed(2)}</span>GB</p>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalMemory' })}<span>{cap_memory.toFixed(2)}</span>GB</p>
-                                </Col>
-                                <Col span={6}>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_root_partition.toFixed(2)}</span>GB</p>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalRoot' })}<span>{cap_root_partition.toFixed(2)}</span>GB</p>
-                                </Col>
-                                <Col span={6}>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
-                                    <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalvessel' })}<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
-                                </Col>
-                            </Row>
-                        </>
-                        :
-                        <Skeleton active />
-                    }
-                </Card>
-
+                    </div>
+                </div>
             </>
         );
     }

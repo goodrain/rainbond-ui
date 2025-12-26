@@ -1,3 +1,133 @@
+@import '~antd/lib/style/themes/default.less';
+
+// Main container
+.logContainer {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+}
+
+// Header section
+.logHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.logHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logHeaderRight {
+  display: flex;
+  align-items: center;
+}
+
+// Status indicator
+.logStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border-radius: 20px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.statusActive {
+  background: #52c41a;
+  box-shadow: 0 0 8px rgba(82, 196, 26, 0.6);
+  animation: pulse 1.5s infinite;
+}
+
+.statusInactive {
+  background: #faad14;
+  box-shadow: 0 0 4px rgba(250, 173, 20, 0.4);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+.statusText {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+// Control buttons
+.controlBtn {
+  border-radius: 4px;
+  font-size: 12px;
+  height: 28px;
+}
+
+.historyBtn {
+  color: @primary-color !important;
+  font-size: 13px;
+
+  &:hover {
+    color: @primary-5 !important;
+  }
+}
+
+// Toolbar section
+.logToolbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.toolbarItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbarLabel {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.searchInput {
+  width: 200px;
+}
+
+.cascaderInput {
+  min-width: 200px;
+}
+
+// Log content area
+.logContent {
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+// Log display area (keep original styles)
 .logsss {
   background: #212121;
   min-height: 300px;
@@ -42,6 +172,7 @@
   }
 }
 
+// Pod cascader (legacy support)
 .podCascader {
   width: calc(100% - 597px);
   :global {
@@ -50,6 +181,8 @@
     }
   }
 }
+
+// History log modal
 .logModal {
   :global {
     .ant-modal-close-x {
@@ -68,6 +201,7 @@
   }
 }
 
+// History 1000 log display
 .History1000Log {
   div {
     margin-bottom: 0;
@@ -82,10 +216,7 @@
       display: flex;
       padding-right: 6px;
       word-break: break-word;
-      // b{
-      // 	display: inline-block;
-      // 	width  : 20%;
-      // }
+
       span {
         display: inline-block;
         width: 20px;
@@ -107,5 +238,30 @@
 
   div:hover {
     background: #444444;
+  }
+}
+
+// Responsive adjustments
+@media screen and (max-width: 768px) {
+  .logHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .logToolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .toolbarItem {
+    width: 100%;
+  }
+
+  .searchInput,
+  .cascaderInput {
+    flex: 1;
+    min-width: unset;
   }
 }

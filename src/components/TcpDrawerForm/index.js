@@ -2,7 +2,7 @@
 import { Button, Drawer, Form, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import PortInput from './portInput';
 import styles from './index.less'

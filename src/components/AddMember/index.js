@@ -1,9 +1,11 @@
 import { Form, Input, Modal, Select, Skeleton } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
+import handleAPIError from '../../utils/error';
+import cookie from '@/utils/cookie';
 import UserSelect from '../UserSelect';
 
 const { Option } = Select;
@@ -24,19 +26,18 @@ class ConfirmModal extends PureComponent {
   componentDidMount() {
     this.loadRoles();
     const { viewName, data } = this.props;
-    if (
-      viewName === 'enterprise' &&
-      data &&
-      data.roles &&
-      data.roles.length > 0
-    ) {
+
+    if (viewName === 'enterprise' && data && data.roles && data.roles.length > 0) {
       this.fetchTeamUserRoles();
     } else {
       this.handleCloseCurrentRolesLoading();
     }
   }
+
+  // 获取团队用户角色
   fetchTeamUserRoles = () => {
     const { dispatch, userId, eid, teamName } = this.props;
+
     dispatch({
       type: 'teamControl/fetchUserTeamsRoles',
       payload: {
@@ -56,12 +57,18 @@ class ConfirmModal extends PureComponent {
             this.handleCloseCurrentRolesLoading();
           }
         );
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.handleCloseCurrentRolesLoading();
       }
     });
   };
 
+  // 加载团队角色列表
   loadRoles = () => {
     const { dispatch, teamName } = this.props;
+
     dispatch({
       type: 'teamControl/fetchTeamRoles',
       payload: {
@@ -70,17 +77,24 @@ class ConfirmModal extends PureComponent {
         page: 1
       },
       callback: data => {
-        this.setState(
-          {
-            roles: data.list || []
-          },
-          () => {
-            this.handleCloseRoleLoading();
-          }
-        );
+        if (data) {
+          this.setState(
+            {
+              roles: data.list || []
+            },
+            () => {
+              this.handleCloseRoleLoading();
+            }
+          );
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.handleCloseRoleLoading();
       }
     });
   };
+  // 提交表单
   handleSubmit = () => {
     const { form, onOk } = this.props;
     form.validateFields((err, values) => {
@@ -89,31 +103,28 @@ class ConfirmModal extends PureComponent {
       }
     });
   };
+
+  // 关闭角色加载状态
   handleCloseRoleLoading = () => {
-    this.setState({
-      roleLoading: false
-    });
+    this.setState({ roleLoading: false });
   };
+
+  // 关闭当前角色加载状态
   handleCloseCurrentRolesLoading = () => {
-    this.setState({
-      currentRolesLoading: false
-    });
+    this.setState({ currentRolesLoading: false });
   };
   render() {
     const { onCancel, data, form, nickName, title, loading } = this.props;
     const { getFieldDecorator } = form;
-    const {
-      roles,
-      currentRoles,
-      roleLoading,
-      currentRolesLoading
-    } = this.state;
+    const { roles, currentRoles, roleLoading, currentRolesLoading } = this.state;
+    const isZhCN = cookie.get('language') === 'zh-CN';
+
+
+    // 计算初始角色值
     const initialValueRoles = [];
-    const arr =
-      (currentRoles && currentRoles.length > 0 && currentRoles) ||
-      (data && data.roles && data.roles.length > 0 && data.roles) ||
-      [];
-    arr.map(item => {
+    const existingRoles = currentRoles.length > 0 ? currentRoles : (data?.roles || []);
+
+    existingRoles.forEach(item => {
       if (item.role_id) {
         initialValueRoles.push(Number(item.role_id));
       }
@@ -129,10 +140,14 @@ class ConfirmModal extends PureComponent {
       }
     };
 
+    const modalTitle = title || (data
+      ? formatMessage({ id: 'confirmModal.edit.member' })
+      : formatMessage({ id: 'confirmModal.add.member' }));
+
     return (
       <Modal
         confirmLoading={loading}
-        title={title || (data ? formatMessage({id:'confirmModal.edit.member'}) : formatMessage({id:'confirmModal.add.member'}))}
+        title={modalTitle}
         visible
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -140,54 +155,65 @@ class ConfirmModal extends PureComponent {
         <Skeleton loading={roleLoading || currentRolesLoading}>
           <Form onSubmit={this.handleSubmit}>
             {data ? (
-              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.user_name'})}>
+              <FormItem
+                {...formItemLayout}
+                label={formatMessage({ id: 'confirmModal.lable.member.user_name' })}
+              >
                 {getFieldDecorator('user_name', {
                   initialValue: nickName || data.nick_name || '',
                   rules: [
                     {
                       required: false,
-                      message: formatMessage({id:'placeholder.userName'})
+                      message: formatMessage({ id: 'placeholder.userName' })
                     }
                   ]
-                })(<Input disabled placeholder={formatMessage({id:'placeholder.userName'})}/>)}
+                })(
+                  <Input
+                    disabled
+                    placeholder={formatMessage({ id: 'placeholder.userName' })}
+                  />
+                )}
               </FormItem>
             ) : (
-              <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.user_ids'})}>
+              <FormItem
+                {...formItemLayout}
+                label={formatMessage({ id: 'confirmModal.lable.member.user_ids' })}
+              >
                 {getFieldDecorator('user_ids', {
                   rules: [
                     {
                       required: true,
-                      message: formatMessage({id:'placeholder.user_ids'})
+                      message: formatMessage({ id: 'placeholder.user_ids' })
                     }
                   ]
                 })(<UserSelect />)}
               </FormItem>
             )}
 
-            <FormItem {...formItemLayout} label={formatMessage({id:'confirmModal.lable.member.role_ids'})}>
+            <FormItem
+              {...formItemLayout}
+              label={formatMessage({ id: 'confirmModal.lable.member.role_ids' })}
+            >
               {getFieldDecorator('role_ids', {
                 initialValue: initialValueRoles,
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({id:'placeholder.role_ids'})
+                    message: formatMessage({ id: 'placeholder.role_ids' })
                   }
                 ]
               })(
                 <Select
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   mode="multiple"
-                  placeholder={formatMessage({id:'placeholder.role_ids'})}
+                  placeholder={formatMessage({ id: 'placeholder.role_ids' })}
                   style={{ width: '100%' }}
                 >
-                  {roles.map(item => {
-                    const { ID, name } = item;
-                    return (
-                      <Option key={ID} value={ID}>
-                        {roleUtil.actionMap(name)}
-                      </Option>
-                    );
-                  })}
+                  {roles.map(item => (
+                    <Option key={item.ID} value={item.ID}>
+                      {roleUtil.actionMap(item.name, isZhCN )}
+                    </Option>
+                  ))}
                 </Select>
               )}
             </FormItem>

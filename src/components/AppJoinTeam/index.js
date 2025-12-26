@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Avatar, Button, Card, notification, Empty } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import Result from '../Result'
 import ConfirmModal from '../ConfirmModal'
 import styles from './index.less'

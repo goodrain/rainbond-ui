@@ -20,7 +20,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const { Option } = Select;
 const FormItem = Form.Item;

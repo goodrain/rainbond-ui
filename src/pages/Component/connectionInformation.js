@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 
 @connect(null, null, null, { withRef: true })

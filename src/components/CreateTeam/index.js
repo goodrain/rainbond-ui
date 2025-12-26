@@ -1,7 +1,8 @@
 import { Button, Form, Input, Modal, Select, Upload, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { getAllRegion } from '../../services/api';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';

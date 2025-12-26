@@ -4,7 +4,8 @@ import { Dropdown, Icon, Input, notification } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import userUtil from '../../utils/user';
 import CreateTeam from '../CreateTeam';
 import style from './index.less';
@@ -24,9 +25,16 @@ export default class SelectTeam extends PureComponent {
       loading: true,
       visible: false
     };
+    // 标记组件是否已挂载
+    this._isMounted = false;
   }
   componentDidMount() {
+    this._isMounted = true;
     this.loadUserTeams('');
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
   queryTeams = queryName => {
     this.setState({ queryName }, () => {
@@ -34,7 +42,9 @@ export default class SelectTeam extends PureComponent {
     });
   };
   loadUserTeams = () => {
-    this.setState({ loading: true });
+    if (this._isMounted) {
+      this.setState({ loading: true });
+    }
     const { dispatch, currentEnterprise } = this.props;
     const { page, page_size, queryName } = this.state;
     dispatch({
@@ -46,6 +56,7 @@ export default class SelectTeam extends PureComponent {
         page_size
       },
       callback: res => {
+        if (!this._isMounted) return;
         if (res && res.status_code === 200) {
           this.setState({
             userTeamList: res.list,
@@ -99,6 +110,9 @@ export default class SelectTeam extends PureComponent {
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
     const currentTeamLink = `/team/${currentTeam?.team_name}/region/${currentRegion?.team_region_name}/index`;
     const currentEnterpriseTeamPageLink = this.getLoginRole(currentUser)
+    // 从最新的 userTeamList 中获取当前团队的最新名称
+    const updatedCurrentTeam = userTeamList.find(team => team.team_name === currentTeam?.team_name);
+    const displayTeamAlias = updatedCurrentTeam?.team_alias || currentTeam?.team_alias;
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
@@ -198,7 +212,7 @@ export default class SelectTeam extends PureComponent {
                   <div className={style.selectButtonContent}>
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
-                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                      <span className={style.selectButtonTeamText}>{displayTeamAlias}</span>
                     </div>
                   </div>
                   <Icon
@@ -214,7 +228,7 @@ export default class SelectTeam extends PureComponent {
                   <div className={style.selectButtonContent}>
                     <div className={style.selectButtonTeam}>
                       <Icon type="team" className={style.selectButtonTeamIcon} />
-                      <span className={style.selectButtonTeamText}>{currentTeam?.team_alias}</span>
+                      <span className={style.selectButtonTeamText}>{displayTeamAlias}</span>
                     </div>
                   </div>
                 </div>

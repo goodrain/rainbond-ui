@@ -25,6 +25,8 @@ const global = {
     'global.fetchStateText.succeeded':'已完成',
     'global.fetchStateText.failed':'执行失败',
     'global.fetchStateText.SUCCEEDED':'已完成',
+    'global.fetchStateText.witching':'等待中',
+    'global.fetchStateText.WAITING':'等待中',
 
     // fetchGovernanceMode
     'global.fetchGovernanceMode.KUBERNETES_NATIVE_SERVICE':'原生 service 模式',
@@ -192,5 +194,12 @@ const global = {
     'global.fetchStateOptTypeText.error':'运行异常',
     'global.fetchStateOptTypeText.up':'挂起',
     'global.fetchStateOptTypeText.recover':'恢复',
+    'global.fetchStateOptTypeText.ContainerExitError':'异常退出',
+    'global.fetchStateOptTypeText.ReadinessUnhealthy':'健康检测不通过',
+    'global.fetchStateOptTypeText.LivenessRestart':'健康检测不通过',
+    'global.fetchStateOptTypeText.StartupProbeFailure':'健康检测不通过',
+    'global.fetchStateOptTypeText.HealthCheckPassed':'健康检测通过',
+    'global.fetchStateOptTypeText.CreateContainerConfigError': '容器配置生成失败',
+    'global.fetchStateOptTypeText.ImagePullBackOff': '镜像拉取失败',
 }
 export default Object.assign({}, global);

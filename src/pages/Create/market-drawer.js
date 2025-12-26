@@ -24,7 +24,8 @@ import {
   import { connect } from 'dva';
   import { routerRedux } from 'dva/router';
   import React, { Fragment, PureComponent } from 'react';
-  import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+  import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
   import AuthCompany from '../../components/AuthCompany';
   import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
   import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';

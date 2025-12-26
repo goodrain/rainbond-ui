@@ -1,6 +1,7 @@
 import { Form, Input, Modal, notification, Select } from 'antd';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

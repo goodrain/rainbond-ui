@@ -2,17 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import {
   Table,
-  Card,
   Button,
   Row,
-  Col,
   Form,
-  Input,
   notification,
   Popconfirm,
   Tag
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ServiceDrawer from '../../../components/ServiceDrawer';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
@@ -238,28 +235,30 @@ export default class index extends Component {
       },
     };
     return (
-      <div>
-        <Card
-          extra={isCreate && <Button icon="plus" type="primary" onClick={() => this.routeDrawerShow({})}>{formatMessage({ id: 'teamNewGateway.NewGateway.ServiceDrawer.creat' })}</Button>}
-          bodyStyle={{ padding: '0' }}
-        >
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            loading={tableLoading}
-            pagination={{
-              current: page,
-              pageSize: pageSize,
-              total: dataSource.length ,
-              onChange: this.onPageChange,
-              showQuickJumper: true,
-              showSizeChanger: true,
-              showTotal: (total) => `共 ${total} 条`,
-              onShowSizeChange: this.onPageChange,
-              hideOnSinglePage: dataSource.length<=10
+      <div className={styles.gatewayContainer}>
+        <div className={styles.gatewayHeader}>
+          {isCreate && (
+            <Button icon="plus" type="primary" onClick={() => this.routeDrawerShow({})}>
+              {formatMessage({ id: 'teamNewGateway.NewGateway.ServiceDrawer.creat' })}
+            </Button>
+          )}
+        </div>
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          loading={tableLoading}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: dataSource.length,
+            onChange: this.onPageChange,
+            showQuickJumper: true,
+            showSizeChanger: true,
+            showTotal: (total) => `共 ${total} 条`,
+            onShowSizeChange: this.onPageChange,
+            hideOnSinglePage: dataSource.length <= 10
           }}
-          />
-        </Card>
+        />
         {serviceDrawer &&
           <ServiceDrawer
             visible={serviceDrawer}

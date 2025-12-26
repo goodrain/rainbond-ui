@@ -21,7 +21,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { getApplicationUpgradeDetail } from '../../../services/app';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
@@ -60,7 +60,7 @@ export default class AppList extends PureComponent {
       upgradeInfo: [],
       upgrade_info: '',
       upgradeRecords: [],
-      upgradeText: formatMessage({id:'helmAppInstall.index.up'}),
+      upgradeText: formatMessage({ id: 'helmAppInstall.index.up' }),
       textState: 1,
       service_id: [],
       upgradeLoading: false,
@@ -108,14 +108,14 @@ export default class AppList extends PureComponent {
           }
           const appObj = {}
           const service = {
-                          can_upgrade: true,
-                          current_version: "1.0",
-                          have_change: true,
-                          service_cname: "应用属性变更",
-                          service_id: "upgrade_info",
-                          service_key: "upgrade_info",
-                          type: "upgrade"
-                        }
+            can_upgrade: true,
+            current_version: "1.0",
+            have_change: true,
+            service_cname: "应用属性变更",
+            service_id: "upgrade_info",
+            service_key: "upgrade_info",
+            type: "upgrade"
+          }
           appObj.service = service
           appObj.upgrade_info = res.bean.upgrade_info
           this.setState(
@@ -127,7 +127,7 @@ export default class AppList extends PureComponent {
             },
             () => {
               const { upgradeInfo } = this.state
-              if(res.bean.upgrade_info && res.bean.upgrade_info.k8s_resources){
+              if (res.bean.upgrade_info && res.bean.upgrade_info.k8s_resources) {
                 upgradeInfo.push(appObj)
               }
               if (callback) {
@@ -245,18 +245,18 @@ export default class AppList extends PureComponent {
       }
     ];
     if (show_component && show_component.service.type == 'add') {
-      return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'}));
+      return Box(formatMessage({ id: 'helmAppInstall.UpgradeInfo.add_com' }));
     }
     if (show_component) {
       const { service, upgrade_info } = show_component;
       if (service && service.type == 'add') {
-        return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'}));
+        return Box(formatMessage({ id: 'helmAppInstall.UpgradeInfo.add_com' }));
       } else if (upgrade_info && service.have_change) {
         return this.setData(upgrade_info);
       }
-      return Box(formatMessage({id:'helmAppInstall.UpgradeInfo.change'}));
+      return Box(formatMessage({ id: 'helmAppInstall.UpgradeInfo.change' }));
     }
-    return Box(isUpgrade ? formatMessage({id:'helmAppInstall.UpgradeInfo.select'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.no_updatae'}));
+    return Box(isUpgrade ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.select' }) : formatMessage({ id: 'helmAppInstall.UpgradeInfo.no_updatae' }));
   };
   handleAdd = obj => {
     return obj && obj.add && obj.add.length > 0;
@@ -286,9 +286,9 @@ export default class AppList extends PureComponent {
       list.push('delete');
     }
     const operationMap = {
-      add: formatMessage({id:'helmAppInstall.UpgradeInfo.add'}),
-      upd: formatMessage({id:'helmAppInstall.UpgradeInfo.updata'}),
-      delete: formatMessage({id:'helmAppInstall.UpgradeInfo.remove'})
+      add: formatMessage({ id: 'helmAppInstall.UpgradeInfo.add' }),
+      upd: formatMessage({ id: 'helmAppInstall.UpgradeInfo.updata' }),
+      delete: formatMessage({ id: 'helmAppInstall.UpgradeInfo.remove' })
     };
 
     return (
@@ -373,65 +373,65 @@ export default class AppList extends PureComponent {
     }
     if (isProbes) {
       const filterMap = {
-        liveness: formatMessage({id:'helmAppInstall.UpgradeInfo.survival'}),
-        readiness: formatMessage({id:'helmAppInstall.UpgradeInfo.ready'})
+        liveness: formatMessage({ id: 'helmAppInstall.UpgradeInfo.survival' }),
+        readiness: formatMessage({ id: 'helmAppInstall.UpgradeInfo.ready' })
       };
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.healthy'})}`, this.handleBox(null, probes, 'mode', null, filterMap));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.healthy' })}`, this.handleBox(null, probes, 'mode', null, filterMap));
     }
 
     if (deployVersionChange) {
       addArr(
-        `${formatMessage({id:'helmAppInstall.UpgradeInfo.edition'})}`,
+        `${formatMessage({ id: 'helmAppInstall.UpgradeInfo.edition' })}`,
         <div className={styles.textzt}>
-          {formatMessage({id:'helmAppInstall.UpgradeInfo.from'})} <span>{deploy_version.old}</span> {formatMessage({id:'helmAppInstall.UpgradeInfo.to'})}
+          {formatMessage({ id: 'helmAppInstall.UpgradeInfo.from' })} <span>{deploy_version.old}</span> {formatMessage({ id: 'helmAppInstall.UpgradeInfo.to' })}
           <span>{deploy_version.new}</span>
         </div>
       );
     }
 
     if (isConnectInfos) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.info'})}`, this.handleBox(null, connect_infos, 'attr_name'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.info' })}`, this.handleBox(null, connect_infos, 'attr_name'));
     }
 
     if (isPluginDeps) {
       addArr(
-        `${formatMessage({id:'helmAppInstall.UpgradeInfo.unit'})}`,
+        `${formatMessage({ id: 'helmAppInstall.UpgradeInfo.unit' })}`,
         this.handleBox(null, plugin_deps, 'plugin', 'plugin_alias')
       );
     }
 
     if (isEnvs) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.variable'})}`, this.handleBox(null, envs, 'attr_name'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.variable' })}`, this.handleBox(null, envs, 'attr_name'));
     }
 
     if (isPorts) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.port'})}`, this.handleBox(null, ports, 'container_port'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.port' })}`, this.handleBox(null, ports, 'container_port'));
     }
 
     if (isVolumes) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.storage'})}`, this.handleBox(`${formatMessage({id:'helmAppInstall.UpgradeInfo.mount'})}`, volumes, 'volume_name'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.storage' })}`, this.handleBox(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.mount' })}`, volumes, 'volume_name'));
     }
 
     if (isDepServices) {
       addArr(
-        `${formatMessage({id:'helmAppInstall.UpgradeInfo.comm'})}`,
+        `${formatMessage({ id: 'helmAppInstall.UpgradeInfo.comm' })}`,
         <div>
           {dep_services.add && dep_services.add.length > 0 && (
             <div className={styles.textzt}>
-              {formatMessage({id:'helmAppInstall.UpgradeInfo.add_from'})}
+              {formatMessage({ id: 'helmAppInstall.UpgradeInfo.add_from' })}
               {dep_services.add.map(item => {
                 return <span key={item.service_id}>{item.service_cname}</span>;
               })}
-              {formatMessage({id:'helmAppInstall.UpgradeInfo.rely_on'})}
+              {formatMessage({ id: 'helmAppInstall.UpgradeInfo.rely_on' })}
             </div>
           )}
           {dep_services.del && dep_services.del.length > 0 && (
             <div className={styles.textzt}>
-              {formatMessage({id:'helmAppInstall.UpgradeInfo.remove_on'})}
+              {formatMessage({ id: 'helmAppInstall.UpgradeInfo.remove_on' })}
               {dep_services.del.map(item => {
                 return <span key={item.service_id}>{item.service_cname}</span>;
               })}
-              {formatMessage({id:'helmAppInstall.UpgradeInfo.rely_on'})}
+              {formatMessage({ id: 'helmAppInstall.UpgradeInfo.rely_on' })}
             </div>
           )}
         </div>
@@ -439,19 +439,19 @@ export default class AppList extends PureComponent {
     }
 
     if (isDepVolumess) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.dependent'})}`, this.handleBox('存储挂载'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}`, dep_volumes, 'mnt_name'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.dependent' })}`, this.handleBox(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.mount' })}`, dep_volumes, 'mnt_name'));
     }
 
     if (isPlugins) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.unit'})}`, this.handleBox(null, plugins, 'plugin_alias'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.unit' })}`, this.handleBox(null, plugins, 'plugin_alias'));
     }
 
     if (isAppConfigGroups) {
       addArr(
-        `${formatMessage({id:'helmAppInstall.UpgradeInfo.comm_group'})}`,
+        `${formatMessage({ id: 'helmAppInstall.UpgradeInfo.comm_group' })}`,
         <div className={styles.textzt}>
-          {addAppConfigGroups ? '新增'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}` : '更新'`${formatMessage({id:'helmAppInstall.UpgradeInfo.add_com'})}`}
-          {formatMessage({id:'helmAppInstall.UpgradeInfo.app_group'})}
+          {addAppConfigGroups ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.add' }) : formatMessage({ id: 'helmAppInstall.UpgradeInfo.updata' })}
+          {formatMessage({ id: 'helmAppInstall.UpgradeInfo.app_group' })}
           {app_config_groups[addAppConfigGroups ? 'add' : 'upd'].map(item => {
             return (
               <Tooltip
@@ -473,21 +473,21 @@ export default class AppList extends PureComponent {
 
     if (isComponentMonitors) {
       addArr(
-        `${formatMessage({id:'helmAppInstall.UpgradeInfo.point'})}`,
+        `${formatMessage({ id: 'helmAppInstall.UpgradeInfo.point' })}`,
         this.handleBox(null, component_monitors, 'service_show_name')
       );
     }
 
     if (isComponentGraphs) {
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.point_Chart'})}`, this.handleBox(null, component_graphs, 'title'));
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.point_Chart' })}`, this.handleBox(null, component_graphs, 'title'));
     }
 
-    if(isComponent_k8s_attributes){
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.k8s'})}`, this.handleBox(null, component_k8s_attributes, 'name'));
+    if (isComponent_k8s_attributes) {
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.k8s' })}`, this.handleBox(null, component_k8s_attributes, 'name'));
     }
 
-    if(isK8s_resources){
-      addArr(`${formatMessage({id:'helmAppInstall.UpgradeInfo.k8s'})}`, this.handleBox(null, k8s_resources, 'name'));
+    if (isK8s_resources) {
+      addArr(`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.k8s' })}`, this.handleBox(null, k8s_resources, 'name'));
     }
     return arr;
   };
@@ -499,40 +499,40 @@ export default class AppList extends PureComponent {
         return <Icon type="sync" style={{ color: '#1890ff' }} spin />;
       case 8:
         return (
-          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.hand'})}>
+          <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.hand' })}>
             <Icon type="close" style={{ color: 'red' }} />
           </Tooltip>
         );
       case 3:
         return (
-          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.success'})}>
+          <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.success' })}>
             <Icon type="check" style={{ color: '#239B24' }} />
           </Tooltip>
         );
       default:
         if (isUpgrade && item.service.have_change) {
           return (
-            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.can_updata'})}>
+            <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.can_updata' })}>
               <Icon type="up" style={{ color: '#239B24' }} />
             </Tooltip>
           );
         }
         if (isUpgrade && !item.service.can_upgrade) {
           return (
-            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.Not_upgradeable'})}>
+            <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.Not_upgradeable' })}>
               <Icon type="info-circle" />
             </Tooltip>
           );
         }
         if (isUpgrade) {
           return (
-            <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.comm_no_updata'})}>
+            <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.comm_no_updata' })}>
               <Icon type="up" style={{ color: '#239B24' }} />
             </Tooltip>
           );
         }
         return (
-          <Tooltip title={formatMessage({id:'helmAppInstall.UpgradeInfo.add_comm'})}>
+          <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.add_comm' })}>
             <Icon type="plus" style={{ color: '#239B24' }} />
           </Tooltip>
         );
@@ -546,11 +546,11 @@ export default class AppList extends PureComponent {
     }
     const { status } = record;
     const statusMap = {
-      1: formatMessage({id:'helmAppInstall.UpgradeInfo.not_started'}),
-      2: formatMessage({id:'helmAppInstall.UpgradeInfo.implementation'}),
-      3: formatMessage({id:'helmAppInstall.UpgradeInfo.succeeded'}),
-      8: formatMessage({id:'helmAppInstall.UpgradeInfo.failed'}),
-      10: formatMessage({id:'helmAppInstall.UpgradeInfo.Deployment_failed'})
+      1: formatMessage({ id: 'helmAppInstall.UpgradeInfo.not_started' }),
+      2: formatMessage({ id: 'helmAppInstall.UpgradeInfo.implementation' }),
+      3: formatMessage({ id: 'helmAppInstall.UpgradeInfo.succeeded' }),
+      8: formatMessage({ id: 'helmAppInstall.UpgradeInfo.failed' }),
+      10: formatMessage({ id: 'helmAppInstall.UpgradeInfo.Deployment_failed' })
     };
     const types = {
       1: 'info',
@@ -565,7 +565,7 @@ export default class AppList extends PureComponent {
           showIcon
           type={types[status]}
           message={`${record.group_name} 
-          ${status === 1 ? formatMessage({id:'helmAppInstall.UpgradeInfo.now_version'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.form_version'})} 
+          ${status === 1 ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.now_version' }) : formatMessage({ id: 'helmAppInstall.UpgradeInfo.form_version' })} 
           ${record.old_version} 
           ${statusMap[status]}`}
         />
@@ -645,11 +645,11 @@ export default class AppList extends PureComponent {
   };
   handleSelectComponent = select_component => {
     const { upgradeInfo } = this.state;
-    if(select_component.service.service_id === 'upgrade_info'){
+    if (select_component.service.service_id === 'upgrade_info') {
       this.setState({
         isAppOrComponent: true
       })
-    }else{
+    } else {
       this.setState({
         isAppOrComponent: false
       })
@@ -864,8 +864,8 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        title={formatMessage({id:'helmAppInstall.UpgradeInfo.Administration'})}
-        content={formatMessage({id:'helmAppInstall.UpgradeInfo.application'})}
+        title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.Administration' })}
+        content={formatMessage({ id: 'helmAppInstall.UpgradeInfo.application' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg('upgrade', 20)}
         extraContent={null}
       >
@@ -889,12 +889,12 @@ export default class AppList extends PureComponent {
                     <div className={styles.zsldis}>
                       <Form.Item
                         {...formItemLayout}
-                        label={formatMessage({id:'helmAppInstall.UpgradeInfo.updata_to'})}
-                        style={{ width: '100%' }}
+                        label={formatMessage({ id: 'helmAppInstall.UpgradeInfo.updata_to' })}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center' }}
                       >
                         {getFieldDecorator('upgradeVersions', {
                           initialValue: upgrade_versions && upgrade_versions[0],
-                          rules: [{ required: false, message: formatMessage({id:'helmAppInstall.UpgradeInfo.select'}) }]
+                          rules: [{ required: false, message: formatMessage({ id: 'helmAppInstall.UpgradeInfo.select' }) }]
                         })(
                           <Select
                             getPopupContainer={triggerNode =>
@@ -914,7 +914,7 @@ export default class AppList extends PureComponent {
                             })}
                           </Select>
                         )}
-                        <span>&nbsp;&nbsp;{formatMessage({id:'helmAppInstall.UpgradeInfo.version'})}</span>
+                        <span>&nbsp;&nbsp;{formatMessage({ id: 'helmAppInstall.UpgradeInfo.version' })}</span>
                       </Form.Item>
                     </div>
                     <div className={styles.zslcheck}>
@@ -925,7 +925,7 @@ export default class AppList extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: formatMessage({id:'helmAppInstall.UpgradeInfo.select_comm'})
+                              message: formatMessage({ id: 'helmAppInstall.UpgradeInfo.select_comm' })
                             }
                           ]
                         })(
@@ -953,19 +953,18 @@ export default class AppList extends PureComponent {
                                     return (
                                       <Col
                                         span={24}
-                                        className={`${styles.zslMt} ${
-                                          select_component_id ===
+                                        className={`${styles.zslMt} ${select_component_id ===
                                             item.service.service_id ||
-                                          select_component_id ===
+                                            select_component_id ===
                                             item.service.service_key
                                             ? styles.active
                                             : ''
-                                        }`}
+                                          }`}
                                         onClick={() => {
                                           this.handleSelectComponent(item);
                                         }}
                                       >
-                                        <div style={{ width: '100%' }}>
+                                        <div style={{ width: '100%', display: 'flex', alignItems: 'center' }}>
                                           <Checkbox
                                             value={
                                               service.service_id ||
@@ -974,9 +973,11 @@ export default class AppList extends PureComponent {
                                             disabled={!service.can_upgrade}
                                             style={{ width: '30px' }}
                                           />
-                                          {service
-                                            ? service.service_cname
-                                            : item.service_cname}
+                                          <span>
+                                            {service
+                                              ? service.service_cname
+                                              : item.service_cname}
+                                          </span>
                                         </div>
 
                                         <div>{this.getUpgradeStatus(item)}</div>
@@ -999,7 +1000,7 @@ export default class AppList extends PureComponent {
               >
                 <div className={styles.zslbor}>
                   {isUpgrade && (
-                    <div className={styles.zslcen}>{isAppOrComponent ? formatMessage({id:'helmAppInstall.UpgradeInfo.app_Details'}) : formatMessage({id:'helmAppInstall.UpgradeInfo.comm_Details'})}</div>
+                    <div className={styles.zslcen}>{isAppOrComponent ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.app_Details' }) : formatMessage({ id: 'helmAppInstall.UpgradeInfo.comm_Details' })}</div>
                   )}
                   <Row
                     gutter={24}
@@ -1044,7 +1045,7 @@ export default class AppList extends PureComponent {
                   this.returnListPage();
                 }}
               >
-                {formatMessage({id:'helmAppInstall.UpgradeInfo.back'})}
+                {formatMessage({ id: 'helmAppInstall.UpgradeInfo.back' })}
               </Button>
               <Button
                 type="primary"
@@ -1071,7 +1072,7 @@ export default class AppList extends PureComponent {
                   loading={upgradeLoading}
                   style={{ marginLeft: '16px' }}
                 >
-                  {formatMessage({id:'helmAppInstall.UpgradeInfo.retry'})}
+                  {formatMessage({ id: 'helmAppInstall.UpgradeInfo.retry' })}
                 </Button>
               )}
             </Row>

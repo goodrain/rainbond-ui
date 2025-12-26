@@ -35,7 +35,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import CreateAppModels from '../../components/CreateAppModels';
 import FooterToolbar from '../../components/FooterToolbar';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -638,7 +638,7 @@ export default class Main extends PureComponent {
         if (res && res.code === 404) {
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
         }
@@ -1175,7 +1175,6 @@ export default class Main extends PureComponent {
               marginBottom: 24
             }}
             title={formatMessage({ id: 'appPublish.btn.record.list.title.versions' })}
-            bordered={false}
             bodyStyle={{
               padding: 0
             }}
@@ -1345,7 +1344,6 @@ export default class Main extends PureComponent {
                 marginBottom: 24
               }}
               title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_component_config' })}
-              bordered={false}
               bodyStyle={{
                 padding: 0
               }}
@@ -1434,7 +1432,6 @@ export default class Main extends PureComponent {
                 marginBottom: 24
               }}
               title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_pluginMsg' })}
-              bordered={false}
             >
               <Table
                 size="middle"
@@ -1465,7 +1462,6 @@ export default class Main extends PureComponent {
               marginBottom: 128
             }}
             title={formatMessage({ id: 'appPublish.btn.record.list.title.k8s' })}
-            bordered={false}
           >
             <Table
               size="middle"

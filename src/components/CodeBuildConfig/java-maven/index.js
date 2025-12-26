@@ -3,11 +3,13 @@
 import MavenConfiguration from '@/components/MavenConfiguration';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/role';
+import handleAPIError from '@/utils/error';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import JavaJDK from '../java-jdk';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -22,7 +24,6 @@ const { Option } = Select;
   { withRef: true }
 )
 class Index extends PureComponent {
-  // eslint-disable-next-line constructor-super
   constructor(props) {
     super(props);
     this.state = {
@@ -60,6 +61,9 @@ class Index extends PureComponent {
         if (res && res.status_code === 200) {
           this.setState({ MavenList: res.list });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -70,8 +74,6 @@ class Index extends PureComponent {
       mavenVisible: true
     });
   };
-
-  handleSubmit = () => { };
 
   handleEventPermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -110,7 +112,7 @@ class Index extends PureComponent {
 
     let Default_BUILD_MAVEN_SETTING_NAME = '';
     if (mavens && envBUILD_MAVEN_SETTING_NAME) {
-      MavenList.map(item => {
+      MavenList.forEach(item => {
         if (item.name === envBUILD_MAVEN_SETTING_NAME) {
           Default_BUILD_MAVEN_SETTING_NAME = envBUILD_MAVEN_SETTING_NAME;
         }
@@ -132,7 +134,6 @@ class Index extends PureComponent {
           <MavenConfiguration
             activeMaven={activeMaven}
             onCancel={this.onCancel}
-            onOk={this.handleSubmit}
           />
         )}
         <Form.Item {...formItemLayout} label={<FormattedMessage id='componentOverview.body.JavaMavenConfig.Maven' />}>

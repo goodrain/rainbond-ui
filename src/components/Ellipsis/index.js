@@ -96,11 +96,11 @@ export default class Ellipsis extends Component {
     let mid = m;
     let end = e;
     let begin = b;
-    shadowNode.innerHTML = text.substring(0, mid) + suffix;
+    shadowNode.textContent = text.substring(0, mid) + suffix;
     let sh = shadowNode.offsetHeight;
 
     if (sh <= th) {
-      shadowNode.innerHTML = text.substring(0, mid + 1) + suffix;
+      shadowNode.textContent = text.substring(0, mid + 1) + suffix;
       sh = shadowNode.offsetHeight;
       if (sh > th) {
         return mid;
@@ -113,7 +113,7 @@ export default class Ellipsis extends Component {
       if (mid - 1 < 0) {
         return mid;
       }
-      shadowNode.innerHTML = text.substring(0, mid - 1) + suffix;
+      shadowNode.textContent = text.substring(0, mid - 1) + suffix;
       sh = shadowNode.offsetHeight;
       if (sh <= th) {
         return mid - 1;

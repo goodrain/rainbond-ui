@@ -6,12 +6,11 @@ import { enquireScreen } from 'enquire-js';
 import CustomFooter from './CustomFooter';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import GlobalHeader from '../components/GlobalHeader';
-import headerStype from '../components/GlobalHeader/index.less';
 import PageLoading from '../components/PageLoading';
 import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
@@ -166,13 +165,6 @@ class AccountLayout extends PureComponent {
       }
     };
     const autoWidth = 'calc(100% -48px)';
-    const customHeaderImg = () => {
-      return (
-        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-           <img src={fetchLogo} alt="" />
-        </div>
-      );
-    };
     const layout = () => {
       return (
         <Layout>
@@ -200,7 +192,6 @@ class AccountLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={isMobiles}
-              customHeaderImg={customHeaderImg}
             />
             <Content
               key="sdfds"

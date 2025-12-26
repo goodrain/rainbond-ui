@@ -3,6 +3,7 @@
   height: 15%;
   margin: 0 auto;
 }
+
 .content {
   width: 80%;
   height: 70%;
@@ -21,6 +22,7 @@
     border-right: 1px solid rgba(0, 0, 0, 0.2);
     position: relative;
     padding: 12px;
+
     img {
       width: 100%;
       height: 100%;
@@ -50,11 +52,35 @@
   display: flex;
   width: 100%;
   height: 100vh;
+
+  :global {
+    .ant-input-lg {
+      height: 48px;
+      font-size: 16px;
+    }
+
+    .ant-input-affix-wrapper .ant-input:not(:first-child) {
+      padding-left: 40px;
+    }
+
+    .ant-input-prefix>i {
+      font-size: 16px !important;
+    }
+
+    .ant-input-prefix>i>svg {
+      fill: @text-color !important;
+    }
+
+    .ant-input {
+      border-radius: 12px !important;
+
+    }
+  }
 }
 
 .saasLeft {
   flex: 1;
-  padding: 48px 34px;
+  padding: 60px;
   background: linear-gradient(-35deg, #020617 0%, #1e293b 100%);
   color: #fff;
   display: flex;
@@ -69,24 +95,25 @@
     right: -100px;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
     border-radius: 50%;
     pointer-events: none;
   }
+
   .saasLeftContent {
-    width: 70%;
+    width: 100%;
     // .logoSection {
     //   margin-bottom: 80px;
-      
+
     //   .appLogo {
     //     width: 64px;
     //     height: 64px;
     //   }
     // }
-  
+
     .introSection {
       margin-bottom: 80px;
-  
+
       h1 {
         font-size: 36px;
         font-weight: 700;
@@ -94,20 +121,21 @@
         margin-bottom: 16px;
         color: #fff;
       }
-  
+
       .subTitle {
         font-size: 30px;
         line-height: 1.6;
-        color: #cbd5e1;
+        color:#fff;
+
       }
     }
-  
+
     .featureList {
       .featureItem {
         display: flex;
         align-items: flex-start;
         margin-bottom: 32px;
-  
+
         .iconWrapper {
           width: 48px;
           height: 48px;
@@ -117,13 +145,13 @@
           align-items: center;
           justify-content: center;
           margin-right: 16px;
-  
+
           .featureIcon {
             font-size: 24px;
             color: #fff;
           }
         }
-  
+
         .featureContent {
           h3 {
             font-size: 22px;
@@ -131,10 +159,10 @@
             color: #fff;
             margin-bottom: 8px;
           }
-  
+
           p {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
+            color: @text-color-secondary;
             margin: 0;
             line-height: 1.6;
           }
@@ -142,7 +170,7 @@
       }
     }
   }
-  
+
 }
 
 .saasRight {
@@ -162,8 +190,9 @@
     margin-bottom: 4px;
     text-align: center;
   }
+
   p {
-    color: #4b5563;
+    color: @text-color-secondary;
     margin-bottom: 24px;
     text-align: center;
     font-size: 14px;
@@ -173,18 +202,21 @@
 .loginForm {
   display: flex;
   justify-content: center;
+
   :global {
     .ant-input {
       height: 40px;
-      border-radius: 4px;
+      border-radius: 12px;
     }
+
     .ant-btn {
       width: 100%;
       height: 40px;
-      border-radius: 4px;
+      border-radius: 12px;
     }
+
     .ant-checkbox-wrapper {
-      color: #666;
+      color: @text-color-secondary;
       font-size: 14px;
     }
   }
@@ -194,11 +226,12 @@
   margin-top: 16px;
   text-align: center;
   font-size: 14px;
+
   span {
-    color: #666;
+    color: @text-color-secondary;
   }
   a {
-    color: #1890ff;
+    color: @primary-color;
     margin-left: 4px;
   }
 }
@@ -207,8 +240,153 @@
   margin-top: 24px;
   text-align: center;
   font-size: 14px;
-  color: #666;
+    color: @text-color-secondary;
+
   a {
-    color: #1890ff;
+    color: @primary-color;
+  }
+}
+
+// Normal (non-SaaS) login layout - 左右各占一半
+.normalContainer {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+.normalLeft {
+  width: 50%;
+  background: @primary-color;
+  color: #fff;
+  padding: 60px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+
+  // 网格背景效果，从右往左渐变淡出
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: right top;
+    mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 70%);
+    -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+  }
+}
+
+.normalLeftContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+
+  .logoSection {
+    display: flex;
+    align-items: center;
+
+    .logoImg {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      margin-right: 12px;
+    }
+
+    .logoText {
+      font-size: 22px;
+      font-family: "Now", "Montserrat", sans-serif;
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+
+  .mainSection {
+    .titleSection {
+      margin-bottom: 60px;
+
+      h1 {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0;
+        color: #fff;
+      }
+    }
+
+    .description {
+      font-size: 18px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0;
+    }
+  }
+
+  .companyInfo {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.normalRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+
+  // 网格背景效果，从左往右渐变淡出
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(fade(@primary-color, 10%) 1px, transparent 1px),
+      linear-gradient(90deg, fade(@primary-color, 10%) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: left top;
+    mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 60%);
+    -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 60%);
+    pointer-events: none;
+  }
+}
+
+.normalLoginBox {
+  width: 100%;
+  max-width: 400px;
+
+  :global {
+    .ant-input-lg {
+      height: 48px;
+      font-size: 16px;
+    }
+
+    .ant-input-affix-wrapper .ant-input:not(:first-child) {
+      padding-left: 40px;
+    }
+
+    .ant-input-prefix>i {
+      font-size: 16px !important;
+    }
+
+    .ant-input-prefix>i>svg {
+      fill: @text-color !important;
+    }
+
+    .ant-input {
+      border-radius: 12px;
+
+    }
   }
 }

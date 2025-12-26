@@ -14,7 +14,8 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import Result from '../../../components/Result';
 import cloud from '../../../utils/cloud';
 import styles from './index.less'

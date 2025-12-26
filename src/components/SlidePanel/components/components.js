@@ -29,6 +29,7 @@ import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import ConfirmModal from '../../ConfirmModal';
 import styless from '../../CreateTeam/index.less';
 import MarketAppDetailShow from '../../MarketAppDetailShow';
@@ -38,13 +39,6 @@ import { rollback } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import AppPubSubSocket from '../../../utils/appPubSubSocket';
 import appStatusUtil from '../../../utils/appStatus-util';
-import ScrollerX from '../../ScrollerX';
-import {
-  createApp,
-  createComponent,
-  createEnterprise,
-  createTeam
-} from '../../../utils/breadcrumb';
 import dateUtil from '../../../utils/date-util';
 import globalUtil from '../../../utils/global';
 import regionUtil from '../../../utils/region';
@@ -67,7 +61,8 @@ import ComponentPlugin from '../../../pages/Component/componentPlugin'
 import ThirdPartyServices from '../../../pages/Component/ThirdPartyServices';
 import PluginUtile from '../../../utils/pulginUtils'
 import { ResumeContext } from "../../../pages/Component/funContext";
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
@@ -1177,6 +1172,7 @@ class Main extends PureComponent {
         show: isStart && !appStatusUtil.canStop(status),
         type: 'button',
         text: <FormattedMessage id='componentOverview.header.right.start' />,
+        icon: 'play-circle',
         disabled: !appStatusUtil.canStart(status),
         onClick: () => this.handleOpenHelpfulHints('start')
       },
@@ -1185,6 +1181,7 @@ class Main extends PureComponent {
         show: method !== 'vm' && !isShowThirdParty && isConstruct && !isShowKubeBlocksComponent, // 数据库组件不显示构建按钮
         type: 'button',
         text: <FormattedMessage id='componentOverview.header.right.build' />,
+        icon: 'build',
         loading: buildInformationLoading,
         onClick: this.handleOpenBuild,
         badge: this.state.BuildState && {
@@ -1198,7 +1195,7 @@ class Main extends PureComponent {
         show: method !== 'vm' && isVisitWebTerminal && !isShowThirdParty && !isShowKubeBlocksComponent,
         type: 'link',
         text: <FormattedMessage id='componentOverview.header.right.web' />,
-        path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole`,
+        path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole?apps=${globalUtil.getAppID()}`,
         target: '_blank'
       },
       {
@@ -1289,6 +1286,7 @@ class Main extends PureComponent {
                 />
               </Tooltip>
             ) : null}
+            {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
             {op.text}
           </Button>
         ) : op.type === 'link' ? (
@@ -1300,6 +1298,7 @@ class Main extends PureComponent {
               style={{ marginRight: 8 }}
               className="ant-btn"
             >
+              {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
               {op.text}
             </Link>
           </Button>
@@ -1356,6 +1355,7 @@ class Main extends PureComponent {
                   />
                 </Tooltip>
               ) : null}
+              {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
               {op.text}
             </Button>
           ) : op.type === 'link' ? (
@@ -1365,6 +1365,7 @@ class Main extends PureComponent {
                 to={op.path}
                 target={op.target}
               >
+                {op.icon && <Icon type={op.icon} style={{ marginRight: 4 }} />}
                 {op.text}
               </Link>
             </Button>
@@ -1814,45 +1815,57 @@ class Main extends PureComponent {
             )}
           </div>
         </Modal>
-        <div style={{
-          width: '100%',
-          height: 'calc(100% - 150px)',
-          overflow: 'auto',
-          scrollbarWidth: 'none',
-          '-ms-overflow-style': 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none'
-          }
-        }}>
-          {Com ? (
-            <Com
-              key={activeTab}
-              method={method}
-              groupDetail={groupDetail}
-              componentPermissions={permissions}
-              timers={componentTimer}
-              status={status}
-              ref={this.saveRef}
-              {...data}
-              {...this.props}
-              isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
-              onshowDeployTips={msg => {
-                this.handleshowDeployTips(msg);
-              }}
-              onshowRestartTips={msg => {
-                this.handleshowRestartTips(msg);
-              }}
-              handleOperation={(msg, callback) => {
-                this.handleOperation(msg, callback);
-              }}
-              socket={this.socket}
-              onChecked={this.handleChecked}
-              isShowUpdate={this.state.isShowUpdate}
-            />
-          ) : (
-            <FormattedMessage id="componentOverview.promptModal.error" />
-          )}
-        </div>
+        <TransitionGroup
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 'calc(100% - 150px)',
+            overflow: 'hidden'
+          }}
+        >
+          <CSSTransition
+            key={activeTab}
+            timeout={700}
+            classNames="page-zoom"
+            unmountOnExit
+          >
+            <div style={{
+              width: '100%',
+              height: '100%',
+              overflow: 'auto',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}>
+              {Com ? (
+                <Com
+                  method={method}
+                  groupDetail={groupDetail}
+                  componentPermissions={permissions}
+                  timers={componentTimer}
+                  status={status}
+                  ref={this.saveRef}
+                  {...data}
+                  {...this.props}
+                  isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
+                  onshowDeployTips={msg => {
+                    this.handleshowDeployTips(msg);
+                  }}
+                  onshowRestartTips={msg => {
+                    this.handleshowRestartTips(msg);
+                  }}
+                  handleOperation={(msg, callback) => {
+                    this.handleOperation(msg, callback);
+                  }}
+                  socket={this.socket}
+                  onChecked={this.handleChecked}
+                  isShowUpdate={this.state.isShowUpdate}
+                />
+              ) : (
+                <FormattedMessage id="componentOverview.promptModal.error" />
+              )}
+            </div>
+          </CSSTransition>
+        </TransitionGroup>
 
 
         {showDeleteApp && (

@@ -2,7 +2,8 @@
 import { Button, Form, Modal, Radio, Select, Tag, Tooltip, Row, Col, Card, Input } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';
@@ -114,7 +115,7 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { is_deploy } = this.state;
     const { form, onSubmit } = this.props;
-    const group_id = globalUtil.getAppID()
+    const group_id = globalUtil.getAppID()    
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
         if(group_id){

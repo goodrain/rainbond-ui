@@ -5,15 +5,20 @@
   justify-content: center;
   align-items: center;
 }
+.boxs:hover{
+    box-shadow: @rbd-card-shadow-hover-min;
+}
 .boxs{
-    margin: 10px 0px;
+    margin: 12px 0px;
     padding: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-radius: 5px;
+    border-radius: 12px;
+    box-shadow: @rbd-card-shadow;
+    transition: box-shadow 0.3s ease-in-out;
     border: 1px solid #e3e3e3;
-    background-color: #fff;
+
     p{
         margin-bottom: 0em;
     }
@@ -42,7 +47,7 @@
       }
     }
     .pluginName{
-        color: #4d73b1;
+        color: @primary-color;
         text-decoration: none;
         background-color: transparent;
         outline: none;

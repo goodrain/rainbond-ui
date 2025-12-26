@@ -4,21 +4,17 @@ import { routerRedux } from 'dva/router';
 
 import {
     Table,
-    Card,
     Button,
     Row,
-    Col,
     Form,
-    Input,
     notification,
     Popconfirm,
-    Tag,
-    Tooltip
+    Tag
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
-import cookie from '../../utils/cookie';
+import styles from './index.less';
 
 @Form.create()
 @connect(({ global }) => ({
@@ -304,10 +300,9 @@ export default class index extends Component {
             },
         };
         return (
-            <div>
-                <Card
-                    extra={
-                        isCreate &&
+            <div className={styles.gatewayContainer}>
+                <div className={styles.gatewayHeader}>
+                    {isCreate && (
                         <Button
                             icon="plus"
                             type="primary"
@@ -315,25 +310,24 @@ export default class index extends Component {
                         >
                             {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.add' })}
                         </Button>
-                    }
-                >
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        loading={tableLoading}
-                        pagination={{
-                            current: page,
-                            pageSize: pageSize,
-                            total: dataSource.length ,
-                            onChange: this.onPageChange,
-                            showQuickJumper: true,
-                            showSizeChanger: true,
-                            showTotal: (total) => `共 ${total} 条`,
-                            onShowSizeChange: this.onPageChange,
-                            hideOnSinglePage: dataSource.length <= 10
-                        }}
-                    />
-                </Card>
+                    )}
+                </div>
+                <Table
+                    dataSource={dataSource}
+                    columns={columns}
+                    loading={tableLoading}
+                    pagination={{
+                        current: page,
+                        pageSize: pageSize,
+                        total: dataSource.length,
+                        onChange: this.onPageChange,
+                        showQuickJumper: true,
+                        showSizeChanger: true,
+                        showTotal: (total) => `共 ${total} 条`,
+                        onShowSizeChange: this.onPageChange,
+                        hideOnSinglePage: dataSource.length <= 10
+                    }}
+                />
                 {routeDrawer &&
                     <RouteDrawerTcp
                         visible={routeDrawer}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'dva';
 import { Form, Row, Col, Input, Button, Icon, Upload, Avatar, notification, Skeleton, Modal } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ChangePassword from '../../../components/ChangePassword'
 import EditUserInfoFrom from '../../../components/EditUserInfoFrom'
 import userIcon from '../../../../public/images/default_Avatar.png';

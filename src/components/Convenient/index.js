@@ -12,8 +12,10 @@ import {
   Spin
 } from 'antd';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import React, { PureComponent } from 'react';
+import global from '@/utils/global';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
@@ -81,7 +83,8 @@ export default class Convenient extends PureComponent {
             region_name,
             service_cname
           } = item;
-          result = `/team/${tenant_name}/region/${region_name}/components/${service_alias}/overview`;
+          // result =`/team/${tenant_name}/region/${region_name}/components/${service_alias}/overview`;
+          result = `/team/${teamName}/region/${regionName}/apps/${global.getAppID()}/overview?type=components&componentID=${service_alias}&tab=overview`;
           name = service_cname;
         }
       });

@@ -1,128 +1,80 @@
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import cookie from '../utils/cookie';
 import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
-import PluginUtil from '../utils/pulginUtils'
+import PluginUtil from '../utils/pulginUtils';
 
 const newbieGuide = cookie.get('newbie_guide');
+
 function setTeamMenu(pluginMenu, menuName) {
   if (pluginMenu) {
     const isShow = pluginMenu.some(item => {
-      return item.name == menuName
-    })
-    return isShow
+      return item.name == menuName;
+    });
+    return isShow;
   }
 }
 
+/**
+ * 生成分组菜单数据
+ * @param {string} teamName - 团队名称
+ * @param {string} regionName - 集群名称
+ * @param {object} permissionsInfo - 权限信息
+ * @param {array} pluginList - 插件列表
+ * @returns {array} 分组菜单数组
+ */
 function menuData(teamName, regionName, permissionsInfo, pluginList) {
-  const menuArr = [
-    {
-      name: formatMessage({ id: 'menu.team.dashboard' }),
-      icon: getMenuSvg.getSvg('dashboard'),
-      path: `team/${teamName}/region/${regionName}/index`,
-      authority: ['admin', 'user']
-    }
-  ];
+  const menuGroups = [];
+
   function results() {
     return roleUtil.queryTeamOrAppPermissionsInfo(
       permissionsInfo.team,
       'team'
     );
   }
-  function addMenuArr(obj) {
-    menuArr.push(obj);
-  }
-  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Team')
 
+  const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Team');
+
+  // ============ 第一组：团队总览（无标题） ============
+  menuGroups.push({
+    groupKey: 'overview',
+    groupName: '', // 无标题
+    items: [
+      {
+        name: formatMessage({ id: 'menu.team.dashboard' }),
+        icon: getMenuSvg.getSvg('dashboard'),
+        path: `team/${teamName}/region/${regionName}/index`,
+        authority: ['admin', 'user']
+      }
+    ]
+  });
+
+  // ============ 第二组：管理功能 ============
   if (permissionsInfo) {
     const {
-      isTeamOverview,
-      isTeamAppCreate,
-      isTeamGatewayMonitor,
-      isTeamRouteManage,
-      isTeamTargetServices,
-      isTeamCertificate,
       isTeamPluginManage,
       isTeamDynamic,
       isTeamRegion,
       isTeamRole,
       isTeamRegistryAuth
     } = results();
-    if (isTeamAppCreate) {
-      var item = {
-        name: formatMessage({ id: 'menu.team.create' }),
-        icon: getMenuSvg.getSvg('add'),
-        path: `team/${teamName}/region/${regionName}/create`,
-        authority: ['admin', 'user'],
-        teamName: teamName,
-        regionName: regionName,
-        children: [
-          {
-            name: formatMessage({ id: 'menu.team.create.wizard' }),
-            path: `wizard`,
-            icon: getMenuSvg.getSvg('wizard'),
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'menu.team.create.code' }),
-            path: `code`,
-            icon: getMenuSvg.getSvg('code'),
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'menu.team.create.market' }),
-            path: `market`,
-            icon: getMenuSvg.getSvg('market'),
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'Vm.createVm.docker' }),
-            path: `image`,
-            icon: getMenuSvg.getSvg('image'),
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'Vm.createVm.titleVm' }),
-            path: `vm`,
-            icon: getMenuSvg.getSvg('vm'),
-            authority: ['admin', 'user']
-          },
-          // 基于软件包/yaml创建
-          {
-            name: formatMessage({ id: 'menu.team.create.upload' }),
-            path: `yaml`,
-            icon: getMenuSvg.getSvg('yaml'),
-            authority: ['admin', 'user']
-          },
-          {
-            name: formatMessage({ id: 'menu.team.create.third' }),
-            path: `outer`,
-            icon: getMenuSvg.getSvg('outer'),
-            authority: ['admin', 'user']
-          }
-        ]
-      }
-      addMenuArr(item);
-    }
+
+    const adminItems = [];
+
+    // 流水线
     if (setTeamMenu(pluginList, 'pipeline')) {
-      addMenuArr({
+      adminItems.push({
         name: formatMessage({ id: 'menu.team.pipeline' }),
         icon: getMenuSvg.getSvg('Pipeline'),
         path: `team/${teamName}/region/${regionName}/Pipeline`,
         authority: ['admin', 'user']
       });
     }
-    if (isTeamGatewayMonitor || isTeamRouteManage || isTeamTargetServices || isTeamCertificate) {
-      addMenuArr({
-        name: formatMessage({ id: 'menu.team.gateway' }),
-        icon: getMenuSvg.getSvg('gateway'),
-        path: `team/${teamName}/region/${regionName}/gateway`,
-        authority: ['admin', 'user'],
-      });
-    }
+
+    // 插件管理
     if (isTeamPluginManage) {
-      addMenuArr({
+      adminItems.push({
         name: formatMessage({ id: 'menu.team.plugin' }),
         icon: getMenuSvg.getSvg('api'),
         path: `team/${teamName}/region/${regionName}/myplugns`,
@@ -130,41 +82,49 @@ function menuData(teamName, regionName, permissionsInfo, pluginList) {
       });
     }
 
+    // 团队设置
     if (isTeamDynamic || isTeamRegion || isTeamRole || isTeamRegistryAuth) {
-      addMenuArr({
+      adminItems.push({
         name: formatMessage({ id: 'menu.team.setting' }),
         icon: getMenuSvg.getSvg('setting'),
         path: `team/${teamName}/region/${regionName}/team`,
         authority: ['admin', 'user']
       });
     }
-    if (newbieGuide === 'false') {
-      return menuArr;
+
+    if (adminItems.length > 0) {
+      menuGroups.push({
+        groupKey: 'administration',
+        groupName: formatMessage({ id: 'menu.group.administration', defaultMessage: '管理功能' }),
+        items: adminItems
+      });
     }
-    if (pluginArr && pluginArr.length > 0) {
-      const pluginChildren = []
-      pluginArr.forEach(item => {
-        pluginChildren.push({
-          name: item.display_name,
-          icon: getMenuSvg.getSvg('plugin'),
-          path: `${item.name}`,
-          authority: ['admin', 'user']
-        });
-      })
-      menuArr.push({
-        name: '插件列表',
+
+    // ============ 第三组：插件 ============
+    if (newbieGuide !== 'false' && pluginArr && pluginArr.length > 0) {
+      const pluginItems = pluginArr.map(item => ({
+        name: item.display_name,
         icon: getMenuSvg.getSvg('plugin'),
-        path: `team/${teamName}/region/${regionName}/plugins`,
-        authority: ['admin', 'user'],
-        children: pluginChildren
+        path: `team/${teamName}/region/${regionName}/plugins/${item.name}`,
+        authority: ['admin', 'user']
+      }));
+
+      menuGroups.push({
+        groupKey: 'plugins',
+        groupName: formatMessage({ id: 'menu.group.plugins', defaultMessage: '插件' }),
+        items: pluginItems
       });
     }
   }
-  return menuArr;
+
+  return menuGroups;
 }
 
-function formatter(data, parentPath = '', parentAuthority) {
-  return data.map(item => {
+/**
+ * 格式化菜单项路径
+ */
+function formatMenuItems(items, parentPath = '', parentAuthority) {
+  return items.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
       path = parentPath + item.path;
@@ -175,7 +135,7 @@ function formatter(data, parentPath = '', parentAuthority) {
       authority: item.authority || parentAuthority
     };
     if (item.children) {
-      result.children = formatter(
+      result.children = formatMenuItems(
         item.children,
         `${parentPath}${item.path}/`,
         item.authority
@@ -184,7 +144,29 @@ function formatter(data, parentPath = '', parentAuthority) {
     return result;
   });
 }
+
+/**
+ * 格式化分组菜单数据
+ */
+function formatter(menuGroups) {
+  return menuGroups.map(group => ({
+    ...group,
+    items: formatMenuItems(group.items)
+  }));
+}
+
+/**
+ * 获取分组菜单数据
+ */
 export const getMenuData = (teamName, regionName, permissionsInfo, pluginList) => {
-  const menus = formatter(menuData(teamName, regionName, permissionsInfo, pluginList));
-  return menus;
+  const menuGroups = menuData(teamName, regionName, permissionsInfo, pluginList);
+  return formatter(menuGroups);
+};
+
+/**
+ * 将分组菜单展平为普通菜单数组（兼容旧代码）
+ */
+export const getFlatMenuData = (teamName, regionName, permissionsInfo, pluginList) => {
+  const menuGroups = getMenuData(teamName, regionName, permissionsInfo, pluginList);
+  return menuGroups.reduce((acc, group) => [...acc, ...group.items], []);
 };

@@ -1,19 +1,16 @@
 import {
   Alert,
   Button,
-  Col,
   Form,
   Input,
   Modal,
   notification,
   Popconfirm,
-  Row,
   Table,
-  Upload,
-  Card
+  Upload
 } from 'antd';
 import { connect } from 'dva';
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import {
   createBackup,
   loadBackups,
@@ -24,18 +21,14 @@ import cookie from '../../utils/cookie';
 import download from '../../utils/download';
 import sourceUtil from '../../utils/source-unit';
 import ScrollerX from '../../components/ScrollerX';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { confirm } = Modal;
 
-@connect(({ user, loading, global }) => ({
-  user: user.currentUser,
-  loading: loading.models.list,
-  rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise
-}))
+@connect()
 @Form.create()
 export default class BackupManage extends PureComponent {
   constructor(props) {
@@ -219,47 +212,45 @@ export default class BackupManage extends PureComponent {
     const uploadURL = `/console/enterprise/${eid}/upload-backups`;
     return (
       <ScrollerX sm={840}>
-        <Card
-          extra={
-            <>
-              <Upload
-                showUploadList={false}
-                name="file"
-                accept=".gz"
-                action={uploadURL}
-                onChange={this.onChangeUpload}
-                headers={{ Authorization: `GRJWT ${token}` }}
-                disabled={uploadLoading}
-              >
-
-                <Button loading={uploadLoading} style={{ marginRight: '16px' }} icon="download">
-                  <FormattedMessage id='enterpriseSetting.BackupManage.button.importBackups' />
-                </Button>
-              </Upload>
-              <Button
-                type="primary"
-                onClick={this.onAddBackup}
-                loading={addLoading}
-                icon="plus"
-              >
-                <FormattedMessage id='enterpriseSetting.BackupManage.button.addBackups' />
+        <div className={styles.adminContainer}>
+          <div className={styles.adminHeader}>
+            <Upload
+              showUploadList={false}
+              name="file"
+              accept=".gz"
+              action={uploadURL}
+              onChange={this.onChangeUpload}
+              headers={{ Authorization: `GRJWT ${token}` }}
+              disabled={uploadLoading}
+            >
+              <Button loading={uploadLoading} style={{ marginRight: 16 }} icon="download">
+                <FormattedMessage id='enterpriseSetting.BackupManage.button.importBackups' />
               </Button>
-            </>
-          }
-        >
-           <Alert
+            </Upload>
+            <Button
+              type="primary"
+              onClick={this.onAddBackup}
+              loading={addLoading}
+              icon="plus"
+            >
+              <FormattedMessage id='enterpriseSetting.BackupManage.button.addBackups' />
+            </Button>
+          </div>
+          <div className={styles.adminBody}>
+            <Alert
               type="info"
               message={<FormattedMessage id='enterpriseSetting.BackupManage.alert.message' />}
-              style={{width: "90%",marginBottom: "20px"}}
+              style={{ marginBottom: 20 }}
             />
-          <Table
-            loading={backupLoading}
-            rowKey={(record, index) => index}
-            pagination={false}
-            dataSource={backups}
-            columns={columns}
-          />
-        </Card>
+            <Table
+              loading={backupLoading}
+              rowKey={(record, index) => index}
+              pagination={false}
+              dataSource={backups}
+              columns={columns}
+            />
+          </div>
+        </div>
         {recoverShow && (
           <Modal
             onCancel={() => {

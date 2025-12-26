@@ -1,6 +1,6 @@
 //整体导航栏信息
 const enterpriseMenu = {
-  'menu.enterprise.dashboard': '企业总览',
+  'menu.enterprise.dashboard': '平台总览',
   'menu.enterprise.share': '应用市场',
   'menu.enterprise.team': '项目/团队',
   'menu.enterprise.cluster': '集群管理',
@@ -9,8 +9,23 @@ const enterpriseMenu = {
   'menu.enterprise.audit': '审计',
   'menu.enterprise.log': '平台日志',
   'menu.enterprise.extension': '功能扩展',
-  'menu.enterprise.setting': '企业设置',
+  'menu.enterprise.setting': '平台设置',
   'menu.enterprise.order': '订购',
+  'menu.enterprise.observability': '可观测性',
+  'menu.enterprise.billing': '计量计费',
+  'menu.enterprise.plugins': '插件列表',
+  // 分组标题
+  'menu.group.basic': '基础功能',
+  'menu.group.observability': '可观测性',
+  'menu.group.commercial': '商业功能',
+  'menu.group.administration': '管理功能',
+  'menu.group.plugins': '插件系统',
+  // 视图切换器
+  'menu.switcher.workspace': '工作空间',
+  'menu.switcher.platform': '平台管理',
+  // 收起菜单
+  'menu.collapse': '收起菜单',
+  'menu.expand': '展开菜单',
 }
 const teamMenu = {
   'menu.team.dashboard': '团队总览',
@@ -39,7 +54,7 @@ const appMenu = {
   'menu.app.configgroups': '应用配置',
   'menu.app.upgrade': '应用升级',
   'menu.app.dynamic': '应用动态',
-  'menu.app.k8s': 'k8s资源',
+  'menu.app.k8s': 'K8s 资源',
   'menu.app.gray': '灰度发布',
 };
 

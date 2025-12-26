@@ -3,7 +3,8 @@
 import { Alert, Form, Input, Modal, notification, Select, Tabs, Radio, Upload, Button, Icon, Checkbox } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import ShowRegionKey from '../../../components/ShowRegionKey';
 import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';

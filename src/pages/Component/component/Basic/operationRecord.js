@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Card, Col, Form, Icon, Row, Tooltip, Modal } from 'antd';
+import { Card, Col, Form, Icon, Row, Tooltip, Modal, Spin } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
@@ -8,7 +8,8 @@ import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
 // eslint-disable-next-line import/first
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 @connect()
 @Form.create()
@@ -18,10 +19,87 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       selectEventID: '',
-      showSocket: false
+      showSocket: false,
+      isLoadingMore: false
     };
+    this.sentinelRef = React.createRef();
+    this.observer = null;
+    this.debounceTimer = null;
   }
-  componentDidMount() {}
+
+  componentDidMount() {
+    this.setupObserver();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { logList, has_next } = this.props;
+    // 当列表数据更新后，重置加载状态并重新设置观察器
+    if (prevProps.logList !== logList) {
+      if (this.state.isLoadingMore) {
+        this.setState({ isLoadingMore: false });
+      }
+      // 数据更新后重新设置观察器
+      setTimeout(() => this.setupObserver(), 100);
+    }
+    // 当 has_next 变化时重新设置观察器
+    if (prevProps.has_next !== has_next) {
+      this.setupObserver();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+  }
+
+  // 设置 IntersectionObserver
+  setupObserver = () => {
+    const { has_next } = this.props;
+
+    // 清除旧的观察器
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+
+    // 如果没有更多数据，不需要观察
+    if (!has_next || !this.sentinelRef.current) return;
+
+    this.observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          this.loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    this.observer.observe(this.sentinelRef.current);
+  };
+
+  // 防抖加载更多
+  loadMore = () => {
+    const { has_next, handleNextPage } = this.props;
+    const { isLoadingMore } = this.state;
+
+    if (!has_next || isLoadingMore) return;
+
+    // 防抖处理
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+
+    this.debounceTimer = setTimeout(() => {
+      this.setState({ isLoadingMore: true });
+      if (handleNextPage) {
+        handleNextPage();
+      }
+    }, 200);
+  };
 
   handleMore = () => {
     const { handleMore } = this.props;
@@ -70,19 +148,17 @@ class Index extends PureComponent {
     }
     return '';
   };
-  jumpExpansion = (bool = false, serivce_alias) => {
+  jumpExpansion = (bool = false, service_alias) => {
     if (!bool) {
       this.props.dispatch(
         routerRedux.push(
-          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/expansion`
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=expansion`
         )
       );
     } else {
       this.props.dispatch(
         routerRedux.push(
-          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${serivce_alias}/overview`
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${serivce_alias}&tab=overview`
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${service_alias}&tab=overview`
         )
       );
     }
@@ -92,65 +168,67 @@ class Index extends PureComponent {
     const match = val.match(regex);
     const msgregex = /(.+)(?=\[)/;
     const message = val.match(msgregex);
+    const messageText = message?.[1] || '';
 
     if (bool) {
-      return message && message[1] ? message[1] : '';
+      return messageText;
     }
 
     let arr = [];
     if (match && match.length > 1) {
-      const arrayStr = match[0];
-      arr = JSON.parse(arrayStr);
+      arr = JSON.parse(match[0]);
+    }
+
+    if (!arr || arr.length === 0) {
+      return <>({messageText})</>;
+    }
+
+    if (arr.length > 3) {
+      return (
+        <>
+          ({messageText}
+          <span
+            style={{ color: '#3296fa', cursor: 'pointer' }}
+            onClick={() => this.showJumpModal(arr)}
+          >
+            {formatMessage({ id: 'componentOverview.body.tab.overview.handle.Dependent' })}
+          </span>
+          )
+        </>
+      );
     }
 
     return (
       <>
-        ({message && message[1] ? message[1] : ''}
-        {arr &&
-          arr.length > 0 &&
-          arr.map((item, index) => {
-            if (arr.length > 3) {
-              return (
-                <span
-                  style={{ color: '#3296fa', cursor: 'pointer' }}
-                  onClick={() => {
-                    this.showJumpModal(arr);
-                  }}
-                >
-                  {formatMessage({ id: 'componentOverview.body.tab.overview.handle.Dependent' })}
-                </span>
-              );
-            }
-            return (
-              <span
-                style={{ color: '#3296fa', cursor: 'pointer' }}
-                onClick={() => {
-                  this.jumpExpansion(true, item.serivce_alias);
-                }}
-              >
-                {item.service_cname}
-              </span>
-            );
-          })}
+        ({messageText}
+        {arr.map((item, index) => (
+          <span
+            key={index}
+            style={{ color: '#3296fa', cursor: 'pointer' }}
+            onClick={() => this.jumpExpansion(true, item.service_alias)}
+          >
+            {item.service_cname}
+          </span>
+        ))}
         )
       </>
     );
   };
-  showJumpModal = (arr) =>{
+  showJumpModal = (arr) => {
     this.setState({
       showModal: true,
       showModalArr: arr
-    })
-  }
-  hideModal = () =>{
+    });
+  };
+
+  hideModal = () => {
     this.setState({
-      showModal: false,
-    })
-  }
+      showModal: false
+    });
+  };
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
-    const { logVisible, selectEventID, showSocket, showModalArr, showModal } = this.state;
-    const logsvg = globalUtil.fetchSvg('logs', '#cccccc');
+    const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
     const statusMap = {
       success: 'logpassed',
@@ -159,9 +237,10 @@ class Index extends PureComponent {
     };
     return (
       <Card
-      // bordered={false}
       title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>}
-      loading={recordLoading}>
+      loading={recordLoading}
+      className={styles.operationCard}
+      >
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
@@ -188,7 +267,7 @@ class Index extends PureComponent {
                   showLogEvent = event_id;
                 }
                 const UserNames = this.showUserName(user_name);
-                const Messages = globalUtil.fetchMessageLange(message,status,opt_type)
+                const Messages = globalUtil.fetchMessageLange(message, status, opt_type);
                 return (
                   <div
                     key={event_id}
@@ -202,29 +281,29 @@ class Index extends PureComponent {
                         .format('YYYY-MM-DD HH:mm:ss')}
                     >
                       <div
-                        style={{ wordBreak: 'break-word', lineHeight: '17px' }}
+                        style={{ wordBreak: 'break-word', lineHeight: '16px' }}
                       >
                         {globalUtil.fetchdayTime(create_time)}
                       </div>
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={ opt_type == 'INITIATING' ? this.jumpMessage(message,true): Messages}>
+                      <Tooltip title={ opt_type === 'INITIATING' ? this.jumpMessage(message,true): Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(opt_type)
                           }}
                         >
                           {globalUtil.fetchStateOptTypeText(opt_type)}
-                           &nbsp;
+                          &nbsp;
                         </span>
                         {globalUtil.fetchOperation(final_status, status)}
                         &nbsp;
 
                         {status === 'failure' && globalUtil.fetchReason(reason)}
 
-                        
-                        {final_status === 'complete' && status === 'failure' && 
+
+                        {status === 'failure' &&
                         <Tooltip
                           title={message}
                         >
@@ -259,14 +338,13 @@ class Index extends PureComponent {
                       </span>
                     </div>
                       <div style={{ position: 'static' }} className="table-wrap">
-                      { opt_type != 'Unschedulable' && opt_type != 'INITIATING' &&
+                      { opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
                       syn_type === 0 && (
                         <Tooltip
                           visible={final_status === ''}
                           placement="top"
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
-                          // title="查看日志"
                             title={
                               <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
                             }
@@ -282,7 +360,7 @@ class Index extends PureComponent {
                               this.showLogModal(event_id, final_status === '', opt_type);
                             }}
                           >
-                            {globalUtil.fetchSvg('logs', status == 'failure' && opt_type == 'build-service' ? '#CE0601':'#cccccc')}
+                            {globalUtil.fetchSvg('logs', status === 'failure' && opt_type === 'build-service' ? '#CE0601':'#cccccc')}
                           </div>
                         </Tooltip>
                       )
@@ -301,31 +379,31 @@ class Index extends PureComponent {
                     textAlign: 'center'
                   }}
                 >
-                  {/* 暂无操作记录 */}
                   <FormattedMessage id='componentOverview.body.tab.overview.handle.handler'/>
                 </div>
               ))}
+            {/* 哨兵元素：当滚动到这里时触发加载更多 */}
             {has_next && (
-              <p
-                style={{
-                  textAlign: 'center',
-                  fontSize: 30
-                }}
-              >
-                <Icon
-                  style={{
-                    cursor: 'pointer'
-                  }}
-                  onClick={this.props.handleNextPage}
-                  type="down"
-                />
-              </p>
+              <div
+                ref={this.sentinelRef}
+                style={{ height: 1, marginBottom: 10 }}
+              />
+            )}
+            {isLoadingMore && (
+              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                <Spin size="small" />
+              </div>
+            )}
+            {/* 已到底提示 */}
+            {!has_next && logList && logList.length > 0 && (
+              <div style={{ textAlign: 'center', padding: '10px 0', color: '#999', fontSize: 12 }}>
+                <FormattedMessage id="componentOverview.body.tab.overview.handle.noMore" defaultMessage="没有更多了" />
+              </div>
             )}
           </Col>
         </Row>
         {logVisible && (
           <LogShow
-            // title="日志"
             title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>}
             width="90%"
             onOk={this.handleCancel}
@@ -342,9 +420,15 @@ class Index extends PureComponent {
           footer={null}
         >
           <div>
-          {showModalArr && showModalArr.length > 0 && showModalArr.map((item,index) =>{
-            return <p style={{color:'#3296fa',cursor: "pointer"}} onClick={()=>{this.jumpExpansion(true,item.service_alias)}}>{item.service_cname}</p>
-          })}
+            {showModalArr && showModalArr.length > 0 && showModalArr.map((item, index) => (
+              <p
+                key={index}
+                style={{color: '#3296fa', cursor: 'pointer'}}
+                onClick={() => this.jumpExpansion(true, item.service_alias)}
+              >
+                {item.service_cname}
+              </p>
+            ))}
           </div>
         </Modal>
       </Card>

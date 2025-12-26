@@ -1,18 +1,17 @@
 import {
   Button,
-  Card,
   notification,
   Popconfirm,
   Popover,
   Table,
   Tooltip,
-  Row
+  Spin
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -342,32 +341,32 @@ export default class AppPublishList extends PureComponent {
           </Button>
         }
       >
-        <Card
-          loading={loading}
-          extra={
-            isShare &&
-            <div style={language ? {} : { display: 'flex' }}>
-              <Button
-                style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }}
-                onClick={this.onPublishLocal}
-                icon='appstore'
-              >
-                {formatMessage({ id: 'appPublish.btn.local' })}
-              </Button>
-              {/* {(currentUser.is_enterprise_admin || !showPublish) && ( */}
-                <Button onClick={this.onPublishStore} style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5, }} icon="cloud-upload" type="primary">
+        <div className={style.publishContainer}>
+          <div className={style.publishHeader}>
+            <div className={style.sectionHeader}>
+            </div>
+            {isShare && (
+              <div style={language ? {} : { display: 'flex' }}>
+                <Button
+                  style={language ? { marginRight: 8 } : { marginRight: 8, padding: 5 }}
+                  onClick={this.onPublishLocal}
+                  icon="appstore"
+                >
+                  {formatMessage({ id: 'appPublish.btn.local' })}
+                </Button>
+                <Button
+                  onClick={this.onPublishStore}
+                  icon="cloud-upload"
+                  type="primary"
+                >
                   {formatMessage({ id: 'appPublish.btn.market' })}
                 </Button>
-              {/* )} */}
-            </div>
-
-          }
-          style={{
-            borderRadius: 5,
-          }}
-        >
-          <ScrollerX sm={800}>
-            <Table
+              </div>
+            )}
+          </div>
+          <Spin spinning={loading}>
+            <ScrollerX sm={800}>
+              <Table
               rowKey={(record, index) => index}
               pagination={ {
                 current: page,
@@ -538,9 +537,10 @@ export default class AppPublishList extends PureComponent {
                   }
                 }
               ]}
-            />
-          </ScrollerX>
-        </Card>
+              />
+            </ScrollerX>
+          </Spin>
+        </div>
         {showExporterApp && (
           <AppExporter
             eid={currentEnterprise.enterprise_id}

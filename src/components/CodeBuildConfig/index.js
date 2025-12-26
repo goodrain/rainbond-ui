@@ -1,7 +1,9 @@
 import { Button, Card, Col, Form, Modal, Row } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import handleAPIError from '../../utils/error';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global'
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
@@ -131,7 +133,7 @@ class CodeBuildConfig extends PureComponent {
             lang: item
           },
           callback: data => {
-            if (data && data.status_code == 200) {
+            if (data && data.status_code === 200) {
               buildSourceArr[item] = data.list
               this.setState({ buildSourceArr })
               resolve();
@@ -140,7 +142,7 @@ class CodeBuildConfig extends PureComponent {
           handleError: res => {
             buildSourceArr[item] = []
             this.setState({ buildSourceArr })
-            this.setState({ buildSourceArr })
+            handleAPIError(res);
             reject(new Error("Failed to get component language version"));
           }
         });
@@ -148,7 +150,7 @@ class CodeBuildConfig extends PureComponent {
     };
   onSetObj = value => {
     const obj = {};
-    value.map(item => {
+    value.forEach(item => {
       obj[`BUILD_ARG_${item.key}`] = item.value;
     });
     this.setState({ setObj: obj });

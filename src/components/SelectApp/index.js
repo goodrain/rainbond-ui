@@ -2,7 +2,8 @@ import { Dropdown, Icon, Input, notification } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import roleUtil from '../../utils/role';
 import EditGroupName from '../AddOrEditGroup';
 import style from './index.less';
@@ -96,8 +97,6 @@ export default class SelectApp extends PureComponent {
     } = this.state;
     const teamName = currentTeam?.team_name;
     const regionName = currentRegion?.team_region_name;
-    const currentTeamAppsPageLink = `/team/${teamName}/region/${regionName}/apps`;
-    // const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const isCreateApp = true;
     const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}/overview`;
     const dropdown = (

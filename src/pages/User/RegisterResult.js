@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import { Button } from 'antd';
 import Result from '../../components/Result';
 import globalUtil from '../../utils/global';

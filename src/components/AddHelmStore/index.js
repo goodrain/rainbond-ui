@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Button, Modal, Form, Input, notification } from 'antd';
 import globalUtil from '../../utils/global';
 import { connect } from 'dva';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 
 @connect(({ user }) => ({
     currUser: user.currentUser,

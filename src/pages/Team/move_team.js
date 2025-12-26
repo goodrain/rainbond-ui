@@ -4,7 +4,8 @@ import React, { PureComponent } from 'react';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import styles from './index.less'
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 @Form.create()

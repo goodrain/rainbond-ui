@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Card, Popover, Badge, Table, Alert } from 'antd';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import global from '@/utils/global';
 import styles from './index.less';
 

@@ -75,8 +75,6 @@
 
   .detail {
     display: flex;
-    background-color: @rbd-background-color;
-    padding: 16px;
   }
 
   .row {
@@ -112,11 +110,14 @@
   .title {
     font-size: 16px;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.65);
+    color: @primary-color;
+    // color: rgba(0, 0, 0, 0.65);
     letter-spacing: 0;
     margin-bottom: 0em;
   }
   .title_svg{
+    display: flex;
+    align-items: center;
     padding-top: 4px;
     margin-right: 4px;
   }

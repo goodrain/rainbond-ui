@@ -4,7 +4,8 @@ import { Button, Card, Col, Form, Row, Steps, Tooltip, Alert, Table, Modal, Chec
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import RKEClusterCmd from '../../../components/RKEClusterCmd'
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { CopyToClipboard } from 'react-copy-to-clipboard';

@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': '修改组件名称',
     'componentOverview.EditName.input_en_name': '请输入组件英文名称',
-    'componentOverview.EditName.Cannot': '不能大于32个字符',
+    'componentOverview.EditName.Cannot': '不能大于16个字符',
     'componentOverview.EditName.only': '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
     'componentOverview.EditName.edit': '修改组件名称',
     'componentOverview.EditName.name': '组件名称',
@@ -81,6 +81,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.occupy': '占用',
     'componentOverview.body.tab.overview.disk': '磁盘',
     'componentOverview.body.tab.overview.version': '版本号',
+    'componentOverview.body.tab.overview.vmImage': '虚拟机镜像',
     'componentOverview.body.tab.overview.not': '暂无',
     'componentOverview.body.tab.overview.codeVersion': '代码版本',
     'componentOverview.body.tab.overview.file': '文件MD5',
@@ -91,7 +92,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.codeBranch': '代码分支',
     'componentOverview.body.tab.overview.uploadTime': '上传时间',
     'componentOverview.body.tab.overview.image': '镜像tag',
-    'componentOverview.body.tab.overview.moreVersion': '查看更多版本',
+    'componentOverview.body.tab.overview.moreVersion': '更多版本',
     'componentOverview.body.tab.overview.return': '返回实例列表',
     'componentOverview.body.tab.overview.unlimited': '不限制',
     'componentOverview.body.tab.overview.databaseType': '数据库类型',
@@ -164,6 +165,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.handle.Dependent': '查看依赖组件',
     'componentOverview.body.tab.overview.handle.stretch': '去设置',
     'componentOverview.body.tab.overview.handle.DependentCom': '依赖组件',
+    'componentOverview.body.tab.overview.handle.noMore': '没有更多了',
     // LogItem
     'componentOverview.body.tab.LogItem.hand': '进行中',
     'componentOverview.body.tab.LogItem.complete': '完成',
@@ -562,6 +564,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.select_type': '请选择存储类型',
     'componentOverview.body.AddVolumes.cancel': '取消',
     'componentOverview.body.AddVolumes.confirm': '确认',
+    'componentOverview.body.AddVolumes.mount_format': '挂载格式',
+    'componentOverview.body.AddVolumes.disk': '磁盘',
+    'componentOverview.body.AddVolumes.cdrom': '光盘',
     // tabs栏>mnt>AddRelationMnt
     'componentOverview.body.AddRelationMnt.mag': '请输入本地挂载路径',
     'componentOverview.body.AddRelationMnt.mag_path': '{path}路径为系统保留路径，请更换其他路径',
@@ -587,7 +592,7 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.inputFolderName': '请输入文件夹名称',
     'componentOverview.body.DirectoryPersistence.path': '路径：',
     // tabs栏>Port
-    'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效；请确保端口列表与你的程序监听端口保持一致。无法访问',
+    'componentOverview.body.Port.message': '端口配置信息发生变化后需要重启组件才能生效，请确保端口列表与你的程序监听端口保持一致。无法访问',
     'componentOverview.body.Port.troubleshoot': '按以下思路排查。',
     'componentOverview.body.Port.add': '添加端口',
     'componentOverview.body.Port.msg': '如需要提供访问服务，请',
@@ -1149,6 +1154,10 @@ const componentOverview = {
     'kubeblocks.database.config.error.component_name_empty': '组件名称不能为空',
     'kubeblocks.database.config.error.database_type_empty': '数据库类型不能为空',
     'kubeblocks.database.config.error.creation_failed': '创建失败',
+    'kubeblocks.database.config.error.k8s_name_conflict': '当前应用下英文名已存在，请返回上一步更换英文名',
+    'kubeblocks.database.config.error.replicas_min': '副本数量必须大于等于1',
+    'kubeblocks.database.config.error.storage_class_required': '请选择存储类',
+    'kubeblocks.database.config.error.component_info_missing': '创建成功但无法获取组件信息，请手动刷新页面',
     'kubeblocks.database.config.success.created': '创建成功',
     
     'kubeblocks.database.create.form.database_type.label': '数据库类型',

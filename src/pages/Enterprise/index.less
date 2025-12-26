@@ -1,21 +1,76 @@
+// 卡片容器
+.cardContainer {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: @rbd-card-shadow;
+    transition: box-shadow 0.3s ease-in-out;
+
+    &:hover {
+        box-shadow: @rbd-card-shadow-hover;
+    }
+}
+
+// 卡片内标题
+.cardHeader {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+
+    span {
+        display: flex;
+        align-items: center;
+        margin-right: 8px;
+    }
+
+    h2 {
+        font-size: @rbd-sub-title-size;
+        color: @text-color;
+        line-height: @rbd-sub-title-line-height;
+        font-weight: 600;
+        margin: 0;
+        font-family: PingFangSC-Medium;
+    }
+}
+
+// 卡片内容区域
+.cardBody {
+    padding: 0 24px 24px;
+}
+
+// 双卡片并排容器
+.dualCardContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 20px;
+
+    .cardContainer {
+        flex: 1;
+        margin-bottom: 0;
+    }
+}
+
+// 旧的外部标题样式（保留兼容）
 .title {
     width: 100%;
     height: 30px;
     display: flex;
-  
+
     div {
         width: 50%;
         height: 30px;
         display: flex;
         align-items: center;
-  
+
         h2 {
             font-weight: bolder;
             color: rgba(0, 0, 0, 0.65);
             font-family: PingFangSC-Medium;
             margin-left: 4px;
         }
-  
+
         .rbd_title {
             font-size: @rbd-sub-title-size;
             color: @rbd-sub-title-color;
@@ -30,11 +85,118 @@
     }
   }
   
-  .enterpriseBox {
+  // 企业信息内容区域（新布局）
+.enterpriseInfoContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .enterpriseInfo_left {
+        width: calc(100% - 170px);
+
+        .enterpriseName,
+        .enterpriseId {
+            width: 100%;
+            font-size: @rbd-content-size;
+            font-weight: 500;
+            color: @text-color-secondary;  // 标签使用次文本色
+            line-height: @rbd-content-line-height;
+            letter-spacing: 0;
+            margin-bottom: 12px;
+
+            p {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                font-weight: 500;
+                margin-bottom: 8px;
+
+                a {
+                    font-weight: 500;
+                    color: @primary-color;
+                    margin-left: 12px;
+                }
+            }
+
+            .infoLabel {
+                display: inline-block;
+                min-width: 70px;
+                font-weight: 500;
+                color: @text-color-secondary;  // 标签使用次文本色
+                margin-right: 12px;
+            }
+
+            .infoValue {
+                font-weight: 500;
+                color: @text-color;  // 值使用主文本色
+            }
+        }
+    }
+
+    .enterpriseInfo_right {
+        width: 160px;
+        height: 114px;
+        &>div{
+            cursor: pointer;
+        }
+        .jumpText{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: @text-color;
+        }
+    }
+}
+
+// 数据总览内容区域（新布局）
+.enterpriseDataContent {
+    display: flex;
+    justify-content: space-around;
+    gap: 24px;
+
+    .piece {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-sizing: border-box;
+        width: 25%;
+        height: 126px;
+        cursor: pointer;
+        font-family: PingFangSC-Medium;
+        padding-top: 40px;
+        border: 2px solid #fff;
+        border-radius: 12px;
+        transition: all .2s ease-in-out;
+        // background: @rbd-background-color;
+
+
+        p:last-child {
+            color: @primary-color;
+            width: 100%;
+            text-align: center;
+            font-size: @rbd-display-size;
+            line-height: @rbd-display-line-height;
+            font-weight: bolder;
+            cursor: pointer;
+        }
+
+        p:first-child {
+            font-size: @rbd-sub-title-size;
+            color: @text-color-secondary;
+            line-height: @rbd-sub-title-line-height;
+        }
+    }
+}
+
+// 旧布局样式（保留兼容）
+.enterpriseBox {
     width: 100%;
     display: flex;
     justify-content: space-between;
-  
+
     .enterpriseInfo {
         width: 49%;
         background: rgba(42, 130, 228, 4%);
@@ -46,7 +208,7 @@
         align-items: center;
         .enterpriseInfo_left {
             width: calc(100% - 170px);
-  
+
             .enterpriseName,
             .enterpriseId {
                 width: 100%;
@@ -55,7 +217,7 @@
                 line-height: @rbd-content-line-height;
                 letter-spacing: 0;
                 margin-bottom: 12px;
-  
+
                 p {
                     width: 100%;
                     span:last-child {
@@ -66,7 +228,7 @@
                         color: @rbd-content-color;
                         line-height: @rbd-content-line-height;
                     }
-  
+
                     &>span>span:first-child {
                         color: @rbd-content-color-secondary;
                         line-height: @rbd-content-line-height;
@@ -74,7 +236,7 @@
                 }
             }
         }
-  
+
         .enterpriseInfo_right {
             width: 160px;
             height: 114px;
@@ -90,9 +252,9 @@
                 font-size: 14px;
             }
         }
-  
+
     }
-  
+
     .enterpriseData {
         width: 49%;
         background: rgba(42, 130, 228, 4%);
@@ -101,8 +263,7 @@
         padding: 24px 30px 12px;
         display: flex;
         justify-content: space-around;
-        box-shadow: rgb(36 46 66 / 16%) 2px 4px 10px 0px;
-  
+
         .piece {
             display: flex;
             -ms-flex-align: center;
@@ -119,10 +280,9 @@
             padding-top: 40px;
             // background-image: linear-gradient(0deg, #fff, #e7ebf2);
             border: 2px solid #fff;
-            // box-shadow: 8px 8px 20px 0 rgb(55 99 170 / 10%), -8px -8px 20px 0 #fff;
             border-radius: 10px;
             transition: all .2s ease-in-out;
-  
+
             p:last-child {
                 color: @primary-color;
                 width: 100%;
@@ -132,7 +292,7 @@
                 font-weight: bolder;
                 cursor: 'pointer';
             }
-  
+
             p:first-child {
                 font-size: @rbd-sub-title-size;
                 color: @rbd-content-color-secondary;
@@ -145,19 +305,23 @@
   .clusterInfo {
     width: 100%;
     height: 246px;
-    background: #fff;
-    border-radius: 5px;
+    border-radius: 8px;
     justify-content: space-around;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    background-color: @rbd-background-color;
+
+
+    &:last-child {
+        margin-bottom: 0;
+    }
   
     .clusterInfo_title {
         width: 100%;
         height: 50px;
         padding-left: 30px;
-        background: rgba(42, 130, 228, 6%);
-        background-color: #fafbfc;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
+        border-top-left-radius: 7px;
+        border-top-right-radius: 7px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -202,7 +366,6 @@
         width: 100%;
         padding: 12px;
         padding-left: 30px;
-        background-color: #fff;
         border-bottom-left-radius: 5px;
         border-bottom-right-radius: 5px;
         display: flex;
@@ -240,86 +403,96 @@
                 display: flex;
                 flex-flow: column;
                 padding: 12px;
-  
+
                 p {
                     width: 100%;
-                    margin-top: 4px;
+                    margin-bottom: 8px;
                     font-size: @rbd-content-size;
                     line-height: @rbd-content-line-height;
-                    color: @rbd-content-color;
                     display: flex;
-                    flex-flow: nowrap;
                     align-items: center;
-  
-                    span:first-child {
-                        margin-left: 4px;
-                        color: @rbd-content-color-secondary;
-                    }
-  
-                    .k8sName {
-                        width: 50%;
-                    }
-  
-                    .k8sVersion {
-                        width: 50%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        margin-left: 6px;
-                    }
-  
-                    .versionName {
-                        width: 30%;
-                    }
-  
-                    .version {
-                        width: 70%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        margin-left: 6px;
-                    }
-  
-                    .k8sName_en {
-                        width: 65%;
-                    }
-  
-                    .k8sVersion_en {
-                        width: 35%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        margin-left: 6px;
-                    }
-  
-                    .versionName_en {
-                        width: 50%;
-                    }
-  
-                    .version_en {
-                        width: 50%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        margin-left: 6px;
-                    }
-  
-                    .createTime_en {
-                        width: 45%;
-                    }
-  
-                    .createTimeVersion_en {
-                        width: 55%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        margin-left: 6px;
-                    }
+                }
+
+                .infoLabel {
+                    display: inline-block;
+                    min-width: 90px;
+                    font-weight: 500;
+                    color: @text-color-secondary;
+                    margin-right: 12px;
+                }
+
+                .infoValue {
+                    font-weight: 500;
+                    color: @text-color;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+
+                // 保留旧样式兼容
+                .k8sName {
+                    width: 50%;
+                }
+
+                .k8sVersion {
+                    width: 50%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    display: inline-block;
+                    margin-left: 6px;
+                }
+
+                .versionName {
+                    width: 30%;
+                }
+
+                .version {
+                    width: 70%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    display: inline-block;
+                    margin-left: 6px;
+                }
+
+                .k8sName_en {
+                    width: 65%;
+                }
+
+                .k8sVersion_en {
+                    width: 35%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    display: inline-block;
+                    margin-left: 6px;
+                }
+
+                .versionName_en {
+                    width: 50%;
+                }
+
+                .version_en {
+                    width: 50%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    display: inline-block;
+                    margin-left: 6px;
+                }
+
+                .createTime_en {
+                    width: 45%;
+                }
+
+                .createTimeVersion_en {
+                    width: 55%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    display: inline-block;
+                    margin-left: 6px;
                 }
             }
         }
@@ -337,7 +510,8 @@
                     justify-content: center;
                     align-items: center;
                     text-align: center;
-                    color: @rbd-content-color-secondary;
+                    color: @text-color-secondary;
+                    font-weight: 500;
                     font-size: @rbd-sub-title-size;
                     > div {
                         width: 20px;
@@ -362,8 +536,9 @@
             .node {
                 p {
                     text-align: center;
-                    color: @rbd-content-color-secondary;
+                    color: @text-color-secondary;
                     font-size: @rbd-sub-title-size;
+                    font-weight: 500;
   
                     span {
                         color: @primary-color;
@@ -437,36 +612,152 @@
     font-family: PingFangSC-Medium;
     height: 200px;
     background: #fff;
-    border-radius: 5px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
-  .authorization {
+  // 授权内容区域（新布局）
+.authorizationContent {
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+
+    .authorization_code {
+        padding: 12px 0px;
+        border-bottom: 1px solid #e9eaec;
+
+        .authorization_code_header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .authorization_title {
+            font-size: 14px;
+            font-weight: 500;
+            color: @text-color; 
+        }
+
+        .authorization_actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .authorization_code_content {
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: @rbd-background-color;
+            width: 100%;
+            font-weight: 500;
+            color: @text-color;  // 值使用主文本色
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .authorization_svg {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            padding: 4px;
+
+            &:hover {
+                background: @rbd-background-color;
+            }
+        }
+    }
+    .authorization_info {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 12px;
+        > div{
+            width: 33%;
+            // height: 100px;
+            .authorization_info_content{
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                .authorization_info_title{
+                    font-weight: 500;
+                    color: @text-color-secondary;  // 标签使用次文本色
+                    margin-right: 12px;  // key和value间距12px
+                    white-space: nowrap;
+                }
+                .authorization_info_desc{
+                    flex: 1;
+                    font-weight: 500;
+                    color: @text-color;  // 值使用主文本色
+                }
+            }
+        }
+    }
+    .authorization_error {
+        padding: 12px 0px;
+
+        .authorization_invalid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: @rbd-error-status;
+            font-size: 30px;
+            margin-top: 12px;
+            .authorization_svg {
+                display: flex;
+                align-items: center;
+                margin-right: 6px;
+
+                svg {
+                    width: 40px;
+                    height: 40px;
+                }
+            }
+        }
+
+        >p {
+            margin-top: 6px;
+            margin-bottom: 0px;
+            font-size: @rbd-content-size;
+            text-align: center;
+            color: @rbd-error-status;
+        }
+    }
+}
+
+// 旧授权样式（保留兼容）
+.authorization {
     width: 100%;
     font-family: PingFangSC-Medium;
     min-height: 200px;
     padding: 24px 30px 12px;
     background: #fff;
     border-radius: 5px;
-  
+
     .authorization_code {
         display: flex;
-        padding: 12px 0px;
-        border-bottom: 1px solid #e9eaec;
-  
+        padding-bottom: 12px;
+        // border-bottom: 1px solid #e9eaec;
+
         .authorization_title {
             // width: 60px;
+            font-size: 16px;
+            font-weight: 500;
             color: @rbd-content-color-secondary;
         }
-  
+
         .authorization_code_content {
             width: calc(100% - 100px);
             word-break: break-all;
             color: @rbd-content-color;
         }
-  
+
         .authorization_svg {
             width: 28px;
             height: 28px;
@@ -499,7 +790,7 @@
     }
     .authorization_error {
         padding: 12px 0px;
-  
+
         .authorization_invalid {
             display: flex;
             justify-content: center;
@@ -511,14 +802,14 @@
                 display: flex;
                 align-items: center;
                 margin-right: 6px;
-  
+
                 svg {
                     width: 40px;
                     height: 40px;
                 }
             }
         }
-  
+
         >p {
             margin-top: 6px;
             margin-bottom: 0px;
@@ -529,7 +820,39 @@
     }
   }
   
-  .appAlert {
+  // 应用报警内容区域（新布局）
+.appAlertContent {
+    font-family: PingFangSC-Medium;
+
+    .contentAlert {
+        display: flex;
+        width: 100%;
+        height: 40px;
+        border-bottom: 1px solid #e3e3e3;
+        align-items: center;
+        justify-content: space-between;
+
+        div {
+            padding: 0px 12px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+
+            span {
+                margin-left: 2px;
+            }
+
+            .spanStyle {
+                text-decoration: underline;
+                color: #4077c3;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+// 旧应用报警样式（保留兼容）
+.appAlert {
     width: 100%;
     font-family: PingFangSC-Medium;
     height: 210px;
@@ -537,7 +860,7 @@
     background-color: #fff;
     padding: 24px;
     border-radius: 5px;
-  
+
     // overflow-x: hidden;
     // overflow-y: scroll;
     .contentAlert {
@@ -547,17 +870,17 @@
         border-bottom: 1px solid #e3e3e3;
         align-items: center;
         justify-content: space-between;
-  
+
         div {
             padding: 0px 12px;
             height: 40px;
             display: flex;
             align-items: center;
-  
+
             span {
                 margin-left: 2px;
             }
-  
+
             .spanStyle {
                 text-decoration: underline;
                 color: #4077c3;
@@ -624,3 +947,325 @@
   .char5 {
   animation-delay: 0.4s;
   }
+
+// 平台健康检测内容区域
+.platformHealthContent {
+    font-family: PingFangSC-Medium;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+// 健康问题卡片
+.healthIssueCard {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 24px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background: #fff5f5;
+    transition: all 0.3s ease;
+    align-items: center;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &:hover {
+        box-shadow: 0 2px 8px rgba(255, 77, 79, 0.15);
+    }
+}
+
+// 图标容器
+.issueIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 77, 79, 0.1);
+    margin-right: 16px;
+    flex-shrink: 0;
+    position: relative;
+
+    // 脉冲扩散特效
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid rgba(255, 77, 79, 0.4);
+        animation: pulse-ring 4s ease-out infinite;
+    }
+
+    :global {
+        .anticon {
+            font-size: 16px;
+            color: #ff4d4f;
+            position: relative;
+            z-index: 1;
+        }
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 1;
+    }
+    50% {
+        width: 180%;
+        height: 180%;
+        opacity: 0;
+    }
+    100% {
+        width: 180%;
+        height: 180%;
+        opacity: 0;
+    }
+}
+
+// 内容区域
+.issueContent {
+    flex: 1;
+    min-width: 0;
+}
+
+// 顶部行：严重标签 + 集群名
+.issueTopRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+// 严重程度标签
+.issueSeverityTag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ff4d4f;
+    background: rgba(255, 77, 79, 0.15);
+    border-radius: 4px;
+}
+
+// 集群名称
+.issueClusterName {
+    font-size: 14px;
+    color: @text-color-secondary;
+}
+
+// 错误消息
+.issueMessage {
+    font-size: 14px;
+    font-weight: 500;
+    color: @text-color;
+}
+
+// 描述信息
+.issueDesc {
+    font-size: 14px;
+    color: @text-color-secondary;
+    line-height: 1.5;
+}
+
+// 查看详情按钮
+.issueViewDetail {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ff4d4f;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px 0;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.issueStatusTag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.tagError {
+    color: #ff4d4f;
+    background: #fff2f0;
+}
+
+
+.issueDesc {
+    font-size: 14px;
+    color: @text-color-secondary;
+}
+
+.issueMetrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.metricItem {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.metricLabel {
+    color: @text-color-secondary;
+    margin-right: 4px;
+}
+
+.metricValue {
+    color: @text-color;
+    font-weight: 500;
+}
+
+// 集群健康分组
+.regionHealthGroup {
+    margin-bottom: 20px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.regionHealthHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f6f8fc 0%, #f0f2f5 100%);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.regionHealthTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text-color;
+    display: flex;
+    align-items: center;
+}
+
+.regionHealthStatus {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.issueCount {
+    font-size: 13px;
+    color: @text-color-secondary;
+    padding-left: 16px;
+    border-left: 1px solid #e8e8e8;
+}
+
+.regionHealthIssues {
+    padding-left: 8px;
+}
+
+// 问题操作按钮
+.issueActions {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    flex-shrink: 0;
+}
+
+// 分类标签
+.issueCategoryTag {
+    font-size: 12px;
+    color: @text-color-secondary;
+    background: #f5f5f5;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+// 优先级样式
+.issueP0 {
+    color: #ff4d4f;
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+}
+
+.issueP1 {
+    color: #faad14;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+}
+
+.issueP2 {
+    color: #1890ff;
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+}
+
+// 详情弹窗样式
+.healthDetailContent {
+    padding: 8px 0;
+}
+
+.healthDetailItem {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.healthDetailLabel {
+    width: 80px;
+    min-width: 80px;
+    font-weight: 500;
+    color: @text-color-secondary;
+    flex-shrink: 0;
+}
+
+.healthDetailValue {
+    flex: 1;
+    color: @text-color;
+    word-break: break-all;
+}
+
+.healthDetailSolution {
+    margin-top: 20px;
+    padding: 16px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+}
+
+.healthDetailSolutionTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text-color;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.healthDetailSolutionContent {
+    font-size: 13px;
+    color: @text-color;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    margin: 0;
+    padding: 12px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+}

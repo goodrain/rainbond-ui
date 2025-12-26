@@ -1,8 +1,3 @@
-/* eslint-disable react/sort-comp */
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable eqeqeq */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable react/no-string-refs */
 import { Button, Card, Cascader, Form, Input, Select } from 'antd';
 import { connect } from 'dva';
 import axios from 'axios';
@@ -15,7 +10,8 @@ import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import PulginUtiles from '../../utils/pulginUtils'
 
 
@@ -33,6 +29,7 @@ const { Option } = Select;
 )
 export default class Index extends PureComponent {
   formRef = React.createRef();
+  boxRef = React.createRef();
   constructor(arg) {
     super(arg);
     this.state = {
@@ -75,25 +72,22 @@ export default class Index extends PureComponent {
 
     this.fetchInstanceInfo();
     this.setState({
-      // 历史日志展示
-      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList,'rainbond-enterprise-base'),
-    },()=>{
-      if(this.state.isHistoryLogs){
-        this.props.pluginList.forEach(item =>{
-          if(item.name == 'rainbond-enterprise-base'){            
+      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList, 'rainbond-enterprise-base'),
+    }, () => {
+      if (this.state.isHistoryLogs) {
+        this.props.pluginList.forEach(item => {
+          if (item.name === 'rainbond-enterprise-base') {
             this.setState({
               lokiUrl: item.backend
-            })
+            });
           }
-        })        
+        });
       }
     });
-    
-    // 设置定时器每5秒执行fetchInstanceInfo
+
     this.intervalTimer = setInterval(() => {
       this.fetchInstanceInfo();
 
-      // KubeBlocks component 刷新 clusterDetail
       if (isKubeBlocks) {
         dispatch({
           type: 'kubeblocks/getClusterDetail',
@@ -108,18 +102,17 @@ export default class Index extends PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      this.refs.box &&
+      this.boxRef.current &&
       prevState.logs.length !== this.state.logs.length &&
       this.state.showHighlighted === ''
     ) {
-      this.refs.box.scrollTop = this.refs.box.scrollHeight;
+      this.boxRef.current.scrollTop = this.boxRef.current.scrollHeight;
     }
   }
   componentWillUnmount() {
     if (this.eventSources) {
       this.closeAllEventSources();
     }
-    // 清理定时器
     if (this.intervalTimer) {
       clearInterval(this.intervalTimer);
     }
@@ -141,7 +134,7 @@ export default class Index extends PureComponent {
         };
         this.eventSources[pod.pod_name].onerror = (error) => {
           console.error(`${pod.pod_name} EventSource failed:`, error);
-          this.closeEventSource(pod.pod_name); // 出错时关闭EventSource实例
+          this.closeEventSource(pod.pod_name);
         };
       }
     });
@@ -150,11 +143,10 @@ export default class Index extends PureComponent {
   closeEventSource(podsName) {
     if (this.eventSources[podsName]) {
       this.eventSources[podsName].close();
-      delete this.eventSources[podsName]; // 从对象中移除引用
+      delete this.eventSources[podsName];
     }
   }
 
-  // 如果需要，可以添加更多管理方法，比如关闭所有实例
   closeAllEventSources() {
     if (this.eventSources) {
       Object.keys(this.eventSources).forEach(podsName => {
@@ -174,10 +166,10 @@ export default class Index extends PureComponent {
 
   processBatchMessages = () => {
     if (this.messageBuffer.length === 0) return;
-    
+
     const newMessages = [...this.messageBuffer];
     this.messageBuffer = [];
-    
+
     this.setState((prevState) => {
       const updatedLogs = [...prevState.logs, ...newMessages];
       if (updatedLogs.length > this.MAX_LOGS) {
@@ -187,17 +179,16 @@ export default class Index extends PureComponent {
     });
   };
 
-  // 比较两个pod_name数组是否相同
   comparePodNames = (currentPodNames, previousPodNames) => {
     if (currentPodNames.length !== previousPodNames.length) {
       return false;
     }
-    
+
     const sortedCurrent = [...currentPodNames].sort();
     const sortedPrevious = [...previousPodNames].sort();
-    
+
     return sortedCurrent.every((name, index) => name === sortedPrevious[index]);
-  }
+  };
 
   fetchInstanceInfo = () => {
     const { dispatch, appAlias, appDetail, clusterDetail } = this.props;
@@ -224,7 +215,7 @@ export default class Index extends PureComponent {
             [];
           list = [...new_pods, ...old_pods];
         }
-        
+
         if (list && list.length > 0) {
           list.map(item => {
             item.name = `实例：${item.pod_name}`;
@@ -234,7 +225,6 @@ export default class Index extends PureComponent {
           });
         }
 
-        // KubeBlocks 组件：用 clusterDetail 数据覆盖
         if (isKubeBlocks && clusterDetail && clusterDetail.basic && clusterDetail.basic.replicas) {
           const replicas = clusterDetail.basic.replicas;
           list = replicas.map(replica => {
@@ -255,24 +245,20 @@ export default class Index extends PureComponent {
         }
 
         list.push({
-          name: formatMessage({ id: 'componentOverview.body.tab.log.allLogs' }),
+          name: formatMessage({ id: 'componentOverview.body.tab.log.allLogs' })
         });
 
-        // 提取当前的pod_name数组
         const currentPodNames = list
           .filter(item => item.pod_name)
           .map(item => item.pod_name);
-        
+
         const { previousPodNames } = this.state;
-        
-        // 比较pod_name是否发生变化
         const podsChanged = !this.comparePodNames(currentPodNames, previousPodNames);
 
         this.setState({
           instances: list,
           previousPodNames: currentPodNames
         }, () => {
-          // 只有当pod_name发生变化时才重新初始化EventSources
           if (podsChanged) {
             const { instances } = this.state;
             this.closeAllEventSources();
@@ -290,16 +276,16 @@ export default class Index extends PureComponent {
   handleStop = () => {
     this.setState({ started: false });
     if (this.eventSources) {
-      this.closeAllEventSources()
+      this.closeAllEventSources();
     }
   };
   handleStart = () => {
-    const { instances } = this.state
+    const { instances } = this.state;
     this.setState({ started: true });
-    this.initializeEventSources(instances, 100)
+    this.initializeEventSources(instances, 100);
   };
   onChangeCascader = value => {
-    const { instances } = this.state
+    const { instances } = this.state;
     if (value && value.length > 1) {
       this.setState(
         {
@@ -308,7 +294,7 @@ export default class Index extends PureComponent {
         },
         () => {
           this.fetchContainerLog();
-          this.closeEventSource()
+          this.closeEventSource();
         }
       );
     } else {
@@ -320,7 +306,7 @@ export default class Index extends PureComponent {
         },
         () => {
           this.closeTimer();
-          this.initializeEventSources(instances, 100)
+          this.initializeEventSources(instances, 100);
         }
       );
     }
@@ -372,43 +358,41 @@ export default class Index extends PureComponent {
 
   onFinish = value => {
     this.setState({ filter: value }, () => {
-      const { logs, pod_name: podName } = this.state;
+      const { logs } = this.state;
       if (value === '') {
-        this.handleStart()
+        this.handleStart();
       } else {
-        this.closeAllEventSources()
+        this.closeAllEventSources();
         this.setLogs(logs);
       }
     });
   };
+
   setLogs = logs => {
     const { filter, pod_name: podName } = this.state;
-    let newlogs = logs;
-    newlogs = logs.filter(item => {
-      if (filter == '' || item.indexOf(filter) != -1) {
-        return true;
-      }
-      return false;
-    });
+    let newlogs = logs.filter(item => filter === '' || item.indexOf(filter) !== -1);
+
     newlogs = newlogs.map(item => {
-      if (item.indexOf(filter) != -1) {
-        const newitem = item.replace(filter, `\x1b[33m${filter}\x1b[0m`);
-        return newitem;
+      if (item.indexOf(filter) !== -1) {
+        return item.replace(filter, `\x1b[33m${filter}\x1b[0m`);
       }
       return item;
     });
     if (newlogs.length > 5000) {
       newlogs = newlogs.slice(logs.length - 5000, logs.length);
     }
-    const upDataInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
-    this.setState(upDataInfo);
+    const updateInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
+    this.setState(updateInfo);
   };
+
   showHistoryLogs = () => {
     this.setState({ showHistoryLog: true });
   };
+
   hideHistoryLogs = () => {
     this.setState({ showHistoryLog: false });
   };
+
   handleHighlightClick = (highlightId) => {
     const { showHighlighted } = this.state;
     this.setState({
@@ -418,7 +402,7 @@ export default class Index extends PureComponent {
 
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { appAlias, regionName, teamName } = this.props;
+    const { appAlias } = this.props;
     const {
       logs,
       pod_name,
@@ -426,57 +410,59 @@ export default class Index extends PureComponent {
       showHighlighted,
       instances,
       started,
-      refreshValue,
       showHistoryLog,
-      messages,
       lokiUrl
     } = this.state;
     return (
-      <Card
-        title={
-          <Fragment>
+      <div className={styles.logContainer}>
+        <div className={styles.logHeader}>
+          <div className={styles.logHeaderLeft}>
+            <div className={styles.logStatus}>
+              <span className={`${styles.statusDot} ${started ? styles.statusActive : styles.statusInactive}`} />
+              <span className={styles.statusText}>
+                {started
+                  ? <FormattedMessage id='componentOverview.body.tab.log.streaming' defaultMessage="实时推送中" />
+                  : <FormattedMessage id='componentOverview.body.tab.log.paused' defaultMessage="已暂停" />
+                }
+              </span>
+            </div>
             {started ? (
-              <Button onClick={this.handleStop}>
-                {/* 暂停推送 */}
+              <Button type="default" size="small" onClick={this.handleStop} className={styles.controlBtn}>
                 <FormattedMessage id='componentOverview.body.tab.log.push' />
               </Button>
             ) : (
-              <Button onClick={this.handleStart}>
-                {/* 开始推送 */}
+              <Button type="primary" size="small" onClick={this.handleStart} className={styles.controlBtn}>
                 <FormattedMessage id='componentOverview.body.tab.log.startPushing' />
               </Button>
             )}
-          </Fragment>
-        }
-        extra={
-          <Fragment>
-            {this.state.isHistoryLogs && <a onClick={this.showHistoryLogs}>
-              {/* 历史日志 */}
-              <FormattedMessage id='componentOverview.body.tab.log.history' />
-            </a>}
-          </Fragment>
-        }
-      >
-        <Form layout="inline" name="logFilter" style={{ marginBottom: '16px' }}>
-          <Form.Item
-            name="filter"
-            label={<FormattedMessage id='componentOverview.body.tab.log.text' />}
-            style={{ marginRight: '10px' }}
-          >
+          </div>
+          <div className={styles.logHeaderRight}>
+            {this.state.isHistoryLogs && (
+              <Button type="link" onClick={this.showHistoryLogs} className={styles.historyBtn}>
+                <FormattedMessage id='componentOverview.body.tab.log.history' />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.logToolbar}>
+          <div className={styles.toolbarItem}>
+            <span className={styles.toolbarLabel}>
+              <FormattedMessage id='componentOverview.body.tab.log.text' />
+            </span>
             <Input.Search
-              style={{ width: '300px' }}
-              // placeholder="请输入过滤文本"
+              className={styles.searchInput}
               placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
               onSearch={this.onFinish}
+              allowClear
             />
-          </Form.Item>
-          <Form.Item
-            name="container"
-            label={<FormattedMessage id='componentOverview.body.tab.log.container' />}
-            style={{ marginRight: '10px' }}
-            className={styles.podCascader}
-          >
+          </div>
+          <div className={styles.toolbarItem}>
+            <span className={styles.toolbarLabel}>
+              <FormattedMessage id='componentOverview.body.tab.log.container' />
+            </span>
             <Cascader
+              className={styles.cascaderInput}
               defaultValue={[`${formatMessage({ id: 'componentOverview.body.tab.log.allLogs' })}`]}
               fieldNames={{
                 label: 'name',
@@ -487,41 +473,45 @@ export default class Index extends PureComponent {
               onChange={this.onChangeCascader}
               placeholder={formatMessage({ id: 'componentOverview.body.tab.log.select' })}
             />
-          </Form.Item>
-        </Form>
-        <div className={styles.logsss} ref="box">
-          {(containerLog &&
-            containerLog.length > 0 &&
-            containerLog.map((item, index) => {
-              return (
-                <LogItem
-                  key={index}
-                  item={item}
-                  index={index}
-                  isContainer={true}
-                />
-              );
-            })) ||
-            (logs &&
-              logs.length > 0 &&
-              logs.map((log, index) => {
+          </div>
+        </div>
+
+        <div className={styles.logContent}>
+          <div className={styles.logsss} ref={this.boxRef}>
+            {(containerLog &&
+              containerLog.length > 0 &&
+              containerLog.map((item, index) => {
                 return (
                   <LogItem
                     key={index}
-                    log={log}
+                    item={item}
                     index={index}
-                    logs={logs}
-                    showHighlighted={showHighlighted}
-                    onHighlightClick={this.handleHighlightClick}
-                    isContainer={false}
+                    isContainer={true}
                   />
                 );
-              }))}
+              })) ||
+              (logs &&
+                logs.length > 0 &&
+                logs.map((log, index) => {
+                  return (
+                    <LogItem
+                      key={index}
+                      log={log}
+                      index={index}
+                      logs={logs}
+                      showHighlighted={showHighlighted}
+                      onHighlightClick={this.handleHighlightClick}
+                      isContainer={false}
+                    />
+                  );
+                }))}
+          </div>
         </div>
+
         {showHistoryLog && (
           <HistoryLog onCancel={this.hideHistoryLogs} appAlias={appAlias} url={lokiUrl} />
         )}
-      </Card>
+      </div>
     );
   }
 }
@@ -546,10 +536,10 @@ const LogItem = memo(({ item, log, index, logs, showHighlighted, onHighlightClic
   const logContent = log.substring(colonIndex + 1, log.length);
   const logPrefix = log.substring(0, colonIndex);
 
-  const shouldShowPrefix = logs.length === 1 || 
-    (index >= 1 && 
+  const shouldShowPrefix = logs.length === 1 ||
+    (index >= 1 &&
      highlightId !== logs[index - 1]?.substring(
-       logs[index - 1].indexOf(':') - 12, 
+       logs[index - 1].indexOf(':') - 12,
        logs[index - 1].indexOf(':')
      ));
 

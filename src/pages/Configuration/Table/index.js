@@ -4,21 +4,19 @@ import { batchOperation } from '@/services/app';
 import {
   Badge,
   Button,
-  Card,
   Form,
   Input,
   Modal,
   notification,
   Popover,
-  Row,
-  Table,
-  Col
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
+import globalUtil from '../../../utils/global';
 import styles from './index.less'
 
 const { confirm } = Modal;
@@ -208,167 +206,158 @@ export default class ConfigurationTable extends PureComponent {
             subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
           />
         )}
-        <Card
-          style={{
-            borderRadius: 5
-          }}
-          className={styles.cardBody}
-        >
-          <Row className={styles.cardHeader}>
-            <Col span={20}>
-              <Form layout="inline" style={{ display: 'inline-block' }}>
-                <FormItem>
-                  <Input
-                    placeholder={formatMessage({ id: 'appConfiguration.placeholder' })}
-                    onChange={this.handelChange}
-                    onPressEnter={this.handleEnter}
-                    style={{ width: 250 }}
-                  />
-                </FormItem>
-                <FormItem>
-                  <Button type="primary" onClick={this.handleSearch} icon="search">
-                    {formatMessage({ id: 'appConfiguration.btn.search' })}
-                  </Button>
-                </FormItem>
-              </Form>
-            </Col>
-            <Col span={4}>
-              {isCreate && (
-                <Button
-                  type="primary"
-                  icon="plus"
-                  style={{ float: 'right', margin: '4px 0 0' }}
-                  onClick={() => {
-                    this.handleConfigurationOperation();
-                  }}
-                >
-                  {formatMessage({ id: 'appConfiguration.btn.add' })}
+        <div className={styles.configContainer}>
+          <div className={styles.configHeader}>
+            <Form layout="inline" className={styles.searchForm}>
+              <FormItem>
+                <Input
+                  placeholder={formatMessage({ id: 'appConfiguration.placeholder' })}
+                  onChange={this.handelChange}
+                  onPressEnter={this.handleEnter}
+                  style={{ width: 250 }}
+                />
+              </FormItem>
+              <FormItem>
+                <Button type="primary" onClick={this.handleSearch} icon="search">
+                  {formatMessage({ id: 'appConfiguration.btn.search' })}
                 </Button>
-              )}
-            </Col>
-          </Row>
-          <div style={{ padding: 24 }}>
-            <Table
-              size="default"
-              rowKey={(record, index) => index}
-              pagination={{
-                size: 'default',
-                current: page,
-                pageSize,
-                total,
-                onChange: this.onPageChange,
-                onShowSizeChange: this.onPageChange,
-                showQuickJumper: true,
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-                hideOnSinglePage: total<=10
-              }}
-              dataSource={apps || []}
-              loading={loading}
-              columns={[
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.name' }),
-                  dataIndex: 'config_group_name'
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.createTime' }),
-                  dataIndex: 'create_time',
-                  align: 'center',
-                  render: val => {
-                    return `${moment(val)
-                      .locale('zh-cn')
-                      .format('YYYY-MM-DD HH:mm:ss')}`;
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.componentNum' }),
-                  dataIndex: 'services_num',
-                  align: 'center',
-                  render: (val, data) => {
-                    return (
-                      <div>
-                        {val ? (
-                          <Popover
-                            placement="top"
-                            title={formatMessage({ id: 'appConfiguration.table.take_effect_component' })}
-                            content={
-                              <div>
-                                {data.services.map(item => {
-                                  const {
-                                    service_cname: name,
-                                    service_alias: alias
-                                  } = item;
-                                  return (
-                                    <Link
-                                      key={alias}
-                                      to={`/team/${teamName}/region/${regionName}/components/${alias}/overview`}
-                                    >
-                                      {name}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            }
-                            trigger="click"
-                          >
-                            <a>{val}</a>
-                          </Popover>
-                        ) : (
-                          0
-                        )}
-                      </div>
-                    );
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.status' }),
-                  dataIndex: 'enable',
-                  align: 'center',
-                  render: val => {
-                    return (
-                      <div>
-                        <Badge
-                          status={val ? 'success' : 'error'}
-                          text={<span>{val ? formatMessage({ id: 'appConfiguration.table.take_effect' }) : formatMessage({ id: 'appConfiguration.table.not_take_effect' })}</span>}
-                        />
-                      </div>
-                    );
-                  }
-                },
-                {
-                  title: formatMessage({ id: 'appConfiguration.table.operate' }),
-                  dataIndex: 'action',
-                  align: 'center',
-
-                  render: (val, data) => {
-                    return (
-                      <div>
-                        {isEdit && (
-                          <a
-                            onClick={() => {
-                              this.handleConfigurationOperation(data);
-                            }}
-                          >
-                            {formatMessage({ id: 'appConfiguration.table.btn.edit' })}
-                          </a>
-                        )}
-                        {isDelete && (
-                          <a
-                            onClick={() => {
-                              this.handleDelete(data);
-                            }}
-                          >
-                            {formatMessage({ id: 'appConfiguration.table.btn.delete' })}
-                          </a>
-                        )}
-                      </div>
-                    );
-                  }
-                }
-              ]}
-            />
+              </FormItem>
+            </Form>
+            {isCreate && (
+              <Button
+                type="primary"
+                icon="plus"
+                onClick={() => {
+                  this.handleConfigurationOperation();
+                }}
+              >
+                {formatMessage({ id: 'appConfiguration.btn.add' })}
+              </Button>
+            )}
           </div>
-        </Card>
+          <Table
+            size="default"
+            rowKey={(record, index) => index}
+            pagination={{
+              size: 'default',
+              current: page,
+              pageSize,
+              total,
+              onChange: this.onPageChange,
+              onShowSizeChange: this.onPageChange,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              hideOnSinglePage: total <= 10
+            }}
+            dataSource={apps || []}
+            loading={loading}
+            columns={[
+              {
+                title: formatMessage({ id: 'appConfiguration.table.name' }),
+                dataIndex: 'config_group_name'
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.createTime' }),
+                dataIndex: 'create_time',
+                align: 'center',
+                render: val => {
+                  return `${moment(val)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')}`;
+                }
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.componentNum' }),
+                dataIndex: 'services_num',
+                align: 'center',
+                render: (val, data) => {
+                  return (
+                    <div>
+                      {val ? (
+                        <Popover
+                          placement="top"
+                          title={formatMessage({ id: 'appConfiguration.table.take_effect_component' })}
+                          content={
+                            <div>
+                              {data.services.map(item => {
+                                const {
+                                  service_cname: name,
+                                  service_alias: alias
+                                } = item;
+                                return (
+                                  <Link
+                                    key={alias}
+                                    to={
+                                      // `/team/${teamName}/region/${regionName}/components/${alias}/overview`
+                                      `/team/${teamName}/region/${regionName}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${alias}&tab=overview`
+                                    }
+                                  >
+                                    {name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          }
+                          trigger="click"
+                        >
+                          <a>{val}</a>
+                        </Popover>
+                      ) : (
+                        0
+                      )}
+                    </div>
+                  );
+                }
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.status' }),
+                dataIndex: 'enable',
+                align: 'center',
+                render: val => {
+                  return (
+                    <div>
+                      <Badge
+                        status={val ? 'success' : 'error'}
+                        text={<span>{val ? formatMessage({ id: 'appConfiguration.table.take_effect' }) : formatMessage({ id: 'appConfiguration.table.not_take_effect' })}</span>}
+                      />
+                    </div>
+                  );
+                }
+              },
+              {
+                title: formatMessage({ id: 'appConfiguration.table.operate' }),
+                dataIndex: 'action',
+                align: 'center',
+
+                render: (val, data) => {
+                  return (
+                    <div>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleConfigurationOperation(data);
+                          }}
+                        >
+                          {formatMessage({ id: 'appConfiguration.table.btn.edit' })}
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDelete(data);
+                          }}
+                        >
+                          {formatMessage({ id: 'appConfiguration.table.btn.delete' })}
+                        </a>
+                      )}
+                    </div>
+                  );
+                }
+              }
+            ]}
+          />
+        </div>
       </div>
     );
   }

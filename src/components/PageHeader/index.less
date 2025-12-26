@@ -77,8 +77,8 @@
   }
 }
 .pageHeader {
-  background-color: @rbd-background-color;
-  padding: 16px;
+  // background-color: @rbd-background-color;
+  // padding: 16px;
   .detail {
     display: flex;
   }
@@ -118,11 +118,13 @@
     font-size: @rbd-sub-title-size;
     line-height: @rbd-sub-title-line-height;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.65);
+    color: @primary-color;
     letter-spacing: 0;
     margin-bottom: 0em;
   }
   .title_svg{
+        display: flex;
+    align-items: center;
     margin-right: 4px;
   }
   .action {

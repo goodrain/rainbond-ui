@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import PropTypes from 'prop-types';
 import { Form, Button, Row, Col, notification } from 'antd';
 import omit from 'omit.js';

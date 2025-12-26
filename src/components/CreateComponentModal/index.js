@@ -3,7 +3,7 @@ import { Modal, Icon, Spin, Form, Button } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
@@ -24,8 +24,8 @@ import OuterCustomForm from '../OuterCustomForm';
 import DatabaseCreateForm from '../DatabaseCreateForm';
 import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
-import RBDPluginsCom from '../RBDPluginsCom';
 import oauthUtil from '../../utils/oauth';
+import handleAPIError from '../../utils/error';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -192,6 +192,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         }
         setMarketLoading(false);
         setMarketLoadingMore(false);
+        handleAPIError(err);
       }
     });
   };
@@ -233,6 +234,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         }
         setLocalMarketLoading(false);
         setLocalMarketLoadingMore(false);
+        handleAPIError(err);
       }
     });
   };
@@ -338,6 +340,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const group_id = globalUtil.getAppID();
+    const timestamp = new Date().getTime();
+
 
     const installApp = (finalGroupId, isNewApp = false) => {
       dispatch({
@@ -367,14 +371,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
                   )
                 );
+              }else{
+                dispatch(
+                  routerRedux.push(
+                    `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
+                  )
+                );
               }
             }
           });
           setMarketSubmitLoading(false);
           onCancel();
         },
-        handleError: () => {
+        handleError: (err) => {
           setMarketSubmitLoading(false);
+          handleAPIError(err);
         }
       });
     };
@@ -402,8 +413,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             setMarketSubmitLoading(false);
           }
         },
-        handleError: () => {
+        handleError: (err) => {
           setMarketSubmitLoading(false);
+          handleAPIError(err);
         }
       });
     } else if (vals.install_type === 'existing' && vals.group_id) {
@@ -420,6 +432,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const group_id = globalUtil.getAppID();
+    const timestamp = new Date().getTime();
 
     const installApp = (finalGroupId, isNewApp = false) => {
       dispatch({
@@ -448,14 +461,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
                   )
                 );
+              } else {
+                dispatch(
+                  routerRedux.push(
+                    `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
+                  )
+                );
               }
             }
           });
           setLocalSubmitLoading(false);
           onCancel();
         },
-        handleError: () => {
+        handleError: (err) => {
           setLocalSubmitLoading(false);
+          handleAPIError(err);
         }
       });
     };
@@ -483,8 +503,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             setLocalSubmitLoading(false);
           }
         },
-        handleError: () => {
+        handleError: (err) => {
           setLocalSubmitLoading(false);
+          handleAPIError(err);
         }
       });
     } else if (vals.install_type === 'existing' && vals.group_id) {
@@ -766,6 +787,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       handleError: err => {
         setMarketStores([]);
         setLoadingStores(false);
+        handleAPIError(err);
       }
     });
   };
@@ -794,6 +816,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       handleError: err => {
         setImageHubList([]);
         setLoadingImageHubs(false);
+        handleAPIError(err);
       }
     });
   };
@@ -815,6 +838,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           } else {
             setClusters([]);
           }
+        },
+        handleError: err => {
+          setClusters([]);
+          handleAPIError(err);
         }
       });
     }
@@ -842,6 +869,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
         handleError: err => {
           setLocalImageList([]);
+          handleAPIError(err);
         }
       });
     }
@@ -870,6 +898,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       handleError: err => {
         // 设置默认值,避免阻塞用户操作
         setArchInfo([]);
+        handleAPIError(err);
       }
     });
   };
@@ -895,6 +924,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       handleError: err => {
         setEnterpriseInfo(null);
         setLoadingEnterpriseInfo(false);
+        handleAPIError(err);
       }
     });
   };
@@ -1279,9 +1309,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setCurrentView('main');
       setSelectedPlugin(null);
     } else if (currentView === 'thirdList') {
-      // 从 ThirdList 视图返回到源码菜单
-      setCurrentView('code');
-      setSelectedOauthService(null);
+      // 检查 ThirdList 是否正在显示表单
+      if (thirdListFormRef.current && thirdListFormRef.current.isShowingForm && thirdListFormRef.current.isShowingForm()) {
+        // 如果正在显示表单，返回到列表视图
+        thirdListFormRef.current.backToList();
+      } else {
+        // 否则返回到源码菜单
+        setCurrentView('code');
+        setSelectedOauthService(null);
+      }
     } else if (currentView === 'imageRepo') {
       // 从镜像仓库视图返回到镜像菜单
       setCurrentView('image');
@@ -1346,6 +1382,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         }
         setImageHubLoading(false);
         handleCloseAddImageRegistry();
+      },
+      handleError: err => {
+        setImageHubLoading(false);
+        handleAPIError(err);
       }
     });
   };
@@ -1393,6 +1433,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           // 刷新企业信息以获取最新的OAuth仓库列表
           fetchEnterpriseInfo();
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -1476,6 +1519,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           );
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     } else if (currentFormType === 'database') {
       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
@@ -1493,6 +1539,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     } else if (currentFormType === 'code-custom') {
       // 源码提交
@@ -1515,6 +1564,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
             onCancel();
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     } else if (currentFormType === 'code-demo') {
@@ -1531,6 +1583,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     } else if (currentFormType === 'code-jwar') {
       // 软件包提交
@@ -1547,6 +1602,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}?event_id=${event_id}`));
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     } else if (currentFormType === 'yaml') {
       // Yaml 提交
@@ -1586,6 +1644,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               onCancel();
             }
           },
+          handleError: err => {
+            handleAPIError(err);
+          }
         });
       } else {
         dispatch(
@@ -1615,6 +1676,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             );
             onCancel();
           }
+        },
+        handleError: err => {
+          handleAPIError(err);
         }
       });
     } else {
@@ -1631,6 +1695,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     }
   };
@@ -1658,6 +1725,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             handleFormSubmit(value, event_id);
           }
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     }
   };
@@ -1696,6 +1766,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           );
           onCancel();
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     };
 
@@ -1719,6 +1792,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             createThirdApp();
           }
         },
+        handleError: err => {
+          handleAPIError(err);
+        }
       });
     }
   };
@@ -2032,6 +2108,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 currentUser={currentUser}
                 archInfo={archInfo}
                 handleSubmit={handleThirdListSubmit}
+                handleCancel={handleBack}
               />
             )}
           </div>

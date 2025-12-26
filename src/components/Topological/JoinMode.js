@@ -16,7 +16,7 @@ import {
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../ConfirmModal'
 import globalUtil from '../../utils/global';

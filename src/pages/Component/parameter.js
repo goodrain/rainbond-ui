@@ -16,7 +16,8 @@ import {
   Col,
   Empty
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import NoPermTip from '../../components/NoPermTip';
 import globalUtil from '../../utils/global';
 

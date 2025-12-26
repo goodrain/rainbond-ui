@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import community from '../../../public/images/community.png';
 import globalUtil from '../../utils/global';
 import styles from './index.less';

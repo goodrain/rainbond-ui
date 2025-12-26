@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 import { fetchAppModelsTags, fetchOrganizations } from '../../services/market';
 import cookie from '../../utils/cookie';
@@ -518,8 +518,8 @@ class CreateAppModels extends PureComponent {
                       message: formatMessage({ id: 'placeholder.appShare.appPublish.name' })
                     },
                     {
-                      max: 32,
-                      message: formatMessage({ id: 'placeholder.max32' })
+                      max: 16,
+                      message: formatMessage({ id: 'placeholder.max16' })
                     },
                     {
                       pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,

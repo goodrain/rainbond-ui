@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import {
-Card,
 Button,
 Table,
 Row,
 Col,
 Skeleton
 } from 'antd';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import Charts from '../ClusterEcharts/Echarts'
 import styles from './index.less'
@@ -34,7 +33,7 @@ class Index extends Component {
         return null;
     };
     render() {
-        const { rowClusterInfo, showInfo } = this.props;
+        const { rowClusterInfo, showInfo, titleIcon, titleText } = this.props;
         const {
             all_nodes,
             node_ready,
@@ -61,65 +60,71 @@ class Index extends Component {
         const diskTotal = (total_disk && parseInt(total_disk)) || 0;
         return (
             <>
-                <Card
-                >
-                    {rowClusterInfo && Object.keys(rowClusterInfo).length > 0 && showInfo ?
-                        <>
-                            {/* chart图 标题 */}
-                            <div className={styles.titleStyle}>
-                                <div>
-                                    <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalCpu'})}
-                                        <span>{cpuTotal}</span>
-                                        Core
-                                    </p>
+                <div className={styles.cardContainer}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.cardTitleStyle}>
+                            <span>{titleIcon}</span>
+                            <span>{titleText}</span>
+                        </div>
+                    </div>
+                    <div className={styles.cardBody}>
+                        {rowClusterInfo && Object.keys(rowClusterInfo).length > 0 && showInfo ?
+                            <div className={styles.resourceRow}>
+                                <div className={styles.resourceItem}>
+                                    <div className={styles.resourceTitle}>
+                                        <p>
+                                            {formatMessage({id:'enterpriseColony.mgt.cluster.totalCpu'})}
+                                            <span>{cpuTotal}</span>
+                                            Core
+                                        </p>
+                                    </div>
+                                    <div className={styles.resourceChart}>
+                                        <Charts keys={'upcpu' + `${1}`} unit={'Core'} svalue={cpuUsed} usedValue={used_cpu} cname="CPU" swidth='200px' sheight='120px' />
+                                    </div>
                                 </div>
-                                <div>
-                                    <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.totalMemory'})}
-                                        <span>{memoryTotal}</span>
-                                        GB
-                                    </p>
+                                <div className={styles.resourceItem}>
+                                    <div className={styles.resourceTitle}>
+                                        <p>
+                                            {formatMessage({id:'enterpriseColony.mgt.cluster.totalMemory'})}
+                                            <span>{memoryTotal}</span>
+                                            GB
+                                        </p>
+                                    </div>
+                                    <div className={styles.resourceChart}>
+                                        <Charts keys={'upcpu' + `${2}`} unit={'GB'} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} usedValue={(used_memory / 1024).toFixed(2)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
+                                    </div>
                                 </div>
-                                <div>
-                                    <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.node'})}
-                                    </p>
+                                <div className={styles.resourceItem}>
+                                    <div className={styles.resourceTitle}>
+                                        <p>
+                                            {formatMessage({id:'enterpriseColony.mgt.cluster.node'})}
+                                        </p>
+                                    </div>
+                                    <div className={styles.resourceValue}>
+                                        <p>
+                                            {node_ready == {} ? 0 : node_ready || 0}
+                                            <span>/{all_nodes || 0}</span>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p>
-                                        {formatMessage({id:'enterpriseColony.mgt.cluster.pods'})}
-                                    </p>
+                                <div className={styles.resourceItem}>
+                                    <div className={styles.resourceTitle}>
+                                        <p>
+                                            {formatMessage({id:'enterpriseColony.mgt.cluster.pods'})}
+                                        </p>
+                                    </div>
+                                    <div className={styles.resourceValue}>
+                                        <p>
+                                            {run_pod_number || 0}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            {/* chart图 */}
-                            <div className={styles.chartsStyle}>
-
-                                <div>
-                                    <Charts keys={'upcpu' + `${1}`} unit={'Core'} svalue={cpuUsed} usedValue={used_cpu} cname="CPU" swidth='200px' sheight='120px' />
-                                </div>
-                                <div>
-                                    <Charts keys={'upcpu' + `${2}`} unit={'GB'} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} usedValue={(used_memory / 1024).toFixed(2)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
-                                </div>
-                                <div>
-                                    <p>
-                                        {node_ready == {} ? 0 : node_ready || 0}
-                                        <span>
-                                            /{all_nodes || 0}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <p>
-                                        {run_pod_number || 0}
-                                    </p>
-                                </div>
-                            </div>
-                        </>
-                        :
-                        <Skeleton active />
-                    }
-                </Card>
+                            :
+                            <Skeleton active />
+                        }
+                    </div>
+                </div>
             </>
         );
     }

@@ -1,6 +1,37 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../../utils/utils.less";
 
+.eventListContainer {
+  background-color: #fff;
+}
+
+.eventListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+
+  span {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  h2 {
+    font-size: @rbd-sub-title-size;
+    color: @text-color;
+    line-height: @rbd-sub-title-line-height;
+    font-weight: 600;
+    margin: 0;
+    font-family: PingFangSC-Medium;
+  }
+}
+
 .activitiesList {
   .username {
     color: @text-color;
@@ -9,6 +40,33 @@
   .event {
     font-weight: normal;
   }
+
+  :global {
+    .ant-list-item {
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid #e3e3e3;
+        border-radius: 12px;
+    }
+}
+}
+
+.eventItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.eventInfo {
+  flex: 1;
+}
+
+.eventTime {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 16px;
 }
 
 .pageHeaderContent {

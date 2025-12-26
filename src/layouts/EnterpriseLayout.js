@@ -2,10 +2,10 @@
 /* eslint-disable no-shadow */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable react/sort-comp */
-import { Layout, Alert, Icon } from 'antd';
+import { Layout } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
-import { Redirect, routerRedux, Link } from 'dva/router';
+import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import deepEqual from 'lodash.isequal';
 import memoizeOne from 'memoize-one';
@@ -14,32 +14,26 @@ import PropTypes from 'prop-types';
 import { stringify } from 'querystring';
 import React, { Fragment, PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
-import logo from '../../public/logo.png';
+import logo from '../../public/logo-icon.png';
 import { getMenuData } from '../common/enterpriseMenu';
 import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';
-import headerStype from '../components/GlobalHeader/index.less';
 import GlobalRouter from '../components/GlobalRouter';
 import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
-import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
 import MemoryTip from './MemoryTip';
 import Context from './MenuContext';
-import Logo from '../../public/logo.png'
 import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import pluginUtile from '../utils/pulginUtils'
-import { loadRegionConfig } from '@/services/cloud';
 import CustomFooter from "./CustomFooter"
-import "animate.css"
 const { Content } = Layout;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
@@ -100,15 +94,6 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false,
-      alertInfo: [],
-      offLineDisNew: [
-        {
-          key: 'welcome',
-          value: true
-        },
-        { key: 'applicationInfo', value: true },
-        { key: 'installApp', value: true }
-      ],
       showMenu: true,
       pluginList: {},
       key: true,
@@ -117,17 +102,15 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidMount() {
-    this.handleMenuCollapse(false);
+    // 使用 localStorage 中保存的折叠状态
+    const savedCollapsed = window.localStorage.getItem('collapsed');
+    if (savedCollapsed !== null) {
+      this.handleMenuCollapse(savedCollapsed === 'true');
+    }
     this.getEnterpriseList();
     this.handleLoadEnterpriseClusters();
-    const urlParams = new URL(window.location.href);
-    if (urlParams) {
-      const bool = urlParams.href.includes("/shell")
-      if (bool) {
-        this.setState({
-          showMenu: false
-        })
-      }
+    if (window.location.href.includes('/shell')) {
+      this.setState({ showMenu: false });
     }
   }
   handleLoadEnterpriseClusters = () => {
@@ -139,31 +122,19 @@ class EnterpriseLayout extends PureComponent {
         enterprise_id: eid
       },
       callback: res => {
-        if (res.status_code == 200) {
-
-          if (res?.list) {
-            this.setState({
-              clusterList: res?.list
-            })
-            const promises = res?.list.map(item => {
-              return this.handlePluginList(item.region_name);
-            });
-            Promise.all(promises)
-              .then(() => {
-
-                this.setState({ key: false })
-              })
-              .catch(error => {
-                this.setState({ key: false })
-              });
-          }
+        if (res.status_code === 200 && res?.list) {
+          this.setState({ clusterList: res.list });
+          const promises = res.list.map(item => this.handlePluginList(item.region_name));
+          Promise.all(promises)
+            .then(() => this.setState({ key: false }))
+            .catch(() => this.setState({ key: false }));
         }
       }
     });
   };
   handlePluginList = (regionName) => {
     return new Promise((resolve, reject) => {
-      const { dispatch } = this.props
+      const { dispatch } = this.props;
       const eid = globalUtil.getCurrEnterpriseId();
       dispatch({
         type: 'global/getPluginList',
@@ -176,82 +147,34 @@ class EnterpriseLayout extends PureComponent {
             dispatch({
               type: 'rbdPlugin/fetchPluginList',
               payload: res.list
-            })
-            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list)
+            });
+            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list);
+            window.localStorage.setItem('showEnterprisePlugin', showEnterprisePlugin || 'false');
             if (showEnterprisePlugin) {
-              window.localStorage.setItem('showEnterprisePlugin', showEnterprisePlugin)
-              this.setState({
-                showEnterprisePlugin: showEnterprisePlugin
-              })
-            } else {
-              window.localStorage.setItem('showEnterprisePlugin', 'false')
+              this.setState({ showEnterprisePlugin });
             }
-            const arr = this.state.pluginList
-            arr[regionName] = res.list
-            this.setState({
-              pluginList: arr
-            })
+            this.setState(prevState => ({
+              pluginList: { ...prevState.pluginList, [regionName]: res.list }
+            }));
             resolve();
           }
         },
         handleError: err => {
           if (err) {
-            this.setState({
-              pluginList: {},
-            })
-            reject(new Error("Failed to get component language version"));
+            this.setState({ pluginList: {} });
+            reject(new Error('Failed to get component language version'));
           }
         }
-      })
-    })
-
+      });
+    });
   }
 
-  // 获取平台公共信息(判断用户是否是离线)
+  // 获取平台公共信息
   handleGetEnterpeiseMsg = (data, eid) => {
-    const { dispatch } = this.props;
-    const { offLineDisNew } = this.state;
-    dispatch({
-      type: 'global/fetchRainbondInfo',
-      callback: res => {
-        // 判断是否是离线的状态
-        if (
-          res &&
-          res.is_offline !== 'false' &&
-          (res.is_offline || res.is_offline === 'true')
-        ) {
-          dispatch({
-            type: 'global/putNewbieGuideConfig',
-            payload: {
-              arr: [...offLineDisNew]
-            },
-            callback: res => {
-              if (res) {
-                const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
-                dispatch({
-                  type: 'global/fetchNewbieGuideConfig',
-                  callback: res => {
-                    if (
-                      res &&
-                      res.list &&
-                      res.list.length === 3 &&
-                      isNewbieGuide
-                    ) {
-                      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-                    }
-                  }
-                });
-              }
-            },
-            handleError: err => { }
-          });
-        } else {
-          const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
-          isNewbieGuide && this.getNewbieGuideConfig(eid);
-        }
-      },
-      handleError: err => { }
-    });
+    const isNewbieGuide = rainbondUtil.isEnableNewbieGuide(data);
+    if (isNewbieGuide) {
+      this.getNewbieGuideConfig(eid);
+    }
   };
   // get enterprise list
   getEnterpriseList = () => {
@@ -270,7 +193,6 @@ class EnterpriseLayout extends PureComponent {
               if (ready) {
                 this.redirectEnterpriseView();
                 this.load();
-                this.getAlertInfo()
               } else {
                 this.handleJumpLogin();
               }
@@ -354,36 +276,23 @@ class EnterpriseLayout extends PureComponent {
     } = this.props;
     const { enterpriseList } = this.state;
     if ((!eid || eid === 'auto') && enterpriseList.length > 0) {
-      let selectE = null;
-      enterpriseList.map(item => {
-        if (item.enterprise_id === currentUser.enterprise_id) {
-          selectE = item;
-        }
-        return item;
-      });
-      if (selectE == null) {
-        selectE = enterpriseList[0];
-      }
+      const selectE = enterpriseList.find(item => item.enterprise_id === currentUser.enterprise_id) || enterpriseList[0];
       this.handlePutLog(rainbondInfo, selectE);
       this.fetchEnterpriseInfo(selectE.enterprise_id);
       this.setState({ enterpriseInfo: selectE });
-      const link = this.getLoginRole(currentUser)
-      dispatch(
-        routerRedux.replace(link)
-      );
+      const link = this.getLoginRole(currentUser);
+      dispatch(routerRedux.replace(link));
     } else {
-      enterpriseList.map(item => {
-        if (item.enterprise_id === eid) {
-          this.fetchEnterpriseInfo(eid);
-          this.handlePutLog(rainbondInfo, item);
-          this.setState({ enterpriseInfo: item });
-        }
-        return item;
-      });
+      const matchedEnterprise = enterpriseList.find(item => item.enterprise_id === eid);
+      if (matchedEnterprise) {
+        this.fetchEnterpriseInfo(eid);
+        this.handlePutLog(rainbondInfo, matchedEnterprise);
+        this.setState({ enterpriseInfo: matchedEnterprise });
+      }
     }
   };
   handlePutLog = (rainbondInfo, item) => {
-    globalUtil.putLog(Object.assign(rainbondInfo, item));
+    globalUtil.putLog({ ...rainbondInfo, ...item });
   };
   getNewbieGuideConfig = eid => {
     const { dispatch } = this.props;
@@ -402,7 +311,6 @@ class EnterpriseLayout extends PureComponent {
       return null;
     }
     const { dispatch } = this.props;
-    // this.fetchEnterpriseService(eid);
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -417,65 +325,18 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  fetchEnterpriseService = eid => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'order/fetchEnterpriseService',
-      payload: {
-        enterprise_id: eid
-      }
-    });
-  };
-  getAlertInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'global/getRainbondAlert',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.bean) {
-          //获取平台报警信息
-          if (res.list.length > 0) {
-            this.setState({
-              alertInfo: res.list
-            })
-          }
-        }
-      }, handleError: err => {
-        console.log(err)
-      }
-    });
-  }
-  onJumpPersonal = () => {
-    const {
-      match: {
-        params: { eid }
-      },
-      dispatch,
-      currentUser
-    } = this.props
-    dispatch(routerRedux.replace(this.getLoginRole(currentUser)))
-  }
   getLoginRole = (currUser) => {
-    const { dispatch } = this.props;
-    const { teams } = currUser
+    const { teams } = currUser;
     if (teams && teams.length > 0) {
-      const { team_name, region } = teams[0]
-      const { team_region_name } = region[0]
+      const { team_name, region } = teams[0];
+      const { team_region_name } = region[0];
       if (team_name && team_region_name) {
-        return `/team/${team_name}/region/${team_region_name}/index`
+        return `/team/${team_name}/region/${team_region_name}/index`;
       }
-    } else {
-      if (currUser?.is_enterprise_admin) {
-        return `/enterprise/${currUser?.enterprise_id}/index`
-      }
+    } else if (currUser?.is_enterprise_admin) {
+      return `/enterprise/${currUser?.enterprise_id}/index`;
     }
+    return null;
   }
   render() {
     const {
@@ -494,7 +355,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, alertInfo, pluginList, clusterList, showEnterprisePlugin } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, pluginList, clusterList } = this.state;
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href
@@ -506,29 +367,10 @@ class EnterpriseLayout extends PureComponent {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
-    const customHeaderImg = () => {
-      return (
-        <div className={headerStype.enterprise} onClick={this.onJumpPersonal}>
-          <img src={fetchLogo} alt="" />
-        </div>
-      );
-    };
-    const customHeader = () => {
-      return (
-        <Link style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginLeft: 20 }} className={styles.platform} onClick={this.onJumpPersonal}>
-          <Icon type="team" style={{fontSize: 16,marginRight:6}}/>
-          {formatMessage({ id: 'enterpriseTeamManagement.other.personal' })}
-        </Link>
-      )
-    }
     const layout = () => {
-      const { rainbondInfo } = this.props
-      const isAlarm = rainbondInfo && rainbondInfo.is_alarm && rainbondInfo.is_alarm.enable
-      const { showMenu, key } = this.state
-      const urlParams = new URL(window.location.href)
-      const includesAdd = urlParams.href.includes('/addCluster')
-      const includesPro = urlParams.href.includes('/provider')
-      const showTransition = includesAdd || includesPro
+      const { showMenu, key } = this.state;
+      const currentHref = window.location.href;
+      const showTransition = currentHref.includes('/addCluster') || currentHref.includes('/provider');
       return (
         <Layout>
           <Layout>
@@ -545,8 +387,6 @@ class EnterpriseLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
-              customHeaderImg={customHeaderImg}
-              customHeader={customHeader}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
@@ -572,51 +412,27 @@ class EnterpriseLayout extends PureComponent {
               <div style={{ width: showMenu ? collapsed ? 'calc( 100% - 56px)' : 'calc( 100% - 200px)' : '100%', }}>
                 <TransitionGroup
                   style={{
-                    height: 'calc(100vh - 64px)',
-                    overflow: 'auto',
+                    position: 'relative',
+                    height: 'calc(100vh - 50px)',
+                    overflow: 'hidden',
                     width: "100%"
                   }}>
                   <CSSTransition
-                    timeout={300}
-                    classNames=
-                    {{
-                      enter: 'animate__animated',
-                      enterActive: 'animate__fadeIn',
-                    }}
+                    timeout={700}
+                    classNames="page-zoom"
                     unmountOnExit
-                    key={showTransition ? "" : this.props.location.pathname}
+                    key={showTransition ? '' : this.props.location.pathname}
                   >
                     <Content
                       key={eid}
                       style={{
-                        height: 'calc(100vh - 64px)',
+                        height: 'calc(100vh - 50px)',
                         overflow: 'auto',
                         width: '100%'
                       }}
                       className={styles.bgc}
                     >
-                      {/* 报警信息 */}
-                      {isAlarm ? (
-                        alertInfo.length > 0 && alertInfo.map((item) => {
-                          return (
-                            <div className={styles.alerts}>
-                              <Alert
-                                style={{ textAlign: 'left', marginTop: '4px', marginBottom: '4px', color: '#c40000', background: '#fff1f0', border: ' 1px solid red' }}
-                                message={item.annotations.description || item.annotations.summary}
-                                type="warning"
-                                showIcon
-                              />
-                            </div>
-                          )
-                        })
-                      ) :
-                        null
-                      }
-                      <div
-                        style={{
-                          margin: '24px 24px 0'
-                        }}
-                      >
+                      <div style={{ minHeight: 'calc(100vh - 50px)' }}>
                         <Authorized
                           logined
                           authority={['admin', 'user']}
@@ -686,7 +502,5 @@ export default connect(({ user, global, index, loading, region }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
-  terminalStatus: region.terminal_status,
-  rainbondInfo: global.rainbondInfo
-  // enterpriseServiceInfo: order.enterpriseServiceInfo
+  terminalStatus: region.terminal_status
 }))(EnterpriseLayout);

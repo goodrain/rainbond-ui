@@ -18,7 +18,7 @@ import {
   Col,
   Upload,
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';

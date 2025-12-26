@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import App from '../../../public/images/code.svg';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
@@ -240,6 +240,18 @@ class Index extends React.Component {
   };
 
   handleCancel = () => {
+    this.setState({
+      visible: false
+    });
+  };
+
+  // 暴露给父组件：判断是否正在显示表单
+  isShowingForm = () => {
+    return this.state.visible;
+  };
+
+  // 暴露给父组件：返回列表视图
+  backToList = () => {
     this.setState({
       visible: false
     });
@@ -617,15 +629,7 @@ class Index extends React.Component {
             </div>
           </div>
         ) : (
-          <Card bordered={false}  className={styles.listCard}
-            extra={
-              <Button
-                onClick={this.handleCancel}
-              >
-                {formatMessage({ id: 'componentOverview.body.ThirdList.back_to_list' })}
-              </Button>
-            }
-          >
+          <Card bordered={false} className={styles.listCard}>
             <ThirForm
               wrappedComponentRef={this.thirdFormRef}
               onSubmit={this.props.handleSubmit}

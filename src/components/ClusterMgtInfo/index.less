@@ -76,3 +76,40 @@
     font-size: 10px;
     font-family: PingFangSC-Regular, sans-serif;
   }
+
+.cardContainer {
+    background: #fff;
+    margin: 2px;
+    border-radius: 12px;
+    box-shadow: @rbd-min-card-shadow;
+    border: 1px solid rgba(16, 24, 40, 0.08);
+    margin-bottom: 16px;
+}
+
+.cardHeader {
+    padding: 16px 24px;
+}
+
+.cardBody {
+    padding: 0 24px 24px;
+}
+
+.titleStyle {
+    display: flex;
+    align-items: center;
+
+    span:nth-of-type(1) {
+        margin-right: 6px;
+
+        svg {
+            vertical-align: bottom;
+        }
+    }
+
+    span:nth-of-type(2) {
+        font-weight: bolder;
+        font-size: @rbd-sub-title-size;
+        color: @rbd-sub-title-color;
+        line-height: @rbd-sub-title-line-height;
+    }
+}

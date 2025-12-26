@@ -93,14 +93,15 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  // border: 1px solid #e8e8e8;
+  background-color: #fff;
+  border-radius: 12px;
   transition: all 0.3s;
-  background: #fff;
+  border: 1px solid #e3e3e3;
+  box-shadow: @rbd-card-shadow;
 
   &:hover {
-    border-color: #1890ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+    box-shadow: @rbd-card-shadow-hover;
   }
 }
 
@@ -153,6 +154,12 @@
   display: flex;
   align-items: center;
   margin-left: 16px;
+  :global{
+    .ant-btn {
+      background-color: @primary-color;
+      color: #fff;
+    }
+  }
 }
 
 // 加载更多状态

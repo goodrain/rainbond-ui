@@ -4,7 +4,8 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import ReactDOM from "react-dom"
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { formatMessage } from '@/utils/intl';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ClusterLog from './secondaryLogs'
 import userUtil from '../../utils/user';
@@ -83,9 +84,34 @@ export default class EnterpriseSetting extends PureComponent {
         });
     };
 
-    render() {
-        const { adminer, activeKey, ClustersList, regionActiveKey, showEnterprisePlugin } = this.state;
+    renderContent = () => {
+        const { activeKey, ClustersList, regionActiveKey, showEnterprisePlugin } = this.state;
         const eid = global.getCurrEnterpriseId();
+
+        if (activeKey === 'consoleLog') {
+            return <LogInfo type={true} />;
+        }
+        if (activeKey === 'Operation' && showEnterprisePlugin) {
+            return <EnterprisePluginsPage key="Operation" type="Operation" componentData={{ eid: eid }} />;
+        }
+        if (activeKey === 'login' && showEnterprisePlugin) {
+            return <EnterprisePluginsPage key="login" type="login" componentData={{ eid: eid }} />;
+        }
+        // 集群日志
+        const cluster = ClustersList.find(item => item.region_name === activeKey);
+        if (cluster) {
+            const { region_alias, region_name, region_id } = cluster;
+            return (
+                <div className={styles.logInfoStyle}>
+                    <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid} regionActiveKey={regionActiveKey} />
+                </div>
+            );
+        }
+        return null;
+    };
+
+    render() {
+        const { activeKey, ClustersList, showEnterprisePlugin } = this.state;
         return (
             <PageHeaderLayout
                 title={formatMessage({ id: 'LogEnterprise.title' })}
@@ -93,35 +119,38 @@ export default class EnterpriseSetting extends PureComponent {
                 titleSvg={pageheaderSvg.getPageHeaderSvg('logs', 18)}
                 isContent={true}
             >
-                <Tabs onChange={this.onChange} activeKey={activeKey} destroyInactiveTabPane className={styles.setTabs} type="card">
-                    <TabPane tab={formatMessage({ id: 'LogEnterprise.console' })} key="consoleLog">
-                        <LogInfo type={true} />
-                    </TabPane>
-                    {ClustersList.map((item, index) => {
-                        const { region_alias, region_name, url, region_id } = item
-                        return <TabPane tab={`${region_alias} ${formatMessage({ id: 'LogEnterprise.title' })}`} key={region_name} className={styles.logInfoStyle}>
-                            <ClusterLog region={region_name} regionId={region_id} regionAlias={region_alias} eid={eid} regionActiveKey={regionActiveKey} />
-                        </TabPane>
-                    })}
-                    {showEnterprisePlugin &&
-                            <TabPane tab={<div>操作日志</div>} key="Operation">
-                                <EnterprisePluginsPage
-                                    key="Operation"
-                                    type="Operation"
-                                    componentData={{ eid: eid }}
-                                />
-                            </TabPane>
-                    }
-                    {showEnterprisePlugin &&
-                        <TabPane tab={<div>登录日志</div>} key="login">
-                            <EnterprisePluginsPage
-                                key="login"
-                                    type="login"
-                                    componentData={{ eid: eid }}
+                <Tabs onChange={this.onChange} activeKey={activeKey} className={styles.setTabs} type="card">
+                    <TabPane tab={formatMessage({ id: 'LogEnterprise.console' })} key="consoleLog" />
+                    {ClustersList.map((item) => {
+                        const { region_alias, region_name } = item;
+                        return (
+                            <TabPane
+                                tab={`${region_alias} ${formatMessage({ id: 'LogEnterprise.title' })}`}
+                                key={region_name}
                             />
-                        </TabPane>
-                    }
+                        );
+                    })}
+                    {showEnterprisePlugin && <TabPane tab="操作日志" key="Operation" />}
+                    {showEnterprisePlugin && <TabPane tab="登录日志" key="login" />}
                 </Tabs>
+                <TransitionGroup
+                    style={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        minHeight: 400
+                    }}
+                >
+                    <CSSTransition
+                        key={activeKey}
+                        timeout={700}
+                        classNames="page-zoom"
+                        unmountOnExit
+                    >
+                        <div style={{ width: '100%' }}>
+                            {this.renderContent()}
+                        </div>
+                    </CSSTransition>
+                </TransitionGroup>
             </PageHeaderLayout>
         );
     }

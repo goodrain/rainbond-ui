@@ -1,0 +1,111 @@
+@import '~antd/lib/style/themes/default.less';
+
+.productDrawer {
+  :global {
+    .ant-drawer-header {
+      border-bottom: 1px solid #e8e8e8;
+      padding: 24px 32px;
+      flex-shrink: 0;
+    }
+
+    .ant-drawer-body {
+      padding: 24px 32px;
+      overflow-y: auto;
+      height: calc(100vh - 89px); // 减去header的高度
+    }
+  }
+}
+
+.drawerTitle {
+  .mainTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 8px;
+  }
+
+  .subTitle {
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+  }
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+
+  &:hover {
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    border-color: #155aef;
+    background: #f0f7ff;
+    box-shadow: 0 4px 12px rgba(21, 90, 239, 0.15);
+
+    .title {
+      color: #155aef;
+    }
+  }
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 24px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+  }
+
+  .desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 12px;
+  background: #155aef;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 12px;
+}

@@ -1,15 +1,6 @@
 /* eslint-disable react/sort-comp */
 import {
-  Avatar,
   Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  List,
-  Row,
-  Select,
-  Tooltip,
   Dropdown,
   Menu,
   Icon,
@@ -20,44 +11,32 @@ import { Link } from 'dva/router';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ScrollerX from '../../components/ScrollerX';
 import TeamBasicInfo from './TeamBasicInfo';
 import globalUtil from '../../utils/global';
-import rainbondUtil from '../../utils/rainbond';
-import sourceUtil from '../../utils/source-unit';
-import PluginUtil from '../../utils/pulginUtils'
+import PluginUtil from '../../utils/pulginUtils';
 import userUtil from '../../utils/user';
+import handleAPIError from '../../utils/error';
 import teamUtil from '../../utils/team';
 import MoveTeam from '../Team/move_team';
 import styles from './NewIndex.less';
-const FormItem = Form.Item;
-const { Option } = Select;
-@connect(({ user, index, loading, global, teamControl, enterprise }) => ({
+@connect(({ user, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
-  index,
   enterprise: global.enterprise,
-  events: index.events,
-  pagination: index.pagination,
-  rainbondInfo: global.rainbondInfo,
   currentTeam: teamControl.currentTeam,
-  currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   loading,
   pluginsList: teamControl.pluginsList,
   noviceGuide: global.noviceGuide
 }))
-@Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       loading: false,
       userTeamList: [],
-      page: 1,
-      page_size: 100,
       showPipeline: [],
-      isNeedAuthz: false,
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
       showEditName: false,
@@ -66,29 +45,36 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.loadUserTeams();
-    this.fetchGroup()
+    this.fetchGroup();
   }
-  // 加载用户团队
-  loadUserTeams = () => {
-    this.setState({ loading: true });
-    const { dispatch, currentEnterprise, enterprise, currentUser } = this.props;
-    const { page, page_size } = this.state;
-    // 兜底获取企业ID，避免 enterprise_id 为空
-    const eid = (currentEnterprise && currentEnterprise.enterprise_id)
+
+  // 获取企业ID
+  getEnterpriseId = () => {
+    const { currentEnterprise, enterprise, currentUser } = this.props;
+    return (currentEnterprise && currentEnterprise.enterprise_id)
       || (enterprise && enterprise.enterprise_id)
       || (currentUser && currentUser.enterprise_id)
       || globalUtil.getCurrEnterpriseId();
+  };
+
+  // 加载用户团队
+  loadUserTeams = () => {
+    const { dispatch } = this.props;
+    const eid = this.getEnterpriseId();
+
     if (!eid) {
-      this.setState({ loading: false });
       return;
     }
+
+    this.setState({ loading: true });
+
     dispatch({
       type: 'global/fetchMyTeams',
       payload: {
         enterprise_id: eid,
         name: '',
-        page,
-        page_size
+        page: 1,
+        page_size: 100
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -98,30 +84,33 @@ export default class Index extends PureComponent {
           }, () => {
             this.fetchPipePipeline(eid);
           });
+        } else {
+          this.setState({ loading: false });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ loading: false });
       }
     });
   };
   // 设置流水线插件
   setTeamMenu = (pluginMenu, menuName) => {
-    if (pluginMenu) {
-      const isShow = pluginMenu.some(item => {
-        return item.name == menuName
-      })
-      return isShow
+    if (!pluginMenu) {
+      return false;
     }
-  }
+    return pluginMenu.some(item => item.name === menuName);
+  };
+
+  // 获取团队插件
   fetchPipePipeline = (eid) => {
-    const { dispatch, currentEnterprise, enterprise, currentUser } = this.props;
-    // 兜底获取企业ID
-    const enterpriseId = eid
-      || (currentEnterprise && currentEnterprise.enterprise_id)
-      || (enterprise && enterprise.enterprise_id)
-      || (currentUser && currentUser.enterprise_id)
-      || globalUtil.getCurrEnterpriseId();
+    const { dispatch } = this.props;
+    const enterpriseId = eid || this.getEnterpriseId();
+
     if (!enterpriseId) {
       return;
     }
+
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
@@ -129,20 +118,21 @@ export default class Index extends PureComponent {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        const pluginArr = PluginUtil.segregatePluginsByHierarchy(res.list, 'Team')
-        const pluginList = []
-        pluginArr.forEach(item => {
-          pluginList.push({
+        if (res && res.list) {
+          const pluginArr = PluginUtil.segregatePluginsByHierarchy(res.list, 'Team');
+          const pluginList = pluginArr.map(item => ({
             name: item.display_name,
-            path: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/${item.name}`,
-          })
-        })
-        this.setState({
-          showPipeline: pluginList
-        })
+            path: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/${item.name}`
+          }));
+          this.setState({ showPipeline: pluginList });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
-    })
-  }
+    });
+  };
+  // 获取当前团队信息
   fetchGroup = () => {
     const { dispatch } = this.props;
 
@@ -169,6 +159,10 @@ export default class Index extends PureComponent {
           this.loadOverview();
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ indexLoading: false });
+      }
     });
   };
 
@@ -226,132 +220,46 @@ export default class Index extends PureComponent {
   };
   getPluginsMenu = () => {
     const { showPipeline } = this.state;
+
+    if (showPipeline.length === 0) {
+      return null;
+    }
+
     const menu = (
       <Menu>
-        {showPipeline.map(item => {
-          return <Menu.Item key={item.path}>
+        {showPipeline.map(item => (
+          <Menu.Item key={item.path}>
             <Link to={item.path}>{item.name}</Link>
-          </Menu.Item>;
-        })}
+          </Menu.Item>
+        ))}
       </Menu>
-    )
-    if (showPipeline.length > 0) {
-      return <Dropdown overlay={menu} placement="bottomLeft" style={{ marginRight: 10 }}>
+    );
+
+    return (
+      <Dropdown overlay={menu} placement="bottomLeft">
         <Button style={{ marginRight: 10 }}>
           <Icon type="control" />功能拓展
           <Icon type="down" className={styles.downIcon} />
         </Button>
       </Dropdown>
-    }
-    return null
-  }
-  // 生成菜单
-  generateMenu = () => {
-    const { currentUser } = this.props;
-    const { userTeamList } = this.state;
-    const items = [];
-    userTeamList.map(team => {
-      const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
-      if (teamInfo) {
-        teamInfo.region.map(region => {
-          const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
-          const item = {
-            name: `${team.team_alias} | ${region.team_region_alias}`,
-            link: link,
-            key: team.team_name
-          };
-          items.push(item);
-        });
-      }
-    });
-    const menu = (
-      <Menu>
-        {items.map(item => {
-          return <Menu.Item key={item.key}>
-            <Link to={item.link} title={item.name} onClick={() => {
-              this.setState({
-                indexLoading: true
-              }, () => {
-                this.fetchGroup()
-              })
-            }}>
-              <span>{item.name}</span>
-            </Link>
-          </Menu.Item>;
-        })}
-      </Menu>
     );
-    return menu;
+  };
+
+  // 跳转路由
+  navigateTo = pathname => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push({ pathname }));
   };
 
   render() {
-    const { currentTeam, showEditName, logoInfo } = this.state;
+    const { currentTeam, loading, indexLoading, showEditName,logoInfo } = this.state;
     const { pluginsList, noviceGuide } = this.props;
-    return (
-      <div className={styles.container} key={this.state.loading}>
-        <Spin spinning={this.state.loading}>
-          <div className={styles.header}>
-            <div className={styles.left}>
-              <div className={styles.teamName}>
-                {this.state.currentTeam?.team_alias}
-                {teamUtil.canEditTeamName(currentTeam) && (
-                  <Icon
-                    onClick={this.showEditName}
-                    type="edit"
-                    style={{ marginLeft: 8, cursor: 'pointer', fontSize: 14 }}
-                  />
-                )}
-              </div>
-            </div>
-            <div className={styles.right}>
-              {this.getPluginsMenu()}
-              {this.setTeamMenu(pluginsList, 'pipeline') &&
-                <Button
-                  style={{ marginRight: 10 }}
-                  onClick={() => {
-                    const { dispatch } = this.props;
-                    dispatch(
-                      routerRedux.push({
-                        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Pipeline`,
-                      })
-                    );
-                  }}
-                >
-                  {globalUtil.fetchSvg('pipeLine', false, '14px')}
-                  {formatMessage({ id: 'menu.team.pipeline' })}
-                </Button>
-              }
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
 
-              <Button
-                style={{ marginRight: 10 }}
-                onClick={() => {
-                  const { dispatch } = this.props;
-                  dispatch(
-                    routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`,
-                    })
-                  );
-                }}
-              >
-                <Icon type="setting" />
-                {formatMessage({ id: 'global.fetchAccessText.plugin' })}
-              </Button>
-              <Button
-                data-guide="team-setting"
-                onClick={() => {
-                  const { dispatch } = this.props;
-                  dispatch(
-                    routerRedux.push({
-                      pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/team`,
-                    })
-                  );
-                }}
-              >
-                <Icon type="setting" />
-                {formatMessage({ id: 'versionUpdata_6_1.setting' })}
-              </Button>
-            </div>
-          </div>
+    return (
+      <div className={styles.container}>
+        <Spin spinning={loading || indexLoading}>
           <div className={styles.content}>
             <TeamBasicInfo noviceGuide={noviceGuide} pluginsList={pluginsList} />
           </div>
@@ -365,7 +273,6 @@ export default class Index extends PureComponent {
           />
         )}
       </div>
-
     );
   }
 }

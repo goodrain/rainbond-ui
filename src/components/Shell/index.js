@@ -1,7 +1,7 @@
 import { Button, Icon, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import React, { Component } from 'react';
 import { Resizable } from "re-resizable";
 import WebConsole from './WebConsole';

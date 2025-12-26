@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Form, Input, Modal, Upload, Icon, notification } from 'antd'
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config'
 import cookie from '@/utils/cookie';
 import styles from './index.less'

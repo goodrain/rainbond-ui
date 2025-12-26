@@ -13,8 +13,9 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
-import router from 'umi/router';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
+import { history } from 'umi';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import Build from '../component/build';
@@ -322,7 +323,7 @@ export default class ClusterLink extends PureComponent {
           dataObj.nodesForChaos.nodes = values.nodesForChaos || [];
 
           // 路由跳转
-          router.push({
+          history.push({
             pathname: `/enterprise/${enterpriseID}/provider/ACksterList/install`,
             search: Qs.stringify({
               name,
@@ -337,22 +338,22 @@ export default class ClusterLink extends PureComponent {
       // 返回上一步
       switch (name) {
         case 'helm':
-          router.push({
+          history.push({
             pathname: `/enterprise/${enterpriseID}/provider/ACksterList`
           });
           break;
         case 'ack':
-          router.push({
+          history.push({
             pathname: `/enterprise/${enterpriseID}/provider/Aliack`
           });
           break;
         case 'huawei':
-          router.push({
+          history.push({
             pathname: `/enterprise/${enterpriseID}/provider/HuaweiList`
           });
           break;
         case 'tencent':
-          router.push({
+          history.push({
             pathname: `/enterprise/${enterpriseID}/provider/TencentList`
           });
           break;

@@ -1,23 +1,23 @@
-/* eslint-disable guard-for-in */
 /* eslint-disable camelcase */
 /* eslint-disable react/no-multi-comp */
-import { Button, Card, Icon, Modal, notification, Table } from 'antd';
+import { Button, Card, Icon, Modal, Table } from 'antd';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
-import { routerRedux } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
+import { FormattedMessage } from 'umi';
 import AddRelation from '../../components/AddRelation';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-import RelatumComponentInfo from '../../components/RelatumComponentInfo';
 import NoPermTip from '../../components/NoPermTip';
+import RelatumComponentInfo from '../../components/RelatumComponentInfo';
 import ScrollerX from '../../components/ScrollerX';
 import {
   batchAddRelationedApp,
   getRelationedApp,
   removeRelationedApp
 } from '../../services/app';
+import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import styles from './relation.less'
 
 // 查看连接信息
@@ -60,9 +60,6 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.loadRelationedApp();
   }
-  shouldComponentUpdate() {
-    return true;
-  }
 
   onViewRelationInfo = data => {
     this.setState({ viewRelationInfo: data });
@@ -89,10 +86,9 @@ export default class Index extends PureComponent {
       if (res) {
         let arr = res.bean.port_list;
         if (res.list && res.list.length > 0) {
-          res.list.map(item => {
+          res.list.forEach(item => {
             const { ports_list } = item;
             arr = arr.concat(ports_list);
-            return item;
           });
         }
         arr = this.isRepeat(arr);
@@ -102,17 +98,12 @@ export default class Index extends PureComponent {
           total: res.bean.total
         });
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
   isRepeat = arr => {
-    const hash = {};
-    for (const i in arr) {
-      if (hash[arr[i]])
-        // hash 哈希
-        return true;
-      hash[arr[i]] = true;
-    }
-    return false;
+    return new Set(arr).size !== arr.length;
   };
   showAddRelation = () => {
     this.setState({ showAddRelation: true });
@@ -121,57 +112,51 @@ export default class Index extends PureComponent {
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddRelation = (ids) => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias, isShowUpdate, handleOperation } = this.props;
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
+      app_alias: appAlias,
       dep_service_ids: ids
     }).then(data => {
-      const timestamp = new Date().getTime();
       if (data) {
-        if (this.props.isShowUpdate) {
-          this.props.handleOperation('putUpdateRolling', () => {
-            dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-              ))
+        const timestamp = Date.now();
+        const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=relation&refresh=${timestamp}`;
+        if (isShowUpdate) {
+          handleOperation('putUpdateRolling', () => {
+            dispatch(routerRedux.push(url));
           });
         } else {
           this.loadRelationedApp();
           this.handleCancelAddRelation();
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-            ))
+          dispatch(routerRedux.push(url));
         }
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
 
   handleRemoveRelationed = app => {
-    const { dispatch } = this.props;
+    const { dispatch, appAlias, isShowUpdate, handleOperation } = this.props;
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
+      app_alias: appAlias,
       dep_service_id: app.service_id
     }).then(data => {
       if (data) {
-        const timestamp = new Date().getTime();
-        if (this.props.isShowUpdate) {
-          this.props.handleOperation('putUpdateRolling', () => {
-            dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-              ))
+        const timestamp = Date.now();
+        const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=relation&refresh=${timestamp}`;
+        if (isShowUpdate) {
+          handleOperation('putUpdateRolling', () => {
+            dispatch(routerRedux.push(url));
           });
         } else {
           this.loadRelationedApp();
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview` + `?type=components&componentID=${this.props.appAlias}&tab=relation&refresh=${timestamp}`
-            ))
+          dispatch(routerRedux.push(url));
         }
       }
+    }).catch(err => {
+      handleAPIError(err);
     });
   };
 

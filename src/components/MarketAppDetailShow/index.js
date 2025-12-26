@@ -3,7 +3,8 @@ import React, { PureComponent } from 'react';
 import { Modal, Button } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 export default class Index extends PureComponent {
   constructor(props) {

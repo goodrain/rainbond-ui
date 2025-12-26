@@ -533,7 +533,7 @@ const helmAppInstall = {
   'helmAppInstall.index.need_time':'这可能需要一些时间,请耐心等候...',
   'helmAppInstall.index.key':'关键字',
   'helmAppInstall.index.new':'最新版本',
-  'helmAppInstall.index.now_version':'当前版本为 { lowVs }',
+  'helmAppInstall.index.now_version':'当前版本为 {lowVs}',
   'helmAppInstall.index.error':'失败原因：',
 
   // 升级页面

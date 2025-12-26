@@ -10,7 +10,7 @@ import { getUpdateKubernetesTask } from '../../../services/cloud';
 import ClusterDetection from '../../../components/ClusterMgtDetection';
 import ScrollerX from '@/components/ScrollerX';
 import cloud from '../../../utils/cloud';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import ClusterList from '../../../components/ClusterMgtList';
 import DetectionInfo from '../../../components/ClusterMgtInfo';
 import DetectionResources from '../../../components/ClusterMgtResources';
@@ -318,54 +318,38 @@ class Index extends Component {
         content={formatMessage({ id: 'enterpriseColony.mgt.cluster.info' })}
       >
         <ScrollerX sm={900}>
-          <Row className={styles.titleStyle} style={{ margin: '0 0 10px' }}>
-            <span>{SVG.getSvg("infoSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
-          </Row>
-          <Row>
-            <DetectionInfo
-              rowClusterInfo={rowCluster}
-              loadClusters={this.loadClusters}
-              nodeType={nodeType}
-              showInfo={showInfo}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("listSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
-          </Row>
-          <Row>
-            <ClusterList
-              eventId={eventId}
-              rowClusterInfo={rowCluster}
-              nodeList={nodeList}
-              active={this.editClusterNodeActive}
-              showInfo={showListInfo}
-              updateCluster={this.updateCluster}
-              handleLoadClusters={() => { this.loadClusters() }}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("userSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
-          </Row>
-          <Row>
-            <DetectionResources
-              showInfo={showInfo}
-              rowClusterInfo={rowCluster}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("examineSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
-          </Row>
-          <Row>
-            <ClusterDetection
-              dashboardList={dashboardList}
-              dashboardShow={dashboardShow}
-              region={rowCluster.region_name}
-            />
-          </Row>
+          <DetectionInfo
+            rowClusterInfo={rowCluster}
+            loadClusters={this.loadClusters}
+            nodeType={nodeType}
+            showInfo={showInfo}
+            titleIcon={SVG.getSvg("infoSvg", 20)}
+            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}
+          />
+          <ClusterList
+            eventId={eventId}
+            rowClusterInfo={rowCluster}
+            nodeList={nodeList}
+            active={this.editClusterNodeActive}
+            showInfo={showListInfo}
+            updateCluster={this.updateCluster}
+            handleLoadClusters={() => { this.loadClusters() }}
+            titleIcon={SVG.getSvg("listSvg", 20)}
+            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}
+          />
+          <DetectionResources
+            showInfo={showInfo}
+            rowClusterInfo={rowCluster}
+            titleIcon={SVG.getSvg("userSvg", 20)}
+            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}
+          />
+          <ClusterDetection
+            dashboardList={dashboardList}
+            dashboardShow={dashboardShow}
+            region={rowCluster.region_name}
+            titleIcon={SVG.getSvg("examineSvg", 20)}
+            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}
+          />
         </ScrollerX>
       </PageHeaderLayout>
     );

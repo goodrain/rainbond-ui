@@ -17,7 +17,8 @@ import React, { Fragment, PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 /*
@@ -176,6 +177,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -196,7 +198,11 @@ export default class Index extends PureComponent {
               如需要提供访问服务, 请
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  // advancedSettings
+                }
               >
                 配置端口
               </Link>
@@ -254,6 +260,7 @@ export default class Index extends PureComponent {
               openInNewTab(links[0]);
             }}
           >
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -287,7 +294,11 @@ export default class Index extends PureComponent {
                 http协议端口需打开外部访问服务, 去
                 <Link
                   onClick={this.hiddenModal}
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                  to={
+                    // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                  }
                 >
                   打开
                 </Link>
@@ -314,7 +325,8 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           <Button type={this.props.btntype}>
-            <a href={links[0]} target="_blank">
+            <Icon type="link" style={{ marginRight: 4 }} />
+            <a href={links[0]} target="_blank" style={{color:'#fff'}}>
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
             </a>
@@ -330,6 +342,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
@@ -350,7 +363,11 @@ export default class Index extends PureComponent {
               需要配置端口信息, 去
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                }
               >
                 配置
               </Link>
@@ -381,6 +398,7 @@ export default class Index extends PureComponent {
               this.handleClickLinkTcp(links[0])
             }}
           >
+            <Icon type="link" style={{ marginRight: 4 }} />
             {/* 访问 */}
             <FormattedMessage id='componentOverview.header.right.visit' />
           </Button>
@@ -414,7 +432,10 @@ export default class Index extends PureComponent {
                 http协议端口需打开外部访问服务, 去
                 <Link
                   onClick={this.hiddenModal}
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                  to={
+                    // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+                  }
                 >
                   打开
                 </Link>
@@ -440,6 +461,7 @@ export default class Index extends PureComponent {
           placement="bottomRight"
         >
           <Button type={this.props.btntype}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank">
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
@@ -456,6 +478,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>
@@ -476,7 +499,11 @@ export default class Index extends PureComponent {
               需要配置端口信息, 去
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
+                to={
+                  // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=advancedSettings`
+
+                }
               >
                 配置
               </Link>
@@ -576,6 +603,7 @@ export default class Index extends PureComponent {
           placement="topRight"
         >
           <Button type={this.props.btntype} onClick={this.showModal}>
+            <Icon type="link" style={{ marginRight: 4 }} />
             <FormattedMessage id='componentOverview.header.right.visit' />
             {/* 访问 */}
           </Button>

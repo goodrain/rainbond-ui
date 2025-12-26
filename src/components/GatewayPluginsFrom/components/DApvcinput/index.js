@@ -1,6 +1,6 @@
 import { Col, Icon, Input, notification, Row, Select } from 'antd';
 import React, { Component } from 'react';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 const { Option } = Select;
 class DAinputs extends Component {
   constructor(props) {

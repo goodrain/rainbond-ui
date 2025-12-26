@@ -23,10 +23,11 @@ import { routerRedux } from 'dva/router';
 import { cloneDeep } from 'lodash';
 import Qs from 'qs';
 import React, { PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtile from "@/utils/global"
-import router from 'umi/router';
+import { history } from 'umi';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import userUtil from '../../../utils/user';
 import styles from './index.less';
@@ -114,22 +115,22 @@ export default class ClusterLink extends PureComponent {
     if (value === 'goback') {
       switch (name) {
         case 'helm':
-            router.push(`/enterprise/${enterpriseID}/provider/ACksterList`);
+            history.push(`/enterprise/${enterpriseID}/provider/ACksterList`);
           break;
         case 'ack':
-            router.push(`/enterprise/${enterpriseID}/provider/Aliack`);
+            history.push(`/enterprise/${enterpriseID}/provider/Aliack`);
           break;
         case 'huawei':
-            router.push(`/enterprise/${enterpriseID}/provider/HuaweiList`);
+            history.push(`/enterprise/${enterpriseID}/provider/HuaweiList`);
           break;
         case 'tencent':
-            router.push(`/enterprise/${enterpriseID}/provider/tencentList`);
+            history.push(`/enterprise/${enterpriseID}/provider/tencentList`);
           break;
         default:
           break;
       }
     } else {
-      router.push({
+      history.push({
         pathname: `/enterprise/${enterpriseID}/provider/ACksterList/result`,
         search: Qs.stringify({
           token: helmToken,

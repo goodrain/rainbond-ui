@@ -6,10 +6,15 @@ import Shangxian from '../../../../../public/images/shangxian.png';
 import Testimg from '../../../../../public/images/test.png';
 import cookie from '../../../../utils/cookie';
 import styles from './AddScaling.less';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { FormattedMessage } from 'umi';
+import { formatMessage } from '@/utils/intl';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+
+// 常量定义
+const MIN_VALUE = 1;
+const MAX_VALUE = 65535;
 
 @connect(({ loading }) => ({
   changeScalingRules: loading.effects['appControl/changeScalingRules'],
@@ -25,7 +30,7 @@ class AddScaling extends PureComponent {
         { value: 'cpuaverage_value', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.usage'}) },
         { value: 'cpuutilization', name: formatMessage({id:'componentOverview.body.Expansion.AddScaling.rate'}) }
       ],
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN'
     };
   }
   handleSubmit = e => {
@@ -37,33 +42,43 @@ class AddScaling extends PureComponent {
       }
     });
   };
+  // 获取指标目标值
   setMetric_target_value = (arr, types, Symbol = false) => {
-    let values = 0;
-    arr &&
-      arr.length > 0 &&
-      arr.map(item => {
-        const { metric_name, metric_target_value, metric_target_type } = item;
-        if (types === metric_name) {
-          values = Symbol ? metric_target_type : metric_target_value;
-          return metric_target_value;
-        }
-      });
-    return values === undefined ? 0 : values;
+    if (!arr || arr.length === 0) {
+      return 0;
+    }
+
+    const foundItem = arr.find(item => item.metric_name === types);
+    if (!foundItem) {
+      return 0;
+    }
+
+    return Symbol ? foundItem.metric_target_type : foundItem.metric_target_value;
   };
+  // 校验输入内容
   checkContent = (res, value, callback) => {
-    const min = 1;
     const num = Number(value);
     if (num || num === 0) {
-      if (num < min) {
-        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_min' values={{num:min}}/>);
+      if (num < MIN_VALUE) {
+        callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_min' values={{num: MIN_VALUE}}/>);
         return;
       }
-      if (num > 65535) {
+      if (num > MAX_VALUE) {
         callback(<FormattedMessage id='componentOverview.body.Expansion.AddScaling.input_max'/>);
         return;
       }
     }
     callback();
+  };
+
+  // 判断是否为内存指标
+  isMemoryMetric = (metricType) => {
+    return metricType === 'memoryaverage_value' || metricType === 'memoryutilization';
+  };
+
+  // 判断是否为平均值指标
+  isAverageMetric = (metricType) => {
+    return metricType === 'memoryaverage_value' || metricType === 'cpuaverage_value';
   };
 
   render() {
@@ -92,7 +107,7 @@ class AddScaling extends PureComponent {
         sm: { span: 19 }
       }
     };
-    const en_formItemLayout = {
+    const enFormItemLayout = {
       labelCol: {
         xs: { span: 24 },
         sm: { span: 8 }
@@ -102,7 +117,7 @@ class AddScaling extends PureComponent {
         sm: { span: 16 }
       }
     };
- const is_language = language ? formItemLayout : en_formItemLayout
+    const currentFormLayout = language ? formItemLayout : enFormItemLayout;
     return (
       <div>
         <Modal
@@ -112,9 +127,9 @@ class AddScaling extends PureComponent {
           onOk={this.handleSubmit}
           onCancel={onClose}
           footer={[
-            <Button type="primary" onClick={this.handleSubmit}>
+            <Button key="submit" type="primary" onClick={this.handleSubmit}>
               {/* 确定 */}
-              <FormattedMessage id='componentOverview.body.Expansion.AddScaling.determine'/> 
+              <FormattedMessage id='componentOverview.body.Expansion.AddScaling.determine'/>
             </Button>
           ]}
         >
@@ -134,11 +149,11 @@ class AddScaling extends PureComponent {
                     &nbsp;:
                   </div>
                 }
-                {...is_language}
+                {...currentFormLayout}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('minNum', {
-                  initialValue: 1,
+                  initialValue: MIN_VALUE,
                   rules: [
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -167,11 +182,11 @@ class AddScaling extends PureComponent {
                     &nbsp;:
                   </div>
                 }
-                {...is_language}
+                {...currentFormLayout}
                 style={{ textAlign: 'left' }}
               >
                 {getFieldDecorator('maxNum', {
-                  initialValue: propsData ? propsData.max_replicas : 1,
+                  initialValue: propsData ? propsData.max_replicas : MIN_VALUE,
                   rules: [
                     {
                       pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -193,7 +208,7 @@ class AddScaling extends PureComponent {
 
             <FormItem
               className={styles.clearConform}
-              {...is_language}
+              {...currentFormLayout}
               label={
                 <div className={styles.clearConformMinTitle}>
                   <img src={Indicators} alt="" />
@@ -220,13 +235,11 @@ class AddScaling extends PureComponent {
                   {(isaddindicators && memoryList && memoryList.length > 0
                     ? memoryList
                     : selectMemoryList
-                  ).map(item => {
-                    return (
-                      <Option value={item.value} key={item.value}>
-                        {item.name}
-                      </Option>
-                    );
-                  })}
+                  ).map(item => (
+                    <Option value={item.value} key={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
                 </Select>
               )}
             </FormItem>
@@ -240,12 +253,11 @@ class AddScaling extends PureComponent {
                   &nbsp;:
                 </div>
               }
-              {...is_language}
+              {...currentFormLayout}
               style={{ textAlign: 'left' }}
             >
               {getFieldDecorator('value', {
-                initialValue: propsData ? propsData.max_replicas : 1,
-
+                initialValue: propsData ? propsData.max_replicas : MIN_VALUE,
                 rules: [
                   {
                     pattern: new RegExp(/^[0-9]\d*$/, 'g'),
@@ -257,23 +269,21 @@ class AddScaling extends PureComponent {
               })(
                 <InputNumber
                   placeholder={formatMessage({id:'componentOverview.body.Expansion.AddScaling.number'})}
-                  min={1}
-                  max={65535}
+                  min={MIN_VALUE}
+                  max={MAX_VALUE}
                   style={{ width: '100%' }}
                 />
               )}
               <div className={styles.conformDesc}>
-                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.dang'/> 
-                {selectMemoryDesc === 'memoryaverage_value' ||
-                selectMemoryDesc === 'memoryutilization'
-                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.Memory'/> 
+                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.dang'/>
+                {this.isMemoryMetric(selectMemoryDesc)
+                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.Memory'/>
                   : 'cpu'}
-                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.use'/> 
-                {selectMemoryDesc === 'memoryaverage_value' ||
-                selectMemoryDesc === 'cpuaverage_value'
-                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.amount'/> 
-                  : <FormattedMessage id='componentOverview.body.Expansion.AddScaling.rate_unit'/> }
-                  <FormattedMessage id='componentOverview.body.Expansion.AddScaling.numberOfInstances'/> 
+                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.use'/>
+                {this.isAverageMetric(selectMemoryDesc)
+                  ? <FormattedMessage id='componentOverview.body.Expansion.AddScaling.amount'/>
+                  : <FormattedMessage id='componentOverview.body.Expansion.AddScaling.rate_unit'/>}
+                <FormattedMessage id='componentOverview.body.Expansion.AddScaling.numberOfInstances'/>
               </div>
             </FormItem>
           </Form>

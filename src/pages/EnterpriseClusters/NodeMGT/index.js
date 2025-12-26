@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import {
   Row,
-  Col,
   notification
 } from 'antd';
-import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import NodeInfo from '../../../components/NodeMgtInfo'
@@ -13,7 +12,6 @@ import NodeStain from '../../../components/NodeMgtStain'
 import NodeLable from '../../../components/NodeMgtLabel'
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import ScrollerX from '@/components/ScrollerX';
 import SVG from "../../../utils/pageHeaderSvg"
 import global from '../../../utils/global'
 import styles from './index.less'
@@ -368,55 +366,37 @@ class Index extends Component {
         }
         content={formatMessage({ id: 'enterpriseColony.mgt.cluster.nodeInfo' })}
       >
-        <ScrollerX sm={840}>
-          <Row className={styles.titleStyle} style={{ margin: '0 0 10px' }}>
-            <span>{SVG.getSvg("infoSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.node.nodeDetails' })}</span>
-          </Row>
-          <Row>
-            <NodeInfo
-              nodeDetail={nodeDetail}
-              showInfo={showInfo}
-              active={this.editClusterNodeActive}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("userSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
-          </Row>
-          <Row >
-            <NodeUse
-              nodeDetail={nodeDetail}
-              showInfo={showInfo}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("labelSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.node.lable' })}</span>
-          </Row>
-          <Row>
-            <NodeLable
-              clusterInfo={clusterInfo}
-              labelList={labelList}
-              showLable={showLable}
-              updataLabel={this.updataClusterNodeLabels}
-            />
-          </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("stainSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.node.stain' })}</span>
-          </Row>
-          <Row>
-            <NodeStain
-              clusterInfo={clusterInfo}
-              taintsList={taintsList}
-              showTaints={showTaints}
-              fetTaints={this.fetClusterNodeTaint}
-              updataTaints={this.updataClusterNodeTaint}
-              remove={this.removeTaintsList}
-            />
-          </Row>
-        </ScrollerX>
+        <NodeInfo
+          nodeDetail={nodeDetail}
+          showInfo={showInfo}
+          active={this.editClusterNodeActive}
+          titleIcon={SVG.getSvg("infoSvg", 20)}
+          titleText={formatMessage({ id: 'enterpriseColony.mgt.node.nodeDetails' })}
+        />
+        <NodeUse
+          nodeDetail={nodeDetail}
+          showInfo={showInfo}
+          titleIcon={SVG.getSvg("userSvg", 20)}
+          titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}
+        />
+        <NodeLable
+          clusterInfo={clusterInfo}
+          labelList={labelList}
+          showLable={showLable}
+          updataLabel={this.updataClusterNodeLabels}
+          titleIcon={SVG.getSvg("labelSvg", 20)}
+          titleText={formatMessage({ id: 'enterpriseColony.mgt.node.lable' })}
+        />
+        <NodeStain
+          clusterInfo={clusterInfo}
+          taintsList={taintsList}
+          showTaints={showTaints}
+          fetTaints={this.fetClusterNodeTaint}
+          updataTaints={this.updataClusterNodeTaint}
+          remove={this.removeTaintsList}
+          titleIcon={SVG.getSvg("stainSvg", 20)}
+          titleText={formatMessage({ id: 'enterpriseColony.mgt.node.stain' })}
+        />
       </PageHeaderLayout>
     );
   }

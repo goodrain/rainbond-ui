@@ -1,13 +1,9 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
-import { Button, Card, Col, Form, Icon, Notification, Row, Table } from 'antd';
+import { Button, Card, Col, Form, Icon, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
-import { formatMessage, FormattedMessage  } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import AddOrEditConfig from '../../components/AddOrEditConfig';
 import BuildPluginVersion from '../../components/buildPluginVersion';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -18,6 +14,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
+import handleAPIError from '../../utils/error';
 import styles from './Index.less';
 
 const ButtonGroup = Button.Group;
@@ -68,28 +65,37 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
   }
+  // 分页切换
   onPageChange = page => {
     this.setState({ page }, () => {
       this.getUsedApp();
     });
   };
+  // 获取分享记录
   getShareRecord = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/getShareRecord',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId()
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 获取使用该插件的组件
   getUsedApp = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { page, page_size } = this.state;
+    dispatch({
       type: 'plugin/getUsedApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        page: this.state.page,
-        page_size: this.state.page_size
+        page,
+        page_size
       },
       callback: data => {
         if (data) {
@@ -98,11 +104,16 @@ export default class Index extends PureComponent {
             total: data.total
           });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 获取插件版本列表
   getVersions = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/getPluginVersions',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -122,17 +133,23 @@ export default class Index extends PureComponent {
             );
           }
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 获取插件版本详情
   getPluginVersionInfo = () => {
     if (!this.mount) return;
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/getPluginVersionInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion
+        build_version: currVersion
       },
       callback: data => {
         if (data) {
@@ -141,17 +158,22 @@ export default class Index extends PureComponent {
             this.getPluginVersionInfo();
           }, 5000);
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 获取配置组合存储管理
   getPluginVersionConfig = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/getPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion
+        build_version: currVersion
       },
       callback: data => {
         const { list } = data;
@@ -184,22 +206,19 @@ export default class Index extends PureComponent {
         if (list) {
           this.setState({ config, storgeListData, listData: list });
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
 
+  // 获取插件ID
   getId = () => {
     return this.props.match.params.pluginId;
   };
-  handleSubmit = val => {
-    this.props.dispatch({
-      type: 'plugin/createPlugin',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        ...val
-      }
-    });
-  };
+
+  // 版本切换
   handleVersionChange = val => {
     const { key } = val;
     if (key === this.state.currVersion) return;
@@ -213,72 +232,97 @@ export default class Index extends PureComponent {
       }
     );
   };
+
+  // 显示添加配置弹窗
   showAddConfig = () => {
     this.setState({ showAddConfig: true });
   };
+
+  // 隐藏添加配置弹窗
   hiddenAddConfig = () => {
     this.setState({ showAddConfig: false });
   };
+
+  // 打开删除配置确认弹窗
   handleOpenDelConfigVisible = data => {
     this.setState({ configVisible: data });
   };
 
+  // 关闭删除配置确认弹窗
   handleCloseDelConfigVisible = () => {
     this.setState({ configVisible: false });
   };
 
-  hanldeEditSubmit = values => {
-    this.props.dispatch({
+  // 编辑插件版本信息
+  handleEditSubmit = values => {
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/editPluginVersionInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: currVersion,
         ...values
       },
       callback: () => {
-        Notification.success({ message: formatMessage({id:'notification.success.change'}) });
+        notification.success({ message: formatMessage({id:'notification.success.change'}) });
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 删除配置项
   handleDelConfig = () => {
-    const { configVisible } = this.state;
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { configVisible, currVersion } = this.state;
+    dispatch({
       type: 'plugin/removePluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: currVersion,
         config_group_id: configVisible.ID,
         config_name: configVisible.config_name
       },
       callback: () => {
-        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseDelConfigVisible();
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 添加配置项
   handleAddConfig = values => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/addPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion,
+        build_version: currVersion,
         entry: values
       },
       callback: () => {
         this.hiddenAddConfig();
         this.getPluginVersionConfig();
         this.handleCancelAddStorageConfig('storageAdd');
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
   // 编辑配置组或者存储管理
   handleEditConfig = values => {
-    const { showEditConfig, currVersion, storgeListData } = this.state;
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { showEditConfig, currVersion } = this.state;
+    dispatch({
       type: 'plugin/editPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -293,6 +337,9 @@ export default class Index extends PureComponent {
         this.hideEditConfig();
         this.getPluginVersionConfig();
         this.handleCancelAddStorageConfig('storageEdit');
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -306,9 +353,8 @@ export default class Index extends PureComponent {
   };
   // 删除存储管理
   handleDelStorage = () => {
-    this.setState({
-      removeStorageLoading: true
-    });
+    const { dispatch } = this.props;
+    this.setState({ removeStorageLoading: true });
     const {
       configStorageVisible,
       showEditConfig,
@@ -334,7 +380,7 @@ export default class Index extends PureComponent {
     if (storgeListData.length === 1) {
       params.modify_type = true;
     }
-    this.props.dispatch({
+    dispatch({
       type: 'plugin/editPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -346,60 +392,87 @@ export default class Index extends PureComponent {
         }
       },
       callback: () => {
-        Notification.success({ message: formatMessage({id:'notification.success.delete'}) });
+        notification.success({ message: formatMessage({id:'notification.success.delete'}) });
         this.getPluginVersionConfig();
         this.handleCloseStorage();
+      },
+      handleError: err => {
+        handleAPIError(err);
+        this.setState({ removeStorageLoading: false });
       }
     });
   };
+  // 显示编辑配置弹窗
   showEditConfig = config => {
     this.setState({ showEditConfig: config });
   };
+
+  // 隐藏编辑配置弹窗
   hideEditConfig = () => {
     this.setState({ showEditConfig: null });
   };
+
+  // 显示删除版本确认弹窗
   showDeleteVersion = () => {
     this.setState({ showDeleteVersion: true });
   };
+
+  // 取消删除版本
   cancelDeleteVersion = () => {
     this.setState({ showDeleteVersion: false });
   };
+  // 删除插件版本
   handleDeleteVersion = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/removePluginVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion
+        build_version: currVersion
       },
       callback: () => {
         this.cancelDeleteVersion();
-        this.state.currVersion = '';
-        this.getVersions();
+        this.setState({ currVersion: '' }, () => {
+          this.getVersions();
+        });
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 创建插件版本
   handleCreatePluginVersion = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'plugin/createPluginVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId()
       },
       callback: () => {
-        Notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
-        this.state.currVersion = '';
-        this.getVersions();
+        notification.success({ message: formatMessage({id:'notification.success.succeeded'}) });
+        this.setState({ currVersion: '' }, () => {
+          this.getVersions();
+        });
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 构建插件版本
   handleBuildPluginVersion = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { currVersion } = this.state;
+    dispatch({
       type: 'plugin/buildPluginVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
-        build_version: this.state.currVersion
+        build_version: currVersion
       },
       callback: data => {
         if (data) {
@@ -414,24 +487,36 @@ export default class Index extends PureComponent {
             }
           );
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
+  // 显示构建日志
   showBuildLog = () => {
     this.setState({ showBuildLog: true });
   };
+
+  // 隐藏构建日志
   hideBuildLog = () => {
     this.setState({ showBuildLog: false });
   };
+
+  // 检查是否可以编辑信息和配置
   canEditInfoAndConfig = () => {
     return (
       !pluginUtil.isMarketPlugin(this.state.currInfo) &&
       pluginUtil.canEditInfoAndConfig(this.state.currInfo)
     );
   };
+
+  // 显示添加存储配置弹窗
   showAddStorgeConfig = () => {
     this.setState({ showStorageConfig: true });
   };
+
+  // 取消添加存储配置
   handleCancelAddStorageConfig = type => {
     this.setState({
       showStorageConfig: false,
@@ -439,7 +524,7 @@ export default class Index extends PureComponent {
       isEditor: false
     });
     type &&
-      Notification.success({
+      notification.success({
         message: type === 'storageAdd' ? formatMessage({id:'notification.success.add_success'}) : formatMessage({id:'notification.success.change'})
       });
   };
@@ -506,6 +591,7 @@ export default class Index extends PureComponent {
       showStorageConfig: true
     });
   };
+  // 分享插件
   sharePlugin = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -533,6 +619,9 @@ export default class Index extends PureComponent {
             )
           );
         }
+      },
+      handleError: err => {
+        handleAPIError(err);
       }
     });
   };
@@ -656,21 +745,14 @@ export default class Index extends PureComponent {
             </div>
           }
         >
-          <div
-            style={{
-              maxWidth: 500,
-              margin: '0 auto'
-            }}
-          >
             <CreatePluginForm
               allDisabled={false}
               Modifys
               isEdit={isEdit}
-              onSubmit={this.hanldeEditSubmit}
+              onSubmit={this.handleEditSubmit}
               data={currInfo}
               submitText={formatMessage({id:'teamOther.manage.modification'})}
             />
-          </div>
         </Card>
         <Card
           style={{

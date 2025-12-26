@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable react/react-in-jsx-scope */
-import { formatMessage } from 'umi-plugin-locale';
+import { formatMessage } from '@/utils/intl';
 import roleUtil from '../utils/role';
 import { isUrl } from '../utils/utils';
 
