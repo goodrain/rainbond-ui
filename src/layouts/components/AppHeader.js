@@ -19,7 +19,14 @@ export default function AppHeader(props) {
     upDataHeader,
     handleClick,
     changeTeam
-  } = props;
+  } = props;  
+  // 获取地址栏 hash 中的 apps 参数
+  const hash = window.location.hash;
+  const hashQueryIndex = hash.indexOf('?');
+  const hashQuery = hashQueryIndex !== -1 ? hash.slice(hashQueryIndex + 1) : '';
+  const urlParams = new URLSearchParams(hashQuery);
+  const appsParam = urlParams.get('apps');
+  
   return (
     <div className={headerStype.itemBox}>
       {upDataHeader ? (
@@ -49,7 +56,7 @@ export default function AppHeader(props) {
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentRegion={currentRegion}
-            currentAppID={appID}
+            currentAppID={appID || appsParam}
             currentComponent={currentComponent}
           />
         </div>
