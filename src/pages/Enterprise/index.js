@@ -76,10 +76,10 @@ export default class Enterprise extends PureComponent {
       hasNewVs: true,
       typeStatusCpu: false,
       typeStatusMemory: false,
-      platformHealth: null,
-      platformHealthLoading: true,
-      healthDetailVisible: false,
-      currentHealthIssue: null,
+      // platformHealth: null,
+      // platformHealthLoading: true,
+      // healthDetailVisible: false,
+      // currentHealthIssue: null,
     };
   }
   componentWillMount() {
@@ -116,50 +116,50 @@ export default class Enterprise extends PureComponent {
       }
     })
   }
-  // 获取平台健康状态
-  fetchPlatformHealth = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/fetchPlatformHealth',
-      callback: res => {        
-        if (res && res.status_code === 200) {
-          this.setState({
-            platformHealth: res.bean,
-            platformHealthLoading: false
-          });
-        }
-      },
-      handleError: () => {
-        this.setState({
-          platformHealth: null,
-          platformHealthLoading: false
-        });
-      }
-    });
-  };
+  // // 获取平台健康状态
+  // fetchPlatformHealth = () => {
+  //   const { dispatch } = this.props;
+  //   dispatch({
+  //     type: 'global/fetchPlatformHealth',
+  //     callback: res => {
+  //       if (res && res.status_code === 200) {
+  //         this.setState({
+  //           platformHealth: res.bean,
+  //           platformHealthLoading: false
+  //         });
+  //       }
+  //     },
+  //     handleError: () => {
+  //       this.setState({
+  //         platformHealth: null,
+  //         platformHealthLoading: false
+  //       });
+  //     }
+  //   });
+  // };
 
-  // 显示健康问题详情
-  showHealthDetail = (issue, regionAlias) => {
-    this.setState({
-      healthDetailVisible: true,
-      currentHealthIssue: { ...issue, regionAlias }
-    });
-  };
+  // // 显示健康问题详情
+  // showHealthDetail = (issue, regionAlias) => {
+  //   this.setState({
+  //     healthDetailVisible: true,
+  //     currentHealthIssue: { ...issue, regionAlias }
+  //   });
+  // };
 
-  // 关闭健康问题详情
-  closeHealthDetail = () => {
-    this.setState({
-      healthDetailVisible: false,
-      currentHealthIssue: null
-    });
-  };
+  // // 关闭健康问题详情
+  // closeHealthDetail = () => {
+  //   this.setState({
+  //     healthDetailVisible: false,
+  //     currentHealthIssue: null
+  //   });
+  // };
 
-  // 根据 region_name 获取 region_alias
-  getRegionAlias = (regionName) => {
-    const { clusters } = this.state;
-    const cluster = clusters.find(c => c.region_name === regionName);
-    return cluster ? cluster.region_alias : regionName;
-  };
+  // // 根据 region_name 获取 region_alias
+  // getRegionAlias = (regionName) => {
+  //   const { clusters } = this.state;
+  //   const cluster = clusters.find(c => c.region_name === regionName);
+  //   return cluster ? cluster.region_alias : regionName;
+  // };
 
   // 获取企业授权信息
   handleGetEnterpriseAuthorization = () => {
@@ -358,7 +358,7 @@ export default class Enterprise extends PureComponent {
       this.getEnterpriseInfo();
       this.handleLoadEnterpriseClusters(eid);
       this.handleAppAlertInfo();
-      this.fetchPlatformHealth();
+      // this.fetchPlatformHealth();
       if (adminer) {
         this.getOverviewApp();
         this.getOverview();
@@ -726,10 +726,10 @@ export default class Enterprise extends PureComponent {
       hasNewVs,
       typeStatusCpu,
       typeStatusMemory,
-      platformHealth,
-      platformHealthLoading,
-      healthDetailVisible,
-      currentHealthIssue,
+      // platformHealth,
+      // platformHealthLoading,
+      // healthDetailVisible,
+      // currentHealthIssue,
     } = this.state;
     const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
     const current = new Date().getTime();
@@ -751,7 +751,7 @@ export default class Enterprise extends PureComponent {
     const authorizationSvg = globalUtil.fetchSvg('authorizationSvg');
     const editCodeSvg = globalUtil.fetchSvg('editCodeSvg');
     const switchSvg = globalUtil.fetchSvg('switchSvg');
-    const healthSvg = globalUtil.fetchSvg('healthSvg');
+    // const healthSvg = globalUtil.fetchSvg('healthSvg');
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -901,8 +901,8 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
         </Spin>
-        {/* 平台健康检测 - 只在有问题时显示 */}
-        {platformHealth && platformHealth.regions && Object.keys(platformHealth.regions).some(
+        {/* 平台健康检测 - 已注释 */}
+        {/* {platformHealth && platformHealth.regions && Object.keys(platformHealth.regions).some(
           regionName => platformHealth.regions[regionName].issues && platformHealth.regions[regionName].issues.length > 0
         ) && (
           <div className={enterpriseStyles.cardContainer}>
@@ -919,7 +919,6 @@ export default class Enterprise extends PureComponent {
 
                   return (
                     <div key={regionName} className={enterpriseStyles.regionHealthGroup}>
-                      {/* 问题列表 */}
                       <div className={enterpriseStyles.regionHealthIssues}>
                         {regionData.issues.map((issue, index) => (
                           <div
@@ -948,10 +947,10 @@ export default class Enterprise extends PureComponent {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
-        {/* 健康问题详情弹窗 */}
-        <Modal
+        {/* 健康问题详情弹窗 - 已注释 */}
+        {/* <Modal
           title={formatMessage({ id: 'enterpriseOverview.platformHealth.detailTitle' })}
           visible={healthDetailVisible}
           onCancel={this.closeHealthDetail}
@@ -983,7 +982,7 @@ export default class Enterprise extends PureComponent {
               </div>
             </div>
           )}
-        </Modal>
+        </Modal> */}
 
         {/* 企业授权信息 */}
         {isNeedAuthz && !isAuthorizationLoading && (
