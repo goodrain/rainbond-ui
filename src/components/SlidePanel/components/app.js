@@ -7,6 +7,7 @@ import globalUtil from '@/utils/global';
 import { notification, Button, Dropdown, Menu, Icon, Tag, Modal, Divider, Row, Col, Tooltip, Badge, Spin } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
+import { batchOperation } from '../../../services/app';
 import { buildApp } from '../../../services/createApp';
 import VisterBtnWithIcon from './VisterBtnWithIcon';
 import AppDeteleResource from '../../../components/AppDeteleResource'
