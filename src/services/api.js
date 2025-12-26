@@ -1868,10 +1868,10 @@ export async function fetchUserSource(params) {
   });
 }
 
-// 获取平台健康检测状态
-export async function fetchPlatformHealth(params, handleError) {
-  return request(`${apiconfig.baseUrl}/console/platform/health`, {
-    method: 'get',
-    handleError
-  });
-}
+// // 获取平台健康检测状态
+// export async function fetchPlatformHealth(params, handleError) {
+//   return request(`${apiconfig.baseUrl}/console/platform/health`, {
+//     method: 'get',
+//     handleError
+//   });
+// }

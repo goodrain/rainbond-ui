@@ -143,7 +143,7 @@ import {
   fetchLoginLogs,
   fetchOperationLogs,
   fetchUserSource,
-  fetchPlatformHealth
+  // fetchPlatformHealth
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -1179,12 +1179,12 @@ export default {
         callback(response);
       }
     },
-    *fetchPlatformHealth({ payload, callback, handleError }, { call }) {
-      const response = yield call(fetchPlatformHealth, payload, handleError);
-      if (response && callback) {
-        callback(response);
-      }
-    },
+    // *fetchPlatformHealth({ payload, callback, handleError }, { call }) {
+    //   const response = yield call(fetchPlatformHealth, payload, handleError);
+    //   if (response && callback) {
+    //     callback(response);
+    //   }
+    // },
   },
   reducers: {
     isUpDataHeader(state, action) {
