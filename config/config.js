@@ -22,10 +22,10 @@ export default {
     baseNavigator: true,
     baseSeparator: '-',
   },
-  // dynamicImport: {
-  //   loading: '@/components/PageLoading/index'
-  // },
-  dynamicImport: false,
+  dynamicImport: {
+    loading: '@/components/PageLoading/index'
+  },
+  mfsu: {},
   ignoreMomentLocale: true,
   theme,
   lessLoader: {

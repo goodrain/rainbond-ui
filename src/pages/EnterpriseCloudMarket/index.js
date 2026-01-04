@@ -5,6 +5,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import rainbondUtil from '../../utils/rainbond';
 import BasicListStyles from '../List/BasicList.less';
 import CloudApp from './CloudApp';
+import appIcon from '../../../public/images/app_icon.jpg';
 import styles from './index.less';
 
 const { Search } = Input;
@@ -207,9 +208,7 @@ export default class EnterpriseShared extends PureComponent {
                       avatar={
                         <Avatar
                           src={
-                            item.pic ||
-                            // eslint-disable-next-line global-require
-                            require('../../../public/images/app_icon.jpg')
+                            item.pic || appIcon
                           }
                           shape="square"
                           size="large"

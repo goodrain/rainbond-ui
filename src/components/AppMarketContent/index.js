@@ -1,6 +1,7 @@
 import React, { useImperativeHandle, forwardRef } from 'react';
 import { Input, Button, Icon, Spin, Tabs, Form, Select, Radio, Avatar, Row, Col, Tag } from 'antd';
 import globalUtil from '@/utils/global';
+import app_Icon from '../../../public/images/app_icon.jpg';
 import styles from './index.less';
 
 const { Search } = Input;
@@ -96,7 +97,7 @@ const AppMarketContent = forwardRef(({
                     <div key={app.app_id} className={styles.appCard}>
                       <div className={styles.appIcon}>
                         <Avatar
-                          src={app.pic || app.logo || appIcon || require('../../../public/images/app_icon.jpg')}
+                          src={app.pic || app.logo || appIcon || app_Icon}
                           shape="square"
                           size={48}
                         />

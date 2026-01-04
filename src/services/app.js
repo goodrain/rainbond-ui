@@ -3457,3 +3457,46 @@ export async function getListFiles(body = {},handleError) {
     }
   );
 }
+
+/*
+  源码扫描 - 开启代码扫描
+*/
+export async function enableSourceCodeScan(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/regions/${body.regionID}/backend/plugins/${body.pluginName}/api/v1/components`,
+    {
+      method: 'post',
+      data: {
+        component_id: body.component_id,
+        component_name: body.component_name
+      },
+      handleError
+    }
+  );
+}
+
+/*
+  源码扫描 - 获取扫描状态
+*/
+export async function getSourceCodeScanStatus(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/regions/${body.regionID}/backend/plugins/${body.pluginName}/api/v1/components/${body.component_id}/status`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+/*
+  源码扫描 - 关闭代码扫描
+*/
+export async function disableSourceCodeScan(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/regions/${body.regionID}/backend/plugins/${body.pluginName}/api/v1/components/${body.component_id}`,
+    {
+      method: 'delete',
+      handleError
+    }
+  );
+}

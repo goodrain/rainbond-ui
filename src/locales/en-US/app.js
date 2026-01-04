@@ -422,9 +422,8 @@ const componentCheck = {
   'componentCheck.advanced.setup.port_manage.title':'Port Management',
   'componentCheck.advanced.setup.environment_variable.title':'Environment Variable',
   'componentCheck.advanced.setup.port_manage.btn.null':'No Port',
-
-
-
+  'componentCheck.advanced.setup.source_code_detection.title':'Source Code Detection',
+  'componentCheck.advanced.setup.source_code_detection.desc':'Source code detection can perform static analysis before building to help identify potential issues',
 }
 const otherAppAssembly = {
   'otherApp.marketDrawer.edition':'Version:',
