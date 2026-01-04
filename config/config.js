@@ -11,7 +11,7 @@ const isHistory = process.env.ROUTE_MODE === 'history';
 export default {
   history: { type: isHistory ? 'browser' : 'hash' },
   publicPath: publcPath,
-  hash: !isHistory,
+  hash: true,
   antd: {},
   dva: {
     hmr: true
@@ -22,6 +22,9 @@ export default {
     baseNavigator: true,
     baseSeparator: '-',
   },
+  // dynamicImport: {
+  //   loading: '@/components/PageLoading/index'
+  // },
   dynamicImport: false,
   ignoreMomentLocale: true,
   theme,
