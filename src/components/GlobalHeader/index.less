@@ -228,7 +228,6 @@
 }
 
 .platform {
-  padding: 6px 12px;
   backdrop-filter: blur(10px);
   border-radius: 6px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -389,6 +388,10 @@ i.trigger {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid @border-color-base;
+    background-color: @rbd-background-color !important;
+    padding: 0 !important;
+    height: 50px !important;
+    line-height: 50px !important;
   }
 }
 
@@ -397,19 +400,17 @@ i.trigger {
   margin-right: 12px;
   font-size: 12px;
   cursor: pointer;
-  padding: 4px 14px;
+  padding: 0px 14px;
   border-radius: 5px;
   color: #333;
 
   .balanceTitle {
-    margin-top: 8px;
+    line-height: 20px;
   }
 
   .balanceNum {
-    height: 24px;
-    line-height: 30px;
+    line-height: 20px;
     font-weight: 700;
-    margin-top: 2px;
   }
 }
 

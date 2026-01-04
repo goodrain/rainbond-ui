@@ -150,7 +150,10 @@ import {
   batchOperation,
   vertical,
   horizontal,
-  newVertical
+  newVertical,
+  enableSourceCodeScan,
+  getSourceCodeScanStatus,
+  disableSourceCodeScan
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
@@ -1236,6 +1239,27 @@ export default {
     },
     *newVertical({ payload, callback, handleError }, { call }) {
       const response = yield call(newVertical, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 源码扫描 - 开启代码扫描
+    *enableSourceCodeScan({ payload, callback, handleError }, { call }) {
+      const response = yield call(enableSourceCodeScan, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 源码扫描 - 获取扫描状态
+    *getSourceCodeScanStatus({ payload, callback, handleError }, { call }) {
+      const response = yield call(getSourceCodeScanStatus, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    // 源码扫描 - 关闭代码扫描
+    *disableSourceCodeScan({ payload, callback, handleError }, { call }) {
+      const response = yield call(disableSourceCodeScan, payload, handleError);
       if (response && callback) {
         callback(response);
       }

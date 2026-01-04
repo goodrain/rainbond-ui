@@ -641,7 +641,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   ];
 
   // 使用 oauthUtil 过滤出可用的 Git 仓库
-  const codeRepositoryList = enterpriseInfo ? require('../../utils/oauth').default.getEnableGitOauthServer(enterpriseInfo) : [];
+  const codeRepositoryList = enterpriseInfo ? oauthUtil.getEnableGitOauthServer(enterpriseInfo) : [];
 
   // 根据仓库类型返回对应的图标组件
   const getRepoIcon = (oauthType) => {

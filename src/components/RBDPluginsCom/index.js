@@ -8,11 +8,12 @@ import { routerRedux } from 'dva/router';
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";
 import styles from './index.less';
-@connect(({ user, region, global, index }) => ({
+@connect(({ user, region, global, index, appControl }) => ({
   currentUser: user.currentUser,
   cluster_info: region.cluster_info,
   pluginsList: global.pluginsList,
   overviewInfo: index.overviewInfo,
+  appDetail: appControl.appDetail
 }))
 
 export default class index extends Component {
@@ -39,7 +40,7 @@ export default class index extends Component {
   rbdPluginsRender = () => {
     const { app, plugins, pluginLoading, error, errInfo, dispatch, reduxInfo } = this.props;
     const key = this.isMultiViewPlugin()
-    const AppPagePlugin = app[key] ? app[key] : false
+    const AppPagePlugin = app[key] ? app[key] : false    
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" />
@@ -72,7 +73,8 @@ export default class index extends Component {
               currentUser: this.props.currentUser,
               token: cookie.get('token'),
               pluginsList: this.props.pluginsList,
-              overviewInfo: this.props.overviewInfo
+              overviewInfo: this.props.overviewInfo,
+              appDetail: this.props.appDetail,
             }}
             globalUtile={Global}
             jumpRouter={this.jumpRouter}
@@ -92,9 +94,7 @@ export default class index extends Component {
   // 渲染iframe
   iframeRender = () => {
     const { app, plugins, pluginLoading, error, errInfo } = this.props;
-    const iframeParams = PluginsUtiles.getIframeParams(plugins?.name)
-    console.log(plugins?.fronted_path,"plugins?.fronted_path");
-    
+    const iframeParams = PluginsUtiles.getIframeParams(plugins?.name)    
     return <div style={{ height: '100vh' }}>
       <iframe
         src={`${plugins?.backend}${iframeParams}`}
@@ -111,7 +111,7 @@ export default class index extends Component {
 
   }
   render() {
-    const { plugins } = this.props;
+    const { plugins } = this.props;    
     return (
       <>
         {

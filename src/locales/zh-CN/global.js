@@ -201,5 +201,8 @@ const global = {
     'global.fetchStateOptTypeText.HealthCheckPassed':'健康检测通过',
     'global.fetchStateOptTypeText.CreateContainerConfigError': '容器配置生成失败',
     'global.fetchStateOptTypeText.ImagePullBackOff': '镜像拉取失败',
+    'global.fetchStateOptTypeText.source-scan': '源码检测',
+    'enterpriseColony.source_code_detection.enabled_success':'已成功启用源码检测功能',
+    'enterpriseColony.source_code_detection.disabled_success':'已成功禁用源码检测功能',
 }
 export default Object.assign({}, global);

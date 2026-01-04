@@ -44,6 +44,7 @@ import PluginUtil from '../../utils/pulginUtils';
 import CommandMarket from './command-market';
 import sourceUtil from '../../utils/source-unit';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import appIcon from '../../../public/images/app_icon.jpg';
 import PluginStyles from '../Plugin/Index.less';
 
 const { Option } = Select;
@@ -955,7 +956,6 @@ export default class Main extends PureComponent {
         </span>
       ]
       : [];
-    const appIcon = require('../../../public/images/app_icon.jpg');
     return (
       <Fragment>
         {(item.is_official == true || item.is_official == 1) && (

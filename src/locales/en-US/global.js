@@ -201,5 +201,8 @@ const global = {
     'global.fetchStateOptTypeText.HealthCheckPassed':'Health check passed',
     'global.fetchStateOptTypeText.CreateContainerConfigError': 'Container configuration generation failed',
     'global.fetchStateOptTypeText.ImagePullBackOff': 'Image pull failed',
+    'global.fetchStateOptTypeText.source-scan': 'Source code scanning',
+    'enterpriseColony.source_code_detection.enabled_success':'Successfully enabled source code detection',
+    'enterpriseColony.source_code_detection.disabled_success':'Successfully disabled source code detection',
 }
 export default Object.assign({}, global);

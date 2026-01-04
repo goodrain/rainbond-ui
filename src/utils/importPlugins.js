@@ -45,8 +45,8 @@ exposeToPlugin('react-dom', ReactDom);
 exposeToPlugin('xu-demo-data', RbdData);
 
 export async function importPluginModule(meta, regionName) {
-  // const path = '/plugins/dist/main.js'
-  const path = meta.fronted_path
+  const path = '/plugins/dist/main.js'
+  // const path = meta.fronted_path
   const module = await SystemJS.import(path);
   return module
 }

@@ -6,6 +6,7 @@ import {
   Input,
   notification,
   Row,
+  Switch,
   Table,
   Tooltip,
   Collapse,
@@ -548,7 +549,7 @@ class Mnt extends PureComponent {
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
-        <Table rowKey={(record,index) => index} pagination={false} dataSource={volumes} columns={columns} />
+        <Table rowKey={(record, index) => index} pagination={false} dataSource={volumes} columns={columns} />
 
         {this.state.showAddVar && (
           <AddOrEditVolume
@@ -743,7 +744,7 @@ class ConfigFiles extends PureComponent {
           <ScrollerX sm={650}>
             <Table
               pagination={false}
-              rowKey={(record,index) => index}
+              rowKey={(record, index) => index}
               columns={[
                 {
                   title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
@@ -985,7 +986,7 @@ class VmMnt extends PureComponent {
     return getVolumeTypeShowName(volumeOpts, volume_type);
   };
   handleMountFormat = (key) => {
-    const obj = { 
+    const obj = {
       '/lun': 'LUN',
       '/disk': '磁盘',
       '/cdrom': '光盘',
@@ -996,21 +997,21 @@ class VmMnt extends PureComponent {
   render() {
     const { mntList } = this.state;
     const { volumes } = this.state;
-  
+
     const columns = [
       {
-        title: formatMessage({id:'Vm.createVm.Storagename'}),
+        title: formatMessage({ id: 'Vm.createVm.Storagename' }),
         dataIndex: 'volume_name'
       },
       {
-        title: formatMessage({id:'Vm.createVm.Storagetype'}),
+        title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
         dataIndex: 'volume_path',
         render: (text, record) => {
           return <span>{this.handleMountFormat(text)}</span>;
         }
       },
       {
-        title: formatMessage({id:'Vm.createVm.capacity'}),
+        title: formatMessage({ id: 'Vm.createVm.capacity' }),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
           if (text == 0) {
@@ -1030,7 +1031,7 @@ class VmMnt extends PureComponent {
       //   }
       // },
       {
-        title: formatMessage({id:'Vm.createVm.handle'}),
+        title: formatMessage({ id: 'Vm.createVm.handle' }),
         dataIndex: 'action',
         render: (val, data) => {
           return (
@@ -1059,11 +1060,11 @@ class VmMnt extends PureComponent {
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
-        <Table 
-          pagination={false} 
-          rowKey={(record,index) => index}
-          dataSource={volumes} 
-          columns={columns} 
+        <Table
+          pagination={false}
+          rowKey={(record, index) => index}
+          dataSource={volumes}
+          columns={columns}
         />
 
         {this.state.showAddVar && (
@@ -1119,14 +1120,40 @@ export default class Index extends PureComponent {
       iconPort: false,
       iconVolume: false,
       iconEnv: false,
-      iconMnt: false
+      iconMnt: false,
+      sourceCodeDetection: false,
+      showCodeScanPlugin: window.sessionStorage.getItem('showCodeScanPlugin') === 'true'
     };
   }
   componentDidMount() {
+    if (this.state.showCodeScanPlugin) {
+      this.getSourceCodeDetection();
+    }
     this.handleFetchPorts();
     this.handleFetchVolumes();
     this.handleLoadMntList();
     this.handleFetchInnerEnvs();
+  }
+  getSourceCodeDetection = () => {
+    console.log(111111);
+
+    const { dispatch, appDetail } = this.props;
+    dispatch({
+      type: 'appControl/getSourceCodeScanStatus',
+      payload: {
+        regionID: globalUtil.getCurrRegionName(),
+        component_id: appDetail.service.service_alias,
+        pluginName: 'rainbond-sourcescan'
+      },
+      callback: data => {
+        this.setState({
+          sourceCodeDetection: data?.enabled || false
+        })
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
   }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -1245,7 +1272,7 @@ export default class Index extends PureComponent {
   };
   genExtraPort = (key) => {
     return (
-      <span style={{ color:  globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
+      <span style={{ color: globalUtil.getPublicColor(), fontWeight: '600' }}>{key ? formatMessage({ id: 'button.fold' }) : formatMessage({ id: 'button.config' })}</span>
     )
   }
 
@@ -1315,6 +1342,30 @@ export default class Index extends PureComponent {
       this.handleLoadMntList(true)
     }
   }
+  handleSourceCodeDetectionChange = (checked) => {
+    const { dispatch, appDetail } = this.props;
+    console.log(checked, "checked");
+    const url = checked ? 'appControl/enableSourceCodeScan' : 'appControl/disableSourceCodeScan'
+    dispatch({
+      type: url,
+      payload: {
+        regionID: globalUtil.getCurrRegionName(),
+        component_id: appDetail.service.service_alias,
+        component_name: appDetail.service.service_cname,
+        pluginName: 'rainbond-sourcescan'
+      },
+      callback: data => {
+        notification.success({ message: formatMessage({ id: checked ? 'enterpriseColony.source_code_detection.enabled_success' : 'enterpriseColony.source_code_detection.disabled_success' }) });
+        this.setState({
+          sourceCodeDetection: checked
+        });
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    })
+
+  }
   render() {
     const { appDetail } = this.props;
     const {
@@ -1336,13 +1387,16 @@ export default class Index extends PureComponent {
       iconPort,
       iconVolume,
       iconEnv,
-      iconMnt
+      iconMnt,
+      sourceCodeDetection,
+      showCodeScanPlugin
     } = this.state;
     const isEnv = true;
     const isRely = true;
     const isStorage = true;
     const isPort = true;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const service_source = appDetail && appDetail.service && appDetail.service.service_source;
     return (
       <div>
         <div
@@ -1390,7 +1444,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ?  globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
+                      <span className={styles.panelTitle} style={{ color: volumesData.length > 0 ? globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}>
                           {formatMessage({ id: 'enterpriseColony.import.recognition.tabs.configFiles.desc' })}
@@ -1419,7 +1473,7 @@ export default class Index extends PureComponent {
                 <Panel
                   header={
                     <span>
-                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ?  globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
+                      <span className={styles.panelTitle} style={{ color: innerEnvsList.length > 0 ? globalUtil.getPublicColor('rbd-content-color') : globalUtil.getPublicColor('rbd-content-color-secondary') }}>{formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}</span>
                       <span className={styles.panelSpan}>
                         <Tooltip title={formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}>
                           {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable.desc' })}
@@ -1485,6 +1539,40 @@ export default class Index extends PureComponent {
                 </Panel>
               </Collapse>
             }
+            {service_source === 'source_code' && showCodeScanPlugin && (
+              <div
+                style={{
+                  marginTop: '40px',
+                  borderRadius: '12px',
+                  background: '#f2f4f7'
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 36px 12px 12px',
+                    cursor: 'default'
+                  }}
+                >
+                  <span>
+                    <span className={styles.panelTitle} style={{ color: globalUtil.getPublicColor('rbd-content-color-secondary') }}>
+                      {formatMessage({ id: 'componentCheck.advanced.setup.source_code_detection.title' })}
+                    </span>
+                    <span className={styles.panelSpan}>
+                      <Tooltip title={formatMessage({ id: 'componentCheck.advanced.setup.source_code_detection.desc' })}>
+                        {formatMessage({ id: 'componentCheck.advanced.setup.source_code_detection.desc' })}
+                      </Tooltip>
+                    </span>
+                  </span>
+                  <Switch
+                    checked={sourceCodeDetection}
+                    onChange={this.handleSourceCodeDetectionChange}
+                  />
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

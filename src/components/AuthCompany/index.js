@@ -31,6 +31,7 @@ import PluginStyles from '../../pages/Create/Index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import Ellipsis from '../Ellipsis';
+import marketIcon from '../../../public/images/market.svg';
 import HelmForm from '../HelmForm';
 
 const RadioGroup = Radio.Group;
@@ -540,8 +541,7 @@ export default class Index extends PureComponent {
                                                 }}
                                                 alt={name}
                                                 src={
-                                                  logo ||
-                                                  require('../../../public/images/market.svg')
+                                                  logo || marketIcon
                                                 }
                                                 height={110}
                                               />

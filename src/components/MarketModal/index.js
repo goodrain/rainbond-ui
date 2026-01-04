@@ -7,6 +7,7 @@ import PluginUtil from '../../utils/pulginUtils';
 import { pinyin } from 'pinyin-pro';
 import AppMarketContent from '../AppMarketContent';
 import roleUtil from '../../utils/newRole';
+import appIcon from '../../../public/images/app_icon.jpg';
 import styles from './index.less';
 
 const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, groups, pluginsList, form, initialApp }) => {
@@ -356,7 +357,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
         installType={installType}
         onInstallTypeChange={(e) => setInstallType(e.target.value)}
         showResourceInfo={!isLocal}
-        appIcon={require('../../../public/images/app_icon.jpg')}
+        appIcon={appIcon}
         currentVersionInfo={currentVersionInfo}
       />
     </Modal>

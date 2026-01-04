@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-const echarts = require('echarts');
+import * as echarts from 'echarts';
 import global from '@/utils/global'
 
 

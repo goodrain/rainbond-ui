@@ -63,6 +63,8 @@ export default class Index extends PureComponent {
       callback: (res) => {
         if (res && res.list) {
           const showEnterprisePlugin = pluginUtile.isInstallPlugin(res.list, 'rainbond-bill');
+          const showCodeScanPlugin = pluginUtile.isInstallPlugin(res.list, 'rainbond-sourcescan');
+          window.sessionStorage.setItem('showCodeScanPlugin', showCodeScanPlugin)
           this.setState({
             showEnterprisePlugin
           }, () => {

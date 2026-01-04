@@ -25,7 +25,7 @@ import {
   import { routerRedux } from 'dva/router';
   import React, { Fragment, PureComponent } from 'react';
   import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
+  import { formatMessage } from '@/utils/intl';
   import AuthCompany from '../../components/AuthCompany';
   import CreateAppFromHelmForm from '../../components/CreateAppFromHelmForm';
   import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
@@ -39,6 +39,7 @@ import { formatMessage } from '@/utils/intl';
   import globalUtil from '../../utils/global';
   import roleUtil from '../../utils/role';
   import sourceUtil from '../../utils/source-unit';
+  import appIcon from '../../../public/images/app_icon.jpg';
   import PluginStyles from '../Plugin/Index.less';
   
   const { Option } = Select;
@@ -797,7 +798,6 @@ import { formatMessage } from '@/utils/intl';
             </span>
           ]
         : [];
-      const appIcon = require('../../../public/images/app_icon.jpg');
       return (
         <Fragment>
           {(item.is_official == true || item.is_official == 1) && (

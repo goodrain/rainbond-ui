@@ -429,6 +429,8 @@ const componentCheck = {
   'componentCheck.advanced.setup.port_manage.title':'端口管理',
   'componentCheck.advanced.setup.environment_variable.title':'环境变量',
   'componentCheck.advanced.setup.port_manage.btn.null':'暂无端口',
+  'componentCheck.advanced.setup.source_code_detection.title':'源码检测',
+  'componentCheck.advanced.setup.source_code_detection.desc':'源码检测功能可以在构建前对代码进行静态分析，帮助发现潜在问题',
 }
 
 const otherAppAssembly = {
