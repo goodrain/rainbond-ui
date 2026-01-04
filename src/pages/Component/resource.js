@@ -167,7 +167,7 @@ export default class Index extends PureComponent {
         },
         callback: () => {
           this.setState({ uploadFile: false });
-          this.loadBuildSourceInfo();
+          // this.loadBuildSourceInfo();
         },
         handleError: (err) => {
           handleAPIError(err);
@@ -417,7 +417,6 @@ export default class Index extends PureComponent {
             const url = bean?.git_url || '';
             const str = url.lastIndexOf('/');
             const eventId = url.substring(str + 1);
-            this.setState({ event_id: eventId });
           }
           this.setState({ buildSource: bean }, () => {
             if (bean?.code_from?.indexOf('oauth') > -1) {
