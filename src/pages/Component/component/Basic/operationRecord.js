@@ -237,9 +237,9 @@ class Index extends PureComponent {
     };
     return (
       <Card
-      title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord'/>}
-      loading={recordLoading}
-      className={styles.operationCard}
+        title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord' />}
+        loading={recordLoading}
+        className={styles.operationCard}
       >
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
@@ -271,9 +271,12 @@ class Index extends PureComponent {
                 return (
                   <div
                     key={event_id}
-                    className={`${styles.loginfo} ${
-                      styles[statusMap[status] || 'logfored']
-                    }`}
+                    className={`${styles.loginfo} ${styles[statusMap[status] || 'logfored']
+                      }`}
+                    style={opt_type === 'source-scan' ? { cursor: 'pointer' } : {}}
+                    onClick={opt_type === 'source-scan' ? () => {
+                      this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=rainbond-sourcescan`));
+                    } : undefined}
                   >
                     <Tooltip
                       title={moment(create_time)
@@ -288,7 +291,7 @@ class Index extends PureComponent {
                     </Tooltip>
 
                     <div>
-                      <Tooltip title={ opt_type === 'INITIATING' ? this.jumpMessage(message,true): Messages}>
+                      <Tooltip title={opt_type === 'INITIATING' ? this.jumpMessage(message, true) : Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(opt_type)
@@ -304,13 +307,13 @@ class Index extends PureComponent {
 
 
                         {status === 'failure' &&
-                        <Tooltip
-                          title={message}
-                        >
-                          <span style={{color:'#A8A8A8'}}>
-                            ({message})
-                          </span>
-                        </Tooltip>
+                          <Tooltip
+                            title={message}
+                          >
+                            <span style={{ color: '#A8A8A8' }}>
+                              ({message})
+                            </span>
+                          </Tooltip>
                         }
 
                       </Tooltip>
@@ -328,23 +331,23 @@ class Index extends PureComponent {
                         <span>
                           {end_time && create_time
                             ? globalUtil.fetchTime(
-                                new Date(end_time).getTime()
-                                  ? new Date(end_time).getTime() -
-                                      new Date(create_time).getTime()
-                                  : ''
-                              )
+                              new Date(end_time).getTime()
+                                ? new Date(end_time).getTime() -
+                                new Date(create_time).getTime()
+                                : ''
+                            )
                             : ''}
                         </span>
                       </span>
                     </div>
-                      <div style={{ position: 'static' }} className="table-wrap">
-                      { opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
-                      syn_type === 0 && (
-                        <Tooltip
-                          visible={final_status === ''}
-                          placement="top"
-                          arrowPointAtCenter
-                          autoAdjustOverflow={false}
+                    <div style={{ position: 'static' }} className="table-wrap">
+                      {opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
+                        syn_type === 0 && (
+                          <Tooltip
+                            visible={final_status === ''}
+                            placement="top"
+                            arrowPointAtCenter
+                            autoAdjustOverflow={false}
                             title={
                               <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
                             }
@@ -352,19 +355,19 @@ class Index extends PureComponent {
                               document.querySelector('.table-wrap')
                             }
                           >
-                          <div
-                            style={{
-                              width: '16px'
-                            }}
-                            onClick={() => {
-                              this.showLogModal(event_id, final_status === '', opt_type);
-                            }}
-                          >
-                            {globalUtil.fetchSvg('logs', status === 'failure' && opt_type === 'build-service' ? '#CE0601':'#cccccc')}
-                          </div>
-                        </Tooltip>
-                      )
-                    }
+                            <div
+                              style={{
+                                width: '16px'
+                              }}
+                              onClick={() => {
+                                this.showLogModal(event_id, final_status === '', opt_type);
+                              }}
+                            >
+                              {globalUtil.fetchSvg('logs', status === 'failure' && opt_type === 'build-service' ? '#CE0601' : '#cccccc')}
+                            </div>
+                          </Tooltip>
+                        )
+                      }
                     </div>
                   </div>
                 );
@@ -379,7 +382,7 @@ class Index extends PureComponent {
                     textAlign: 'center'
                   }}
                 >
-                  <FormattedMessage id='componentOverview.body.tab.overview.handle.handler'/>
+                  <FormattedMessage id='componentOverview.body.tab.overview.handle.handler' />
                 </div>
               ))}
             {/* 哨兵元素：当滚动到这里时触发加载更多 */}
@@ -404,7 +407,7 @@ class Index extends PureComponent {
         </Row>
         {logVisible && (
           <LogShow
-            title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log'/>}
+            title={<FormattedMessage id='componentOverview.body.tab.overview.handle.log' />}
             width="90%"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}
@@ -414,7 +417,7 @@ class Index extends PureComponent {
           />
         )}
         <Modal
-          title={formatMessage({id:'componentOverview.body.tab.overview.handle.DependentCom'})}
+          title={formatMessage({ id: 'componentOverview.body.tab.overview.handle.DependentCom' })}
           visible={showModal}
           onCancel={this.hideModal}
           footer={null}
@@ -423,7 +426,7 @@ class Index extends PureComponent {
             {showModalArr && showModalArr.length > 0 && showModalArr.map((item, index) => (
               <p
                 key={index}
-                style={{color: '#3296fa', cursor: 'pointer'}}
+                style={{ color: '#3296fa', cursor: 'pointer' }}
                 onClick={() => this.jumpExpansion(true, item.service_alias)}
               >
                 {item.service_cname}

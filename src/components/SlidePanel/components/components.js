@@ -293,6 +293,7 @@ class Main extends PureComponent {
       activeTab: '',
       isShowUpdate: false,
       isShowKubeBlocksComponent: false,
+      prevComponentID: globalUtil.getSlidePanelComponentID() || '', // 用于追踪 componentID 变化
     };
     this.socket = null;
     this.destroy = false;
@@ -314,6 +315,36 @@ class Main extends PureComponent {
       this.getStatus(true);
     }, 5000);
   }
+
+  componentDidUpdate(prevProps) {
+    const { location } = this.props;
+    const prevLocation = prevProps.location;
+
+    // 检测 location 变化
+    if (location && prevLocation && location.search !== prevLocation.search) {
+      const currentComponentID = globalUtil.getSlidePanelComponentID();
+      const currentTab = globalUtil.getSlidePanelTab();
+      const prevComponentID = this.state.prevComponentID;
+
+      // 检测 componentID 变化，重新加载组件详情
+      if (currentComponentID && currentComponentID !== prevComponentID) {
+        this.setState({
+          prevComponentID: currentComponentID,
+          routerSwitch: true
+        }, () => {
+          this.loadDetail();
+          this.getStatus(false);
+        });
+        return;
+      }
+
+      // 检测 tab 参数变化，更新 activeTab
+      if (currentTab && currentTab !== this.state.activeTab) {
+        this.setState({ activeTab: currentTab });
+      }
+    }
+  }
+
   componentWillUnmount() {
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
@@ -1602,14 +1633,24 @@ class Main extends PureComponent {
           tabs.push(tab);
         }
       });
-
+      
       // 添加插件tabs
       if (CompluginList?.length > 0) {
         CompluginList.forEach(item => {
-          tabs.push({
-            key: item.name,
-            tab: item.display_name
-          });
+          // rainbond-sourcescan 插件只在 service_source 为 source_code 时显示
+          if (item.name === 'rainbond-sourcescan') {
+            if (appDetail?.service?.service_source === 'source_code') {
+              tabs.push({
+                key: item.name,
+                tab: item.display_name
+              });
+            }
+          } else {
+            tabs.push({
+              key: item.name,
+              tab: item.display_name
+            });
+          }
         });
       }
     }
@@ -1655,7 +1696,14 @@ class Main extends PureComponent {
     };
     if (CompluginList && CompluginList.length > 0) {
       CompluginList.forEach(item => {
-        map[item.name] = ComponentPlugin
+        // rainbond-sourcescan 插件只在 service_source 为 source_code 时注册
+        if (item.name === 'rainbond-sourcescan') {
+          if (appDetail?.service?.service_source === 'source_code') {
+            map[item.name] = ComponentPlugin;
+          }
+        } else {
+          map[item.name] = ComponentPlugin;
+        }
       })
     }
     const Com = map[activeTab];
