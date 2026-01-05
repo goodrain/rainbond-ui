@@ -41,6 +41,7 @@ import globalUtil from '../../utils/global';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/newRole';
 import sourceUtil from '../../utils/source-unit';
+import logoIcon from '../../../public/logo-icon.png';
 import PluginStyles from '../Plugin/Index.less';
 
 const { Option } = Select;
@@ -793,7 +794,6 @@ export default class Main extends PureComponent {
   renderApp = (item, isInstall, type) => {
     const { scopeMax } = this.state;
     const cloud = scopeMax != 'localApplication';
-    const appIcon = require('../../../public/logo-icon.png');
 
     // Get version display
     const getVersionDisplay = () => {

@@ -46,6 +46,7 @@ import styles from './index.less';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import RollsBackRecordDetails from './RollbackInfo/details';
 import RollsBackRecordList from './RollbackInfo/index';
+import appIcon from '../../../public/images/app_icon.jpg';
 import infoUtil from './UpgradeInfo/info-util';
 
 const { TabPane } = Tabs;
@@ -897,8 +898,7 @@ export default class AppList extends PureComponent {
                             avatar={
                               <getApplication
                                 src={
-                                  item.pic ||
-                                  require('../../../public/images/app_icon.jpg')
+                                  item.pic || appIcon
                                 }
                                 shape="square"
                                 size="large"

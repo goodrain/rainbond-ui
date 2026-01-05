@@ -15,6 +15,7 @@ import { formatMessage } from '@/utils/intl';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import globalUtil from '../../utils/global';
 import BasicListStyles from '../List/BasicList.less';
+import appIcon from '../../../public/images/app_icon.jpg';
 import Styles from './index.less';
 
 const RadioButton = Radio.Button;
@@ -276,9 +277,8 @@ export default class CloudApp extends PureComponent {
                   avatar={
                     <Avatar
                       src={
-                        item.pic ||
+                        item.pic || appIcon
                         // eslint-disable-next-line global-require
-                        require('../../../public/images/app_icon.jpg')
                       }
                       onClick={() => {
                         this.showMarketAppDetail(item);
