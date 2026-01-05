@@ -3019,6 +3019,7 @@ const global = {
       HealthCheckPassed: formatMessage({ id: 'global.fetchStateOptTypeText.HealthCheckPassed' }),
       CreateContainerConfigError: formatMessage({ id: 'global.fetchStateOptTypeText.CreateContainerConfigError' }),
       ImagePullBackOff: formatMessage({ id: 'global.fetchStateOptTypeText.ImagePullBackOff' }),
+      'source-scan': formatMessage({ id: 'global.fetchStateOptTypeText.source-scan' }),
     };
     return statusOptType[state] || state;
   },
