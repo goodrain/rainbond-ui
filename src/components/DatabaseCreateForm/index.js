@@ -139,36 +139,27 @@ export default class Index extends PureComponent {
 
 
                 {!group_id && <>
-                    <Divider />
-                    <div className="advanced-btn" style={{ marginBottom: 16 }}>
+                    <div className="advanced-btn">
                         <Button
                             type="link"
                             style={{
                                 fontWeight: 500,
-                                fontSize: 16,
-                                padding: '8px 0',
+                                fontSize: 14,
+                                padding: '0px 0',
                                 display: 'flex',
                                 alignItems: 'center',
                                 color: '#1890ff'
                             }}
                             onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
                         >
-                            <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                            <Icon type={this.state.showAdvanced ? "up" : "down"}  />
                             {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
                         </Button>
                     </div>
                     {this.state.showAdvanced && (
                         <div
-                            className="userpass-card"
-                            style={{
-                                margin: '24px 0',
-                                background: '#fafbfc',
-                                border: '1px solid #e6e6e6',
-                                borderRadius: 8,
-                                boxShadow: '0 2px 8px #f0f1f2',
-                                padding: 24,
-                            }}>
-                            <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                            className="userpass-card">
+                            <div className="advanced-divider" style={{ margin: '0 0 10px 0' }} />
                             <Form.Item
                                 label={formatMessage({ id: 'popover.newApp.appName' })}
                                 colon={false}
@@ -190,12 +181,12 @@ export default class Index extends PureComponent {
                                     }}
                                 />)}
                             </Form.Item>
-                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                            <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_app_name' })}>
                                 {getFieldDecorator('k8s_app', {
                                     initialValue: this.generateEnglishName(getFieldValue('group_name') || ''),
                                     rules: getK8sAppRules()
                                 })(<Input
-                                    placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
+                                    placeholder={formatMessage({ id: 'placeholder.appEngName' })}
                                     style={{
                                         borderRadius: 6,
                                         height: 40,

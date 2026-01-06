@@ -69,6 +69,7 @@ const teamAdd = {
   'teamAdd.create.form.appName':'应用名称',
   'teamAdd.create.form.service_cname':'组件名称',
   'teamAdd.create.form.k8s_component_name':'组件英文名称',
+  'teamAdd.create.form.k8s_app_name':'应用英文名称',
   'teamAdd.create.form.user':'仓库用户名',
   'teamAdd.create.form.password':'仓库密码',
   'teamAdd.create.btn.create':'确认创建',
@@ -77,6 +78,10 @@ const teamAdd = {
   'teamAdd.create.createComponentTitle':'创建组件',
   'teamAdd.create.fileList':'文件列表',
   'teamAdd.create.null_data':'暂无数据',
+  'teamAdd.create.demo.use':'更多示例',
+  'teamAdd.create.demo.cancel':'取消示例',
+  'teamAdd.create.demo.select':'选择示例',
+  'teamAdd.create.demo.alert':'示例模式已激活，表单已自动填充示例数据，您可以修改后创建',
   
   // code
   'teamAdd.create.code.title':'从源码创建组件',

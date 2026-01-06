@@ -72,6 +72,7 @@ const teamAdd = {
   'teamAdd.create.form.appName':'App Name',
   'teamAdd.create.form.service_cname':'Component Name',
   'teamAdd.create.form.k8s_component_name':'English Name',
+  'teamAdd.create.form.k8s_app_name':'English Name',
   'teamAdd.create.form.user':'Username',
   'teamAdd.create.form.password':'Password',
   'teamAdd.create.btn.create':'Create',
@@ -80,7 +81,11 @@ const teamAdd = {
   'teamAdd.create.createComponentTitle':'Create components',
   'teamAdd.create.fileList':'List Files',
   'teamAdd.create.null_data':'No Data',
-  
+  'teamAdd.create.demo.use':'Use Demo',
+  'teamAdd.create.demo.cancel':'Cancel Demo',
+  'teamAdd.create.demo.select':'Select Demo',
+  'teamAdd.create.demo.alert':'Demo mode activated. The form has been auto-filled with sample data. You can modify and create.',
+
   // code
   'teamAdd.create.code.title':'Create components from the source code',
   'teamAdd.create.code.desc':'Obtains the source code from the specified source repository and creates a new component based on the source information',

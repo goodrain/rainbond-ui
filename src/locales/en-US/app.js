@@ -189,6 +189,7 @@ const appPublish = {
   'appPublish.btn.record.creactAppModel.pages.label.describe':'Introduction',
   'appPublish.btn.record.creactAppModel.pages.label.logo':'LOGO',
   'appPublish.btn.record.creactAppModel.pages.label.max32':'Enter the name of the application template to be created. The name contains a maximum of 32 characters.',
+  'appPublish.btn.record.creactAppModel.pages.label.max16':'Enter the name of the application template to be created. The name contains a maximum of 16 characters.',
   'appPublish.btn.record.creactAppModel.pages.label.model_intro':'Please enter the profile of the created application template.',
   'appPublish.btn.record.creactAppModel.pages.label.loadingMore':'Load more',
   'appPublish.btn.record.creactAppModel.pages.label.present_enterprise':'Enterprise',
