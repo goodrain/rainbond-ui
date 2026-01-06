@@ -78,6 +78,10 @@ const teamAdd = {
   'teamAdd.create.createComponentTitle':'创建组件',
   'teamAdd.create.fileList':'文件列表',
   'teamAdd.create.null_data':'暂无数据',
+  'teamAdd.create.demo.use':'更多示例',
+  'teamAdd.create.demo.cancel':'取消示例',
+  'teamAdd.create.demo.select':'选择示例',
+  'teamAdd.create.demo.alert':'示例模式已激活，表单已自动填充示例数据，您可以修改后创建',
   
   // code
   'teamAdd.create.code.title':'从源码创建组件',

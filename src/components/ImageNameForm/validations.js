@@ -7,10 +7,12 @@ import { formatMessage } from '@/utils/intl';
 /**
  * 服务名称校验函数
  * 不允许以数字开头，不允许包含空格，不允许包含标点符号
+ * 允许空值（会使用默认值 nginx）
  */
 export const validateServiceName = (_, value, callback) => {
+  // 允许空值，提交时会使用默认值
   if (!value) {
-    return callback(new Error(formatMessage({ id: 'placeholder.service_cname' })));
+    return callback();
   }
 
   // 检查是否以数字开头
@@ -34,10 +36,12 @@ export const validateServiceName = (_, value, callback) => {
 /**
  * K8s 组件名称校验函数
  * 必须以小写字母开头，只能包含小写字母、数字和连字符
+ * 允许空值（会使用默认值 nginx）
  */
 export const validateK8sComponentName = (_, value, callback) => {
+  // 允许空值，提交时会使用默认值
   if (!value) {
-    return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
+    return callback();
   }
 
   if (value.length > 16) {
@@ -71,10 +75,11 @@ export const validateDockerCmd = (_, value, callback) => {
 
 /**
  * 服务名称校验规则
+ * 允许空值（会使用默认值 nginx）
  */
 export const getServiceNameRules = () => [
   {
-    required: true,
+    required: false,
     validator: validateServiceName
   },
   {
@@ -85,10 +90,11 @@ export const getServiceNameRules = () => [
 
 /**
  * K8s 组件名称校验规则
+ * 允许空值（会使用默认值 nginx）
  */
 export const getK8sComponentNameRules = () => [
   {
-    required: true,
+    required: false,
     validator: validateK8sComponentName
   }
 ];
@@ -105,11 +111,11 @@ export const getImageSourceRules = () => [
 
 /**
  * 镜像地址校验规则
+ * 允许空值（会使用默认的 nginx 示例）
  */
 export const getImageAddressRules = () => [
   {
-    required: true,
-    message: formatMessage({ id: 'placeholder.warehouse_not_empty' })
+    required: false
   },
   {
     max: 255,
@@ -123,11 +129,11 @@ export const getImageAddressRules = () => [
 
 /**
  * Docker Run 命令校验规则
+ * 允许空值（会使用默认的 nginx 示例）
  */
 export const getDockerRunCmdRules = () => [
   {
-    required: true,
-    message: formatMessage({ id: 'placeholder.dockerRunMsg' })
+    required: false
   }
 ];
 

@@ -45,6 +45,14 @@ const formItemLayouts = {
   }
 };
 
+// nginx 示例 placeholder
+const NGINX_EXAMPLE = {
+  dockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
+  saasDockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
+  imageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine',
+  saasImageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine'
+};
+
 @connect(
   ({ global, loading, teamControl }) => ({
     groups: global.groups,
@@ -100,7 +108,7 @@ export default class Index extends PureComponent {
     this.handleGetWarehouse();
     const { handleType, groupId } = this.props;
     const group_id = globalUtil.getAppID()
-    if(group_id){
+    if (group_id) {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${group_id}`)
       })
@@ -144,11 +152,72 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
-    const { event_id } = this.state;
+    const { event_id, radioKey } = this.state;
     const group_id = globalUtil.getAppID();
+    const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+
+    // 获取当前表单值
+    const currentValues = form.getFieldsValue(['service_cname', 'k8s_component_name', 'docker_cmd']);
+    const serviceCname = currentValues.service_cname?.trim();
+    const k8sComponentName = currentValues.k8s_component_name?.trim();
+    const dockerCmd = currentValues.docker_cmd?.trim();
+
+    // 检查是否全部为空（使用默认值模式）
+    const allEmpty = !serviceCname && !k8sComponentName && !dockerCmd;
+    // 检查是否有部分填写
+    const hasAnyValue = serviceCname || k8sComponentName || dockerCmd;
+
+    // 如果部分填写，验证必填字段
+    if (hasAnyValue && !allEmpty) {
+      const errors = [];
+      if (!serviceCname) {
+        errors.push(formatMessage({ id: 'placeholder.service_cname' }));
+        form.setFields({
+          service_cname: {
+            value: currentValues.service_cname,
+            errors: [new Error(formatMessage({ id: 'placeholder.service_cname' }))]
+          }
+        });
+      }
+      if (!k8sComponentName) {
+        errors.push(formatMessage({ id: 'placeholder.k8s_component_name' }));
+        form.setFields({
+          k8s_component_name: {
+            value: currentValues.k8s_component_name,
+            errors: [new Error(formatMessage({ id: 'placeholder.k8s_component_name' }))]
+          }
+        });
+      }
+      if (!dockerCmd && (radioKey === 'cmd' || radioKey === 'address')) {
+        const errorMsg = radioKey === 'cmd'
+          ? formatMessage({ id: 'placeholder.dockerRunMsg' })
+          : formatMessage({ id: 'placeholder.docker_cmd' });
+        errors.push(errorMsg);
+        form.setFields({
+          docker_cmd: {
+            value: currentValues.docker_cmd,
+            errors: [new Error(errorMsg)]
+          }
+        });
+      }
+      if (errors.length > 0) {
+        return;
+      }
+    }
 
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        // 全部为空时使用 placeholder 默认值（nginx 示例）
+        if (allEmpty) {
+          fieldsValue.service_cname = 'nginx';
+          fieldsValue.k8s_component_name = 'nginx';
+          if (radioKey === 'cmd') {
+            fieldsValue.docker_cmd = isCloudProxy ? NGINX_EXAMPLE.dockerCmd : NGINX_EXAMPLE.saasDockerCmd;
+          } else if (radioKey === 'address') {
+            fieldsValue.docker_cmd = isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress;
+          }
+        }
+
         // 处理架构信息
         if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
           fieldsValue.arch = archInfo[0];
@@ -174,7 +243,6 @@ export default class Index extends PureComponent {
         }
 
         // 处理镜像代理
-        const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
         if (fieldsValue.imagefrom === 'address' && isCloudProxy) {
           fieldsValue.docker_cmd = this.processImageProxy(fieldsValue.docker_cmd);
         }
@@ -197,21 +265,21 @@ export default class Index extends PureComponent {
 
   processImageProxy = (inputImage) => {
     if (!inputImage) return inputImage; // 空值处理
-  
+
     // 定义代理域名常量
     const PROXY_DOMAIN = 'dockerhub.rainbond.cn';
     const OFFICIAL_REPO = 'library';
-  
+
     // 先判断是否包含斜杠
     if (inputImage.includes('/')) {
       // 如果有斜杠，取第一个斜杠前的内容判断是否是域名
       const firstPart = inputImage.split('/')[0];
-      
+
       // 如果是docker.io，直接替换成dockerhub.rainbond.cn
       if (firstPart === 'docker.io') {
         return inputImage.replace('docker.io', PROXY_DOMAIN);
       }
-      
+
       const isDomain = /^([a-zA-Z0-9]+\.[a-zA-Z]+)|([a-zA-Z0-9]+:[0-9]+)|localhost/.test(firstPart);
       if (isDomain) return inputImage;
     }
@@ -219,7 +287,7 @@ export default class Index extends PureComponent {
     // 拆分镜像名称和标签
     const [imagePart, ...tagParts] = inputImage.split(':');
     const tag = tagParts.length > 0 ? `:${tagParts.join(':')}` : ':latest';
-    
+
     // 处理不同层级的镜像名称
     const parts = imagePart.split('/');
     switch (parts.length) {
@@ -231,8 +299,8 @@ export default class Index extends PureComponent {
         return `${inputImage}`;
     }
   }
-  
-  
+
+
   // 获取当前选取的app的所有组件的英文名称
   fetchComponentNames = (group_id) => {
     const { dispatch } = this.props;
@@ -382,6 +450,7 @@ export default class Index extends PureComponent {
     });
     form.resetFields(['docker_cmd', 'user_name', 'password']);
   }
+
   // 上传文件
   onChangeUpload = info => {
     let { fileList } = info;
@@ -756,421 +825,433 @@ export default class Index extends PureComponent {
     }
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
-            {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || (selectedImage && selectedImage.name)  || '',
-              rules: getServiceNameRules()
-            })(
-              <Input
-                disabled={disableds.indexOf('service_cname') > -1}
-                placeholder={formatMessage({ id: 'placeholder.service_cname' })}
-                style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
-              />
-            )}
-          </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
-            {getFieldDecorator('k8s_component_name', {
-              initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
-              rules: getK8sComponentNameRules()
-            })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-          </Form.Item>
-          <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
-            {getFieldDecorator('imagefrom', {
-              initialValue: 'address',
-              rules: getImageSourceRules()
-            })(
-              isPublic ? (
-                <Radio.Group onChange={this.handleChangeImageSource}>
-                  <Radio value='address'>
-                    {formatMessage({ id: 'teamAdd.create.image.address'})}
-                </Radio>
-                <Radio value='cmd'>
-                  {formatMessage({ id: 'teamAdd.create.image.docker_cmd'})}
-                </Radio>
-                {isImageProxy &&
-                <>
-                  <Radio value='upload'>
-                    {formatMessage({ id: 'teamAdd.create.image.upload'})}
-                  </Radio>
-                  <Radio value='local'>
-                    {formatMessage({ id: 'teamAdd.create.image.local'})}
-                  </Radio>
-                </>}
-                </Radio.Group>
-              ) : (
-                <Radio.Group onChange={this.handleChangeImageSource}>
-                  <Radio value='address'>
-                    {formatMessage({ id: 'teamAdd.create.image.private'})}
-                  </Radio>
-                </Radio.Group>
-              )
-            )}
-          </Form.Item>
-          {radioKey === 'address' &&
-            <Form.Item
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
-              extra={isImageProxy ? '默认启用DockerHub镜像加速' : ''}
-            >
-              {getFieldDecorator('docker_cmd', {
-                initialValue: imageUrl || '',
-                rules: getImageAddressRules()
-              })(
-                <Input onPressEnter={this.onQueryImageName} placeholder={formatMessage({ id: 'placeholder.docker_cmd' })} disabled={!isPublic} />
-                )}
-            </Form.Item>
-          }
-          {radioKey === 'cmd' &&
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
-              {getFieldDecorator('docker_cmd', {
-                initialValue: '',
-                rules: getDockerRunCmdRules()
-              })(
-                <TextArea placeholder={formatMessage({ id: 'placeholder.dockerRun' })}/>
-              )}
-            </Form.Item>
-          }
-          {radioKey === 'local' &&
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.change_image'})}>
-              <Form.Item style={{ display: 'inline-block', width: 'calc(70% - 8px)' }}>
-                {getFieldDecorator('docker_image', {
-                  initialValue: '',
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
-                })(
-                  <Select onChange={this.handleChangeLocalValue}>
-                    {(localList || []).map(item => (
-                      <Option value={item}>
-                        <Tooltip title={item}>
-                          {item}
-                        </Tooltip>
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </Form.Item>
-              <div style={{ display: 'inline-block', width: '16px', textAlign: 'center' }}>:</div>
-
-              <Form.Item style={{ display: 'inline-block', width: 'calc(30% - 8px)' }}>
-                {getFieldDecorator('image_tag', {
-                  initialValue: '',
-                  rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
-                })(
-                  <Select disabled={!localValue}>
-                    {(localImageTags || []).map(item => (
-                      <Option value={item}>
-                        <Tooltip title={item}>
-                          {item}
-                        </Tooltip>
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </Form.Item>
-            </Form.Item>
-          }
-          {radioKey === 'upload' &&
-            <>
-              <Form.Item
-                {...is_language}
-                label={formatMessage({ id: 'teamAdd.create.upload.mode' })}
-              >
-                <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
-                  <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
-                  <Radio value="chunk">{formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}</Radio>
-                </Radio.Group>
-              </Form.Item>
-
-              {this.state.uploadMode === 'normal' ? (
-                <Form.Item
-                  {...is_language}
-                  label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
-                  extra={formatMessage({ id: 'teamAdd.create.image.extra_image'})}
-                >
-                  {getFieldDecorator('packageTarFile', {
-                    rules: [
-                    ]
-                  })(
-                    <>
-                      <Upload
-                        fileList={fileList}
-                        accept='.tar'
-                        name="packageTarFile"
-                        onChange={this.onChangeUpload}
-                        onRemove={this.onRemove}
-                        action={this.state.record.upload_url}
-                        headers={myheaders}
-                        multiple={true}
-                      >
-
-                        <Button>
-                          <Icon type="upload" />
-                          {formatMessage({ id: 'Vm.createVm.imgUpload' })}
-                        </Button>
-                      </Upload>
-                    </>
-                  )}
-                </Form.Item>
-              ) : (
-                <Form.Item
-                  {...is_language}
-                  label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
-                  extra={formatMessage({ id: 'teamAdd.create.image.extra_image'})}
-                >
-                  {getFieldDecorator('packageTarFile', {
-                    rules: [
-                    ]
-                  })(
-                    <>
-                      <Upload
-                        accept=".tar"
-                        beforeUpload={this.handleChunkFileSelect}
-                        maxCount={1}
-                        showUploadList={false}
-                      >
-                        <Button>
-                          <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
-                        </Button>
-                      </Upload>
-                      {this.state.currentFile && (
-                        <div style={{ marginTop: 10 }}>
-                          <div>
-                            <Icon type="file" style={{ marginRight: 8 }} />
-                            {this.state.currentFile.name}
-                            <span style={{ marginLeft: 8, color: '#999' }}>
-                              ({(this.state.currentFile.size / 1024 / 1024).toFixed(2)} MB)
-                            </span>
-                          </div>
-                          <div style={{ marginTop: 10 }}>
-                            <Progress
-                              percent={Math.floor(this.state.chunkUploadProgress)}
-                              status={this.state.isChunkUploading ? 'active' : 'normal'}
-                            />
-                          </div>
-                          <div style={{ marginTop: 10 }}>
-                            {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
-                              <Button type="primary" onClick={this.handleStartChunkUpload}>
-                                {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
-                              </Button>
-                            )}
-                            {this.state.isChunkUploading && (
-                              <Button onClick={this.handlePauseChunkUpload}>
-                                {formatMessage({ id: 'teamAdd.create.upload.pause' })}
-                              </Button>
-                            )}
-                            {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
-                              <Button type="primary" onClick={this.handleResumeChunkUpload}>
-                                {formatMessage({ id: 'teamAdd.create.upload.resume' })}
-                              </Button>
-                            )}
-                            <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
-                              {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </Form.Item>
-              )}
-              <Form.Item
-                {...is_language}
-                label={formatMessage({ id: 'teamAdd.create.fileList' })}
-              >
-                <div
-                  style={{
-                    display: 'flex'
-                  }}
-                >
-                  <div>
-                    {existFileList.length > 0 ?
-                      (existFileList.map((item) => {
-                        return (
-                          <div className={styles.file}>
-                            <Icon style={{ marginRight: '6px' }} type="inbox" />
-                            <span className={styles.fileName}>
-                              {item}
-                            </span>
-                          </div>
-                        )
-                      })) : (
-                        <div className={styles.empty}>
-                          {formatMessage({ id: 'teamAdd.create.null_data' })}
-                        </div>
-                      )}
-                  </div>
-                  {existFileList.length > 0 &&
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        background: '#ff7b7b',
-                        padding: '0px 12px',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
-                    </div>
-                  }
-                </div>
-              </Form.Item>
-            </>
-          }
-          {(radioKey === 'cmd' || radioKey === 'address') && isPublic &&
-            <Form.Item {...is_language}>
-              <Checkbox
-                checked={this.state.showUsernameAndPass}
-                onChange={(e) => {
-                  this.setState({ showUsernameAndPass: e.target.checked });
-                }}
-              >
-                {formatMessage({ id: 'teamAdd.create.image.hint1' })} {formatMessage({ id: 'teamAdd.create.image.hint2' })}
-              </Checkbox>
-            </Form.Item>
-          }
-          {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
-            <Form.Item
-              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.form.user' })}
-            >
-              {getFieldDecorator('user_name', {
-                initialValue: data.user_name || '',
-                rules: getUsernameRules()
-              })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
-            </Form.Item>
-            <Form.Item
-              style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
-              {...is_language}
-              label={formatMessage({ id: 'teamAdd.create.form.password' })}
-            >
-              {getFieldDecorator('password', {
-                initialValue: data.password || '',
-                rules: getPasswordRules()
+        <div >
+          <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
+              {getFieldDecorator('service_cname', {
+                initialValue: data.service_cname || (selectedImage && selectedImage.name) || '',
+                rules: getServiceNameRules()
               })(
                 <Input
-                  autoComplete="new-password"
-                  type="password"
-                  placeholder={formatMessage({ id: 'placeholder.password_1' })}
+                  disabled={disableds.indexOf('service_cname') > -1}
+                  placeholder="nginx"
                 />
               )}
             </Form.Item>
-          </>}
-
-          {archLength === 2 &&
-            <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
-              {getFieldDecorator('arch', {
-                initialValue: arch,
-                rules: getArchRules()
+            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+              {getFieldDecorator('k8s_component_name', {
+                initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
+                rules: getK8sComponentNameRules()
+              })(<Input placeholder="nginx" />)}
+            </Form.Item>
+            <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
+              {getFieldDecorator('imagefrom', {
+                initialValue: radioKey,
+                rules: getImageSourceRules()
               })(
-                <Radio.Group>
-                  <Radio value='amd64'>amd64</Radio>
-                  <Radio value='arm64'>arm64</Radio>
-                </Radio.Group>
+                isPublic ? (
+                  <Radio.Group onChange={this.handleChangeImageSource}>
+                    <Radio value='address'>
+                      {formatMessage({ id: 'teamAdd.create.image.address' })}
+                    </Radio>
+                    <Radio value='cmd'>
+                      {formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}
+                    </Radio>ˇ
+
+                    {isImageProxy &&
+                      <>
+                        <Radio value='upload'>
+                          {formatMessage({ id: 'teamAdd.create.image.upload' })}
+                        </Radio>
+                        {
+                          existFileList.length > 0 &&
+                          <Radio value='local'>
+                            {formatMessage({ id: 'teamAdd.create.image.local' })}
+                          </Radio>
+                        }
+                      </>}
+                  </Radio.Group>
+                ) : (
+                  <Radio.Group onChange={this.handleChangeImageSource}>
+                    <Radio value='address'>
+                      {formatMessage({ id: 'teamAdd.create.image.private' })}
+                    </Radio>
+                  </Radio.Group>
+                )
               )}
-            </Form.Item>}
-          {!group_id && <>
-            <div className="advanced-btn">
-              <Button
-                type="link"
-                style={{
-                  fontWeight: 500,
-                  fontSize: 14,
-                  padding: '0px 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+            </Form.Item>
+            {radioKey === 'address' &&
+              <Form.Item
+                {...is_language}
+                label={formatMessage({ id: 'teamAdd.create.image.mirrorAddress' })}
+                extra={isImageProxy ? '默认启用DockerHub镜像加速' : ''}
               >
-                <Icon type={this.state.showAdvanced ? "up" : "down"} />
-                {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
-              </Button>
-            </div>
-            {this.state.showAdvanced && (
-              <div
-                className="userpass-card">
-                <div className="advanced-divider" style={{ margin: '0 0 10px 0' }} />
+                {getFieldDecorator('docker_cmd', {
+                  initialValue: imageUrl || '',
+                  rules: getImageAddressRules()
+                })(
+                  <Input
+                    onPressEnter={this.onQueryImageName}
+                    placeholder={isImageProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress}
+                    disabled={!isPublic}
+                  />
+                )}
+              </Form.Item>
+            }
+            {radioKey === 'cmd' &&
+              <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}>
+                {getFieldDecorator('docker_cmd', {
+                  initialValue: '',
+                  rules: getDockerRunCmdRules()
+                })(
+                  <TextArea
+                    placeholder={isImageProxy ? NGINX_EXAMPLE.dockerCmd : NGINX_EXAMPLE.saasDockerCmd}
+                    style={{ minHeight: 80, resize: 'vertical' }}
+                  />
+                )}
+              </Form.Item>
+            }
+            {radioKey === 'local' &&
+              <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.change_image' })}>
+                <Form.Item style={{ display: 'inline-block', width: 'calc(70% - 8px)' }}>
+                  {getFieldDecorator('docker_image', {
+                    initialValue: '',
+                    rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
+                  })(
+                    <Select onChange={this.handleChangeLocalValue}>
+                      {(localList || []).map(item => (
+                        <Option value={item}>
+                          <Tooltip title={item}>
+                            {item}
+                          </Tooltip>
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Form.Item>
+                <div style={{ display: 'inline-block', width: '16px', textAlign: 'center' }}>:</div>
+
+                <Form.Item style={{ display: 'inline-block', width: 'calc(30% - 8px)' }}>
+                  {getFieldDecorator('image_tag', {
+                    initialValue: '',
+                    rules: [{ required: true, message: formatMessage({ id: 'placeholder.dockerRunMsg' }) }]
+                  })(
+                    <Select disabled={!localValue}>
+                      {(localImageTags || []).map(item => (
+                        <Option value={item}>
+                          <Tooltip title={item}>
+                            {item}
+                          </Tooltip>
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Form.Item>
+              </Form.Item>
+            }
+            {radioKey === 'upload' &&
+              <>
                 <Form.Item
-                  label={formatMessage({ id: 'popover.newApp.appName' })}
-                  colon={false}
-                  {...formItemLayout}
-                  style={{ marginBottom: 18 }}
+                  {...is_language}
+                  label={formatMessage({ id: 'teamAdd.create.upload.mode' })}
                 >
-                  {getFieldDecorator('group_name', {
-                    initialValue: this.props.form.getFieldValue('service_cname') || '',
-                    rules: getAppNameRules()
-                  })(<Input
-                    placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
-                    style={{
-                      borderRadius: 6,
-                      height: 40,
-                      fontSize: 15,
-                      boxShadow: '0 1px 3px #f0f1f2',
-                      border: '1px solid #e6e6e6',
-                      transition: 'border 0.2s, box-shadow 0.2s'
-                    }}
-                  />
-                  )}
+                  <Radio.Group onChange={this.onUploadModeChange} value={this.state.uploadMode}>
+                    <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
+                    <Radio value="chunk">{formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}</Radio>
+                  </Radio.Group>
                 </Form.Item>
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_app_name' })}>
-                  {getFieldDecorator('k8s_app', {
-                    initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: getK8sComponentNameRules()
-                  })(<Input
-                    placeholder={formatMessage({ id: 'placeholder.appEngName' })}
+
+                {this.state.uploadMode === 'normal' ? (
+                  <Form.Item
+                    {...is_language}
+                    label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
+                    extra={formatMessage({ id: 'teamAdd.create.image.extra_image' })}
+                  >
+                    {getFieldDecorator('packageTarFile', {
+                      rules: [
+                      ]
+                    })(
+                      <>
+                        <Upload
+                          fileList={fileList}
+                          accept='.tar'
+                          name="packageTarFile"
+                          onChange={this.onChangeUpload}
+                          onRemove={this.onRemove}
+                          action={this.state.record.upload_url}
+                          headers={myheaders}
+                          multiple={true}
+                        >
+
+                          <Button>
+                            <Icon type="upload" />
+                            {formatMessage({ id: 'Vm.createVm.imgUpload' })}
+                          </Button>
+                        </Upload>
+                      </>
+                    )}
+                  </Form.Item>
+                ) : (
+                  <Form.Item
+                    {...is_language}
+                    label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
+                    extra={formatMessage({ id: 'teamAdd.create.image.extra_image' })}
+                  >
+                    {getFieldDecorator('packageTarFile', {
+                      rules: [
+                      ]
+                    })(
+                      <>
+                        <Upload
+                          accept=".tar"
+                          beforeUpload={this.handleChunkFileSelect}
+                          maxCount={1}
+                          showUploadList={false}
+                        >
+                          <Button>
+                            <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
+                          </Button>
+                        </Upload>
+                        {this.state.currentFile && (
+                          <div style={{ marginTop: 10 }}>
+                            <div>
+                              <Icon type="file" style={{ marginRight: 8 }} />
+                              {this.state.currentFile.name}
+                              <span style={{ marginLeft: 8, color: '#999' }}>
+                                ({(this.state.currentFile.size / 1024 / 1024).toFixed(2)} MB)
+                              </span>
+                            </div>
+                            <div style={{ marginTop: 10 }}>
+                              <Progress
+                                percent={Math.floor(this.state.chunkUploadProgress)}
+                                status={this.state.isChunkUploading ? 'active' : 'normal'}
+                              />
+                            </div>
+                            <div style={{ marginTop: 10 }}>
+                              {!this.state.isChunkUploading && this.state.chunkUploadProgress === 0 && (
+                                <Button type="primary" onClick={this.handleStartChunkUpload}>
+                                  {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
+                                </Button>
+                              )}
+                              {this.state.isChunkUploading && (
+                                <Button onClick={this.handlePauseChunkUpload}>
+                                  {formatMessage({ id: 'teamAdd.create.upload.pause' })}
+                                </Button>
+                              )}
+                              {!this.state.isChunkUploading && this.state.chunkUploadProgress > 0 && this.state.chunkUploadProgress < 100 && (
+                                <Button type="primary" onClick={this.handleResumeChunkUpload}>
+                                  {formatMessage({ id: 'teamAdd.create.upload.resume' })}
+                                </Button>
+                              )}
+                              <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
+                                {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </Form.Item>
+                )}
+                <Form.Item
+                  {...is_language}
+                  label={formatMessage({ id: 'teamAdd.create.fileList' })}
+                >
+                  <div
                     style={{
-                      borderRadius: 6,
-                      height: 40,
-                      fontSize: 15,
-                      boxShadow: '0 1px 3px #f0f1f2',
-                      border: '1px solid #e6e6e6',
-                      transition: 'border 0.2s, box-shadow 0.2s'
+                      display: 'flex'
                     }}
-                  />
-                  )}
+                  >
+                    <div>
+                      {existFileList.length > 0 ?
+                        (existFileList.map((item) => {
+                          return (
+                            <div className={styles.file}>
+                              <Icon style={{ marginRight: '6px' }} type="inbox" />
+                              <span className={styles.fileName}>
+                                {item}
+                              </span>
+                            </div>
+                          )
+                        })) : (
+                          <div className={styles.empty}>
+                            {formatMessage({ id: 'teamAdd.create.null_data' })}
+                          </div>
+                        )}
+                    </div>
+                    {existFileList.length > 0 &&
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          background: '#ff7b7b',
+                          padding: '0px 12px',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Icon onClick={this.handleJarWarUploadDelete} style={{ color: '#fff', cursor: 'pointer' }} type="delete" />
+                      </div>
+                    }
+                  </div>
                 </Form.Item>
+              </>
+            }
+            {(radioKey === 'cmd' || radioKey === 'address') && isPublic &&
+              <Form.Item {...is_language}>
+                <Checkbox
+                  checked={this.state.showUsernameAndPass}
+                  onChange={(e) => {
+                    this.setState({ showUsernameAndPass: e.target.checked });
+                  }}
+                >
+                  {formatMessage({ id: 'teamAdd.create.image.hint1' })} {formatMessage({ id: 'teamAdd.create.image.hint2' })}
+                </Checkbox>
+              </Form.Item>
+            }
+            {(radioKey === 'cmd' || radioKey === 'address') && isPublic && <>
+              <Form.Item
+                style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
+                {...is_language}
+                label={formatMessage({ id: 'teamAdd.create.form.user' })}
+              >
+                {getFieldDecorator('user_name', {
+                  initialValue: data.user_name || '',
+                  rules: getUsernameRules()
+                })(<Input autoComplete="off" placeholder={formatMessage({ id: 'placeholder.username_1' })} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} />)}
+              </Form.Item>
+              <Form.Item
+                style={{ display: this.state.showUsernameAndPass ? '' : 'none' }}
+                {...is_language}
+                label={formatMessage({ id: 'teamAdd.create.form.password' })}
+              >
+                {getFieldDecorator('password', {
+                  initialValue: data.password || '',
+                  rules: getPasswordRules()
+                })(
+                  <Input
+                    autoComplete="new-password"
+                    type="password"
+                    placeholder={formatMessage({ id: 'placeholder.password_1' })}
+                  />
+                )}
+              </Form.Item>
+            </>}
+
+            {archLength === 2 &&
+              <Form.Item {...is_language} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                {getFieldDecorator('arch', {
+                  initialValue: arch,
+                  rules: getArchRules()
+                })(
+                  <Radio.Group>
+                    <Radio value='amd64'>amd64</Radio>
+                    <Radio value='arm64'>arm64</Radio>
+                  </Radio.Group>
+                )}
+              </Form.Item>}
+            {!group_id && <>
+              <div className="advanced-btn">
+                <Button
+                  type="link"
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 14,
+                    padding: '0px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
+                >
+                  <Icon type={this.state.showAdvanced ? "up" : "down"} />
+                  {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
+                </Button>
               </div>
-            )}
-          </>}
-          {showSubmitBtn ? (
-            <Form.Item
-              wrapperCol={{
-                xs: {
-                  span: 24,
-                  offset: 0
-                },
-                sm: {
-                  span: 24,
-                  offset: 0
-                }
-              }}
-              label=""
-            >
-              <div style={{ textAlign: 'center', marginTop: '24px' }}>
-                {isService && ButtonGroupState
-                  ? this.props.handleServiceBotton(
+              {this.state.showAdvanced && (
+                <div
+                  className="userpass-card">
+                  <div className="advanced-divider" style={{ margin: '0 0 10px 0' }} />
+                  <Form.Item
+                    label={formatMessage({ id: 'popover.newApp.appName' })}
+                    colon={false}
+                    {...formItemLayout}
+                    style={{ marginBottom: 18 }}
+                  >
+                    {getFieldDecorator('group_name', {
+                      initialValue: this.props.form.getFieldValue('service_cname') || '',
+                      rules: getAppNameRules()
+                    })(<Input
+                      placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })}
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
+                  </Form.Item>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_app_name' })}>
+                    {getFieldDecorator('k8s_app', {
+                      initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
+                      rules: getK8sComponentNameRules()
+                    })(<Input
+                      placeholder={formatMessage({ id: 'placeholder.appEngName' })}
+                      style={{
+                        borderRadius: 6,
+                        height: 40,
+                        fontSize: 15,
+                        boxShadow: '0 1px 3px #f0f1f2',
+                        border: '1px solid #e6e6e6',
+                        transition: 'border 0.2s, box-shadow 0.2s'
+                      }}
+                    />
+                    )}
+                  </Form.Item>
+                </div>
+              )}
+            </>}
+            {showSubmitBtn ? (
+              <Form.Item
+                wrapperCol={{
+                  xs: {
+                    span: 24,
+                    offset: 0
+                  },
+                  sm: {
+                    span: 24,
+                    offset: 0
+                  }
+                }}
+                label=""
+              >
+                <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                  {isService && ButtonGroupState
+                    ? this.props.handleServiceBotton(
                       <Button
                         onClick={this.handleSubmit}
                         type="primary"
                         loading={createAppByDockerrunLoading}
                       >
-                       {formatMessage({id: 'teamAdd.create.btn.createComponent'})}
+                        {formatMessage({ id: 'teamAdd.create.btn.createComponent' })}
                       </Button>,
                       false
                     )
-                  : !handleType && (
+                    : !handleType && (
                       <Button
                         onClick={this.handleSubmit}
                         type="primary"
                         loading={createAppByDockerrunLoading}
                       >
-                        {formatMessage({id: 'teamAdd.create.btn.create'})}
+                        {formatMessage({ id: 'teamAdd.create.btn.create' })}
                       </Button>
                     )}
-              </div>
-            </Form.Item>
-          ) : null}
-        </Form>
+                </div>
+              </Form.Item>
+            ) : null}
+          </Form>
+        </div>
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}

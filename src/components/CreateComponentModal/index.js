@@ -12,11 +12,9 @@ import RbdPluginsCom from '../RBDPluginsCom';
 import AppMarketContent from '../AppMarketContent';
 import ImageNameForm from '../ImageNameForm';
 import ImageComposeForm from '../ImageComposeForm';
-import ImageCmdDemoForm from '../ImageCmdDemoForm';
 import AddOrEditImageRegistry from '../AddOrEditImageRegistry';
 import OauthForm from '../OauthForm';
 import CodeCustomForm from '../CodeCustomForm';
-import CodeDemoForm from '../CodeDemoForm';
 import CodeJwarForm from '../CodeJwarForm';
 import CodeYamlForm from '../CodeYamlForm';
 import HelmCmdForm from '../HelmCmdForm';
@@ -33,7 +31,6 @@ import rabbitmq from '../../../public/images/rabbitmq.svg';
 import redis from '../../../public/images/redis.svg';
 import {
   CodeIcon,
-  ExampleIcon,
   DatabaseIcon,
   StoreIcon,
   FolderOpenIcon,
@@ -145,9 +142,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 各个表单的 ref
   const dockerFormRef = useRef(null);
   const dockerComposeFormRef = useRef(null);
-  const demoFormRef = useRef(null);
   const codeCustomFormRef = useRef(null);
-  const codeDemoFormRef = useRef(null);
   const codeJwarFormRef = useRef(null);
   const yamlFormRef = useRef(null);
   const helmFormRef = useRef(null);
@@ -633,15 +628,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconColor: '#fa8c16',
     }] : []),
     {
-      icon: 'block',
-      iconSrc: ExampleIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
-      key: 'demo',
-      showForm: true,
-      formType: 'demo',
-      iconColor: '#fa8c16',
-    },
-    {
       key: 'image-hub-divider',
       isDivider: true,
       dividerText: formatMessage({ id: 'componentOverview.body.CreateComponentModal.or_select_connected_repo' })
@@ -693,15 +679,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       key: 'source-code',
       showForm: true,
       formType: 'code-custom',
-      iconColor: '#52c41a',
-    },
-    {
-      icon: 'code',
-      iconSrc: ExampleIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
-      key: 'code-demo',
-      showForm: true,
-      formType: 'code-demo',
       iconColor: '#52c41a',
     },
     // 仓库列表分隔符和列表项
@@ -1312,10 +1289,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       const formTypeToView = {
         'docker': 'image',
         'docker-compose': 'image',
-        'demo': 'image',
         'code-custom': 'code',
         'code-jwar': 'main',
-        'code-demo': 'code',
         'yaml': 'yaml',
         'helm': 'yaml',
         'third-party': 'yaml',
@@ -1545,24 +1520,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       });
     } else if (currentFormType === 'database') {
       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
-    } else if (currentFormType === 'demo') {
-      // 示例镜像提交
-      dispatch({
-        type: "createApp/createAppByDockerrun",
-        payload: {
-          team_name: teamName,
-          image_type: "docker_run",
-          ...value,
-        },
-        callback: (data) => {
-          const appAlias = data && data.bean.service_alias;
-          dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
-          onCancel();
-        },
-        handleError: err => {
-          handleAPIError(err);
-        }
-      });
     } else if (currentFormType === 'code-custom') {
       // 源码提交
       const username = value.username_1;
@@ -1584,24 +1541,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
             onCancel();
           }
-        },
-        handleError: err => {
-          handleAPIError(err);
-        }
-      });
-    } else if (currentFormType === 'code-demo') {
-      // 源码示例提交
-      dispatch({
-        type: 'createApp/createAppByCode',
-        payload: {
-          team_name: teamName,
-          code_from: 'gitlab_demo',
-          ...value,
-        },
-        callback: data => {
-          const appAlias = data && data.bean.service_alias;
-          dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
-          onCancel();
         },
         handleError: err => {
           handleAPIError(err);
@@ -1846,10 +1785,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       case 'form':
         if (currentFormType === 'docker') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' });
         if (currentFormType === 'docker-compose') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' });
-        if (currentFormType === 'demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
         if (currentFormType === 'code-custom') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_code' });
         if (currentFormType === 'code-jwar') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' });
-        if (currentFormType === 'code-demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
         if (currentFormType === 'yaml') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.yaml' });
         if (currentFormType === 'helm') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.helm' });
         if (currentFormType === 'third-party') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.third_party' });
@@ -1994,14 +1931,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         case 'docker-compose':
           formRef = dockerComposeFormRef.current;
           break;
-        case 'demo':
-          formRef = demoFormRef.current;
-          break;
         case 'code-custom':
           formRef = codeCustomFormRef.current;
-          break;
-        case 'code-demo':
-          formRef = codeDemoFormRef.current;
           break;
         case 'code-jwar':
           formRef = codeJwarFormRef.current;
@@ -2243,17 +2174,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 showSubmitBtn={false}
               />
             )}
-            {currentFormType === 'demo' && (
-              <ImageCmdDemoForm
-                wrappedComponentRef={demoFormRef}
-                data={{ docker_cmd: "" }}
-                onSubmit={handleInstallApp}
-                dispatch={dispatch}
-                isDemo={true}
-                archInfo={archInfo}
-                showSubmitBtn={false}
-              />
-            )}
             {currentFormType === 'code-custom' && (
               <CodeCustomForm
                 wrappedComponentRef={codeCustomFormRef}
@@ -2261,16 +2181,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 enterpriseInfo={enterpriseInfo}
-                showSubmitBtn={false}
-              />
-            )}
-            {currentFormType === 'code-demo' && (
-              <CodeDemoForm
-                wrappedComponentRef={codeDemoFormRef}
-                data={{ git_url: '' }}
-                onSubmit={handleInstallApp}
-                dispatch={dispatch}
-                archInfo={archInfo}
                 showSubmitBtn={false}
               />
             )}
