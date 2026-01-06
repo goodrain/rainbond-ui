@@ -88,8 +88,7 @@
 .subtitle {
   font-size: 14px;
   color: @text-color-secondary;
-  margin-top: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   line-height: 1.6;
 }
 
@@ -98,6 +97,27 @@
   flex-direction: column;
   gap: 15px;
   animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menuDivider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e8e8e8;
+  }
+
+  .menuDividerText {
+    font-size: 12px;
+    color: @text-color-secondary;
+    padding: 0 16px;
+    white-space: nowrap;
+  }
 }
 
 @keyframes fadeSlideIn {
@@ -197,7 +217,6 @@
 }
 
 .formWrapper {
-  padding: 20px 0;
   max-height: 600px;
   overflow-y: auto;
 

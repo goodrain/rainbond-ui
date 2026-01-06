@@ -69,6 +69,7 @@ const teamAdd = {
   'teamAdd.create.form.appName':'应用名称',
   'teamAdd.create.form.service_cname':'组件名称',
   'teamAdd.create.form.k8s_component_name':'组件英文名称',
+  'teamAdd.create.form.k8s_app_name':'应用英文名称',
   'teamAdd.create.form.user':'仓库用户名',
   'teamAdd.create.form.password':'仓库密码',
   'teamAdd.create.btn.create':'确认创建',

@@ -310,6 +310,14 @@
   }
 }
 
+.cardListLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 200px;
+}
+
 .paginationContainer {
   display: flex;
   justify-content: flex-end;
@@ -328,6 +336,18 @@
   color: @rbd-content-color-secondary;
 }
 
+// 应用列表加载状态
+.appListLoadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px dashed #e8e8e8;
+}
+
 .tableCreateBtnWrapper {
   margin-bottom: 16px;
   display: flex;
@@ -342,6 +362,13 @@
 .viewEntering {
   opacity: 1;
   transform: translateY(0) scale(1);
+
+  // 列表视图 - 独立的新建应用按钮动画
+  > .tableCreateRow {
+    animation: listFadeIn 0.3s ease-out forwards;
+    opacity: 0;
+    animation-delay: 0s;
+  }
 
   // 卡片视图 - 交错动画
   .teamHotAppList > div {
@@ -362,23 +389,23 @@
     &:nth-child(12) { animation-delay: 0.55s; }
   }
 
-  // 列表视图 - 交错动画
+  // 列表视图 - 交错动画（应用列表从第二个元素开始延迟）
   .tableListView > div {
     animation: listFadeIn 0.3s ease-out forwards;
     opacity: 0;
 
-    &:nth-child(1) { animation-delay: 0s; }
-    &:nth-child(2) { animation-delay: 0.04s; }
-    &:nth-child(3) { animation-delay: 0.08s; }
-    &:nth-child(4) { animation-delay: 0.12s; }
-    &:nth-child(5) { animation-delay: 0.16s; }
-    &:nth-child(6) { animation-delay: 0.2s; }
-    &:nth-child(7) { animation-delay: 0.24s; }
-    &:nth-child(8) { animation-delay: 0.28s; }
-    &:nth-child(9) { animation-delay: 0.32s; }
-    &:nth-child(10) { animation-delay: 0.36s; }
-    &:nth-child(11) { animation-delay: 0.4s; }
-    &:nth-child(12) { animation-delay: 0.44s; }
+    &:nth-child(1) { animation-delay: 0.04s; }
+    &:nth-child(2) { animation-delay: 0.08s; }
+    &:nth-child(3) { animation-delay: 0.12s; }
+    &:nth-child(4) { animation-delay: 0.16s; }
+    &:nth-child(5) { animation-delay: 0.2s; }
+    &:nth-child(6) { animation-delay: 0.24s; }
+    &:nth-child(7) { animation-delay: 0.28s; }
+    &:nth-child(8) { animation-delay: 0.32s; }
+    &:nth-child(9) { animation-delay: 0.36s; }
+    &:nth-child(10) { animation-delay: 0.4s; }
+    &:nth-child(11) { animation-delay: 0.44s; }
+    &:nth-child(12) { animation-delay: 0.48s; }
   }
 }
 
@@ -422,6 +449,7 @@
   display: flex;
   align-items: center;
   padding: 16px 20px;
+  margin-bottom: 12px;
   background: #fff;
   border: 1px dashed #d9d9d9;
   border-radius: 12px;
@@ -456,8 +484,49 @@
     border-color: @primary-color;
     color: @primary-color;
   }
+}
 
-  &:hover .tableCreateText {
+.cardCreateRow {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: #fff;
+  border: 1px dashed #d9d9d9;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: @primary-color;
+    background: #f5f8ff;
+  }
+
+  .cardCreateIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 50%;
+    margin-right: 16px;
+    color: @rbd-auxiliary-color-secondary;
+    font-size: 16px;
+  }
+
+  .cardCreateText {
+    font-size: 15px;
+    color: @text-color;
+    font-weight: 500;
+  }
+
+  &:hover .cardCreateIcon {
+    border-color: @primary-color;
+    color: @primary-color;
+  }
+
+  &:hover .cardCreateText {
     color: @primary-color;
   }
 }

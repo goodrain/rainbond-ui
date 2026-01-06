@@ -172,25 +172,17 @@ export default class index extends Component {
       'team-overview': {
         tit: '团队基本信息',
         desc: '这里展示了团队的基本信息和资源使用情况，包括应用数量、组件数量、CPU使用量、内存使用量和存储使用量等重要指标。',
-        nextStep: 'team-setting',
+        nextStep: 'create-app',
         svgPosition: { top: '250px', left: '300px' },
         conPosition: { top: '260px', left: '320px' }
-      },
-      'team-setting': {
-        tit: '团队设置',
-        desc: '团队名称是系统根据用户名自动生成的，您可以在团队设置中修改团队名称、邀请新成员加入团队、设置角色权限等。',
-        prevStep: 'team-overview',
-        nextStep: 'create-app',
-        svgPosition: { top: '80px', right: '30px' },
-        conPosition: { top: '60px', right: '80px' }
       },
       'create-app': {
         tit: '创建新应用',
         desc: '点击此处开启部署向导，您可一键安装应用市场精选应用，快速体验开箱即用的便捷；也可灵活选择源码构建（支持绑定私有Git仓库）、镜像部署（对接自有镜像库）或YAML编排。',
         prevStep: 'team-setting',
         isSuccess: true,
-        svgPosition: { top: '330px', right: '30px' },
-        conPosition: { top: '340px', right: '40px' }
+        svgPosition: { top: '380px', left: '180px' },
+        conPosition: { top: '390px', left: '190px' }
       }
     };
     return guideStep && guideInfo[guideStep] ? (
@@ -778,11 +770,18 @@ export default class index extends Component {
                   </Select>
                 </div>
               </div>
+              {/* 加载状态 */}
+              {appListLoading && isAppList && (
+                <div className={styles.appListLoadingWrapper}>
+                  <Spin size="large" tip={formatMessage({ id: 'loading' })} />
+                </div>
+              )}
               {!appListLoading && isAppList && (
                 <div className={`${styles.viewContainer} ${isTransitioning ? styles.viewExiting : styles.viewEntering}`}>
+                  {/* 新建应用 - 独立渲染 */}
                   {isTableView ? (
-                    <div className={styles.tableListView}>
-                      {/* 新建应用行 */}
+                    <>
+                      {/* 列表视图：新建应用独占一行 */}
                       {isAppCreate && (
                         <div
                           className={styles.tableCreateRow}
@@ -798,79 +797,81 @@ export default class index extends Component {
                         </div>
                       )}
                       {/* 应用列表 */}
-                      {teamHotAppList.length > 0 ? (
-                        teamHotAppList.map((item) => (
-                          <div
-                            key={item.group_id}
-                            className={styles.tableAppRow}
-                          >
-                            <div className={styles.tableAppStatusBar} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
+                      <div className={styles.tableListView}>
+                        {teamHotAppList.length > 0 ? (
+                          teamHotAppList.map((item) => (
                             <div
-                              className={styles.tableAppContent}
-                              onClick={() => {
-                                const { dispatch } = this.props;
-                                dispatch(routerRedux.push(
-                                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/overview`
-                                ));
-                              }}
+                              key={item.group_id}
+                              className={styles.tableAppRow}
                             >
-                              <span
-                                className={styles.tableAppIcon}
-                                style={{ background: globalUtil.appStatusColor(item.status, 0.1) }}
+                              <div className={styles.tableAppStatusBar} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
+                              <div
+                                className={styles.tableAppContent}
+                                onClick={() => {
+                                  const { dispatch } = this.props;
+                                  dispatch(routerRedux.push(
+                                    `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/overview`
+                                  ));
+                                }}
                               >
-                                {globalUtil.fetchSvg('appIconSvg', globalUtil.appStatusColor(item.status), 24)}
-                              </span>
-                              <div className={styles.tableAppInfo}>
-                                <Tooltip placement="topLeft" title={item.group_name}>
-                                  <span className={styles.tableAppName}>{item.group_name}</span>
-                                </Tooltip>
-                                <div className={styles.tableAppMeta}>
-                                  <span className={styles.tableAppStatus}>
-                                    <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
-                                    <span style={{ color: globalUtil.appStatusColor(item.status) }}>{globalUtil.appStatusText(item.status)}</span>
-                                  </span>
-                                  <span className={styles.tableDivider}>·</span>
-                                  <span className={styles.tableMetaItem}>
-                                    <Icon type="menu" style={{ marginRight: 4 }} />
-                                    {item.services_num} <FormattedMessage id="unit.component" />
-                                  </span>
-                                  <span className={styles.tableDivider}>·</span>
-                                  <span className={styles.tableMetaItem}>
-                                    {formatMessage({ id: 'versionUpdata_6_1.memory' })}: {item.used_mem || 0} MB
-                                  </span>
-                                  <span className={styles.tableDivider}>·</span>
-                                  <span className={styles.tableMetaItem}>
-                                    CPU: {item.used_cpu || 0} m
-                                  </span>
-                                  <span className={styles.tableDivider}>·</span>
-                                  <span className={styles.tableMetaItem}>
-                                    <Icon type="clock-circle" style={{ marginRight: 4 }} />
-                                    {item.update_time && moment(item.update_time).fromNow()} <FormattedMessage id="teamOverview.update" />
-                                  </span>
+                                <span
+                                  className={styles.tableAppIcon}
+                                  style={{ background: globalUtil.appStatusColor(item.status, 0.1) }}
+                                >
+                                  {globalUtil.fetchSvg('appIconSvg', globalUtil.appStatusColor(item.status), 24)}
+                                </span>
+                                <div className={styles.tableAppInfo}>
+                                  <Tooltip placement="topLeft" title={item.group_name}>
+                                    <span className={styles.tableAppName}>{item.group_name}</span>
+                                  </Tooltip>
+                                  <div className={styles.tableAppMeta}>
+                                    <span className={styles.tableAppStatus}>
+                                      <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
+                                      <span style={{ color: globalUtil.appStatusColor(item.status) }}>{globalUtil.appStatusText(item.status)}</span>
+                                    </span>
+                                    <span className={styles.tableDivider}>·</span>
+                                    <span className={styles.tableMetaItem}>
+                                      <Icon type="menu" style={{ marginRight: 4 }} />
+                                      {item.services_num} <FormattedMessage id="unit.component" />
+                                    </span>
+                                    <span className={styles.tableDivider}>·</span>
+                                    <span className={styles.tableMetaItem}>
+                                      {formatMessage({ id: 'versionUpdata_6_1.memory' })}: {item.used_mem || 0} MB
+                                    </span>
+                                    <span className={styles.tableDivider}>·</span>
+                                    <span className={styles.tableMetaItem}>
+                                      CPU: {item.used_cpu || 0} m
+                                    </span>
+                                    <span className={styles.tableDivider}>·</span>
+                                    <span className={styles.tableMetaItem}>
+                                      <Icon type="clock-circle" style={{ marginRight: 4 }} />
+                                      {item.update_time && moment(item.update_time).fromNow()} <FormattedMessage id="teamOverview.update" />
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
+                              <div className={styles.tableAppActions} onClick={(e) => e.stopPropagation()}>
+                                {item.status === 'RUNNING' && item.accesses.length > 0 && item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0) && (
+                                  <span className={styles.tableActionBtn}>
+                                    {visterSvg}
+                                    <VisterBtn
+                                      linkList={item.accesses}
+                                      type="link"
+                                    />
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <div className={styles.tableAppActions} onClick={(e) => e.stopPropagation()}>
-                              {item.status === 'RUNNING' && item.accesses.length > 0 && item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0) && (
-                                <span className={styles.tableActionBtn}>
-                                  {visterSvg}
-                                  <VisterBtn
-                                    linkList={item.accesses}
-                                    type="link"
-                                  />
-                                </span>
-                              )}
-                            </div>
+                          ))
+                        ) : (
+                          <div className={styles.appListEmpty}>
+                            <Empty
+                              description={formatMessage({ id: 'teamOverview.startDeploy' })}
+                            />
                           </div>
-                        ))
-                      ) : (
-                        <div className={styles.appListEmpty}>
-                          <Empty
-                            description={formatMessage({ id: 'teamOverview.startDeploy' })}
-                          />
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    </>
                   ) : (
                     <>
                       {this.renderCardView()}

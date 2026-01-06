@@ -72,6 +72,7 @@ const teamAdd = {
   'teamAdd.create.form.appName':'App Name',
   'teamAdd.create.form.service_cname':'Component Name',
   'teamAdd.create.form.k8s_component_name':'English Name',
+  'teamAdd.create.form.k8s_app_name':'English Name',
   'teamAdd.create.form.user':'Username',
   'teamAdd.create.form.password':'Password',
   'teamAdd.create.btn.create':'Create',

@@ -371,7 +371,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
                   )
                 );
-              }else{
+              } else {
                 dispatch(
                   routerRedux.push(
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
@@ -542,6 +542,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconColor: '#52c41a',
     },
     {
+      icon: 'code',
+      iconSrc: PackageIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' }),
+      key: 'package',
+      showForm: true,
+      formType: 'code-jwar',
+      iconColor: '#eb2f96',
+    },
+    {
       icon: 'file-text',
       iconSrc: FileTextIcon,
       title: 'Yaml Helm K8s',
@@ -569,17 +578,20 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   }
 
-  // 动态生成市场子项:商店列表 + 本地组件库 + 离线导入
+  // 动态生成市场子项:应用商店分隔符 + 商店列表 + 本地资源分隔符 + 本地组件库 + 离线导入
   const marketSubItems = [
-    ...marketStores.map(store => ({
-      icon: 'shop',
-      iconSrc: StoreIcon,
-      title: store.alias || store.name,
-      key: `store-${store.name}`,
-      storeName: store.name,
-      showMarketModal: true,  // 标记需要打开应用列表弹窗
-      iconColor: '#1890ff',
-    })),
+    // 应用商店分隔符和商店列表
+    ...(marketStores.length > 0 ? [
+      ...marketStores.map(store => ({
+        icon: 'shop',
+        iconSrc: StoreIcon,
+        title: store.alias || store.name,
+        key: `store-${store.name}`,
+        storeName: store.name,
+        showMarketModal: true,  // 标记需要打开应用列表弹窗
+        iconColor: '#1890ff',
+      }))
+    ] : []),
     {
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
@@ -598,7 +610,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   ];
 
-  // 动态生成镜像子项:容器 + Docker Compose + 镜像仓库列表 + 示例
+  // 动态生成镜像子项:分隔符 + 容器 + Docker Compose + 示例 + 分隔符 + 镜像仓库列表
   const group_id = globalUtil.getAppID();
   const imageSubItems = [
     {
@@ -620,15 +632,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'docker-compose',
       iconColor: '#fa8c16',
     }] : []),
-    ...imageHubList.map(hub => ({
-      icon: 'block',
-      iconSrc: BoxesIcon,
-      title: `${hub.hub_type} (${hub.secret_id})`,
-      key: `image-hub-${hub.secret_id}`,
-      showImgRepostory: true,
-      secretId: hub.secret_id,
-      iconColor: '#fa8c16',
-    })),
     {
       icon: 'block',
       iconSrc: ExampleIcon,
@@ -637,7 +640,24 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showForm: true,
       formType: 'demo',
       iconColor: '#fa8c16',
-    }
+    },
+    {
+      key: 'image-hub-divider',
+      isDivider: true,
+      dividerText: formatMessage({ id: 'componentOverview.body.CreateComponentModal.or_select_connected_repo' })
+    },
+    // 仓库列表分隔符和列表项
+    ...(imageHubList.length > 0 ? [
+      ...imageHubList.map(hub => ({
+        icon: 'block',
+        iconSrc: BoxesIcon,
+        title: `${hub.hub_type} (${hub.secret_id})`,
+        key: `image-hub-${hub.secret_id}`,
+        showImgRepostory: true,
+        secretId: hub.secret_id,
+        iconColor: '#fa8c16',
+      }))
+    ] : [])
   ];
 
   // 使用 oauthUtil 过滤出可用的 Git 仓库
@@ -675,24 +695,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'code-custom',
       iconColor: '#52c41a',
     },
-    ...codeRepositoryList.map(repo => ({
-      icon: 'code',
-      iconSrc: getRepoIcon(repo.oauth_type),
-      title: `${repo.name}`,
-      key: `code-repo-${repo.service_id}`,
-      showThirdList: true,
-      oauthService: repo,
-      iconColor: getRepoColor(repo.oauth_type),
-    })),
-    {
-      icon: 'code',
-      iconSrc: PackageIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' }),
-      key: 'package',
-      showForm: true,
-      formType: 'code-jwar',
-      iconColor: '#52c41a',
-    },
     {
       icon: 'code',
       iconSrc: ExampleIcon,
@@ -701,7 +703,24 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showForm: true,
       formType: 'code-demo',
       iconColor: '#52c41a',
-    }
+    },
+    // 仓库列表分隔符和列表项
+    ...(codeRepositoryList.length > 0 ? [
+      {
+        key: 'code-repo-divider',
+        isDivider: true,
+        dividerText: formatMessage({ id: 'componentOverview.body.CreateComponentModal.or_select_connected_repo' })
+      },
+      ...codeRepositoryList.map(repo => ({
+        icon: 'code',
+        iconSrc: getRepoIcon(repo.oauth_type),
+        title: `${repo.name}`,
+        key: `code-repo-${repo.service_id}`,
+        showThirdList: true,
+        oauthService: repo,
+        iconColor: getRepoColor(repo.oauth_type),
+      }))
+    ] : [])
   ];
 
   const yamlSubItems = [
@@ -1289,12 +1308,13 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleBack = () => {
     if (currentView === 'form') {
       // 从表单视图返回到对应的二级菜单
+      // 注意：code-jwar（软件包）现在在主菜单，所以返回到 main
       const formTypeToView = {
         'docker': 'image',
         'docker-compose': 'image',
         'demo': 'image',
         'code-custom': 'code',
-        'code-jwar': 'code',
+        'code-jwar': 'main',
         'code-demo': 'code',
         'yaml': 'yaml',
         'helm': 'yaml',
@@ -2036,7 +2056,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             ? { padding: 0 }
             : {}
         }
-        style={{ top: 144 }}
+        style={{ top: 60 }}
       >
         {currentView === 'main' ? (
           <>
@@ -2314,47 +2334,53 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               <>
                 <div className={styles.menuList}>
                   {getCurrentItems().map((item) => (
-                    <div
-                      key={item.key}
-                      className={styles.menuItem}
-                      onClick={() => handleItemClick(item)}
-                      onMouseEnter={(e) => {
-                        if (item.hoverBgColor) {
-                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
-                          if (icon) {
-                            icon.style.backgroundColor = item.hoverBgColor;
-                          }
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (item.bgColor) {
-                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
-                          if (icon) {
-                            icon.style.backgroundColor = item.bgColor;
-                          }
-                        }
-                      }}
-                    >
+                    item.isDivider ? (
+                      <div key={item.key} className={styles.menuDivider}>
+                        <span className={styles.menuDividerText}>{item.dividerText}</span>
+                      </div>
+                    ) : (
                       <div
-                        className={styles.menuIcon}
-                        style={{
-                          color: item.iconColor,
-                          backgroundColor: item.bgColor
+                        key={item.key}
+                        className={styles.menuItem}
+                        onClick={() => handleItemClick(item)}
+                        onMouseEnter={(e) => {
+                          if (item.hoverBgColor) {
+                            const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                            if (icon) {
+                              icon.style.backgroundColor = item.hoverBgColor;
+                            }
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (item.bgColor) {
+                            const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                            if (icon) {
+                              icon.style.backgroundColor = item.bgColor;
+                            }
+                          }
                         }}
                       >
-                        {item.iconSrc ? (
-                          typeof item.iconSrc === 'function' ? (
-                            <item.iconSrc />
+                        <div
+                          className={styles.menuIcon}
+                          style={{
+                            color: item.iconColor,
+                            backgroundColor: item.bgColor
+                          }}
+                        >
+                          {item.iconSrc ? (
+                            typeof item.iconSrc === 'function' ? (
+                              <item.iconSrc />
+                            ) : (
+                              <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
+                            )
                           ) : (
-                            <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
-                          )
-                        ) : (
-                          <Icon type={item.icon} />
-                        )}
+                            <Icon type={item.icon} />
+                          )}
+                        </div>
+                        <div className={styles.menuTitle}>{item.title}</div>
+                        <Icon type="right" className={styles.arrowIcon} />
                       </div>
-                      <div className={styles.menuTitle}>{item.title}</div>
-                      <Icon type="right" className={styles.arrowIcon} />
-                    </div>
+                    )
                   ))}
                 </div>
                 {getAddSectionConfig() && (
