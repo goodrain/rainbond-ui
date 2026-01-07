@@ -1,192 +1,72 @@
-.basicInfoRow {
-  box-sizing: border-box;
-  margin: 8px 0px 0;
-  .basicInfo {
-    text-align: center;
-    border-radius: 8px;
-    padding: 10px 12px;
-
-    .basicInfoTitle {
-      font-weight: 500;
-      font-size: 12px;
-      color: @rbd-auxiliary-color-secondary;
-      line-height: 1.4;
-    }
-
-    .basicInfoContent {
-      color: @primary-color;
-      font-size: 24px;
-      font-weight: 600;
-      width: 100%;
-      height: auto;
-      text-align: center;
-      margin-top: 4px;
-    }
-  }
-
-}
-.appListCard {
-  padding: 16px;
-  border: 1px solid #e8e8e8;
-  border-radius: 5px;
-  min-height: 470px;
-  display: flex;
-  flex-direction: column;
-  
-  :global {
-    .ant-card-body {
-      padding: 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      
-      .ant-table-wrapper {
-        flex: 1;
-      }
-      
-      .teamHotAppList {
-        flex: 1;
-      }
-    }
-    .ant-card-head {
-      background-color: transparent;
-      padding: 0;
-      border-bottom: 0;
-    }
-    .ant-card-head-title {
-      font-size: @rbd-title-size;
-      color: @rbd-title-color;
-      line-height: @rbd-title-line-height;
-      font-weight: 500;
-      padding: 0 0 24px;
-    }
-    .ant-card-extra {
-      padding: 0 0 24px;
-    }
-  }
-}
-
-.appName {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.customCard {
-  padding: 12px 18px;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  margin-left: 6px;
-  min-height: 140px;
-  border: 1px solid #e8e8e8;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: -6px;
-    top: 0;
-    bottom: 0;
-    width: 12px;
-    background-color: #d9d9d9;
-    border-radius: 6px 0 0 6px;
-  }
-
-  &.runningRow::before {
-    background-color: #52c41a;
-  }
-
-  &.stoppedRow::before {
-    background-color: #000000b3;
-  }
-
-  &.errorRow::before {
-    background-color: #f5222d;
-  }
-
-  &.defaultRow::before {
-    background-color: #d9d9d9;
-  }
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-
-    .appName {
-      font-size: @rbd-sub-title-size;
-      color: @rbd-sub-title-color;
-      line-height: @rbd-sub-title-line-height;
-      font-weight: 500;
-    }
-  }
-
-  .cardContent {
-    .infoItem {
-      display: flex;
-      margin-bottom: 4px;
-      font-size: 12px;
-      
-      .label {
-        color: @rbd-content-color-secondary;
-        margin-right: 8px;
-        min-width: 56px;
-        font-weight: 600;
-      }
-
-      .value {
-        color: @rbd-sub-title-color;
-      }
-    }
-  }
-}
-
-.cardRow {
-  :global {
-    .ant-col {
-      flex: 0 0 calc(25% - 32px);
-      margin: 12px 28px;
-    }
-  }
-}
-
-.cardFooter {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  :global {
-   .ant-btn-sm {
-    font-size: 12px;
-    }
-  }
-}
-
 .teamHotAppList {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  > div {
-    width: 24%;
-    height: 160px;
-    margin-bottom: 16px;
+  gap: 16px;
+  position: relative;
+  min-height: 632px;
+
+  .emptyTip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: 500;
+    color: @text-color;
+    pointer-events: none;
+    z-index: 1;
+    text-align: center;
+    line-height: 200px;
+
+  }
+
+  >div {
+    width: calc((100% - 48px) / 4);
+    height: 200px;
+
+    .teamHotAppItemEmpty {
+      background: #fcfcfd;
+      width: 100%;
+      height: 200px;
+      border-radius: 12px;
+      position: relative;
+
+      // 渐变蒙版 - 第2段（从原色渐变到中间色）
+      &.fadeRow2::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(242, 244, 247, 0.5), rgba(242, 244, 247, 1));
+        border-radius: 12px;
+        pointer-events: none;
+      }
+
+      // 渐变蒙版 - 第3段（从中间色渐变到背景色）
+      &.fadeRow3::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:  rgba(242, 244, 247, 1);
+        border-radius: 12px;
+        pointer-events: none;
+      }
+    }
 
     .teamHotAppItem {
-      background: #fff;
+      background: #fcfcfd;
       width: 100%;
-      height: 160px;
+      height: 200px;
       border-radius: 12px;
       display: flex;
       cursor: pointer;
       transition: box-shadow 0.2s ease, transform 0.2s ease;
-      box-shadow: @rbd-card-shadow;
       overflow: hidden;
 
       // 左侧状态条
@@ -203,16 +83,17 @@
         padding: 16px 20px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
 
-        // 第一行：图标 + 应用名 + 访问按钮
+        // 第一行：图标 + 应用名/状态 + 访问按钮
         .appCardHeader {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
 
           .appCardHeaderLeft {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             flex: 1;
             min-width: 0;
 
@@ -220,33 +101,60 @@
               display: flex;
               align-items: center;
               justify-content: center;
-              width: 40px;
-              height: 40px;
+              width: 48px;
+              height: 48px;
               margin-right: 12px;
               flex-shrink: 0;
-              padding: 6px;
+              padding: 8px;
               border-radius: 12px;
             }
 
-            .appName {
-              max-width: 170px;
-              font-size: 16px;
-              font-weight: 600;
-              color: @text-color;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
+            .appNameWrapper {
+              display: flex;
+              flex-direction: column;
+              min-width: 0;
+              flex: 1;
+
+              .appName {
+                max-width: 160px;
+                font-size: 16px;
+                font-weight: 600;
+                color: @text-color;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 1.4;
+              }
+
+              .appCardStatus {
+                display: flex;
+                align-items: center;
+                margin-top: 4px;
+
+                .statusDot {
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  margin-right: 6px;
+                }
+
+                .statusText {
+                  font-size: 14px;
+                  font-weight: 500;
+                }
+              }
             }
           }
 
           .appCardHeaderRight {
             display: flex;
             align-items: center;
-            margin-left: 12px;
+            margin-left: 8px;
             flex-shrink: 0;
             color: @text-color;
             font-size: 14px;
             transition: color 0.2s ease;
+            padding-top: 4px;
 
             &:hover {
               color: @primary-color;
@@ -260,44 +168,64 @@
           }
         }
 
-        // 第二行：运行状态
-        .appCardStatus {
+        // 第二行：组件数 + 内存 + CPU
+        .appCardResources {
           display: flex;
           align-items: center;
-          margin-top: 12px;
+          gap: 20px;
+          margin-top: 20px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #f0f0f0;
 
-          .statusDot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-          }
+          .resourceItem {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: @rbd-auxiliary-color-secondary;
 
-          .statusText {
-            font-size: 14px;
-            font-weight: 500;
+            .resourceIcon {
+              font-size: 14px;
+              margin-right: 6px;
+              color: @rbd-auxiliary-color-secondary;
+            }
+
+            .resourceValue {
+              color: @text-color;
+              margin-right: 3px;
+            }
+
+            .resourceLabel {
+              color: @rbd-auxiliary-color-secondary;
+            }
           }
         }
 
-        // 分割线
-        .appCardDivider {
-          height: 1px;
-          background: #f0f0f0;
-          margin: 12px 0;
-        }
-
-        // 第三行：组件数 + 更新时间
-        .appCardFooter {
+        // 第三行：创建时间 + 更新时间
+        .appCardTimeRow {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          margin-top: 20px;
 
-          .componentCount,
-          .updateTime {
+          .timeItem {
             display: flex;
             align-items: center;
             font-size: 12px;
             color: @rbd-auxiliary-color-secondary;
+
+            .timeIcon {
+              font-size: 12px;
+              margin-right: 4px;
+              color: @rbd-auxiliary-color-secondary;
+            }
+
+            .timeLabel {
+              margin-right: 4px;
+            }
+
+            .timeValue {
+              color: @text-color;
+            }
           }
         }
       }
@@ -310,30 +238,11 @@
   }
 }
 
-.cardListLoading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  min-height: 200px;
-}
-
 .paginationContainer {
   display: flex;
   justify-content: flex-end;
   margin-top: auto;
   padding: 45px 16px 0 0;
-}
-.appListEmpty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 380px;
-  width: 100%;
-  font-size: 16px;
-  border: 1px dashed #e8e8e8;
-  border-radius: 5px;
-  color: @rbd-content-color-secondary;
 }
 
 // 应用列表加载状态
@@ -348,465 +257,183 @@
   border: 1px dashed #e8e8e8;
 }
 
-.tableCreateBtnWrapper {
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: flex-end;
+// 图标抖动放大动画
+@keyframes iconShake {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.15) rotate(-3deg); }
+  50% { transform: scale(1.2) rotate(3deg); }
+  75% { transform: scale(1.15) rotate(-2deg); }
+  100% { transform: scale(1.1) rotate(0deg); }
 }
 
-// 视图切换动画容器
-.viewContainer {
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-}
-
-.viewEntering {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-
-  // 列表视图 - 独立的新建应用按钮动画
-  > .tableCreateRow {
-    animation: listFadeIn 0.3s ease-out forwards;
-    opacity: 0;
-    animation-delay: 0s;
-  }
-
-  // 卡片视图 - 交错动画
-  .teamHotAppList > div {
-    animation: cardFadeIn 0.3s ease-out forwards;
-    opacity: 0;
-
-    &:nth-child(1) { animation-delay: 0s; }
-    &:nth-child(2) { animation-delay: 0.05s; }
-    &:nth-child(3) { animation-delay: 0.1s; }
-    &:nth-child(4) { animation-delay: 0.15s; }
-    &:nth-child(5) { animation-delay: 0.2s; }
-    &:nth-child(6) { animation-delay: 0.25s; }
-    &:nth-child(7) { animation-delay: 0.3s; }
-    &:nth-child(8) { animation-delay: 0.35s; }
-    &:nth-child(9) { animation-delay: 0.4s; }
-    &:nth-child(10) { animation-delay: 0.45s; }
-    &:nth-child(11) { animation-delay: 0.5s; }
-    &:nth-child(12) { animation-delay: 0.55s; }
-  }
-
-  // 列表视图 - 交错动画（应用列表从第二个元素开始延迟）
-  .tableListView > div {
-    animation: listFadeIn 0.3s ease-out forwards;
-    opacity: 0;
-
-    &:nth-child(1) { animation-delay: 0.04s; }
-    &:nth-child(2) { animation-delay: 0.08s; }
-    &:nth-child(3) { animation-delay: 0.12s; }
-    &:nth-child(4) { animation-delay: 0.16s; }
-    &:nth-child(5) { animation-delay: 0.2s; }
-    &:nth-child(6) { animation-delay: 0.24s; }
-    &:nth-child(7) { animation-delay: 0.28s; }
-    &:nth-child(8) { animation-delay: 0.32s; }
-    &:nth-child(9) { animation-delay: 0.36s; }
-    &:nth-child(10) { animation-delay: 0.4s; }
-    &:nth-child(11) { animation-delay: 0.44s; }
-    &:nth-child(12) { animation-delay: 0.48s; }
-  }
-}
-
-.viewExiting {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.98);
-}
-
-// 卡片进入动画
-@keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-// 列表项进入动画
-@keyframes listFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-// 列表视图样式
-.tableListView {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tableCreateRow {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  background: #fff;
-  border: 1px dashed #d9d9d9;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: @primary-color;
-    background: #f5f8ff;
-  }
-
-  .tableCreateIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px dashed #d9d9d9;
-    border-radius: 50%;
-    margin-right: 16px;
-    color: @rbd-auxiliary-color-secondary;
-    font-size: 16px;
-  }
-
-  .tableCreateText {
-    font-size: 15px;
-    color: @text-color;
-    font-weight: 500;
-  }
-
-  &:hover .tableCreateIcon {
-    border-color: @primary-color;
-    color: @primary-color;
-  }
-}
-
-.cardCreateRow {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  background: #fff;
-  border: 1px dashed #d9d9d9;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: @primary-color;
-    background: #f5f8ff;
-  }
-
-  .cardCreateIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px dashed #d9d9d9;
-    border-radius: 50%;
-    margin-right: 16px;
-    color: @rbd-auxiliary-color-secondary;
-    font-size: 16px;
-  }
-
-  .cardCreateText {
-    font-size: 15px;
-    color: @text-color;
-    font-weight: 500;
-  }
-
-  &:hover .cardCreateIcon {
-    border-color: @primary-color;
-    color: @primary-color;
-  }
-
-  &:hover .cardCreateText {
-    color: @primary-color;
-  }
-}
-
-.tableAppRow {
-  display: flex;
-  align-items: stretch;
-  background: #fff;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: @rbd-card-shadow;
-  overflow: hidden;
-
-  &:hover {
-    box-shadow: @rbd-card-shadow-hover;
-  }
-
-  .tableAppStatusBar {
-    width: 6px;
-    min-width: 6px;
-    border-radius: 12px 0 0 12px;
-  }
-
-  .tableAppContent {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    padding: 16px 20px;
-  }
-
-  .tableAppIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    margin-right: 16px;
-    flex-shrink: 0;
-  }
-
-  .tableAppInfo {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .tableAppName {
-    font-size: 15px;
-    font-weight: 600;
-    color: @text-color;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 4px;
-  }
-
-  .tableAppMeta {
-    display: flex;
-    align-items: center;
-    font-size: 13px;
-    color: @rbd-auxiliary-color-secondary;
-
-    .tableAppStatus {
-      display: flex;
-      align-items: center;
-
-      .statusDot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        margin-right: 4px;
-      }
-    }
-
-    .tableDivider {
-      margin: 0 8px;
-      color: #d9d9d9;
-    }
-
-    .tableMetaItem {
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  .tableAppActions {
-    display: flex;
-    align-items: center;
-    padding-right: 20px;
-    gap: 16px;
-
-    .tableActionBtn {
-      display: flex;
-      align-items: center;
-      color: @text-color;
-      font-size: 14px;
-      cursor: pointer;
-      transition: color 0.2s ease;
-
-      a {
-        color: inherit;
-      }
-
-      &:hover {
-        color: @primary-color;
-      }
-    }
-  }
-}
-
+// 新建应用卡片
 .addNewAppCard {
-  border: 1px dashed #d9d9d9 !important;
   border-radius: 12px !important;
   display: flex !important;
-  align-items: center;
-  justify-content: center;
-  background-color: #fafafa;
-  transition: all 0.3s ease;
-  box-shadow: none !important;
-
-  &:hover {
-    border: 1px dashed @primary-color !important;
-    background-color: #f5f8ff;
-    box-shadow: none !important;
-    transform: none !important;
-  }
+  flex-direction: column !important;
+  background: #fcfcfd !important;
+  overflow: hidden;
+  position: relative;
 
   .addNewAppContent {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 16px 20px;
+    justify-content: space-between;
 
-    svg {
-      margin-bottom: 8px;
-      opacity: 0.6;
-      transition: all 0.3s ease;
-      path {
-        fill: #8c8c8c;
+    // 头部：+ 图标 + 标题
+    .addNewAppHeader {
+      display: flex;
+      align-items: center;
+
+      .addNewAppIcon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        border: 2px dashed #d9d9d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        transition: border-color 0.3s ease;
+
+        i {
+          font-size: 24px;
+          color: #d9d9d9;
+          transition: color 0.3s ease;
+        }
+      }
+
+      .addNewAppTitleWrapper {
+        display: flex;
+        flex-direction: column;
+
+        .addNewAppTitle {
+          font-size: 16px;
+          font-weight: 600;
+          color: @text-color;
+          line-height: 1.4;
+        }
+
+        .addNewAppSubtitle {
+          font-size: 13px;
+          color: @rbd-auxiliary-color-secondary;
+          margin-top: 4px;
+        }
       }
     }
 
-    .addNewAppText {
-      font-size: 14px;
-      color: #8c8c8c;
-      font-weight: 400;
-      transition: all 0.3s ease;
-    }
-  }
+    // 图标列表
+    .addNewAppIcons {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
 
-  &:hover .addNewAppContent {
-    svg {
-      opacity: 1;
-      path {
-        fill: @primary-color;
+      .iconItem {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
       }
     }
 
-    .addNewAppText {
-      color: @primary-color;
-      font-weight: 500;
+    // 底部区域
+    .addNewAppFooterWrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+
+      .addNewAppFooter {
+        font-size: 12px;
+        color: @rbd-auxiliary-color-secondary;
+      }
+
+      .startCreateText {
+        font-size: 12px;
+        color: @primary-color;
+        opacity: 0;
+        transform: translateX(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        display: flex;
+        align-items: center;
+
+        i {
+          margin-left: 4px;
+          font-size: 12px;
+        }
+      }
     }
   }
-}
-// 卡片内标题
-.sectionHeader {
-  display: flex;
-  align-items: center;
 
-  span {
-    display: flex;
-    align-items: center;
-    margin-right: 8px;
-  }
+  &:hover {
+    box-shadow: @rbd-card-shadow-hover !important;
+    transform: translateY(-2px);
 
-  h2 {
-    font-size: 16px;
-    color: @text-color;
-    line-height: @rbd-sub-title-line-height;
-    font-weight: 600;
-    margin: 0;
-    font-family: PingFangSC-Medium;
-  }
-}
+    .addNewAppContent .addNewAppHeader .addNewAppIcon {
+      border-color: @primary-color !important;
 
-.teamOverview{
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: @rbd-card-shadow;
-  margin-bottom: 12px;
+      i {
+        color: @primary-color !important;
+      }
+    }
 
-  .sectionHeader {
-    h2 {
-      font-size: 16px;
+    .addNewAppContent .addNewAppIcons .iconItem {
+      animation: iconShake 0.5s ease forwards;
+    }
+
+    .addNewAppContent .addNewAppIcons > span:nth-child(1) .iconItem { animation-delay: 0s; }
+    .addNewAppContent .addNewAppIcons > span:nth-child(2) .iconItem { animation-delay: 0.05s; }
+    .addNewAppContent .addNewAppIcons > span:nth-child(3) .iconItem { animation-delay: 0.1s; }
+    .addNewAppContent .addNewAppIcons > span:nth-child(4) .iconItem { animation-delay: 0.15s; }
+    .addNewAppContent .addNewAppIcons > span:nth-child(5) .iconItem { animation-delay: 0.2s; }
+
+    .addNewAppContent .addNewAppFooterWrapper .startCreateText {
+      opacity: 1 !important;
+      transform: translateX(0) !important;
     }
   }
-}
-.teamOverview:hover{
-  box-shadow: @rbd-card-shadow-hover;
-}
-.appListHeader{
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: @rbd-card-shadow;
-}
-.appListHeader:hover{
-  box-shadow: @rbd-card-shadow-hover;
 }
 
 .appListHeaderTop {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   margin-bottom: 16px;
-
-  .sectionHeader {
-    padding-bottom: 0;
-  }
 }
 
 .appListToolbar {
   display: flex;
   align-items: center;
-}
-
-// 自定义切换框
-.customToggle {
-  display: inline-flex;
-  align-items: center;
-  background-color: @rbd-background-color;
-  border-radius: 6px;
-  padding: 3px;
-  margin-right: 12px;
-
-  .toggleItem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    .toggleIcon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-
-      svg {
-        path {
-          fill: @rbd-auxiliary-color-secondary;
-          transition: fill 0.2s ease;
-        }
-      }
+  :global{
+    .ant-input-suffix{
+      color: #495464;
     }
-
-    &:hover {
-      .toggleIcon svg path {
-        fill: @primary-color;
-      }
+    .ant-input-search> .ant-input{
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+      
     }
-
-    &.active {
+    .ant-input-search> .ant-input:focus{
       background-color: #fff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-
-      .toggleIcon svg path {
-        fill: @primary-color;
-      }
+    }
+    .ant-select-selection{
+            background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
     }
 
-    .toggleText {
-      margin-left: 4px;
-    }
   }
 }
-

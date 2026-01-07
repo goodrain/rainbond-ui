@@ -46,7 +46,10 @@ const teamOverview = {
   'teamOverview.hasApp':'Has app',
   'teamOverview.resourceOccupied':'Resource occupied',
   'teamOverview.memory':'Memory',
-  
+  'teamOverview.noAppTip':'You have not created any applications yet',
+  'teamOverview.selectMethodTip':'Quick create by selecting method',
+  'teamOverview.supportMethods':'Supports multiple build methods',
+  'teamOverview.startCreate':'Start Creating',
 }
 
 //团队下的应用

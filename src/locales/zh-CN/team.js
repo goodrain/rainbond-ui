@@ -44,6 +44,10 @@ const teamOverview = {
   'teamOverview.hasApp':'已有应用',
   'teamOverview.resourceOccupied':'资源占用',
   'teamOverview.memory':'内存',
+  'teamOverview.noAppTip':'您暂未创建任何应用',
+  'teamOverview.selectMethodTip':'选择方式快速创建',
+  'teamOverview.supportMethods':'支持多种构建方式',
+  'teamOverview.startCreate':'开始创建',
 }
 
 //团队下的应用
@@ -55,7 +59,7 @@ const teamApply = {
   'teamApply.createApp':'新建应用',
   'teamApply.appName':'应用名称',
   'teamApply.updateTime':'更新时间',
-  'teamApply.createTime':'创建时间',
+  'teamApply.createTime':'创建',
   'teamApply.componentNumComparison':'组件(运行/总数)',
   'teamApply.memoryNumComparison':'占用内存/分配内存(MB)',
   'teamApply.duplicateRecord':'备份记录',
@@ -500,8 +504,8 @@ const teamManage = {
   'teamManage.tabs.setting':'团队设置',
   
   // 动态 dynamic
-  'teamManage.tabs.dynamic':'动态',
-  'teamManage.tabs.dynamic.notDynamic':'暂无动态',
+  'teamManage.tabs.dynamic':'信息',
+  'teamManage.tabs.dynamic.notDynamic':'暂无信息',
   'teamManage.tabs.dynamic.meta.app':'应用',
   'teamManage.tabs.dynamic.title.addTeam':'以下用户申请加入团队',
   'teamManage.tabs.dynamic.modal.title':'用户授权',
