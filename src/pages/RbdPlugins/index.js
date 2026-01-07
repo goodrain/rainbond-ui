@@ -204,7 +204,7 @@ export default class Index extends Component {
                     <Select defaultValue={regionName} style={{ width: 120 }} onChange={this.handleChange}>
                       {
                         this.props.cluster_info.map(item => (
-                          <Option value={item.region_name}>{item.region_name}</Option>
+                          <Option value={item.region_name}>{item.region_alias}</Option>
                         ))
                       }
                     </Select>
