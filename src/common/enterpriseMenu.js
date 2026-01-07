@@ -122,11 +122,10 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     const firstEntry = Object.entries(observabilityPlugin)[0];
     if (firstEntry) {
       const [regionName, plugin] = firstEntry;
-      const showSelect = Object.keys(observabilityPlugin).length > 1;
       observabilityItems.push({
         name: plugin?.display_name || formatMessage({ id: 'menu.enterprise.monitoring', defaultMessage: '监控中心' }),
         icon: getMenuSvg.getSvg('monitoringSvg'),
-        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-observability'}?regionName=${regionName}${showSelect ? '&showSelect=true' : ''}`,
+        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-observability'}?regionName=${regionName}`,
         authority: ['admin', 'user']
       });
     }
