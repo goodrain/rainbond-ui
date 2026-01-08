@@ -273,10 +273,6 @@ class Index extends PureComponent {
                     key={event_id}
                     className={`${styles.loginfo} ${styles[statusMap[status] || 'logfored']
                       }`}
-                    style={opt_type === 'source-scan' ? { cursor: 'pointer' } : {}}
-                    onClick={opt_type === 'source-scan' ? () => {
-                      this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=rainbond-sourcescan`));
-                    } : undefined}
                   >
                     <Tooltip
                       title={moment(create_time)
@@ -290,7 +286,12 @@ class Index extends PureComponent {
                       </div>
                     </Tooltip>
 
-                    <div>
+                    <div
+                      style={opt_type === 'source-scan' ? { cursor: 'pointer' } : {}}
+                      onClick={opt_type === 'source-scan' ? () => {
+                        this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=rainbond-sourcescan`));
+                      } : undefined}
+                    >
                       <Tooltip title={opt_type === 'INITIATING' ? this.jumpMessage(message, true) : Messages}>
                         <span
                           style={{
