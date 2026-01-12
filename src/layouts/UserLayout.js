@@ -20,6 +20,9 @@ class UserLayout extends React.PureComponent {
     };
   }
   componentWillMount() {
+    // 首先检查并处理门户返回的token
+    this.checkAndSetPortalToken();
+
     const { dispatch } = this.props;
     let lan = navigator.systemLanguage || navigator.language;
     const Language = cookie.get('language')
@@ -72,6 +75,32 @@ class UserLayout extends React.PureComponent {
             });
           }
           const isDisableAutoLogin = query && query.disable_auto_login;
+
+          // 检查是否需要重定向到门户登录页
+          const portalSite = info.portal_site;
+          const isSaas = info.is_saas || false;
+
+          // 检查URL中是否有token参数（可能在search或hash中）
+          const searchParams = new URLSearchParams(window.location.search);
+          const hasTokenInSearch = searchParams.has('token');
+          let hasTokenInHash = false;
+          if (window.location.hash && window.location.hash.includes('?')) {
+            const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            hasTokenInHash = hashParams.has('token');
+          }
+          const hasToken = hasTokenInSearch || hasTokenInHash || query.token;
+
+          // 如果有token参数，说明是从门户返回的，不要再次重定向
+          if (isLogin && portalSite && isSaas && isDisableAutoLogin !== 'true' && !hasToken) {
+            // 构造重定向URL，登录后门户会携带token重定向回来
+            const currentUrl = window.location.origin + window.location.pathname + window.location.hash;
+            console.log(currentUrl, 'currentUrl')
+            const portalLoginUrl = `${portalSite}?redirect=${encodeURIComponent(currentUrl)}`;
+            globalUtil.removeCookie();
+            window.location.href = portalLoginUrl;
+            return;
+          }
+
           if (
             isOauth &&
             oauthInfo &&
@@ -88,6 +117,36 @@ class UserLayout extends React.PureComponent {
       }
     });
   }
+  checkAndSetPortalToken = () => {
+    let portalToken = null;
+    let redirectUrl = null;
+
+    // 检查hash中的参数 (#/user/login?token=xxx&redirect=xxx)
+    if (window.location.hash && window.location.hash.includes('?')) {
+      const hashParts = window.location.hash.split('?');
+      if (hashParts.length > 1) {
+        const hashParams = new URLSearchParams(hashParts[1]);
+        if (hashParams.has('token')) {
+          portalToken = hashParams.get('token');
+        }
+        if (hashParams.has('redirect')) {
+          redirectUrl = hashParams.get('redirect');
+        }
+      }
+    }
+
+    // 如果找到token，设置到cookie并跳转
+    if (portalToken) {
+      cookie.set('token', portalToken);
+
+      // 跳转到redirect指定的页面，如果没有则跳转到首页
+      const targetUrl = redirectUrl || (window.location.origin + '/#/');
+      window.location.href = targetUrl;
+      return true;
+    }
+    return false;
+  };
+
   isRender = isRender => {
     this.setState({
       isRender

@@ -49,6 +49,7 @@ class SecurityLayout extends React.PureComponent {
 
   checkAndSetPortalToken = () => {
     let portalToken = null;
+    let redirectUrl = null;
 
     // 情况1: token在hash前面 (?token=xxx#/path)
     const searchParams = new URLSearchParams(window.location.search);
@@ -64,14 +65,24 @@ class SecurityLayout extends React.PureComponent {
         if (hashParams.has('token')) {
           portalToken = hashParams.get('token');
         }
+        // 获取redirect参数
+        if (hashParams.has('redirect')) {
+          redirectUrl = hashParams.get('redirect');
+        }
       }
     }
 
-    // 如果找到token，设置到cookie并清除URL
+    // 如果找到token，设置到cookie并重定向
     if (portalToken) {
       cookie.set('token', portalToken);
-      // 清除URL中的所有token参数并重定向到干净的路径
-      this.cleanTokenFromUrl();
+
+      // 如果有redirect参数，跳转到redirect指定的页面
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        // 否则清除URL中的token参数，跳转到首页
+        window.location.href = window.location.origin + '/#/';
+      }
     }
   }
 
