@@ -30,6 +30,7 @@ import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import cloud from '../../utils/cloud';
 import styles from "./index.less"
+import pulginUtils from '@/utils/pulginUtils';
 
 const { confirm } = Modal;
 
@@ -202,7 +203,8 @@ export default class EnterpriseClusters extends PureComponent {
               callback: data => {
                 if (data && data.bean) {
                   this.setState({
-                    isNeedAuthz: data.bean.need_authz
+                    isNeedAuthz: data.bean.need_authz,
+                    pluginsList: data.list
                   })
                 }
               }
@@ -364,8 +366,10 @@ export default class EnterpriseClusters extends PureComponent {
       isAddClusters,
       licenseInfo,
       clusterLoadings,
-      isNeedAuthz
+      isNeedAuthz,
+      pluginsList
     } = this.state;
+    const showRecovery = pulginUtils.isInstallPlugin(pluginsList, 'rainbond-recovery')
     const region_nums = (licenseInfo && licenseInfo.expect_cluster) || 0;
     const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
     const moreSvg = () => (
@@ -610,6 +614,22 @@ export default class EnterpriseClusters extends PureComponent {
                 {/* 删除 */}
               </a>
             );
+          }
+          if (showRecovery) {
+            mlist.push(
+              <Link
+                to={`/enterprise/${eid}/plugins/rainbond-recovery?regionName=${item.region_name}&recoveryTab=backup`}
+              >
+                备份
+              </Link>
+            )
+            mlist.push(
+              <Link
+                to={`/enterprise/${eid}/plugins/rainbond-recovery?regionName=${item.region_name}&recoveryTab=recovery`}
+              >
+                恢复
+              </Link>
+            )
           }
           const MenuList = (
             <Menu
