@@ -9,6 +9,7 @@ export default {
       && item.name !='rainbond-observability' 
       && item.name != 'rainbond-enterprise-alarm'
       && item.name != 'rainbond-enterprise-logs'
+      && item.name != 'rainbond-recovery'
       && item.enable_status === 'true' 
     ).map(item => item);
       return arr
