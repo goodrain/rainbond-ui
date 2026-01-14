@@ -171,6 +171,10 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
 
   // ============ 第五组：插件（排除可观测性相关插件） ============
   const excludePlugins = ['rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-bill'];
+  // 多集群情况下，排除 rainbond-recovery 插件（从集群管理页面进入）
+  if (clusterList && clusterList.length > 1) {
+    excludePlugins.push('rainbond-recovery');
+  }
   const pluginObj = {};
 
   if (pluginList && Object.keys(pluginList).length !== 0) {

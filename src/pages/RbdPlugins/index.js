@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spin, Card, Button, Icon, Select, Row } from 'antd';
+import { Spin, Card, Button, Icon, Select } from 'antd';
 import { connect } from 'dva';
 import { importAppPagePlugin } from '../../utils/importPlugins';
 import { getRainbondInfo } from '../../services/api';
@@ -7,9 +7,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
-import { routerRedux, Link } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
-import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from './index.less';
 
 const { Option } = Select;
@@ -43,12 +42,12 @@ export default class Index extends Component {
     } else {
       this.getPluginsList();
     }
-
+    
     const urlParams = new URLSearchParams(window.location.search || window.location.hash?.split('?')[1]);
     const showSelect = urlParams.get('showSelect');
     this.setState({ showSelect });
   }
-
+  
   componentWillUnmount() {
     // 清理可能的定时器和异步操作
     this.isLoading = false;
@@ -68,7 +67,7 @@ export default class Index extends Component {
     const currentRegionName = currentUrlParams.get('regionName');
     const prevShowSelect = prevUrlParams.get('showSelect');
     const currentShowSelect = currentUrlParams.get('showSelect');
-
+    
     // 监听tab参数变化
     const prevTab = prevUrlParams.get('tab');
     const currentTab = currentUrlParams.get('tab');
@@ -82,7 +81,7 @@ export default class Index extends Component {
     if (prevShowSelect !== currentShowSelect) {
       this.setState({ showSelect: currentShowSelect });
     }
-
+    
     // 当tab参数变化时，重新加载对应的插件
     if (prevTab !== currentTab && this.props.isCom && currentTab && prevTab) {
       // 清理状态，避免上一个插件的状态影响新插件
@@ -94,11 +93,11 @@ export default class Index extends Component {
         error: false,
         errInfo: '',
       });
-
+      
       // 重置标志
       this.isLoading = false;
       this.importingPlugin = null;
-
+      
       this.getPluginsList();
     }
   }
@@ -108,10 +107,10 @@ export default class Index extends Component {
     if (this.importingPlugin === meta.name) {
       return;
     }
-
+    
     this.importingPlugin = meta.name;
     this.setState({ pluginLoading: true }); // 设置加载状态
-
+    
     importAppPagePlugin(meta, regionName, 'enterprise').then(res => {
       this.importingPlugin = null;
       this.setState({ app: res, pluginLoading: false })
@@ -181,31 +180,13 @@ export default class Index extends Component {
     });
   };
   handleChange = (value) => {
-    const { dispatch, match } = this.props;
+      const { dispatch, match} = this.props;
     const pluginId = match.params.pluginId
     dispatch(routerRedux.push(`/enterprise/${Global.getCurrEnterpriseId()}/plugins/${pluginId}?regionName=${value}&showSelect=true`));
   }
   render() {
     const { plugins, loading, regionName } = this.state;
-    const { isCom = false, match, user } = this.props;
-    const pluginId = isCom ? Global.getSlidePanelTab() : match?.params?.pluginId;
-    const enterpriseId = Global.getCurrEnterpriseId() || user?.enterprise_id;
-    const isRecoveryPlugin = pluginId === 'rainbond-recovery';
-
-    // 面包屑形式的 title（用于备份与恢复插件）
-    const breadcrumbTitle = (
-      <div className={styles.pluginBreadStyle}>
-        <span style={{ marginRight: 4, verticalAlign: 'sub' }}>{pageheaderSvg.getPageHeaderSvg('clusters', 20)}</span>
-        <span>
-          <Link to={`/enterprise/${enterpriseId}/clusters`}>
-            {formatMessage({ id: 'enterpriseColony.PageHeaderLayout.title' })}
-          </Link>
-          {' / '}
-        </span>
-        <span>{plugins?.display_name}</span>
-      </div>
-    );
-
+    const { isCom = false } = this.props
     return (
       <>
         {!loading ? (
@@ -213,9 +194,9 @@ export default class Index extends Component {
             <RbdPluginsCom {...this.state} />
             :
             <PageHeaderLayout
-              title={isRecoveryPlugin ? breadcrumbTitle : plugins?.display_name}
+              title={plugins?.display_name}
               content={plugins?.description}
-              pluginSVg={isRecoveryPlugin ? null : plugins?.icon}
+              pluginSVg={plugins?.icon}
               extraContent={
                 this.state.showSelect ?
                   <>
