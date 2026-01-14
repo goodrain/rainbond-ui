@@ -1,69 +1,87 @@
 @import '~antd/lib/style/themes/default.less';
-:global{
-  .ant-alert-info{
+
+:global {
+  .ant-alert-info {
     border: none !important;
   }
-  .ant-table-thead > tr > th{
+
+  .ant-table-thead>tr>th {
     background-color: @rbd-background-color !important;
     padding: 6px !important;
     color: @text-color !important;
     border: none !important;
   }
-  .ant-table-thead > tr > td{
-    background-color: @rbd-background-color!important;
+
+  .ant-table-thead>tr>td {
+    background-color: @rbd-background-color !important;
     padding: 10px 6px !important;
     color: @text-color-secondary !important;
   }
-  .ant-table-thead > tr > td:hover{
-    background-color: @rbd-background-color!important;
+
+  .ant-table-thead>tr>td:hover {
+    background-color: @rbd-background-color !important;
   }
-  .ant-card-head{
-  background: none !important;
-  border: 0 !important;
-  padding: 0 12px !important;
-  .ant-card-head-title{
-    padding: 16px 0 0 !important;
+
+  .ant-card-head {
+    background: none !important;
+    border: 0 !important;
+    padding: 0 12px !important;
+
+    .ant-card-head-title {
+      padding: 16px 0 0 !important;
+    }
+
+    .ant-card-extra {
+      padding: 16px 0 0 !important;
+    }
   }
-  .ant-card-extra{
-    padding: 16px 0 0 !important;
-  }
-  }
-  .ant-card > .ant-card-body {
+
+  .ant-card>.ant-card-body {
     padding: 4px 12px 12px;
   }
-  .ant-card-bordered{
+
+  .ant-card-bordered {
     border-radius: 12px !important;
   }
+
   .ant-pagination-disabled>.ant-pagination-item-link {
     background-color: @rbd-background-color;
   }
-  
+
   .ant-pagination-item-active {
     background-color: @primary-color;
+
     &>a {
       color: #fff;
     }
   }
+
   .ant-pagination-item-active:focus {
     background-color: @primary-color;
+
     &>a {
       color: #fff;
     }
   }
 }
+
 .content {
   padding: 24px 0 0 0;
 }
-.mkContent{
+
+.mkContent {
   padding: 0;
 }
+
 .contents {
   padding: 0;
 }
+
 .footer {
   text-align: center;
   padding: 16px 0;
 }
+
 .customFooter {
   :global {
     .ant-pro-global-footer-links a:not(:last-child) {
@@ -71,7 +89,8 @@
     }
   }
 }
-.pageHeaderWrapper{
+
+.pageHeaderWrapper {
   margin: 18px;
   padding: 24px;
   box-sizing: border-box;
@@ -79,7 +98,8 @@
   box-shadow: @rbd-card-shadow;
   border-radius: 12px;
 }
-.pageHeaderWrapper:hover{
+
+.pageHeaderWrapper:hover {
   box-shadow: @rbd-card-shadow-hover;
 }
 
@@ -88,15 +108,17 @@
   .content {
     margin: 24px 0 0;
   }
+
   .contents {
     margin: 24px 0 0;
   }
 }
-.footer{
+
+.footer {
   margin: 48px 0 24px;
   padding: 0 16px;
   text-align: center;
   background: none;
-  color: rgba(0,0,0,.45);
+  color: rgba(0, 0, 0, .45);
   font-size: 14px;
 }

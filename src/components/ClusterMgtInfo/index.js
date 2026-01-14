@@ -29,7 +29,6 @@ import ConfirmModal from '../../components/ConfirmModal';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import Rke from '../../../public/images/rke.svg'
 import globalUtil from '@/utils/global';
-import pulginUtils from '@/utils/pulginUtils';
 import styles from "./index.less";
 
 @connect()
@@ -54,40 +53,8 @@ class Index extends Component {
       loadTenants: false,
       handleType: '',
       kubeConfig: '',
-      pluginsList: [],
     }
   }
-  componentDidMount() {
-    this.fetchPluginsList();
-  }
-  componentDidUpdate(prevProps) {
-    const { rowClusterInfo } = this.props;
-    const prevRegionName = prevProps.rowClusterInfo?.region_name;
-    const currentRegionName = rowClusterInfo?.region_name;
-    if (prevRegionName !== currentRegionName && currentRegionName) {
-      this.fetchPluginsList();
-    }
-  }
-  fetchPluginsList = () => {
-    const { dispatch, rowClusterInfo } = this.props;
-    const eid = globalUtil.getCurrEnterpriseId();
-    const regionName = rowClusterInfo?.region_name;
-    if (!eid || !regionName) return;
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: eid,
-        region_name: regionName
-      },
-      callback: data => {
-        if (data && data.list) {
-          this.setState({
-            pluginsList: data.list
-          });
-        }
-      }
-    });
-  };
   //安装方式
   clusterInstallType = (type) => {
     if (type) {
@@ -574,9 +541,7 @@ class Index extends Component {
       regionAlias,
       handleType,
       kubeConfig,
-      pluginsList,
     } = this.state;
-    const showRecovery = pulginUtils.isInstallPlugin(pluginsList, 'rainbond-recovery');
     const {
       rowClusterInfo,
       form,
@@ -723,24 +688,6 @@ class Index extends Component {
                         {formatMessage({ id: 'otherEnterprise.shell.line' })}
                       </Button>
                     </Link>
-                    {showRecovery && (
-                      <>
-                        <Link
-                          to={`/enterprise/${eid}/plugins/rainbond-recovery?regionName=${region_name}&recoveryTab=backup`}
-                        >
-                          <Button icon="cloud-upload">
-                            备份
-                          </Button>
-                        </Link>
-                        <Link
-                          to={`/enterprise/${eid}/plugins/rainbond-recovery?regionName=${region_name}&recoveryTab=recovery`}
-                        >
-                          <Button icon="cloud-download">
-                            恢复
-                          </Button>
-                        </Link>
-                      </>
-                    )}
                     {rowClusterInfo.scope != 'default' && (
                       <Button
                         onClick={() => this.delEven('delete')}
