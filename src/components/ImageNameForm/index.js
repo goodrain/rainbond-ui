@@ -815,6 +815,7 @@ export default class Index extends PureComponent {
     const isService = handleType && handleType === 'Service';
     const is_language = language ? formItemLayout : formItemLayouts;
     const isImageProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    console.log(isImageProxy, 'isImageProxy')
 
     let arch = 'amd64';
     const archLength = archInfo?.length || 0;
@@ -856,9 +857,9 @@ export default class Index extends PureComponent {
                     </Radio>
                     <Radio value='cmd'>
                       {formatMessage({ id: 'teamAdd.create.image.docker_cmd' })}
-                    </Radio>ˇ
+                    </Radio>
 
-                    {isImageProxy &&
+                    {!isImageProxy &&
                       <>
                         <Radio value='upload'>
                           {formatMessage({ id: 'teamAdd.create.image.upload' })}
