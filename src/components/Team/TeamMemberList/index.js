@@ -292,6 +292,7 @@ export default class MemberList extends PureComponent {
     const {
       currentTeam,
       memberPermissions,
+      rolePermissions,
       toMoveTeamLoading,
       currUser
     } = this.props;
@@ -335,6 +336,7 @@ export default class MemberList extends PureComponent {
             <TeamMemberTable
               users={currUser}
               memberPermissions={memberPermissions}
+              rolePermissions={rolePermissions}
               team={currentTeam}
               onMoveTeam={this.onMoveTeam}
               onDelete={this.onDelMember}
