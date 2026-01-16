@@ -1,6 +1,45 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../../utils/utils.less";
 
+.teamEventListWrapper {
+  // 团队概览样式
+  .teamOverview {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #e3e3e3;
+  }
+
+  .basicInfoRow {
+    box-sizing: border-box;
+    margin: 8px 0px 0;
+
+    .basicInfo {
+      text-align: center;
+      border-radius: 8px;
+      padding: 10px 12px;
+
+      .basicInfoTitle {
+        font-weight: 500;
+        font-size: 12px;
+        color: @rbd-auxiliary-color-secondary;
+        line-height: 1.4;
+      }
+
+      .basicInfoContent {
+        color: @primary-color;
+        font-size: 24px;
+        font-weight: 600;
+        width: 100%;
+        height: auto;
+        text-align: center;
+        margin-top: 4px;
+      }
+    }
+  }
+}
+
 .eventListContainer {
   background-color: #fff;
 }

@@ -1416,11 +1416,11 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.database': '数据库',
     'componentOverview.body.CreateComponentModal.local_market': '本地组件库',
     'componentOverview.body.CreateComponentModal.offline_import': '离线导入',
-    'componentOverview.body.CreateComponentModal.container': '容器',
+    'componentOverview.body.CreateComponentModal.container': '容器镜像',
     'componentOverview.body.CreateComponentModal.docker_compose': 'Docker Compose',
     'componentOverview.body.CreateComponentModal.example': '示例',
-    'componentOverview.body.CreateComponentModal.source_code': '源码',
-    'componentOverview.body.CreateComponentModal.package': '软件包',
+    'componentOverview.body.CreateComponentModal.source_code': '源码地址',
+    'componentOverview.body.CreateComponentModal.package': '上传软件包构建',
     'componentOverview.body.CreateComponentModal.yaml': 'Yaml',
     'componentOverview.body.CreateComponentModal.helm': 'Helm',
     'componentOverview.body.CreateComponentModal.third_party': '第三方组件',
@@ -1441,6 +1441,12 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.confirm_install': '确认安装',
     'componentOverview.body.CreateComponentModal.select_method': '选择以下任意方式来创建您的第一个应用组件',
     'componentOverview.body.CreateComponentModal.select_deploy_method': '选择具体的部署方式:',
+    'componentOverview.body.CreateComponentModal.custom_config': '自定义配置',
+    'componentOverview.body.CreateComponentModal.or_select_connected_repo': '选择已连接的仓库',
+    'componentOverview.body.CreateComponentModal.app_store': '应用商店',
+    'componentOverview.body.CreateComponentModal.local_resource': '本地资源',
+    'componentOverview.body.CreateComponentModal.orchestration_deploy': '配置导入',
+    'componentOverview.body.CreateComponentModal.external_service': '外部服务',
 
 }
 

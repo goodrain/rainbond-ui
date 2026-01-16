@@ -236,6 +236,7 @@ export default class Overview extends Component {
           isVisible={isVisible}
           componentID={componentID}
           type={type}
+          location={this.props.location}
         />
       </div>
     );

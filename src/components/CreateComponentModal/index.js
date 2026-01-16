@@ -12,11 +12,9 @@ import RbdPluginsCom from '../RBDPluginsCom';
 import AppMarketContent from '../AppMarketContent';
 import ImageNameForm from '../ImageNameForm';
 import ImageComposeForm from '../ImageComposeForm';
-import ImageCmdDemoForm from '../ImageCmdDemoForm';
 import AddOrEditImageRegistry from '../AddOrEditImageRegistry';
 import OauthForm from '../OauthForm';
 import CodeCustomForm from '../CodeCustomForm';
-import CodeDemoForm from '../CodeDemoForm';
 import CodeJwarForm from '../CodeJwarForm';
 import CodeYamlForm from '../CodeYamlForm';
 import HelmCmdForm from '../HelmCmdForm';
@@ -33,7 +31,6 @@ import rabbitmq from '../../../public/images/rabbitmq.svg';
 import redis from '../../../public/images/redis.svg';
 import {
   CodeIcon,
-  ExampleIcon,
   DatabaseIcon,
   StoreIcon,
   FolderOpenIcon,
@@ -145,9 +142,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 各个表单的 ref
   const dockerFormRef = useRef(null);
   const dockerComposeFormRef = useRef(null);
-  const demoFormRef = useRef(null);
   const codeCustomFormRef = useRef(null);
-  const codeDemoFormRef = useRef(null);
   const codeJwarFormRef = useRef(null);
   const yamlFormRef = useRef(null);
   const helmFormRef = useRef(null);
@@ -371,7 +366,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
                   )
                 );
-              }else{
+              } else {
                 dispatch(
                   routerRedux.push(
                     `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview?refresh=${timestamp}`
@@ -542,6 +537,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconColor: '#52c41a',
     },
     {
+      icon: 'code',
+      iconSrc: PackageIcon,
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' }),
+      key: 'package',
+      showForm: true,
+      formType: 'code-jwar',
+      iconColor: '#eb2f96',
+    },
+    {
       icon: 'file-text',
       iconSrc: FileTextIcon,
       title: 'Yaml Helm K8s',
@@ -569,17 +573,20 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   }
 
-  // 动态生成市场子项:商店列表 + 本地组件库 + 离线导入
+  // 动态生成市场子项:应用商店分隔符 + 商店列表 + 本地资源分隔符 + 本地组件库 + 离线导入
   const marketSubItems = [
-    ...marketStores.map(store => ({
-      icon: 'shop',
-      iconSrc: StoreIcon,
-      title: store.alias || store.name,
-      key: `store-${store.name}`,
-      storeName: store.name,
-      showMarketModal: true,  // 标记需要打开应用列表弹窗
-      iconColor: '#1890ff',
-    })),
+    // 应用商店分隔符和商店列表
+    ...(marketStores.length > 0 ? [
+      ...marketStores.map(store => ({
+        icon: 'shop',
+        iconSrc: StoreIcon,
+        title: store.alias || store.name,
+        key: `store-${store.name}`,
+        storeName: store.name,
+        showMarketModal: true,  // 标记需要打开应用列表弹窗
+        iconColor: '#1890ff',
+      }))
+    ] : []),
     {
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
@@ -598,7 +605,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   ];
 
-  // 动态生成镜像子项:容器 + Docker Compose + 镜像仓库列表 + 示例
+  // 动态生成镜像子项:分隔符 + 容器 + Docker Compose + 示例 + 分隔符 + 镜像仓库列表
   const group_id = globalUtil.getAppID();
   const imageSubItems = [
     {
@@ -620,24 +627,23 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'docker-compose',
       iconColor: '#fa8c16',
     }] : []),
-    ...imageHubList.map(hub => ({
-      icon: 'block',
-      iconSrc: BoxesIcon,
-      title: `${hub.hub_type} (${hub.secret_id})`,
-      key: `image-hub-${hub.secret_id}`,
-      showImgRepostory: true,
-      secretId: hub.secret_id,
-      iconColor: '#fa8c16',
-    })),
     {
-      icon: 'block',
-      iconSrc: ExampleIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
-      key: 'demo',
-      showForm: true,
-      formType: 'demo',
-      iconColor: '#fa8c16',
-    }
+      key: 'image-hub-divider',
+      isDivider: true,
+      dividerText: formatMessage({ id: 'componentOverview.body.CreateComponentModal.or_select_connected_repo' })
+    },
+    // 仓库列表分隔符和列表项
+    ...(imageHubList.length > 0 ? [
+      ...imageHubList.map(hub => ({
+        icon: 'block',
+        iconSrc: BoxesIcon,
+        title: `${hub.hub_type} (${hub.secret_id})`,
+        key: `image-hub-${hub.secret_id}`,
+        showImgRepostory: true,
+        secretId: hub.secret_id,
+        iconColor: '#fa8c16',
+      }))
+    ] : [])
   ];
 
   // 使用 oauthUtil 过滤出可用的 Git 仓库
@@ -675,33 +681,23 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'code-custom',
       iconColor: '#52c41a',
     },
-    ...codeRepositoryList.map(repo => ({
-      icon: 'code',
-      iconSrc: getRepoIcon(repo.oauth_type),
-      title: `${repo.name}`,
-      key: `code-repo-${repo.service_id}`,
-      showThirdList: true,
-      oauthService: repo,
-      iconColor: getRepoColor(repo.oauth_type),
-    })),
-    {
-      icon: 'code',
-      iconSrc: PackageIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' }),
-      key: 'package',
-      showForm: true,
-      formType: 'code-jwar',
-      iconColor: '#52c41a',
-    },
-    {
-      icon: 'code',
-      iconSrc: ExampleIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' }),
-      key: 'code-demo',
-      showForm: true,
-      formType: 'code-demo',
-      iconColor: '#52c41a',
-    }
+    // 仓库列表分隔符和列表项
+    ...(codeRepositoryList.length > 0 ? [
+      {
+        key: 'code-repo-divider',
+        isDivider: true,
+        dividerText: formatMessage({ id: 'componentOverview.body.CreateComponentModal.or_select_connected_repo' })
+      },
+      ...codeRepositoryList.map(repo => ({
+        icon: 'code',
+        iconSrc: getRepoIcon(repo.oauth_type),
+        title: `${repo.name}`,
+        key: `code-repo-${repo.service_id}`,
+        showThirdList: true,
+        oauthService: repo,
+        iconColor: getRepoColor(repo.oauth_type),
+      }))
+    ] : [])
   ];
 
   const yamlSubItems = [
@@ -1289,13 +1285,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleBack = () => {
     if (currentView === 'form') {
       // 从表单视图返回到对应的二级菜单
+      // 注意：code-jwar（软件包）现在在主菜单，所以返回到 main
       const formTypeToView = {
         'docker': 'image',
         'docker-compose': 'image',
-        'demo': 'image',
         'code-custom': 'code',
-        'code-jwar': 'code',
-        'code-demo': 'code',
+        'code-jwar': 'main',
         'yaml': 'yaml',
         'helm': 'yaml',
         'third-party': 'yaml',
@@ -1525,24 +1520,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       });
     } else if (currentFormType === 'database') {
       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
-    } else if (currentFormType === 'demo') {
-      // 示例镜像提交
-      dispatch({
-        type: "createApp/createAppByDockerrun",
-        payload: {
-          team_name: teamName,
-          image_type: "docker_run",
-          ...value,
-        },
-        callback: (data) => {
-          const appAlias = data && data.bean.service_alias;
-          dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
-          onCancel();
-        },
-        handleError: err => {
-          handleAPIError(err);
-        }
-      });
     } else if (currentFormType === 'code-custom') {
       // 源码提交
       const username = value.username_1;
@@ -1564,24 +1541,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
             onCancel();
           }
-        },
-        handleError: err => {
-          handleAPIError(err);
-        }
-      });
-    } else if (currentFormType === 'code-demo') {
-      // 源码示例提交
-      dispatch({
-        type: 'createApp/createAppByCode',
-        payload: {
-          team_name: teamName,
-          code_from: 'gitlab_demo',
-          ...value,
-        },
-        callback: data => {
-          const appAlias = data && data.bean.service_alias;
-          dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
-          onCancel();
         },
         handleError: err => {
           handleAPIError(err);
@@ -1826,10 +1785,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       case 'form':
         if (currentFormType === 'docker') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' });
         if (currentFormType === 'docker-compose') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' });
-        if (currentFormType === 'demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
         if (currentFormType === 'code-custom') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_code' });
         if (currentFormType === 'code-jwar') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.package' });
-        if (currentFormType === 'code-demo') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.example' });
         if (currentFormType === 'yaml') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.yaml' });
         if (currentFormType === 'helm') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.helm' });
         if (currentFormType === 'third-party') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.third_party' });
@@ -1974,14 +1931,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         case 'docker-compose':
           formRef = dockerComposeFormRef.current;
           break;
-        case 'demo':
-          formRef = demoFormRef.current;
-          break;
         case 'code-custom':
           formRef = codeCustomFormRef.current;
-          break;
-        case 'code-demo':
-          formRef = codeDemoFormRef.current;
           break;
         case 'code-jwar':
           formRef = codeJwarFormRef.current;
@@ -2036,7 +1987,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             ? { padding: 0 }
             : {}
         }
-        style={{ top: 144 }}
+        style={{ top: 60 }}
       >
         {currentView === 'main' ? (
           <>
@@ -2223,17 +2174,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 showSubmitBtn={false}
               />
             )}
-            {currentFormType === 'demo' && (
-              <ImageCmdDemoForm
-                wrappedComponentRef={demoFormRef}
-                data={{ docker_cmd: "" }}
-                onSubmit={handleInstallApp}
-                dispatch={dispatch}
-                isDemo={true}
-                archInfo={archInfo}
-                showSubmitBtn={false}
-              />
-            )}
             {currentFormType === 'code-custom' && (
               <CodeCustomForm
                 wrappedComponentRef={codeCustomFormRef}
@@ -2241,16 +2181,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 enterpriseInfo={enterpriseInfo}
-                showSubmitBtn={false}
-              />
-            )}
-            {currentFormType === 'code-demo' && (
-              <CodeDemoForm
-                wrappedComponentRef={codeDemoFormRef}
-                data={{ git_url: '' }}
-                onSubmit={handleInstallApp}
-                dispatch={dispatch}
-                archInfo={archInfo}
                 showSubmitBtn={false}
               />
             )}
@@ -2314,47 +2244,53 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               <>
                 <div className={styles.menuList}>
                   {getCurrentItems().map((item) => (
-                    <div
-                      key={item.key}
-                      className={styles.menuItem}
-                      onClick={() => handleItemClick(item)}
-                      onMouseEnter={(e) => {
-                        if (item.hoverBgColor) {
-                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
-                          if (icon) {
-                            icon.style.backgroundColor = item.hoverBgColor;
-                          }
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (item.bgColor) {
-                          const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
-                          if (icon) {
-                            icon.style.backgroundColor = item.bgColor;
-                          }
-                        }
-                      }}
-                    >
+                    item.isDivider ? (
+                      <div key={item.key} className={styles.menuDivider}>
+                        <span className={styles.menuDividerText}>{item.dividerText}</span>
+                      </div>
+                    ) : (
                       <div
-                        className={styles.menuIcon}
-                        style={{
-                          color: item.iconColor,
-                          backgroundColor: item.bgColor
+                        key={item.key}
+                        className={styles.menuItem}
+                        onClick={() => handleItemClick(item)}
+                        onMouseEnter={(e) => {
+                          if (item.hoverBgColor) {
+                            const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                            if (icon) {
+                              icon.style.backgroundColor = item.hoverBgColor;
+                            }
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (item.bgColor) {
+                            const icon = e.currentTarget.querySelector(`.${styles.menuIcon}`);
+                            if (icon) {
+                              icon.style.backgroundColor = item.bgColor;
+                            }
+                          }
                         }}
                       >
-                        {item.iconSrc ? (
-                          typeof item.iconSrc === 'function' ? (
-                            <item.iconSrc />
+                        <div
+                          className={styles.menuIcon}
+                          style={{
+                            color: item.iconColor,
+                            backgroundColor: item.bgColor
+                          }}
+                        >
+                          {item.iconSrc ? (
+                            typeof item.iconSrc === 'function' ? (
+                              <item.iconSrc />
+                            ) : (
+                              <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
+                            )
                           ) : (
-                            <img src={item.iconSrc} alt={item.title} style={{ width: '1em', height: '1em' }} />
-                          )
-                        ) : (
-                          <Icon type={item.icon} />
-                        )}
+                            <Icon type={item.icon} />
+                          )}
+                        </div>
+                        <div className={styles.menuTitle}>{item.title}</div>
+                        <Icon type="right" className={styles.arrowIcon} />
                       </div>
-                      <div className={styles.menuTitle}>{item.title}</div>
-                      <Icon type="right" className={styles.arrowIcon} />
-                    </div>
+                    )
                   ))}
                 </div>
                 {getAddSectionConfig() && (

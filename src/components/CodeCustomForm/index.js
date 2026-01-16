@@ -13,6 +13,7 @@ import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
+import configureGlobal from '../../utils/configureGlobal';
 import {
   createUrlValidator,
   getServiceNameRules,
@@ -45,6 +46,61 @@ const en_formItemLayout = {
   }
 };
 
+// demo-2048 示例 placeholder（默认值）
+const DEFAULT_DEMO = {
+  gitUrl: `${configureGlobal.documentAddress}demo-2048.git`,
+  name: 'demo-2048',
+  codeVersion: 'master'
+};
+
+// 示例配置列表
+const DEMO_CONFIGS = {
+  'demo-2048': {
+    gitUrl: `${configureGlobal.documentAddress}demo-2048.git`,
+    name: 'demo-2048'
+  },
+  'static-demo': {
+    gitUrl: `${configureGlobal.documentAddress}static-demo.git`,
+    name: 'static-demo'
+  },
+  'php-demo': {
+    gitUrl: `${configureGlobal.documentAddress}php-demo.git`,
+    name: 'php-demo'
+  },
+  'python-demo': {
+    gitUrl: `${configureGlobal.documentAddress}python-demo.git`,
+    name: 'python-demo'
+  },
+  'nodejs-demo': {
+    gitUrl: `${configureGlobal.documentAddress}nodejs-demo.git`,
+    name: 'nodejs-demo'
+  },
+  'go-demo': {
+    gitUrl: `${configureGlobal.documentAddress}go-demo.git`,
+    name: 'go-demo'
+  },
+  'java-maven-demo': {
+    gitUrl: `${configureGlobal.documentAddress}java-maven-demo.git`,
+    name: 'java-maven-demo'
+  },
+  'java-jar-demo': {
+    gitUrl: `${configureGlobal.documentAddress}java-jar-demo.git`,
+    name: 'java-jar-demo'
+  },
+  'java-war-demo': {
+    gitUrl: `${configureGlobal.documentAddress}java-war-demo.git`,
+    name: 'java-war-demo'
+  },
+  'java-gradle-demo': {
+    gitUrl: `${configureGlobal.documentAddress}java-gradle-demo.git`,
+    name: 'java-gradle-demo'
+  },
+  'dotnet-demo': {
+    gitUrl: `${configureGlobal.documentAddress}dotnet-demo.git`,
+    name: 'dotnet-demo'
+  }
+};
+
 @connect(
   ({ user, global, loading, teamControl, enterprise }) => ({
     currUser: user.currentUser,
@@ -71,7 +127,9 @@ export default class Index extends PureComponent {
       visibleKey: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       comNames: [],
-      creatComPermission: {}
+      creatComPermission: {},
+      showDemoSelect: false,
+      selectedDemo: undefined
     };
   }
   componentDidMount() {
@@ -148,9 +206,68 @@ export default class Index extends PureComponent {
     const { form, onSubmit, archInfo } = this.props;
     const group_id = globalUtil.getAppID();
 
+    // 获取当前表单值
+    const currentValues = form.getFieldsValue(['service_cname', 'k8s_component_name', 'git_url']);
+    const serviceCname = currentValues.service_cname?.trim();
+    const k8sComponentName = currentValues.k8s_component_name?.trim();
+    const gitUrl = currentValues.git_url?.trim();
+
+    // 检查是否全部为空（使用默认值模式）
+    const allEmpty = !serviceCname && !k8sComponentName && !gitUrl;
+    // 检查是否有部分填写
+    const hasAnyValue = serviceCname || k8sComponentName || gitUrl;
+
+    // 如果部分填写，验证必填字段
+    if (hasAnyValue && !allEmpty) {
+      const errors = [];
+      if (!serviceCname) {
+        errors.push(formatMessage({ id: 'placeholder.service_cname' }));
+        form.setFields({
+          service_cname: {
+            value: currentValues.service_cname,
+            errors: [new Error(formatMessage({ id: 'placeholder.service_cname' }))]
+          }
+        });
+      }
+      if (!k8sComponentName) {
+        errors.push(formatMessage({ id: 'placeholder.k8s_component_name' }));
+        form.setFields({
+          k8s_component_name: {
+            value: currentValues.k8s_component_name,
+            errors: [new Error(formatMessage({ id: 'placeholder.k8s_component_name' }))]
+          }
+        });
+      }
+      if (!gitUrl) {
+        errors.push(formatMessage({ id: 'placeholder.git_url' }));
+        form.setFields({
+          git_url: {
+            value: currentValues.git_url,
+            errors: [new Error(formatMessage({ id: 'placeholder.git_url' }))]
+          }
+        });
+      }
+      if (errors.length > 0) {
+        return;
+      }
+    }
+
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
+      }
+
+      // 全部为空时使用 placeholder 默认值（demo-2048 示例）
+      if (allEmpty) {
+        fieldsValue.service_cname = DEFAULT_DEMO.name;
+        fieldsValue.k8s_component_name = DEFAULT_DEMO.name;
+        fieldsValue.git_url = DEFAULT_DEMO.gitUrl;
+        fieldsValue.server_type = 'git';
+      }
+
+      // code_version 为空时使用默认值
+      if (!fieldsValue.code_version?.trim()) {
+        fieldsValue.code_version = DEFAULT_DEMO.codeVersion;
       }
 
       // 处理版本类型为 tag
@@ -260,6 +377,62 @@ export default class Index extends PureComponent {
     }
     return cleanedPinyinName;
   }
+
+  // 切换示例选择模式
+  handleToggleDemoSelect = () => {
+    const { showDemoSelect } = this.state;
+    const { form } = this.props;
+
+    if (!showDemoSelect) {
+      // 开启时默认选中第一个示例
+      const firstDemoKey = Object.keys(DEMO_CONFIGS)[0];
+      const firstDemo = DEMO_CONFIGS[firstDemoKey];
+      this.setState({
+        showDemoSelect: true,
+        selectedDemo: firstDemoKey,
+        serverType: 'git'
+      });
+      form.setFieldsValue({
+        service_cname: firstDemo.name,
+        k8s_component_name: firstDemo.name,
+        git_url: firstDemo.gitUrl,
+        server_type: 'git',
+        code_version: DEFAULT_DEMO.codeVersion
+      });
+    } else {
+      // 关闭时清空示例相关字段
+      this.setState({
+        showDemoSelect: false,
+        selectedDemo: undefined
+      });
+      form.setFieldsValue({
+        service_cname: '',
+        k8s_component_name: '',
+        git_url: '',
+        code_version: ''
+      });
+    }
+  }
+
+  // 选择示例
+  handleDemoChange = (value) => {
+    const { form } = this.props;
+    const selectedDemo = DEMO_CONFIGS[value];
+    if (selectedDemo) {
+      this.setState({
+        selectedDemo: value,
+        serverType: 'git'
+      });
+      form.setFieldsValue({
+        service_cname: selectedDemo.name,
+        k8s_component_name: selectedDemo.name,
+        git_url: selectedDemo.gitUrl,
+        server_type: 'git',
+        code_version: DEFAULT_DEMO.codeVersion
+      });
+    }
+  }
+
   render() {
     const {
       groups,
@@ -286,7 +459,9 @@ export default class Index extends PureComponent {
       language,
       creatComPermission: {
         isCreate
-      }
+      },
+      showDemoSelect,
+      selectedDemo
     } = this.state;
 
     // 获取可用的 Git 仓库列表
@@ -346,18 +521,71 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
-          <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
-            {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || '',
-              rules: getServiceNameRules()
-            })(<Input placeholder={formatMessage({ id: 'placeholder.service_cname' })} />)}
+          <Form.Item
+            {...is_language}
+            label={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                <span>{formatMessage({ id: 'teamAdd.create.form.service_cname' })}</span>
+                <Button
+                  type="link"
+                  size="small"
+                  style={{ padding: 0, height: 'auto', fontSize: 14, display: 'flex', alignItems: 'center' }}
+                  onClick={this.handleToggleDemoSelect}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 4 }}
+                  >
+                    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                    <path d="M20 3v4" />
+                    <path d="M22 5h-4" />
+                    <path d="M4 17v2" />
+                    <path d="M5 18H3" />
+                  </svg>
+                  {showDemoSelect ? formatMessage({ id: 'teamAdd.create.demo.cancel' }) : formatMessage({ id: 'teamAdd.create.demo.use' })}
+                </Button>
+              </div>
+            }
+          >
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ flex: showDemoSelect ? 2 : 1, transition: 'flex 0.3s ease' }}>
+                {getFieldDecorator('service_cname', {
+                  initialValue: data.service_cname || '',
+                  rules: getServiceNameRules()
+                })(
+                  <Input placeholder={DEFAULT_DEMO.name} />
+                )}
+              </div>
+              {showDemoSelect && (
+                <div style={{ flex: 1, transition: 'flex 0.3s ease' }}>
+                  <Select
+                    placeholder={formatMessage({ id: 'teamAdd.create.demo.select' })}
+                    value={selectedDemo}
+                    onChange={this.handleDemoChange}
+                    style={{ width: '100%' }}
+                  >
+                    {Object.keys(DEMO_CONFIGS).map(key => (
+                      <Option key={key} value={key}>{DEMO_CONFIGS[key].name}</Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+            </div>
           </Form.Item>
           {/* 集群内组件名称 */}
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
               rules: getK8sComponentNameRules()
-            })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+            })(<Input placeholder={DEFAULT_DEMO.name} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.address' })}>
             {getFieldDecorator('git_url', {
@@ -367,7 +595,7 @@ export default class Index extends PureComponent {
             })(
               <Input
                 addonBefore={prefixSelector}
-                placeholder={formatMessage({ id: 'placeholder.git_url' })}
+                placeholder={DEFAULT_DEMO.gitUrl}
               />
             )}
           </Form.Item>
@@ -410,12 +638,12 @@ export default class Index extends PureComponent {
           {serverType !== 'oss' && (
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.versions' })}>
               {getFieldDecorator('code_version', {
-                initialValue: data.code_version || this.getDefaultBranchName(),
+                initialValue: data.code_version || '',
                 rules: getCodeVersionRules()
               })(
                 <Input
                   addonBefore={versionSelector}
-                  placeholder={formatMessage({ id: 'placeholder.code_version' })}
+                  placeholder={DEFAULT_DEMO.codeVersion}
                 />
               )}
             </Form.Item>
@@ -434,37 +662,28 @@ export default class Index extends PureComponent {
               )}
             </Form.Item>}
           {!group_id && <>
-            <Divider />
-            <div className="advanced-btn" style={{ marginBottom: 16 }}>
+            <div className="advanced-btn">
               <Button
                 type="link"
                 style={{
                   fontWeight: 500,
-                  fontSize: 16,
-                  padding: '8px 0',
+                  fontSize: 14,
+                  padding: '0px 0',
                   display: 'flex',
                   alignItems: 'center',
                   // color: '#1890ff'
                 }}
                 onClick={() => this.setState({ showAdvanced: !this.state.showAdvanced })}
               >
-                <Icon type={this.state.showAdvanced ? "up" : "down"} style={{ marginRight: 6 }} />
+                <Icon type={this.state.showAdvanced ? "up" : "down"} />
                 {formatMessage({ id: 'kubeblocks.database.create.form.advanced.title' })}
               </Button>
             </div>
 
             {this.state.showAdvanced && (
               <div
-                className="userpass-card"
-                style={{
-                  margin: '24px 0',
-                  background: '#fafbfc',
-                  border: '1px solid #e6e6e6',
-                  borderRadius: 8,
-                  boxShadow: '0 2px 8px #f0f1f2',
-                  padding: 24,
-                }}>
-                <div className="advanced-divider" style={{ margin: '0 0 16px 0' }} />
+                className="userpass-card">
+                <div className="advanced-divider" style={{ margin: '0 0 10px 0' }} />
                 <Form.Item
                   label={formatMessage({ id: 'popover.newApp.appName' })}
                   colon={false}
@@ -487,12 +706,12 @@ export default class Index extends PureComponent {
                   />
                   )}
                 </Form.Item>
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_app_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
                     rules: getK8sComponentNameRules()
                   })(<Input
-                    placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })}
+                    placeholder={formatMessage({ id: 'placeholder.appEngName' })}
                     style={{
                       borderRadius: 6,
                       height: 40,

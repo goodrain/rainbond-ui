@@ -176,6 +176,7 @@ class SlidePanel extends PureComponent {
                 componentID={globalUtil.getSlidePanelComponentID()}
                 pageHeader={pageHeader}
                 permissions={componentPermissions}
+                location={this.props.location}
               />
             )}
             {type === 'gateway' && (

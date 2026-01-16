@@ -528,7 +528,7 @@ class CreateAppModels extends PureComponent {
                   ]
                 })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}
                 <div className={styles.conformDesc}>
-                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max32' })}
+                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
                 </div>
               </FormItem>
               {!marketId && (

@@ -1,44 +1,52 @@
 .yaml_container {
-    :global {
-        // 统一表单标签样式
-        .ant-form-item-label > label {
-          font-size: 14px !important;
-          color: rgba(0, 0, 0, 0.85) !important;
-          font-weight: 600 !important;
-        }
-        .ant-upload {
-          width: 200px;
-        }
-        .ant-form-item-children{
-          display: flex;
-        }
-        .ant-upload-list-item-info{
-          margin-right: 12px;
-        }
+  :global {
+
+    // 统一表单标签样式
+    .ant-form-item-label>label {
+      font-size: 14px !important;
+      color: rgba(0, 0, 0, 0.85) !important;
+      font-weight: 600 !important;
     }
-    .update{
-      width: 300px;
+
+    .ant-upload {
+      width: 200px;
+    }
+
+    .ant-form-item-children {
       display: flex;
-      max-height: 200px;
-      overflow: hidden;
-      padding: 16px 24px;
-      border: 1px solid #e3e3e3;
-      position: relative;
-      .delete{
-        position: absolute;
-        top: -5%;
-        right: 2%;
-      }
-      .fileName{
-        width: 250px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 24px;
-      }
     }
+
+    .ant-upload-list-item-info {
+      margin-right: 12px;
+    }
+  }
+
+  .update {
+    width: 300px;
+    display: flex;
+    max-height: 200px;
+    overflow: hidden;
+    padding: 16px 24px;
+    border: 1px solid #e3e3e3;
+    position: relative;
+
+    .delete {
+      position: absolute;
+      top: -5%;
+      right: 2%;
+    }
+
+    .fileName {
+      width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 24px;
+    }
+  }
 }
-.file{
+
+.file {
   width: 250px;
   white-space: nowrap;
   overflow: hidden;
@@ -46,6 +54,7 @@
   padding: 0 24px;
   border: 1px solid #d9d9d9;
 }
+
 .advanced-settings {
   margin: 36px auto 0 auto;
   background: #f8fafc;
@@ -56,8 +65,10 @@
   position: relative;
   max-width: 900px;
   min-width: 420px;
+
   .ant-form-item {
     margin-bottom: 30px;
+
     label {
       font-size: 20px;
       font-weight: 600;
@@ -67,6 +78,7 @@
       display: inline-block;
     }
   }
+
   .ant-input {
     background: #fff;
     border-radius: 8px;
@@ -74,23 +86,27 @@
     height: 60px;
     border: 1.5px solid #e5eaf3;
     transition: border 0.2s, box-shadow 0.2s;
+
     &:focus {
       border-color: #1890ff;
       box-shadow: 0 2px 8px #e6f7ff;
     }
   }
 }
+
 .advanced-divider {
   border: none;
   border-top: 1.5px solid #e5eaf3;
   margin: 18px 0 18px 0;
 }
+
 .advanced-btn {
   display: flex;
   justify-content: flex-start;
   margin-top: 20px;
   margin-bottom: 0;
   margin-left: 0;
+
   .ant-btn {
     border-radius: 16px;
     padding: 0 28px;
@@ -99,6 +115,7 @@
     color: #1890ff;
     border: 1px solid #e6e6e6;
     transition: all 0.2s;
+
     &:hover {
       background: #e6f7ff;
       color: #40a9ff;
@@ -108,17 +125,19 @@
   }
 }
 
-  
 
-.public{
+
+.public {
   display: flex;
   margin-bottom: 24px;
-  &>div{
+
+  &>div {
     cursor: pointer;
-    margin:  0 4px;
+    margin: 0 4px;
     width: 100px;
     height: 30px;
-    .publicItemName{
+
+    .publicItemName {
       font-weight: 500;
       line-height: 30px;
       font-size: 12px;
@@ -128,51 +147,63 @@
       background-color: #fff;
       border-radius: 5px;
       padding: 4px;
-      img{
+
+      img {
         width: 30px;
         height: 30px;
       }
     }
   }
-  .active{
-    .publicItemName{
+
+  .active {
+    .publicItemName {
       color: #1890ff;
       border: 1px solid #1890ff;
     }
   }
 }
-.address{
+
+.address {
   display: flex;
   align-items: center;
   width: 100%;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   padding: 4px 8px;
-  .registryAddress{
+
+  .registryAddress {
     height: 28px;
     max-width: 125px;
     min-width: 100px;
+
     :global {
-      .ant-select-focused{
+      .ant-select-focused {
         // width: 200px;
       }
-      .ant-select-selection{
+
+      .ant-select-selection {
         border: 1px solid #E9EAEC;
         background-color: #fafafa;
       }
+
       .ant-select-arrow {
         color: #00000040 !important;
       }
-      .ant-select{
+
+      .ant-select {
         border: none;
       }
-      .ant-input{
+
+      .ant-input {
         border: none;
       }
+
       input:focus {
         outline: none;
       }
-      .ant-select-selection, .ant-select{
+
+      .ant-select-selection,
+      .ant-select {
         font-size: 12px;
         height: 28px;
         text-overflow: ellipsis;
@@ -181,7 +212,8 @@
         overflow: hidden;
       }
     }
-    .registry{
+
+    .registry {
       border: 1px solid #E9EAEC;
       max-width: 125px;
       font-size: 12px;
@@ -198,37 +230,48 @@
       color: #e3e3e3;
     }
   }
-  .imageName{
+
+  .imageName {
     height: 28px;
     width: calc(100% - 125px);
     line-height: 28px;
+
     :global {
-      .ant-input{
+      .ant-input {
         border: none;
         font-size: 12px;
       }
+
       .ant-input-affix-wrapper {
         border: none !important;
         outline: none !important;
         box-shadow: none !important;
       }
-      .ant-select-selection:focus, .ant-input:focus {
+
+      .ant-select-selection:focus,
+      .ant-input:focus {
         border: none;
         box-shadow: none;
       }
-      .ant-select-selection__rendered{
+
+      .ant-select-selection__rendered {
         margin-right: 0px;
       }
-      .ant-select-selection-selected-value{
+
+      .ant-select-selection-selected-value {
         padding-right: 0px;
       }
-      .ant-select-arrow svg{
+
+      .ant-select-arrow svg {
         display: none;
       }
-      .ant-select{
+
+      .ant-select {
         border: none;
       }
-      .ant-select-selection, .ant-select{
+
+      .ant-select-selection,
+      .ant-select {
         border: none;
         border-radius: 0px;
         font-size: 12px;
@@ -241,7 +284,8 @@
     }
   }
 }
-.hubCheckbox{
+
+.hubCheckbox {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -251,9 +295,11 @@
   max-height: 160px;
   border-radius: 4px;
   padding: 4px 8px;
-  .spin{
+
+  .spin {
     margin: 0 auto;
   }
+
   .setCheckbox {
     width: 100%;
     margin-top: 30px;
@@ -266,21 +312,25 @@
       min-height: 100px;
       max-height: 160px;
       overflow: auto;
+
       // 隐藏滚动条
       &::-webkit-scrollbar {
         display: none; // Chrome, Safari, Edge
       }
-      -ms-overflow-style: none;  // IE 10+
-      scrollbar-width: none;  // Firefox
+
+      -ms-overflow-style: none; // IE 10+
+      scrollbar-width: none; // Firefox
     }
-  
+
     :global {
       .ant-form-item-control {
         top: -25px;
       }
-      .ant-radio-wrapper{
+
+      .ant-radio-wrapper {
         width: 100% !important;
       }
+
       .ant-radio+span {
         display: inline-block;
         text-align: left;
@@ -289,10 +339,11 @@
         white-space: nowrap;
         overflow: hidden;
       }
+
       .ant-radio-checked+span {
-        color: @primary-color  !important;
+        color: @primary-color !important;
       }
-  
+
       .ant-radio-wrapper {
         margin-left: 0;
         background-color: #fff;
@@ -304,18 +355,18 @@
         margin-right: 0;
         align-items: center;
         margin-bottom: 8px;
-  
+
         &:hover {
-          border-color: @primary-color  !important;
-  
+          border-color: @primary-color !important;
+
           .ant-radio+span {
-            color: @primary-color  !important;
+            color: @primary-color !important;
           }
         }
       }
-  
+
       .ant-radio-wrapper-checked {
-        border-color: @primary-color  !important;
+        border-color: @primary-color !important;
       }
     }
   }

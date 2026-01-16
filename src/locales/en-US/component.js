@@ -1408,7 +1408,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.docker_compose': 'Docker Compose',
     'componentOverview.body.CreateComponentModal.example': 'Example',
     'componentOverview.body.CreateComponentModal.source_code': 'Source Code',
-    'componentOverview.body.CreateComponentModal.package': 'Package',
+    'componentOverview.body.CreateComponentModal.package': 'Build from upload Package',
     'componentOverview.body.CreateComponentModal.yaml': 'Yaml',
     'componentOverview.body.CreateComponentModal.helm': 'Helm',
     'componentOverview.body.CreateComponentModal.third_party': 'Third-party Component',
@@ -1429,6 +1429,12 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.confirm_install': 'Confirm Install',
     'componentOverview.body.CreateComponentModal.select_method': 'Choose any method below to create your first application component',
     'componentOverview.body.CreateComponentModal.select_deploy_method': 'Select deployment method:',
+    'componentOverview.body.CreateComponentModal.custom_config': 'Custom Configuration',
+    'componentOverview.body.CreateComponentModal.or_select_connected_repo': 'select connected repository',
+    'componentOverview.body.CreateComponentModal.app_store': 'App Store',
+    'componentOverview.body.CreateComponentModal.local_resource': 'Local Resource',
+    'componentOverview.body.CreateComponentModal.orchestration_deploy': 'Config Import',
+    'componentOverview.body.CreateComponentModal.external_service': 'External Service',
 }
 
 export default Object.assign({}, componentOverview, componentOther);

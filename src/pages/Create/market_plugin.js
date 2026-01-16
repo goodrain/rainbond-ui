@@ -42,6 +42,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import roleUtil from '../../utils/newRole';
 import sourceUtil from '../../utils/source-unit';
 import logoIcon from '../../../public/logo-icon.png';
+import appIcon from '../../../public/images/app_icon.jpg';
 import PluginStyles from '../Plugin/Index.less';
 
 const { Option } = Select;
