@@ -368,7 +368,7 @@ export default class Index extends PureComponent {
         extraContent={extraContent}
       >
         {scope === 'member' && (
-          <TeamMemberList memberPermissions={memberPermissions} />
+          <TeamMemberList memberPermissions={memberPermissions} rolePermissions={rolePermissions} />
         )}
 
         {scope === 'role' && (

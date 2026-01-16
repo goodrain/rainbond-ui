@@ -12,7 +12,8 @@ class TeamMemberTable extends PureComponent {
       onDelete,
       onEditAction,
       onMoveTeam,
-      memberPermissions: { isEdit, isDelete },
+      memberPermissions: { isDelete },
+      rolePermissions: { isEdit },
       team,
       users,
       pagination
@@ -53,7 +54,7 @@ class TeamMemberTable extends PureComponent {
 
           return (
             <div>
-              {isEdit && (
+              {isEdit ? (
                 <Button
                   type="link"
                   size="small"
@@ -63,7 +64,7 @@ class TeamMemberTable extends PureComponent {
                 >
                   {formatMessage({ id: 'teamManage.tabs.member.table.editRole' })}
                 </Button>
-              )}
+              ):('-')}
               {/* {teamUtil.canChangeOwner(team) && (
                 <Button
                   type="link"
