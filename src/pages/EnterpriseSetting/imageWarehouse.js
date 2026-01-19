@@ -42,7 +42,8 @@ export default class ImageWarehouse extends PureComponent {
             callback: data => {
                 if (data) {
                     this.setState({
-                        imageList: data.list
+                        imageList: data.list || [],
+                        total: data.list ? data.list.length : 0
                     });
                 }
             }
@@ -267,7 +268,21 @@ export default class ImageWarehouse extends PureComponent {
                 >
                     <Table
                         rowKey={(record, index) => index}
-                        pagination={imageList.length > 8 ? pagination : false}
+                        pagination={{
+                            current: page,
+                            pageSize: pageSize,
+                            total: total,
+                            showTotal: (total) => `共 ${total} 条`,
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            pageSizeOptions: ['8', '16', '24', '32'],
+                            onChange: (page, pageSize) => {
+                                this.setState({ page, pageSize });
+                            },
+                            onShowSizeChange: (page, pageSize) => {
+                                this.setState({ page: 1, pageSize });
+                            }
+                        }}
                         dataSource={imageList}
                         columns={columns}
                     />
