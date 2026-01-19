@@ -40,13 +40,7 @@ export default class ImgRepository extends Component {
       imageUrl: '',
       tag: '',
       imgRepostoryList: [],
-      imageLoadingMore: false,
-      tagLoadingMore: false,
-      imageHasMore: true,
-      tagHasMore: true,
     }
-    this.imageListRef = React.createRef();
-    this.tagListRef = React.createRef();
   }
 
   componentDidMount() {
@@ -113,9 +107,9 @@ export default class ImgRepository extends Component {
   }
 
   // 获取镜像列表
-  fetchImages = (secretId, namespace, append = false) => {
-    const { imagePagination, imageSearchKey, imageList } = this.state;
-    this.setState({ tableLoading: !append, imageLoadingMore: append });
+  fetchImages = (secretId, namespace) => {
+    const { imagePagination, imageSearchKey } = this.state;
+    this.setState({ tableLoading: true });
     const { dispatch } = this.props;
     dispatch({
       type: 'user/getImageList',
@@ -128,22 +122,19 @@ export default class ImgRepository extends Component {
       },
       callback: res => {
         if (res) {
-          const newList = append ? [...imageList, ...res.list] : res.list;
-          const hasMore = newList.length < res.total;
           this.setState({
-            imageList: newList,
+            imageList: res.list || [],
             imagePagination: {
               ...imagePagination,
-              total: res.total,
+              total: res.total || 0,
             },
-            imageHasMore: hasMore,
           });
         }
-        this.setState({ tableLoading: false, imageLoadingMore: false });
+        this.setState({ tableLoading: false });
       },
       handleError: err => {
-        console.error('获取命名空间失败:', err);
-        this.setState({ tableLoading: false, imageLoadingMore: false });
+        console.error('获取镜像列表失败:', err);
+        this.setState({ tableLoading: false });
       }
     });
   }
@@ -153,6 +144,7 @@ export default class ImgRepository extends Component {
     this.setState({ loading: true });
     const { secretId, currentNamespace, tagPagination, tagSearchKey } = this.state;
     const { dispatch } = this.props;
+
     dispatch({
       type: 'user/getImageList',
       payload: {
@@ -164,19 +156,24 @@ export default class ImgRepository extends Component {
         search_key: tagSearchKey,
       },
       callback: res => {
+        console.log('Tag列表API返回数据:', res);
+
         if (res && res.list) {
           this.setState({
             loading: false,
             tagList: res.list,
             tagPagination: {
               ...tagPagination,
-              total: res.total,
+              total: res.total || res.list.length,
             }
           });
+        } else {
+          console.error('Tag列表返回数据格式错误:', res);
+          this.setState({ loading: false });
         }
       },
       handleError: err => {
-        console.error('获取���像标签列表失败:', err);
+        console.error('获取镜像标签列表失败:', err);
         this.setState({ loading: false });
       }
     });
@@ -204,7 +201,6 @@ export default class ImgRepository extends Component {
         total: 0,
       },
       tagSearchKey: '',
-      tagHasMore: true,
     }, () => {
       this.fetchImages(this.state.secretId, this.state.currentNamespace);
     });
@@ -271,29 +267,11 @@ export default class ImgRepository extends Component {
         ...this.state.imagePagination,
         current: 1,
       },
-      imageHasMore: true,
     }, () => {
       this.fetchImages(this.state.secretId, namespace);
     });
   }
 
-  // 处理镜像列表滚动加载
-  handleImageScroll = (e) => {
-    const { imageLoadingMore, imageHasMore, imagePagination } = this.state;
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-
-    // 当滚动到距离底部50px时触发加载
-    if (scrollHeight - scrollTop - clientHeight < 50 && !imageLoadingMore && imageHasMore) {
-      this.setState({
-        imagePagination: {
-          ...imagePagination,
-          current: imagePagination.current + 1
-        }
-      }, () => {
-        this.fetchImages(this.state.secretId, this.state.currentNamespace, true);
-      });
-    }
-  }
 
   // 添加安装处理方法
   handleInstall = (record) => {
@@ -345,9 +323,7 @@ export default class ImgRepository extends Component {
       imageUrl,
       tag,
       secretId,
-      imgRepostoryList,
-      imageLoadingMore,
-      imageHasMore
+      imgRepostoryList
     } = this.state;
     const { handleType } = this.props;
     const columns = [
@@ -355,23 +331,44 @@ export default class ImgRepository extends Component {
       title: 'Tag',
       dataIndex: 'name',
       key: 'name',
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (name) => (
+        <Tooltip placement="topLeft" title={name}>
+          {name}
+        </Tooltip>
+      )
       },
       {
       title: formatMessage({ id: 'versionUpdata_6_1.size' }),
       dataIndex: 'size',
       key: 'size',
+      width: 120,
       render: (size) => `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
       },
       ...(handleType !== 'Service' ? [
       {
         title: formatMessage({ id: 'versionUpdata_6_1.os' }),
         key: 'platform',
-        render: (_, record) => `${record.os || '-'}/${record.architecture || '-'}`
+        width: 150,
+        ellipsis: {
+          showTitle: false,
+        },
+        render: (_, record) => {
+          const text = `${record.os || '-'}/${record.architecture || '-'}`;
+          return (
+            <Tooltip placement="topLeft" title={text}>
+              {text}
+            </Tooltip>
+          );
+        }
       },
       {
         title: formatMessage({ id: 'versionUpdata_6_1.updated_at.title' }),
         dataIndex: 'updated_at',
         key: 'updated_at',
+        width: 180,
         render: (updated_at) => new Date(updated_at).toLocaleString()
       }
       ] : []),
@@ -379,11 +376,13 @@ export default class ImgRepository extends Component {
       title: formatMessage({ id: 'versionUpdata_6_1.status' }),
       dataIndex: 'status',
       key: 'status',
+      width: 100,
       render: (status) => status === 'active' ? '活跃' : status
       },
       {
       title: formatMessage({ id: 'versionUpdata_6_1.action' }),
       key: 'action',
+      width: 100,
       render: (_, record) => (
         <a
         onClick={() => this.handleInstall(record)}
@@ -447,9 +446,12 @@ export default class ImgRepository extends Component {
                     <>
                       <div
                         className={styles.imageList}
-                        ref={this.imageListRef}
-                        onScroll={this.handleImageScroll}
-                        style={{ maxHeight: '600px', overflowY: 'auto' }}
+                        style={{
+                          maxHeight: 'calc(100vh - 400px)',
+                          overflowY: 'auto',
+                          scrollbarWidth: 'thin',
+                          marginBottom: '16px'
+                        }}
                       >
                         {imageList.map(item => (
                           <div
@@ -467,7 +469,13 @@ export default class ImgRepository extends Component {
                             </div>
                             <div className={styles.imageContent}>
                               <div className={styles.imageTitle}>{item.name}</div>
-                              {handleType != 'Service' && <div className={styles.imageDesc}>{item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}</div>}
+                              {handleType != 'Service' && (
+                                <Tooltip title={item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })} placement="topLeft">
+                                  <div className={styles.imageDesc}>
+                                    {item.description || formatMessage({ id: 'versionUpdata_6_1.noDesc' })}
+                                  </div>
+                                </Tooltip>
+                              )}
                             </div>
                             {handleType != 'Service' && (
                               <span className={styles.imageDate}>
@@ -481,16 +489,24 @@ export default class ImgRepository extends Component {
                             </div>
                           </div>
                         ))}
-                        {imageLoadingMore && (
-                          <div style={{ textAlign: 'center', padding: '20px' }}>
-                            <Spin tip="加载更多..." />
-                          </div>
-                        )}
-                        {!imageHasMore && imageList.length > 0 && (
-                          <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                            已加载全部镜像
-                          </div>
-                        )}
+                      </div>
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '12px 0',
+                        borderTop: '1px solid #f0f0f0',
+                        background: '#fff'
+                      }}>
+                        <Pagination
+                          current={imagePagination.current}
+                          pageSize={imagePagination.pageSize}
+                          total={imagePagination.total}
+                          showTotal={(total) => formatMessage({ id: 'versionUpdata_6_1.imageTotal' }, { total })}
+                          showSizeChanger
+                          showQuickJumper
+                          pageSizeOptions={['10', '20', '50', '100']}
+                          onChange={this.handleImageListChange}
+                          onShowSizeChange={this.handleImageListChange}
+                        />
                       </div>
                     </>
                   ) : (
@@ -516,7 +532,7 @@ export default class ImgRepository extends Component {
                 {...this.props}
               />
             ) : (
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 350px)' }}>
                 <div className={styles.rbd_title_container}>
                   <Input.Search
                     placeholder={formatMessage({ id: 'versionUpdata_6_1.tagSearch' })}
@@ -527,21 +543,33 @@ export default class ImgRepository extends Component {
                     defaultValue={tagSearchKey}
                   />
                 </div>
-                <Table
-                  columns={columns}
-                  dataSource={tagList}
-                  rowKey="tag"
-                  pagination={{
-                    ...tagPagination,
-                    showTotal: total => formatMessage({ id: 'versionUpdata_6_1.tagTotal' }, { total }),
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    pageSizeOptions: ['10', '20', '50', '100'],
-                    hideOnSinglePage: tagPagination.total < 10,
-                    onShowSizeChange: this.handleTagListChange,
-                    onChange: this.handleTagListChange,
-                  }}
-                />
+                <div style={{ flex: 1, overflow: 'auto' }}>
+                  <Table
+                    columns={columns}
+                    dataSource={tagList}
+                    rowKey={(record, index) => record.name || index}
+                    pagination={false}
+                    scroll={{ y: 'calc(100vh - 500px)' }}
+                  />
+                </div>
+                <div style={{
+                  textAlign: 'center',
+                  padding: '12px 0',
+                  borderTop: '1px solid #f0f0f0',
+                  background: '#fff'
+                }}>
+                  <Pagination
+                    current={tagPagination.current}
+                    pageSize={tagPagination.pageSize}
+                    total={tagPagination.total}
+                    showTotal={total => formatMessage({ id: 'versionUpdata_6_1.tagTotal' }, { total })}
+                    showSizeChanger
+                    showQuickJumper
+                    pageSizeOptions={['10', '20', '50', '100']}
+                    onChange={this.handleTagListChange}
+                    onShowSizeChange={this.handleTagListChange}
+                  />
+                </div>
               </div>
             )
           )}

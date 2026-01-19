@@ -96,8 +96,7 @@ class ConfirmModal extends PureComponent {
         bodyStyle={{
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 200px)',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none'
+          scrollbarWidth: 'thin'
         }}
         footer={
           <div>

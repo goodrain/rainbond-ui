@@ -3,14 +3,23 @@
 export default {
   // 对企业级、团队级、应用级的插件列表进行筛选归类
   segregatePluginsByHierarchy(list, type) {
-      const arr = (list || []).filter(item => item?.plugin_views?.includes(type) 
-      && item.name != 'rainbond-enterprise-base'  
-      && item.name != 'rainbond-bill' 
-      && item.name !='rainbond-observability' 
-      && item.name != 'rainbond-enterprise-alarm'
-      && item.name != 'rainbond-enterprise-logs'
-      && item.enable_status === 'true' 
-    ).map(item => item);
+      // 根据不同视图定义需要屏蔽的插件
+      const excludePluginsByView = {
+        'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
+        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
+        'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu'],
+        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
+        'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs']
+      };
+
+      // 获取当前视图需要排除的插件列表,如果没有配置则使用默认值
+      const excludePlugins = excludePluginsByView[type] || ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'];
+
+      const arr = (list || []).filter(item =>
+        item?.plugin_views?.includes(type)
+        && !excludePlugins.includes(item.name)
+        && item.enable_status === 'true'
+      ).map(item => item);
       return arr
   },
   // 判断当前企业是否安装企业插件
