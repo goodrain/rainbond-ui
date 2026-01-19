@@ -70,6 +70,14 @@ export default class RainbondClusterInit extends PureComponent {
             name: 'HELM_TOKEN',
             value: ''
           },
+          {
+            name: 'ENTERPRISE_ID',
+            value: ''
+          },
+          {
+            name: 'DEPLOY_VERSION',
+            value: 'docking-k8s'
+          }
         ]
       },
       Cluster: {
@@ -476,7 +484,7 @@ export default class RainbondClusterInit extends PureComponent {
   }
 
   render() {
-    const { form } = this.props;
+    const { form, match: { params: { eid } } } = this.props;
     const {
       ipArray,
       menuKey,
@@ -504,6 +512,7 @@ export default class RainbondClusterInit extends PureComponent {
     };
     const mode = this.props.location.query.mode || 'helm';
     this.formObj.operator.env[0].value = token
+    this.formObj.operator.env[1].value = eid
     const { getFieldDecorator, setFieldsValue } = form;
     const yamlJson = yaml.dump(this.formObj)
     const dataInfo = this.formObj.Cluster || {};
