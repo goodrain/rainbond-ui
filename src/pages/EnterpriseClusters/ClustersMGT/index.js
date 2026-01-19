@@ -18,10 +18,14 @@ import RKEClusterUpdate from "../../../components/Cluster/RKEClusterAdd";
 import SVG from '../../../utils/pageHeaderSvg'
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import pluginUtils from '../../../utils/pulginUtils';
 import global from '@/utils/global';
 import styles from "./index.less";
 
-@connect()
+@connect(({ global }) => ({
+  pluginsList: global.pluginsList,
+
+}))
 class Index extends Component {
   constructor(props) {
     super(props);
@@ -37,12 +41,16 @@ class Index extends Component {
       isComponents: false,
       showUpdateKubernetes: false,
       dashboardShow: false,
-      eventId: ''
+      eventId: '',
+      showGpuBtn: false,
     }
     this.timer = null
   }
   componentDidMount() {
     this.loadClusters();
+    this.setState({
+      showGpuBtn: pluginUtils.isInstallPlugin(this.props.pluginsList, 'rainbond-gpu')
+    });
   }
   componentWillUnmount() {
     clearTimeout(this.timer)
@@ -306,7 +314,8 @@ class Index extends Component {
       dashboardList,
       dashboardShow,
       nodeType,
-      eventId
+      eventId,
+      showGpuBtn
     } = this.state
     return (
       <PageHeaderLayout
@@ -318,38 +327,55 @@ class Index extends Component {
         content={formatMessage({ id: 'enterpriseColony.mgt.cluster.info' })}
       >
         <ScrollerX sm={900}>
-          <DetectionInfo
-            rowClusterInfo={rowCluster}
-            loadClusters={this.loadClusters}
-            nodeType={nodeType}
-            showInfo={showInfo}
-            titleIcon={SVG.getSvg("infoSvg", 20)}
-            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}
-          />
-          <ClusterList
-            eventId={eventId}
-            rowClusterInfo={rowCluster}
-            nodeList={nodeList}
-            active={this.editClusterNodeActive}
-            showInfo={showListInfo}
-            updateCluster={this.updateCluster}
-            handleLoadClusters={() => { this.loadClusters() }}
-            titleIcon={SVG.getSvg("listSvg", 20)}
-            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}
-          />
-          <DetectionResources
-            showInfo={showInfo}
-            rowClusterInfo={rowCluster}
-            titleIcon={SVG.getSvg("userSvg", 20)}
-            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}
-          />
-          <ClusterDetection
-            dashboardList={dashboardList}
-            dashboardShow={dashboardShow}
-            region={rowCluster.region_name}
-            titleIcon={SVG.getSvg("examineSvg", 20)}
-            titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}
-          />
+          <Row className={styles.titleStyle} style={{ margin: '0 0 10px' }}>
+            <span>{SVG.getSvg("infoSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
+          </Row>
+          <Row>
+            <DetectionInfo
+              rowClusterInfo={rowCluster}
+              loadClusters={this.loadClusters}
+              nodeType={nodeType}
+              showInfo={showInfo}
+              showGpuBtn={showGpuBtn}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("listSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
+          </Row>
+          <Row>
+            <ClusterList
+              eventId={eventId}
+              rowClusterInfo={rowCluster}
+              nodeList={nodeList}
+              active={this.editClusterNodeActive}
+              showInfo={showListInfo}
+              updateCluster={this.updateCluster}
+              handleLoadClusters={() => { this.loadClusters() }}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("userSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
+          </Row>
+          <Row>
+            <DetectionResources
+              showInfo={showInfo}
+              rowClusterInfo={rowCluster}
+            />
+          </Row>
+          <Row className={styles.titleStyle}>
+            <span>{SVG.getSvg("examineSvg", 20)}</span>
+            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
+          </Row>
+          <Row>
+            <ClusterDetection
+              dashboardList={dashboardList}
+              dashboardShow={dashboardShow}
+              region={rowCluster.region_name}
+            />
+          </Row>
         </ScrollerX>
       </PageHeaderLayout>
     );

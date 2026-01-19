@@ -4,6 +4,7 @@ import {
   Col,
   Button,
   Badge,
+  Card,
   Descriptions,
   Tooltip,
   Icon,
@@ -31,6 +32,8 @@ import Rke from '../../../public/images/rke.svg'
 import globalUtil from '@/utils/global';
 import styles from "./index.less";
 
+const { confirm } = Modal;
+
 @connect()
 @Form.create()
 
@@ -45,12 +48,11 @@ class Index extends Component {
       text: '',
       showTenantList: false,
       showTenantListRegion: '',
-      loadTenants: true,
+      loadTenants: false,
       tenants: [],
       tenantPage: 1,
       tenantPageSize: 5,
       tenantTotal: 0,
-      loadTenants: false,
       handleType: '',
       kubeConfig: '',
     }
@@ -548,7 +550,8 @@ class Index extends Component {
       showInfo = false,
       nodeType,
       titleIcon,
-      titleText
+      titleText,
+      showGpuBtn
     } = this.props;
     const {
       region_alias,
@@ -565,6 +568,7 @@ class Index extends Component {
       arch,
       region_name
     } = rowClusterInfo
+    console.log(showGpuBtn, 'showGpuBtn')
     const eid = globalUtil.getCurrEnterpriseId()
     const pagination = {
       onChange: this.handleTenantPageChange,
@@ -640,158 +644,154 @@ class Index extends Component {
     };
     return (
       <>
-        <div className={styles.cardContainer}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleStyle}>
-              <span>{titleIcon}</span>
-              <span>{titleText}</span>
-            </div>
-          </div>
-          <div className={styles.cardBody}>
-            {!showInfo && <Skeleton active />}
-            {showInfo &&
-              <>
-                <Row className={styles.InfoStyle}>
-                  {/* logo */}
-                  <Col span={3}>
-                    {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
-                  </Col>
-                  {/* 名称 */}
-                  <Col span={3}>
-                    <p>{region_alias}</p>
-                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
-                  </Col>
-                  {/* 状态 */}
-                  <Col span={3}>
-                    <p>{this.clusterStatus(status, health_status)}</p>
-                    <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
-                  </Col>
-                  {/* 按钮 */}
-                  <Col span={15}>
-                    <Button
-                      onClick={this.handleEdit}
-                      icon="edit"
-                    >
-                      <FormattedMessage id='enterpriseColony.table.handle.edit' />
+        <Card
+        >
+          {!showInfo && <Skeleton active />}
+          {showInfo &&
+            <>
+              <Row className={styles.InfoStyle}>
+                {/* logo */}
+                <Col span={3}>
+                  {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
+                </Col>
+                {/* 名称 */}
+                <Col span={3}>
+                  <p>{region_alias}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
+                </Col>
+                {/* 状态 */}
+                <Col span={3}>
+                  <p>{this.clusterStatus(status, health_status)}</p>
+                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
+                </Col>
+                {/* 按钮 */}
+                <Col span={15}>
+                  <Button
+                    onClick={this.handleEdit}
+                    icon="edit"
+                  >
+                    <FormattedMessage id='enterpriseColony.table.handle.edit' />
+                  </Button>
+                  <Button
+                    onClick={this.importEven}
+                    icon='download'
+                  >
+                    <FormattedMessage id='enterpriseColony.table.handle.import' />
+                  </Button>
+                  <Link
+                    to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
+                    target="_blank"
+                  >
+                    <Button icon="code">
+                      {formatMessage({ id: 'otherEnterprise.shell.line' })}
                     </Button>
-                    <Button
-                      onClick={this.importEven}
-                      icon='download'
-                    >
-                      <FormattedMessage id='enterpriseColony.table.handle.import' />
+                  </Link>
+                  {showGpuBtn &&
+                  <Link
+                    to={`/enterprise/${eid}/plugins/rainbond-gpu?regionName=${rowClusterInfo.region_name}`}
+                  >
+                    <Button icon="control">
+                      GPU管理
                     </Button>
-                    <Link
-                      to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}
-                      target="_blank"
+                  </Link>
+                  }
+                  {rowClusterInfo.scope != 'default' && (
+                    <Button
+                      onClick={() => this.delEven('delete')}
+                      icon="delete"
                     >
-                      <Button icon="code">
-                        {formatMessage({ id: 'otherEnterprise.shell.line' })}
-                      </Button>
-                    </Link>
-                    {rowClusterInfo.scope != 'default' && (
-                      <Button
-                        onClick={() => this.delEven('delete')}
-                        icon="delete"
-                      >
-                        <FormattedMessage id='enterpriseColony.table.handle.delete' />
-                      </Button>
-                    )}
-                  </Col>
+                      <FormattedMessage id='enterpriseColony.table.handle.delete' />
+                    </Button>
+                  )}
+                </Col>
+              </Row>
+              {/* 基本信息 */}
+              {health_status !== 'failure' &&
+                <Row className={styles.ClusterInfo}>
+                  <Descriptions >
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
+                      <span className={styles.nodeType}>
+                        {
+                          nodeType &&
+                            Object.keys(nodeType).length > 0 ?
+                            Object.keys(nodeType).map(item => {
+                              return <span>{nodeType[item]} {item} </span>
+                            })
+                            :
+                            "-"
+                        }
+                      </span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
+                      {arch.length > 0 && arch.map((item) => {
+                        return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
+                      })}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
+                  </Descriptions>
                 </Row>
-                {/* 基本信息 */}
-                {health_status !== 'failure' &&
-                  <Row className={styles.ClusterInfo}>
-                    <Descriptions >
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
-                        <span className={styles.nodeType}>
-                          {
-                            nodeType &&
-                              Object.keys(nodeType).length > 0 ?
-                              Object.keys(nodeType).map(item => {
-                                return <span>{nodeType[item]} {item} </span>
-                              })
-                              :
-                              "-"
-                          }
-                        </span>
-                      </Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
-                        {arch.length > 0 && arch.map((item) => {
-                          return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
-                        })}
-                      </Descriptions.Item>
-                      <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
-                    </Descriptions>
-                  </Row>
-                }
-              </>
-            }
-          </div>
-        </div>
+              }
+            </>
+          }
+        </Card>
         {/* 删除弹框 */}
-        {
-          delVisible && (
-            <ConfirmModal
-              title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
-              subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-              desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
-              onOk={() => this.handleDelete(false)}
-              onCancel={this.cancelClusters}
-            />
-          )
-        }
+        {delVisible && (
+          <ConfirmModal
+            title={handleType === 'delete' ? formatMessage({ id: 'confirmModal.cluster.delete.title' }) : formatMessage({ id: 'confirmModal.cluster.unload.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={handleType === 'delete' ? formatMessage({ id: 'confirmModal.delete.cluster.desc' }) : formatMessage({ id: 'confirmModal.unload.cluster.desc' })}
+            onOk={() => this.handleDelete(false)}
+            onCancel={this.cancelClusters}
+          />
+        )}
         {/* 修改弹框 */}
-        {
-          editClusterShow && (
-            <EditClusterInfo
-              regionInfo={editClusterInfo}
-              title={text}
-              eid={eid}
-              onOk={this.cancelEditClusters}
-              onCancel={this.cancelEditClusters}
-            />
-          )
-        }
+        {editClusterShow && (
+          <EditClusterInfo
+            regionInfo={editClusterInfo}
+            title={text}
+            eid={eid}
+            onOk={this.cancelEditClusters}
+            onCancel={this.cancelEditClusters}
+          />
+        )}
         {/* kubeConfig */}
-        {
-          kubeConfig && (
-            <Modal
-              visible
-              width={1000}
-              maskClosable={false}
-              onCancel={() => {
-                this.setState({ kubeConfig: '' });
-              }}
-              title="KubeConfig"
-              bodyStyle={{ background: '#000' }}
-              onOk={() => {
-                copy(kubeConfig);
-                notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
-              }}
-              okText={<FormattedMessage id='button.copy' />}
-            >
-              <div className={styles.cmd}>
-                <CodeMirror
-                  value={kubeConfig}
-                  options={{
-                    mode: { name: 'javascript', json: true },
-                    lineNumbers: true,
-                    theme: 'seti',
-                    lineWrapping: true,
-                    smartIndent: true,
-                    matchBrackets: true,
-                    scrollbarStyle: null,
-                    showCursorWhenSelecting: true,
-                    height: 500
-                  }}
-                />
-              </div>
-            </Modal>
-          )
-        }
+        {kubeConfig && (
+          <Modal
+            visible
+            width={1000}
+            maskClosable={false}
+            onCancel={() => {
+              this.setState({ kubeConfig: '' });
+            }}
+            title="KubeConfig"
+            bodyStyle={{ background: '#000' }}
+            onOk={() => {
+              copy(kubeConfig);
+              notification.success({ message: formatMessage({ id: 'notification.success.copy' }) });
+            }}
+            okText={<FormattedMessage id='button.copy' />}
+          >
+            <div className={styles.cmd}>
+              <CodeMirror
+                value={kubeConfig}
+                options={{
+                  mode: { name: 'javascript', json: true },
+                  lineNumbers: true,
+                  theme: 'seti',
+                  lineWrapping: true,
+                  smartIndent: true,
+                  matchBrackets: true,
+                  scrollbarStyle: null,
+                  showCursorWhenSelecting: true,
+                  height: 500
+                }}
+              />
+            </div>
+          </Modal>
+        )}
       </>
     );
   }
