@@ -176,7 +176,15 @@ export default class RainbondClusterInit extends PureComponent {
           env: [
             {
               name: 'DISABLE_LOG',
-              value: 'true'
+              value: 'false'
+            },
+            {
+              name: 'ENTERPRISE_ID',
+              value: eid
+            },
+            {
+              name: 'DEPLOY_VERSION',
+              value: 'docking-host'
             }
           ]
         },
