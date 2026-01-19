@@ -372,7 +372,7 @@ const componentCheck = {
   'componentCheck.modify_image_name.label.password':'仓库密码',
   'componentCheck.modify_image_name.label.dockerRun':'命令',
   'componentCheck.modify_image_name.label.git_url':'仓库地址',
-  'componentCheck.modify_image_name.key.pages.desc':'请拷贝如下Key到您的私有Git仓库进行授权，云帮平台方可访问您的私有Git仓库',
+  'componentCheck.modify_image_name.key.pages.desc':'请拷贝如下Key到您的私有Git仓库进行授权，平台方可访问您的私有Git仓库',
   'componentCheck.advanced.setup':'高级配置',
   'componentCheck.advanced.env':'环境配置',
   'componentCheck.advanced.setup.basic_info':'基础信息设置',

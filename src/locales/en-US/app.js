@@ -365,7 +365,7 @@ const componentCheck = {
   'componentCheck.modify_image_name.label.password':'Password',
   'componentCheck.modify_image_name.label.dockerRun':'Command',
   'componentCheck.modify_image_name.label.git_url':'Repo Address',
-  'componentCheck.modify_image_name.key.pages.desc':'Please copy the following Key to your private Git repository for authorization so that Cloud help platform can access your private Git repository',
+  'componentCheck.modify_image_name.key.pages.desc':'Please copy the following Key to your private Git repository for authorization so that platform can access your private Git repository',
   'componentCheck.advanced.setup':'Advanced Config',
   'componentCheck.advanced.env':'Environment Config',
   'componentCheck.advanced.setup.basic_info':'Basic information setting',
