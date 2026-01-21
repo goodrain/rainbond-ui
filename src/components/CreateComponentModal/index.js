@@ -1122,6 +1122,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   // 当弹窗打开时，获取可用插件
   useEffect(() => {
+    fetchArchInfo();
     if (visible && pluginsList) {
       fetchAvailablePlugins();
     }
