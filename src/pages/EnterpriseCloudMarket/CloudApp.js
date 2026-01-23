@@ -135,7 +135,7 @@ export default class CloudApp extends PureComponent {
   };
   showMarketAppDetail = app => {
     if (app && app.app_detail_url) {
-      window.open(app.app_detail_url, '_blank');
+      // window.open(app.app_detail_url, '_blank');
       return;
     }
     this.setState({

@@ -661,7 +661,7 @@ import {
     showMarketAppDetail = app => {
       // cloud app
       if (app && app.app_detail_url) {
-        window.open(app.app_detail_url, '_blank');
+        // window.open(app.app_detail_url, '_blank');
         return;
       }
       this.setState({
