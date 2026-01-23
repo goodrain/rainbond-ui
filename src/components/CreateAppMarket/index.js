@@ -76,7 +76,7 @@ class CreateAppMarket extends PureComponent {
         sm: { span: 14 }
       }
     };
-
+    console.log(marketInfo, 'marketInfo')
     return (
       <Modal
         title={title}

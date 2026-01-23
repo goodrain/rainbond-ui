@@ -288,7 +288,7 @@ export default class AddVolumes extends PureComponent {
           {method != 'vm' &&
             <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.type' />}>
               {getFieldDecorator('volume_type', {
-                initialValue: this.state.showBill ? 'volcengine' : data.volume_type || 'memoryfs'
+                initialValue: this.state.showBill ? volumeOpts[0].volume_type : data.volume_type || 'memoryfs'
               })(
                 <RadioGroup onChange={this.handleChange}>
                   {volumeOpts.map(item => {
@@ -308,7 +308,7 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           }
-          {volume_type !== 'volcengine' &&
+          {(volume_type !== 'volcengine' || volume_type == 'cephfs-external') &&
             <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
               {getFieldDecorator('volume_capacity', {
                 initialValue: defaultVolumeCapacity || 10,
