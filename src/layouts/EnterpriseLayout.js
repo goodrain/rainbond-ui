@@ -413,7 +413,7 @@ class EnterpriseLayout extends PureComponent {
                 <TransitionGroup
                   style={{
                     position: 'relative',
-                    height: 'calc(100vh - 50px)',
+                    height: 'calc(100vh - 56px)',
                     overflow: 'hidden',
                     width: "100%"
                   }}>
@@ -426,13 +426,13 @@ class EnterpriseLayout extends PureComponent {
                     <Content
                       key={eid}
                       style={{
-                        height: 'calc(100vh - 50px)',
+                        height: 'calc(100vh - 56px)',
                         overflow: 'auto',
                         width: '100%'
                       }}
                       className={styles.bgc}
                     >
-                      <div style={{ minHeight: 'calc(100vh - 50px)' }}>
+                      <div style={{ minHeight: 'calc(100vh - 56px)' }}>
                         <Authorized
                           logined
                           authority={['admin', 'user']}

@@ -22,6 +22,7 @@ const enterpriseMenu = {
   // View switcher
   'menu.switcher.workspace': 'Workspace',
   'menu.switcher.platform': 'Platform',
+  'menu.switcher.explore': 'Explore',
   // Collapse menu
   'menu.collapse': 'Collapse',
   'menu.expand': 'Expand',
@@ -65,7 +66,7 @@ const CustomFooter = {
   'GlobalHeader.success':'If the modification is successful, log in again',
   'GlobalHeader.core':'Personal center',
   'GlobalHeader.edit':'Change  password',
-  'GlobalHeader.language':'Language switch',
+  'GlobalHeader.language':'Language',
   'GlobalHeader.exit':'Log out',
   'GlobalHeader.serve':'Enterprise service',
   'GlobalHeader.platform':'Platform manage',
