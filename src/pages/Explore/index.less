@@ -14,7 +14,8 @@
 // 手写的两个主选项
 .tabSwitcher {
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
   padding: 16px 4% 12px;
   position: fixed;
   top: 56px;
@@ -22,6 +23,29 @@
   right: 0;
   background: #f2f4f7;
   z-index: 100;
+}
+
+.tabSwitcherLeft {
+  display: flex;
+  gap: 12px;
+}
+
+.tabSwitcherRight {
+  :global {
+    .ant-input-search > .ant-input {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .ant-input-search > .ant-input:focus {
+      background-color: #fff;
+    }
+
+    .ant-input-suffix {
+      color: #495464;
+    }
+  }
 }
 
 .tabOption {
@@ -60,6 +84,13 @@
   justify-content: center;
   align-items: center;
   min-height: 300px;
+}
+
+.marketErrorCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 60px 40px;
+  box-shadow: @rbd-card-shadow;
 }
 
 .radioGroup {
@@ -285,8 +316,7 @@
 }
 
 // 标题区域
-.carouselHeader {
-}
+.carouselHeader {}
 
 .carouselTitle {
   font-size: 24px;
@@ -440,11 +470,42 @@
   margin-bottom: 20px;
 }
 
+.hotCategoriesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  :global {
+    .ant-input-suffix {
+      color: #495464;
+    }
+
+    .ant-input-search>.ant-input {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+
+    }
+
+    .ant-input-search>.ant-input:focus {
+      background-color: #fff;
+    }
+
+    .ant-select-selection {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+    }
+
+  }
+}
+
 .hotCategoriesTitle {
   font-size: 16px;
   font-weight: 500;
   color: oklch(0.145 0 0);
-  margin-bottom: 12px;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -458,6 +519,20 @@
 .categoryList {
   display: flex;
   gap: 12px;
+}
+
+.categoryListFixed {
+  position: fixed;
+  top: 117px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #f2f4f7;
+  padding: 2px 4% 12px;
+}
+
+.categoryListPlaceholder {
+  height: 60px;
 }
 
 .categoryItem {
@@ -994,7 +1069,8 @@
   flex-shrink: 0;
   margin-left: 24px;
 
-  img, svg {
+  img,
+  svg {
     width: 100%;
     height: 100%;
   }
@@ -1085,4 +1161,11 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+// 本地组件库卡片列表
+.localAppCardList {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
 }

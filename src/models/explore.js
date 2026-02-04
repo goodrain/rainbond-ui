@@ -21,29 +21,29 @@ export default {
     }
   },
   effects: {
-    *fetchApps({ payload, callback }, { call, put }) {
-      const response = yield call(fetchExploreApps, payload);
+    *fetchApps({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(fetchExploreApps, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
 
-    *fetchAppDetail({ payload, callback }, { call }) {
-      const response = yield call(fetchExploreAppDetail, payload);
+    *fetchAppDetail({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchExploreAppDetail, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
 
-    *fetchCategories({ payload, callback }, { call }) {
-      const response = yield call(fetchExploreCategories, payload);
+    *fetchCategories({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchExploreCategories, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
 
-    *fetchTags({ payload, callback }, { call }) {
-      const response = yield call(fetchExploreTags, payload);
+    *fetchTags({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchExploreTags, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -56,8 +56,8 @@ export default {
       }
     },
 
-    *fetchRecommendedApps({ callback }, { call }) {
-      const response = yield call(fetchRecommendedApps);
+    *fetchRecommendedApps({payload, callback, handleError }, { call }) {
+      const response = yield call(fetchRecommendedApps, payload,handleError);
       if (response && callback) {
         callback(response);
       }

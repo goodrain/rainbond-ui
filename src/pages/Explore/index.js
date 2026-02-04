@@ -10,34 +10,48 @@ import {
   Empty,
   Tooltip,
   Radio,
-  Icon
+  Icon,
+  Modal,
+  Form,
+  Select,
+  Button,
+  message,
+  notification
 } from 'antd';
+import { pinyin } from 'pinyin-pro';
 import { formatMessage, FormattedMessage } from 'umi';
 import Lists from '../../components/Lists';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import Result from '../../components/Result';
 import AppCard from './AppCard';
 import { HotIcon, HeartIcon } from './icons';
 import globalUtil from '../../utils/global';
+import role from '../../utils/newRole';
+import userUtil from '../../utils/user';
 import styles from './index.less';
 
 const { Search } = Input;
 
-@connect(({ user, global }) => ({
+@connect(({ user, global, teamControl }) => ({
   currentUser: user.currentUser,
-  enterprise: global.enterprise
+  enterprise: global.enterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 class Explore extends PureComponent {
   constructor(props) {
     super(props);
+    // 分类列表 ref
+    this.categoryListRef = React.createRef();
+    this.categoryListOriginalTop = null;
     this.state = {
       // 分页
       marketPag: {
-        pageSize: 10,
+        pageSize: 20,
         total: 0,
         page: 1,
         query: ''
       },
-      pageSize: 10,
+      pageSize: 20,
       total: 0,
       page: 1,
       // 列表数据
@@ -67,17 +81,41 @@ class Explore extends PureComponent {
       hotCategories: [],
       // 推荐应用
       recommendedApps: [],
+      recommendedError: false,
       // 类别应用列表（无限滚动）
       selectedCategory: 'all', // 默认选中全部应用
       categoryApps: [],
       categoryAppsPage: 1,
       categoryAppsLoading: false,
-      categoryAppsHasMore: true
+      categoryAppsHasMore: true,
+      // 搜索关键字
+      searchKeyword: '',
+      // 分类列表吸顶
+      categoryListFixed: false,
+      // 外部市场是否可用（分类接口是否成功）
+      marketAvailable: true,
+      marketErrorMsg: '',
+      // 本地安装相关
+      localInstallModalVisible: false,
+      selectedLocalApp: null,
+      teamList: [],
+      teamListLoading: false,
+      selectedTeam: null,
+      groupList: [],
+      groupListLoading: false,
+      localInstallType: 'new',
+      localInstallLoading: false,
+      selectedLocalVersion: '',
+      // 权限相关状态
+      creatAppPermission: {},
+      creatComPermission: {},
+      teamPermissionsInfo: null
     };
   }
 
   componentDidMount() {
     const { currentUser } = this.props;
+
     if (currentUser) {
       this.load();
     }
@@ -126,10 +164,21 @@ class Explore extends PureComponent {
           if (res && res.status_code === 200) {
             this.setState({
               total: res.total,
-              componentList: res.list,
+              componentList: res.list || [],
               localLoading: false
             });
+          } else {
+            this.setState({
+              localLoading: false,
+              componentList: []
+            });
           }
+        },
+        handleError: () => {
+          this.setState({
+            localLoading: false,
+            componentList: []
+          });
         }
       });
     });
@@ -165,18 +214,44 @@ class Explore extends PureComponent {
 
     this.setState({ hotCategoriesLoading: true });
 
+    // 设置3秒超时
+    const timeoutId = setTimeout(() => {
+      this.setState({
+        hotCategoriesLoading: false,
+        hotCategories: [],
+        marketAvailable: false,
+        marketErrorMsg: '网络连接超时，请检查网络后重试'
+      });
+    }, 3000);
+
     dispatch({
       type: 'explore/fetchCategories',
       payload: {},
       callback: res => {
+        clearTimeout(timeoutId);
         this.setState({ hotCategoriesLoading: false });
-        console.log(res, "res");
-
         if (res?.response_data?.tree) {
           this.setState({
-            hotCategories: res?.response_data?.tree.slice(0, 5) // 只取前5个顶级分类
+            hotCategories: res?.response_data?.tree.slice(0, 5), // 只取前5个顶级分类
+            marketAvailable: true,
+            marketErrorMsg: ''
+          });
+        } else {
+          this.setState({
+            hotCategories: [],
+            marketAvailable: false,
+            marketErrorMsg: '获取分类数据失败，请稍后重试'
           });
         }
+      },
+      handleError: () => {
+        clearTimeout(timeoutId);
+        this.setState({
+          hotCategoriesLoading: false,
+          hotCategories: [],
+          marketAvailable: false,
+          marketErrorMsg: '网络连接失败，请检查网络后重试'
+        });
       }
     });
   };
@@ -184,18 +259,28 @@ class Explore extends PureComponent {
   // 获取推荐应用
   getRecommendedApps = () => {
     const { dispatch } = this.props;
-
-    this.setState({ recommendedLoading: true });
-
+    this.setState({ recommendedLoading: true, recommendedError: false });
     dispatch({
       type: 'explore/fetchRecommendedApps',
       callback: res => {
         this.setState({ recommendedLoading: false });
         if (res?.response_data) {
+          // 确保 recommendedApps 是数组
+          const apps = Array.isArray(res.response_data) ? res.response_data : [];
           this.setState({
-            recommendedApps: res.response_data || []
+            recommendedApps: apps
           });
+        } else {
+          // 接口返回但没有数据，视为错误
+          this.setState({ recommendedError: true });
         }
+      },
+      handleError: (res) => {
+        this.setState({
+          recommendedLoading: false,
+          recommendedApps: [],
+          recommendedError: true
+        });
       }
     });
   };
@@ -203,7 +288,7 @@ class Explore extends PureComponent {
   // 获取类别应用（无限滚动）
   getCategoryApps = (reset = false) => {
     const { dispatch } = this.props;
-    const { selectedCategory, categoryAppsPage, categoryApps, categoryAppsLoading, categoryAppsHasMore } = this.state;
+    const { selectedCategory, categoryAppsPage, categoryApps, categoryAppsLoading, categoryAppsHasMore, searchKeyword } = this.state;
 
     // 如果正在加载或没有更多数据，则不请求
     if (categoryAppsLoading || (!reset && !categoryAppsHasMore)) {
@@ -216,13 +301,18 @@ class Explore extends PureComponent {
 
     const payload = {
       page,
-      page_size: 10,
+      page_size: 20,
       timeSort: 1
     };
 
     // 如果不是全部应用，添加 apptype 参数
     if (selectedCategory !== 'all') {
       payload.apptype = selectedCategory;
+    }
+
+    // 如果有搜索关键字，添加 query 参数
+    if (searchKeyword) {
+      payload.query = searchKeyword;
     }
 
     dispatch({
@@ -232,7 +322,7 @@ class Explore extends PureComponent {
         this.setState({ categoryAppsLoading: false });
         if (res?.response_data?.apps) {
           const newApps = res.response_data.apps || [];
-          const totalPages = Math.ceil((res.response_data.total || 0) / 10);
+          const totalPages = Math.ceil((res.response_data.total || 0) / 20);
 
           this.setState({
             categoryApps: reset ? newApps : [...categoryApps, ...newApps],
@@ -240,6 +330,12 @@ class Explore extends PureComponent {
             categoryAppsHasMore: page < totalPages && newApps.length > 0
           });
         }
+      },
+      handleError: () => {
+        this.setState({
+          categoryAppsLoading: false,
+          categoryAppsHasMore: false
+        });
       }
     });
   };
@@ -259,13 +355,43 @@ class Explore extends PureComponent {
     });
   };
 
+  // 搜索类别应用
+  handleSearchCategory = (keyword) => {
+    this.setState({
+      searchKeyword: keyword,
+      categoryApps: [],
+      categoryAppsPage: 1,
+      categoryAppsHasMore: true
+    }, () => {
+      this.getCategoryApps(true);
+    });
+  };
+
   // 滚动加载
   handleScroll = () => {
-    const { activeTabKey } = this.state;
+    const { activeTabKey, categoryListFixed } = this.state;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    // 动态获取分类列表的原始位置（只在未吸顶时记录）
+    if (!categoryListFixed && this.categoryListRef.current) {
+      const rect = this.categoryListRef.current.getBoundingClientRect();
+      // 记录元素相对于文档顶部的位置
+      this.categoryListOriginalTop = rect.top + scrollTop;
+    }
+
+    // 检测分类列表是否需要吸顶
+    // 118px = 56px (header) + 62px (tabSwitcher)
+    const fixedTop = 118;
+    if (this.categoryListOriginalTop !== null) {
+      const shouldFixed = scrollTop > this.categoryListOriginalTop - fixedTop;
+      if (shouldFixed !== categoryListFixed) {
+        this.setState({ categoryListFixed: shouldFixed });
+      }
+    }
+
     // 只在外部市场 tab 下触发滚动加载
     if (activeTabKey === 'local') return;
 
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollHeight = document.documentElement.scrollHeight;
     const clientHeight = window.innerHeight;
 
@@ -273,6 +399,323 @@ class Explore extends PureComponent {
     if (scrollHeight - scrollTop - clientHeight < 200) {
       this.getCategoryApps();
     }
+  };
+
+  // 获取团队列表
+  fetchTeamList = () => {
+    const {
+      dispatch,
+      match: { params: { eid } },
+      location
+    } = this.props;
+
+    this.setState({ teamListLoading: true });
+
+    // 获取 URL 中的 teamName 参数
+    const query = new URLSearchParams(location?.search || '');
+    const urlTeamName = query.get('teamName') || '';
+
+    dispatch({
+      type: 'global/fetchMyTeams',
+      payload: {
+        enterprise_id: eid,
+        page: 1,
+        page_size: 100
+      },
+      callback: res => {
+        if (res && res.list) {
+          const teams = res.list || [];
+          this.setState({
+            teamList: teams,
+            teamListLoading: false
+          });
+          // 如果有团队，根据 URL 参数或默认选中第一个
+          if (teams.length > 0) {
+            let targetTeam = null;
+            // 如果 URL 中有 teamName 参数，尝试找到对应的团队
+            if (urlTeamName) {
+              targetTeam = teams.find(t => t.team_name === urlTeamName);
+            }
+            // 如果没找到或没有参数，选中第一个团队
+            if (!targetTeam) {
+              targetTeam = teams[0];
+            }
+            // 自动选中团队
+            this.handleTeamChange(targetTeam.team_name);
+          }
+        } else {
+          this.setState({ teamListLoading: false });
+        }
+      },
+      handleError: () => {
+        this.setState({ teamListLoading: false });
+      }
+    });
+  };
+
+  // 获取团队权限信息
+  fetchTeamPermissions = (teamName) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/fetchCurrent',
+      payload: {
+        team_name: teamName
+      },
+      callback: res => {
+        if (res && res.bean) {
+          const team = userUtil.getTeamByTeamName(res.bean, teamName);
+          const tenantActions = team?.tenant_actions;
+          // 获取应用创建权限
+          const creatAppPermission = role.queryPermissionsInfo(tenantActions?.team, 'team_app_create');
+          console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
+          this.setState({
+            teamPermissionsInfo: tenantActions,
+            creatAppPermission: creatAppPermission
+          });
+        }
+      },
+      handleError: err => {
+        console.error('获取团队权限失败:', err);
+      }
+    });
+  };
+
+  // 团队选择变更
+  handleTeamChange = (teamName) => {
+    const { teamList } = this.state;
+    const { form } = this.props;
+    const team = teamList.find(t => t.team_name === teamName);
+    if (team) {
+      // 获取团队的第一个集群
+      const regionName = team.region?.[0]?.region_name || team.region_list?.[0]?.region_name;
+      this.setState({
+        selectedTeam: team,
+        groupList: [],
+        localInstallType: 'new',
+        // 重置权限状态
+        creatAppPermission: {},
+        creatComPermission: {},
+        teamPermissionsInfo: null
+      });
+      // 清空已选择的应用
+      if (form) {
+        form.setFieldsValue({ group_id: undefined });
+      }
+      // 获取该团队的应用列表
+      if (regionName) {
+        this.fetchGroupList(teamName, regionName);
+      }
+      // 获取团队权限信息
+      this.fetchTeamPermissions(teamName);
+    }
+  };
+
+  // 获取应用列表
+  fetchGroupList = (teamName, regionName) => {
+    const { dispatch } = this.props;
+
+    this.setState({ groupListLoading: true });
+
+    dispatch({
+      type: 'global/fetchGroups',
+      payload: {
+        team_name: teamName,
+        region_name: regionName
+      },
+      callback: res => {
+        this.setState({
+          groupList: res || [],
+          groupListLoading: false
+        });
+      },
+      handleError: () => {
+        this.setState({ groupListLoading: false, groupList: [] });
+      }
+    });
+  };
+
+  // 生成英文名
+  generateEnglishName = (name) => {
+    if (name) {
+      const pinyinName = pinyin(name, { toneType: 'none' }).replace(/\s/g, '');
+      return pinyinName.toLowerCase();
+    }
+    return '';
+  };
+
+  // 点击本地应用安装按钮
+  handleLocalAppInstall = (app) => {
+    this.setState({
+      selectedLocalApp: app,
+      localInstallModalVisible: true,
+      selectedLocalVersion: app.versions_info && app.versions_info.length > 0
+        ? app.versions_info[0].version
+        : '',
+      localInstallType: 'new',
+      selectedTeam: null,
+      groupList: [],
+      // 重置权限状态
+      creatAppPermission: {},
+      creatComPermission: {},
+      teamPermissionsInfo: null
+    }, () => {
+      this.fetchTeamList();
+    });
+  };
+
+  // 关闭本地安装弹窗
+  handleLocalInstallCancel = () => {
+    this.setState({
+      localInstallModalVisible: false,
+      selectedLocalApp: null,
+      selectedTeam: null,
+      groupList: [],
+      localInstallType: 'new',
+      localInstallLoading: false,
+      // 重置权限状态
+      creatAppPermission: {},
+      creatComPermission: {},
+      teamPermissionsInfo: null
+    });
+    // 重置表单
+    if (this.props.form) {
+      this.props.form.resetFields();
+    }
+  };
+
+  // 本地安装类型变更
+  handleLocalInstallTypeChange = (e) => {
+    const installType = e.target.value;
+    const { creatAppPermission, creatComPermission } = this.state;
+    this.setState({ localInstallType: installType });
+    // 输出当前权限信息
+    if (installType === 'new') {
+      console.log('安装类型: 创建新应用');
+      console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
+    } else {
+      console.log('安装类型: 安装到已有应用');
+      console.log('creatComPermission (创建组件权限):', creatComPermission);
+    }
+  };
+
+  // 本地版本变更
+  handleLocalVersionChange = (version) => {
+    this.setState({ selectedLocalVersion: version });
+  };
+
+  // 选择应用变更（用于权限检查）
+  handleGroupChange = (groupId) => {
+    const { teamPermissionsInfo } = this.state;
+    if (teamPermissionsInfo && groupId) {
+      // 获取组件创建权限
+      const creatComPermission = role.queryPermissionsInfo(teamPermissionsInfo?.team, 'app_overview', `app_${groupId}`);
+      console.log('creatComPermission (创建组件权限):', creatComPermission);
+      this.setState({ creatComPermission: creatComPermission });
+    }
+  };
+
+  // 提交本地安装
+  handleLocalInstallSubmit = () => {
+    const { dispatch } = this.props;
+    const {
+      selectedLocalApp,
+      selectedTeam,
+      localInstallType,
+      selectedLocalVersion
+    } = this.state;
+
+    const { form } = this.props;
+
+    form.validateFields((err, values) => {
+      if (err) return;
+
+      if (!selectedTeam) {
+        message.error('请选择团队');
+        return;
+      }
+
+      // 获取团队的第一个集群
+      const regionName = selectedTeam.region?.[0]?.region_name || selectedTeam.region_list?.[0]?.region_name;
+      if (!regionName) {
+        message.error('该团队没有可用的集群');
+        return;
+      }
+
+      if (!selectedLocalVersion) {
+        message.error('请选择版本');
+        return;
+      }
+
+      this.setState({ localInstallLoading: true });
+
+      const teamName = selectedTeam.team_name;
+
+      const installApp = (finalGroupId, isNewApp = false) => {
+        dispatch({
+          type: 'createApp/installApp',
+          payload: {
+            team_name: teamName,
+            region_name: regionName,
+            group_id: finalGroupId,
+            app_id: selectedLocalApp.app_id,
+            is_deploy: true,
+            group_key: selectedLocalApp.group_key || selectedLocalApp.ID,
+            app_version: selectedLocalVersion,
+            install_from_cloud: false
+          },
+          callback: () => {
+            notification.success({
+              message: '安装成功',
+              description: '应用正在部署中，请稍候...'
+            });
+            this.setState({ localInstallLoading: false });
+            this.handleLocalInstallCancel();
+            // 跳转到应用详情页
+            dispatch(
+              routerRedux.push(
+                `/team/${teamName}/region/${regionName}/apps/${finalGroupId}/overview`
+              )
+            );
+          },
+          handleError: () => {
+            message.error('安装失败');
+            this.setState({ localInstallLoading: false });
+          }
+        });
+      };
+
+      if (localInstallType === 'new' && values.group_name) {
+        // 创建新应用
+        const k8s_app = this.generateEnglishName(values.group_name);
+        dispatch({
+          type: 'application/addGroup',
+          payload: {
+            region_name: regionName,
+            team_name: teamName,
+            group_name: values.group_name,
+            k8s_app: k8s_app,
+            note: ''
+          },
+          callback: (res) => {
+            if (res && res.group_id) {
+              installApp(res.group_id, true);
+            } else {
+              this.setState({ localInstallLoading: false });
+            }
+          },
+          handleError: () => {
+            message.error('创建应用失败');
+            this.setState({ localInstallLoading: false });
+          }
+        });
+      } else if (localInstallType === 'existing' && values.group_id) {
+        // 安装到已有应用
+        installApp(values.group_id, false);
+      } else {
+        this.setState({ localInstallLoading: false });
+        message.error('请填写完整信息');
+      }
+    });
   };
 
   // 获取类别样式配置
@@ -335,10 +778,10 @@ class Explore extends PureComponent {
                 tabsList: [...this.state.tabsList, ...arr],
                 marketInfoSwitch: true
               });
-              // 默认选中第一个应用市场
+              // 默认选中第一个应用市场，使用 name 作为 key
               if (first && list.length > 0) {
                 const firstMarket = list[0];
-                this.onTabChange(firstMarket.ID);
+                this.onTabChange(firstMarket.name);
               } else if (ID) {
                 this.onTabChange(ID);
               }
@@ -386,35 +829,41 @@ class Explore extends PureComponent {
             }
           });
         }
+      },
+      handleError: () => {
+        this.setState({
+          marketLoading: false,
+          marketList: []
+        });
       }
     });
   };
 
-  // Tab 切换
-  onTabChange = tabID => {
+  // Tab 切换 - 使用 name 作为 key
+  onTabChange = tabKey => {
     const { marketTab } = this.state;
 
-    let marketArr = marketTab.filter(item => item.ID === Number(tabID));
+    let marketArr = marketTab.filter(item => item.name === tabKey);
     const isMarket = marketArr && marketArr.length > 0;
 
     this.setState(
       {
         marketInfo: isMarket ? marketArr[0] : false,
-        activeTabKey: `${tabID}`,
+        activeTabKey: `${tabKey}`,
         name: '',
         marketList: [],
         marketLoading: true,
         marketPag: {
-          pageSize: 10,
+          pageSize: 20,
           total: 0,
           page: 1,
           query: ''
         }
       },
       () => {
-        if (tabID !== 'local' && isMarket && marketArr[0].status === 1) {
+        if (tabKey !== 'local' && isMarket && marketArr[0].status === 1) {
           this.getMarkets(marketArr[0].name);
-        } else if (tabID === 'local') {
+        } else if (tabKey === 'local') {
           this.getApps();
         }
       }
@@ -461,25 +910,26 @@ class Explore extends PureComponent {
     );
   };
 
-  // 范围切换
-  onChangeRadio = e => {
-    this.setState({ page: 1, scope: e.target.value }, () => {
-      this.getApps();
-    });
-  };
-
   // 显示应用详情 - 跳转到详情页
   showMarketAppDetail = app => {
     const {
       dispatch,
       match: {
         params: { eid }
-      }
+      },
+      location
     } = this.props;
     // 兼容两种数据结构获取 appId
     const appId = app.id || app.app_id || '';
     console.log('appId:', appId);
-    dispatch(routerRedux.push(`/explore/${eid}/detail/${appId}`));
+    // 获取 URL 中的 teamName 参数并传递到详情页
+    const query = new URLSearchParams(location?.search || '');
+    const teamName = query.get('teamName') || '';
+    let path = `/explore/${eid}/detail/${appId}`;
+    if (teamName) {
+      path = `${path}?teamName=${teamName}`;
+    }
+    dispatch(routerRedux.push(path));
   };
 
   hideMarketAppDetail = () => {
@@ -624,35 +1074,29 @@ class Explore extends PureComponent {
     // 本地组件库内容
     const localsContent = (
       <div className={styles.tabContent}>
-        <Row style={contentStyle}>
-          <Col span={16} style={{ display: 'flex', alignItems: 'center' }}>
-            <Search
-              style={{ width: '250px' }}
-              placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
-              onSearch={this.handleSearchLocal}
-            />
-            <div className={styles.radioGroup}>
-              <Radio.Group value={this.state.scope} onChange={this.onChangeRadio}>
-                <Radio.Button value="enterprise">
-                  <FormattedMessage id="applicationMarket.localMarket.radioValue.enterprise" />
-                </Radio.Button>
-                <Radio.Button value="team">
-                  <FormattedMessage id="applicationMarket.localMarket.radioValue.team" />
-                </Radio.Button>
-              </Radio.Group>
-            </div>
-          </Col>
-        </Row>
-
         {localLoading ? (
           <div className={styles.loading}>
             <Spin />
           </div>
         ) : componentList && componentList.length > 0 ? (
-          componentList.map((item, index) => {
-            const { pic, versions_info: versions } = item;
-            return this.renderListItem('localsContent', item, pic, versions, index);
-          })
+          <div className={styles.localAppCardList}>
+            {componentList.map((item, index) => (
+              <AppCard
+                key={item.app_id || index}
+                app={{
+                  ...item,
+                  name: item.app_name,
+                  logo: item.pic,
+                  desc: item.describe,
+                  maxVersion: item.versions_info && item.versions_info.length > 0
+                    ? item.versions_info[0].version
+                    : ''
+                }}
+                type="local"
+                onInstall={() => this.handleLocalAppInstall(item)}
+              />
+            ))}
+          </div>
         ) : (
           <Empty
             description={<FormattedMessage id="applicationMarket.localMarket.nothing.msg" />}
@@ -660,7 +1104,7 @@ class Explore extends PureComponent {
           />
         )}
 
-        {this.state.total > 10 && (
+        {this.state.total > 20 && (
           <div style={paginationStyle}>
             <Pagination
               showQuickJumper
@@ -680,101 +1124,143 @@ class Explore extends PureComponent {
     // 云市场内容
     const marketContent = (
       <div className={styles.tabContent}>
-        {/* 推荐 */}
-        <div className={styles.recommendSection}>
-          <div className={styles.recommendHeader}>
-            <h3 className={styles.recommendTitle}>
-              <HeartIcon className={styles.recommendTitleIcon} />
-              推荐
-            </h3>
+        {/* 外部市场不可用时显示错误提示 */}
+        {!this.state.marketAvailable ? (
+          <div className={styles.marketErrorCard}>
+            <Result
+              type="warning"
+              title="外部市场暂时不可用"
+              description="当前网络质量较差或平台搭建方式为离线部署，因此无法使用外部市场，请查看网络或平台设置后再试。"
+            />
           </div>
-          <div className={styles.recommendList}>
-            {this.state.recommendedLoading ? (
-              <Spin />
-            ) : this.state.recommendedApps.length > 0 ? (
-              this.state.recommendedApps.map((app, index) => (
-                <AppCard
-                  key={app.id || index}
-                  app={app}
-                  onClick={this.showMarketAppDetail}
-                />
-              ))
-            ) : (
-              <Empty description="暂无推荐应用" />
+        ) : (
+          <>
+            {/* 推荐 - 接口报错或404时不展示 */}
+            {!this.state.recommendedError && (
+              <div className={styles.recommendSection}>
+                <div className={styles.recommendHeader}>
+                  <h3 className={styles.recommendTitle}>
+                    <HeartIcon className={styles.recommendTitleIcon} />
+                    推荐
+                  </h3>
+                </div>
+                <div className={styles.recommendList}>
+                  {this.state.recommendedLoading ? (
+                    <Spin />
+                  ) : this.state.recommendedApps.length > 0 ? (
+                    this.state.recommendedApps.map((app, index) => (
+                      <AppCard
+                        key={app.id || index}
+                        app={app}
+                        onClick={this.showMarketAppDetail}
+                      />
+                    ))
+                  ) : (
+                    <Empty description="暂无推荐应用" />
+                  )}
+                </div>
+              </div>
             )}
-          </div>
-        </div>
 
-        {/* 热门类别 */}
-        <div className={styles.hotCategories}>
-          <h3 className={styles.hotCategoriesTitle}>
-            <HotIcon className={styles.hotCategoriesTitleIcon} />
-            热门类别
-          </h3>
-          <div className={styles.categoryList}>
-            {/* 全部应用选项 */}
+            {/* 热门类别标题 */}
+            <div className={styles.hotCategories}>
+              <div className={styles.hotCategoriesHeader}>
+                <h3 className={styles.hotCategoriesTitle}>
+                  <HotIcon className={styles.hotCategoriesTitleIcon} />
+                  热门类别
+                </h3>
+              </div>
+            </div>
+
+            {/* 分类列表 - 吸顶 */}
             <div
-              className={`${styles.categoryItem} ${styles.categoryAll} ${this.state.selectedCategory === 'all' ? styles.categoryActive : ''}`}
-              onClick={() => this.handleCategoryClick('all')}
+              ref={this.categoryListRef}
+              className={`${styles.categoryList} ${this.state.categoryListFixed ? styles.categoryListFixed : ''}`}
             >
-              <span className={styles.categoryName}>全部应用</span>
-              <Icon type="appstore" className={styles.categoryIcon} />
+              {/* 全部应用选项 */}
+              <div
+                className={`${styles.categoryItem} ${styles.categoryAll} ${this.state.selectedCategory === 'all' ? styles.categoryActive : ''}`}
+                onClick={() => this.handleCategoryClick('all')}
+              >
+                <span className={styles.categoryName}>全部应用</span>
+                <Icon type="appstore" className={styles.categoryIcon} />
+              </div>
+              {this.state.hotCategoriesLoading ? (
+                <Spin size="small" />
+              ) : this.state.hotCategories.length > 0 ? (
+                this.state.hotCategories.map((category, index) => {
+                  const { style, icon } = this.getCategoryStyle(category, index);
+                  const categoryName = category.appClassificationName || '未知类别';
+                  const categoryId = category.appClassificationID;
+                  const isActive = this.state.selectedCategory === categoryId;
+                  return (
+                    <div
+                      key={categoryId || index}
+                      className={`${styles.categoryItem} ${styles[style]} ${isActive ? styles.categoryActive : ''}`}
+                      onClick={() => this.handleCategoryClick(categoryId)}
+                    >
+                      <span className={styles.categoryName}>{categoryName}</span>
+                      <Icon type={icon} className={styles.categoryIcon} />
+                    </div>
+                  );
+                })
+              ) : (
+                <Empty description="暂无分类数据" />
+              )}
             </div>
-            {this.state.hotCategoriesLoading ? (
-              <Spin size="small" />
-            ) : this.state.hotCategories.length > 0 ? (
-              this.state.hotCategories.map((category, index) => {
-                const { style, icon } = this.getCategoryStyle(category, index);
-                const categoryName = category.appClassificationName || '未知类别';
-                const categoryId = category.appClassificationID;
-                const isActive = this.state.selectedCategory === categoryId;
-                return (
-                  <div
-                    key={categoryId || index}
-                    className={`${styles.categoryItem} ${styles[style]} ${isActive ? styles.categoryActive : ''}`}
-                    onClick={() => this.handleCategoryClick(categoryId)}
-                  >
-                    <span className={styles.categoryName}>{categoryName}</span>
-                    <Icon type={icon} className={styles.categoryIcon} />
-                  </div>
-                );
-              })
-            ) : (
-              <Empty description="暂无分类数据" />
-            )}
-          </div>
-        </div>
+            {/* 吸顶时的占位元素 */}
+            {this.state.categoryListFixed && <div className={styles.categoryListPlaceholder} />}
 
-        {/* 类别应用列表 */}
-        <div className={styles.categoryAppsSection}>
-          <div className={styles.categoryAppsList}>
-            {this.state.categoryApps.map((app, index) => (
-              <AppCard
-                key={app.id || index}
-                app={app}
-                onClick={this.showMarketAppDetail}
-              />
-            ))}
-          </div>
-          {this.state.categoryAppsLoading && (
-            <div className={styles.loadingMore}>
-              <Spin size="small" />
-              <span>加载中...</span>
+            {/* 类别应用列表 */}
+            <div className={styles.categoryAppsSection}>
+              <div className={styles.categoryAppsList}>
+                {this.state.categoryApps.map((app, index) => (
+                  <AppCard
+                    key={app.id || index}
+                    app={app}
+                    onClick={this.showMarketAppDetail}
+                  />
+                ))}
+              </div>
+              {this.state.categoryAppsLoading && (
+                <div className={styles.loadingMore}>
+                  <Spin size="small" />
+                  <span>加载中...</span>
+                </div>
+              )}
+              {!this.state.categoryAppsHasMore && this.state.categoryApps.length > 0 && (
+                <div className={styles.noMore}>没有更多了</div>
+              )}
+              {!this.state.categoryAppsLoading && this.state.categoryApps.length === 0 && (
+                <Empty description="暂无应用" />
+              )}
             </div>
-          )}
-          {!this.state.categoryAppsHasMore && this.state.categoryApps.length > 0 && (
-            <div className={styles.noMore}>没有更多了</div>
-          )}
-          {!this.state.categoryAppsLoading && this.state.categoryApps.length === 0 && (
-            <Empty description="暂无应用" />
-          )}
-        </div>
+          </>
+        )}
       </div>
     );
 
     // 判断当前是否选中应用市场
     const isMarketActive = activeTabKey !== 'local';
     const isLocalActive = activeTabKey === 'local';
+
+    // 本地安装相关状态
+    const {
+      localInstallModalVisible,
+      selectedLocalApp,
+      teamList,
+      teamListLoading,
+      selectedTeam,
+      groupList,
+      groupListLoading,
+      localInstallType,
+      localInstallLoading,
+      selectedLocalVersion,
+      creatAppPermission,
+      creatComPermission
+    } = this.state;
+
+    const { getFieldDecorator } = this.props.form;
 
     // 渲染当前内容
     const renderContent = () => {
@@ -783,6 +1269,155 @@ class Explore extends PureComponent {
       }
       return marketContent;
     };
+
+    // 本地安装弹窗
+    const localInstallModal = (
+      <Modal
+        title={`安装 ${selectedLocalApp?.app_name || ''}`}
+        visible={localInstallModalVisible}
+        onCancel={this.handleLocalInstallCancel}
+        footer={null}
+        width={500}
+        destroyOnClose
+      >
+        {teamListLoading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Spin />
+          </div>
+        ) : teamList.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Empty
+              description={
+                <span style={{ color: '#666' }}>
+                  暂无可用团队，请联系管理员加入团队后再安装应用
+                </span>
+              }
+            />
+          </div>
+        ) : (
+          <Form layout="vertical">
+            <Form.Item label="选择团队">
+              <Select
+                placeholder="请选择团队"
+                loading={teamListLoading}
+                value={selectedTeam?.team_name}
+                onChange={this.handleTeamChange}
+                style={{ width: '100%' }}
+              >
+                {Array.isArray(teamList) && teamList.map(team => (
+                  <Select.Option key={team.team_name} value={team.team_name}>
+                    {team.team_alias || team.team_name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {selectedLocalApp?.versions_info && selectedLocalApp.versions_info.length > 0 && (
+              <Form.Item label="选择版本">
+                <Select
+                  placeholder="请选择版本"
+                  value={selectedLocalVersion}
+                  onChange={this.handleLocalVersionChange}
+                  style={{ width: '100%' }}
+                >
+                  {selectedLocalApp.versions_info.map((v, idx) => (
+                    <Select.Option key={idx} value={v.version}>
+                      {v.version}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
+
+            {selectedTeam && (
+              <Form.Item label="安装类型">
+                <Radio.Group
+                  value={localInstallType}
+                  onChange={this.handleLocalInstallTypeChange}
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="new">创建新应用</Radio.Button>
+                  <Radio.Button value="existing">安装到已有应用</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            )}
+
+            {selectedTeam && localInstallType === 'new' && (
+              <Form.Item label="应用名称">
+                {getFieldDecorator('group_name', {
+                  initialValue: selectedLocalApp?.app_name || '',
+                  rules: [
+                    { required: true, message: '请输入应用名称' },
+                    { max: 24, message: '最多24个字符' }
+                  ]
+                })(<Input placeholder="请输入应用名称" />)}
+              </Form.Item>
+            )}
+
+            {selectedTeam && localInstallType === 'existing' && (
+              <Form.Item label="选择应用">
+                {getFieldDecorator('group_id', {
+                  rules: [{ required: true, message: '请选择应用' }]
+                })(
+                  <Select
+                    placeholder="请选择应用"
+                    loading={groupListLoading}
+                    style={{ width: '100%' }}
+                    onChange={this.handleGroupChange}
+                  >
+                    {Array.isArray(groupList) && groupList.map(group => (
+                      <Select.Option key={group.group_id} value={group.group_id}>
+                        {group.group_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              </Form.Item>
+            )}
+
+            <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
+              {(() => {
+                // 计算权限相关的禁用状态
+                let permissionDisabled = false;
+                let permissionTip = '';
+
+                if (localInstallType === 'new' && creatAppPermission?.isAccess === false) {
+                  permissionDisabled = true;
+                  permissionTip = '您没有创建应用的权限';
+                } else if (localInstallType === 'existing' && creatComPermission?.isCreate === false) {
+                  permissionDisabled = true;
+                  permissionTip = '您没有创建组件的权限';
+                }
+
+                const isDisabled = !selectedTeam || !selectedLocalVersion || permissionDisabled;
+
+                const button = (
+                  <Button
+                    type="primary"
+                    onClick={this.handleLocalInstallSubmit}
+                    loading={localInstallLoading}
+                    disabled={isDisabled}
+                  >
+                    确认安装
+                  </Button>
+                );
+
+                // 如果因权限禁用，显示提示
+                if (permissionDisabled) {
+                  return (
+                    <Tooltip title={permissionTip}>
+                      {button}
+                    </Tooltip>
+                  );
+                }
+
+                return button;
+              })()}
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+    );
 
     return (
       <div className={styles.explorePage}>
@@ -794,31 +1429,66 @@ class Explore extends PureComponent {
           />
         )}
 
+        {localInstallModal}
+
         {marketInfoSwitch ? (
           <div className={styles.exploreContainer}>
             {/* 手写的两个选项 */}
             <div className={styles.tabSwitcher}>
-              <div
-                className={`${styles.tabOption} ${isMarketActive ? styles.active : ''}`}
-                onClick={() => {
-                  // 切换到外部市场，选中第一个市场
-                  if (tabsList.length > 0) {
-                    const firstMarket = tabsList[0];
-                    if (firstMarket.types === 'marketTab') {
-                      this.onTabChange(firstMarket.ID);
+              <div className={styles.tabSwitcherLeft}>
+                <div
+                  className={`${styles.tabOption} ${isMarketActive ? styles.active : ''}`}
+                  onClick={() => {
+                    // 切换到外部市场，选中第一个市场，使用 name 作为 key
+                    if (tabsList.length > 0) {
+                      const firstMarket = tabsList[0];
+                      if (firstMarket.types === 'marketTab') {
+                        this.onTabChange(firstMarket.name);
+                      }
                     }
-                  }
-                }}
-              >
-                <Icon type="global" className={styles.tabOptionIcon} />
-                <span>外部市场</span>
+                  }}
+                >
+                  <Icon type="global" className={styles.tabOptionIcon} />
+                  <span>外部市场</span>
+                </div>
+                <div
+                  className={`${styles.tabOption} ${isLocalActive ? styles.active : ''}`}
+                  onClick={() => this.onTabChange('local')}
+                >
+                  <Icon type="desktop" className={styles.tabOptionIcon} />
+                  <span>本地组件库</span>
+                </div>
               </div>
-              <div
-                className={`${styles.tabOption} ${isLocalActive ? styles.active : ''}`}
-                onClick={() => this.onTabChange('local')}
-              >
-                <Icon type="desktop" className={styles.tabOptionIcon} />
-                <span>本地组件库</span>
+              <div className={styles.tabSwitcherRight}>
+                <Search
+                  placeholder={isLocalActive ? formatMessage({ id: 'applicationMarket.localMarket.placeholder' }) : '搜索应用'}
+                  onSearch={isLocalActive ? this.handleSearchLocal : this.handleSearchCategory}
+                  value={isLocalActive ? this.state.name : this.state.searchKeyword}
+                  allowClear
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (isLocalActive) {
+                      this.setState({ name: value });
+                      if (!value && this.state.name) {
+                        this.setState({ name: '', page: 1 }, () => {
+                          this.getApps();
+                        });
+                      }
+                    } else {
+                      this.setState({ searchKeyword: value });
+                      if (!value && this.state.searchKeyword) {
+                        this.setState({
+                          categoryApps: [],
+                          categoryAppsPage: 1,
+                          categoryAppsHasMore: true
+                        }, () => {
+                          this.getCategoryApps(true);
+                        });
+                      }
+                    }
+                  }}
+                  style={{ width: 215 }}
+                />
               </div>
             </div>
 
@@ -837,4 +1507,4 @@ class Explore extends PureComponent {
   }
 }
 
-export default Explore;
+export default Form.create()(Explore);

@@ -37,6 +37,10 @@ import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import styles from './setting.less';
 
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
+const { Option, OptGroup } = Select;
+
 @connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {

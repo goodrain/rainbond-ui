@@ -538,9 +538,14 @@ class GlobalHeader extends PureComponent {
   handleSwitchToExplore = () => {
     const { dispatch, currentUser } = this.props;
     const eid = currentUser?.enterprise_id;
+    const teamName = globalUtil.getCurrTeamName();
 
     if (eid) {
-      const path = `/explore/${eid}/index`;
+      let path = `/explore/${eid}/index`;
+      // 如果在工作空间视图下，携带 teamName 参数
+      if (teamName) {
+        path = `${path}?teamName=${teamName}`;
+      }
       dispatch(routerRedux.push(path));
     }
   };
@@ -549,7 +554,7 @@ class GlobalHeader extends PureComponent {
    * 渲染视图切换器
    */
   renderViewSwitcher = () => {
-    const { sliderStyle } = this.state;
+    const { sliderStyle, showBill } = this.state;
     // 直接基于 URL 判断当前视图（支持 hash 路由）
     const currentPath = window.location.hash || window.location.pathname;
     const isExplore = currentPath.includes('/explore/');
@@ -572,19 +577,21 @@ class GlobalHeader extends PureComponent {
               {formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
             </span>
           </div>
-          <div
-            ref={this.switcherRefs[1]}
-            className={`${styles.switcherItem} ${isExplore ? styles.active : ''}`}
-            onClick={this.handleSwitchToExplore}
-          >
-            <Icon
-              component={isExplore ? SVG_ICONS.exploreActive : SVG_ICONS.exploreInactive}
-              className={styles.switcherIcon}
-            />
-            <span className={styles.switcherText}>
-              {formatMessage({ id: 'menu.switcher.appmarket', defaultMessage: '应用市场' })}
-            </span>
-          </div>
+          {!showBill && (
+            <div
+              ref={this.switcherRefs[1]}
+              className={`${styles.switcherItem} ${isExplore ? styles.active : ''}`}
+              onClick={this.handleSwitchToExplore}
+            >
+              <Icon
+                component={isExplore ? SVG_ICONS.exploreActive : SVG_ICONS.exploreInactive}
+                className={styles.switcherIcon}
+              />
+              <span className={styles.switcherText}>
+                {formatMessage({ id: 'menu.switcher.appmarket', defaultMessage: '应用市场' })}
+              </span>
+            </div>
+          )}
           <div
             ref={this.switcherRefs[2]}
             className={`${styles.switcherItem} ${isPlatform ? styles.active : ''}`}

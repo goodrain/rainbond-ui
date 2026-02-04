@@ -129,27 +129,13 @@ class ExploreLayout extends PureComponent {
           onCollapse={this.handleMenuCollapse}
         />
         <Content className={styles.content}>
-          <TransitionGroup
-            style={{
-              position: 'relative',
-              minHeight: 'calc(100vh - 56px)'
-            }}
+          <Authorized
+            logined
+            authority={['admin', 'user']}
+            noMatch={<Redirect to="/user/login" />}
           >
-            <CSSTransition
-              key={location.pathname}
-              timeout={700}
-              classNames="page-zoom"
-              unmountOnExit
-            >
-              <Authorized
-                logined
-                authority={['admin', 'user']}
-                noMatch={<Redirect to="/user/login" />}
-              >
-                {children}
-              </Authorized>
-            </CSSTransition>
-          </TransitionGroup>
+            {children}
+          </Authorized>
         </Content>
 
         {/* 回到顶部按钮 */}

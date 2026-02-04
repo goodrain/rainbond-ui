@@ -2,9 +2,13 @@ import React from 'react';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
 
-const AppCard = ({ app, onClick, variant = 'default' }) => {
+const AppCard = ({ app, onClick, onInstall, type = 'market' }) => {
   const handleCardClick = () => {
-    if (onClick) {
+    if (type === 'local' && onInstall) {
+      // 本地组件库点击弹出安装弹窗
+      onInstall(app);
+    } else if (onClick) {
+      // 外部市场点击进入详情
       onClick(app);
     }
   };
@@ -31,41 +35,21 @@ const AppCard = ({ app, onClick, variant = 'default' }) => {
     return '';
   };
 
-  const isCompact = variant === 'compact';
-  const cardClassName = isCompact
-    ? `${styles.appCard} ${styles.appCardCompact}`
-    : styles.appCard;
-
   return (
-    <div className={cardClassName} onClick={handleCardClick}>
-      {isCompact ? (
-        <div className={styles.appCardIconSimple}>
+    <div className={styles.appCard} onClick={handleCardClick}>
+      <div className={styles.appCardHeader}>
+        <div className={styles.appCardIcon}>
           {appLogo ? (
             <img src={appLogo} alt="" />
           ) : (
             globalUtil.fetchSvg('defaulAppImg')
           )}
         </div>
-      ) : (
-        <div className={styles.appCardIconWrapper}>
-          {appLogo && (
-            <div
-              className={styles.appCardIconBg}
-              style={{ backgroundImage: `url(${appLogo})` }}
-            />
-          )}
-          <div className={styles.appCardIconOverlay} />
-          <div className={styles.appCardIcon}>
-            {appLogo ? (
-              <img src={appLogo} alt="" />
-            ) : (
-              globalUtil.fetchSvg('defaulAppImg')
-            )}
-          </div>
+        <div className={styles.appCardInfo}>
+          <div className={styles.appCardName}>{appName}</div>
+          <div className={styles.appCardVersion}>版本 {getVersion()}</div>
         </div>
-      )}
-      <div className={styles.appCardName}>{appName}</div>
-      <div className={styles.appCardVersion}>{getVersion()}</div>
+      </div>
       <div className={styles.appCardDesc}>{appDesc}</div>
     </div>
   );

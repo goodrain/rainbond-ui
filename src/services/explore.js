@@ -4,7 +4,7 @@ import request from '../utils/request';
 const MARKET_ID = '859a51f9bb3b48b5bfd222e3bef56425';
 
 // 获取应用市场列表
-export async function fetchExploreApps(params = {}) {
+export async function fetchExploreApps(params = {},handleError) {
   const { page, page_size, query, usedSort, timeSort, apptype } = params;
   return request(`/app-server/marketui/${MARKET_ID}/indexApps`, {
     method: 'get',
@@ -16,26 +16,29 @@ export async function fetchExploreApps(params = {}) {
       timeSort,
       apptype,
       query
-    }
+    },
+    handleError
   });
 }
 
 // 获取应用详情
-export async function fetchExploreAppDetail(params = {}) {
+export async function fetchExploreAppDetail(params = {},handleError) {
   const { app_id } = params;
   return request(`/app-server/marketui/apps/${app_id}/detail`, {
-    method: 'get'
+    method: 'get',
+    handleError
   });
 }
 
 // 获取应用分类
-export async function fetchExploreCategories(params = {}) {
+export async function fetchExploreCategories(params = {}, handleError) {
   return request(`/app-server/marketui/${MARKET_ID}/classifications`, {
     method: 'get',
     params: {
       marketId: MARKET_ID,
       ...params
-    }
+    },
+    handleError
   });
 }
 
@@ -57,8 +60,9 @@ export async function installExploreApp(params = {}) {
 }
 
 // 获取推荐应用
-export async function fetchRecommendedApps() {
+export async function fetchRecommendedApps(params = {}, handleError) {
   return request(`/app-server/marketui/recommendedApps`, {
-    method: 'get'
+    method: 'get',
+    handleError
   });
 }
