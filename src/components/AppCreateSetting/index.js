@@ -19,9 +19,12 @@ import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import handleAPIError from '../../utils/error';
 import { formatMessage } from '@/utils/intl';
+import { FormattedMessage } from 'umi';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
+import AddStorage from '../../components/AddStorage';
+import ScrollerX from '../../components/ScrollerX';
 import ConfirmModal from '../../components/ConfirmModal';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
@@ -33,6 +36,7 @@ import {
   removeRelationedApp
 } from '../../services/app';
 import globalUtil from '../../utils/global';
+import appUtil from '../../utils/app';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import styles from './setting.less';
@@ -775,6 +779,225 @@ class Mnt extends PureComponent {
     );
   }
 }
+// 配置文件
+// eslint-disable-next-line react/no-multi-comp
+@connect(null, null, null, { withRef: true })
+class ConfigFiles extends PureComponent {
+  constructor(arg) {
+    super(arg);
+    this.state = {
+      volumes: [],
+      showAddVars: null,
+      editor: null,
+      toDeleteMnt: null,
+      toDeleteVolume: null
+    };
+  }
+  componentDidMount() {
+    this.fetchVolumes();
+    this.fetchBaseInfo();
+  }
+
+  fetchVolumes = () => {
+    this.props.dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: true
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumes: data.list || []
+          });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+  fetchBaseInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/fetchBaseInfo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+  onDeleteVolume = data => {
+    this.setState({ toDeleteVolume: data });
+  };
+  onCancelDeleteVolume = () => {
+    this.setState({ toDeleteVolume: null });
+  };
+  onEditVolume = data => {
+    this.setState({ showAddVars: data, editor: data });
+  };
+  handleAddVars = () => {
+    this.setState({
+      showAddVars: {
+        new: true
+      }
+    });
+  };
+  handleCancelAddVars = () => {
+    this.setState({ showAddVars: null, editor: null });
+  };
+  handleSubmitAddVars = vals => {
+    const { editor } = this.state;
+    if (editor) {
+      this.props.dispatch({
+        type: 'appControl/editorVolume',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appDetail.service.service_alias,
+          new_volume_path: vals.volume_path,
+          new_file_content: vals.file_content,
+          mode: vals.mode,
+          ID: editor.ID
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            this.fetchVolumes();
+            this.handleCancelAddVars();
+            notification.success({ message: formatMessage({ id: 'notification.success.edit' }) });
+          }
+        },
+        handleError: err => {
+          handleAPIError(err);
+        }
+      });
+    } else {
+      this.props.dispatch({
+        type: 'appControl/addVolume',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appDetail.service.service_alias,
+          ...vals
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            this.fetchVolumes();
+            this.handleCancelAddVars();
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
+          }
+        },
+        handleError: err => {
+          handleAPIError(err);
+        }
+      });
+    }
+  };
+  handleDeleteVolume = () => {
+    this.props.dispatch({
+      type: 'appControl/deleteVolume',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        volume_id: this.state.toDeleteVolume.ID
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
+          this.onCancelDeleteVolume();
+          this.fetchVolumes();
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+  render() {
+    const { appDetail } = this.props;
+    const { volumes } = this.state;
+    const language = appUtil.getLanguage(appDetail);
+    return (
+      <Card
+        style={{ marginBottom: 16 }}
+        title={formatMessage({ id: 'componentOverview.body.tab.env.setting.title' })}
+        extra={
+          <Button onClick={this.handleAddVars}>
+            <Icon type="plus" />
+            <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
+          </Button>
+        }
+      >
+        <ScrollerX sm={650}>
+          <Table
+            pagination={false}
+            rowKey={(record, index) => index}
+            columns={[
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
+                dataIndex: 'volume_name'
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
+                dataIndex: 'volume_path'
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
+                dataIndex: 'mode'
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
+                dataIndex: 'action',
+                render: (v, data) => (
+                  <div>
+                    <a
+                      onClick={() => {
+                        this.onDeleteVolume(data);
+                      }}
+                      href="javascript:;"
+                      style={{ marginRight: 8 }}
+                    >
+                      <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
+                    </a>
+                    <a
+                      onClick={() => {
+                        this.onEditVolume(data);
+                      }}
+                      href="javascript:;"
+                    >
+                      <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
+                    </a>
+                  </div>
+                )
+              }
+            ]}
+            dataSource={volumes}
+          />
+        </ScrollerX>
+        {this.state.showAddVars && (
+          <AddStorage
+            appBaseInfo={this.props.appBaseInfo}
+            onCancel={this.handleCancelAddVars}
+            onSubmit={this.handleSubmitAddVars}
+            data={this.state.showAddVars}
+            editor={this.state.editor}
+            {...this.props}
+          />
+        )}
+        {this.state.toDeleteVolume && (
+          <ConfirmModal
+            title={<FormattedMessage id='confirmModal.deldete.configurationFile.title' />}
+            desc={<FormattedMessage id='confirmModal.deldete.configurationFile.desc' />}
+            onCancel={this.onCancelDeleteVolume}
+            onOk={this.handleDeleteVolume}
+          />
+        )}
+      </Card>
+    );
+  }
+}
 // eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class Relation extends PureComponent {
@@ -930,6 +1153,7 @@ class RenderProperty extends PureComponent {
     const {
       appDetail,
       visible,
+      isComposeCreate,
     } = this.props;
     return (
       <div
@@ -945,6 +1169,11 @@ class RenderProperty extends PureComponent {
         <div style={{ marginTop: '12px' }}>
         <Mnt appDetail={appDetail} />
         </div>
+        {isComposeCreate && (
+          <div style={{ marginTop: '12px' }}>
+            <ConfigFiles appDetail={appDetail} />
+          </div>
+        )}
         <Relation appDetail={appDetail} />
       </div>
     );
@@ -1032,6 +1261,7 @@ export default class Index extends PureComponent {
               key={appDetail.service.extend_method}
               appDetail={appDetail}
               visible={type !== 'deploy'}
+              isComposeCreate={this.props.isComposeCreate}
             />
           </div>
         </div>

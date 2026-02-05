@@ -1,7 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
-import { Button, Card, Form, Icon, Modal } from 'antd';
+import { Button, Card, Form, Icon, Modal, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -10,6 +10,7 @@ import CodeMirror from 'react-codemirror';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
+import ComposeCheckInfo from '../../components/ComposeCheckInfo';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import role from '../../utils/newRole'
 import pageheaderSvg from '../../utils/pageHeaderSvg';
@@ -75,7 +76,7 @@ class ModifyCompose extends PureComponent {
     return (
       <Modal
         visible
-        title={formatMessage({id:'confirmModal.compose.update.title'})}
+        title={formatMessage({ id: 'confirmModal.compose.update.title' })}
         onOk={this.handleSubmit}
         onCancel={this.props.onCancel}
       >
@@ -86,7 +87,7 @@ class ModifyCompose extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: formatMessage({id:'placeholder.input_content'})
+                  message: formatMessage({ id: 'placeholder.input_content' })
                 }
               ]
             })(<CodeMirror options={options} placeholder="" />)}
@@ -116,7 +117,13 @@ export default class CreateCheck extends PureComponent {
       errorInfo: [],
       serviceInfo: [],
       showDelete: false,
-      modifyCompose: false
+      modifyCompose: false,
+      // 上传状态
+      uploadStatus: {
+        isAllUploaded: false,
+        pendingCount: 0,
+        totalCount: 0
+      }
     };
     this.mount = false;
     this.socketUrl = '';
@@ -221,11 +228,16 @@ export default class CreateCheck extends PureComponent {
           const status = data.bean.check_status;
           const error_infos = data.bean.error_infos || [];
           const serviceInfo = data.bean.service_info || [];
+
           this.setState({
             status,
             errorInfo: error_infos,
             serviceInfo
           });
+          // 检测成功后，获取应用列表并匹配 service_alias，然后获取 volumes
+          if (status === 'success') {
+            this.matchServiceAliasAndFetchVolumes(serviceInfo, data.list);
+          }
         }
       })
       .catch(err => {
@@ -240,6 +252,72 @@ export default class CreateCheck extends PureComponent {
       });
   };
 
+  matchServiceAliasAndFetchVolumes = (serviceInfo, list) => {
+    const team_name = globalUtil.getCurrTeamName();
+    const params = this.getParams();
+    const appList = list || [];
+    // 匹配 service_cname，添加 service_alias
+    const matchedServiceInfo = serviceInfo.map(info => {
+      const matchedApp = appList.find(app => app.service_cname === info.service_cname);
+      if (matchedApp) {
+        return {
+          ...info,
+          service_alias: matchedApp.service_alias,
+          appid: params.group_id
+        };
+      }
+      return info;
+    });
+    this.fetchVolumesForServices(matchedServiceInfo);
+  };
+
+  fetchVolumesForServices = (serviceInfo) => {
+    const team_name = globalUtil.getCurrTeamName();
+    let completedCount = 0;
+    const results = [...serviceInfo];
+
+    serviceInfo.forEach((info, index) => {
+      if (info.service_alias) {
+        this.props.dispatch({
+          type: 'appControl/fetchVolumes',
+          payload: {
+            team_name,
+            app_alias: info.service_alias,
+            is_config: true
+          },
+          callback: (data) => {
+            results[index] = {
+              ...info,
+              volumes: data?.list || []
+            };
+            completedCount++;
+            if (completedCount === serviceInfo.length) {
+              this.setState({ serviceInfo: results }, () => {
+                console.log('Service Info Updated:', this.state.serviceInfo);
+              });
+            }
+          },
+          handleError: () => {
+            results[index] = {
+              ...info,
+              volumes: []
+            };
+            completedCount++;
+            if (completedCount === serviceInfo.length) {
+              this.setState({ serviceInfo: results });
+            }
+          }
+        });
+      } else {
+        results[index] = { ...info, volumes: [] };
+        completedCount++;
+        if (completedCount === serviceInfo.length) {
+          this.setState({ serviceInfo: results });
+        }
+      }
+    });
+  };
+
   showModifyCompose = () => {
     this.setState({ modifyCompose: true });
   };
@@ -249,13 +327,17 @@ export default class CreateCheck extends PureComponent {
 
   handleSetting = () => {
     const params = this.getParams();
-    this.props.dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-setting/${
-          params.group_id
-        }/${params.compose_id}`
-      )
-    );
+    const { location } = this.props;
+    const app_name = location && location.query && location.query.app_name;
+
+    let url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-setting/${params.group_id}/${params.compose_id}`;
+
+    // 携带 app_name 参数
+    if (app_name) {
+      url += `?app_name=${encodeURIComponent(app_name)}`;
+    }
+
+    this.props.dispatch(routerRedux.push(url));
   };
   handleBuild = () => {
     const team_name = globalUtil.getCurrTeamName();
@@ -278,8 +360,7 @@ export default class CreateCheck extends PureComponent {
         });
         this.props.dispatch(
           routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              params.group_id
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${params.group_id
             }/overview`
           )
         );
@@ -375,7 +456,7 @@ export default class CreateCheck extends PureComponent {
   renderChecking = () => {
     const actions = (
       <Button onClick={this.showDelete} type="default">
-        {formatMessage({id:'button.abandon_create'})}
+        {formatMessage({ id: 'button.abandon_create' })}
       </Button>
     );
 
@@ -393,9 +474,9 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="ing"
-        title={formatMessage({id:'confirmModal.component.check.title.loading'})}
+        title={formatMessage({ id: 'confirmModal.component.check.title.loading' })}
         extra={extra}
-        description={formatMessage({id:'confirmModal.component.check.appShare.desc'})}
+        description={formatMessage({ id: 'confirmModal.component.check.appShare.desc' })}
         actions={actions}
         style={{
           marginTop: 48,
@@ -404,70 +485,82 @@ export default class CreateCheck extends PureComponent {
       />
     );
   };
+  // 处理上传状态变化
+  handleUploadStatusChange = (uploadStatus) => {
+    this.setState({ uploadStatus });
+  };
+
   renderSuccess = () => {
     const { rainbondInfo } = this.props;
-    const serviceInfo = this.state.serviceInfo || [];
+    const { serviceInfo, errorInfo, uploadStatus } = this.state;
+    const params = this.getParams();
+
+    // 判断是否可以构建：所有配置文件都已上传
+    const canBuild = uploadStatus.isAllUploaded;
+
     const extra = (
-      <div>
-        {serviceInfo.map(item => {
-          return (
-            <div
-              style={{
-                marginBottom: 16
-              }}
-            >
-              <p>{formatMessage({id:'componentCheck.modify_image_name.label.component_cname'})}{item.service_cname}</p>
-              {(item.service_info || []).map(item => {
-                return (
-                  <div
-                    style={{
-                      marginBottom: 16
-                    }}
-                  >
-                    {this.renderSuccessInfo(item)}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+      <ComposeCheckInfo
+        serviceInfo={serviceInfo}
+        errorInfo={errorInfo}
+        appID={params.group_id}
+        onUploadSuccess={() => this.fetchVolumesForServices(serviceInfo)}
+        onUploadStatusChange={this.handleUploadStatusChange}
+      />
     );
+
+    // 构建按钮，根据上传状态显示提示
+    const buildButton = (
+      <Button
+        onClick={this.handleBuild}
+        type="primary"
+        disabled={!canBuild}
+        style={{marginRight:12}}
+      >
+        {formatMessage({ id: 'button.build_component' })}
+      </Button>
+    );
+
     const actions = [
-      <Button onClick={this.handleBuild} type="primary">
-        {' '}
-       {formatMessage({id:'button.build_component'})}{' '}
-      </Button>,
+      !canBuild ? (
+          <Tooltip
+            key="build"
+            title={formatMessage({ id: 'composeCheckInfo.build_disabled_tip' }, { count: uploadStatus.pendingCount })}
+          >
+            {buildButton}
+          </Tooltip>
+      ) : (
+        buildButton
+      ),
       <Button type="default" onClick={this.handleSetting}>
-        {formatMessage({id:'button.advanced_setup'})}
+        {formatMessage({ id: 'button.advanced_setup' })}
       </Button>,
       <Button onClick={this.showDelete} type="default">
         {' '}
-        {formatMessage({id:'button.abandon_create'})}{' '}
+        {formatMessage({ id: 'button.abandon_create' })}{' '}
       </Button>
     ];
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     return (
       <Result
         type="success"
-        title={formatMessage({id:'confirmModal.component.check.title.success.component_check'})}
+        title={formatMessage({ id: 'confirmModal.component.check.title.success.component_check' })}
         description={
           <div>
-            <div>{formatMessage({id:'componentCheck.tooltip.title.p3'})}</div>
-            {formatMessage({id:'componentCheck.tooltip.title.p4'})}
-            {formatMessage({id:'componentCheck.tooltip.title.p9'})}
+            <div>{formatMessage({ id: 'componentCheck.tooltip.title.p3' })}</div>
+            {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}
+            {formatMessage({ id: 'componentCheck.tooltip.title.p9' })}
             {(platform_url && (
               <span>
                 <a
                   href={`${platform_url}docs/use-manual/component-create/language-support/`}
                   target="_blank"
                 >
-                  {formatMessage({id:'componentCheck.tooltip.title.p8'})}
+                  {formatMessage({ id: 'componentCheck.tooltip.title.p8' })}
                 </a>
               </span>
             )) ||
               ''}{' '}
-            {formatMessage({id:'componentCheck.tooltip.title.p6'})}
+            {formatMessage({ id: 'componentCheck.tooltip.title.p6' })}
           </div>
         }
         extra={extra}
@@ -475,64 +568,6 @@ export default class CreateCheck extends PureComponent {
         style={{ marginTop: 48, marginBottom: 16 }}
       />
     );
-  };
-  renderSuccessInfo = item => {
-    if (item.value) {
-      if (typeof item.value === 'string') {
-        return (
-          <div
-            style={{
-              paddingLeft: 32
-            }}
-          >
-            <span
-              style={{
-                verticalAlign: 'top',
-                display: 'inline-block',
-                fontWeight: 'bold'
-              }}
-            >
-              {item.key}：
-            </span>
-            {item.value}
-          </div>
-        );
-      }
-      return (
-        <div
-          style={{
-            paddingLeft: 32
-          }}
-        >
-          <span
-            style={{
-              verticalAlign: 'top',
-              display: 'inline-block',
-              fontWeight: 'bold'
-            }}
-          >
-            {item.key}：
-          </span>
-          <div
-            style={{
-              display: 'inline-block'
-            }}
-          >
-            {(item.value || []).map(item => {
-              return (
-                <p
-                  style={{
-                    marginBottom: 0
-                  }}
-                >
-                  {item}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
   };
   renderError = () => {
     const { errorInfo } = this.state;
@@ -565,18 +600,18 @@ export default class CreateCheck extends PureComponent {
     );
     const actions = [
       <Button onClick={this.showDelete} type="default">
-        {formatMessage({id:'button.abandon_create'})}
+        {formatMessage({ id: 'button.abandon_create' })}
       </Button>,
       <Button onClick={this.recheck} type="primary">
-        {formatMessage({id:'button.retest_check'})}
+        {formatMessage({ id: 'button.retest_check' })}
       </Button>
     ];
 
     return (
       <Result
         type="error"
-        title={formatMessage({id:'confirmModal.component.check.title.error.component_check'})}
-        description={formatMessage({id:'confirmModal.component.check.title.error.description'})}
+        title={formatMessage({ id: 'confirmModal.component.check.title.error.component_check' })}
+        description={formatMessage({ id: 'confirmModal.component.check.title.error.description' })}
         extra={extra}
         actions={actions}
         style={{
@@ -591,7 +626,7 @@ export default class CreateCheck extends PureComponent {
     const params = this.getParams();
     return (
       <PageHeaderLayout
-              title={formatMessage({ id: 'versionUpdata_6_1.check' })}
+        title={formatMessage({ id: 'versionUpdata_6_1.check' })}
         content={formatMessage({ id: 'versionUpdata_6_1.content4' })}
         titleSvg={pageheaderSvg.getPageHeaderSvg("check", 18)}
       >
@@ -616,9 +651,9 @@ export default class CreateCheck extends PureComponent {
         {showDelete && (
           <ConfirmModal
             onOk={this.handleDelete}
-            title={formatMessage({id:'confirmModal.abandon_create.create_check.title'})}
-            subDesc={formatMessage({id:'confirmModal.delete.strategy.subDesc'})}
-            desc={formatMessage({id:'confirmModal.delete.create_check.desc'})}
+            title={formatMessage({ id: 'confirmModal.abandon_create.create_check.title' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            desc={formatMessage({ id: 'confirmModal.delete.create_check.desc' })}
             onCancel={() => {
               this.setState({ showDelete: false });
             }}

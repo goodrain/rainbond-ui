@@ -467,7 +467,6 @@ class Explore extends PureComponent {
           const tenantActions = team?.tenant_actions;
           // 获取应用创建权限
           const creatAppPermission = role.queryPermissionsInfo(tenantActions?.team, 'team_app_create');
-          console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
           this.setState({
             teamPermissionsInfo: tenantActions,
             creatAppPermission: creatAppPermission
@@ -588,14 +587,6 @@ class Explore extends PureComponent {
     const installType = e.target.value;
     const { creatAppPermission, creatComPermission } = this.state;
     this.setState({ localInstallType: installType });
-    // 输出当前权限信息
-    if (installType === 'new') {
-      console.log('安装类型: 创建新应用');
-      console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
-    } else {
-      console.log('安装类型: 安装到已有应用');
-      console.log('creatComPermission (创建组件权限):', creatComPermission);
-    }
   };
 
   // 本地版本变更
@@ -609,7 +600,6 @@ class Explore extends PureComponent {
     if (teamPermissionsInfo && groupId) {
       // 获取组件创建权限
       const creatComPermission = role.queryPermissionsInfo(teamPermissionsInfo?.team, 'app_overview', `app_${groupId}`);
-      console.log('creatComPermission (创建组件权限):', creatComPermission);
       this.setState({ creatComPermission: creatComPermission });
     }
   };
@@ -921,7 +911,6 @@ class Explore extends PureComponent {
     } = this.props;
     // 兼容两种数据结构获取 appId
     const appId = app.id || app.app_id || '';
-    console.log('appId:', appId);
     // 获取 URL 中的 teamName 参数并传递到详情页
     const query = new URLSearchParams(location?.search || '');
     const teamName = query.get('teamName') || '';

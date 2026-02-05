@@ -54,7 +54,6 @@ class ExploreDetail extends PureComponent {
         params: { id }
       }
     } = this.props;
-    console.log('appId:', id);
     this.loadData();
   }
 
@@ -305,7 +304,6 @@ class ExploreDetail extends PureComponent {
           const tenantActions = team?.tenant_actions;
           // 获取应用创建权限
           const creatAppPermission = role.queryPermissionsInfo(tenantActions?.team, 'team_app_create');
-          console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
           this.setState({
             teamPermissionsInfo: tenantActions,
             creatAppPermission: creatAppPermission
@@ -347,7 +345,6 @@ class ExploreDetail extends PureComponent {
     if (teamPermissionsInfo && groupId) {
       // 获取组件创建权限
       const creatComPermission = role.queryPermissionsInfo(teamPermissionsInfo?.team, 'app_overview', `app_${groupId}`);
-      console.log('creatComPermission (创建组件权限):', creatComPermission);
       this.setState({ creatComPermission: creatComPermission });
     }
   };
@@ -418,14 +415,6 @@ class ExploreDetail extends PureComponent {
     const installType = e.target.value;
     const { creatAppPermission, creatComPermission } = this.state;
     this.setState({ installType: installType });
-    // 输出当前权限信息
-    if (installType === 'new') {
-      console.log('安装类型: 创建新应用');
-      console.log('creatAppPermission (创建新应用权限):', creatAppPermission);
-    } else {
-      console.log('安装类型: 安装到已有应用');
-      console.log('creatComPermission (创建组件权限):', creatComPermission);
-    }
   };
 
   // 处理安装提交
@@ -447,7 +436,7 @@ class ExploreDetail extends PureComponent {
       this.setState({ submitLoading: true });
 
       const teamName = selectedTeam.team_name;
-      const regionName = selectedTeam.region || selectedTeam.region_list?.[0]?.region_name;
+      const regionName = selectedTeam.region?.[0]?.region_name || selectedTeam.region_list?.[0]?.region_name;
 
       if (!regionName) {
         notification.error({
@@ -515,7 +504,6 @@ class ExploreDetail extends PureComponent {
             note: ''
           },
           callback: (res) => {
-            roleUtil.refreshPermissionsInfo();
             if (res && res.group_id) {
               installApp(res.group_id, true);
             } else {
