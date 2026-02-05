@@ -1,0 +1,1171 @@
+@import '~antd/lib/style/themes/default.less';
+
+.explorePage {
+  background: #f2f4f7;
+  min-height: 100vh;
+}
+
+.exploreContainer {
+  background: #f2f4f7;
+  border-radius: 8px;
+  padding: 0 4%;
+}
+
+// 手写的两个主选项
+.tabSwitcher {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 4% 12px;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  background: #f2f4f7;
+  z-index: 100;
+}
+
+.tabSwitcherLeft {
+  display: flex;
+  gap: 12px;
+}
+
+.tabSwitcherRight {
+  :global {
+    .ant-input-search > .ant-input {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .ant-input-search > .ant-input:focus {
+      background-color: #fff;
+    }
+
+    .ant-input-suffix {
+      color: #495464;
+    }
+  }
+}
+
+.tabOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: transparent;
+  border-radius: 100px;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+
+  &:hover {
+    color: @primary-color;
+  }
+
+  &.active {
+    background: fade(@primary-color, 10%);
+    color: @primary-color;
+  }
+}
+
+.tabOptionIcon {
+  font-size: 15px;
+}
+
+.contentArea {
+  padding: 60px 0 16px;
+  min-height: 400px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.marketErrorCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 60px 40px;
+  box-shadow: @rbd-card-shadow;
+}
+
+.radioGroup {
+  margin-left: 16px;
+}
+
+.marketStatus {
+  font-size: 14px;
+  color: #666;
+
+  a {
+    color: @primary-color;
+  }
+}
+
+// 列表项样式
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #fafafa;
+  }
+}
+
+.installCount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  font-size: 12px;
+  color: #999;
+}
+
+.appIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 4px;
+  }
+
+  svg {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.appInfo {
+  padding: 0 16px;
+
+  .appName {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+
+    a {
+      color: #333;
+
+      &:hover {
+        color: @primary-color;
+      }
+    }
+  }
+
+  .appDesc {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 400px;
+  }
+}
+
+.appVersion {
+  text-align: center;
+
+  .devStatus {
+    font-size: 12px;
+    color: @primary-color;
+    margin-bottom: 4px;
+  }
+
+  .version {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+    background: #f5f5f5;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+}
+
+.appTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  .tag {
+    font-size: 12px;
+    color: #666;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .moreTags {
+    font-size: 12px;
+    color: @primary-color;
+    cursor: pointer;
+  }
+}
+
+.appAction {
+  display: flex;
+  justify-content: center;
+
+  .installBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: @primary-color;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.3s;
+
+    &:hover {
+      background: rgba(24, 144, 255, 0.1);
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+    }
+
+    span {
+      font-size: 12px;
+    }
+  }
+}
+
+// 轮播组件样式
+.carouselWrapper {
+  position: relative;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.carouselSlide {
+  position: relative;
+  padding: 20px 24px 66px;
+  min-height: 340px;
+}
+
+// 轮播图颜色变体
+.carouselSlide1 {
+  background: linear-gradient(135deg, #f3e8ff 0%, #ede4f7 50%, #e8dff5 100%);
+
+  .carouselTitle {
+    color: #7c3aed;
+  }
+
+  .carouselSubtitle {
+    color: #8b5cf6;
+  }
+
+  .carouselAppVersion {
+    color: #8b5cf6;
+  }
+}
+
+.carouselSlide2 {
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #e0f2fe 100%);
+
+  .carouselTitle {
+    color: #2563eb;
+  }
+
+  .carouselSubtitle {
+    color: #3b82f6;
+  }
+
+  .carouselAppVersion {
+    color: #3b82f6;
+  }
+}
+
+.carouselSlide3 {
+  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 50%, #dcfce7 100%);
+
+  .carouselTitle {
+    color: #16a34a;
+  }
+
+  .carouselSubtitle {
+    color: #22c55e;
+  }
+
+  .carouselAppVersion {
+    color: #22c55e;
+  }
+}
+
+.carouselInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// 标题区域
+.carouselHeader {}
+
+.carouselTitle {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.carouselSubtitle {
+  font-size: 15px;
+}
+
+// 应用卡片区域
+.carouselCards {
+  display: flex;
+  gap: 20px;
+}
+
+// 轮播中的应用卡片
+.carouselAppCard {
+  flex: 1;
+  min-width: 0;
+  background: #ffffff91;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.carouselAppIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  border-radius: 10px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+
+  svg {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.carouselAppName {
+  font-size: 14px;
+  font-weight: 600;
+  color: @heading-color;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carouselAppVersion {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.carouselAppDesc {
+  font-size: 12px;
+  color: @text-color-secondary;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 36px;
+}
+
+// 轮播控制器
+.carouselControls {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.carouselArrow {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  border: 1.5px solid #999;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+    border-color: #666;
+  }
+}
+
+.carouselIndicator {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  min-width: 40px;
+  text-align: center;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+}
+
+.carouselPause {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  border: 1.5px solid #999;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+    border-color: #666;
+  }
+}
+
+// 热门类别
+.hotCategories {
+  margin-bottom: 20px;
+}
+
+.hotCategoriesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  :global {
+    .ant-input-suffix {
+      color: #495464;
+    }
+
+    .ant-input-search>.ant-input {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+
+    }
+
+    .ant-input-search>.ant-input:focus {
+      background-color: #fff;
+    }
+
+    .ant-select-selection {
+      background-color: #e8e9ef;
+      border: 0;
+      border-radius: 8px;
+    }
+
+  }
+}
+
+.hotCategoriesTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: oklch(0.145 0 0);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hotCategoriesTitleIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.categoryList {
+  display: flex;
+  gap: 12px;
+}
+
+.categoryListFixed {
+  position: fixed;
+  top: 117px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #f2f4f7;
+  padding: 2px 4% 12px;
+}
+
+.categoryListPlaceholder {
+  height: 60px;
+}
+
+.categoryItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: @rbd-card-shadow;
+  background: #fff;
+  border: 2px solid transparent; // 添加透明边框防止选中时宽度抖动
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: @rbd-card-shadow-hover;
+  }
+}
+
+.categoryName {
+  font-size: 14px;
+  font-weight: 500;
+  color: @heading-color;
+}
+
+.categoryIcon {
+  font-size: 18px;
+  opacity: 1;
+}
+
+// 类别颜色 - 只改变图标颜色
+.categoryBlue {
+  .categoryIcon {
+    color: #1890ff;
+  }
+}
+
+.categoryGray {
+  .categoryIcon {
+    color: #8c8c8c;
+  }
+}
+
+.categoryPurple {
+  .categoryIcon {
+    color: #722ed1;
+  }
+}
+
+.categoryCyan {
+  .categoryIcon {
+    color: #13c2c2;
+  }
+}
+
+.categoryGreen {
+  .categoryIcon {
+    color: #52c41a;
+  }
+}
+
+// 全部应用样式
+.categoryAll {
+  .categoryIcon {
+    color: #666;
+  }
+}
+
+// 类别选中状态
+.categoryActive {
+  border-color: @primary-color;
+  box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+}
+
+// 类别应用列表区域
+.categoryAppsSection {
+  margin-top: 24px;
+  padding-bottom: 24px;
+}
+
+.categoryAppsList {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.loadingMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0;
+  color: #999;
+  font-size: 13px;
+}
+
+.noMore {
+  text-align: center;
+  padding: 16px 0;
+  color: #999;
+  font-size: 13px;
+}
+
+// 猜你喜欢
+.recommendSection {
+  margin-bottom: 24px;
+}
+
+.recommendHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.recommendTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: oklch(0.145 0 0);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recommendTitleIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.recommendMore {
+  font-size: 14px;
+  color: @primary-color;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.recommendList {
+  display: flex;
+  gap: 12px;
+}
+
+.recommendCard {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: @rbd-card-shadow;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: @rbd-card-shadow-hover;
+  }
+}
+
+.recommendCardIconWrapper {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.recommendCardIconBg {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background-size: 150%;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(30px) saturate(1.5);
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.recommendCardIconOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(2px);
+  transition: all 0.3s;
+}
+
+.recommendCardIconWrapper:hover {
+  .recommendCardIconBg {
+    opacity: 0.8;
+    filter: blur(25px) saturate(1.8);
+  }
+
+  .recommendCardIconOverlay {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.recommendCardIcon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+  }
+
+  svg {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.recommendCardNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.recommendCardName {
+  font-size: 15px;
+  font-weight: 500;
+  color: @heading-color;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.recommendCardTag {
+  font-size: 12px;
+  color: @primary-color;
+  background: fade(@primary-color, 10%);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.recommendCardVersion {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.recommendCardDesc {
+  font-size: 13px;
+  color: @text-color-secondary;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 39px;
+  margin-bottom: 12px;
+}
+
+.recommendCardActions {
+  display: flex;
+  gap: 8px;
+}
+
+.recommendCardBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: @text-color-secondary;
+  background: @rbd-background-color;
+
+  &:hover {
+    color: @primary-color;
+    background: fade(@primary-color, 10%);
+  }
+
+  &.primary {
+    color: #fff;
+    background: @primary-color;
+
+    &:hover {
+      background: fade(@primary-color, 85%);
+    }
+  }
+}
+
+.recommendCardBtnIcon {
+  width: 14px;
+  height: 14px;
+}
+
+// 排行榜
+.rankingSection {
+  margin-bottom: 24px;
+}
+
+.rankingSectionTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: oklch(0.145 0 0);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rankingSectionTitleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.rankingList {
+  display: flex;
+  gap: 16px;
+}
+
+.rankingCard {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: @rbd-card-shadow;
+}
+
+.rankingCardTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: @heading-color;
+  margin-bottom: 16px;
+}
+
+.rankingAppList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rankingAppItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid @border-color-base;
+  transition: background 0.3s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rankingAppIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: @rbd-background-color;
+  border-radius: 8px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.rankingAppInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.rankingAppName {
+  font-size: 14px;
+  font-weight: 500;
+  color: @heading-color;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankingAppMeta {
+  font-size: 12px;
+  color: @text-color-secondary;
+
+  span {
+    &:first-child {
+      margin-right: 8px;
+    }
+  }
+}
+
+.rankingAppBtn {
+  font-size: 12px;
+  color: @text-color-secondary;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  flex-shrink: 0;
+  background: @rbd-background-color;
+
+  &:hover {
+    color: @primary-color;
+    background: fade(@primary-color, 10%);
+  }
+}
+
+.rankingCardMore {
+  margin-top: 16px;
+  font-size: 14px;
+  color: @primary-color;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// 专题卡片
+.topicSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.topicCard {
+  position: relative;
+  border-radius: 16px;
+  padding: 24px 32px;
+  overflow: hidden;
+
+  &.topicCyan {
+    background: #ecfbff;
+  }
+
+  &.topicOrange {
+    background: #fffbea;
+  }
+}
+
+.topicCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.topicCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.topicCardIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+
+  img {
+    width: 28px;
+    height: 28px;
+  }
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.topicCardTitleGroup {
+  flex: 1;
+}
+
+.topicCardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: @heading-color;
+  margin-bottom: 8px;
+}
+
+.topicCardDesc {
+  font-size: 14px;
+  color: @text-color-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topicCardDecor {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  margin-left: 24px;
+
+  img,
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.topicAppsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.topicAppsTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: @heading-color;
+}
+
+.topicAppsMore {
+  font-size: 14px;
+  color: @primary-color;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.topicAppsList {
+  display: flex;
+  gap: 16px;
+}
+
+.topicAppCard {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: @rbd-min-card-shadow;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: @rbd-card-shadow-hover;
+  }
+}
+
+.topicAppCardIcon {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+
+  img {
+    max-width: 64px;
+    max-height: 64px;
+    object-fit: contain;
+  }
+
+  svg {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.topicAppCardName {
+  font-size: 14px;
+  font-weight: 500;
+  color: @heading-color;
+  margin-bottom: 4px;
+}
+
+.topicAppCardVersion {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.topicAppCardDesc {
+  font-size: 12px;
+  color: @text-color-secondary;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 本地组件库卡片列表
+.localAppCardList {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}

@@ -5,7 +5,6 @@
   background: @rbd-background-color;
   // background: #fff;
 
-  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
   position: relative;
 }
 
@@ -17,8 +16,8 @@
   font-size: 18px;
   padding-left: 1.5em;
   padding-right: .5em;
-  height: 50px;
-  line-height: 50px;
+  height: 56px;
+  line-height: 56px;
   margin-right: 20px;
   float: left;
   cursor: pointer;
@@ -44,7 +43,7 @@
   align-items: center;
   padding-left: 10px;
   padding-right: 0px;
-  height: 50px;
+  height: 56px;
   margin-right: 40px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -77,7 +76,7 @@
 
 .enterpriseName {
   padding-top: 8px;
-  line-height: 50px;
+  line-height: 56px;
   margin-left: 4px;
   font-size: 22px;
   font-family: "Now", "Montserrat", sans-serif;
@@ -96,7 +95,7 @@
 .itemBox {
   float: left;
   color: #333;
-  line-height: 50px;
+  line-height: 56px;
 }
 
 .item {
@@ -125,7 +124,7 @@
 
 .breadCrumb {
   width: 100%;
-  height: 50px;
+  height: 56px;
   display: flex;
   align-items: center;
 }
@@ -203,8 +202,8 @@
 }
 
 .logo {
-  height: 50px;
-  line-height: 58px;
+  height: 56px;
+  line-height: 64px;
   vertical-align: top;
   display: inline-block;
   padding: 0 0 0 24px;
@@ -240,7 +239,7 @@
 
 i.trigger {
   font-size: 20px;
-  line-height: 50px;
+  line-height: 56px;
   cursor: pointer;
   transition: all .3s, padding 0s;
   vertical-align: middle;
@@ -291,6 +290,17 @@ i.trigger {
 .left {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .productIcon {
@@ -323,9 +333,10 @@ i.trigger {
 }
 
 .right {
-  float: right;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
 
   .action {
     display: flex;
@@ -382,7 +393,7 @@ i.trigger {
 
 :global {
   .ant-layout-header {
-    height: 50px;
+    height: 56px;
     line-height: 0px;
     display: flex;
     align-items: center;
@@ -390,8 +401,8 @@ i.trigger {
     border-bottom: 1px solid @border-color-base;
     background-color: @rbd-background-color !important;
     padding: 0 !important;
-    height: 50px !important;
-    line-height: 50px !important;
+    height: 56px !important;
+    line-height: 56px !important;
   }
 }
 
@@ -422,7 +433,6 @@ i.trigger {
   display: flex;
   align-items: center;
   height: 30px;
-  border-left: 1px solid #e8e8e8;
   padding-left: 12px;
   margin-left: 12px;
 }
@@ -436,4 +446,207 @@ i.trigger {
     font-size: 12px;
     margin-top: 6px;
   }
+}
+
+// ==================== 视图切换器 ====================
+.viewSwitcher {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+}
+
+.switcherInner {
+  position: relative;
+  display: flex;
+  background: #f0f2f5;
+  border-radius: 8px;
+  padding: 3px;
+  height: 36px;
+}
+
+.switcherItem {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #676f83;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.active {
+    color: @primary-color;
+  }
+}
+
+.switcherIcon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.switcherText {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.switcherSlider {
+  position: absolute;
+  z-index: 1;
+  top: 3px;
+  height: calc(100% - 6px);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ==================== 用户下拉菜单 ====================
+.userDropdown {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  min-width: 240px;
+  overflow: hidden;
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.userAvatar {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #ff9a44 0%, #fc6076 100%);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.userInfo {
+  margin-left: 12px;
+  overflow: hidden;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.4;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menuList {
+  padding: 8px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.menuIcon {
+  font-size: 18px;
+  color: #666;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.menuText {
+  font-size: 14px;
+  color: #333;
+  flex: 1;
+}
+
+.menuItemLanguage {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  .menuIcon {
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.languageValue {
+  font-size: 14px;
+  color: #999;
+  margin-left: auto;
+  margin-right: 4px;
+}
+
+.menuArrow {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.menuItemLogout {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #fff5f5;
+  }
+
+  .menuIcon {
+    color: #ff4d4f;
+
+    svg path {
+      fill: #ff4d4f;
+    }
+  }
+
+  .menuText {
+    color: #ff4d4f;
+  }
+}
+
+.menuFooter {
+  border-top: 1px solid #f0f0f0;
+  padding: 8px 0;
 }

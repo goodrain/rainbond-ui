@@ -1,0 +1,98 @@
+@import '~antd/lib/style/themes/default.less';
+
+.exploreLayout {
+  min-height: 100vh;
+  background: #f0f2f5;
+
+  // 在 ExploreLayout 下让 header 固定
+  :global {
+    .ant-layout-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 101;
+    }
+  }
+}
+
+.content {
+  min-height: calc(100vh - 56px);
+  padding-top: 56px;
+}
+
+// 回到顶部按钮
+.backTop {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 40px;
+  height: 40px;
+  background: @primary-color;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+  z-index: 99;
+
+  &:hover {
+    background: darken(@primary-color, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.backTopIcon {
+  width: 20px;
+  height: 20px;
+  color: #fff;
+}
+
+// 页面过渡动画 - 与 TeamLayout 保持一致
+:global {
+  // 进入：从右侧滑入，由淡变实
+  .page-zoom-enter {
+    opacity: 0;
+    transform: translate3d(25%, 0, 0);
+    will-change: transform, opacity;
+  }
+
+  .page-zoom-enter-active {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform 700ms cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 600ms cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .page-zoom-enter-done {
+    will-change: auto;
+  }
+
+  // 退出：向左滑出，由实变淡
+  .page-zoom-exit {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: auto;
+    will-change: transform, opacity;
+  }
+
+  .page-zoom-exit-active {
+    opacity: 0;
+    transform: translate3d(-15%, 0, 0);
+    transition:
+      transform 600ms cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 500ms cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .page-zoom-exit-done {
+    will-change: auto;
+  }
+}

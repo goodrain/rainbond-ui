@@ -23,6 +23,7 @@ const enterpriseMenu = {
   // 视图切换器
   'menu.switcher.workspace': '工作空间',
   'menu.switcher.platform': '平台管理',
+  'menu.switcher.explore': '探索',
   // 收起菜单
   'menu.collapse': '收起菜单',
   'menu.expand': '展开菜单',
@@ -67,7 +68,7 @@ const CustomFooter = {
   'GlobalHeader.success':'修改成功，请重新登录',
   'GlobalHeader.core':'个人中心',
   'GlobalHeader.edit':'修改密码',
-  'GlobalHeader.language':'语言切换',
+  'GlobalHeader.language':'语言',
   'GlobalHeader.exit':'退出登录',
   'GlobalHeader.serve':'企业服务',
   'GlobalHeader.platform':'平台管理',

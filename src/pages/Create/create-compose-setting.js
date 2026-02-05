@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import {
     Button,
+    Icon,
     Tabs
 } from 'antd';
 import { connect } from 'dva';
@@ -35,6 +36,11 @@ export default class Index extends PureComponent {
     }
     getParams() {
         return { group_id: this.props.match.params.appID, compose_id: this.props.match.params.composeId }
+    }
+    // 获取 URL 中的 query 参数
+    getQueryParams() {
+        const { location } = this.props;
+        return location && location.query ? location.query : {};
     }
     loadDetail = () => {
         const params = this.getParams();
@@ -121,6 +127,22 @@ export default class Index extends PureComponent {
     showDelete = () => {
         this.setState({ showDelete: true })
     }
+    // 返回上一步 - 跳转到 compose-check 页面
+    handleGoBack = () => {
+        const params = this.getParams();
+        const queryParams = this.getQueryParams();
+        const team_name = globalUtil.getCurrTeamName();
+        const region_name = globalUtil.getCurrRegionName();
+
+        let url = `/team/${team_name}/region/${region_name}/create/create-compose-check/${params.group_id}/${params.compose_id}`;
+
+        // 如果有 app_name 参数，添加到 URL
+        if (queryParams.app_name) {
+            url += `?app_name=${encodeURIComponent(queryParams.app_name)}`;
+        }
+
+        this.props.dispatch(routerRedux.push(url));
+    }
     render() {
         const { apps, showDelete } = this.state;
 
@@ -141,7 +163,7 @@ export default class Index extends PureComponent {
                         <Tabs defaultActiveKey="0">
                             {apps.map((app, index) => {
                                 return <TabPane tab={app.service.service_cname} key={index}>
-                                    <AppCreateSetting updateDetail={this.loadDetail} appDetail={app} /></TabPane>
+                                    <AppCreateSetting updateDetail={this.loadDetail} appDetail={app} isComposeCreate /></TabPane>
                             })
                             }
                         </Tabs>
@@ -161,9 +183,10 @@ export default class Index extends PureComponent {
                                 style={{
                                     marginRight: 8
                                 }}
-                                onClick={this.handleBuild}
+                                onClick={this.handleGoBack}
                                 type="primary">
-                                {formatMessage({ id: 'button.confirm_create' })}
+                                <Icon type="left" />
+                                {formatMessage({ id: 'button.go_build' })}
                             </Button>
                             <Button onClick={this.showDelete} type="default">
                                 {formatMessage({ id: 'button.abandon_create' })}

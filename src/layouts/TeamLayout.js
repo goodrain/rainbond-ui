@@ -998,7 +998,7 @@ class TeamLayout extends PureComponent {
                   <TransitionGroup
                     style={{
                       position: 'relative',
-                      height: 'calc(100vh - 50px)',
+                      height: 'calc(100vh - 56px)',
                       overflow: 'hidden',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
@@ -1010,7 +1010,7 @@ class TeamLayout extends PureComponent {
                     >
                       <Content
                         style={{
-                          height: 'calc(100vh - 50px)',
+                          height: 'calc(100vh - 56px)',
                           overflow: overflow || 'auto',
                           width: '100%'
                         }}
@@ -1026,7 +1026,7 @@ class TeamLayout extends PureComponent {
                   (
                     <Content
                       style={{
-                        height: 'calc(100vh - 64px)',
+                        height: 'calc(100vh - 56px)',
                         background: globalUtil.getPublicColor("rbd-background-color"),
                         overflow: 'auto',
                         width: '100%'

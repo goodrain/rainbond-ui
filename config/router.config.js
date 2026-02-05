@@ -60,6 +60,27 @@ export default [
         name: 'MarketPlaceInstallApp',
         authority: ['admin', 'user'],
       },
+      // 探索视图
+      {
+        path: '/explore/:eid',
+        component: '../layouts/ExploreLayout',
+        name: 'ExplorePage',
+        authority: ['admin', 'user'],
+        routes: [
+          {
+            path: '/explore/:eid/index',
+            component: './Explore',
+            name: 'exploreIndex',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/explore/:eid/detail/:id',
+            component: './Explore/Detail',
+            name: 'exploreDetail',
+            authority: ['admin', 'user']
+          }
+        ]
+      },
       // 企业
       {
         path: '/enterprise/:eid',
