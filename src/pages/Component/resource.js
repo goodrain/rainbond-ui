@@ -1058,29 +1058,32 @@ export default class Index extends PureComponent {
                   {buildSource.code_version}
                 </FormItem>
 
-                <FormItem
-                  style={{
-                    marginBottom: 0
-                  }}
-                  {...formItemLayout}
-                  className={styles.ant_form_item}
-                  label={<FormattedMessage id='componentOverview.body.Resource.language' />}
-                >
-                  {languageType != 'static' ? (
-                    <a target="blank" href={languageObj[`${languageType}`]}>
-                      {languageType}
-                    </a>
-                  ) : (
-                    <a href="javascript:void(0);">{languageType}</a>
-                  )}
-                  <Button
-                    size="small"
-                    type="primary"
-                    onClick={this.handleToDetect}
+                {/* CNB 构建时不显示语言字段 */}
+                {!runtimeInfo?.CNB_FRAMEWORK && (
+                  <FormItem
+                    style={{
+                      marginBottom: 0
+                    }}
+                    {...formItemLayout}
+                    className={styles.ant_form_item}
+                    label={<FormattedMessage id='componentOverview.body.Resource.language' />}
                   >
-                    <FormattedMessage id='componentOverview.body.Resource.Retest' />
-                  </Button>
-                </FormItem>
+                    {languageType != 'static' ? (
+                      <a target="blank" href={languageObj[`${languageType}`]}>
+                        {languageType}
+                      </a>
+                    ) : (
+                      <a href="javascript:void(0);">{languageType}</a>
+                    )}
+                    <Button
+                      size="small"
+                      type="primary"
+                      onClick={this.handleToDetect}
+                    >
+                      <FormattedMessage id='componentOverview.body.Resource.Retest' />
+                    </Button>
+                  </FormItem>
+                )}
               </Fragment>
             ) : (
               ''

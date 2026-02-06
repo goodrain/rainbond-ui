@@ -35,12 +35,14 @@ export default class Index extends PureComponent {
       // appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
       handleBuildSwitch: false,
-      isDeploy: true
+      isDeploy: true,
+      runtimeInfo: null  // 添加 runtimeInfo 状态存储构建环境变量
     };
     this.loadingBuild = false;
   }
   componentDidMount() {
     this.loadDetail();
+    this.getRuntimeInfo();  // 获取构建环境变量
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -75,6 +77,26 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 获取构建环境变量（包含 CNB 配置参数）
+  getRuntimeInfo = () => {
+    const { dispatch } = this.props;
+    const { team_name, app_alias } = this.fetchParameter();
+    dispatch({
+      type: 'appControl/getRuntimeBuildInfo',
+      payload: {
+        team_name,
+        app_alias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
@@ -96,14 +118,45 @@ export default class Index extends PureComponent {
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false;
-    const { isDeploy, appDetail } = this.state;
+    const { isDeploy, appDetail, runtimeInfo } = this.state;
+
+    // 优先从 sessionStorage 读取 CNB 参数（由 create-check.js 保存）
+    const cnbParamsStr = window.sessionStorage.getItem('cnb_params');
+    const cnbParams = cnbParamsStr ? JSON.parse(cnbParamsStr) : null;
+
     this.setState({ buildAppLoading: true }, () => {
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+        // 优先使用 runtimeInfo（来自后端，可能在配置页面被用户修改过），其次使用 sessionStorage（来自检测阶段）
+        // 如果都没有，使用默认值确保 CNB 构建被触发
+        const defaultFramework = soundCodeLanguage == 'NodeJSStatic' ? 'vue' : 'express';
+        const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || defaultFramework;
+        const cnbBuildScript = runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (soundCodeLanguage == 'NodeJSStatic' ? 'build' : '');
+        const cnbOutputDir = runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : '');
+        const cnbNodeVersion = runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '';
+
+        // Mirror 配置：优先使用 runtimeInfo，否则根据项目是否有配置文件决定
+        const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false };
+        const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
+        const cnbMirrorSource = runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global');
+
+        const cnbMirrorNpmrc = runtimeInfo?.CNB_MIRROR_NPMRC || '';
+        const cnbMirrorYarnrc = runtimeInfo?.CNB_MIRROR_YARNRC || '';
+        const cnbMirrorPnpmrc = runtimeInfo?.CNB_MIRROR_PNPMRC || '';
+
         const obj = {
           team_name: team_name,
           app_alias: app_alias,
           lang: soundCodeLanguage,
-          package_tool: packageNpmOrYarn
+          package_tool: packageNpmOrYarn,
+          // CNB 构建参数
+          cnb_framework: cnbFramework,
+          cnb_build_script: cnbBuildScript,
+          cnb_output_dir: cnbOutputDir,
+          cnb_node_version: cnbNodeVersion,
+          cnb_mirror_source: cnbMirrorSource,
+          cnb_mirror_npmrc: cnbMirrorNpmrc,
+          cnb_mirror_yarnrc: cnbMirrorYarnrc,
+          cnb_mirror_pnpmrc: cnbMirrorPnpmrc
         };
         if (soundCodeLanguage == 'NodeJSStatic') {
           obj.dist = dist;
@@ -135,6 +188,7 @@ export default class Index extends PureComponent {
                     window.sessionStorage.removeItem('codeLanguage');
                     window.sessionStorage.removeItem('packageNpmOrYarn');
                     window.sessionStorage.removeItem('advanced_setup');
+                    window.sessionStorage.removeItem('cnb_params');  // 清理 CNB 参数
                     // this.handleJump(`components/${app_alias}/overview`);
                     this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
                   }

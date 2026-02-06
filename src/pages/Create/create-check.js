@@ -32,8 +32,16 @@ import ModifyUrl from './modify-url';
 import cookie from '../../utils/cookie';
 import styles from './check.less';
 import { closeTeamRegion } from '@/services/team';
+import {
+  FRAMEWORK_ICONS,
+  NODEJS_FRAMEWORKS,
+  getFrameworkByValue,
+  matchFramework
+} from '@/utils/nodejs-frameworks';
 
 const { Option } = Select;
+const { OptGroup } = Select;
+
 @connect(
   ({ user, appControl, teamControl, global }) => ({
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
@@ -68,14 +76,24 @@ export default class CreateCheck extends React.Component {
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
       buildAppLoading: false,
       isMulti: false,
-      packageLange: 'npm',
       codeLanguage: '',
       source_from: '',
       ports: '',
       language: cookie.get('language') === 'zh-CN',
       Directory: "dist",
       imageAddress: null,
-      dockfilePath: ''
+      dockfilePath: '',
+      // CNB 构建相关状态
+      framework: null,
+      selectedFramework: '',
+      buildScript: 'build',
+      nodeVersion: '',
+      // 配置文件检测状态
+      configFiles: {
+        hasNpmrc: false,
+        hasYarnrc: false,
+        hasPnpmrc: false,
+      },
     };
     this.mount = false;
     this.loadingBuild = false
@@ -320,6 +338,34 @@ export default class CreateCheck extends React.Component {
                 this.setState({
                   source_from: item.value
                 })
+              } else if (item.type == 'framework') {
+                // 处理框架检测结果
+                const detectedFramework = item.data;
+
+                // 使用共享的框架匹配逻辑
+                const matched = matchFramework(detectedFramework?.name);
+                const fallbackValue = detectedFramework?.type === 'static' ? 'other-static' : 'other-server';
+
+                this.setState({
+                  framework: detectedFramework,
+                  selectedFramework: matched?.value || fallbackValue,
+                  Directory: detectedFramework?.output_dir || matched?.outputDir || 'dist',
+                  buildScript: detectedFramework?.build_script || 'build'
+                })
+              } else if (item.type == 'node_version') {
+                // Handle Node.js version detection
+                this.setState({
+                  nodeVersion: item.data?.version || ''
+                })
+              } else if (item.type == 'config_files') {
+                // Handle config files detection (.npmrc, .yarnrc, .pnpmrc)
+                this.setState({
+                  configFiles: {
+                    hasNpmrc: item.data?.has_npmrc || false,
+                    hasYarnrc: item.data?.has_yarnrc || false,
+                    hasPnpmrc: item.data?.has_pnpmrc || false,
+                  }
+                })
               } else {
                 this.setState({
                   ports: item.value
@@ -423,10 +469,21 @@ export default class CreateCheck extends React.Component {
   handleConfigFile = () => {
     const { appAlias, dist, teamName } = this.getParameter();
     const { dispatch } = this.props
-    const { imageAddress, codeLanguage, dockfilePath } = this.state
+    const { imageAddress, codeLanguage, dockfilePath, selectedFramework, buildScript, Directory, nodeVersion, configFiles } = this.state
     window.sessionStorage.setItem('advanced_setup', JSON.stringify('advanced'));
     if (codeLanguage == 'NodeJSStatic') {
       window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
+    }
+    // 保存 CNB 构建参数到 sessionStorage，以便在 create-configPort.js 中使用
+    if (codeLanguage === 'Node.js' || codeLanguage === 'NodeJSStatic') {
+      const cnbParams = {
+        framework: selectedFramework || '',
+        buildScript: buildScript || 'build',
+        outputDir: Directory || 'dist',
+        nodeVersion: nodeVersion || '',
+        configFiles: configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false }
+      };
+      window.sessionStorage.setItem('cnb_params', JSON.stringify(cnbParams));
     }
     if (imageAddress) {
       this.handleSaveTarImageName()
@@ -523,17 +580,37 @@ export default class CreateCheck extends React.Component {
     this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, location } = this.props;
-    const { isDeploy, ServiceGetData, appDetail, codeLanguage, packageLange } = this.state;
+    const { isDeploy, ServiceGetData, appDetail, codeLanguage, selectedFramework, buildScript, Directory, nodeVersion, configFiles } = this.state;
     const group_id = location?.query?.group_id
+
+    // 获取当前选择的框架信息
+    const currentFramework = NODEJS_FRAMEWORKS.find(f => f.value === selectedFramework);
+    const isStaticFramework = currentFramework?.type === 'static';
+
+    // 确定 Mirror 配置来源
+    // 如果项目中存在任何配置文件 (.npmrc/.yarnrc/.pnpmrc)，使用项目配置
+    // 否则使用平台提供的全局配置
+    const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
+    const mirrorSource = hasMirrorConfig ? 'project' : 'global';
+
     this.setState({ buildAppLoading: true }, () => {
       if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') {
+        // 根据框架类型自动决定语言
+        const lang = isStaticFramework ? 'NodeJSStatic' : 'Node.js';
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: {
             team_name: teamName,
             app_alias: appAlias,
-            lang: codeLanguage,
-            package_tool: packageLange,
+            lang: lang,
+            // CNB 构建相关参数（使用 cnb_ 前缀）
+            cnb_framework: selectedFramework,
+            cnb_build_script: isStaticFramework ? buildScript : '',
+            cnb_output_dir: isStaticFramework ? Directory : '',
+            // Node.js 版本（空值则使用后端默认版本）
+            cnb_node_version: nodeVersion || '',
+            // Mirror 配置来源
+            cnb_mirror_source: mirrorSource,
           },
           callback: res => {
             if (res) {
@@ -1281,99 +1358,120 @@ export default class CreateCheck extends React.Component {
       - 其他情况直接显示键值对信息。
   */
   renderSuccessInfo = () => {
-    const { imageAddress, codeLanguage, serviceInfo, packageLange, Directory, ports, dockfilePath } = this.state
+    const { imageAddress, codeLanguage, serviceInfo, Directory, ports, dockfilePath, framework, selectedFramework, buildScript, nodeVersion } = this.state
     const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
+
+    // 获取当前选择的框架信息
+    const currentFramework = NODEJS_FRAMEWORKS.find(f => f.value === selectedFramework);
+    const isStaticFramework = currentFramework?.type === 'static';
+
     return serviceInfo.map((item, index) => {
       if (typeof item.value === 'string' && item.type == 'language') {
         const parts = item.value.split(",");
-        return (
-          <div
-            key={`item${index}`}
-            style={{
-              marginBottom: 16
-            }}
-          >
-            <div style={{ marginBottom: 16 }}>
-              <span
-                style={{
-                  verticalAlign: 'top',
-                  display: 'inline-block',
-                  fontWeight: 'bold'
-                }}
-              >
-                {formatMessage({ id: 'confirmModal.check.appShare.title.codeLang' })}：
-              </span>
-              {this.handleChangeLanguage(parts)}
 
-            </div>
-            {(codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') &&
-              <div style={{ marginBottom: 16 }}>
-                <span
-                  style={{
-                    verticalAlign: 'top',
-                    display: 'inline-block',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {formatMessage({ id: 'confirmModal.check.appShare.title.npmOryarn' })}：
-                </span>
-                <Radio.Group onChange={this.onChange} value={packageLange}>
-                  <Radio value='npm'>npm</Radio>
-                  <Radio value='yarn'>yarn</Radio>
-                </Radio.Group>
-              </div>}
-            {codeLanguage == 'NodeJSStatic' && (
-              <div style={{ marginBottom: 16, display: "flex", flexDirection: 'column' }}>
-                {ports &&
-                  <div style={{ marginBottom: 16 }}>
-                    <span
-                      style={{
-                        verticalAlign: 'top',
-                        display: 'inline-block',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {formatMessage({ id: 'confirmModal.check.appShare.title.port' })}：
-                    </span>
-                    {ports || formatMessage({ id: 'confirmModal.check.appShare.title.null' })}
-                  </div>}
-                <div>
-                  <span
-                    style={{
-                      verticalAlign: 'top',
-                      display: 'inline-block',
-                      fontWeight: 'bold',
-                      marginTop: '6px'
-                    }}
-                  >
-                    {formatMessage({ id: 'confirmModal.check.appShare.title.dist' })}
-                  </span>
-                  <Input placeholder="Basic usage" defaultValue={Directory} onChange={e => this.distChange(e.target.value)} style={{ width: 200 }} />
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      } else if (typeof item.value === 'string' && item.type != 'tar_images' && item.type != 'language') {
+        // 只显示语言类型，框架选择放在"源码构建参数设置"中
         return (
           <div
             key={`item${index}`}
             style={{
-              marginBottom: 16
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'flex-start'
             }}
           >
             <span
               style={{
-                verticalAlign: 'top',
                 display: 'inline-block',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                width: 80,
+                flexShrink: 0
+              }}
+            >
+              {item.key}：
+            </span>
+            <span>{parts[0]}</span>
+          </div>
+        )
+      } else if (typeof item.value === 'string' && item.type != 'tar_images' && item.type != 'language' && item.type != 'framework' && item.type != 'node_version' && item.type != 'config_files' && item.type != 'package_manager') {
+        return (
+          <div
+            key={`item${index}`}
+            style={{
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'flex-start'
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                fontWeight: 'bold',
+                width: 80,
+                flexShrink: 0
               }}
             >
               {item.key == '源码信息' ? this.state.language ? item.key : formatMessage({ id: 'confirmModal.check.appShare.title.sourceCode' }) : item.key}：
             </span>
-            {item.value}
+            <span style={{ wordBreak: 'break-all' }}>{item.value}</span>
           </div>
         );
+      } else if (item.type == 'framework') {
+        // 显示框架检测结果
+        const frameworkData = item.data || {};
+        // 使用共享的框架匹配逻辑获取标准名称
+        const matched = matchFramework(frameworkData.name);
+        const displayName = matched?.label || frameworkData.name || item.value;
+        const frameworkIcon = FRAMEWORK_ICONS[matched?.value] || FRAMEWORK_ICONS[frameworkData.name];
+        return (
+          <div
+            key={`item${index}`}
+            style={{
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'flex-start'
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                fontWeight: 'bold',
+                width: 80,
+                flexShrink: 0
+              }}
+            >
+              {item.key}：
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {frameworkIcon && (
+                <img
+                  src={frameworkIcon}
+                  alt={displayName}
+                  style={{ width: 16, height: 16, marginRight: 6 }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              )}
+              {displayName}
+              {frameworkData.version && (
+                <span style={{ color: '#999', marginLeft: 8 }}>v{frameworkData.version}</span>
+              )}
+              {frameworkData.type && (
+                <span style={{
+                  marginLeft: 8,
+                  padding: '2px 8px',
+                  background: frameworkData.type === 'static' ? '#e6f7ff' : '#f6ffed',
+                  color: frameworkData.type === 'static' ? '#1890ff' : '#52c41a',
+                  borderRadius: 4,
+                  fontSize: 12
+                }}>
+                  {frameworkData.type === 'static' ? '静态站点' : 'Node.js 服务'}
+                </span>
+              )}
+            </span>
+          </div>
+        );
+      } else if (item.type == 'node_version' || item.type == 'config_files' || item.type == 'package_manager') {
+        // 这些信息在下一步配置阶段展示，检测阶段不显示
+        return null;
       } else {
         return (
           <div
@@ -1491,71 +1589,15 @@ export default class CreateCheck extends React.Component {
     });
   };
   /*
-    函数名称: onChangeLange
-    
-    功能: 处理语言选择变更的操作
-    
-    参数:
-      - e (event): 事件对象，包含目标语言选择的值
-    
-    返回值: 无
-    
-    逻辑:
-      - 更新 codeLanguage 状态为当前选择的语言。
-      - 调用 renderSuccessInfo() 更新成功信息的展示。
-      - 分发一个 action 到 'teamControl/ChoosingLanguage'，传递选择的语言信息。
-  */
-
-  onChangeLange = e => {
-    const { dispatch } = this.props
-    this.setState({
-      codeLanguage: e.target.value
-    }, () => {
-      const { codeLanguage } = this.state
-      this.renderSuccessInfo()
-      dispatch({
-        type: 'teamControl/ChoosingLanguage',
-        payload: codeLanguage,
-      });
-    });
-  };
-  /*
-    函数名称: onChange
-    
-    功能: 处理包管理工具选择变更的操作
-    
-    参数:
-      - e (event): 事件对象，包含目标包管理工具选择的值
-    
-    返回值: 无
-    
-    逻辑:
-      - 更新 packageLange 状态为当前选择的包管理工具。
-      - 分发一个 action 到 'teamControl/ChoosingPackage'，传递选择的包管理工具信息。
-  */
-  onChange = e => {
-    const { dispatch } = this.props
-    this.setState({
-      packageLange: e.target.value,
-    }, () => {
-      const { packageLange } = this.state
-      dispatch({
-        type: 'teamControl/ChoosingPackage',
-        payload: packageLange,
-      });
-    });
-
-  };
-  /*
     函数名称: distChange
-    
+
     功能: 处理目录输入框内容变更的操作
-    
+
     参数:
       - e (string): 目录输入框的新值
-    
+
     返回值: 无
-    
+
     逻辑:
       - 更新 Directory 状态为新的目录值。
   */
@@ -1563,30 +1605,6 @@ export default class CreateCheck extends React.Component {
     this.setState({
       Directory: e
     })
-  }
-  /*
-    函数名称: handleChangeLanguage
-    
-    功能: 渲染语言选择组件
-    
-    参数:
-      - languageArr (array): 包含可选语言的数组
-    
-    返回值: 一个 Radio.Group 组件，用于选择语言
-    
-    逻辑:
-      - 根据 languageArr 渲染包含可选语言的 Radio.Group 组件。
-      - 设置 onChange 事件处理函数为 this.onChangeLange。
-  */
-  handleChangeLanguage = (languageArr) => {
-    const { codeLanguage } = this.state
-    return (
-      <Radio.Group onChange={this.onChangeLange} value={codeLanguage}>
-        {languageArr.map((item) => {
-          return <Radio value={item}>{item}</Radio>
-        })}
-      </Radio.Group>
-    )
   }
   /*
     函数名称: renderSuccess
@@ -1617,10 +1635,8 @@ export default class CreateCheck extends React.Component {
       codeLanguage,
       source_from,
       ports,
-      packageLange,
       Directory
     } = this.state;
-    const parts = codeLanguage.split(",");
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isDelete = true;
     let extra = '';

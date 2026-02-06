@@ -4,7 +4,8 @@ import React, { PureComponent } from 'react';
 import handleAPIError from '../../utils/error';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import globalUtil from '../../utils/global'
+import globalUtil from '../../utils/global';
+import { isNodeJSLanguage } from '@/utils/nodejs-frameworks';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -13,6 +14,7 @@ import JavaMavenConfig from './java-maven';
 import JavaWarConfig from './java-war';
 import NetCoreConfig from './netcore';
 import NodeJSConfig from './nodejs';
+import NodeJSCNBConfig from './nodejs-cnb';
 import PHPConfig from './php';
 import PythonConfig from './python';
 import StaticConfig from './static';
@@ -307,18 +309,27 @@ class CodeBuildConfig extends PureComponent {
         {languageType === 'static' && (
           <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} key={buildSourceArr}/>
         )}
-        {(languageType === 'nodejsstatic' ||
-          languageType === 'NodeJSStatic' ||
-          languageType === 'nodejs' ||
-          languageType === 'Node' ||
-          languageType === 'node' ||
-          languageType === 'Node.js') && (
-          <NodeJSConfig
-            languageType={languageType}
-            envs={runtimeInfo}
-            form={this.props.form}
-            buildSourceArr={buildSourceArr}
-          />
+        {isNodeJSLanguage(languageType) && (
+          // 根据环境变量或 runtime_info 决定显示哪个配置组件
+          // 优先检查 runtime_info.framework（新的结构化数据）
+          // 然后检查 CNB_FRAMEWORK（用户保存的框架选择）
+          // 再检查 BUILD_FRAMEWORK（检测阶段返回的框架，来自 build_envs API）
+          // 如果有任一个，使用 CNB 配置；否则使用传统配置（兼容老组件）
+          (runtimeInfo?.runtime_info?.framework || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK) ? (
+            <NodeJSCNBConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              runtimeInfo={runtimeInfo?.runtime_info}
+              form={this.props.form}
+            />
+          ) : (
+            <NodeJSConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              form={this.props.form}
+              buildSourceArr={buildSourceArr}
+            />
+          )
         )}
         {(languageType === '.NetCore' ||
           languageType === 'netCore' ||
