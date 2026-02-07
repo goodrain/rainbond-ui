@@ -16,14 +16,21 @@ import {
 const { Option, OptGroup } = Select;
 const { TextArea } = Input;
 
-// Mirror 配置文件类型
-const MIRROR_CONFIG_TYPES = [
-  { value: '.npmrc', label: '.npmrc' },
-  { value: '.yarnrc', label: '.yarnrc' },
-  { value: '.pnpmrc', label: '.pnpmrc' },
-];
+// Mirror 配置文件类型 - 根据包管理器映射
+const MIRROR_CONFIG_MAP = {
+  npm: { value: '.npmrc', label: '.npmrc', fieldName: 'CNB_MIRROR_NPMRC' },
+  yarn: { value: '.yarnrc', label: '.yarnrc', fieldName: 'CNB_MIRROR_YARNRC' },
+  pnpm: { value: '.pnpmrc', label: '.pnpmrc', fieldName: 'CNB_MIRROR_PNPMRC' },
+};
 
-// Node.js 版本列表
+// 获取包管理器对应的配置文件
+const getConfigForPackageManager = (pmName) => {
+  // 默认使用 npm
+  const pm = pmName?.toLowerCase() || 'npm';
+  return MIRROR_CONFIG_MAP[pm] || MIRROR_CONFIG_MAP.npm;
+};
+
+// Node.js 版本列表（按从小到大排序）
 // TODO: 考虑从后端 API 获取支持的版本列表
 const NODE_VERSIONS = [
   '18.20.7',
@@ -36,13 +43,46 @@ const NODE_VERSIONS = [
   '24.13.0',
 ];
 
-// 版本匹配：将模糊版本（如 20.x）映射到精确版本
+// 版本匹配：将模糊版本映射到精确版本
+// 支持格式: >=20.0, ^20.0, ~20.0, 20.x, 20, 20.20.0
 const matchNodeVersion = (version) => {
   if (!version) return '20.20.0'; // 默认版本
 
   // 如果是精确版本且在列表中，直接返回
   if (NODE_VERSIONS.includes(version)) {
     return version;
+  }
+
+  // 处理范围表达式 (>=, >, ^, ~)
+  // 对于 >=N.x，应该返回满足条件的最新版本
+  const rangeMatch = version.match(/^(>=|>|\^|~|<=|<)?(\d+)(?:\.(\d+))?/);
+  if (rangeMatch) {
+    const [, operator, majorStr, minorStr] = rangeMatch;
+    const major = parseInt(majorStr, 10);
+    const minor = minorStr ? parseInt(minorStr, 10) : 0;
+
+    if (operator === '>=' || operator === '>') {
+      // >=20.0 或 >20.0: 返回满足条件的最新版本
+      const satisfying = NODE_VERSIONS.filter(v => {
+        const [vMajor, vMinor] = v.split('.').map(Number);
+        if (operator === '>=') {
+          return vMajor > major || (vMajor === major && vMinor >= minor);
+        } else {
+          return vMajor > major || (vMajor === major && vMinor > minor);
+        }
+      });
+      if (satisfying.length > 0) {
+        return satisfying[satisfying.length - 1]; // 返回最新的
+      }
+    } else if (operator === '^' || operator === '~') {
+      // ^20.0 或 ~20.0: 返回该主版本的最新版本
+      const matched = NODE_VERSIONS.filter(v => v.startsWith(major + '.')).pop();
+      if (matched) return matched;
+    } else {
+      // 没有操作符，按主版本匹配
+      const matched = NODE_VERSIONS.filter(v => v.startsWith(major + '.')).pop();
+      if (matched) return matched;
+    }
   }
 
   // 提取主版本号（如 "20.x" -> "20", "20" -> "20"）
@@ -135,22 +175,32 @@ class NodeJSCNBConfig extends PureComponent {
     const savedMirrorSource = envs?.CNB_MIRROR_SOURCE;
     const autoMirrorSource = hasProjectConfig ? 'project' : 'global';
 
+    // 获取检测到的包管理器（用于决定显示哪个配置文件）
+    // 优先级: runtimeInfo.package_manager > BUILD_PACKAGE_TOOL (保存的) > 默认 npm
+    const detectedPackageManager = runtimeInfo?.package_manager?.name
+      || envs?.BUILD_PACKAGE_TOOL
+      || 'npm';
+    const mirrorConfig = getConfigForPackageManager(detectedPackageManager);
+
     this.state = {
       selectedFramework: finalFramework,
       isStaticFramework: isStatic,
       // Mirror 配置相关状态
       mirrorSource: savedMirrorSource || autoMirrorSource,
-      mirrorConfigType: envs?.CNB_MIRROR_TYPE || '.npmrc',
+      mirrorConfigType: mirrorConfig.value,
       mirrorConfigContent: envs?.CNB_MIRROR_CONTENT || '',
       mirrorModalVisible: false,
       tempMirrorContent: '',
       // 配置文件检测结果
       configFilesInfo,
       hasProjectConfig,
+      // 检测到的包管理器
+      detectedPackageManager,
+      mirrorConfig,
       // 从 envs 中恢复已保存的 Mirror 配置内容
       'mirrorContent_.npmrc': envs?.CNB_MIRROR_NPMRC || '',
       'mirrorContent_.yarnrc': envs?.CNB_MIRROR_YARNRC || '',
-      'mirrorContent_.pnpmrc': envs?.CNB_MIRROR_PNPMRC || ''
+      'mirrorContent_.pnpmrc': envs?.CNB_MIRROR_PNPMRC || '',
     };
   }
 
@@ -196,17 +246,14 @@ class NodeJSCNBConfig extends PureComponent {
 
   // 保存 Mirror 配置
   saveMirrorConfig = () => {
-    const { mirrorConfigType, tempMirrorContent } = this.state;
+    const { mirrorConfigType, tempMirrorContent, mirrorConfig } = this.state;
     this.setState({
       [`mirrorContent_${mirrorConfigType}`]: tempMirrorContent,
       mirrorModalVisible: false
     });
-    // 更新隐藏表单字段
-    const fieldName = mirrorConfigType === '.npmrc' ? 'CNB_MIRROR_NPMRC'
-      : mirrorConfigType === '.yarnrc' ? 'CNB_MIRROR_YARNRC'
-      : 'CNB_MIRROR_PNPMRC';
+    // 更新隐藏表单字段（使用当前包管理器对应的字段名）
     this.props.form.setFieldsValue({
-      [fieldName]: tempMirrorContent
+      [mirrorConfig.fieldName]: tempMirrorContent
     });
   };
 
@@ -233,7 +280,9 @@ class NodeJSCNBConfig extends PureComponent {
       mirrorModalVisible,
       tempMirrorContent,
       configFilesInfo,
-      hasProjectConfig
+      hasProjectConfig,
+      detectedPackageManager,
+      mirrorConfig
     } = this.state;
 
     // 获取 Node.js 版本
@@ -339,7 +388,7 @@ class NodeJSCNBConfig extends PureComponent {
           label={
             <span>
               Mirror 配置
-              <Tooltip title="配置 npm/yarn/pnpm 的镜像源。如果项目中存在配置文件则使用项目配置，否则使用平台全局配置">
+              <Tooltip title="配置 npm/yarn/pnpm 的镜像源。可以使用项目中的配置文件，或自定义配置内容">
                 <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
               </Tooltip>
             </span>
@@ -360,9 +409,9 @@ class NodeJSCNBConfig extends PureComponent {
                   )}
                 </Radio>
                 <Radio value="global">
-                  使用平台全局配置
+                  使用自定义配置
                   {!hasProjectConfig && (
-                    <Tooltip title="项目中未检测到配置文件，将使用平台提供的全局镜像配置">
+                    <Tooltip title="项目中未检测到配置文件，将使用自定义的镜像配置">
                       <span style={{ color: '#1890ff', marginLeft: 8, fontSize: 12 }}>
                         <Icon type="info-circle" style={{ marginRight: 4 }} />
                         推荐
@@ -384,68 +433,61 @@ class NodeJSCNBConfig extends PureComponent {
             {!hasProjectConfig && mirrorSource === 'project' && (
               <div style={{ marginTop: 8, color: '#fa8c16', fontSize: 12 }}>
                 <Icon type="warning" style={{ marginRight: 4 }} />
-                项目中未检测到 .npmrc/.yarnrc/.pnpmrc 文件，建议切换到"使用平台全局配置"
+                项目中未检测到 .npmrc/.yarnrc/.pnpmrc 文件，建议切换到"使用自定义配置"
               </div>
             )}
           </div>
         </Form.Item>
 
-        {/* 全局配置 - 三个配置文件分别显示 */}
+        {/* 全局配置 - 只显示检测到的包管理器对应的配置文件 */}
         {mirrorSource === 'global' && (
           <Form.Item
             {...formItemLayout}
             label={
               <span>
-                全局配置文件
-                <Tooltip title="平台将通过 ConfigMap 挂载这些配置文件到构建容器中">
+                自定义配置
+                <Tooltip title="为当前组件配置镜像源，构建时将自动注入到容器中">
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
             }
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {MIRROR_CONFIG_TYPES.map(item => (
-                <div key={item.value} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '8px 12px',
-                  background: '#fafafa',
-                  borderRadius: 4,
-                  border: '1px solid #e8e8e8'
-                }}>
-                  <span style={{ fontWeight: 500, width: 80 }}>{item.label}</span>
-                  <Button
-                    type="link"
-                    size="small"
-                    icon="edit"
-                    onClick={() => {
-                      this.setState({
-                        mirrorConfigType: item.value,
-                        mirrorModalVisible: true,
-                        tempMirrorContent: this.state[`mirrorContent_${item.value}`] || ''
-                      });
-                    }}
-                  >
-                    编辑
-                  </Button>
-                  {this.state[`mirrorContent_${item.value}`] && (
-                    <span style={{ color: '#52c41a', fontSize: 12, marginLeft: 8 }}>
-                      <Icon type="check-circle" style={{ marginRight: 4 }} />
-                      已配置
-                    </span>
-                  )}
-                </div>
-              ))}
+              {/* 只显示对应包管理器的配置文件 */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px 12px',
+                background: '#fafafa',
+                borderRadius: 4,
+                border: '1px solid #e8e8e8'
+              }}>
+                <span style={{ fontWeight: 500, width: 80 }}>{mirrorConfig.label}</span>
+                <Button
+                  type="link"
+                  size="small"
+                  icon="edit"
+                  onClick={() => {
+                    this.setState({
+                      mirrorConfigType: mirrorConfig.value,
+                      mirrorModalVisible: true,
+                      tempMirrorContent: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
+                    });
+                  }}
+                >
+                  编辑
+                </Button>
+                {this.state[`mirrorContent_${mirrorConfig.value}`] && (
+                  <span style={{ color: '#52c41a', fontSize: 12, marginLeft: 8 }}>
+                    <Icon type="check-circle" style={{ marginRight: 4 }} />
+                    已配置
+                  </span>
+                )}
+              </div>
             </div>
-            {/* 隐藏字段用于表单提交 */}
-            {getFieldDecorator('CNB_MIRROR_NPMRC', {
-              initialValue: this.state['mirrorContent_.npmrc'] || ''
-            })(<Input type="hidden" />)}
-            {getFieldDecorator('CNB_MIRROR_YARNRC', {
-              initialValue: this.state['mirrorContent_.yarnrc'] || ''
-            })(<Input type="hidden" />)}
-            {getFieldDecorator('CNB_MIRROR_PNPMRC', {
-              initialValue: this.state['mirrorContent_.pnpmrc'] || ''
+            {/* 隐藏字段用于表单提交 - 只提交对应包管理器的配置 */}
+            {getFieldDecorator(mirrorConfig.fieldName, {
+              initialValue: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
             })(<Input type="hidden" />)}
           </Form.Item>
         )}

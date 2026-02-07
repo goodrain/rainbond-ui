@@ -327,12 +327,17 @@ export default class CreateCheck extends React.Component {
                   type: 'teamControl/ChoosingLanguage',
                   payload: parts[0],
                 });
-                this.props.dispatch({
-                  type: 'teamControl/ChoosingPackage',
-                  payload: 'npm',
-                });
                 this.setState({
                   codeLanguage: parts[0]
+                })
+              } else if (item.type == 'package_manager') {
+                const pmName = item.data?.manager || item.value || 'npm';
+                this.props.dispatch({
+                  type: 'teamControl/ChoosingPackage',
+                  payload: pmName,
+                });
+                this.setState({
+                  packageManager: item.data || { manager: pmName }
                 })
               } else if (item.type == 'source_from') {
                 this.setState({
@@ -372,6 +377,14 @@ export default class CreateCheck extends React.Component {
                 })
               }
             })
+            // 如果没有检测到 package_manager，设置默认值 npm
+            const hasPackageManager = serviceInfo.some(item => item.type === 'package_manager');
+            if (!hasPackageManager) {
+              this.props.dispatch({
+                type: 'teamControl/ChoosingPackage',
+                payload: 'npm',
+              });
+            }
           }
           this.setState({
             status,
