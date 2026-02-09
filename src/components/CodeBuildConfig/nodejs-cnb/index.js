@@ -121,14 +121,15 @@ const renderFrameworkOption = (framework) => (
 class NodeJSCNBConfig extends PureComponent {
   constructor(props) {
     super(props);
-    const { envs, runtimeInfo } = props;
+    const { envs, runtimeInfo, isPureStatic = false } = props;
 
     // 获取框架信息
     // 优先级：
     // 1. runtimeInfo.framework（新的结构化数据）
     // 2. CNB_FRAMEWORK（用户保存的框架选择）
     // 3. BUILD_FRAMEWORK（检测阶段返回的框架，来自 build_envs API）
-    let detectedFramework = 'vue';
+    // 4. 纯静态项目默认为 'other-static'
+    let detectedFramework = isPureStatic ? 'other-static' : 'vue';
     let detectedFrameworkType = '';
 
     if (runtimeInfo?.framework) {
@@ -144,7 +145,8 @@ class NodeJSCNBConfig extends PureComponent {
     // 使用共享的框架匹配逻辑
     const frameworkInfo = matchFramework(detectedFramework);
     const finalFramework = frameworkInfo?.value || detectedFramework;
-    const isStatic = detectedFrameworkType === 'static' || frameworkInfo?.type === 'static';
+    // 纯静态项目强制为静态框架类型
+    const isStatic = isPureStatic ? true : (detectedFrameworkType === 'static' || frameworkInfo?.type === 'static');
 
     // 获取配置文件检测结果
     // 优先级: runtimeInfo.config_files > envs 中的 BUILD_HAS_* 标志
@@ -185,6 +187,7 @@ class NodeJSCNBConfig extends PureComponent {
     this.state = {
       selectedFramework: finalFramework,
       isStaticFramework: isStatic,
+      isPureStatic,  // 新增：纯静态项目标志
       // Mirror 配置相关状态
       mirrorSource: savedMirrorSource || autoMirrorSource,
       mirrorConfigType: mirrorConfig.value,
@@ -274,6 +277,7 @@ class NodeJSCNBConfig extends PureComponent {
     const {
       selectedFramework,
       isStaticFramework,
+      isPureStatic,
       mirrorSource,
       mirrorConfigType,
       mirrorConfigContent,
@@ -298,7 +302,7 @@ class NodeJSCNBConfig extends PureComponent {
     const outputDir = envs?.CNB_OUTPUT_DIR
       || runtimeInfo?.build_config?.output_dir
       || envs?.BUILD_OUTPUT_DIR
-      || 'dist';
+      || (isPureStatic ? '.' : 'dist');  // 纯静态项目默认为根目录
 
     const buildScript = envs?.CNB_BUILD_SCRIPT
       || runtimeInfo?.build_config?.build_command
@@ -318,7 +322,9 @@ class NodeJSCNBConfig extends PureComponent {
           label={
             <span>
               项目框架
-              <Tooltip title="选择您的项目使用的框架，前端框架将构建为静态站点，后端框架将作为 Node.js 服务运行">
+              <Tooltip title={isPureStatic
+                ? "纯静态项目，选择静态站点框架"
+                : "选择您的项目使用的框架，前端框架将构建为静态站点，后端框架将作为 Node.js 服务运行"}>
                 <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
               </Tooltip>
             </span>
@@ -332,12 +338,20 @@ class NodeJSCNBConfig extends PureComponent {
               onChange={this.onFrameworkChange}
               placeholder="请选择框架"
             >
-              <OptGroup label="前端框架（静态站点）">
-                {NODEJS_FRAMEWORKS.filter(f => f.type === 'static').map(renderFrameworkOption)}
-              </OptGroup>
-              <OptGroup label="后端框架（Node.js 服务）">
-                {NODEJS_FRAMEWORKS.filter(f => f.type === 'server').map(renderFrameworkOption)}
-              </OptGroup>
+              {isPureStatic ? (
+                // 纯静态项目：仅显示静态框架
+                <OptGroup label="纯静态站点">
+                  {NODEJS_FRAMEWORKS.filter(f => f.type === 'static').map(renderFrameworkOption)}
+                </OptGroup>
+              ) : ([
+                // Node.js 项目：显示所有框架
+                <OptGroup key="static" label="前端框架（静态站点）">
+                  {NODEJS_FRAMEWORKS.filter(f => f.type === 'static').map(renderFrameworkOption)}
+                </OptGroup>,
+                <OptGroup key="server" label="后端框架（Node.js 服务）">
+                  {NODEJS_FRAMEWORKS.filter(f => f.type === 'server').map(renderFrameworkOption)}
+                </OptGroup>
+              ])}
             </Select>
           )}
         </Form.Item>
@@ -359,166 +373,174 @@ class NodeJSCNBConfig extends PureComponent {
           })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
 
-        {/* 3. Node.js 版本选择 */}
-        <Form.Item
-          {...formItemLayout}
-          label={
-            <span>
-              Node 版本
-              <Tooltip title="选择 Node.js 运行时版本">
-                <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
-              </Tooltip>
-            </span>
-          }
-        >
-          {getFieldDecorator('CNB_NODE_VERSION', {
-            initialValue: nodeVersion
-          })(
-            <Radio.Group>
-              {NODE_VERSIONS.map(v => (
-                <Radio key={v} value={v}>{v}</Radio>
-              ))}
-            </Radio.Group>
-          )}
-        </Form.Item>
-
-        {/* 4. Mirror 配置 */}
-        <Form.Item
-          {...formItemLayout}
-          label={
-            <span>
-              Mirror 配置
-              <Tooltip title="配置 npm/yarn/pnpm 的镜像源。可以使用项目中的配置文件，或自定义配置内容">
-                <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
-              </Tooltip>
-            </span>
-          }
-        >
-          <div>
-            {getFieldDecorator('CNB_MIRROR_SOURCE', {
-              initialValue: mirrorSource
-            })(
-              <Radio.Group onChange={this.onMirrorSourceChange}>
-                <Radio value="project">
-                  使用项目配置
-                  {hasProjectConfig && (
-                    <span style={{ color: '#52c41a', marginLeft: 8, fontSize: 12 }}>
-                      <Icon type="check-circle" style={{ marginRight: 4 }} />
-                      已检测到
-                    </span>
-                  )}
-                </Radio>
-                <Radio value="global">
-                  使用自定义配置
-                  {!hasProjectConfig && (
-                    <Tooltip title="项目中未检测到配置文件，将使用自定义的镜像配置">
-                      <span style={{ color: '#1890ff', marginLeft: 8, fontSize: 12 }}>
-                        <Icon type="info-circle" style={{ marginRight: 4 }} />
-                        推荐
-                      </span>
-                    </Tooltip>
-                  )}
-                </Radio>
-              </Radio.Group>
-            )}
-            {/* 显示检测到的配置文件 */}
-            {hasProjectConfig && mirrorSource === 'project' && (
-              <div style={{ marginTop: 8, color: '#666', fontSize: 12 }}>
-                检测到配置文件：
-                {configFilesInfo.hasNpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.npmrc</span>}
-                {configFilesInfo.hasYarnrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.yarnrc</span>}
-                {configFilesInfo.hasPnpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.pnpmrc</span>}
-              </div>
-            )}
-            {!hasProjectConfig && mirrorSource === 'project' && (
-              <div style={{ marginTop: 8, color: '#fa8c16', fontSize: 12 }}>
-                <Icon type="warning" style={{ marginRight: 4 }} />
-                项目中未检测到 .npmrc/.yarnrc/.pnpmrc 文件，建议切换到"使用自定义配置"
-              </div>
-            )}
-          </div>
-        </Form.Item>
-
-        {/* 全局配置 - 只显示检测到的包管理器对应的配置文件 */}
-        {mirrorSource === 'global' && (
+        {/* 3. Node.js 版本选择 - 仅 Node.js 项目显示 */}
+        {!isPureStatic && (
           <Form.Item
             {...formItemLayout}
             label={
               <span>
-                自定义配置
-                <Tooltip title="为当前组件配置镜像源，构建时将自动注入到容器中">
+                Node 版本
+                <Tooltip title="选择 Node.js 运行时版本">
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
             }
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {/* 只显示对应包管理器的配置文件 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                background: '#fafafa',
-                borderRadius: 4,
-                border: '1px solid #e8e8e8'
-              }}>
-                <span style={{ fontWeight: 500, width: 80 }}>{mirrorConfig.label}</span>
-                <Button
-                  type="link"
-                  size="small"
-                  icon="edit"
-                  onClick={() => {
-                    this.setState({
-                      mirrorConfigType: mirrorConfig.value,
-                      mirrorModalVisible: true,
-                      tempMirrorContent: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
-                    });
-                  }}
-                >
-                  编辑
-                </Button>
-                {this.state[`mirrorContent_${mirrorConfig.value}`] && (
-                  <span style={{ color: '#52c41a', fontSize: 12, marginLeft: 8 }}>
-                    <Icon type="check-circle" style={{ marginRight: 4 }} />
-                    已配置
-                  </span>
-                )}
-              </div>
-            </div>
-            {/* 隐藏字段用于表单提交 - 只提交对应包管理器的配置 */}
-            {getFieldDecorator(mirrorConfig.fieldName, {
-              initialValue: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
-            })(<Input type="hidden" />)}
+            {getFieldDecorator('CNB_NODE_VERSION', {
+              initialValue: nodeVersion
+            })(
+              <Radio.Group>
+                {NODE_VERSIONS.map(v => (
+                  <Radio key={v} value={v}>{v}</Radio>
+                ))}
+              </Radio.Group>
+            )}
           </Form.Item>
         )}
 
-        {/* Mirror 配置编辑弹窗 */}
-        <Modal
-          title={`编辑 ${mirrorConfigType} 配置`}
-          visible={mirrorModalVisible}
-          onOk={this.saveMirrorConfig}
-          onCancel={this.closeMirrorModal}
-          width={600}
-          okText="保存"
-          cancelText="取消"
-        >
-          <TextArea
-            rows={12}
-            value={tempMirrorContent}
-            onChange={(e) => this.setState({ tempMirrorContent: e.target.value })}
-            placeholder={`请输入 ${mirrorConfigType} 配置内容，例如：\nregistry=https://registry.npmmirror.com`}
-            style={{ fontFamily: 'monospace' }}
-          />
-        </Modal>
+        {/* 4. Mirror 配置 - 仅 Node.js 项目显示 */}
+        {!isPureStatic && (
+          <>
+            <Form.Item
+              {...formItemLayout}
+              label={
+                <span>
+                  Mirror 配置
+                  <Tooltip title="配置 npm/yarn/pnpm 的镜像源。可以使用项目中的配置文件，或自定义配置内容">
+                    <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <div>
+                {getFieldDecorator('CNB_MIRROR_SOURCE', {
+                  initialValue: mirrorSource
+                })(
+                  <Radio.Group onChange={this.onMirrorSourceChange}>
+                    <Radio value="project">
+                      使用项目配置
+                      {hasProjectConfig && (
+                        <span style={{ color: '#52c41a', marginLeft: 8, fontSize: 12 }}>
+                          <Icon type="check-circle" style={{ marginRight: 4 }} />
+                          已检测到
+                        </span>
+                      )}
+                    </Radio>
+                    <Radio value="global">
+                      使用自定义配置
+                      {!hasProjectConfig && (
+                        <Tooltip title="项目中未检测到配置文件，将使用自定义的镜像配置">
+                          <span style={{ color: '#1890ff', marginLeft: 8, fontSize: 12 }}>
+                            <Icon type="info-circle" style={{ marginRight: 4 }} />
+                            推荐
+                          </span>
+                        </Tooltip>
+                      )}
+                    </Radio>
+                  </Radio.Group>
+                )}
+                {/* 显示检测到的配置文件 */}
+                {hasProjectConfig && mirrorSource === 'project' && (
+                  <div style={{ marginTop: 8, color: '#666', fontSize: 12 }}>
+                    检测到配置文件：
+                    {configFilesInfo.hasNpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.npmrc</span>}
+                    {configFilesInfo.hasYarnrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.yarnrc</span>}
+                    {configFilesInfo.hasPnpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.pnpmrc</span>}
+                  </div>
+                )}
+                {!hasProjectConfig && mirrorSource === 'project' && (
+                  <div style={{ marginTop: 8, color: '#fa8c16', fontSize: 12 }}>
+                    <Icon type="warning" style={{ marginRight: 4 }} />
+                    项目中未检测到 .npmrc/.yarnrc/.pnpmrc 文件，建议切换到"使用自定义配置"
+                  </div>
+                )}
+              </div>
+            </Form.Item>
 
-        {/* 5. 输出目录 - 仅前端框架显示 */}
-        {isStaticFramework && (
+            {/* 全局配置 - 只显示检测到的包管理器对应的配置文件 */}
+            {mirrorSource === 'global' && (
+              <Form.Item
+                {...formItemLayout}
+                label={
+                  <span>
+                    自定义配置
+                    <Tooltip title="为当前组件配置镜像源，构建时将自动注入到容器中">
+                      <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {/* 只显示对应包管理器的配置文件 */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '8px 12px',
+                    background: '#fafafa',
+                    borderRadius: 4,
+                    border: '1px solid #e8e8e8'
+                  }}>
+                    <span style={{ fontWeight: 500, width: 80 }}>{mirrorConfig.label}</span>
+                    <Button
+                      type="link"
+                      size="small"
+                      icon="edit"
+                      onClick={() => {
+                        this.setState({
+                          mirrorConfigType: mirrorConfig.value,
+                          mirrorModalVisible: true,
+                          tempMirrorContent: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
+                        });
+                      }}
+                    >
+                      编辑
+                    </Button>
+                    {this.state[`mirrorContent_${mirrorConfig.value}`] && (
+                      <span style={{ color: '#52c41a', fontSize: 12, marginLeft: 8 }}>
+                        <Icon type="check-circle" style={{ marginRight: 4 }} />
+                        已配置
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {/* 隐藏字段用于表单提交 - 只提交对应包管理器的配置 */}
+                {getFieldDecorator(mirrorConfig.fieldName, {
+                  initialValue: this.state[`mirrorContent_${mirrorConfig.value}`] || ''
+                })(<Input type="hidden" />)}
+              </Form.Item>
+            )}
+
+            {/* Mirror 配置编辑弹窗 */}
+            <Modal
+              title={`编辑 ${mirrorConfigType} 配置`}
+              visible={mirrorModalVisible}
+              onOk={this.saveMirrorConfig}
+              onCancel={this.closeMirrorModal}
+              width={600}
+              okText="保存"
+              cancelText="取消"
+            >
+              <TextArea
+                rows={12}
+                value={tempMirrorContent}
+                onChange={(e) => this.setState({ tempMirrorContent: e.target.value })}
+                placeholder={`请输入 ${mirrorConfigType} 配置内容，例如：\nregistry=https://registry.npmmirror.com`}
+                style={{ fontFamily: 'monospace' }}
+              />
+            </Modal>
+          </>
+        )}
+
+        {/* 5. 输出目录 - 静态项目显示（包括纯静态和 Node.js 静态） */}
+        {(isStaticFramework || isPureStatic) && (
           <Form.Item
             {...formItemLayout}
             label={
               <span>
                 输出目录
-                <Tooltip title="构建产物目录，如 dist、build、out">
+                <Tooltip title={isPureStatic
+                  ? "静态文件所在目录，默认为根目录 ."
+                  : "构建产物目录，如 dist、build、out"}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -526,32 +548,31 @@ class NodeJSCNBConfig extends PureComponent {
           >
             {getFieldDecorator('CNB_OUTPUT_DIR', {
               initialValue: outputDir
-            })(<Input placeholder="dist" style={{ width: 300 }} />)}
+            })(<Input placeholder={isPureStatic ? "." : "dist"} style={{ width: 300 }} />)}
           </Form.Item>
         )}
 
-        {/* 6. 构建命令 - 前后端都显示 */}
-        <Form.Item
-          {...formItemLayout}
-          label={
-            <span>
-              构建命令
-              <Tooltip title={isStaticFramework
-                ? "package.json 中的 scripts 名称，如 build、build:prod"
-                : "可选，用于 TypeScript 等需要编译的项目，留空则跳过构建步骤"
-              }>
-                <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
-              </Tooltip>
-            </span>
-          }
-        >
-          {getFieldDecorator('CNB_BUILD_SCRIPT', {
-            initialValue: buildScript
-          })(<Input placeholder={isStaticFramework ? "build" : "可选，如 build"} style={{ width: 300 }} />)}
-        </Form.Item>
+        {/* 6. 构建命令 - 仅 Node.js 静态项目显示（纯静态项目不显示） */}
+        {!isPureStatic && isStaticFramework && (
+          <Form.Item
+            {...formItemLayout}
+            label={
+              <span>
+                构建命令
+                <Tooltip title="package.json 中的 scripts 名称，如 build、build:prod">
+                  <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
+                </Tooltip>
+              </span>
+            }
+          >
+            {getFieldDecorator('CNB_BUILD_SCRIPT', {
+              initialValue: buildScript
+            })(<Input placeholder="build" style={{ width: 300 }} />)}
+          </Form.Item>
+        )}
 
-        {/* 7. 启动命令 - 仅后端框架显示 */}
-        {!isStaticFramework && (
+        {/* 7. 启动命令 - 仅 Node.js 服务显示（纯静态项目不显示） */}
+        {!isPureStatic && !isStaticFramework && (
           <Form.Item
             {...formItemLayout}
             label={

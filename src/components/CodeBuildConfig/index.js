@@ -307,7 +307,13 @@ class CodeBuildConfig extends PureComponent {
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} key={buildSourceArr}/>
+          runtimeInfo?.runtime_info ? (
+            // CNB 构建：纯静态项目无需配置，只显示提示
+            <StaticConfig />
+          ) : (
+            // Slug 构建：保留原有配置表单（兼容升级）
+            <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} isSlug={true} />
+          )
         )}
         {isNodeJSLanguage(languageType) && (
           // 根据环境变量或 runtime_info 决定显示哪个配置组件

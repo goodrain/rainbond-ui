@@ -124,30 +124,33 @@ export default class Index extends PureComponent {
     const cnbParamsStr = window.sessionStorage.getItem('cnb_params');
     const cnbParams = cnbParamsStr ? JSON.parse(cnbParamsStr) : null;
 
+    // 判断是否为纯静态项目
+    const isPureStatic = soundCodeLanguage === 'static' || cnbParams?.isPureStatic;
+
     this.setState({ buildAppLoading: true }, () => {
-      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic' || isPureStatic) {
         // 优先使用 runtimeInfo（来自后端，可能在配置页面被用户修改过），其次使用 sessionStorage（来自检测阶段）
         // 如果都没有，使用默认值确保 CNB 构建被触发
-        const defaultFramework = soundCodeLanguage == 'NodeJSStatic' ? 'vue' : 'express';
+        const defaultFramework = isPureStatic ? 'other-static' : (soundCodeLanguage == 'NodeJSStatic' ? 'vue' : 'express');
         const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || defaultFramework;
-        const cnbBuildScript = runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (soundCodeLanguage == 'NodeJSStatic' ? 'build' : '');
-        const cnbOutputDir = runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : '');
-        const cnbNodeVersion = runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '';
+        const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (soundCodeLanguage == 'NodeJSStatic' ? 'build' : ''));
+        const cnbOutputDir = isPureStatic ? (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || '.') : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : ''));
+        const cnbNodeVersion = isPureStatic ? '' : (runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '');
 
-        // Mirror 配置：优先使用 runtimeInfo，否则根据项目是否有配置文件决定
+        // Mirror 配置：纯静态项目不需要包管理器镜像
         const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false };
         const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
-        const cnbMirrorSource = runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global');
+        const cnbMirrorSource = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global'));
 
-        const cnbMirrorNpmrc = runtimeInfo?.CNB_MIRROR_NPMRC || '';
-        const cnbMirrorYarnrc = runtimeInfo?.CNB_MIRROR_YARNRC || '';
-        const cnbMirrorPnpmrc = runtimeInfo?.CNB_MIRROR_PNPMRC || '';
+        const cnbMirrorNpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_NPMRC || '');
+        const cnbMirrorYarnrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_YARNRC || '');
+        const cnbMirrorPnpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_PNPMRC || '');
 
         const obj = {
           team_name: team_name,
           app_alias: app_alias,
-          lang: soundCodeLanguage,
-          package_tool: packageNpmOrYarn,
+          lang: isPureStatic ? 'static' : soundCodeLanguage,
+          package_tool: isPureStatic ? '' : packageNpmOrYarn,
           // CNB 构建参数
           cnb_framework: cnbFramework,
           cnb_build_script: cnbBuildScript,

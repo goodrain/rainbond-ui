@@ -488,13 +488,15 @@ export default class CreateCheck extends React.Component {
       window.sessionStorage.setItem('dist', JSON.stringify(`${dist}`));
     }
     // 保存 CNB 构建参数到 sessionStorage，以便在 create-configPort.js 中使用
-    if (codeLanguage === 'Node.js' || codeLanguage === 'NodeJSStatic') {
+    if (codeLanguage === 'Node.js' || codeLanguage === 'NodeJSStatic' || codeLanguage === 'static') {
+      const isPureStatic = codeLanguage === 'static';
       const cnbParams = {
-        framework: selectedFramework || '',
-        buildScript: buildScript || 'build',
-        outputDir: Directory || 'dist',
-        nodeVersion: nodeVersion || '',
-        configFiles: configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false }
+        framework: isPureStatic ? (selectedFramework || 'other-static') : (selectedFramework || ''),
+        buildScript: isPureStatic ? '' : (buildScript || 'build'),
+        outputDir: isPureStatic ? (Directory || '.') : (Directory || 'dist'),
+        nodeVersion: isPureStatic ? '' : (nodeVersion || ''),
+        configFiles: configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false },
+        isPureStatic: isPureStatic
       };
       window.sessionStorage.setItem('cnb_params', JSON.stringify(cnbParams));
     }
@@ -606,10 +608,13 @@ export default class CreateCheck extends React.Component {
     const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
     const mirrorSource = hasMirrorConfig ? 'project' : 'global';
 
+    // 判断是否为纯静态项目（无 package.json，只有 HTML）
+    const isPureStatic = codeLanguage === 'static';
+
     this.setState({ buildAppLoading: true }, () => {
-      if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic') {
-        // 根据框架类型自动决定语言
-        const lang = isStaticFramework ? 'NodeJSStatic' : 'Node.js';
+      if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic' || isPureStatic) {
+        // 根据语言和框架类型决定传给后端的 lang
+        const lang = isPureStatic ? 'static' : (isStaticFramework ? 'NodeJSStatic' : 'Node.js');
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: {
@@ -617,13 +622,13 @@ export default class CreateCheck extends React.Component {
             app_alias: appAlias,
             lang: lang,
             // CNB 构建相关参数（使用 cnb_ 前缀）
-            cnb_framework: selectedFramework,
-            cnb_build_script: isStaticFramework ? buildScript : '',
-            cnb_output_dir: isStaticFramework ? Directory : '',
-            // Node.js 版本（空值则使用后端默认版本）
-            cnb_node_version: nodeVersion || '',
-            // Mirror 配置来源
-            cnb_mirror_source: mirrorSource,
+            cnb_framework: isPureStatic ? (selectedFramework || 'other-static') : selectedFramework,
+            cnb_build_script: isPureStatic ? '' : (isStaticFramework ? buildScript : ''),
+            cnb_output_dir: isPureStatic ? (Directory || '.') : (isStaticFramework ? Directory : ''),
+            // Node.js 版本（纯静态项目不需要）
+            cnb_node_version: isPureStatic ? '' : (nodeVersion || ''),
+            // Mirror 配置来源（纯静态项目不需要包管理器镜像）
+            cnb_mirror_source: isPureStatic ? '' : mirrorSource,
           },
           callback: res => {
             if (res) {
@@ -1382,7 +1387,7 @@ export default class CreateCheck extends React.Component {
       if (typeof item.value === 'string' && item.type == 'language') {
         const parts = item.value.split(",");
 
-        // 只显示语言类型，框架选择放在"源码构建参数设置"中
+        // 多语言检测时显示 Radio.Group 供用户选择，单语言时直接显示
         return (
           <div
             key={`item${index}`}
@@ -1402,7 +1407,7 @@ export default class CreateCheck extends React.Component {
             >
               {item.key}：
             </span>
-            <span>{parts[0]}</span>
+            {parts.length > 1 ? this.handleChangeLanguage(parts) : <span>{parts[0]}</span>}
           </div>
         )
       } else if (typeof item.value === 'string' && item.type != 'tar_images' && item.type != 'language' && item.type != 'framework' && item.type != 'node_version' && item.type != 'config_files' && item.type != 'package_manager') {
@@ -1429,6 +1434,10 @@ export default class CreateCheck extends React.Component {
           </div>
         );
       } else if (item.type == 'framework') {
+        // 当选择 dockerfile 语言时，不显示框架信息
+        if (codeLanguage === 'dockerfile') {
+          return null;
+        }
         // 显示框架检测结果
         const frameworkData = item.data || {};
         // 使用共享的框架匹配逻辑获取标准名称
@@ -1484,6 +1493,7 @@ export default class CreateCheck extends React.Component {
         );
       } else if (item.type == 'node_version' || item.type == 'config_files' || item.type == 'package_manager') {
         // 这些信息在下一步配置阶段展示，检测阶段不显示
+        // 当选择 dockerfile 语言时也不显示
         return null;
       } else {
         return (
@@ -1583,6 +1593,30 @@ export default class CreateCheck extends React.Component {
     this.setState({
       dockfilePath: e.target.value
     })
+  }
+  // 语言切换处理函数（多语言检测时使用）
+  onChangeLange = e => {
+    const { dispatch } = this.props;
+    this.setState({
+      codeLanguage: e.target.value
+    }, () => {
+      const { codeLanguage } = this.state;
+      dispatch({
+        type: 'teamControl/ChoosingLanguage',
+        payload: codeLanguage,
+      });
+    });
+  };
+  // 渲染多语言选择 Radio.Group
+  handleChangeLanguage = (languageArr) => {
+    const { codeLanguage } = this.state;
+    return (
+      <Radio.Group onChange={this.onChangeLange} value={codeLanguage}>
+        {languageArr.map((item) => {
+          return <Radio key={item} value={item}>{item}</Radio>
+        })}
+      </Radio.Group>
+    );
   }
   /*
     函数名称: renderSuccessOnChange
