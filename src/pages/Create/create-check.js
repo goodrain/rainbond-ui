@@ -92,7 +92,6 @@ export default class CreateCheck extends React.Component {
       configFiles: {
         hasNpmrc: false,
         hasYarnrc: false,
-        hasPnpmrc: false,
       },
     };
     this.mount = false;
@@ -363,12 +362,11 @@ export default class CreateCheck extends React.Component {
                   nodeVersion: item.data?.version || ''
                 })
               } else if (item.type == 'config_files') {
-                // Handle config files detection (.npmrc, .yarnrc, .pnpmrc)
+                // Handle config files detection (.npmrc, .yarnrc)
                 this.setState({
                   configFiles: {
                     hasNpmrc: item.data?.has_npmrc || false,
                     hasYarnrc: item.data?.has_yarnrc || false,
-                    hasPnpmrc: item.data?.has_pnpmrc || false,
                   }
                 })
               } else {
@@ -493,9 +491,9 @@ export default class CreateCheck extends React.Component {
       const cnbParams = {
         framework: isPureStatic ? (selectedFramework || 'other-static') : (selectedFramework || ''),
         buildScript: isPureStatic ? '' : (buildScript || 'build'),
-        outputDir: isPureStatic ? (Directory || '.') : (Directory || 'dist'),
+        outputDir: isPureStatic ? '.' : (Directory || 'dist'),
         nodeVersion: isPureStatic ? '' : (nodeVersion || ''),
-        configFiles: configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false },
+        configFiles: configFiles || { hasNpmrc: false, hasYarnrc: false },
         isPureStatic: isPureStatic
       };
       window.sessionStorage.setItem('cnb_params', JSON.stringify(cnbParams));
@@ -603,9 +601,9 @@ export default class CreateCheck extends React.Component {
     const isStaticFramework = currentFramework?.type === 'static';
 
     // 确定 Mirror 配置来源
-    // 如果项目中存在任何配置文件 (.npmrc/.yarnrc/.pnpmrc)，使用项目配置
+    // 如果项目中存在任何配置文件 (.npmrc/.yarnrc)，使用项目配置
     // 否则使用平台提供的全局配置
-    const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
+    const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc;
     const mirrorSource = hasMirrorConfig ? 'project' : 'global';
 
     // 判断是否为纯静态项目（无 package.json，只有 HTML）
@@ -624,11 +622,14 @@ export default class CreateCheck extends React.Component {
             // CNB 构建相关参数（使用 cnb_ 前缀）
             cnb_framework: isPureStatic ? (selectedFramework || 'other-static') : selectedFramework,
             cnb_build_script: isPureStatic ? '' : (isStaticFramework ? buildScript : ''),
-            cnb_output_dir: isPureStatic ? (Directory || '.') : (isStaticFramework ? Directory : ''),
+            cnb_output_dir: isPureStatic ? '.' : (isStaticFramework ? Directory : ''),
             // Node.js 版本（纯静态项目不需要）
             cnb_node_version: isPureStatic ? '' : (nodeVersion || ''),
             // Mirror 配置来源（纯静态项目不需要包管理器镜像）
             cnb_mirror_source: isPureStatic ? '' : mirrorSource,
+            // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
+            has_npmrc: configFiles.hasNpmrc ? 'true' : '',
+            has_yarnrc: configFiles.hasYarnrc ? 'true' : '',
           },
           callback: res => {
             if (res) {

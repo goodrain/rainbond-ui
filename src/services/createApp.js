@@ -402,7 +402,9 @@ export async function setNodeLanguage(body = {}) {
         cnb_mirror_source: body.cnb_mirror_source,
         cnb_mirror_npmrc: body.cnb_mirror_npmrc,
         cnb_mirror_yarnrc: body.cnb_mirror_yarnrc,
-        cnb_mirror_pnpmrc: body.cnb_mirror_pnpmrc,
+        // 配置文件检测标志
+        has_npmrc: body.has_npmrc,
+        has_yarnrc: body.has_yarnrc,
       }
     }
   );

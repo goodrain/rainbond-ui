@@ -134,17 +134,16 @@ export default class Index extends PureComponent {
         const defaultFramework = isPureStatic ? 'other-static' : (soundCodeLanguage == 'NodeJSStatic' ? 'vue' : 'express');
         const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || defaultFramework;
         const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (soundCodeLanguage == 'NodeJSStatic' ? 'build' : ''));
-        const cnbOutputDir = isPureStatic ? (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || '.') : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : ''));
+        const cnbOutputDir = isPureStatic ? '.' : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : ''));
         const cnbNodeVersion = isPureStatic ? '' : (runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '');
 
         // Mirror 配置：纯静态项目不需要包管理器镜像
-        const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false, hasPnpmrc: false };
-        const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc || configFiles.hasPnpmrc;
+        const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false };
+        const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc;
         const cnbMirrorSource = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global'));
 
         const cnbMirrorNpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_NPMRC || '');
         const cnbMirrorYarnrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_YARNRC || '');
-        const cnbMirrorPnpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_PNPMRC || '');
 
         const obj = {
           team_name: team_name,
@@ -159,7 +158,9 @@ export default class Index extends PureComponent {
           cnb_mirror_source: cnbMirrorSource,
           cnb_mirror_npmrc: cnbMirrorNpmrc,
           cnb_mirror_yarnrc: cnbMirrorYarnrc,
-          cnb_mirror_pnpmrc: cnbMirrorPnpmrc
+          // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
+          has_npmrc: configFiles.hasNpmrc ? 'true' : '',
+          has_yarnrc: configFiles.hasYarnrc ? 'true' : '',
         };
         if (soundCodeLanguage == 'NodeJSStatic') {
           obj.dist = dist;

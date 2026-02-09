@@ -17,10 +17,11 @@ const { Option, OptGroup } = Select;
 const { TextArea } = Input;
 
 // Mirror 配置文件类型 - 根据包管理器映射
+// 注意：pnpm 使用 .npmrc（不是 .pnpmrc），与 npm 相同
 const MIRROR_CONFIG_MAP = {
   npm: { value: '.npmrc', label: '.npmrc', fieldName: 'CNB_MIRROR_NPMRC' },
   yarn: { value: '.yarnrc', label: '.yarnrc', fieldName: 'CNB_MIRROR_YARNRC' },
-  pnpm: { value: '.pnpmrc', label: '.pnpmrc', fieldName: 'CNB_MIRROR_PNPMRC' },
+  pnpm: { value: '.npmrc', label: '.npmrc', fieldName: 'CNB_MIRROR_NPMRC' },
 };
 
 // 获取包管理器对应的配置文件
@@ -150,27 +151,30 @@ class NodeJSCNBConfig extends PureComponent {
 
     // 获取配置文件检测结果
     // 优先级: runtimeInfo.config_files > envs 中的 BUILD_HAS_* 标志
+    // 注意：pnpm 使用 .npmrc，不存在 .pnpmrc
     let hasProjectConfig = false;
     let configFilesInfo = {
       hasNpmrc: false,
-      hasYarnrc: false,
-      hasPnpmrc: false
+      hasYarnrc: false
     };
 
     if (runtimeInfo?.config_files) {
       configFilesInfo = {
         hasNpmrc: runtimeInfo.config_files.has_npmrc || false,
-        hasYarnrc: runtimeInfo.config_files.has_yarnrc || false,
-        hasPnpmrc: runtimeInfo.config_files.has_pnpmrc || false
+        hasYarnrc: runtimeInfo.config_files.has_yarnrc || false
       };
-      hasProjectConfig = configFilesInfo.hasNpmrc || configFilesInfo.hasYarnrc || configFilesInfo.hasPnpmrc;
+      hasProjectConfig = configFilesInfo.hasNpmrc || configFilesInfo.hasYarnrc;
     } else if (envs) {
       configFilesInfo = {
         hasNpmrc: envs.BUILD_HAS_NPMRC === 'true',
-        hasYarnrc: envs.BUILD_HAS_YARNRC === 'true',
-        hasPnpmrc: envs.BUILD_HAS_PNPMRC === 'true'
+        hasYarnrc: envs.BUILD_HAS_YARNRC === 'true'
       };
-      hasProjectConfig = configFilesInfo.hasNpmrc || configFilesInfo.hasYarnrc || configFilesInfo.hasPnpmrc;
+      hasProjectConfig = configFilesInfo.hasNpmrc || configFilesInfo.hasYarnrc;
+      // Fallback: 如果 BUILD_HAS_* 标志不存在，但 CNB_MIRROR_SOURCE 已保存为 'project'，
+      // 说明创建时检测到了配置文件（兼容旧数据）
+      if (!hasProjectConfig && envs.CNB_MIRROR_SOURCE === 'project') {
+        hasProjectConfig = true;
+      }
     }
 
     // Mirror 来源：如果用户已保存选择，使用保存的值；否则根据检测结果自动选择
@@ -203,7 +207,6 @@ class NodeJSCNBConfig extends PureComponent {
       // 从 envs 中恢复已保存的 Mirror 配置内容
       'mirrorContent_.npmrc': envs?.CNB_MIRROR_NPMRC || '',
       'mirrorContent_.yarnrc': envs?.CNB_MIRROR_YARNRC || '',
-      'mirrorContent_.pnpmrc': envs?.CNB_MIRROR_PNPMRC || '',
     };
   }
 
@@ -445,13 +448,12 @@ class NodeJSCNBConfig extends PureComponent {
                     检测到配置文件：
                     {configFilesInfo.hasNpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.npmrc</span>}
                     {configFilesInfo.hasYarnrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.yarnrc</span>}
-                    {configFilesInfo.hasPnpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.pnpmrc</span>}
                   </div>
                 )}
                 {!hasProjectConfig && mirrorSource === 'project' && (
                   <div style={{ marginTop: 8, color: '#fa8c16', fontSize: 12 }}>
                     <Icon type="warning" style={{ marginRight: 4 }} />
-                    项目中未检测到 .npmrc/.yarnrc/.pnpmrc 文件，建议切换到"使用自定义配置"
+                    项目中未检测到 .npmrc/.yarnrc 文件，建议切换到"使用自定义配置"
                   </div>
                 )}
               </div>
@@ -552,8 +554,8 @@ class NodeJSCNBConfig extends PureComponent {
           </Form.Item>
         )}
 
-        {/* 6. 构建命令 - 仅 Node.js 静态项目显示（纯静态项目不显示） */}
-        {!isPureStatic && isStaticFramework && (
+        {/* 6. 构建命令 - Node.js 项目显示（纯静态项目不显示） */}
+        {!isPureStatic && (
           <Form.Item
             {...formItemLayout}
             label={
@@ -571,7 +573,7 @@ class NodeJSCNBConfig extends PureComponent {
           </Form.Item>
         )}
 
-        {/* 7. 启动命令 - 仅 Node.js 服务显示（纯静态项目不显示） */}
+        {/* 7. 启动命令 - 仅 Node.js 后端服务显示（纯静态和前端框架不显示） */}
         {!isPureStatic && !isStaticFramework && (
           <Form.Item
             {...formItemLayout}
