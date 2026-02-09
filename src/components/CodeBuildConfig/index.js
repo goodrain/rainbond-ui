@@ -271,6 +271,7 @@ class CodeBuildConfig extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
     const { languageType, arr, buildSourceArr, buildSourceLoading } = this.state;
+    const isStaticCNB = languageType === 'static' && (runtimeInfo?.BUILD_TYPE === 'cnb' || runtimeInfo?.CNB_FRAMEWORK);
     if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
@@ -307,7 +308,7 @@ class CodeBuildConfig extends PureComponent {
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          runtimeInfo?.runtime_info ? (
+          (runtimeInfo?.BUILD_TYPE === 'cnb' || runtimeInfo?.CNB_FRAMEWORK) ? (
             // CNB 构建：纯静态项目无需配置，只显示提示
             <StaticConfig />
           ) : (
@@ -361,7 +362,7 @@ class CodeBuildConfig extends PureComponent {
             </Form.Item>
           </div>
         )}
-        {isBtn &&
+        {isBtn && !isStaticCNB &&
           <Row>
             <Col span="5" />
             <Col span="19">
