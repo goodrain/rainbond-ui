@@ -415,6 +415,7 @@ export default class Main extends PureComponent {
       selectComponentID: [],
       allSelect: false,
       isAppPlugin: null,
+      isPlatformPlugin: false,
       currentPage: 1,
       showDrawerSwitchVal: false,
       k8sContent: '',
@@ -687,8 +688,19 @@ export default class Main extends PureComponent {
           describe: values.describe,
           version: values.version,
           version_alias: values.version_alias,
-          is_plugin: values.is_plugin
+          is_plugin: values.is_plugin,
+          is_platform_plugin: values.is_platform_plugin || false
         };
+        if (values.is_platform_plugin) {
+          appVersionInfo.plugin_id = values.plugin_id || '';
+          appVersionInfo.plugin_name = values.plugin_name || '';
+          appVersionInfo.plugin_type = values.plugin_type || '';
+          appVersionInfo.frontend_component = values.frontend_component || '';
+          appVersionInfo.entry_path = values.entry_path || '';
+          appVersionInfo.inject_position = values.inject_position || [];
+          appVersionInfo.menu_title = values.menu_title || '';
+          appVersionInfo.route_path = values.route_path ? '/plugins/' + values.route_path : '';
+        }
         if (record.scope === 'goodrain') {
           appVersionInfo.scope_target = record.scope_target;
           appVersionInfo.scope = record.scope;
@@ -1301,6 +1313,16 @@ export default class Main extends PureComponent {
                     )}
                   </Form.Item>
 
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}>
+                    {getFieldDecorator('is_platform_plugin', {
+                      valuePropName: 'checked',
+                      initialValue: (versionInfo && versionInfo.is_platform_plugin) || false
+                    })(
+                      <Checkbox onChange={(e) => { this.setState({ isPlatformPlugin: e.target.checked }); }}>
+                      </Checkbox>
+                    )}
+                  </Form.Item>
+
                   <Form.Item {...formItemLayout} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
                     {getFieldDecorator('arch', {
                       initialValue: null
@@ -1336,6 +1358,91 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
               </Row>
+              {getFieldValue('is_platform_plugin') && (
+                <div>
+                  <Divider>{formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}</Divider>
+                  <Row gutter={24}>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' })}>
+                        {getFieldDecorator('plugin_id', {
+                          initialValue: (versionInfo && versionInfo.plugin_id) || '',
+                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' }) }]
+                        })(<Input placeholder="rainbond-xxx" />)}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' })}>
+                        {getFieldDecorator('plugin_name', {
+                          initialValue: (versionInfo && versionInfo.plugin_name) || '',
+                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' }) }]
+                        })(<Input />)}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' })}>
+                        {getFieldDecorator('plugin_type', {
+                          initialValue: (versionInfo && versionInfo.plugin_type) || 'Iframe',
+                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' }) }]
+                        })(
+                          <Select style={{ width: '100%' }}>
+                            <Option value="JSInject">JSInject</Option>
+                            <Option value="Iframe">Iframe</Option>
+                          </Select>
+                        )}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
+                        {getFieldDecorator('frontend_component', {
+                          initialValue: (versionInfo && versionInfo.frontend_component) || ''
+                        })(
+                          <Select style={{ width: '100%' }} allowClear placeholder={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
+                            {apps.map(item => (
+                              <Option key={item.service_cname} value={item.service_cname}>{item.service_cname}</Option>
+                            ))}
+                          </Select>
+                        )}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' })}>
+                        {getFieldDecorator('entry_path', {
+                          initialValue: (versionInfo && versionInfo.entry_path) || '/static/main.js',
+                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' }) }]
+                        })(<Input placeholder="/static/main.js" />)}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.inject_position' })}>
+                        {getFieldDecorator('inject_position', {
+                          initialValue: (versionInfo && versionInfo.inject_position) || []
+                        })(
+                          <Select style={{ width: '100%' }} mode="multiple" placeholder="请选择注入位置">
+                            <Option value="Platform">平台</Option>
+                            <Option value="Team">团队</Option>
+                            <Option value="Application">应用</Option>
+                            <Option value="Component">组件</Option>
+                          </Select>
+                        )}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.menu_title' })}>
+                        {getFieldDecorator('menu_title', {
+                          initialValue: (versionInfo && versionInfo.menu_title) || ''
+                        })(<Input />)}
+                      </Form.Item>
+                    </Col>
+                    <Col span="24">
+                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.route_path' })}>
+                        {getFieldDecorator('route_path', {
+                          initialValue: (versionInfo && versionInfo.route_path) || ''
+                        })(<Input addonBefore="/plugins/" placeholder="my-plugin" />)}
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </div>
+              )}
             </div>
           </Card>
           {apps && apps.length > 0 &&
