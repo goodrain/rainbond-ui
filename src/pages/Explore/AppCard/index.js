@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatMessage } from 'umi';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
 
@@ -15,7 +16,7 @@ const AppCard = ({ app, onClick, onInstall, type = 'market' }) => {
 
   // 兼容两种数据结构
   const appName = app.name || app.app_name || '';
-  const appDesc = app.desc || app.describe || '暂无描述';
+  const appDesc = app.desc || app.describe || formatMessage({ id: 'explore.no_description' });
   const appLogo = app.logo;
 
   // 获取版本号 - 兼容新旧两种结构
@@ -47,7 +48,7 @@ const AppCard = ({ app, onClick, onInstall, type = 'market' }) => {
         </div>
         <div className={styles.appCardInfo}>
           <div className={styles.appCardName}>{appName}</div>
-          <div className={styles.appCardVersion}>版本 {getVersion()}</div>
+          <div className={styles.appCardVersion}>{formatMessage({ id: 'explore.version' })} {getVersion()}</div>
         </div>
       </div>
       <div className={styles.appCardDesc}>{appDesc}</div>

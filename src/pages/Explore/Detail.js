@@ -4,6 +4,7 @@ import { Button, Spin, Icon, Tabs, Modal, Form, Select, Radio, Input, Tag, notif
 import { Link, routerRedux } from 'dva/router';
 import ReactMarkdown from 'react-markdown';
 import { pinyin } from 'pinyin-pro';
+import { formatMessage } from 'umi';
 import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';
 import role from '../../utils/newRole';
@@ -153,12 +154,12 @@ class ExploreDetail extends PureComponent {
   formatCount = (count) => {
     if (!count && count !== 0) return '-';
     if (count >= 10000) {
-      return `${(count / 10000).toFixed(1)}w 次`;
+      return `${(count / 10000).toFixed(1)}${formatMessage({ id: 'explore.unit.wan_times' })}`;
     }
     if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}k 次`;
+      return `${(count / 1000).toFixed(1)}${formatMessage({ id: 'explore.unit.k_times' })}`;
     }
-    return `${count} 次`;
+    return `${count} ${formatMessage({ id: 'explore.unit.times' })}`;
   };
 
   // 从 useDoc 中解析图片列表
@@ -424,8 +425,8 @@ class ExploreDetail extends PureComponent {
 
     if (!selectedTeam) {
       notification.warning({
-        message: '请选择团队',
-        description: '请先选择要安装到的团队'
+        message: formatMessage({ id: 'explore.detail.select_team_warning' }),
+        description: formatMessage({ id: 'explore.detail.select_team_warning_desc' })
       });
       return;
     }
@@ -440,8 +441,8 @@ class ExploreDetail extends PureComponent {
 
       if (!regionName) {
         notification.error({
-          message: '安装失败',
-          description: '该团队没有可用的集群'
+          message: formatMessage({ id: 'explore.error.install_failed' }),
+          description: formatMessage({ id: 'explore.error.no_cluster' })
         });
         this.setState({ submitLoading: false });
         return;
@@ -470,8 +471,8 @@ class ExploreDetail extends PureComponent {
               },
               callback: () => {
                 notification.success({
-                  message: '安装成功',
-                  description: '应用正在部署中，请稍候...'
+                  message: formatMessage({ id: 'explore.success.install' }),
+                  description: formatMessage({ id: 'explore.success.install_desc' })
                 });
                 // 跳转到应用详情页
                 dispatch(
@@ -559,7 +560,7 @@ class ExploreDetail extends PureComponent {
         <div className={styles.backBar}>
           <div className={styles.backBtn} onClick={this.handleGoBack}>
             <Icon type="left" className={styles.backIcon} />
-            <span>返回首页</span>
+            <span>{formatMessage({ id: 'explore.detail.back' })}</span>
           </div>
         </div>
 
@@ -587,9 +588,9 @@ class ExploreDetail extends PureComponent {
                         <span className={styles.categoryTag}>{categoryTag}</span>
                       )}
                     </div>
-                    <p className={styles.appDesc}>{detail.desc || '暂无描述'}</p>
+                    <p className={styles.appDesc}>{detail.desc || formatMessage({ id: 'explore.no_description' })}</p>
                     {version && (
-                      <span className={styles.appVersion}>版本 {version}</span>
+                      <span className={styles.appVersion}>{formatMessage({ id: 'explore.version' })} {version}</span>
                     )}
                   </div>
                 </div>
@@ -600,7 +601,7 @@ class ExploreDetail extends PureComponent {
                     onClick={this.handleOpenInstallModal}
                   >
                     <Icon type="caret-right" />
-                    安装应用
+                    {formatMessage({ id: 'explore.detail.install' })}
                   </Button>
                 </div>
               </div>
@@ -613,7 +614,7 @@ class ExploreDetail extends PureComponent {
                   {previewImages.length > 0 && (
                     <div className={styles.previewSection}>
                       <h3 className={styles.sectionTitle}>
-                        效果展示
+                        {formatMessage({ id: 'explore.detail.preview' })}
                       </h3>
                       <div className={styles.previewContent}>
                         {/* 左侧缩略图列表 */}
@@ -660,17 +661,17 @@ class ExploreDetail extends PureComponent {
                   {/* 使用文档区域 */}
                   <div className={styles.docSection}>
                     <Tabs defaultActiveKey="intro" className={styles.docTabs}>
-                      <TabPane tab="简介" key="intro">
+                      <TabPane tab={formatMessage({ id: 'explore.detail.intro' })} key="intro">
                         <div className={styles.docContent}>
                           {detail.introduction ? (
                             <ReactMarkdown className={styles.markdown} source={detail.introduction} />
                           ) : (
-                            <span className={styles.emptyText}>暂无简介</span>
+                            <span className={styles.emptyText}>{formatMessage({ id: 'explore.detail.no_intro' })}</span>
                           )}
                         </div>
                       </TabPane>
                       {detail.installDoc && (
-                        <TabPane tab="安装文档" key="install">
+                        <TabPane tab={formatMessage({ id: 'explore.detail.install_doc' })} key="install">
                           <div className={styles.docContent}>
                             <ReactMarkdown className={styles.markdown} source={detail.installDoc} />
                           </div>
@@ -684,13 +685,13 @@ class ExploreDetail extends PureComponent {
                 <div className={styles.contentRight}>
                   {/* 基础信息区域 */}
                   <div className={styles.infoSection}>
-                    <h3 className={styles.sectionTitle}>基础信息</h3>
+                    <h3 className={styles.sectionTitle}>{formatMessage({ id: 'explore.detail.basic_info' })}</h3>
                     <div className={styles.infoContent}>
                       {/* 下载量 */}
                       <div className={styles.infoRow}>
                         <div className={styles.infoRowLeft}>
                           <Icon type="download" className={`${styles.infoIcon} ${styles.iconBlue}`} />
-                          <span className={styles.infoLabel}>下载量</span>
+                          <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.download_count' })}</span>
                         </div>
                         <span className={styles.infoValue}>{this.formatCount(detail.installCount)}</span>
                       </div>
@@ -699,7 +700,7 @@ class ExploreDetail extends PureComponent {
                       <div className={styles.infoRow}>
                         <div className={styles.infoRowLeft}>
                           <Icon type="line-chart" className={`${styles.infoIcon} ${styles.iconOrange}`} />
-                          <span className={styles.infoLabel}>浏览量</span>
+                          <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.view_count' })}</span>
                         </div>
                         <span className={styles.infoValue}>{this.formatCount(detail.showCount)}</span>
                       </div>
@@ -708,7 +709,7 @@ class ExploreDetail extends PureComponent {
                       <div className={styles.infoRow}>
                         <div className={styles.infoRowLeft}>
                           <Icon type="appstore" className={`${styles.infoIcon} ${styles.iconBlue}`} />
-                          <span className={styles.infoLabel}>分类</span>
+                          <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.category' })}</span>
                         </div>
                         <span className={styles.infoValue}>
                           {detail.appClassifications?.map(cat => cat.appClassificationName).join('、') || '-'}
@@ -720,7 +721,7 @@ class ExploreDetail extends PureComponent {
                         <div className={styles.infoRow}>
                           <div className={styles.infoRowLeft}>
                             <Icon type="tags" className={`${styles.infoIcon} ${styles.iconGreen}`} />
-                            <span className={styles.infoLabel}>标签</span>
+                            <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.tags' })}</span>
                           </div>
                           <div className={styles.tagListInline}>
                             {detail.tags.map((tag, idx) => (
@@ -736,7 +737,7 @@ class ExploreDetail extends PureComponent {
 
                   {/* 系统要求区域 */}
                   <div className={styles.requirementSection}>
-                    <h3 className={styles.sectionTitle}>系统要求</h3>
+                    <h3 className={styles.sectionTitle}>{formatMessage({ id: 'explore.detail.system_requirements' })}</h3>
                     <div className={styles.requirementContent}>
                       {this.getSelectedVersion() ? (
                         <>
@@ -744,7 +745,7 @@ class ExploreDetail extends PureComponent {
                           <div className={styles.infoRow}>
                             <div className={styles.infoRowLeft}>
                               <Icon type="dashboard" className={`${styles.infoIcon} ${styles.iconBlue}`} />
-                              <span className={styles.infoLabel}>CPU 占用</span>
+                              <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.cpu_usage' })}</span>
                             </div>
                             <span className={styles.infoValue}>
                               {this.formatCPU(this.getSelectedVersion().cpu)}
@@ -755,7 +756,7 @@ class ExploreDetail extends PureComponent {
                           <div className={styles.infoRow}>
                             <div className={styles.infoRowLeft}>
                               <Icon type="database" className={`${styles.infoIcon} ${styles.iconGreen}`} />
-                              <span className={styles.infoLabel}>内存占用</span>
+                              <span className={styles.infoLabel}>{formatMessage({ id: 'explore.detail.memory_usage' })}</span>
                             </div>
                             <span className={styles.infoValue}>
                               {this.formatMemoryMi(this.getSelectedVersion().memory)}
@@ -763,7 +764,7 @@ class ExploreDetail extends PureComponent {
                           </div>
                         </>
                       ) : (
-                        <span className={styles.emptyText}>暂无版本信息</span>
+                        <span className={styles.emptyText}>{formatMessage({ id: 'explore.detail.no_version_info' })}</span>
                       )}
                     </div>
                   </div>
@@ -775,7 +776,7 @@ class ExploreDetail extends PureComponent {
 
         {/* 安装弹窗 */}
         <Modal
-          title="安装应用"
+          title={formatMessage({ id: 'explore.detail.install' })}
           visible={installModalVisible}
           onCancel={this.handleCloseInstallModal}
           footer={
@@ -784,7 +785,7 @@ class ExploreDetail extends PureComponent {
                 <div style={{ fontSize: '14px', color: '#595959' }}>
                   {currentVersionInfo && (
                     <span>
-                      资源占用: CPU {currentVersionInfo.cpu || 0}m / 内存 {currentVersionInfo.memory || 0}MB
+                      {formatMessage({ id: 'explore.install.resource_usage' })} CPU {currentVersionInfo.cpu || 0}m / {formatMessage({ id: 'explore.detail.memory_usage' })} {currentVersionInfo.memory || 0}MB
                     </span>
                   )}
                 </div>
@@ -796,10 +797,10 @@ class ExploreDetail extends PureComponent {
 
                   if (installType === 'new' && creatAppPermission?.isAccess === false) {
                     permissionDisabled = true;
-                    permissionTip = '您没有创建应用的权限';
+                    permissionTip = formatMessage({ id: 'explore.error.no_permission_create_app' });
                   } else if (installType === 'existing' && creatComPermission?.isCreate === false) {
                     permissionDisabled = true;
-                    permissionTip = '您没有创建组件的权限';
+                    permissionTip = formatMessage({ id: 'explore.error.no_permission_create_component' });
                   }
 
                   const isDisabled = !selectedTeam || permissionDisabled;
@@ -811,7 +812,7 @@ class ExploreDetail extends PureComponent {
                       loading={submitLoading}
                       disabled={isDisabled}
                     >
-                      确认安装
+                      {formatMessage({ id: 'explore.install.confirm' })}
                     </Button>
                   );
 
@@ -841,7 +842,7 @@ class ExploreDetail extends PureComponent {
               <Empty
                 description={
                   <span style={{ color: '#666' }}>
-                    暂无可用团队，请联系管理员加入团队后再安装应用
+                    {formatMessage({ id: 'explore.install.no_team' })}
                   </span>
                 }
               />
@@ -854,9 +855,9 @@ class ExploreDetail extends PureComponent {
                 </p>
               )}
               <Form layout="vertical" hideRequiredMark>
-                <Form.Item {...formItemLayout} label="选择团队">
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'explore.install.select_team' })}>
                   <Select
-                    placeholder="请选择团队"
+                    placeholder={formatMessage({ id: 'explore.install.select_team_placeholder' })}
                     style={{ width: '100%' }}
                     loading={teamLoading}
                     value={selectedTeam?.team_name}
@@ -871,10 +872,10 @@ class ExploreDetail extends PureComponent {
                   </Select>
                 </Form.Item>
 
-                <Form.Item {...formItemLayout} label="选择版本">
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'explore.install.select_version' })}>
                   {getFieldDecorator('group_version', {
                     initialValue: versions.length > 0 ? versions[0].appVersion : '',
-                    rules: [{ required: true, message: '请选择版本' }]
+                    rules: [{ required: true, message: formatMessage({ id: 'explore.error.select_version' }) }]
                   })(
                     <Select
                       getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -895,38 +896,38 @@ class ExploreDetail extends PureComponent {
                   )}
                 </Form.Item>
 
-                <Form.Item {...formItemLayout} label="安装类型">
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'explore.install.type' })}>
                   {getFieldDecorator('install_type', {
                     initialValue: 'new',
                     rules: [{ required: true, message: '请选择安装类型' }]
                   })(
                     <Radio.Group onChange={this.handleInstallTypeChange} buttonStyle="solid">
-                      <Radio.Button value="new">创建新应用</Radio.Button>
-                      <Radio.Button value="existing">安装到已有应用</Radio.Button>
+                      <Radio.Button value="new">{formatMessage({ id: 'explore.install.type_new' })}</Radio.Button>
+                      <Radio.Button value="existing">{formatMessage({ id: 'explore.install.type_existing' })}</Radio.Button>
                     </Radio.Group>
                   )}
                 </Form.Item>
 
                 {installType === 'new' && (
-                  <Form.Item {...formItemLayout} label="应用名称">
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'explore.install.app_name' })}>
                     {getFieldDecorator('group_name', {
                       initialValue: detail.name || '',
                       rules: [
-                        { required: true, message: '请输入应用名称' },
-                        { max: 24, message: '最多24个字符' }
+                        { required: true, message: formatMessage({ id: 'explore.install.app_name_placeholder' }) },
+                        { max: 24, message: formatMessage({ id: 'explore.install.app_name_max' }) }
                       ]
-                    })(<Input placeholder="请输入应用名称" />)}
+                    })(<Input placeholder={formatMessage({ id: 'explore.install.app_name_placeholder' })} />)}
                   </Form.Item>
                 )}
 
                 {installType === 'existing' && (
-                  <Form.Item {...formItemLayout} label="选择应用">
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'explore.install.select_app' })}>
                     {getFieldDecorator('group_id', {
                       initialValue: '',
-                      rules: [{ required: true, message: '请选择应用' }]
+                      rules: [{ required: true, message: formatMessage({ id: 'explore.install.select_app_placeholder' }) }]
                     })(
                       <Select
-                        placeholder={groupsLoading ? '加载中...' : '请选择应用'}
+                        placeholder={groupsLoading ? formatMessage({ id: 'explore.loading' }) : formatMessage({ id: 'explore.install.select_app_placeholder' })}
                         style={{ width: '100%' }}
                         loading={groupsLoading}
                         disabled={!selectedTeam}
@@ -941,7 +942,7 @@ class ExploreDetail extends PureComponent {
                       </Select>
                     )}
                     <div className={styles.installHint}>
-                      将组件安装到已有应用中
+                      {formatMessage({ id: 'explore.install.select_app_hint' })}
                     </div>
                   </Form.Item>
                 )}

@@ -220,7 +220,7 @@ class Explore extends PureComponent {
         hotCategoriesLoading: false,
         hotCategories: [],
         marketAvailable: false,
-        marketErrorMsg: '网络连接超时，请检查网络后重试'
+        marketErrorMsg: formatMessage({ id: 'explore.error.network_timeout' })
       });
     }, 3000);
 
@@ -240,7 +240,7 @@ class Explore extends PureComponent {
           this.setState({
             hotCategories: [],
             marketAvailable: false,
-            marketErrorMsg: '获取分类数据失败，请稍后重试'
+            marketErrorMsg: formatMessage({ id: 'explore.error.fetch_categories_failed' })
           });
         }
       },
@@ -250,7 +250,7 @@ class Explore extends PureComponent {
           hotCategoriesLoading: false,
           hotCategories: [],
           marketAvailable: false,
-          marketErrorMsg: '网络连接失败，请检查网络后重试'
+          marketErrorMsg: formatMessage({ id: 'explore.error.network_failed' })
         });
       }
     });
@@ -620,19 +620,19 @@ class Explore extends PureComponent {
       if (err) return;
 
       if (!selectedTeam) {
-        message.error('请选择团队');
+        message.error(formatMessage({ id: 'explore.error.select_team' }));
         return;
       }
 
       // 获取团队的第一个集群
       const regionName = selectedTeam.region?.[0]?.region_name || selectedTeam.region_list?.[0]?.region_name;
       if (!regionName) {
-        message.error('该团队没有可用的集群');
+        message.error(formatMessage({ id: 'explore.error.no_cluster' }));
         return;
       }
 
       if (!selectedLocalVersion) {
-        message.error('请选择版本');
+        message.error(formatMessage({ id: 'explore.error.select_version' }));
         return;
       }
 
@@ -655,8 +655,8 @@ class Explore extends PureComponent {
           },
           callback: () => {
             notification.success({
-              message: '安装成功',
-              description: '应用正在部署中，请稍候...'
+              message: formatMessage({ id: 'explore.success.install' }),
+              description: formatMessage({ id: 'explore.success.install_desc' })
             });
             this.setState({ localInstallLoading: false });
             this.handleLocalInstallCancel();
@@ -668,7 +668,7 @@ class Explore extends PureComponent {
             );
           },
           handleError: () => {
-            message.error('安装失败');
+            message.error(formatMessage({ id: 'explore.error.install_failed' }));
             this.setState({ localInstallLoading: false });
           }
         });
@@ -694,7 +694,7 @@ class Explore extends PureComponent {
             }
           },
           handleError: () => {
-            message.error('创建应用失败');
+            message.error(formatMessage({ id: 'explore.error.create_app_failed' }));
             this.setState({ localInstallLoading: false });
           }
         });
@@ -703,7 +703,7 @@ class Explore extends PureComponent {
         installApp(values.group_id, false);
       } else {
         this.setState({ localInstallLoading: false });
-        message.error('请填写完整信息');
+        message.error(formatMessage({ id: 'explore.error.fill_complete_info' }));
       }
     });
   };
@@ -1101,7 +1101,7 @@ class Explore extends PureComponent {
               pageSize={this.state.pageSize}
               total={this.state.total}
               onChange={this.onPageChangeApp}
-              showTotal={total => `共 ${total} 条`}
+              showTotal={total => formatMessage({ id: 'explore.total_count' }, { total })}
               showSizeChanger
               onShowSizeChange={this.onPageChangeApp}
             />
@@ -1118,8 +1118,8 @@ class Explore extends PureComponent {
           <div className={styles.marketErrorCard}>
             <Result
               type="warning"
-              title="外部市场暂时不可用"
-              description="当前网络质量较差或平台搭建方式为离线部署，因此无法使用外部市场，请查看网络或平台设置后再试。"
+              title={formatMessage({ id: 'explore.market.unavailable_title' })}
+              description={formatMessage({ id: 'explore.market.unavailable_desc' })}
             />
           </div>
         ) : (
@@ -1130,7 +1130,7 @@ class Explore extends PureComponent {
                 <div className={styles.recommendHeader}>
                   <h3 className={styles.recommendTitle}>
                     <HeartIcon className={styles.recommendTitleIcon} />
-                    推荐
+                    {formatMessage({ id: 'explore.recommend' })}
                   </h3>
                 </div>
                 <div className={styles.recommendList}>
@@ -1145,7 +1145,7 @@ class Explore extends PureComponent {
                       />
                     ))
                   ) : (
-                    <Empty description="暂无推荐应用" />
+                    <Empty description={formatMessage({ id: 'explore.recommend.no_apps' })} />
                   )}
                 </div>
               </div>
@@ -1156,7 +1156,7 @@ class Explore extends PureComponent {
               <div className={styles.hotCategoriesHeader}>
                 <h3 className={styles.hotCategoriesTitle}>
                   <HotIcon className={styles.hotCategoriesTitleIcon} />
-                  热门类别
+                  {formatMessage({ id: 'explore.hot_categories' })}
                 </h3>
               </div>
             </div>
@@ -1171,7 +1171,7 @@ class Explore extends PureComponent {
                 className={`${styles.categoryItem} ${styles.categoryAll} ${this.state.selectedCategory === 'all' ? styles.categoryActive : ''}`}
                 onClick={() => this.handleCategoryClick('all')}
               >
-                <span className={styles.categoryName}>全部应用</span>
+                <span className={styles.categoryName}>{formatMessage({ id: 'explore.all_apps' })}</span>
                 <Icon type="appstore" className={styles.categoryIcon} />
               </div>
               {this.state.hotCategoriesLoading ? (
@@ -1179,7 +1179,7 @@ class Explore extends PureComponent {
               ) : this.state.hotCategories.length > 0 ? (
                 this.state.hotCategories.map((category, index) => {
                   const { style, icon } = this.getCategoryStyle(category, index);
-                  const categoryName = category.appClassificationName || '未知类别';
+                  const categoryName = category.appClassificationName || formatMessage({ id: 'explore.unknown_category' });
                   const categoryId = category.appClassificationID;
                   const isActive = this.state.selectedCategory === categoryId;
                   return (
@@ -1194,7 +1194,7 @@ class Explore extends PureComponent {
                   );
                 })
               ) : (
-                <Empty description="暂无分类数据" />
+                <Empty description={formatMessage({ id: 'explore.no_categories' })} />
               )}
             </div>
             {/* 吸顶时的占位元素 */}
@@ -1214,14 +1214,14 @@ class Explore extends PureComponent {
               {this.state.categoryAppsLoading && (
                 <div className={styles.loadingMore}>
                   <Spin size="small" />
-                  <span>加载中...</span>
+                  <span>{formatMessage({ id: 'explore.loading' })}</span>
                 </div>
               )}
               {!this.state.categoryAppsHasMore && this.state.categoryApps.length > 0 && (
-                <div className={styles.noMore}>没有更多了</div>
+                <div className={styles.noMore}>{formatMessage({ id: 'explore.no_more' })}</div>
               )}
               {!this.state.categoryAppsLoading && this.state.categoryApps.length === 0 && (
-                <Empty description="暂无应用" />
+                <Empty description={formatMessage({ id: 'explore.no_apps' })} />
               )}
             </div>
           </>
@@ -1262,7 +1262,7 @@ class Explore extends PureComponent {
     // 本地安装弹窗
     const localInstallModal = (
       <Modal
-        title={`安装 ${selectedLocalApp?.app_name || ''}`}
+        title={formatMessage({ id: 'explore.install.title' }, { name: selectedLocalApp?.app_name || '' })}
         visible={localInstallModalVisible}
         onCancel={this.handleLocalInstallCancel}
         footer={null}
@@ -1278,16 +1278,16 @@ class Explore extends PureComponent {
             <Empty
               description={
                 <span style={{ color: '#666' }}>
-                  暂无可用团队，请联系管理员加入团队后再安装应用
+                  {formatMessage({ id: 'explore.install.no_team' })}
                 </span>
               }
             />
           </div>
         ) : (
           <Form layout="vertical">
-            <Form.Item label="选择团队">
+            <Form.Item label={formatMessage({ id: 'explore.install.select_team' })}>
               <Select
-                placeholder="请选择团队"
+                placeholder={formatMessage({ id: 'explore.install.select_team_placeholder' })}
                 loading={teamListLoading}
                 value={selectedTeam?.team_name}
                 onChange={this.handleTeamChange}
@@ -1302,9 +1302,9 @@ class Explore extends PureComponent {
             </Form.Item>
 
             {selectedLocalApp?.versions_info && selectedLocalApp.versions_info.length > 0 && (
-              <Form.Item label="选择版本">
+              <Form.Item label={formatMessage({ id: 'explore.install.select_version' })}>
                 <Select
-                  placeholder="请选择版本"
+                  placeholder={formatMessage({ id: 'explore.install.select_version_placeholder' })}
                   value={selectedLocalVersion}
                   onChange={this.handleLocalVersionChange}
                   style={{ width: '100%' }}
@@ -1319,37 +1319,37 @@ class Explore extends PureComponent {
             )}
 
             {selectedTeam && (
-              <Form.Item label="安装类型">
+              <Form.Item label={formatMessage({ id: 'explore.install.type' })}>
                 <Radio.Group
                   value={localInstallType}
                   onChange={this.handleLocalInstallTypeChange}
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="new">创建新应用</Radio.Button>
-                  <Radio.Button value="existing">安装到已有应用</Radio.Button>
+                  <Radio.Button value="new">{formatMessage({ id: 'explore.install.type_new' })}</Radio.Button>
+                  <Radio.Button value="existing">{formatMessage({ id: 'explore.install.type_existing' })}</Radio.Button>
                 </Radio.Group>
               </Form.Item>
             )}
 
             {selectedTeam && localInstallType === 'new' && (
-              <Form.Item label="应用名称">
+              <Form.Item label={formatMessage({ id: 'explore.install.app_name' })}>
                 {getFieldDecorator('group_name', {
                   initialValue: selectedLocalApp?.app_name || '',
                   rules: [
-                    { required: true, message: '请输入应用名称' },
-                    { max: 24, message: '最多24个字符' }
+                    { required: true, message: formatMessage({ id: 'explore.install.app_name_placeholder' }) },
+                    { max: 24, message: formatMessage({ id: 'explore.install.app_name_max' }) }
                   ]
-                })(<Input placeholder="请输入应用名称" />)}
+                })(<Input placeholder={formatMessage({ id: 'explore.install.app_name_placeholder' })} />)}
               </Form.Item>
             )}
 
             {selectedTeam && localInstallType === 'existing' && (
-              <Form.Item label="选择应用">
+              <Form.Item label={formatMessage({ id: 'explore.install.select_app' })}>
                 {getFieldDecorator('group_id', {
-                  rules: [{ required: true, message: '请选择应用' }]
+                  rules: [{ required: true, message: formatMessage({ id: 'explore.install.select_app_placeholder' }) }]
                 })(
                   <Select
-                    placeholder="请选择应用"
+                    placeholder={formatMessage({ id: 'explore.install.select_app_placeholder' })}
                     loading={groupListLoading}
                     style={{ width: '100%' }}
                     onChange={this.handleGroupChange}
@@ -1372,10 +1372,10 @@ class Explore extends PureComponent {
 
                 if (localInstallType === 'new' && creatAppPermission?.isAccess === false) {
                   permissionDisabled = true;
-                  permissionTip = '您没有创建应用的权限';
+                  permissionTip = formatMessage({ id: 'explore.error.no_permission_create_app' });
                 } else if (localInstallType === 'existing' && creatComPermission?.isCreate === false) {
                   permissionDisabled = true;
-                  permissionTip = '您没有创建组件的权限';
+                  permissionTip = formatMessage({ id: 'explore.error.no_permission_create_component' });
                 }
 
                 const isDisabled = !selectedTeam || !selectedLocalVersion || permissionDisabled;
@@ -1387,7 +1387,7 @@ class Explore extends PureComponent {
                     loading={localInstallLoading}
                     disabled={isDisabled}
                   >
-                    确认安装
+                    {formatMessage({ id: 'explore.install.confirm' })}
                   </Button>
                 );
 
@@ -1438,19 +1438,19 @@ class Explore extends PureComponent {
                   }}
                 >
                   <Icon type="global" className={styles.tabOptionIcon} />
-                  <span>外部市场</span>
+                  <span>{formatMessage({ id: 'explore.market.external' })}</span>
                 </div>
                 <div
                   className={`${styles.tabOption} ${isLocalActive ? styles.active : ''}`}
                   onClick={() => this.onTabChange('local')}
                 >
                   <Icon type="desktop" className={styles.tabOptionIcon} />
-                  <span>本地组件库</span>
+                  <span>{formatMessage({ id: 'explore.market.local' })}</span>
                 </div>
               </div>
               <div className={styles.tabSwitcherRight}>
                 <Search
-                  placeholder={isLocalActive ? formatMessage({ id: 'applicationMarket.localMarket.placeholder' }) : '搜索应用'}
+                  placeholder={isLocalActive ? formatMessage({ id: 'applicationMarket.localMarket.placeholder' }) : formatMessage({ id: 'explore.search_apps' })}
                   onSearch={isLocalActive ? this.handleSearchLocal : this.handleSearchCategory}
                   value={isLocalActive ? this.state.name : this.state.searchKeyword}
                   allowClear
