@@ -110,18 +110,7 @@ class Index extends PureComponent {
 
   showLogModal = (event_id, showSocket, opt_type = '') => {
     const { isopenLog, onLogPush } = this.props;
-    if (
-      opt_type === 'AbnormalExited' ||
-      opt_type === 'EventTypeAbnormalExited' ||
-      opt_type === 'CrashLoopBackOff'
-    ) {
-      this.props.dispatch(
-        routerRedux.push(
-          // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${globalUtil.getComponentID()}/log`
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${globalUtil.getSlidePanelComponentID()}&tab=log`
-        )
-      );
-    } else if (isopenLog && onLogPush) {
+    if (isopenLog && onLogPush) {
       onLogPush(false);
     }
     this.setState({
