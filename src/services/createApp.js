@@ -398,6 +398,7 @@ export async function setNodeLanguage(body = {}) {
         cnb_build_script: body.cnb_build_script,
         cnb_output_dir: body.cnb_output_dir,
         cnb_node_version: body.cnb_node_version,
+        cnb_node_env: body.cnb_node_env,
         // CNB Mirror 配置
         cnb_mirror_source: body.cnb_mirror_source,
         cnb_mirror_npmrc: body.cnb_mirror_npmrc,

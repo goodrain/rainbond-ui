@@ -315,7 +315,7 @@ class NodeJSCNBConfig extends PureComponent {
     const startCommand = envs?.CNB_START_COMMAND
       || runtimeInfo?.build_config?.start_command
       || envs?.BUILD_START_CMD
-      || 'start'; // CNB expects script name only, not full command
+      || ''; // 留空让 node-start/pnpm-start buildpack 自动处理
 
     return (
       <div>
@@ -401,7 +401,28 @@ class NodeJSCNBConfig extends PureComponent {
           </Form.Item>
         )}
 
-        {/* 4. Mirror 配置 - 仅 Node.js 项目显示 */}
+        {/* 4. NODE_ENV - 仅 Node.js 项目显示 */}
+        {!isPureStatic && (
+          <Form.Item
+            {...formItemLayout}
+            label={
+              <span>
+                NODE_ENV
+                <Tooltip title="构建阶段的 NODE_ENV 环境变量，production 模式下构建产物更小、性能更优">
+                  <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
+                </Tooltip>
+              </span>
+            }
+          >
+            {getFieldDecorator('CNB_NODE_ENV', {
+              initialValue: envs?.CNB_NODE_ENV || 'production'
+            })(
+              <Input placeholder="production" style={{ width: 300 }} />
+            )}
+          </Form.Item>
+        )}
+
+        {/* 5. Mirror 配置 - 仅 Node.js 项目显示 */}
         {!isPureStatic && (
           <>
             <Form.Item
@@ -422,39 +443,11 @@ class NodeJSCNBConfig extends PureComponent {
                   <Radio.Group onChange={this.onMirrorSourceChange}>
                     <Radio value="project">
                       使用项目配置
-                      {hasProjectConfig && (
-                        <span style={{ color: '#52c41a', marginLeft: 8, fontSize: 12 }}>
-                          <Icon type="check-circle" style={{ marginRight: 4 }} />
-                          已检测到
-                        </span>
-                      )}
                     </Radio>
                     <Radio value="global">
                       使用自定义配置
-                      {!hasProjectConfig && (
-                        <Tooltip title="项目中未检测到配置文件，将使用自定义的镜像配置">
-                          <span style={{ color: '#1890ff', marginLeft: 8, fontSize: 12 }}>
-                            <Icon type="info-circle" style={{ marginRight: 4 }} />
-                            推荐
-                          </span>
-                        </Tooltip>
-                      )}
                     </Radio>
                   </Radio.Group>
-                )}
-                {/* 显示检测到的配置文件 */}
-                {hasProjectConfig && mirrorSource === 'project' && (
-                  <div style={{ marginTop: 8, color: '#666', fontSize: 12 }}>
-                    检测到配置文件：
-                    {configFilesInfo.hasNpmrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.npmrc</span>}
-                    {configFilesInfo.hasYarnrc && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#f0f0f0', borderRadius: 4 }}>.yarnrc</span>}
-                  </div>
-                )}
-                {!hasProjectConfig && mirrorSource === 'project' && (
-                  <div style={{ marginTop: 8, color: '#fa8c16', fontSize: 12 }}>
-                    <Icon type="warning" style={{ marginRight: 4 }} />
-                    项目中未检测到 .npmrc/.yarnrc 文件，建议切换到"使用自定义配置"
-                  </div>
                 )}
               </div>
             </Form.Item>
@@ -533,7 +526,7 @@ class NodeJSCNBConfig extends PureComponent {
           </>
         )}
 
-        {/* 5. 输出目录 - 静态项目显示（包括纯静态和 Node.js 静态） */}
+        {/* 6. 输出目录 - 静态项目显示（包括纯静态和 Node.js 静态） */}
         {(isStaticFramework || isPureStatic) && (
           <Form.Item
             {...formItemLayout}
@@ -554,7 +547,7 @@ class NodeJSCNBConfig extends PureComponent {
           </Form.Item>
         )}
 
-        {/* 6. 构建命令 - Node.js 项目显示（纯静态项目不显示） */}
+        {/* 7. 构建命令 - Node.js 项目显示（纯静态项目不显示） */}
         {!isPureStatic && (
           <Form.Item
             {...formItemLayout}
@@ -573,14 +566,14 @@ class NodeJSCNBConfig extends PureComponent {
           </Form.Item>
         )}
 
-        {/* 7. 启动命令 - 仅 Node.js 后端服务显示（纯静态和前端框架不显示） */}
+        {/* 8. 启动命令 - 仅 Node.js 后端服务显示（纯静态和前端框架不显示） */}
         {!isPureStatic && !isStaticFramework && (
           <Form.Item
             {...formItemLayout}
             label={
               <span>
                 启动命令
-                <Tooltip title="Node.js 服务启动命令，如 npm start、node server.js">
+                <Tooltip title="自定义启动命令，如 node server.js。留空则自动使用 package.json 中的 start 脚本">
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -588,7 +581,7 @@ class NodeJSCNBConfig extends PureComponent {
           >
             {getFieldDecorator('CNB_START_COMMAND', {
               initialValue: startCommand
-            })(<Input placeholder="npm start" style={{ width: 300 }} />)}
+            })(<Input placeholder="留空自动检测" style={{ width: 300 }} />)}
           </Form.Item>
         )}
       </div>

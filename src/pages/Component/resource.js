@@ -1225,84 +1225,46 @@ export default class Index extends PureComponent {
                   <p
                     style={{
                       textAlign: 'center',
-                      color: '#52c41a',
-                      fontSize: '48px',
-                      marginBottom: '24px'
+                      color: '#28cb75',
+                      fontSize: '36px'
                     }}
                   >
-                    <Icon type="check-circle" theme="filled" />
+                    <Icon type="check-circle-o" />
                   </p>
 
                   {this.state.service_info &&
                     this.state.service_info
-                      .filter(item => {
-                        // 过滤掉运行时版本相关的信息
-                        return item.type !== 'node_version' &&
-                               item.type !== 'runtime_version' &&
-                               !item.key?.includes('运行时版本') &&
-                               !item.key?.includes('Node 版本');
-                      })
-                      .map((item, idx) => {
-                        let languageArr = [];
-                        if (item.type == 'language') {
-                          languageArr = item?.value?.split(',') || [];
-                        }
-                        return item.type == 'language' ? (
-                          <div key={idx} style={{ marginBottom: '16px', padding: '0 24px' }}>
-                            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                              {item.key}:
-                            </div>
-                            <Radio.Group
-                              onChange={this.onChangeLange}
-                              value={codeLang}
-                              style={{ width: '100%' }}
-                            >
-                              {languageArr.map((lang, i) => (
-                                <Radio key={i} value={lang} style={{ display: 'block', marginBottom: '8px' }}>
-                                  {lang}
-                                </Radio>
-                              ))}
-                            </Radio.Group>
-                          </div>
-                        ) : item.type == 'dockerfiles' ? (
-                          codeLang == 'dockerfile' &&
-                          <div key={idx} style={{ marginBottom: '16px', padding: '0 24px' }}>
-                            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                              {item.key}:
-                            </div>
-                            <Radio.Group
-                              onChange={this.onDockfileChange}
-                              value={dockfilePath}
-                              style={{ width: '100%' }}
-                            >
-                              {(item.value || []).map((items, index) => (
-                                <Radio key={index} value={items} style={{ display: 'block', marginBottom: '8px' }}>
-                                  {items}
-                                </Radio>
-                              ))}
-                            </Radio.Group>
-                          </div>
-                        ) : (
-                          <div
-                            key={idx}
-                            style={{
-                              marginBottom: '12px',
-                              padding: '12px 24px',
-                              background: '#fafafa',
-                              borderRadius: '4px',
-                              marginLeft: '24px',
-                              marginRight: '24px'
-                            }}
-                          >
-                            <span style={{ fontSize: '14px', color: '#666' }}>
-                              {item.key}:
-                            </span>
-                            <span style={{ fontSize: '14px', color: '#262626', marginLeft: '8px', fontWeight: 500 }}>
-                              {item.value}
-                            </span>
-                          </div>
-                        );
-                      })
+                    .filter(item => item.type != 'framework' && item.type != 'runtime_version' && item.type != 'node_version' && item.type != 'package_manager' && item.type != 'config_files')
+                    .map((item, idx) => {
+                      let languageArr = [];
+                      if (item.type == 'language') {
+                        languageArr = item?.value?.split(',') || [];
+                      }
+                      return item.type == 'language' ? (
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:
+                          <Radio.Group onChange={this.onChangeLange} value={codeLang}>
+                            {languageArr.map((lang, i) => (
+                              <Radio key={i} value={lang}>{lang}</Radio>
+                            ))}
+                          </Radio.Group>
+                        </p>
+                      ) : item.type == 'dockerfiles' ? (
+                        codeLang == 'dockerfile' &&
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:
+                          <Radio.Group onChange={this.onDockfileChange} value={dockfilePath}>
+                            {(item.value || []).map((items, index) => (
+                              <Radio key={index} value={items}>{items}</Radio>
+                            ))}
+                          </Radio.Group>
+                        </p>
+                      ) : (
+                        <p key={idx} style={{ textAlign: 'center', fontSize: '14px' }}>
+                          {item.key}:{item.value}{' '}
+                        </p>
+                      );
+                    })
                   }
                 </div>
               ) : (
