@@ -312,7 +312,8 @@ class NodeJSCNBConfig extends PureComponent {
       || envs?.BUILD_BUILD_CMD
       || (isStaticFramework ? 'build' : '');
 
-    const startCommand = envs?.BP_NPM_START_SCRIPT
+    const startCommand = envs?.CNB_START_SCRIPT
+      || envs?.BP_NPM_START_SCRIPT
       || envs?.BP_PNPM_START_SCRIPT
       || runtimeInfo?.build_config?.start_command
       || envs?.BUILD_START_CMD
@@ -580,7 +581,7 @@ class NodeJSCNBConfig extends PureComponent {
               </span>
             }
           >
-            {getFieldDecorator('cnb_start_script', {
+            {getFieldDecorator('CNB_START_SCRIPT', {
               initialValue: startCommand
             })(<Input placeholder="留空自动检测" style={{ width: 300 }} />)}
           </Form.Item>

@@ -158,6 +158,8 @@ export default class Index extends PureComponent {
           cnb_mirror_source: cnbMirrorSource,
           cnb_mirror_npmrc: cnbMirrorNpmrc,
           cnb_mirror_yarnrc: cnbMirrorYarnrc,
+          // 启动命令（从构建配置页面保存的 CNB_START_SCRIPT 读取）
+          cnb_start_script: isPureStatic ? '' : (runtimeInfo?.CNB_START_SCRIPT || ''),
           // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
           has_npmrc: configFiles.hasNpmrc ? 'true' : '',
           has_yarnrc: configFiles.hasYarnrc ? 'true' : '',
