@@ -682,8 +682,8 @@ export default class Enterprise extends PureComponent {
       // healthDetailVisible,
       // currentHealthIssue,
     } = this.state;
-    const end = enterpriseAuthorization && new Date(enterpriseAuthorization.end_time).getTime();
-    const current = new Date().getTime();
+    const end = enterpriseAuthorization && enterpriseAuthorization.expire_at ? moment.unix(enterpriseAuthorization.expire_at).valueOf() : null;
+    const current = moment().valueOf();
     const { getFieldDecorator, setFieldsValue } = form;
     const timestamp = Date.parse(new Date());
     const enterpriseVersion =
@@ -881,13 +881,13 @@ export default class Enterprise extends PureComponent {
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationtime'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.end_time ? (end < current ? formatMessage({id:'platformUpgrade.index.Authorizationtimeover'}) : enterpriseAuthorization.end_time) : formatMessage({id:'platformUpgrade.index.nilimit'})}
+                          {enterpriseAuthorization.expire_at ? (end && end < current ? formatMessage({id:'platformUpgrade.index.Authorizationtimeover'}) : moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')) : formatMessage({id:'platformUpgrade.index.nilimit'})}
                         </div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.clusterAuthorization'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_cluster == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_cluster} 个`}
+                          {enterpriseAuthorization.cluster_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.cluster_limit} 个`}
                         </div>
                       </div>
                     </div>
@@ -899,7 +899,7 @@ export default class Enterprise extends PureComponent {
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_node == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_node} 个`}
+                          {enterpriseAuthorization.node_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.node_limit} 个`}
                         </div>
                       </div>
                     </div>
@@ -911,7 +911,7 @@ export default class Enterprise extends PureComponent {
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expect_memory == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.expect_memory} GB`}
+                          {enterpriseAuthorization.memory_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.memory_limit} GB`}
                         </div>
                       </div>
                     </div>
@@ -1165,7 +1165,7 @@ export default class Enterprise extends PureComponent {
                           <span style={{ marginTop: '2px' }}>
                             {globalUtil.fetchSvg('runTime')}
                           </span>
-                          {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
+                          {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD')}
                         </div>
                       </div>
                     )
