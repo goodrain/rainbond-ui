@@ -363,10 +363,10 @@ class NodeJSCNBConfig extends PureComponent {
           {...formItemLayout}
           label={
             <span>
-              项目框架
+              {formatMessage({id: 'componentOverview.body.NodeJSCNB.framework'})}
               <Tooltip title={isPureStatic
-                ? "纯静态项目，选择静态站点框架"
-                : "选择您的项目使用的框架，前端框架将构建为静态站点，后端框架将作为 Node.js 服务运行"}>
+                ? formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_tip_static'})
+                : formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_tip'})}>
                 <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
               </Tooltip>
             </span>
@@ -378,19 +378,17 @@ class NodeJSCNBConfig extends PureComponent {
             <Select
               style={{ width: 300 }}
               onChange={this.onFrameworkChange}
-              placeholder="请选择框架"
+              placeholder={formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_placeholder'})}
             >
               {isPureStatic ? (
-                // 纯静态项目：仅显示静态框架
-                <OptGroup label="纯静态站点">
+                <OptGroup label={formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_group_static_only'})}>
                   {NODEJS_FRAMEWORKS.filter(f => f.type === 'static').map(renderFrameworkOption)}
                 </OptGroup>
               ) : ([
-                // Node.js 项目：显示所有框架
-                <OptGroup key="static" label="前端框架（静态站点）">
+                <OptGroup key="static" label={formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_group_static'})}>
                   {NODEJS_FRAMEWORKS.filter(f => f.type === 'static').map(renderFrameworkOption)}
                 </OptGroup>,
-                <OptGroup key="server" label="后端框架（Node.js 服务）">
+                <OptGroup key="server" label={formatMessage({id: 'componentOverview.body.NodeJSCNB.framework_group_server'})}>
                   {NODEJS_FRAMEWORKS.filter(f => f.type === 'server').map(renderFrameworkOption)}
                 </OptGroup>
               ])}
@@ -421,8 +419,8 @@ class NodeJSCNBConfig extends PureComponent {
             {...formItemLayout}
             label={
               <span>
-                Node 版本
-                <Tooltip title="选择 Node.js 运行时版本">
+                {formatMessage({id: 'componentOverview.body.NodeJSCNB.node_version'})}
+                <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.node_version_tip'})}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -447,7 +445,7 @@ class NodeJSCNBConfig extends PureComponent {
             label={
               <span>
                 NODE_ENV
-                <Tooltip title="构建阶段的 NODE_ENV 环境变量，production 模式下构建产物更小、性能更优">
+                <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.node_env_tip'})}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -468,8 +466,8 @@ class NodeJSCNBConfig extends PureComponent {
               {...formItemLayout}
               label={
                 <span>
-                  Mirror 配置
-                  <Tooltip title="配置 npm/yarn/pnpm 的镜像源。可以使用项目中的配置文件，或自定义配置内容">
+                  {formatMessage({id: 'componentOverview.body.NodeJSCNB.mirror_config'})}
+                  <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.mirror_config_tip'})}>
                     <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                   </Tooltip>
                 </span>
@@ -481,10 +479,10 @@ class NodeJSCNBConfig extends PureComponent {
                 })(
                   <Radio.Group onChange={this.onMirrorSourceChange}>
                     <Radio value="project">
-                      使用项目配置
+                      {formatMessage({id: 'componentOverview.body.NodeJSCNB.mirror_project'})}
                     </Radio>
                     <Radio value="global">
-                      使用自定义配置
+                      {formatMessage({id: 'componentOverview.body.NodeJSCNB.mirror_custom'})}
                     </Radio>
                   </Radio.Group>
                 )}
@@ -497,8 +495,8 @@ class NodeJSCNBConfig extends PureComponent {
                 {...formItemLayout}
                 label={
                   <span>
-                    自定义配置
-                    <Tooltip title="为当前组件配置镜像源，构建时将自动注入到容器中">
+                    {formatMessage({id: 'componentOverview.body.NodeJSCNB.custom_config'})}
+                    <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.custom_config_tip'})}>
                       <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                     </Tooltip>
                   </span>
@@ -527,12 +525,12 @@ class NodeJSCNBConfig extends PureComponent {
                         });
                       }}
                     >
-                      编辑
+                      {formatMessage({id: 'componentOverview.body.NodeJSCNB.edit'})}
                     </Button>
                     {this.state[`mirrorContent_${mirrorConfig.value}`] && (
                       <span style={{ color: '#52c41a', fontSize: 12, marginLeft: 8 }}>
                         <Icon type="check-circle" style={{ marginRight: 4 }} />
-                        已配置
+                        {formatMessage({id: 'componentOverview.body.NodeJSCNB.configured'})}
                       </span>
                     )}
                   </div>
@@ -546,13 +544,13 @@ class NodeJSCNBConfig extends PureComponent {
 
             {/* Mirror 配置编辑弹窗 */}
             <Modal
-              title={`编辑 ${mirrorConfigType} 配置`}
+              title={formatMessage({id: 'componentOverview.body.NodeJSCNB.edit_config'}, {type: mirrorConfigType})}
               visible={mirrorModalVisible}
               onOk={this.saveMirrorConfig}
               onCancel={this.closeMirrorModal}
               width={720}
-              okText="保存"
-              cancelText="取消"
+              okText={formatMessage({id: 'componentOverview.body.NodeJSCNB.save'})}
+              cancelText={formatMessage({id: 'componentOverview.body.NodeJSCNB.cancel'})}
             >
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
                 <Button
@@ -563,14 +561,14 @@ class NodeJSCNBConfig extends PureComponent {
                     tempMirrorContent: DEFAULT_MIRROR_CONFIGS[mirrorConfigType] || ''
                   })}
                 >
-                  填写默认配置
+                  {formatMessage({id: 'componentOverview.body.NodeJSCNB.fill_default'})}
                 </Button>
               </div>
               <TextArea
                 rows={18}
                 value={tempMirrorContent}
                 onChange={(e) => this.setState({ tempMirrorContent: e.target.value })}
-                placeholder={`请输入 ${mirrorConfigType} 配置内容，例如：\nregistry=https://registry.npmmirror.com`}
+                placeholder={formatMessage({id: 'componentOverview.body.NodeJSCNB.config_placeholder'}, {type: mirrorConfigType})}
                 style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: '22px' }}
               />
             </Modal>
@@ -583,10 +581,10 @@ class NodeJSCNBConfig extends PureComponent {
             {...formItemLayout}
             label={
               <span>
-                输出目录
+                {formatMessage({id: 'componentOverview.body.NodeJSCNB.output_dir'})}
                 <Tooltip title={isPureStatic
-                  ? "静态文件所在目录，默认为根目录 ."
-                  : "构建产物目录，如 dist、build、out"}>
+                  ? formatMessage({id: 'componentOverview.body.NodeJSCNB.output_dir_tip_static'})
+                  : formatMessage({id: 'componentOverview.body.NodeJSCNB.output_dir_tip'})}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -604,8 +602,8 @@ class NodeJSCNBConfig extends PureComponent {
             {...formItemLayout}
             label={
               <span>
-                构建命令
-                <Tooltip title="package.json 中的 scripts 名称，如 build、build:prod">
+                {formatMessage({id: 'componentOverview.body.NodeJSCNB.build_cmd'})}
+                <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.build_cmd_tip'})}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -623,8 +621,8 @@ class NodeJSCNBConfig extends PureComponent {
             {...formItemLayout}
             label={
               <span>
-                启动命令
-                <Tooltip title="自定义启动命令，如 node server.js。留空则自动使用 package.json 中的 start 脚本">
+                {formatMessage({id: 'componentOverview.body.NodeJSCNB.start_cmd'})}
+                <Tooltip title={formatMessage({id: 'componentOverview.body.NodeJSCNB.start_cmd_tip'})}>
                   <Icon type="question-circle" style={{ marginLeft: 4, color: '#999' }} />
                 </Tooltip>
               </span>
@@ -632,7 +630,7 @@ class NodeJSCNBConfig extends PureComponent {
           >
             {getFieldDecorator('CNB_START_SCRIPT', {
               initialValue: startCommand
-            })(<Input placeholder="留空自动检测" style={{ width: 300 }} />)}
+            })(<Input placeholder={formatMessage({id: 'componentOverview.body.NodeJSCNB.start_cmd_placeholder'})} style={{ width: 300 }} />)}
           </Form.Item>
         )}
       </div>
