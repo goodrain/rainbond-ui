@@ -203,7 +203,12 @@ class CodeBuildConfig extends PureComponent {
       if (languageType && languageType === 'dockerfile' && onSubmit) {
         onSubmit(setObj);
       } else if (onSubmit) {
-        onSubmit(fieldsValue);
+        // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
+        const existingEnvs = this.props.runtimeInfo || {};
+        const mergedValues = { ...existingEnvs, ...fieldsValue };
+        // 移除 runtime_info 对象（非环境变量，不应提交）
+        delete mergedValues.runtime_info;
+        onSubmit(mergedValues);
       }
     });
   };

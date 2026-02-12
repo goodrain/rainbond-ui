@@ -31,6 +31,42 @@ const getConfigForPackageManager = (pmName) => {
   return MIRROR_CONFIG_MAP[pm] || MIRROR_CONFIG_MAP.npm;
 };
 
+// 默认镜像配置模板
+const DEFAULT_MIRROR_CONFIGS = {
+  '.npmrc': `registry=https://registry.npmmirror.com
+disturl=https://npmmirror.com/dist
+sharp_binary_host=https://npmmirror.com/mirrors/sharp
+sharp_libvips_binary_host=https://npmmirror.com/mirrors/sharp-libvips
+profiler_binary_host_mirror=https://npmmirror.com/mirrors/node-inspector/
+fse_binary_host_mirror=https://npmmirror.com/mirrors/fsevents
+node_sqlite3_binary_host_mirror=https://npmmirror.com/mirrors
+sqlite3_binary_host_mirror=https://npmmirror.com/mirrors
+sqlite3_binary_site=https://npmmirror.com/mirrors/sqlite3
+sass_binary_site=https://npmmirror.com/mirrors/node-sass
+electron_mirror=https://npmmirror.com/mirrors/electron/
+puppeteer_download_host=https://npmmirror.com/mirrors
+chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
+operadriver_cdnurl=https://npmmirror.com/mirrors/operadriver
+phantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs
+python_mirror=https://npmmirror.com/mirrors/python`,
+  '.yarnrc': `registry "https://registry.npmmirror.com"
+disturl "https://npmmirror.com/dist"
+sharp_binary_host "https://npmmirror.com/mirrors/sharp"
+sharp_libvips_binary_host "https://npmmirror.com/mirrors/sharp-libvips"
+profiler_binary_host_mirror "https://npmmirror.com/mirrors/node-inspector/"
+fse_binary_host_mirror "https://npmmirror.com/mirrors/fsevents"
+node_sqlite3_binary_host_mirror "https://npmmirror.com/mirrors"
+sqlite3_binary_host_mirror "https://npmmirror.com/mirrors"
+sqlite3_binary_site "https://npmmirror.com/mirrors/sqlite3"
+sass_binary_site "https://npmmirror.com/mirrors/node-sass"
+electron_mirror "https://npmmirror.com/mirrors/electron/"
+puppeteer_download_host "https://npmmirror.com/mirrors"
+chromedriver_cdnurl "https://npmmirror.com/mirrors/chromedriver"
+operadriver_cdnurl "https://npmmirror.com/mirrors/operadriver"
+phantomjs_cdnurl "https://npmmirror.com/mirrors/phantomjs"
+python_mirror "https://npmmirror.com/mirrors/python"`,
+};
+
 // Node.js 版本列表（按从小到大排序）
 // TODO: 考虑从后端 API 获取支持的版本列表
 const NODE_VERSIONS = [
@@ -182,8 +218,9 @@ class NodeJSCNBConfig extends PureComponent {
     const autoMirrorSource = hasProjectConfig ? 'project' : 'global';
 
     // 获取检测到的包管理器（用于决定显示哪个配置文件）
-    // 优先级: runtimeInfo.package_manager > BUILD_PACKAGE_TOOL (保存的) > 默认 npm
+    // 优先级: runtimeInfo.package_manager > CNB_PACKAGE_TOOL > BUILD_PACKAGE_TOOL (兼容旧数据) > 默认 npm
     const detectedPackageManager = runtimeInfo?.package_manager?.name
+      || envs?.CNB_PACKAGE_TOOL
       || envs?.BUILD_PACKAGE_TOOL
       || 'npm';
     const mirrorConfig = getConfigForPackageManager(detectedPackageManager);
@@ -513,16 +550,28 @@ class NodeJSCNBConfig extends PureComponent {
               visible={mirrorModalVisible}
               onOk={this.saveMirrorConfig}
               onCancel={this.closeMirrorModal}
-              width={600}
+              width={720}
               okText="保存"
               cancelText="取消"
             >
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                <Button
+                  type="link"
+                  size="small"
+                  icon="edit"
+                  onClick={() => this.setState({
+                    tempMirrorContent: DEFAULT_MIRROR_CONFIGS[mirrorConfigType] || ''
+                  })}
+                >
+                  填写默认配置
+                </Button>
+              </div>
               <TextArea
-                rows={12}
+                rows={18}
                 value={tempMirrorContent}
                 onChange={(e) => this.setState({ tempMirrorContent: e.target.value })}
                 placeholder={`请输入 ${mirrorConfigType} 配置内容，例如：\nregistry=https://registry.npmmirror.com`}
-                style={{ fontFamily: 'monospace' }}
+                style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: '22px' }}
               />
             </Modal>
           </>
