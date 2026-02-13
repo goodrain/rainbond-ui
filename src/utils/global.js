@@ -80,7 +80,6 @@ const global = {
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {
-      console.log(e);
     }
   },
   putClusterInfoLog(eid, clusters) {
@@ -103,7 +102,6 @@ const global = {
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {
-      console.log(e);
     }
   },
   putRegistLog(info) {
@@ -127,7 +125,6 @@ const global = {
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {
-      console.log(e);
     }
   },
   putLog(info) {
@@ -154,7 +151,6 @@ const global = {
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {
-      console.log(e);
     }
   },
   putClusterSizeLog(eid) {
@@ -178,7 +174,6 @@ const global = {
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {
-      console.log(e);
     }
   },
   getCurrEnterpriseId() {

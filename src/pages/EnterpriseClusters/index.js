@@ -117,7 +117,7 @@ export default class EnterpriseClusters extends PureComponent {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(err => console.log(err));
+        }).catch(() => {});
       }
     });
   };

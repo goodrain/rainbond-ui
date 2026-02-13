@@ -143,7 +143,6 @@ class Index extends Component {
         });
       })
       .catch(err => {
-        console.log(err);
       });
   };
   // 获取添加节点的参数event_id

@@ -293,7 +293,6 @@ export default class CreateCheck extends PureComponent {
             completedCount++;
             if (completedCount === serviceInfo.length) {
               this.setState({ serviceInfo: results }, () => {
-                console.log('Service Info Updated:', this.state.serviceInfo);
               });
             }
           },

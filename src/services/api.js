@@ -1425,9 +1425,19 @@ export async function deleteShellPod(params) {
 // 获取插件
 export async function getPluginList(body, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/plugins`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins`,
     {
       method: 'get',
+      handleError
+    }
+  );
+}
+// 安装插件
+export async function installPlugin(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins/${body.plugin_id}/install`,
+    {
+      method: 'post',
       handleError
     }
   );

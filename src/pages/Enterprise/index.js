@@ -15,7 +15,8 @@ import {
   Tooltip,
   Modal,
   Button,
-  Form
+  Form,
+  Input
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -597,6 +598,22 @@ export default class Enterprise extends PureComponent {
       isAuthorizationCode: false
     })
   }
+  handleCopyEid = () => {
+    const { eid } = this.state;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(eid).then(() => {
+        notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
+      });
+    } else {
+      const input = document.createElement('input');
+      input.value = eid;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
+    }
+  }
   handleSubmit = () => {
     const { form } = this.props;
     const { validateFields } = form;
@@ -684,6 +701,9 @@ export default class Enterprise extends PureComponent {
     } = this.state;
     const end = enterpriseAuthorization && enterpriseAuthorization.expire_at ? moment.unix(enterpriseAuthorization.expire_at).valueOf() : null;
     const current = moment().valueOf();
+    const isServiceExpired = enterpriseAuthorization && enterpriseAuthorization.subscribe_until
+      ? moment.unix(enterpriseAuthorization.subscribe_until).valueOf() < current
+      : false;
     const { getFieldDecorator, setFieldsValue } = form;
     const timestamp = Date.parse(new Date());
     const enterpriseVersion =
@@ -715,6 +735,23 @@ export default class Enterprise extends PureComponent {
     };
     return (
       <div style={{padding:18}}>
+        {!isAuthorizationLoading && !authorizationCode && (
+          <div className={enterpriseStyles.authBanner}>
+            <div className={enterpriseStyles.authBannerLeft}>
+              <span className={enterpriseStyles.authBannerIcon}>
+                <Icon type="unlock" />
+              </span>
+              <span className={enterpriseStyles.authBannerText}>
+                {formatMessage({id:'platformUpgrade.index.getEnterpriseAuth'})}
+              </span>
+            </div>
+            <div className={enterpriseStyles.authBannerAction}>
+              <Button size="small" type="primary" onClick={this.handleAuthorization}>
+                {formatMessage({id:'platformUpgrade.index.getEnterpriseAuthBtn'})}
+              </Button>
+            </div>
+          </div>
+        )}
         {convenientVisible && (
           <Convenient
             {...this.props}
@@ -876,12 +913,13 @@ export default class Enterprise extends PureComponent {
                   </div>
                 </div>
                 {enterpriseAuthorization ? (
+                  <Fragment>
                   <div className={enterpriseStyles.authorization_info}>
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationtime'})}</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}</div>
                         <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expire_at ? (end && end < current ? formatMessage({id:'platformUpgrade.index.Authorizationtimeover'}) : moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')) : formatMessage({id:'platformUpgrade.index.nilimit'})}
+                          {enterpriseAuthorization.company}
                         </div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
@@ -893,8 +931,24 @@ export default class Enterprise extends PureComponent {
                     </div>
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.company}</div>
+                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationtime'})}</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.expire_at ? (
+                            end && end < current ? (
+                              <Tooltip title="授权已过期，请更新授权码">
+                                <span className={enterpriseStyles.expiredText}>
+                                  {moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')}
+                                  <span className={enterpriseStyles.expiredTag}>已过期</span>
+                                </span>
+                              </Tooltip>
+                            ) : moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')
+                          ) : formatMessage({id:'platformUpgrade.index.nilimit'})}
+                          {end && end < current && (
+                            <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
+                              更新授权
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</div>
@@ -906,7 +960,23 @@ export default class Enterprise extends PureComponent {
                     <div>
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.tel'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>{enterpriseAuthorization.contact}</div>
+                        <div className={enterpriseStyles.authorization_info_desc}>
+                          {enterpriseAuthorization.subscribe_until ? (
+                            isServiceExpired ? (
+                              <Tooltip title="服务已过期，无法安装和更新插件，已安装插件不受影响">
+                                <span className={enterpriseStyles.expiredText}>
+                                  {moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD')}
+                                  <span className={enterpriseStyles.expiredTag}>已过期</span>
+                                </span>
+                              </Tooltip>
+                            ) : moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD')
+                          ) : '-'}
+                          {isServiceExpired && (
+                            <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
+                              更新授权
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       <div className={enterpriseStyles.authorization_info_content}>
                         <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</div>
@@ -916,6 +986,25 @@ export default class Enterprise extends PureComponent {
                       </div>
                     </div>
                   </div>
+                  <div className={enterpriseStyles.authorization_plugins}>
+                    <span className={enterpriseStyles.authorization_plugins_label}>
+                      {formatMessage({id:'platformUpgrade.index.availablePlugins'})}
+                    </span>
+                    <div className={enterpriseStyles.authorization_plugins_list}>
+                      {enterpriseAuthorization.plugins && enterpriseAuthorization.plugins.length > 0 ? (
+                        enterpriseAuthorization.plugins.map(plugin => (
+                          <span key={plugin.plugin_id} className={enterpriseStyles.authorization_plugin_tag}>
+                            {plugin.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className={enterpriseStyles.authorization_plugins_empty}>
+                          {formatMessage({id:'platformUpgrade.index.noPlugins'})}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  </Fragment>
                 ) : (
                   <div className={enterpriseStyles.authorization_error}>
                     <div className={enterpriseStyles.authorization_invalid}>
@@ -1179,35 +1268,75 @@ export default class Enterprise extends PureComponent {
 
         {isAuthorizationCode &&
           <Modal
-            title={formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
             visible
             onCancel={this.handleCanceAuthorization}
-            footer={[
-              <Button
-                onClick={this.handleCanceAuthorization}
-              >
-                {formatMessage({ id: 'button.close' })}
-              </Button>,
-              <Button
-                type='primary'
-                onClick={this.handleSubmit}
-              >
-                {formatMessage({id:'platformUpgrade.EscalationState.updata'})}
-              </Button>
-            ]}
+            footer={null}
+            closable={false}
+            width={520}
+            bodyStyle={{ padding: 0 }}
+            centered
           >
-            <Form onSubmit={this.handleSubmit} {...formItemLayout}>
-              <CodeMirrorForm
-                setFieldsValue={setFieldsValue}
-                Form={Form}
-                style={{ marginBottom: '20px' }}
-                getFieldDecorator={getFieldDecorator}
-                formItemLayout={formItemLayout}
-                name={"authorization_code"}
-                message={formatMessage({ id: 'notification.hint.confiuration.editContent' })}
-                data={authorizationCode}
-              />
-            </Form>
+            <div className={enterpriseStyles.authModal}>
+              <div className={enterpriseStyles.authModalBody}>
+                <div className={enterpriseStyles.authModalIcon}>
+                  <Icon type="lock" />
+                </div>
+                <div className={enterpriseStyles.authModalTitle}>
+                  {formatMessage({id:'platformUpgrade.index.authModal.title'})}
+                </div>
+                <div className={enterpriseStyles.authModalSubtitle}>
+                  {formatMessage({id:'platformUpgrade.index.authModal.subtitle'})}
+                </div>
+                <div className={enterpriseStyles.authModalActions}>
+                  <a href="https://www.rainbond.com" target="_blank" className={enterpriseStyles.authModalActionCard}>
+                    <Icon type="global" className={enterpriseStyles.authModalActionIcon} />
+                    <span>{formatMessage({id:'platformUpgrade.index.authModal.website'})}</span>
+                    <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
+                  </a>
+                  <a href="https://www.rainbond.com/enterprise_server" target="_blank" className={enterpriseStyles.authModalActionCard}>
+                    <Icon type="solution" className={enterpriseStyles.authModalActionIcon} />
+                    <span>{formatMessage({id:'platformUpgrade.index.authModal.getCommercial'})}</span>
+                    <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
+                  </a>
+                </div>
+                <div className={enterpriseStyles.authModalEid}>
+                  <span className={enterpriseStyles.authModalEidLabel}>
+                    {formatMessage({id:'platformUpgrade.index.authModal.enterpriseId'})}
+                  </span>
+                  <span className={enterpriseStyles.authModalEidValue}>{eid}</span>
+                  <a onClick={this.handleCopyEid} className={enterpriseStyles.authModalCopyBtn}>
+                    <Icon type="copy" style={{ marginRight: 4 }} />
+                    {formatMessage({id:'platformUpgrade.index.authModal.copy'})}
+                  </a>
+                </div>
+                <div className={enterpriseStyles.authModalEidTip}>
+                  {formatMessage({id:'platformUpgrade.index.authModal.idTip'})}
+                </div>
+                <div className={enterpriseStyles.authModalCodeSection}>
+                  <div className={enterpriseStyles.authModalCodeLabel}>
+                    {formatMessage({id:'platformUpgrade.index.authModal.hasCode'})}
+                  </div>
+                  <div className={enterpriseStyles.authModalCodeInput}>
+                    {getFieldDecorator('authorization_code', {
+                      initialValue: authorizationCode || '',
+                    })(
+                      <Input.TextArea
+                        rows={3}
+                        placeholder={formatMessage({id:'platformUpgrade.index.authModal.inputPlaceholder'})}
+                      />
+                    )}
+                  </div>
+                  <Button type="primary" block onClick={this.handleSubmit} style={{ marginTop: 12, borderRadius: 6 }}>
+                    {formatMessage({id:'platformUpgrade.index.authModal.activate'})}
+                  </Button>
+                </div>
+                <div className={enterpriseStyles.authModalLater}>
+                  <a onClick={this.handleCanceAuthorization}>
+                    {formatMessage({id:'platformUpgrade.index.authModal.later'})}
+                  </a>
+                </div>
+              </div>
+            </div>
           </Modal>
         }
       </div>

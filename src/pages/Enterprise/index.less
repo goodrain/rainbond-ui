@@ -1,3 +1,39 @@
+// 授权提示横条
+.authBanner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: @rbd-card-shadow;
+
+    .authBannerLeft {
+        display: flex;
+        align-items: center;
+
+        .authBannerIcon {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            color: @primary-color;
+            font-size: 18px;
+        }
+
+        .authBannerText {
+            font-size: 14px;
+            color: @text-color-secondary;
+            font-weight: 500;
+        }
+    }
+
+    .authBannerAction {
+        flex-shrink: 0;
+        margin-left: 16px;
+    }
+}
+
 // 卡片容器
 .cardContainer {
     background: #fff;
@@ -695,8 +731,72 @@
                     flex: 1;
                     font-weight: 500;
                     color: @text-color;  // 值使用主文本色
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .expiredText {
+                    color: #ff4d4f;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .expiredTag {
+                    display: inline-block;
+                    font-size: 12px;
+                    line-height: 18px;
+                    padding: 0 6px;
+                    background: #fff2f0;
+                    border: 1px solid #ffccc7;
+                    border-radius: 4px;
+                    color: #ff4d4f;
+                    font-weight: 500;
+                }
+                .renewBtn {
+                    border-radius: 4px;
+                    font-size: 12px;
                 }
             }
+        }
+    }
+    .authorization_plugins {
+        display: flex;
+        align-items: center;
+        padding: 12px 0 0;
+        border-top: 1px solid #e9eaec;
+        margin-top: 12px;
+
+        .authorization_plugins_label {
+            font-size: 14px;
+            font-weight: 500;
+            color: @text-color-secondary;
+            white-space: nowrap;
+            margin-right: 12px;
+        }
+
+        .authorization_plugins_list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .authorization_plugin_tag {
+            display: inline-block;
+            padding: 2px 12px;
+            background: #f0f5ff;
+            border: 1px solid #d6e4ff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: @primary-color;
+            font-weight: 500;
+        }
+
+        .authorization_plugins_empty {
+            font-size: 13px;
+            color: @text-color-secondary;
         }
     }
     .authorization_error {
@@ -1268,4 +1368,177 @@
     background: #fff;
     border-radius: 6px;
     border: 1px solid #f0f0f0;
+}
+
+// 获取企业授权弹窗
+.authModal {
+    border-radius: 8px;
+    overflow: hidden;
+
+    .authModalBody {
+        padding: 36px 40px 28px;
+        text-align: center;
+    }
+
+    .authModalIcon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        background: #f0f5ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        :global {
+            .anticon {
+                font-size: 28px;
+                color: #1890ff;
+            }
+        }
+    }
+
+    .authModalTitle {
+        font-size: 20px;
+        font-weight: 600;
+        color: @text-color;
+        margin-bottom: 6px;
+    }
+
+    .authModalSubtitle {
+        font-size: 14px;
+        color: @text-color-secondary;
+        margin-bottom: 24px;
+    }
+
+    // 主操作区 - 链接卡片
+    .authModalActions {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .authModalActionCard {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        color: @text-color;
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.25s;
+        cursor: pointer;
+
+        &:hover {
+            border-color: @primary-color;
+            color: @primary-color;
+            box-shadow: 0 2px 12px rgba(24, 144, 255, 0.12);
+        }
+
+        span {
+            flex: 1;
+            text-align: left;
+        }
+    }
+
+    .authModalActionIcon {
+        font-size: 20px;
+        color: @primary-color;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .authModalActionArrow {
+        font-size: 12px;
+        color: #bfbfbf;
+        flex-shrink: 0;
+        margin-left: 8px;
+        transition: color 0.25s;
+    }
+
+    .authModalActionCard:hover .authModalActionArrow {
+        color: @primary-color;
+    }
+
+    // 企业 ID 区域
+    .authModalEid {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: #fafafa;
+        border-radius: 8px;
+        margin-bottom: 6px;
+
+        .authModalEidLabel {
+            font-size: 13px;
+            color: @text-color-secondary;
+            white-space: nowrap;
+        }
+
+        .authModalEidValue {
+            font-size: 13px;
+            color: @text-color;
+            font-weight: 500;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            word-break: break-all;
+        }
+
+        .authModalCopyBtn {
+            font-size: 12px;
+            color: @primary-color;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .authModalEidTip {
+        font-size: 12px;
+        color: #bfbfbf;
+        margin-bottom: 20px;
+    }
+
+    // 授权码区域 - 次要
+    .authModalCodeSection {
+        text-align: left;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 16px;
+
+        .authModalCodeLabel {
+            font-size: 13px;
+            color: @text-color-secondary;
+            margin-bottom: 8px;
+        }
+
+        .authModalCodeInput {
+            textarea {
+                border-radius: 6px;
+                font-size: 13px;
+            }
+        }
+    }
+
+    .authModalLater {
+        margin-top: 16px;
+        text-align: center;
+
+        a {
+            font-size: 13px;
+            color: @text-color-secondary;
+
+            &:hover {
+                color: @primary-color;
+            }
+        }
+    }
 }

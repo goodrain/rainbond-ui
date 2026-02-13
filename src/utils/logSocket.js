@@ -20,7 +20,7 @@ function LogSocket(op) {
   try {
     this.init();
   } catch (e) {
-    console.log(e);
+    // ignore init error
   }
 }
 
@@ -49,7 +49,6 @@ LogSocket.prototype = {
       this.webSocket.send(`event_id=${this.eventId}`);
       this.onOpen();
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },

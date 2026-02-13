@@ -94,7 +94,6 @@ class UserLayout extends React.PureComponent {
           if (isLogin && portalSite && isSaas && isDisableAutoLogin !== 'true' && !hasToken) {
             // 构造重定向URL，登录后门户会携带token重定向回来
             const currentUrl = window.location.origin + window.location.pathname + window.location.hash;
-            console.log(currentUrl, 'currentUrl')
             const portalLoginUrl = `${portalSite}?redirect=${encodeURIComponent(currentUrl)}`;
             globalUtil.removeCookie();
             window.location.href = portalLoginUrl;

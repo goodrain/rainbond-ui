@@ -207,10 +207,7 @@ class BindingView extends Component {
           } = record;
 
           const authURL = oauthUtil.getAuthredictURL(record);
-          console.log(record,"record");
-          
-          console.log(authURL,"authURL");
-          
+
           // 提取公共的认证文本
           const getCertificationText = () => {
             if (isAuthenticated) {

@@ -207,7 +207,6 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
         const group_id = globalUtil.getAppID();
 
         const installApp = (finalGroupId, isNewApp = false) => {
-          console.log(finalGroupId, isNewApp)
           dispatch({
             type: 'createApp/installApp',
             payload: {
