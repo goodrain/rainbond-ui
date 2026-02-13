@@ -275,7 +275,7 @@ export default function request(url, options) {
         try {
           resData = error.response.data || {};
         } catch (e) {
-          console.log(e);
+          // ignore parse error
         }
         const { code = '' } = resData;
 

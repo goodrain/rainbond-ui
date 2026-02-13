@@ -9,8 +9,8 @@
     box-shadow: @rbd-card-shadow-hover-min;
 }
 .boxs{
-    margin: 12px 0px;
-    padding: 16px;
+    margin: 20px 0px;
+    padding: 24px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -56,6 +56,17 @@
         font-size: 14px;
         font-family: PingFangSC-Medium;
         letter-spacing: 0;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .commercialTag{
+        font-size: 12px;
+        line-height: 18px;
+        padding: 0 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
     }
     .pluginDesc{
         white-space: nowrap;
@@ -65,14 +76,34 @@
         font-size: 12px;
         color: #999999;
         letter-spacing: 0;
+        margin-top: 6px;
     }
     .btnBox{
         font-size: 14px;
         color: #4d73b1;
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-end;
         align-items: center;
         cursor: pointer;
+        gap: 12px;
+
+        .upgradeBtn {
+            color: #52c41a;
+            border-color: #52c41a;
+            background: #f6ffed;
+
+            &:hover, &:focus {
+                color: #389e0d;
+                border-color: #389e0d;
+                background: #d9f7be;
+            }
+
+            &[disabled] {
+                color: rgba(0, 0, 0, 0.25);
+                border-color: #d9d9d9;
+                background: #f5f5f5;
+            }
+        }
     }
     .statusBox{
         display: flex;
@@ -80,11 +111,26 @@
     }
     .versions, .author{
         font-size: 12px;
-        color: #999999; 
+        color: #999999;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: PingFangSC-Regular;
+        display: flex;
+        align-items: center;
+    }
+    .switchBox{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .installBox{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        color: #4d73b1;
+        cursor: pointer;
     }
 }
 
@@ -150,6 +196,192 @@
       }
     }
   }
-  
+
+}
+
+// 过期提示横条
+.expiredBanner {
+    border-radius: 8px;
+    margin-top: 16px;
+
+    :global {
+        .ant-alert-message {
+            font-size: 13px;
+            color: #8c6d1f;
+        }
+    }
+
+    a {
+        color: @primary-color;
+        font-weight: 500;
+    }
+}
+
+// 安装确认弹窗
+.installConfirmModal {
+    padding: 36px 40px 28px;
+    text-align: center;
+
+    // 通用图标容器
+    .installModalIconWrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .installModalIconCircle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.12);
+        transition: box-shadow 0.3s ease;
+
+        img, svg {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    // 确认阶段
+    .installConfirmTitle {
+        font-size: 20px;
+        font-weight: 600;
+        color: @text-color;
+        margin-bottom: 8px;
+    }
+
+    .installConfirmSubtitle {
+        font-size: 14px;
+        color: @text-color-secondary;
+        margin-bottom: 24px;
+    }
+
+    .installInfoCard {
+        background: #f7f8fa;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 28px;
+        text-align: left;
+
+        .installInfoRow {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #eef0f3;
+            }
+        }
+
+        .installInfoLabel {
+            width: 48px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .installInfoValue {
+            flex: 1;
+            font-size: 13px;
+            color: @text-color;
+            line-height: 1.6;
+        }
+    }
+
+    .installConfirmFooter {
+        display: flex;
+        gap: 16px;
+
+        :global {
+            .ant-btn {
+                border-radius: 8px;
+                height: 44px;
+                font-size: 15px;
+                font-weight: 500;
+            }
+        }
+    }
+
+    // 安装中阶段
+    .installPhaseInstalling {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 0 8px;
+
+        .installingPulse {
+            animation: pulseGlow 1.8s ease-in-out infinite;
+        }
+
+        .installingText {
+            font-size: 20px;
+            font-weight: 600;
+            color: @text-color;
+            margin-bottom: 8px;
+        }
+
+        .installingSubText {
+            font-size: 14px;
+            color: @text-color-secondary;
+            margin-bottom: 24px;
+        }
+
+        .installingSpinner {
+            :global {
+                .ant-spin-dot-item {
+                    background-color: @primary-color;
+                }
+            }
+        }
+    }
+
+    // 安装成功阶段
+    .installPhaseSuccess {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .successCircle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(82, 196, 26, 0.15);
+        }
+
+        .successCheckIcon {
+            font-size: 32px;
+            color: #52c41a;
+        }
+
+        .successText {
+            font-size: 20px;
+            font-weight: 600;
+            color: @text-color;
+            margin-bottom: 8px;
+        }
+
+        .successSubText {
+            font-size: 14px;
+            color: @text-color-secondary;
+            margin-bottom: 28px;
+        }
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.12);
+    }
+    50% {
+        box-shadow: 0 4px 24px rgba(24, 144, 255, 0.35);
+    }
 }
 

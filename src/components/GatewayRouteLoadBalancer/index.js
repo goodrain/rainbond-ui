@@ -740,7 +740,6 @@ export default class GatewayRouteLoadBalancer extends Component {
     handleServiceNameClick = (service_name) => {
       const {comList}=this.state;
       const service_obj = comList.find(item => item.service_alias === service_name);
-      console.log(service_obj,"service_obj");
       return service_obj ? `${service_obj.component_name} (${service_obj.service_alias})` : service_name;
       // return service_obj ? `${service_obj.component_name} (${service_obj.service_alias})` : '';
     };

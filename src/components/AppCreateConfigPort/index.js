@@ -1135,7 +1135,6 @@ export default class Index extends PureComponent {
     this.handleFetchInnerEnvs();
   }
   getSourceCodeDetection = () => {
-    console.log(111111);
 
     const { dispatch, appDetail } = this.props;
     dispatch({
@@ -1344,7 +1343,6 @@ export default class Index extends PureComponent {
   }
   handleSourceCodeDetectionChange = (checked) => {
     const { dispatch, appDetail } = this.props;
-    console.log(checked, "checked");
     const url = checked ? 'appControl/enableSourceCodeScan' : 'appControl/disableSourceCodeScan'
     dispatch({
       type: url,

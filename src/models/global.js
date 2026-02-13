@@ -106,6 +106,7 @@ import {
   createShellPod,
   deleteShellPod,
   getPluginList,
+  installPlugin,
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
@@ -960,6 +961,12 @@ export default {
           type: 'savePluginList',
           payload: response
         });
+        callback(response);
+      }
+    },
+    *installPlugin({ payload, callback, handleError }, { call }) {
+      const response = yield call(installPlugin, payload, handleError);
+      if (callback) {
         callback(response);
       }
     },

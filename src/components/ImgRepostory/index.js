@@ -156,7 +156,6 @@ export default class ImgRepository extends Component {
         search_key: tagSearchKey,
       },
       callback: res => {
-        console.log('Tag列表API返回数据:', res);
 
         if (res && res.list) {
           this.setState({

@@ -66,7 +66,6 @@ AppLogSocket.prototype = {
       this.serviceId && this.webSocket.send(`topic=${this.serviceId}`);
       this.onOpen(this.webSocket);
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },

@@ -53,7 +53,7 @@ export default class index extends Component {
             title='加载失败'
             description={`错误信息：${errInfo}`}
             actions={
-              <Button onClick={() => { console.log('点了一下'); }}>查看文档</Button>
+              <Button onClick={() => {}}>查看文档</Button>
             }
             style={{
               marginTop: 48,

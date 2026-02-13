@@ -323,7 +323,7 @@ class Index extends Component {
         th.handleDelete(true);
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(err => console.log(err));
+        }).catch(() => {});
       }
     });
   };
@@ -568,7 +568,6 @@ class Index extends Component {
       arch,
       region_name
     } = rowClusterInfo
-    console.log(showGpuBtn, 'showGpuBtn')
     const eid = globalUtil.getCurrEnterpriseId()
     const pagination = {
       onChange: this.handleTenantPageChange,
