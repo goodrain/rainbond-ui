@@ -183,33 +183,37 @@ class CodeBuildConfig extends PureComponent {
     const { form, onSubmit } = this.props;
     const { validateFields } = form;
     const { languageType, setObj } = this.state;
-    validateFields((err, fieldsValue) => {
-      if (err) return;
-      const {
-        BUILD_NO_CACHE,
-        BUILD_MAVEN_MIRROR_DISABLE,
-        JDK_TYPE
-      } = fieldsValue;
-      // not disable cache is not set BUILD_NO_CACHE
-      if (!BUILD_NO_CACHE) {
-        delete fieldsValue.BUILD_NO_CACHE;
-      }
-      if (!BUILD_MAVEN_MIRROR_DISABLE) {
-        delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
-      }
-      if (JDK_TYPE && JDK_TYPE === 'Jdk') {
-        fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
-      }
-      if (languageType && languageType === 'dockerfile' && onSubmit) {
-        onSubmit(setObj);
-      } else if (onSubmit) {
-        // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
-        const existingEnvs = this.props.runtimeInfo || {};
-        const mergedValues = { ...existingEnvs, ...fieldsValue };
-        // 移除 runtime_info 对象（非环境变量，不应提交）
-        delete mergedValues.runtime_info;
-        onSubmit(mergedValues);
-      }
+    return new Promise((resolve) => {
+      validateFields((err, fieldsValue) => {
+        if (err) { resolve(false); return; }
+        const {
+          BUILD_NO_CACHE,
+          BUILD_MAVEN_MIRROR_DISABLE,
+          JDK_TYPE
+        } = fieldsValue;
+        // not disable cache is not set BUILD_NO_CACHE
+        if (!BUILD_NO_CACHE) {
+          delete fieldsValue.BUILD_NO_CACHE;
+        }
+        if (!BUILD_MAVEN_MIRROR_DISABLE) {
+          delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
+        }
+        if (JDK_TYPE && JDK_TYPE === 'Jdk') {
+          fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
+        }
+        if (languageType && languageType === 'dockerfile' && onSubmit) {
+          Promise.resolve(onSubmit(setObj)).then(() => resolve(true)).catch(() => resolve(false));
+        } else if (onSubmit) {
+          // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
+          const existingEnvs = this.props.runtimeInfo || {};
+          const mergedValues = { ...existingEnvs, ...fieldsValue };
+          // 移除 runtime_info 对象（非环境变量，不应提交）
+          delete mergedValues.runtime_info;
+          Promise.resolve(onSubmit(mergedValues)).then(() => resolve(true)).catch(() => resolve(false));
+        } else {
+          resolve(true);
+        }
+      });
     });
   };
 

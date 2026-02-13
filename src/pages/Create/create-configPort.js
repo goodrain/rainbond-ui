@@ -6,6 +6,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { setNodeLanguage } from '../../services/createApp';
+import { NODEJS_FRAMEWORKS } from '../../utils/nodejs-frameworks';
 import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -130,11 +131,11 @@ export default class Index extends PureComponent {
     this.setState({ buildAppLoading: true }, () => {
       if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic' || isPureStatic) {
         // 优先使用 runtimeInfo（来自后端，可能在配置页面被用户修改过），其次使用 sessionStorage（来自检测阶段）
-        // 如果都没有，使用默认值确保 CNB 构建被触发
-        const defaultFramework = isPureStatic ? 'other-static' : (soundCodeLanguage == 'NodeJSStatic' ? 'vue' : 'express');
-        const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || defaultFramework;
-        const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (soundCodeLanguage == 'NodeJSStatic' ? 'build' : ''));
-        const cnbOutputDir = isPureStatic ? '.' : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (soundCodeLanguage == 'NodeJSStatic' ? 'dist' : ''));
+        // 如果都没有，默认为 other-static（前端静态项目）
+        const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || 'other-static';
+        const isStaticFw = NODEJS_FRAMEWORKS.find(f => f.value === cnbFramework)?.type === 'static';
+        const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (isStaticFw ? 'build' : ''));
+        const cnbOutputDir = isPureStatic ? '.' : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (isStaticFw ? 'dist' : ''));
         const cnbNodeVersion = isPureStatic ? '' : (runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '');
 
         // Mirror 配置：纯静态项目不需要包管理器镜像
@@ -148,7 +149,7 @@ export default class Index extends PureComponent {
         const obj = {
           team_name: team_name,
           app_alias: app_alias,
-          lang: isPureStatic ? 'static' : soundCodeLanguage,
+          lang: isPureStatic ? 'static' : 'Node.js',
           package_tool: isPureStatic ? '' : packageNpmOrYarn,
           // CNB 构建参数
           cnb_framework: cnbFramework,
@@ -164,9 +165,6 @@ export default class Index extends PureComponent {
           has_npmrc: configFiles.hasNpmrc ? 'true' : '',
           has_yarnrc: configFiles.hasYarnrc ? 'true' : '',
         };
-        if (soundCodeLanguage == 'NodeJSStatic') {
-          obj.dist = dist;
-        }
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: obj,

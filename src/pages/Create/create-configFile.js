@@ -213,9 +213,9 @@ export default class Index extends PureComponent {
     } = this.props 
     dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
-  handleJumpNext = () => {
-      // 调用子组件的验证方法
-      const validationResult = this.child.childFn()
+  handleJumpNext = async () => {
+      // 调用子组件的验证方法并等待保存完成
+      const validationResult = await this.child.childFn()
 
       // 只有验证通过才跳转到下一页
       if (validationResult !== false) {
@@ -262,21 +262,25 @@ export default class Index extends PureComponent {
         },
         dispatch
     } = this.props
-    dispatch({
-      type: 'appControl/editRuntimeBuildInfo',
-      payload: {
-        team_name: teamName,
-        app_alias: appAlias,
-        build_env_dict
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.loadDetail();
+    return new Promise((resolve) => {
+      dispatch({
+        type: 'appControl/editRuntimeBuildInfo',
+        payload: {
+          team_name: teamName,
+          app_alias: appAlias,
+          build_env_dict
+        },
+        callback: res => {
+          if (res && res.status_code === 200) {
+            this.loadDetail();
+          }
+          resolve(res);
+        },
+        handleError: err => {
+          handleAPIError(err);
+          resolve(null);
         }
-      },
-      handleError: err => {
-        handleAPIError(err);
-      }
+      });
     });
   };
   render() {

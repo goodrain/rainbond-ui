@@ -85,7 +85,7 @@ export default class CreateCheck extends React.Component {
       dockfilePath: '',
       // CNB 构建相关状态
       framework: null,
-      selectedFramework: '',
+      selectedFramework: 'other-static',
       buildScript: 'build',
       nodeVersion: '',
       // 配置文件检测状态
@@ -489,7 +489,7 @@ export default class CreateCheck extends React.Component {
     if (codeLanguage === 'Node.js' || codeLanguage === 'NodeJSStatic' || codeLanguage === 'static') {
       const isPureStatic = codeLanguage === 'static';
       const cnbParams = {
-        framework: isPureStatic ? (selectedFramework || 'other-static') : (selectedFramework || ''),
+        framework: selectedFramework || 'other-static',
         buildScript: isPureStatic ? '' : (buildScript || 'build'),
         outputDir: isPureStatic ? '.' : (Directory || 'dist'),
         nodeVersion: isPureStatic ? '' : (nodeVersion || ''),
@@ -611,8 +611,8 @@ export default class CreateCheck extends React.Component {
 
     this.setState({ buildAppLoading: true }, () => {
       if (codeLanguage == 'Node.js' || codeLanguage == 'NodeJSStatic' || isPureStatic) {
-        // 根据语言和框架类型决定传给后端的 lang
-        const lang = isPureStatic ? 'static' : (isStaticFramework ? 'NodeJSStatic' : 'Node.js');
+        // CNB 流程统一语言为 Node.js，通过 CNB_FRAMEWORK 区分前端/后端
+        const lang = isPureStatic ? 'static' : 'Node.js';
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: {
@@ -620,7 +620,7 @@ export default class CreateCheck extends React.Component {
             app_alias: appAlias,
             lang: lang,
             // CNB 构建相关参数（使用 cnb_ 前缀）
-            cnb_framework: isPureStatic ? (selectedFramework || 'other-static') : selectedFramework,
+            cnb_framework: selectedFramework || 'other-static',
             cnb_build_script: isPureStatic ? '' : (isStaticFramework ? buildScript : ''),
             cnb_output_dir: isPureStatic ? '.' : (isStaticFramework ? Directory : ''),
             // Node.js 版本（纯静态项目不需要）

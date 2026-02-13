@@ -166,7 +166,7 @@ class NodeJSCNBConfig extends PureComponent {
     // 2. CNB_FRAMEWORK（用户保存的框架选择）
     // 3. BUILD_FRAMEWORK（检测阶段返回的框架，来自 build_envs API）
     // 4. 纯静态项目默认为 'other-static'
-    let detectedFramework = isPureStatic ? 'other-static' : 'vue';
+    let detectedFramework = 'other-static';
     let detectedFrameworkType = '';
 
     if (runtimeInfo?.framework) {
