@@ -1095,7 +1095,7 @@ class RenderDeploy extends PureComponent {
   onRefCpu = (ref) => {
     this.childCpu = ref
   }
-  childFn = (e) => {
+  childFn = async () => {
     const {
       appDetail,
     } = this.props;
@@ -1110,9 +1110,9 @@ class RenderDeploy extends PureComponent {
       return false
     }
 
-    // 如果有语言运行时配置，也执行提交
+    // 如果有语言运行时配置，等待保存完成后再跳转
     if (language && runtimeInfo && isSource) {
-      this.child.handleSubmit()
+      await this.child.handleSubmit()
     }
 
     return true
@@ -1197,9 +1197,9 @@ export default class Index extends PureComponent {
   onRef = (ref) => {
     this.child = ref
   }
-  childFn = (e) => {
-    // 调用子组件的方法并返回验证结果
-    const result = this.child.childFn()
+  childFn = async () => {
+    // 调用子组件的方法并等待验证和保存完成
+    const result = await this.child.childFn()
     return result
   }
   handlePermissions = type => {

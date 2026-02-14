@@ -4,7 +4,8 @@ import React, { PureComponent } from 'react';
 import handleAPIError from '../../utils/error';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import globalUtil from '../../utils/global'
+import globalUtil from '../../utils/global';
+import { isNodeJSLanguage } from '@/utils/nodejs-frameworks';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -13,6 +14,7 @@ import JavaMavenConfig from './java-maven';
 import JavaWarConfig from './java-war';
 import NetCoreConfig from './netcore';
 import NodeJSConfig from './nodejs';
+import NodeJSCNBConfig from './nodejs-cnb';
 import PHPConfig from './php';
 import PythonConfig from './python';
 import StaticConfig from './static';
@@ -181,28 +183,37 @@ class CodeBuildConfig extends PureComponent {
     const { form, onSubmit } = this.props;
     const { validateFields } = form;
     const { languageType, setObj } = this.state;
-    validateFields((err, fieldsValue) => {
-      if (err) return;
-      const {
-        BUILD_NO_CACHE,
-        BUILD_MAVEN_MIRROR_DISABLE,
-        JDK_TYPE
-      } = fieldsValue;
-      // not disable cache is not set BUILD_NO_CACHE
-      if (!BUILD_NO_CACHE) {
-        delete fieldsValue.BUILD_NO_CACHE;
-      }
-      if (!BUILD_MAVEN_MIRROR_DISABLE) {
-        delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
-      }
-      if (JDK_TYPE && JDK_TYPE === 'Jdk') {
-        fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
-      }
-      if (languageType && languageType === 'dockerfile' && onSubmit) {
-        onSubmit(setObj);
-      } else if (onSubmit) {
-        onSubmit(fieldsValue);
-      }
+    return new Promise((resolve) => {
+      validateFields((err, fieldsValue) => {
+        if (err) { resolve(false); return; }
+        const {
+          BUILD_NO_CACHE,
+          BUILD_MAVEN_MIRROR_DISABLE,
+          JDK_TYPE
+        } = fieldsValue;
+        // not disable cache is not set BUILD_NO_CACHE
+        if (!BUILD_NO_CACHE) {
+          delete fieldsValue.BUILD_NO_CACHE;
+        }
+        if (!BUILD_MAVEN_MIRROR_DISABLE) {
+          delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
+        }
+        if (JDK_TYPE && JDK_TYPE === 'Jdk') {
+          fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
+        }
+        if (languageType && languageType === 'dockerfile' && onSubmit) {
+          Promise.resolve(onSubmit(setObj)).then(() => resolve(true)).catch(() => resolve(false));
+        } else if (onSubmit) {
+          // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
+          const existingEnvs = this.props.runtimeInfo || {};
+          const mergedValues = { ...existingEnvs, ...fieldsValue };
+          // 移除 runtime_info 对象（非环境变量，不应提交）
+          delete mergedValues.runtime_info;
+          Promise.resolve(onSubmit(mergedValues)).then(() => resolve(true)).catch(() => resolve(false));
+        } else {
+          resolve(true);
+        }
+      });
     });
   };
 
@@ -269,6 +280,8 @@ class CodeBuildConfig extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
     const { languageType, arr, buildSourceArr, buildSourceLoading } = this.state;
+    // 旧 slug 构建的 static 组件会有 BUILD_RUNTIMES_SERVER，没有则视为 CNB
+    const isStaticCNB = languageType === 'static' && !runtimeInfo?.BUILD_RUNTIMES_SERVER;
     if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
@@ -305,20 +318,35 @@ class CodeBuildConfig extends PureComponent {
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
         {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} key={buildSourceArr}/>
+          !runtimeInfo?.BUILD_RUNTIMES_SERVER ? (
+            // CNB 构建：纯静态项目无需配置，只显示提示
+            <StaticConfig />
+          ) : (
+            // Slug 构建：保留原有配置表单（兼容升级）
+            <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} isSlug={true} />
+          )
         )}
-        {(languageType === 'nodejsstatic' ||
-          languageType === 'NodeJSStatic' ||
-          languageType === 'nodejs' ||
-          languageType === 'Node' ||
-          languageType === 'node' ||
-          languageType === 'Node.js') && (
-          <NodeJSConfig
-            languageType={languageType}
-            envs={runtimeInfo}
-            form={this.props.form}
-            buildSourceArr={buildSourceArr}
-          />
+        {isNodeJSLanguage(languageType) && (
+          // 根据环境变量或 runtime_info 决定显示哪个配置组件
+          // 优先检查 runtime_info.framework（新的结构化数据）
+          // 然后检查 CNB_FRAMEWORK（用户保存的框架选择）
+          // 再检查 BUILD_FRAMEWORK（检测阶段返回的框架，来自 build_envs API）
+          // 如果有任一个，使用 CNB 配置；否则使用传统配置（兼容老组件）
+          (runtimeInfo?.runtime_info?.framework || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK) ? (
+            <NodeJSCNBConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              runtimeInfo={runtimeInfo?.runtime_info}
+              form={this.props.form}
+            />
+          ) : (
+            <NodeJSConfig
+              languageType={languageType}
+              envs={runtimeInfo}
+              form={this.props.form}
+              buildSourceArr={buildSourceArr}
+            />
+          )
         )}
         {(languageType === '.NetCore' ||
           languageType === 'netCore' ||
@@ -344,7 +372,7 @@ class CodeBuildConfig extends PureComponent {
             </Form.Item>
           </div>
         )}
-        {isBtn &&
+        {isBtn && !isStaticCNB &&
           <Row>
             <Col span="5" />
             <Col span="19">
