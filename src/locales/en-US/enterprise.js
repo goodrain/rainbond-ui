@@ -1452,7 +1452,8 @@ const platformUpgrade = {
     'platformUpgrade.index.noAuthorization': 'Invalid authorization',
     'platformUpgrade.index.connection': 'Please contact the official to obtain a valid authorization code',
     'platformUpgrade.index.updataAuthorization': 'Update authorization code',
-    'platformUpgrade.index.getEnterpriseAuth':'Learn more about the enterprise-level advanced features of the current Rainbond open source version. →',
+    'platformUpgrade.index.getEnterpriseAuth':'You are using the Rainbond Community Edition, with core features open source and free. ',
+    'platformUpgrade.index.getEnterpriseAuthLink':'Learn more about enterprise-level advanced features →',
     'platformUpgrade.index.getEnterpriseAuthBtn':'Authorization',
 }
 

@@ -683,15 +683,19 @@
         }
 
         .authorization_code_content {
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
             background: @rbd-background-color;
             width: 100%;
+            font-size: 12px;
             font-weight: 500;
-            color: @text-color;  // 值使用主文本色
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: @text-color;
+            word-break: break-all;
+            line-height: 1.6;
+            max-height: 72px;
+            overflow-y: auto;
+            user-select: all;
         }
 
         .authorization_svg {

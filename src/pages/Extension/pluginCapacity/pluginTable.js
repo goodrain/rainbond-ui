@@ -25,57 +25,47 @@ class Index extends PureComponent {
             authCode: '',
             installingPlugins: {},
             confirmInstallPlugin: null,
-            installModalPhase: 'confirm', // confirm | installing | success
+            installModalPhase: 'confirm', // confirm | installing | RUNNING
             installResultBean: null,
             isServiceExpired: false,
             subscribeUntil: null,
             defaultPluginList: [
                 {
-                    "plugin_name": "可观测中心",
+                    "plugin_name": "监控中心",
                     "logo": "",
                     "icon": "observation",
                     "description": "提供集群与应用级全方位监控能力，集成指标采集、日志分析、链路追踪可视化，支持Prometheus/Grafana无缝对接",
-                    "version": "v1.2",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "企业基础功能",
+                    "plugin_name": "企业基础插件",
                     "logo": "",
                     "icon": "basics",
                     "description": "企业级基础能力套件，包含应用备份恢复、多租户权限管理、审计日志、自定义企业品牌等核心功能模块",
-                    "version": "v2.0",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "监控报警",
+                    "plugin_name": "告警中心",
                     "logo": "",
                     "icon": "alert",
                     "description": "实时异常检测与智能告警系统，支持自定义阈值规则、多通道通知（邮件/钉钉/Webhook），保障业务连续性",
-                    "version": "v1.03",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "GPU",
+                    "plugin_name": "GPU 管理",
                     "logo": "",
                     "icon": "gpu",
                     "description": "GPU资源调度与管理模块，支持AI训练/推理任务加速、显存监控、多卡分配策略，提升计算资源利用率",
-                    "version": "v1.1",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "集群巡检",
-                    "logo": "",
-                    "icon": "scan",
-                    "description": "自动化集群健康诊断工具，定期检查节点状态、组件运行、安全漏洞，生成修复建议报告",
-                    "version": "v1.7",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
@@ -85,57 +75,47 @@ class Index extends PureComponent {
                     "logo": "",
                     "icon": "pipeline",
                     "description": "企业级CI/CD流水线引擎，提供自定义流程编排的工具，通过构建，部署，测试，管控等组件化能力，把从开发到交付的各项工作串联起来，从而让企业轻松的实现持续交付。",
-                    "version": "v2.0",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "安全增强",
+                    "plugin_name": "日志中心",
+                    "logo": "",
+                    "icon": "logs",
+                    "description": "统一日志采集与分析平台，支持多集群日志聚合、全文检索、实时过滤与可视化展示，快速定位应用异常与运维问题",
+                    "version": "1.0",
+                    "author": "Rainbond 官方",
+                    "installed": false,
+                    "status": ""
+                },
+                {
+                    "plugin_name": "灾备恢复",
                     "logo": "",
                     "icon": "security",
-                    "description": "全方位安全防护方案，包含网络策略管理、镜像漏洞扫描、RBAC权限控制、数据加密传输等核心安全能力",
-                    "version": "v1.3",
+                    "description": "企业级数据保护与灾备方案，支持应用级备份恢复、跨集群迁移、定时快照策略，保障业务数据安全与连续性",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "网关增强",
+                    "plugin_name": "计量计费",
                     "logo": "",
-                    "icon": "gateway",
-                    "description": "高性能API网关扩展模块，支持动态限流、智能路由、WAF防护、证书自动化管理",
-                    "version": "v1.4",
+                    "icon": "bill",
+                    "description": "资源用量精细化计量与成本管理工具，支持按团队、应用、组件维度统计CPU/内存/存储消耗，生成费用报表与趋势分析",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
                 {
-                    "plugin_name": "Istio可视化管理",
+                    "plugin_name": "源码扫描",
                     "logo": "",
-                    "icon": "istio",
-                    "description": "服务网格可视化控制台，提供流量拓扑、灰度发布、故障注入等Istio服务治理能力的图形化管理",
-                    "version": "v1.6",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "Spring Cloud可视化管理",
-                    "logo": "",
-                    "icon": "springCloud",
-                    "description": "Spring Cloud微服务全景监控平台，集成配置中心管理、接口性能分析、依赖关系可视化等核心功能",
-                    "version": "v1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "全链路灰度",
-                    "logo": "",
-                    "icon": "gray",
-                    "description": "智能灰度发布系统，支持跨微服务的分批次发布、基于 Header 的匹配规则、全链路灰度以及监控和回滚等功能，保障业务迭代安全。",
-                    "version": "v1.0",
+                    "icon": "scan",
+                    "description": "代码质量与安全扫描引擎，支持多语言源码静态分析、依赖漏洞检测、编码规范审查，助力团队提升代码质量与安全水平",
+                    "version": "1.0",
                     "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
@@ -153,6 +133,7 @@ class Index extends PureComponent {
         if (this.pollTimer) {
             clearInterval(this.pollTimer)
         }
+        this.stopInstallPolling();
     }
 
     handleGetLicense = () => {
@@ -218,14 +199,14 @@ class Index extends PureComponent {
         })
     }
 
-    onJumpApp = (value) => {
+    onJumpApp = (value, tab = 'upgrade') => {
         const { dispatch, regionName } = this.props
         if (!value.team_name) {
             notification.warning({ message: formatMessage({ id: 'notification.warn.not_app' }) })
         } else if (value.app_id === -1) {
             notification.warning({ message: formatMessage({ id: 'notification.warn.not_team' }) })
         } else {
-            dispatch(routerRedux.push(`/team/${value.team_name}/region/${regionName}/apps/${value.app_id}/upgrade`))
+            dispatch(routerRedux.push(`/team/${value.team_name}/region/${regionName}/apps/${value.app_id}/${tab}`))
         }
     }
 
@@ -390,6 +371,7 @@ class Index extends PureComponent {
     }
 
     handleCloseInstallConfirm = () => {
+        this.stopInstallPolling();
         this.setState({
             confirmInstallPlugin: null,
             installModalPhase: 'confirm',
@@ -435,16 +417,17 @@ class Index extends PureComponent {
                 plugin_id: plugin.plugin_id,
             },
             callback: res => {
-                this.setState(prev => ({
-                    installingPlugins: { ...prev.installingPlugins, [plugin.plugin_id]: false }
-                }));
                 if (res && res.status_code === 200) {
-                    this.handlePluginList();
                     const bean = res.bean || (res.data && res.data.bean) || {};
                     this.setState({
-                        installModalPhase: 'success',
                         installResultBean: bean,
                     });
+                    this.startInstallPolling(plugin.plugin_id);
+                } else {
+                    this.setState(prev => ({
+                        installingPlugins: { ...prev.installingPlugins, [plugin.plugin_id]: false },
+                        installModalPhase: 'confirm',
+                    }));
                 }
             },
             handleError: () => {
@@ -455,6 +438,43 @@ class Index extends PureComponent {
                 notification.error({ message: `${plugin.plugin_name || plugin.plugin_id} 安装失败` });
             }
         });
+    }
+
+    startInstallPolling = (pluginId) => {
+        this.stopInstallPolling();
+        this.installPollTimer = setInterval(() => {
+            const { dispatch, regionName, enterprise, currentUser } = this.props;
+            const eid = (enterprise && enterprise.enterprise_id)
+                || (currentUser && currentUser.enterprise_id)
+                || global.getCurrEnterpriseId();
+            dispatch({
+                type: 'global/getPluginList',
+                payload: {
+                    enterprise_id: eid,
+                    region_name: regionName,
+                },
+                callback: res => {
+                    if (res && res.list && res.list.length > 0) {
+                        this.setState({ pluginList: res.list });
+                        const target = res.list.find(p => p.plugin_id === pluginId);
+                        if (target && target.status === 'RUNNING') {
+                            this.stopInstallPolling();
+                            this.setState(prev => ({
+                                installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
+                                installModalPhase: 'RUNNING',
+                            }));
+                        }
+                    }
+                },
+            });
+        }, 3000);
+    }
+
+    stopInstallPolling = () => {
+        if (this.installPollTimer) {
+            clearInterval(this.installPollTimer);
+            this.installPollTimer = null;
+        }
     }
 
     handleTabChange = (key) => {
@@ -537,7 +557,7 @@ class Index extends PureComponent {
                                     <Button size="small" className={styles.upgradeBtn} onClick={() => this.onJumpApp(item)}>升级</Button>
                                 )
                             )}
-                            <Button size="small" type="primary" ghost onClick={() => this.onJumpApp(item)}>
+                            <Button size="small" type="primary" ghost onClick={() => this.onJumpApp(item, 'overview')}>
                                 {formatMessage({ id: 'extensionEnterprise.plugin.btn.manage' })}
                             </Button>
                         </>
@@ -681,7 +701,7 @@ class Index extends PureComponent {
                                     </div>
                                 </div>
                             )}
-                            {installModalPhase === 'success' && (
+                            {installModalPhase === 'RUNNING' && (
                                 <div className={styles.installPhaseSuccess}>
                                     <div className={styles.installModalIconWrap}>
                                         <div className={styles.successCircle}>

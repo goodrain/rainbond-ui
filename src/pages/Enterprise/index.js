@@ -174,22 +174,22 @@ export default class Enterprise extends PureComponent {
           const clusters = [];
           res.list.map((item, indexs) => {
             const { region_name, enterprise_id } = item
-            // dispatch({
-            //   type: 'teamControl/fetchPluginUrl',
-            //   payload: {
-            //     enterprise_id: enterprise_id,
-            //     region_name: region_name
-            //   },
-            //   callback: data => {
-            //     if (data && data.bean) {
-            //       if(data?.bean?.need_authz){
-            //         this.setState({
-            //           isNeedAuthz: data?.bean?.need_authz
-            //         })
-            //       }
-            //     }
-            //   }
-            // })
+            dispatch({
+              type: 'teamControl/fetchPluginUrl',
+              payload: {
+                enterprise_id: enterprise_id,
+                region_name: region_name
+              },
+              callback: data => {
+                // if (data && data.bean) {
+                //   if(data?.bean?.need_authz){
+                //     this.setState({
+                //       isNeedAuthz: data?.bean?.need_authz
+                //     })
+                //   }
+                // }
+              }
+            })
             dispatch({
               type: 'global/fetchClusterUsed',
               payload: {
@@ -614,6 +614,23 @@ export default class Enterprise extends PureComponent {
       notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
     }
   }
+  handleCopyAuthCode = () => {
+    const { authorizationCode } = this.state;
+    if (!authorizationCode) return;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(authorizationCode).then(() => {
+        notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
+      });
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = authorizationCode;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
+    }
+  }
   handleSubmit = () => {
     const { form } = this.props;
     const { validateFields } = form;
@@ -743,12 +760,10 @@ export default class Enterprise extends PureComponent {
               </span>
               <span className={enterpriseStyles.authBannerText}>
                 {formatMessage({id:'platformUpgrade.index.getEnterpriseAuth'})}
+                <a onClick={this.handleAuthorization}>
+                  {formatMessage({id:'platformUpgrade.index.getEnterpriseAuthLink'})}
+                </a>
               </span>
-            </div>
-            <div className={enterpriseStyles.authBannerAction}>
-              <Button size="small" type="primary" onClick={this.handleAuthorization}>
-                {formatMessage({id:'platformUpgrade.index.getEnterpriseAuthBtn'})}
-              </Button>
             </div>
           </div>
         )}
@@ -903,6 +918,11 @@ export default class Enterprise extends PureComponent {
                   <div className={enterpriseStyles.authorization_code_header}>
                     <div className={enterpriseStyles.authorization_title}>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</div>
                     <div className={enterpriseStyles.authorization_actions}>
+                      <Tooltip title={formatMessage({id:'platformUpgrade.index.authModal.copy'})}>
+                        <div onClick={this.handleCopyAuthCode} className={enterpriseStyles.authorization_svg}>
+                          <Icon type="copy" />
+                        </div>
+                      </Tooltip>
                       <div onClick={() => { this.handleAuthorization() }} className={enterpriseStyles.authorization_svg}>
                         {editCodeSvg}
                       </div>
