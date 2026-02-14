@@ -16,7 +16,7 @@ class Index extends PureComponent {
   // CNB 构建：纯静态项目无需配置，展示提示 + 文档链接
   renderCNB() {
     const platformUrl = cookie.get("platform_url") || "";
-    const docUrl = `${platformUrl}docs/use-manual/component-create/language-support/html/`;
+    const docUrl = `${platformUrl}docs/how-to-guides/app-deploy/source-code/html`;
     return (
       <div style={{ padding: '16px 0' }}>
         <Alert
