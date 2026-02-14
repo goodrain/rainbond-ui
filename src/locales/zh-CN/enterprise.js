@@ -1462,7 +1462,7 @@ const platformUpgrade = {
     'platformUpgrade.index.noAuthorization':'无效授权',
     'platformUpgrade.index.connection':'请联系官方，获取有效授权码',
     'platformUpgrade.index.updataAuthorization':'更新授权码',
-    'platformUpgrade.index.getEnterpriseAuth':'当前是开源版本，获取企业版授权可使用更多扩展功能',
+    'platformUpgrade.index.getEnterpriseAuth':'您正在使用 Rainbond 开源版，核心功能永久开源免费。了解更多企业级进阶特性 →',
     'platformUpgrade.index.getEnterpriseAuthBtn':'获取企业授权',
     'platformUpgrade.index.authModal.title':'获取企业授权',
     'platformUpgrade.index.authModal.subtitle':'获取企业版授权以使用扩展功能',

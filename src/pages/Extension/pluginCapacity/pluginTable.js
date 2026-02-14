@@ -173,6 +173,9 @@ class Index extends PureComponent {
                         isServiceExpired: isExpired,
                     });
                 }
+            },
+            handleError: error => {
+                
             }
         });
     }
@@ -714,55 +717,55 @@ class Index extends PureComponent {
                                     <Icon type="lock" />
                                 </div>
                                 <div className={enterpriseStyles.authModalTitle}>
-                                    {formatMessage({id:'platformUpgrade.index.authModal.title'})}
+                                    {formatMessage({ id: 'platformUpgrade.index.authModal.title' })}
                                 </div>
                                 <div className={enterpriseStyles.authModalSubtitle}>
-                                    {formatMessage({id:'platformUpgrade.index.authModal.subtitle'})}
+                                    {formatMessage({ id: 'platformUpgrade.index.authModal.subtitle' })}
                                 </div>
                                 <div className={enterpriseStyles.authModalActions}>
                                     <a href="https://www.rainbond.com" target="_blank" rel="noopener noreferrer" className={enterpriseStyles.authModalActionCard}>
                                         <Icon type="global" className={enterpriseStyles.authModalActionIcon} />
-                                        <span>{formatMessage({id:'platformUpgrade.index.authModal.website'})}</span>
+                                        <span>{formatMessage({ id: 'platformUpgrade.index.authModal.website' })}</span>
                                         <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
                                     </a>
                                     <a href="https://www.rainbond.com/enterprise_server" target="_blank" rel="noopener noreferrer" className={enterpriseStyles.authModalActionCard}>
                                         <Icon type="solution" className={enterpriseStyles.authModalActionIcon} />
-                                        <span>{formatMessage({id:'platformUpgrade.index.authModal.getCommercial'})}</span>
+                                        <span>{formatMessage({ id: 'platformUpgrade.index.authModal.getCommercial' })}</span>
                                         <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
                                     </a>
                                 </div>
                                 <div className={enterpriseStyles.authModalEid}>
                                     <span className={enterpriseStyles.authModalEidLabel}>
-                                        {formatMessage({id:'platformUpgrade.index.authModal.enterpriseId'})}
+                                        {formatMessage({ id: 'platformUpgrade.index.authModal.enterpriseId' })}
                                     </span>
                                     <span className={enterpriseStyles.authModalEidValue}>{eid}</span>
                                     <a onClick={this.handleCopyEid} className={enterpriseStyles.authModalCopyBtn}>
                                         <Icon type="copy" style={{ marginRight: 4 }} />
-                                        {formatMessage({id:'platformUpgrade.index.authModal.copy'})}
+                                        {formatMessage({ id: 'platformUpgrade.index.authModal.copy' })}
                                     </a>
                                 </div>
                                 <div className={enterpriseStyles.authModalEidTip}>
-                                    {formatMessage({id:'platformUpgrade.index.authModal.idTip'})}
+                                    {formatMessage({ id: 'platformUpgrade.index.authModal.idTip' })}
                                 </div>
                                 <div className={enterpriseStyles.authModalCodeSection}>
                                     <div className={enterpriseStyles.authModalCodeLabel}>
-                                        {formatMessage({id:'platformUpgrade.index.authModal.hasCode'})}
+                                        {formatMessage({ id: 'platformUpgrade.index.authModal.hasCode' })}
                                     </div>
                                     <div className={enterpriseStyles.authModalCodeInput}>
                                         <Input.TextArea
                                             rows={3}
-                                            placeholder={formatMessage({id:'platformUpgrade.index.authModal.inputPlaceholder'})}
+                                            placeholder={formatMessage({ id: 'platformUpgrade.index.authModal.inputPlaceholder' })}
                                             value={authCode}
                                             onChange={(e) => this.setState({ authCode: e.target.value })}
                                         />
                                     </div>
                                     <Button type="primary" block onClick={this.handleSubmitAuthCode} style={{ marginTop: 12, borderRadius: 6 }}>
-                                        {formatMessage({id:'platformUpgrade.index.authModal.activate'})}
+                                        {formatMessage({ id: 'platformUpgrade.index.authModal.activate' })}
                                     </Button>
                                 </div>
                                 <div className={enterpriseStyles.authModalLater}>
                                     <a onClick={this.handleCloseAuthModal}>
-                                        {formatMessage({id:'platformUpgrade.index.authModal.later'})}
+                                        {formatMessage({ id: 'platformUpgrade.index.authModal.later' })}
                                     </a>
                                 </div>
                             </div>

@@ -174,22 +174,22 @@ export default class Enterprise extends PureComponent {
           const clusters = [];
           res.list.map((item, indexs) => {
             const { region_name, enterprise_id } = item
-            dispatch({
-              type: 'teamControl/fetchPluginUrl',
-              payload: {
-                enterprise_id: enterprise_id,
-                region_name: region_name
-              },
-              callback: data => {
-                if (data && data.bean) {
-                  if(data?.bean?.need_authz){
-                    this.setState({
-                      isNeedAuthz: data?.bean?.need_authz
-                    })
-                  }
-                }
-              }
-            })
+            // dispatch({
+            //   type: 'teamControl/fetchPluginUrl',
+            //   payload: {
+            //     enterprise_id: enterprise_id,
+            //     region_name: region_name
+            //   },
+            //   callback: data => {
+            //     if (data && data.bean) {
+            //       if(data?.bean?.need_authz){
+            //         this.setState({
+            //           isNeedAuthz: data?.bean?.need_authz
+            //         })
+            //       }
+            //     }
+            //   }
+            // })
             dispatch({
               type: 'global/fetchClusterUsed',
               payload: {
@@ -889,9 +889,9 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
         </Spin>
-
+        {console.log(isNeedAuthz,isAuthorizationLoading)}
         {/* 企业授权信息 */}
-        {isNeedAuthz && !isAuthorizationLoading && (
+        {authorizationCode &&!isAuthorizationLoading && (
           <div className={enterpriseStyles.cardContainer}>
             <div className={enterpriseStyles.cardHeader}>
               <span>{authorizationSvg}</span>
