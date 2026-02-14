@@ -36,7 +36,7 @@ class Index extends PureComponent {
                     "icon": "observation",
                     "description": "提供集群与应用级全方位监控能力，集成指标采集、日志分析、链路追踪可视化，支持Prometheus/Grafana无缝对接",
                     "version": "v1.2",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -46,7 +46,7 @@ class Index extends PureComponent {
                     "icon": "basics",
                     "description": "企业级基础能力套件，包含应用备份恢复、多租户权限管理、审计日志、自定义企业品牌等核心功能模块",
                     "version": "v2.0",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -56,7 +56,7 @@ class Index extends PureComponent {
                     "icon": "alert",
                     "description": "实时异常检测与智能告警系统，支持自定义阈值规则、多通道通知（邮件/钉钉/Webhook），保障业务连续性",
                     "version": "v1.03",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -66,7 +66,7 @@ class Index extends PureComponent {
                     "icon": "gpu",
                     "description": "GPU资源调度与管理模块，支持AI训练/推理任务加速、显存监控、多卡分配策略，提升计算资源利用率",
                     "version": "v1.1",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -76,7 +76,7 @@ class Index extends PureComponent {
                     "icon": "scan",
                     "description": "自动化集群健康诊断工具，定期检查节点状态、组件运行、安全漏洞，生成修复建议报告",
                     "version": "v1.7",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -86,7 +86,7 @@ class Index extends PureComponent {
                     "icon": "pipeline",
                     "description": "企业级CI/CD流水线引擎，提供自定义流程编排的工具，通过构建，部署，测试，管控等组件化能力，把从开发到交付的各项工作串联起来，从而让企业轻松的实现持续交付。",
                     "version": "v2.0",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -96,7 +96,7 @@ class Index extends PureComponent {
                     "icon": "security",
                     "description": "全方位安全防护方案，包含网络策略管理、镜像漏洞扫描、RBAC权限控制、数据加密传输等核心安全能力",
                     "version": "v1.3",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -106,7 +106,7 @@ class Index extends PureComponent {
                     "icon": "gateway",
                     "description": "高性能API网关扩展模块，支持动态限流、智能路由、WAF防护、证书自动化管理",
                     "version": "v1.4",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -116,7 +116,7 @@ class Index extends PureComponent {
                     "icon": "istio",
                     "description": "服务网格可视化控制台，提供流量拓扑、灰度发布、故障注入等Istio服务治理能力的图形化管理",
                     "version": "v1.6",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -126,7 +126,7 @@ class Index extends PureComponent {
                     "icon": "springCloud",
                     "description": "Spring Cloud微服务全景监控平台，集成配置中心管理、接口性能分析、依赖关系可视化等核心功能",
                     "version": "v1.0",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 },
@@ -136,7 +136,7 @@ class Index extends PureComponent {
                     "icon": "gray",
                     "description": "智能灰度发布系统，支持跨微服务的分批次发布、基于 Header 的匹配规则、全链路灰度以及监控和回滚等功能，保障业务迭代安全。",
                     "version": "v1.0",
-                    "author": "官方",
+                    "author": "Rainbond 官方",
                     "installed": false,
                     "status": ""
                 }
@@ -523,7 +523,7 @@ class Index extends PureComponent {
                     </div>
                 </Col>
                 <Col span={3} className={styles.author}>
-                    {item.author ? `@${item.author}` : `@官方`}
+                    {item.author ? `@${item.author}` : `@Rainbond 官方`}
                 </Col>
                 <Col span={5} className={styles.btnBox}>
                     {installed ? (
@@ -579,7 +579,7 @@ class Index extends PureComponent {
                         <span style={{ color: '#999', fontSize: 12 }}>未安装</span>
                     </div>
                 </Col>
-                <Col span={3} className={styles.author}>{item.author ? `@${item.author}` : `@官方`}</Col>
+                <Col span={3} className={styles.author}>{item.author ? `@${item.author}` : `@Rainbond 官方`}</Col>
                 <Col span={5} className={styles.btnBox}>
                     {/* <Button size="small">文档</Button> */}
                     <Button size="small" type="primary" onClick={this.handleShowAuthModal}>安装</Button>
@@ -652,7 +652,7 @@ class Index extends PureComponent {
                                         </div>
                                         <div className={styles.installInfoRow}>
                                             <span className={styles.installInfoLabel}>作者</span>
-                                            <span className={styles.installInfoValue}>{confirmInstallPlugin.author ? `@${confirmInstallPlugin.author}` : '@官方'}</span>
+                                            <span className={styles.installInfoValue}>{confirmInstallPlugin.author ? `@${confirmInstallPlugin.author}` : '@Rainbond 官方'}</span>
                                         </div>
                                         <div className={styles.installInfoRow} style={{ alignItems: 'flex-start' }}>
                                             <span className={styles.installInfoLabel}>简介</span>
