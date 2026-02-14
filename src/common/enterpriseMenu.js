@@ -18,6 +18,17 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const menuGroups = [];
 
+  // 只保留已安装的插件
+  const installedPluginList = {};
+  if (pluginList && typeof pluginList === 'object') {
+    Object.entries(pluginList).forEach(([key, value]) => {
+      const installed = (Array.isArray(value) ? value : []).filter(p => p.installed === true);
+      if (installed.length > 0) {
+        installedPluginList[key] = installed;
+      }
+    });
+  }
+
   // ============ 第一组：企业总览（无标题） ============
   menuGroups.push({
     groupKey: 'overview',
@@ -68,7 +79,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     ];
 
     // 计量计费
-    const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
+    const billPlugin = PluginUtil.getPluginInfo(installedPluginList, 'rainbond-bill');
     if (billPlugin && Object.keys(billPlugin).length !== 0) {
       const firstEntry = Object.entries(billPlugin)[0];
       if (firstEntry) {
@@ -110,12 +121,11 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       ]
     });
   }
-
   // ============ 第四组：可观测性（监控中心、告警中心、日志中心） ============
   const observabilityItems = [];
-  const observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
-  const alarmPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-alarm');
-  const lokiPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-logs');
+  const observabilityPlugin = PluginUtil.getPluginInfo(installedPluginList, 'rainbond-observability');
+  const alarmPlugin = PluginUtil.getPluginInfo(installedPluginList, 'rainbond-enterprise-alarm');
+  const lokiPlugin = PluginUtil.getPluginInfo(installedPluginList, 'rainbond-enterprise-logs');
 
   // 监控中心
   if (observabilityPlugin && Object.keys(observabilityPlugin).length !== 0) {
@@ -145,7 +155,6 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       });
     }
   }
-
   // 日志中心
   if (lokiPlugin && Object.keys(lokiPlugin).length !== 0) {
     const firstEntry = Object.entries(lokiPlugin)[0];
@@ -177,8 +186,8 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   }
   const pluginObj = {};
 
-  if (pluginList && Object.keys(pluginList).length !== 0) {
-    Object.entries(pluginList).forEach(([key, value]) => {
+  if (installedPluginList && Object.keys(installedPluginList).length !== 0) {
+    Object.entries(installedPluginList).forEach(([key, value]) => {
       const pluginArr = PluginUtil.segregatePluginsByHierarchy(value, 'Platform');
       // 过滤掉已在其他分组中显示的插件
       const filteredPlugins = pluginArr.filter(p => !excludePlugins.includes(p.name));

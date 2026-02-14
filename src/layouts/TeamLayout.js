@@ -759,11 +759,13 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const isSaas = rainbondInfo?.is_saas || false;
-    if (isNeedAuthz) {
-      if (!isAuthorizationLoading && !licenseInfo) {
+    if (!isAuthorizationLoading) {
+      // 需要授权但未获取到授权信息
+      if (isNeedAuthz && !licenseInfo) {
         return <Overdue currentUser={currentUser} title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
 
+      // 授权过期或超限检查，不依赖 isNeedAuthz，确保过期时能拦截页面
       let overdueTitle = '';
       const overdueDesc = '联系企业管理员，更新授权码';
 
