@@ -393,7 +393,21 @@ export async function setNodeLanguage(body = {}) {
       data: {
         lang: body.lang,
         package_tool: body.package_tool,
-        dist: body.dist
+        dist: body.dist,
+        // CNB 构建相关参数
+        cnb_framework: body.cnb_framework,
+        cnb_build_script: body.cnb_build_script,
+        cnb_output_dir: body.cnb_output_dir,
+        cnb_node_version: body.cnb_node_version,
+        cnb_node_env: body.cnb_node_env,
+        cnb_start_script: body.cnb_start_script,
+        // CNB Mirror 配置
+        cnb_mirror_source: body.cnb_mirror_source,
+        cnb_mirror_npmrc: body.cnb_mirror_npmrc,
+        cnb_mirror_yarnrc: body.cnb_mirror_yarnrc,
+        // 配置文件检测标志
+        has_npmrc: body.has_npmrc,
+        has_yarnrc: body.has_yarnrc,
       }
     }
   );

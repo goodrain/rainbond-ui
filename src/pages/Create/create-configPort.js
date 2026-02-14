@@ -6,6 +6,7 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { setNodeLanguage } from '../../services/createApp';
+import { NODEJS_FRAMEWORKS } from '../../utils/nodejs-frameworks';
 import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -35,12 +36,14 @@ export default class Index extends PureComponent {
       // appPermissions: this.handlePermissions('queryAppInfo'),
       appDetail: null,
       handleBuildSwitch: false,
-      isDeploy: true
+      isDeploy: true,
+      runtimeInfo: null  // 添加 runtimeInfo 状态存储构建环境变量
     };
     this.loadingBuild = false;
   }
   componentDidMount() {
     this.loadDetail();
+    this.getRuntimeInfo();  // 获取构建环境变量
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -75,6 +78,26 @@ export default class Index extends PureComponent {
       }
     });
   };
+  // 获取构建环境变量（包含 CNB 配置参数）
+  getRuntimeInfo = () => {
+    const { dispatch } = this.props;
+    const { team_name, app_alias } = this.fetchParameter();
+    dispatch({
+      type: 'appControl/getRuntimeBuildInfo',
+      payload: {
+        team_name,
+        app_alias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
@@ -96,18 +119,52 @@ export default class Index extends PureComponent {
     const { team_name, app_alias } = this.fetchParameter();
     const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const dist = JSON.parse(window.sessionStorage.getItem('dist')) || false;
-    const { isDeploy, appDetail } = this.state;
+    const { isDeploy, appDetail, runtimeInfo } = this.state;
+
+    // 优先从 sessionStorage 读取 CNB 参数（由 create-check.js 保存）
+    const cnbParamsStr = window.sessionStorage.getItem('cnb_params');
+    const cnbParams = cnbParamsStr ? JSON.parse(cnbParamsStr) : null;
+
+    // 判断是否为纯静态项目
+    const isPureStatic = soundCodeLanguage === 'static' || cnbParams?.isPureStatic;
+
     this.setState({ buildAppLoading: true }, () => {
-      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic') {
+      if (soundCodeLanguage == 'Node.js' || soundCodeLanguage == 'NodeJSStatic' || isPureStatic) {
+        // 优先使用 runtimeInfo（来自后端，可能在配置页面被用户修改过），其次使用 sessionStorage（来自检测阶段）
+        // 如果都没有，默认为 other-static（前端静态项目）
+        const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || 'other-static';
+        const isStaticFw = NODEJS_FRAMEWORKS.find(f => f.value === cnbFramework)?.type === 'static';
+        const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (isStaticFw ? 'build' : ''));
+        const cnbOutputDir = isPureStatic ? '.' : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (isStaticFw ? 'dist' : ''));
+        const cnbNodeVersion = isPureStatic ? '' : (runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '');
+
+        // Mirror 配置：纯静态项目不需要包管理器镜像
+        const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false };
+        const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc;
+        const cnbMirrorSource = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global'));
+
+        const cnbMirrorNpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_NPMRC || '');
+        const cnbMirrorYarnrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_YARNRC || '');
+
         const obj = {
           team_name: team_name,
           app_alias: app_alias,
-          lang: soundCodeLanguage,
-          package_tool: packageNpmOrYarn
+          lang: isPureStatic ? 'static' : 'Node.js',
+          package_tool: isPureStatic ? '' : packageNpmOrYarn,
+          // CNB 构建参数
+          cnb_framework: cnbFramework,
+          cnb_build_script: cnbBuildScript,
+          cnb_output_dir: cnbOutputDir,
+          cnb_node_version: cnbNodeVersion,
+          cnb_mirror_source: cnbMirrorSource,
+          cnb_mirror_npmrc: cnbMirrorNpmrc,
+          cnb_mirror_yarnrc: cnbMirrorYarnrc,
+          // 启动命令（从构建配置页面保存的 CNB_START_SCRIPT 读取）
+          cnb_start_script: isPureStatic ? '' : (runtimeInfo?.CNB_START_SCRIPT || ''),
+          // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
+          has_npmrc: configFiles.hasNpmrc ? 'true' : '',
+          has_yarnrc: configFiles.hasYarnrc ? 'true' : '',
         };
-        if (soundCodeLanguage == 'NodeJSStatic') {
-          obj.dist = dist;
-        }
         dispatch({
           type: 'createApp/setNodeLanguage',
           payload: obj,
@@ -135,6 +192,7 @@ export default class Index extends PureComponent {
                     window.sessionStorage.removeItem('codeLanguage');
                     window.sessionStorage.removeItem('packageNpmOrYarn');
                     window.sessionStorage.removeItem('advanced_setup');
+                    window.sessionStorage.removeItem('cnb_params');  // 清理 CNB 参数
                     // this.handleJump(`components/${app_alias}/overview`);
                     this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
                   }
