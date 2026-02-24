@@ -8,6 +8,7 @@ import { RainbondRootPagePlugin, RainbondEnterprisePagePlugin } from 'xu-demo-da
 
 
 
+
 export const SystemJS = System;
 const cache = {};
 const initializedAt = Date.now();
@@ -44,11 +45,18 @@ exposeToPlugin('react', react);
 exposeToPlugin('react-dom', ReactDom);
 exposeToPlugin('xu-demo-data', RbdData);
 
+export function getPluginAllFilePaths(meta, regionName){
+  // 直接构造插件文件的 URL 路径，而不是调用接口获取内容
+  // 因为 SystemJS.import 需要的是 URL，而不是文件内容
+  return `/console/regions/${regionName}/static/plugins/${meta.name}`;
+}
+
 export async function importPluginModule(meta, regionName) {
+  const filePaths = getPluginAllFilePaths(meta, regionName);
+  // 直接使用 SystemJS.import，认证头会通过自定义的 fetch hook 自动添加
   // const path = '/plugins/dist/main.js'
-  const path = meta.fronted_path
-  const module = await SystemJS.import(path);
-  return module
+  const module = await SystemJS.import(filePaths);
+  return module;
 }
 
 export async function importAppPagePlugin(meta, regionName, type) {

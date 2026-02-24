@@ -138,7 +138,6 @@ class ChunkUploader {
       file_size: this.file.size,
       chunk_size: this.chunkSize
     });
-    console.log('initSession response:', res);
     
     if (res && res.response_data && res.response_data.bean) {
       const data = res.response_data.bean;

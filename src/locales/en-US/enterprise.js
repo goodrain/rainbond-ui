@@ -1441,17 +1441,20 @@ const platformUpgrade = {
     'platformUpgrade.index.ben': '!',
     'platformUpgrade.index.info': 'Enterprise edition license information',
     'platformUpgrade.index.AuthorizationCode': 'Authorization Code:',
-    'platformUpgrade.index.Authorizationtime': 'Authorization time:',
+    'platformUpgrade.index.Authorizationtime': 'Authorization term:',
     'platformUpgrade.index.Authorizationtimeover': 'Authorization has expired',
     'platformUpgrade.index.clusterAuthorization': 'Cluster authorization:',
     'platformUpgrade.index.nilimit': 'No limit',
     'platformUpgrade.index.Authorizationenterprise': 'Authorized enterprises:',
     'platformUpgrade.index.Authorizationnode': 'Node authorization:',
-    'platformUpgrade.index.tel': 'Contact information:',
+    'platformUpgrade.index.tel': 'Service term:',
     'platformUpgrade.index.Authorizationmemory': 'Authorized memory:',
     'platformUpgrade.index.noAuthorization': 'Invalid authorization',
     'platformUpgrade.index.connection': 'Please contact the official to obtain a valid authorization code',
     'platformUpgrade.index.updataAuthorization': 'Update authorization code',
+    'platformUpgrade.index.getEnterpriseAuth':'You are using the Rainbond Community Edition, with core features open source and free. ',
+    'platformUpgrade.index.getEnterpriseAuthLink':'Learn more about enterprise-level advanced features →',
+    'platformUpgrade.index.getEnterpriseAuthBtn':'Authorization',
 }
 
 //审计

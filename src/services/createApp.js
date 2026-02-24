@@ -190,7 +190,8 @@ export async function createAppByCompose(body = {}) {
       data: {
         // group_name: body.group_name,
         image_type: 'docker_image',
-        yaml_content: body.yaml_content,
+        event_id: body.event_id,
+        compose_file_path: body.compose_file_path || 'docker-compose.yml',
         user_name: body.user_name,
         password: body.password,
         group_id: body.group_id,
@@ -392,7 +393,21 @@ export async function setNodeLanguage(body = {}) {
       data: {
         lang: body.lang,
         package_tool: body.package_tool,
-        dist: body.dist
+        dist: body.dist,
+        // CNB 构建相关参数
+        cnb_framework: body.cnb_framework,
+        cnb_build_script: body.cnb_build_script,
+        cnb_output_dir: body.cnb_output_dir,
+        cnb_node_version: body.cnb_node_version,
+        cnb_node_env: body.cnb_node_env,
+        cnb_start_script: body.cnb_start_script,
+        // CNB Mirror 配置
+        cnb_mirror_source: body.cnb_mirror_source,
+        cnb_mirror_npmrc: body.cnb_mirror_npmrc,
+        cnb_mirror_yarnrc: body.cnb_mirror_yarnrc,
+        // 配置文件检测标志
+        has_npmrc: body.has_npmrc,
+        has_yarnrc: body.has_yarnrc,
       }
     }
   );
@@ -701,7 +716,7 @@ export async function initChunkUpload(body = {}, handleError) {
   const baseUrl = body.upload_url || apiconfig.baseUrl;
 
   return request(
-    `${baseUrl}/upload/init`,
+    `${baseUrl}/package_build/component/events/${body.event_id}/upload/init`,
     {
       method: 'post',
       data: {
@@ -731,7 +746,7 @@ export async function uploadChunk(body = {}, handleError) {
   const baseUrl = body.upload_url || apiconfig.baseUrl;
 
   return request(
-    `${baseUrl}/upload/chunk`,
+    `${baseUrl}/package_build/component/events/${body.event_id}/upload/chunk`,
     {
       method: 'post',
       data: formData,
@@ -750,7 +765,7 @@ export async function completeChunkUpload(body = {}, handleError) {
   const baseUrl = body.upload_url || apiconfig.baseUrl;
 
   return request(
-    `${baseUrl}/upload/complete`,
+    `${baseUrl}/package_build/component/events/${body.event_id}/upload/complete`,
     {
       method: 'post',
       data: {
@@ -771,7 +786,7 @@ export async function getChunkUploadStatus(body = {}, handleError) {
   const baseUrl = body.upload_url || apiconfig.baseUrl;
 
   return request(
-    `${baseUrl}/upload/status/${body.session_id}`,
+    `${baseUrl}/package_build/component/events/${body.event_id}/upload/status/${body.session_id}`,
     {
       method: 'get',
       headers: {
@@ -789,7 +804,7 @@ export async function cancelChunkUpload(body = {}, handleError) {
   const baseUrl = body.upload_url || apiconfig.baseUrl;
 
   return request(
-    `${baseUrl}/upload/${body.session_id}`,
+    `${baseUrl}/package_build/component/events/${body.event_id}/upload/${body.session_id}`,
     {
       method: 'delete',
       headers: {

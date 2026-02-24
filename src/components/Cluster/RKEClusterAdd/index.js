@@ -731,7 +731,6 @@ export default class RKEClusterConfig extends PureComponent {
             }, 10)
           })
         }, reason => {
-          console.log(reason)
         }
         );
       }

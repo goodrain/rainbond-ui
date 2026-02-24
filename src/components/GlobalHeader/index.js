@@ -503,11 +503,9 @@ class GlobalHeader extends PureComponent {
     const teamName = globalUtil.getCurrTeamName() || currentUser?.teams?.[0]?.team_name;
     const regionName = globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name;
 
-    console.log('切换到工作空间:', { teamName, regionName, currentUser });
 
     if (teamName && regionName) {
       const path = `/team/${teamName}/region/${regionName}/index`;
-      console.log('导航到:', path);
       dispatch(routerRedux.push(path));
     } else {
       console.error('无法切换到工作空间: 缺少 teamName 或 regionName');
@@ -521,11 +519,9 @@ class GlobalHeader extends PureComponent {
     const { dispatch, currentUser } = this.props;
     const eid = currentUser?.enterprise_id;
 
-    console.log('切换到平台管理:', { eid, currentUser });
 
     if (eid) {
       const path = `/enterprise/${eid}/index`;
-      console.log('导航到:', path);
       dispatch(routerRedux.push(path));
     } else {
       console.error('无法切换到平台管理: 缺少 enterprise_id');

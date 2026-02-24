@@ -53,7 +53,6 @@ export default class History1000Log extends PureComponent {
   closeEventSource(podsName) {
     if (this.eventSources[podsName]) {
       this.eventSources[podsName].close();
-      console.log(`${podsName} EventSource closed.`);
       delete this.eventSources[podsName]; // 从对象中移除引用
     }
   }

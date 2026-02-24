@@ -260,7 +260,6 @@ class Control extends Component {
   };
   /** 更新证书 */
   handleUpdate = record => {
-    console.log(record);
   };
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
