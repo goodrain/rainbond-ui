@@ -882,6 +882,12 @@ const componentOverview = {
     'componentOverview.body.NodeJSCNB.start_cmd': 'Start Command',
     'componentOverview.body.NodeJSCNB.start_cmd_tip': 'Script name in package.json, e.g. start, start:prod',
     'componentOverview.body.NodeJSCNB.start_cmd_placeholder': 'Auto-detect',
+    'componentOverview.body.NodeJSCNB.type_static': 'Static Site',
+    'componentOverview.body.NodeJSCNB.type_server': 'Node.js Service',
+    'componentOverview.body.NodeJSCNB.type_static_export': 'Static Export',
+    'componentOverview.body.NodeJSCNB.type_ssr': 'SSR',
+    'componentOverview.body.NodeJSCNB.other_static': 'Other Frontend Framework',
+    'componentOverview.body.NodeJSCNB.other_server': 'Other Backend Framework',
     // tabs栏>Resource>JavaJDKConfig
     'componentOverview.body.JavaJDKConfig.type': 'JDK type',
     'componentOverview.body.JavaJDKConfig.OpenJDK': 'Openjdk is provided by default. If you need other jdks, please select custom JDK',
