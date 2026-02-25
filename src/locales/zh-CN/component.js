@@ -897,6 +897,12 @@ const componentOverview = {
     'componentOverview.body.NodeJSCNB.start_cmd': '启动命令',
     'componentOverview.body.NodeJSCNB.start_cmd_tip': 'package.json 中的 scripts 名称，如 start、start:prod',
     'componentOverview.body.NodeJSCNB.start_cmd_placeholder': '留空自动检测',
+    'componentOverview.body.NodeJSCNB.type_static': '静态站点',
+    'componentOverview.body.NodeJSCNB.type_server': 'Node.js 服务',
+    'componentOverview.body.NodeJSCNB.type_static_export': '静态导出',
+    'componentOverview.body.NodeJSCNB.type_ssr': 'SSR',
+    'componentOverview.body.NodeJSCNB.other_static': '其他前端框架',
+    'componentOverview.body.NodeJSCNB.other_server': '其他后端框架',
     // tabs栏>Resource>JavaJDKConfig
     'componentOverview.body.JavaJDKConfig.type': 'JDK类型',
     'componentOverview.body.JavaJDKConfig.OpenJDK': '默认提供OpenJDK,若需要其他JDK,请选用自定义JDK',
