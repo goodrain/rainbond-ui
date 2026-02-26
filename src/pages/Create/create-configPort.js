@@ -6,7 +6,6 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { setNodeLanguage } from '../../services/createApp';
-import { NODEJS_FRAMEWORKS } from '../../utils/nodejs-frameworks';
 import AppConfigPort from '../../components/AppCreateConfigPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import globalUtil from '../../utils/global';
@@ -133,7 +132,7 @@ export default class Index extends PureComponent {
         // 优先使用 runtimeInfo（来自后端，可能在配置页面被用户修改过），其次使用 sessionStorage（来自检测阶段）
         // 如果都没有，默认为 other-static（前端静态项目）
         const cnbFramework = runtimeInfo?.CNB_FRAMEWORK || cnbParams?.framework || 'other-static';
-        const isStaticFw = NODEJS_FRAMEWORKS.find(f => f.value === cnbFramework)?.type === 'static';
+        const isStaticFw = cnbFramework.endsWith('-static') || cnbFramework === 'other-static';
         const cnbBuildScript = isPureStatic ? '' : (runtimeInfo?.CNB_BUILD_SCRIPT || cnbParams?.buildScript || (isStaticFw ? 'build' : ''));
         const cnbOutputDir = isPureStatic ? '.' : (runtimeInfo?.CNB_OUTPUT_DIR || cnbParams?.outputDir || (isStaticFw ? 'dist' : ''));
         const cnbNodeVersion = isPureStatic ? '' : (runtimeInfo?.CNB_NODE_VERSION || cnbParams?.nodeVersion || '');

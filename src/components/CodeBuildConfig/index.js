@@ -5,7 +5,6 @@ import handleAPIError from '../../utils/error';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
-import { isNodeJSLanguage } from '@/utils/nodejs-frameworks';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -20,6 +19,10 @@ import PythonConfig from './python';
 import StaticConfig from './static';
 
 const { confirm } = Modal;
+
+// Node.js 语言类型集合
+const NODEJS_LANGUAGE_TYPES = new Set(['nodejsstatic', 'nodejs', 'node', 'node.js']);
+const isNodeJSLanguage = (type) => type && NODEJS_LANGUAGE_TYPES.has(type.toLowerCase());
 
 @connect(
   ({ user, appControl }) => ({
@@ -259,6 +262,8 @@ class CodeBuildConfig extends PureComponent {
 
   render() {
     const runtimeInfo = this.props.runtimeInfo || '';
+    // CNB 构建判断：后端返回 runtime_info 或 CNB 相关环境变量
+    const isCNB = !!(runtimeInfo?.runtime_info || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK);
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -280,75 +285,67 @@ class CodeBuildConfig extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
     const { languageType, arr, buildSourceArr, buildSourceLoading } = this.state;
-    // 旧 slug 构建的 static 组件会有 BUILD_RUNTIMES_SERVER，没有则视为 CNB
-    const isStaticCNB = languageType === 'static' && !runtimeInfo?.BUILD_RUNTIMES_SERVER;
     if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
-        {(languageType === 'java-maven' || languageType === 'Java-maven') && (
+
+        {/* ========== CNB 构建：由后端 runtime_info 驱动 ========== */}
+        {isCNB && languageType === 'static' && (
+          <StaticConfig />
+        )}
+        {isCNB && languageType !== 'static' && (
+          <NodeJSCNBConfig
+            languageType={languageType}
+            envs={runtimeInfo}
+            form={this.props.form}
+          />
+        )}
+
+        {/* ========== Slug 构建：兼容旧组件，按语言类型分发 ========== */}
+        {!isCNB && (languageType === 'java-maven' || languageType === 'Java-maven') && (
           <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} />
         )}
-        {(languageType === 'java-jar' || languageType === 'Java-jar') && (
+        {!isCNB && (languageType === 'java-jar' || languageType === 'Java-jar') && (
           <div>
             <JavaJarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
-        {(languageType === 'java-war' || languageType === 'Java-war') && (
+        {!isCNB && (languageType === 'java-war' || languageType === 'Java-war') && (
           <div>
             <JavaWarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
-        {(languageType === 'Golang' ||
+        {!isCNB && (languageType === 'Golang' ||
           languageType === 'go' ||
           languageType === 'Go' ||
           languageType === 'golang') && (
           <GoConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'Gradle' ||
+        {!isCNB && (languageType === 'Gradle' ||
           languageType === 'gradle' ||
           languageType === 'java-gradle' ||
           languageType === 'Java-gradle' ||
           languageType === 'JAVAGradle') && (
           <JavaJDKConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'python' || languageType === 'Python') && (
+        {!isCNB && (languageType === 'python' || languageType === 'Python') && (
           <PythonConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'php' || languageType === 'PHP') && (
+        {!isCNB && (languageType === 'php' || languageType === 'PHP') && (
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {languageType === 'static' && (
-          !runtimeInfo?.BUILD_RUNTIMES_SERVER ? (
-            // CNB 构建：纯静态项目无需配置，只显示提示
-            <StaticConfig />
-          ) : (
-            // Slug 构建：保留原有配置表单（兼容升级）
-            <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} isSlug={true} />
-          )
+        {!isCNB && languageType === 'static' && (
+          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} isSlug={true} />
         )}
-        {isNodeJSLanguage(languageType) && (
-          // 根据环境变量或 runtime_info 决定显示哪个配置组件
-          // 优先检查 runtime_info.framework（新的结构化数据）
-          // 然后检查 CNB_FRAMEWORK（用户保存的框架选择）
-          // 再检查 BUILD_FRAMEWORK（检测阶段返回的框架，来自 build_envs API）
-          // 如果有任一个，使用 CNB 配置；否则使用传统配置（兼容老组件）
-          (runtimeInfo?.runtime_info?.framework || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK) ? (
-            <NodeJSCNBConfig
-              languageType={languageType}
-              envs={runtimeInfo}
-              runtimeInfo={runtimeInfo?.runtime_info}
-              form={this.props.form}
-            />
-          ) : (
-            <NodeJSConfig
-              languageType={languageType}
-              envs={runtimeInfo}
-              form={this.props.form}
-              buildSourceArr={buildSourceArr}
-            />
-          )
+        {!isCNB && isNodeJSLanguage(languageType) && (
+          <NodeJSConfig
+            languageType={languageType}
+            envs={runtimeInfo}
+            form={this.props.form}
+            buildSourceArr={buildSourceArr}
+          />
         )}
-        {(languageType === '.NetCore' ||
+        {!isCNB && (languageType === '.NetCore' ||
           languageType === 'netCore' ||
           languageType === 'netcore') && (
           <NetCoreConfig
@@ -372,7 +369,7 @@ class CodeBuildConfig extends PureComponent {
             </Form.Item>
           </div>
         )}
-        {isBtn && !isStaticCNB &&
+        {isBtn && !(isCNB && languageType === 'static') &&
           <Row>
             <Col span="5" />
             <Col span="19">

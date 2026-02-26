@@ -33,11 +33,8 @@ import cookie from '../../utils/cookie';
 import styles from './check.less';
 import { closeTeamRegion } from '@/services/team';
 import {
-  FRAMEWORK_ICONS,
-  NODEJS_FRAMEWORKS,
-  getFrameworkByValue,
-  matchFramework
-} from '@/utils/nodejs-frameworks';
+  FRAMEWORK_ICONS
+} from '@/components/CodeBuildConfig/nodejs-cnb';
 
 const { Option } = Select;
 const { OptGroup } = Select;
@@ -343,17 +340,15 @@ export default class CreateCheck extends React.Component {
                   source_from: item.value
                 })
               } else if (item.type == 'framework') {
-                // 处理框架检测结果
+                // 处理框架检测结果 — 直接使用后端返回的数据
                 const detectedFramework = item.data;
-
-                // 使用共享的框架匹配逻辑
-                const matched = matchFramework(detectedFramework?.name);
+                const frameworkName = detectedFramework?.name || 'other-static';
                 const fallbackValue = detectedFramework?.type === 'static' ? 'other-static' : 'other-server';
 
                 this.setState({
                   framework: detectedFramework,
-                  selectedFramework: matched?.value || fallbackValue,
-                  Directory: detectedFramework?.output_dir || matched?.outputDir || 'dist',
+                  selectedFramework: frameworkName || fallbackValue,
+                  Directory: detectedFramework?.output_dir || 'dist',
                   buildScript: detectedFramework?.build_script || 'build'
                 })
               } else if (item.type == 'node_version') {
@@ -597,8 +592,9 @@ export default class CreateCheck extends React.Component {
     const group_id = location?.query?.group_id
 
     // 获取当前选择的框架信息
-    const currentFramework = NODEJS_FRAMEWORKS.find(f => f.value === selectedFramework);
-    const isStaticFramework = currentFramework?.type === 'static';
+    const isStaticFramework = this.state.framework?.type === 'static'
+      || selectedFramework?.endsWith('-static')
+      || selectedFramework === 'other-static';
 
     // 确定 Mirror 配置来源
     // 如果项目中存在任何配置文件 (.npmrc/.yarnrc)，使用项目配置
@@ -1381,8 +1377,9 @@ export default class CreateCheck extends React.Component {
     const isSever = this.props.match && this.props.match.params && this.props.match.params.appAlias;
 
     // 获取当前选择的框架信息
-    const currentFramework = NODEJS_FRAMEWORKS.find(f => f.value === selectedFramework);
-    const isStaticFramework = currentFramework?.type === 'static';
+    const isStaticFramework = this.state.framework?.type === 'static'
+      || selectedFramework?.endsWith('-static')
+      || selectedFramework === 'other-static';
 
     return serviceInfo.map((item, index) => {
       if (typeof item.value === 'string' && item.type == 'language') {
@@ -1439,12 +1436,10 @@ export default class CreateCheck extends React.Component {
         if (codeLanguage === 'dockerfile') {
           return null;
         }
-        // 显示框架检测结果
+        // 显示框架检测结果 — 直接使用后端返回的数据
         const frameworkData = item.data || {};
-        // 使用共享的框架匹配逻辑获取标准名称
-        const matched = matchFramework(frameworkData.name);
-        const displayName = matched?.label || frameworkData.name || item.value;
-        const frameworkIcon = FRAMEWORK_ICONS[matched?.value] || FRAMEWORK_ICONS[frameworkData.name];
+        const displayName = frameworkData.display_name || frameworkData.name || item.value;
+        const frameworkIcon = FRAMEWORK_ICONS[frameworkData.name];
         return (
           <div
             key={`item${index}`}
@@ -1486,7 +1481,9 @@ export default class CreateCheck extends React.Component {
                   borderRadius: 4,
                   fontSize: 12
                 }}>
-                  {frameworkData.type === 'static' ? '静态站点' : 'Node.js 服务'}
+                  {frameworkData.type === 'static'
+                    ? formatMessage({id: 'componentOverview.body.NodeJSCNB.type_static'})
+                    : formatMessage({id: 'componentOverview.body.NodeJSCNB.type_server'})}
                 </span>
               )}
             </span>
