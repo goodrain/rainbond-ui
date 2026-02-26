@@ -811,12 +811,6 @@ export default class Enterprise extends PureComponent {
                               {formatMessage({id:'platformUpgrade.index.consulting'})}
                             </a>
                           )}
-                          <a
-                            style={{ marginLeft: 12 }}
-                            onClick={() => { this.downloadClusterInfo() }}
-                          >
-                            {formatMessage({id:'platformUpgrade.index.platforminfo'})}
-                          </a>
                         </p>
                         <p>
                           <Tooltip title={enterpriseInfo.enterprise_id}>
