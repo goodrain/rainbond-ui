@@ -551,11 +551,10 @@ export async function fetchPrometheusNodeInfo(params, handleError) {
 }
 // 获取loki日志
 export async function fetchLokiLog(params, handleError) {
-  return request(`${apiconfig.baseUrl}/console/log/proxy`, {
+  return request(`${apiconfig.baseUrl}/console/regions/${params.region_name}/backend/plugins/rainbond-enterprise-logs/api/ds/query`, {
     method: 'post',
     data: {
-      url: params.url,
-      data: params.data
+      ...params.data
     },
     handleError
   });
