@@ -864,6 +864,7 @@ const gatewayplugin = {
 
 const CustomerFloat = {
   'CustomerFloat.title': 'Help',
+  'CustomerFloat.wechat': 'Contact Us',
   'CustomerFloat.wechat_desc': 'Contact the customer service for support!',
   'CustomerFloat.community_desc': 'Join the user discussion group!',
 }

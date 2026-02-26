@@ -1068,10 +1068,10 @@ export default class Index extends PureComponent {
                 >
                   {languageType != 'static' ? (
                     <a target="blank" href={languageObj[`${languageType}`]}>
-                      {languageType}
+                      {versionLanguage || languageType}
                     </a>
                   ) : (
-                    <a href="javascript:void(0);">{languageType}</a>
+                    <a href="javascript:void(0);">{versionLanguage || languageType}</a>
                   )}
                   <Button
                     size="small"
@@ -1233,7 +1233,9 @@ export default class Index extends PureComponent {
                   </p>
 
                   {this.state.service_info &&
-                    this.state.service_info.map((item, idx) => {
+                    this.state.service_info
+                    .filter(item => item.type != 'framework' && item.type != 'runtime_version' && item.type != 'node_version' && item.type != 'package_manager' && item.type != 'config_files')
+                    .map((item, idx) => {
                       let languageArr = [];
                       if (item.type == 'language') {
                         languageArr = item?.value?.split(',') || [];
@@ -1262,7 +1264,8 @@ export default class Index extends PureComponent {
                           {item.key}:{item.value}{' '}
                         </p>
                       );
-                    })}
+                    })
+                  }
                 </div>
               ) : (
                 ''

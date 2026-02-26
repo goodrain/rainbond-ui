@@ -38,13 +38,8 @@ export default class GlobalRouter extends PureComponent {
     // 初始化时计算一次 isTeamView，避免后续多次更新导致闪烁
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const { currentUser, currentEnterprise } = props;
-    const eid = currentEnterprise?.enterprise_id;
     this.state = {
-      expandedKeys: [], // 展开的子菜单 keys
-      isTeamView: !!(teamName && regionName), // 缓存视图状态
-      // 缓存管理员状态，避免数据加载导致的闪烁
-      isAdmin: !!(currentUser?.is_enterprise_admin && eid),
+      expandedKeys: [] // 展开的子菜单 keys
     };
   }
 
@@ -56,17 +51,6 @@ export default class GlobalRouter extends PureComponent {
   componentDidUpdate(prevProps) {
     if (prevProps.location?.pathname !== this.props.location?.pathname) {
       this.initExpandedKeys();
-    }
-
-    // 首次加载时 currentUser/currentEnterprise 可能为空，需要在数据加载后更新一次 isAdmin
-    const { currentUser, currentEnterprise } = this.props;
-    const { isAdmin } = this.state;
-    const eid = currentEnterprise?.enterprise_id;
-    const newIsAdmin = !!(currentUser?.is_enterprise_admin && eid);
-
-    // 只在从 false 变为 true 时更新一次，避免后续闪烁
-    if (!isAdmin && newIsAdmin) {
-      this.setState({ isAdmin: newIsAdmin });
     }
   }
 
@@ -90,31 +74,6 @@ export default class GlobalRouter extends PureComponent {
     });
 
     this.setState({ expandedKeys });
-  };
-
-  /**
-   * 切换到工作空间
-   */
-  handleSwitchToWorkspace = () => {
-    const { dispatch, currentUser } = this.props;
-    const teamName = globalUtil.getCurrTeamName() || currentUser?.teams?.[0]?.team_name;
-    const regionName = globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name;
-
-    if (teamName && regionName) {
-      dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/index`));
-    }
-  };
-
-  /**
-   * 切换到平台管理
-   */
-  handleSwitchToPlatform = () => {
-    const { dispatch, currentEnterprise } = this.props;
-    const eid = currentEnterprise?.enterprise_id || globalUtil.getCurrEnterpriseId();
-
-    if (eid) {
-      dispatch(routerRedux.push(`/enterprise/${eid}/index`));
-    }
   };
 
   /**
@@ -190,77 +149,6 @@ export default class GlobalRouter extends PureComponent {
       }
     }
     return true;
-  };
-
-  /**
-   * 渲染视图切换器
-   */
-  renderViewSwitcher = () => {
-    const { collapsed } = this.props;
-    const { isTeamView: isTeam, isAdmin } = this.state; // 使用缓存的状态，避免多次更新
-
-    if (!isAdmin) {
-      return null;
-    }
-
-    // 折叠状态下显示垂直切换器
-    if (collapsed) {
-      return (
-        <div className={styles.viewSwitcherCollapsed}>
-          <Tooltip
-            title={formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
-            placement="right"
-          >
-            <div
-              className={`${styles.switcherItemCollapsed} ${!isTeam ? styles.active : ''}`}
-              onClick={this.handleSwitchToPlatform}
-            >
-              <Icon type="setting" />
-            </div>
-          </Tooltip>
-          <Tooltip
-            title={formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
-            placement="right"
-          >
-            <div
-              className={`${styles.switcherItemCollapsed} ${isTeam ? styles.active : ''}`}
-              onClick={this.handleSwitchToWorkspace}
-            >
-              <Icon type="appstore" />
-            </div>
-          </Tooltip>
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles.viewSwitcher}>
-        <div className={styles.switcherInner}>
-          <div
-            className={`${styles.switcherItem} ${!isTeam ? styles.active : ''}`}
-            onClick={this.handleSwitchToPlatform}
-          >
-            <Icon type="setting" className={styles.switcherIcon} />
-            <span className={styles.switcherText}>
-              {formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
-            </span>
-          </div>
-          <div
-            className={`${styles.switcherItem} ${isTeam ? styles.active : ''}`}
-            onClick={this.handleSwitchToWorkspace}
-          >
-            <Icon type="appstore" className={styles.switcherIcon} />
-            <span className={styles.switcherText}>
-              {formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
-            </span>
-          </div>
-          <div
-            className={styles.switcherSlider}
-            style={{ transform: !isTeam ? 'translateX(0)' : 'translateX(100%)' }}
-          />
-        </div>
-      </div>
-    );
   };
 
   /**
@@ -470,11 +358,6 @@ export default class GlobalRouter extends PureComponent {
         className={`${styles.menuWrapper} ${collapsed ? styles.collapsed : ''}`}
         style={{ display: showMenu ? 'flex' : 'none' }}
       >
-        {/* 顶部：切换器 */}
-        <div className={styles.menuHeader}>
-          {this.renderViewSwitcher()}
-        </div>
-
         {/* 中间：菜单列表 */}
         <div className={styles.menuContent}>
           <nav className={styles.menuNav}>

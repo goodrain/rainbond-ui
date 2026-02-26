@@ -223,7 +223,6 @@ class TeamLayout extends PureComponent {
 
   fetchLicenses = () => {
     const { dispatch, currentUser } = this.props;
-    const { regionName } = this.props.match.params;
     if (dispatch) {
       dispatch({
         type: 'region/getEnterpriseLicense',
@@ -232,21 +231,27 @@ class TeamLayout extends PureComponent {
         },
         callback: res => {
           if (res && res.status_code === 200) {
-            const info = res.bean
-            const isLicense = info.expect_cluster != -1 ? (info.actual_cluster > info.expect_cluster ? true : false) : false;
-            const memory = info.expect_memory != -1 ? (info.actual_memory > info.expect_memory ? true : false) : false;
-            const node = info.expect_node != -1 ? (info.actual_node > info.expect_node ? true : false) : false;
-            const end = new Date(info.end_time).getTime();
-            const current = new Date().getTime();
-            const time = end ? (end < current ? true : false) : false
+            const info = res.bean;
+            const isValid = info.valid !== false;
+            const reason = (info.reason || '').toLowerCase();
+
+            // expire_at 现在是 unix 时间戳（秒），需要转为毫秒比较
+            const end = info.expire_at ? info.expire_at * 1000 : null;
+            const current = Date.now();
+            const isTime = (end ? end < current : false) || (!isValid && reason.includes('expired'));
+
+            // actual_* 字段已移除，通过 valid + reason 判断具体超限类型
+            const isLicense = !isValid && reason.includes('cluster');
+            const isMemory = !isValid && reason.includes('memory');
+            const isNode = !isValid && reason.includes('node');
 
             this.setState({
               isAuthorizationLoading: false,
               licenseInfo: res.bean,
               isLicense,
-              isMemory: memory,
-              isNode: node,
-              isTime: time,
+              isMemory,
+              isNode,
+              isTime,
             });
           }
         },
@@ -754,11 +759,13 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const isSaas = rainbondInfo?.is_saas || false;
-    if (isNeedAuthz) {
-      if (!isAuthorizationLoading && !licenseInfo) {
+    if (!isAuthorizationLoading) {
+      // 需要授权但未获取到授权信息
+      if (isNeedAuthz && !licenseInfo) {
         return <Overdue currentUser={currentUser} title={'授权码无效'} desc={'联系企业管理员，更新授权码'} />;
       }
 
+      // 授权过期或超限检查，不依赖 isNeedAuthz，确保过期时能拦截页面
       let overdueTitle = '';
       const overdueDesc = '联系企业管理员，更新授权码';
 
@@ -998,7 +1005,7 @@ class TeamLayout extends PureComponent {
                   <TransitionGroup
                     style={{
                       position: 'relative',
-                      height: 'calc(100vh - 50px)',
+                      height: 'calc(100vh - 56px)',
                       overflow: 'hidden',
                       backgroundColor: globalUtil.getPublicColor('rbd-background-color')
                     }}>
@@ -1010,7 +1017,7 @@ class TeamLayout extends PureComponent {
                     >
                       <Content
                         style={{
-                          height: 'calc(100vh - 50px)',
+                          height: 'calc(100vh - 56px)',
                           overflow: overflow || 'auto',
                           width: '100%'
                         }}
@@ -1026,7 +1033,7 @@ class TeamLayout extends PureComponent {
                   (
                     <Content
                       style={{
-                        height: 'calc(100vh - 64px)',
+                        height: 'calc(100vh - 56px)',
                         background: globalUtil.getPublicColor("rbd-background-color"),
                         overflow: 'auto',
                         width: '100%'

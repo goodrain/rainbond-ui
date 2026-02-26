@@ -39,8 +39,7 @@ export default class Register extends Component {
             })
           }
         },
-        handleError: res => {
-          console.log(res, 'error')
+        handleError: () => {
         }
       })
     }

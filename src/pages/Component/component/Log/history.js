@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import global from '@/utils/global';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
@@ -92,12 +93,11 @@ export default class HistoryLog extends PureComponent {
     dispatch({
       type: 'region/fetchLokiLog',
       payload: {
-        url: url+'/api/ds/query',
+        region_name: global.getCurrRegionName(),
         data: lokiQuery
       },
-      callback: (res) => {
-        
-        const logs = this.parseLokiResponse(res.bean);
+      callback: (res) => {        
+        const logs = this.parseLokiResponse(res.response_data);
         this.setState({ 
           loading: false, 
           list: logs.sort((a, b) => b.timestamp - a.timestamp)

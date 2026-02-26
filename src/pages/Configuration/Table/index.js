@@ -160,7 +160,7 @@ export default class ConfigurationTable extends PureComponent {
         th.handleBatchOperation(serviceIds);
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.5 ? resolve : reject, 2000);
-        }).catch(() => console.log('Oops errors!'));
+        }).catch(() => {});
       },
       onCancel() {
         th.handleResetInfo();

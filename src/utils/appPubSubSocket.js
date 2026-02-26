@@ -32,7 +32,6 @@ function AppPubSubSocket(op) {
   try {
     this.init();
   } catch (e) {
-    console.log(e);
   }
 }
 
@@ -121,7 +120,6 @@ AppPubSubSocket.prototype = {
           this.waitingSendMessage.push(JSON.stringify(message));
         }
       } catch (err) {
-        console.log('err', err);
         return false;
       }
     }
@@ -143,7 +141,6 @@ AppPubSubSocket.prototype = {
       this.onLogMessage = onLogMessage;
       this.serviceLogQueue.start();
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },
@@ -161,7 +158,6 @@ AppPubSubSocket.prototype = {
       this.onMonitorMessage = onMonitorMessage;
       this.monitorLogQueue.start();
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },
@@ -178,7 +174,6 @@ AppPubSubSocket.prototype = {
       }
       this.serviceLogQueue.stop();
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },
@@ -194,7 +189,6 @@ AppPubSubSocket.prototype = {
         this.webSocket.send(JSON.stringify(message));
       }
     } catch (err) {
-      console.log('err', err);
       return false;
     }
   },
@@ -215,7 +209,7 @@ AppPubSubSocket.prototype = {
         });
       }
     } catch (err) {
-      console.log('err', err);
+      // ignore open error
     }
   },
   _onMessage(message) {

@@ -71,18 +71,10 @@ export default class Index extends PureComponent {
     }
 
     this.fetchInstanceInfo();
+
+
     this.setState({
-      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList, 'rainbond-enterprise-base'),
-    }, () => {
-      if (this.state.isHistoryLogs) {
-        this.props.pluginList.forEach(item => {
-          if (item.name === 'rainbond-enterprise-base') {
-            this.setState({
-              lokiUrl: item.backend
-            });
-          }
-        });
-      }
+      isHistoryLogs: PulginUtiles.isInstallPlugin(this.props.pluginList, 'rainbond-enterprise-logs'),
     });
 
     this.intervalTimer = setInterval(() => {

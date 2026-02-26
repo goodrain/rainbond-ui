@@ -1425,9 +1425,19 @@ export async function deleteShellPod(params) {
 // 获取插件
 export async function getPluginList(body, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/plugins`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins`,
     {
       method: 'get',
+      handleError
+    }
+  );
+}
+// 安装插件
+export async function installPlugin(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins/${body.plugin_id}/install`,
+    {
+      method: 'post',
       handleError
     }
   );
@@ -1866,4 +1876,28 @@ export async function fetchUserSource(params) {
       content: params.content
     }
   });
+}
+
+// 获取 CNB 构建支持的版本列表
+export async function fetchCNBVersions(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}/cnb/versions`,
+    {
+      method: 'get',
+      params: { lang: params.lang || 'nodejs' },
+      handleError
+    }
+  );
+}
+
+// 获取 CNB 构建支持的框架列表
+export async function fetchCNBFrameworks(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}/cnb/frameworks`,
+    {
+      method: 'get',
+      params: { lang: params.lang || 'nodejs' },
+      handleError
+    }
+  );
 }

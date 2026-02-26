@@ -19,8 +19,6 @@ export default class ErrorBoundary extends PureComponent {
 
   componentDidCatch(error, errorInfo) {
     // 你同样可以将错误日志上报给服务器
-    console.log('err', error.toString());
-    console.log('errorInfo', errorInfo);
     if (
       process &&
       process.env &&

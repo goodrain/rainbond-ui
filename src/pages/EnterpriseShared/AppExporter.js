@@ -270,7 +270,7 @@ export default class AppExporter extends PureComponent {
           th.handleExporter(type);
           return new Promise((resolve, reject) => {
             setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-          }).catch(() => console.log('Oops errors!'));
+          }).catch(() => {});
         }
       });
     } else {

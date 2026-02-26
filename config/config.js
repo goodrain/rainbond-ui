@@ -50,5 +50,9 @@ export default {
       target: 'http://127.0.0.1:7070',
       changeOrigin: true
     },
+    '/app-server': {
+      target: 'http://127.0.0.1:7070',
+      changeOrigin: true
+    },
   }
 };

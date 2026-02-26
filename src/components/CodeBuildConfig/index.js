@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import handleAPIError from '../../utils/error';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import globalUtil from '../../utils/global'
+import globalUtil from '../../utils/global';
 import Dockerinput from '../Dockerinput';
 import GoConfig from './golang';
 import JavaJarConfig from './java-jar';
@@ -13,11 +13,16 @@ import JavaMavenConfig from './java-maven';
 import JavaWarConfig from './java-war';
 import NetCoreConfig from './netcore';
 import NodeJSConfig from './nodejs';
+import NodeJSCNBConfig from './nodejs-cnb';
 import PHPConfig from './php';
 import PythonConfig from './python';
 import StaticConfig from './static';
 
 const { confirm } = Modal;
+
+// Node.js 语言类型集合
+const NODEJS_LANGUAGE_TYPES = new Set(['nodejsstatic', 'nodejs', 'node', 'node.js']);
+const isNodeJSLanguage = (type) => type && NODEJS_LANGUAGE_TYPES.has(type.toLowerCase());
 
 @connect(
   ({ user, appControl }) => ({
@@ -181,28 +186,37 @@ class CodeBuildConfig extends PureComponent {
     const { form, onSubmit } = this.props;
     const { validateFields } = form;
     const { languageType, setObj } = this.state;
-    validateFields((err, fieldsValue) => {
-      if (err) return;
-      const {
-        BUILD_NO_CACHE,
-        BUILD_MAVEN_MIRROR_DISABLE,
-        JDK_TYPE
-      } = fieldsValue;
-      // not disable cache is not set BUILD_NO_CACHE
-      if (!BUILD_NO_CACHE) {
-        delete fieldsValue.BUILD_NO_CACHE;
-      }
-      if (!BUILD_MAVEN_MIRROR_DISABLE) {
-        delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
-      }
-      if (JDK_TYPE && JDK_TYPE === 'Jdk') {
-        fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
-      }
-      if (languageType && languageType === 'dockerfile' && onSubmit) {
-        onSubmit(setObj);
-      } else if (onSubmit) {
-        onSubmit(fieldsValue);
-      }
+    return new Promise((resolve) => {
+      validateFields((err, fieldsValue) => {
+        if (err) { resolve(false); return; }
+        const {
+          BUILD_NO_CACHE,
+          BUILD_MAVEN_MIRROR_DISABLE,
+          JDK_TYPE
+        } = fieldsValue;
+        // not disable cache is not set BUILD_NO_CACHE
+        if (!BUILD_NO_CACHE) {
+          delete fieldsValue.BUILD_NO_CACHE;
+        }
+        if (!BUILD_MAVEN_MIRROR_DISABLE) {
+          delete fieldsValue.BUILD_MAVEN_MIRROR_DISABLE;
+        }
+        if (JDK_TYPE && JDK_TYPE === 'Jdk') {
+          fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
+        }
+        if (languageType && languageType === 'dockerfile' && onSubmit) {
+          Promise.resolve(onSubmit(setObj)).then(() => resolve(true)).catch(() => resolve(false));
+        } else if (onSubmit) {
+          // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
+          const existingEnvs = this.props.runtimeInfo || {};
+          const mergedValues = { ...existingEnvs, ...fieldsValue };
+          // 移除 runtime_info 对象（非环境变量，不应提交）
+          delete mergedValues.runtime_info;
+          Promise.resolve(onSubmit(mergedValues)).then(() => resolve(true)).catch(() => resolve(false));
+        } else {
+          resolve(true);
+        }
+      });
     });
   };
 
@@ -248,6 +262,8 @@ class CodeBuildConfig extends PureComponent {
 
   render() {
     const runtimeInfo = this.props.runtimeInfo || '';
+    // CNB 构建判断：后端返回 runtime_info 或 CNB 相关环境变量
+    const isCNB = !!(runtimeInfo?.runtime_info || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK);
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -272,47 +288,56 @@ class CodeBuildConfig extends PureComponent {
     if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
-        {(languageType === 'java-maven' || languageType === 'Java-maven') && (
+
+        {/* ========== CNB 构建：由后端 runtime_info 驱动 ========== */}
+        {isCNB && languageType === 'static' && (
+          <StaticConfig />
+        )}
+        {isCNB && languageType !== 'static' && (
+          <NodeJSCNBConfig
+            languageType={languageType}
+            envs={runtimeInfo}
+            form={this.props.form}
+          />
+        )}
+
+        {/* ========== Slug 构建：兼容旧组件，按语言类型分发 ========== */}
+        {!isCNB && (languageType === 'java-maven' || languageType === 'Java-maven') && (
           <JavaMavenConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} />
         )}
-        {(languageType === 'java-jar' || languageType === 'Java-jar') && (
+        {!isCNB && (languageType === 'java-jar' || languageType === 'Java-jar') && (
           <div>
             <JavaJarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
-        {(languageType === 'java-war' || languageType === 'Java-war') && (
+        {!isCNB && (languageType === 'java-war' || languageType === 'Java-war') && (
           <div>
             <JavaWarConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
           </div>
         )}
-        {(languageType === 'Golang' ||
+        {!isCNB && (languageType === 'Golang' ||
           languageType === 'go' ||
           languageType === 'Go' ||
           languageType === 'golang') && (
           <GoConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'Gradle' ||
+        {!isCNB && (languageType === 'Gradle' ||
           languageType === 'gradle' ||
           languageType === 'java-gradle' ||
           languageType === 'Java-gradle' ||
           languageType === 'JAVAGradle') && (
           <JavaJDKConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'python' || languageType === 'Python') && (
+        {!isCNB && (languageType === 'python' || languageType === 'Python') && (
           <PythonConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {(languageType === 'php' || languageType === 'PHP') && (
+        {!isCNB && (languageType === 'php' || languageType === 'PHP') && (
           <PHPConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr}/>
         )}
-        {languageType === 'static' && (
-          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} key={buildSourceArr}/>
+        {!isCNB && languageType === 'static' && (
+          <StaticConfig envs={runtimeInfo} form={this.props.form} buildSourceArr={buildSourceArr} isSlug={true} />
         )}
-        {(languageType === 'nodejsstatic' ||
-          languageType === 'NodeJSStatic' ||
-          languageType === 'nodejs' ||
-          languageType === 'Node' ||
-          languageType === 'node' ||
-          languageType === 'Node.js') && (
+        {!isCNB && isNodeJSLanguage(languageType) && (
           <NodeJSConfig
             languageType={languageType}
             envs={runtimeInfo}
@@ -320,7 +345,7 @@ class CodeBuildConfig extends PureComponent {
             buildSourceArr={buildSourceArr}
           />
         )}
-        {(languageType === '.NetCore' ||
+        {!isCNB && (languageType === '.NetCore' ||
           languageType === 'netCore' ||
           languageType === 'netcore') && (
           <NetCoreConfig
@@ -344,7 +369,7 @@ class CodeBuildConfig extends PureComponent {
             </Form.Item>
           </div>
         )}
-        {isBtn &&
+        {isBtn && !(isCNB && languageType === 'static') &&
           <Row>
             <Col span="5" />
             <Col span="19">

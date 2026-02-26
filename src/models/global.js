@@ -106,6 +106,7 @@ import {
   createShellPod,
   deleteShellPod,
   getPluginList,
+  installPlugin,
   getAbilitiesList,
   abilitiesEdit,
   abilitiesDetail,
@@ -143,6 +144,8 @@ import {
   fetchLoginLogs,
   fetchOperationLogs,
   fetchUserSource,
+  fetchCNBVersions,
+  fetchCNBFrameworks,
   // fetchPlatformHealth
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
@@ -963,6 +966,12 @@ export default {
         callback(response);
       }
     },
+    *installPlugin({ payload, callback, handleError }, { call }) {
+      const response = yield call(installPlugin, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
     *getAbilitiesList({ payload, callback }, { call }) {
       const response = yield call(getAbilitiesList, payload);
       if (callback) {
@@ -1043,6 +1052,18 @@ export default {
     },
     *deleteLanguageFile({ payload, callback, handleError }, { put, call }) {
       const response = yield call(deleteLanguageFile, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchCNBVersions({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchCNBVersions, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchCNBFrameworks({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchCNBFrameworks, payload, handleError);
       if (callback) {
         callback(response);
       }

@@ -88,7 +88,6 @@ export default class Register extends Component {
       type: 'user/smsRegister',
       payload: values,
       complete: data => {
-        console.log('Register Success')
         if(content){
           this.handleUserSource(content)
         }

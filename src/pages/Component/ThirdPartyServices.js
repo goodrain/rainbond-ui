@@ -75,7 +75,6 @@ export default class Index extends PureComponent {
         );
       },
       onCancel() {
-        console.log('Cancel');
       }
     });
   };

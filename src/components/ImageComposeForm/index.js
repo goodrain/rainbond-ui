@@ -1,11 +1,11 @@
-import { Button, Card, Form, Input, Radio } from 'antd';
+import { Button, Card, Form, Input, Radio, Upload, Icon, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
-import CodeMirrorForm from '../../components/CodeMirrorForm';
 import globalUtil from '../../utils/global';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
+import handleAPIError from '../../utils/error';
 import {
   getGroupNameRules,
   getK8sAppNameRules,
@@ -13,6 +13,8 @@ import {
   getPasswordRules,
   getArchRules
 } from './validations';
+
+const { Dragger } = Upload;
 
 @connect(
   ({ global, loading, teamControl }) => ({
@@ -30,16 +32,83 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       showUsernameAndPass: false,
-      language: cookie.get('language') === 'zh-CN' ? true : false
+      language: cookie.get('language') === 'zh-CN' ? true : false,
+      // 文件上传相关
+      fileList: [],
+      event_id: '',
+      upload_url: ''
     };
   }
+
+  componentDidMount() {
+    // 初始化上传事件
+    this.initUploadEvent();
+  }
+
+  // 初始化上传事件
+  initUploadEvent = () => {
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    dispatch({
+      type: "createApp/createJarWarServices",
+      payload: {
+        region: regionName,
+        team_name: teamName,
+        component_id: '',
+      },
+      callback: (res) => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            event_id: res.bean.event_id,
+            upload_url: res.bean.upload_url
+          });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+
+  componentWillUnmount() {
+    // 清理工作
+  }
+
+  // 处理文件上传变化
+  handleFileChange = (info) => {
+    let fileList = [...info.fileList];
+    // 只保留最新上传的文件
+    fileList = fileList.slice(-1);
+
+    this.setState({ fileList });
+
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} 文件上传成功`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} 文件上传失败`);
+    }
+  };
+
+  // 移除文件
+  handleFileRemove = () => {
+    this.setState({ fileList: [] });
+  };
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo } = this.props;
+    const { event_id, fileList } = this.state;
     const group_id = globalUtil.getAppID();
 
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        // 检查是否已上传文件
+        if (fileList.length === 0) {
+          message.error('请先上传 Docker Compose 项目文件');
+          return;
+        }
+
         // 处理架构信息
         if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
           fieldsValue.arch = archInfo[0];
@@ -55,6 +124,10 @@ export default class Index extends PureComponent {
           fieldsValue.group_name = fieldsValue.service_cname;
           fieldsValue.k8s_app = this.generateEnglishName(fieldsValue.service_cname);
         }
+
+        // 添加 event_id 和 compose_file_path
+        fieldsValue.event_id = event_id;
+        fieldsValue.compose_file_path = fieldsValue.compose_file_path || 'docker-compose.yml';
 
         onSubmit(fieldsValue);
       }
@@ -105,9 +178,24 @@ export default class Index extends PureComponent {
       groups
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
-    const { language } = this.state;
+    const { language, fileList, upload_url } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
     const group_id = globalUtil.getAppID();
+
+    // 直接使用后端返回的完整 upload_url，不需要再拼接
+    const uploadProps = {
+      name: 'packageTarFile',  // 后端接收的字段名
+      action: upload_url,  // 直接使用完整的 URL
+      onChange: this.handleFileChange,
+      onRemove: this.handleFileRemove,
+      fileList: fileList,
+      accept: '.tar,.tgz,.tar.gz,.zip',
+      withCredentials: true,
+      headers: {
+        'X-TEAM-NAME': globalUtil.getCurrTeamName(),
+        'X-REGION-NAME': globalUtil.getCurrRegionName()
+      }
+    };
 
     let arch = 'amd64';
     const archLength = archInfo?.length || 0;
@@ -143,18 +231,36 @@ export default class Index extends PureComponent {
                   })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
                 </Form.Item>
               </>}
-            <CodeMirrorForm
-              setFieldsValue={setFieldsValue}
-              formItemLayout={is_language}
-              Form={Form}
-              // width="594px"
-              getFieldDecorator={getFieldDecorator}
-              name="yaml_content"
-              label={formatMessage({ id: 'teamAdd.create.image.config' })}
-              message={formatMessage({ id: 'placeholder.yaml_content' })}
-              mode="yaml"
-              data={data.yaml_content || ''}
-            />
+
+            {/* Docker Compose 项目文件上传 */}
+            <Form.Item
+              {...is_language}
+              label="Docker Compose 项目文件"
+              extra="支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件"
+            >
+              <Dragger {...uploadProps}>
+                <p className="ant-upload-drag-icon">
+                  <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">
+                  点击或拖拽文件到此区域上传
+                </p>
+                <p className="ant-upload-hint">
+                  支持 .tar, .tgz, .zip 格式的压缩包
+                </p>
+              </Dragger>
+            </Form.Item>
+
+            {/* Compose 文件路径（可选） */}
+            <Form.Item
+              {...is_language}
+              label="Compose 文件路径（可选）"
+              extra="如果 docker-compose.yml 不在项目根目录，请指定相对路径"
+            >
+              {getFieldDecorator('compose_file_path', {
+                initialValue: 'docker-compose.yml'
+              })(<Input placeholder="docker-compose.yml" />)}
+            </Form.Item>
 
             <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.image.notice' })}>
               {formatMessage({ id: 'teamAdd.create.image.configHint' })}{' '}
