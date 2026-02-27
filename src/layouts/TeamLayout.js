@@ -253,15 +253,20 @@ class TeamLayout extends PureComponent {
               isNode,
               isTime,
             });
-          }
-        },
-        handleError: (error) => {
-          if (error?.response?.data?.code === 400) {
+          } else {
+            // 非 200 响应也需要结束 loading 状态
             this.setState({
               licenseInfo: null,
               isAuthorizationLoading: false,
             });
           }
+        },
+        handleError: (error) => {
+          // 无论什么错误都要结束 loading 状态，避免页面一直转圈
+          this.setState({
+            licenseInfo: null,
+            isAuthorizationLoading: false,
+          });
         }
       });
     }
@@ -552,7 +557,7 @@ class TeamLayout extends PureComponent {
     this.fetchTeamApps();
     this.fetchGroup()
     this.setState({
-      currentEnterprise: this.state.currentEnterprise || (enterpriseList && enterpriseList[0]) || null,
+      currentEnterprise: this.state.currentEnterprise || currentEnterprise || (enterpriseList && enterpriseList[0]) || null,
       currentTeam: team,
       ready: true,
       GroupShow: true
