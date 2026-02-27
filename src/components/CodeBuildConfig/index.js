@@ -262,8 +262,11 @@ class CodeBuildConfig extends PureComponent {
 
   render() {
     const runtimeInfo = this.props.runtimeInfo || '';
-    // CNB 构建判断：后端返回 runtime_info 或 CNB 相关环境变量
-    const isCNB = !!(runtimeInfo?.runtime_info || runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK);
+    // 创建流程：BUILD_TYPE 还没写入数据库，根据语言类型判断
+    // 已有组件：根据 BUILD_TYPE / CNB 参数判断
+    const isCNB = (this.props.isCreate && (isNodeJSLanguage(this.state.languageType) || (this.state.languageType || '').toLowerCase() === 'static'))
+      || runtimeInfo?.BUILD_TYPE === 'cnb'
+      || !!(runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK);
     const formItemLayout = {
       labelCol: {
         xs: {
