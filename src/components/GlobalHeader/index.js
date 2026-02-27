@@ -551,6 +551,7 @@ class GlobalHeader extends PureComponent {
    */
   renderViewSwitcher = () => {
     const { sliderStyle, showBill } = this.state;
+    const { currentUser } = this.props;
     // 直接基于 URL 判断当前视图（支持 hash 路由）
     const currentPath = window.location.hash || window.location.pathname;
     const isExplore = currentPath.includes('/explore/');
@@ -588,19 +589,21 @@ class GlobalHeader extends PureComponent {
               </span>
             </div>
           )}
-          <div
-            ref={this.switcherRefs[2]}
-            className={`${styles.switcherItem} ${isPlatform ? styles.active : ''}`}
-            onClick={this.handleSwitchToPlatform}
-          >
-            <Icon
-              component={isPlatform ? SVG_ICONS.platformActive : SVG_ICONS.platformInactive}
-              className={styles.switcherIcon}
-            />
-            <span className={styles.switcherText}>
-              {formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
-            </span>
-          </div>
+          {currentUser.is_enterprise_admin && (
+            <div
+              ref={this.switcherRefs[2]}
+              className={`${styles.switcherItem} ${isPlatform ? styles.active : ''}`}
+              onClick={this.handleSwitchToPlatform}
+            >
+              <Icon
+                component={isPlatform ? SVG_ICONS.platformActive : SVG_ICONS.platformInactive}
+                className={styles.switcherIcon}
+              />
+              <span className={styles.switcherText}>
+                {formatMessage({ id: 'menu.switcher.platform', defaultMessage: '平台管理' })}
+              </span>
+            </div>)
+          }
           <div
             className={styles.switcherSlider}
             style={{
