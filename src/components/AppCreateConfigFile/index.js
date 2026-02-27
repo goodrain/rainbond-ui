@@ -1165,6 +1165,7 @@ class RenderDeploy extends PureComponent {
             appDetail={this.props.appDetail}
             onSubmit={handleEditRuntime}
             isBtn={false}
+            isCreate
             language={language}
             runtimeInfo={this.state.runtimeInfo}
             onRef={this.onRef}
