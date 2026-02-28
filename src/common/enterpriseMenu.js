@@ -202,7 +202,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     Object.entries(pluginObj).forEach(([regionName, plugins]) => {
       plugins.forEach(plugin => {
         pluginItems.push({
-          name: plugin.display_name,
+          name: plugin.plugin_name,
           icon: getMenuSvg.getSvg('plugin'),
           path: `/enterprise/${eid}/plugins/${plugin.name}?regionName=${regionName}`,
           authority: ['admin', 'user']
