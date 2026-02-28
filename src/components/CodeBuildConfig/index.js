@@ -162,14 +162,14 @@ class CodeBuildConfig extends PureComponent {
   };
   setArr = props => {
     const { runtimeInfo, language } = props;
-    if (language === 'dockerfile' && runtimeInfo !== '') {
+    if ((language || '').toLowerCase().includes('dockerfile') && runtimeInfo !== '') {
       const arr = [];
       for (const i in runtimeInfo) {
-        let keyName = `${i}`;
+        const keyName = `${i}`;
+        // Dockerfile ARG 参数以 BUILD_ARG_ 前缀存储，只显示这些
         if (keyName.startsWith('BUILD_ARG_')) {
-          keyName = keyName.substr(10, i.length);
+          arr.push({ key: keyName.substr(10), value: runtimeInfo[i] });
         }
-        arr.push({ key: keyName, value: runtimeInfo[i] });
       }
       this.setState({
         arr
@@ -204,7 +204,7 @@ class CodeBuildConfig extends PureComponent {
         if (JDK_TYPE && JDK_TYPE === 'Jdk') {
           fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
         }
-        if (languageType && languageType === 'dockerfile' && onSubmit) {
+        if (languageType && (languageType.toLowerCase().includes('dockerfile')) && onSubmit) {
           Promise.resolve(onSubmit(setObj)).then(() => resolve(true)).catch(() => resolve(false));
         } else if (onSubmit) {
           // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
@@ -262,11 +262,17 @@ class CodeBuildConfig extends PureComponent {
 
   render() {
     const runtimeInfo = this.props.runtimeInfo || '';
+    const { languageType } = this.state;
+    // 支持复合语言（如 "dockerfile,Node.js"）—— 只要包含 dockerfile 就视为 dockerfile 构建
+    const isDockerfile = (languageType || '').toLowerCase().includes('dockerfile');
     // 创建流程：BUILD_TYPE 还没写入数据库，根据语言类型判断
     // 已有组件：根据 BUILD_TYPE / CNB 参数判断
-    const isCNB = (this.props.isCreate && (isNodeJSLanguage(this.state.languageType) || (this.state.languageType || '').toLowerCase() === 'static'))
+    // dockerfile 语言不走 CNB，即使 runtimeInfo 中残留 CNB 参数
+    const isCNB = !isDockerfile && (
+      (this.props.isCreate && (isNodeJSLanguage(languageType) || (languageType || '').toLowerCase() === 'static'))
       || runtimeInfo?.BUILD_TYPE === 'cnb'
-      || !!(runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK);
+      || !!(runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK)
+    );
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -287,7 +293,7 @@ class CodeBuildConfig extends PureComponent {
     };
     const { getFieldDecorator } = this.props.form;
     const { isBtn = true } = this.props
-    const { languageType, arr, buildSourceArr, buildSourceLoading } = this.state;
+    const { arr, buildSourceArr, buildSourceLoading } = this.state;
     if (buildSourceLoading) { return null }
     return (
       <Card title={<FormattedMessage id='componentOverview.body.CodeBuildConfig.card_title'/>}>
@@ -358,7 +364,7 @@ class CodeBuildConfig extends PureComponent {
             buildSourceArr={buildSourceArr}
           />
         )}
-        {languageType === 'dockerfile' && (
+        {isDockerfile && (
           <div>
             <Form.Item {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.CodeBuildConfig.label'/>}>
               {getFieldDecorator('set_dockerfile', { initialValue: [] })(

@@ -9,11 +9,15 @@ import styles from './index.less';
 const { Panel } = Collapse;
 
 
-@connect()
+@connect(({ global: globalState }) => ({
+  rainbondInfo: globalState.rainbondInfo,
+}))
 class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.timer = null;
+    // 记录升级前的版本号，用于升级完成后对比
+    this.initialVersion = props.rainbondInfo?.version?.value || '';
     this.state = {
       clusters: [],
       clusterLoadings: true,
@@ -56,7 +60,11 @@ class Index extends PureComponent {
 
   // 定时循环更新集群信息
   cyclicQueryUpdateInfo = () => {
-    const { clusters } = this.state;
+    const { clusters, isShowComplete } = this.state;
+    // 升级完成后停止轮询
+    if (isShowComplete) {
+      return;
+    }
     clusters.forEach((item, index) => {
       this.updatePlatform(item.region_name, index);
     });
@@ -125,11 +133,31 @@ class Index extends PureComponent {
       return num === list.length
     }
   };
+  // 升级完成后重新获取平台信息，对比版本号决定是否刷新页面
+  checkVersionAndReload = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchRainbondInfo',
+      callback: (info) => {
+        if (info && info.version && this.initialVersion) {
+          const newVersion = info.version.value || '';
+          if (newVersion !== this.initialVersion) {
+            window.location.reload();
+          }
+        }
+      },
+    });
+  };
   checkUpdataStatus = (clusters) => {
     let bool = false
     clusters && clusters.length > 0 && clusters.forEach((item) => {
       bool = this.computeSchedule(item.updateInfo, true)
     })
+    if (bool && !this.state.isShowComplete) {
+      // 升级刚完成，停止轮询并检查版本
+      this.clearAllTimers();
+      this.checkVersionAndReload();
+    }
     this.setState({
       isShowComplete: bool
     })
