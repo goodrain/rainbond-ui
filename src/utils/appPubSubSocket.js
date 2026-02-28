@@ -78,7 +78,7 @@ AppPubSubSocket.prototype = {
     return queue;
   },
   watchEventLog(onMessage, onSuccess, onFailure, eventID) {
-    const channel = `e-${eventID}`;
+    const channel = `event-${eventID}`;
     if (this.eventLogQueue.has(channel)) {
       this.eventLogQueue.get(channel).onExecute = item => {
         if (item.action !== undefined && item.status !== undefined) {
