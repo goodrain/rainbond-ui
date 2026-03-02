@@ -172,7 +172,7 @@ class Index extends PureComponent {
             return;
         }
         dispatch({
-            type: 'global/getPluginList',
+            type: 'global/getEnterprisePluginList',
             payload: {
                 enterprise_id: eid,
                 region_name: regionName,
@@ -448,7 +448,7 @@ class Index extends PureComponent {
                 || (currentUser && currentUser.enterprise_id)
                 || global.getCurrEnterpriseId();
             dispatch({
-                type: 'global/getPluginList',
+                type: 'global/getEnterprisePluginList',
                 payload: {
                     enterprise_id: eid,
                     region_name: regionName,
