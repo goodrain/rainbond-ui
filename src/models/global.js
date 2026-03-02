@@ -106,6 +106,7 @@ import {
   createShellPod,
   deleteShellPod,
   getPluginList,
+  getEnterprisePluginList,
   installPlugin,
   getAbilitiesList,
   abilitiesEdit,
@@ -463,7 +464,7 @@ export default {
         callback(data);
       }
     },
-    *getRainbondAlert({ payload, callback,handleError }, { call }) {
+    *getRainbondAlert({ payload, callback, handleError }, { call }) {
       const data = yield call(getRainbondAlert, payload, handleError);
       if (data && callback) {
         callback(data);
@@ -966,6 +967,12 @@ export default {
         callback(response);
       }
     },
+    *getEnterprisePluginList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getEnterprisePluginList, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
     *installPlugin({ payload, callback, handleError }, { call }) {
       const response = yield call(installPlugin, payload, handleError);
       if (callback) {
@@ -1385,7 +1392,7 @@ export default {
     savePluginList(state, { payload }) {
       return {
         ...state,
-        pluginsList:  payload && payload.list && payload.list.length > 0 ? payload.list : []
+        pluginsList: payload && payload.list && payload.list.length > 0 ? payload.list : []
       };
     },
     saveMyTeams(state, { payload }) {
