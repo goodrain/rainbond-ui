@@ -156,15 +156,78 @@ export default SomePage;
 ```bash
 yarn install            # Install dependencies
 yarn start              # Dev server (proxies to console at :7070)
-yarn build              # Production build
+yarn build              # Production build (MANDATORY quality gate)
 ```
+
+## Quality Gates
+
+**前端不使用 TDD，使用构建门控 + 代码审查保障质量：**
+
+1. **`yarn build` 必须通过** — 这是最低限度的质量保障，编译不过 = 一定有问题
+2. **代码审查** — 使用 `frontend-patterns` skill 检查 React 模式
+3. **API 对接验证** — 确保 service 层路径与 console 暴露的 API 一致
+4. **手动验证** — 涉及 UI 变更时，启动 `yarn start` 在浏览器中确认效果
+
+## Design System（来自 `config/theme.js`）
+
+开发新组件/页面时，**必须使用以下 Less 变量**，禁止写死颜色和字号值。
+
+### 主题色
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| `@primary-color` | `#155aef` | 主色（按钮、链接、选中态） |
+| `@success-color` | `#18B633` | 成功 |
+| `@warning-color` | `#FF8D3C` | 警告 |
+| `@error-color` | `#FC481B` | 错误 |
+
+### 文字色
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| `@heading-color` / `@text-color` | `#495464` | 标题和正文 |
+| `@text-color-secondary` | `#676f83` | 次要文字 |
+| `@rbd-label-color` | `#8d9bad` | 标签/注释 |
+
+### 字号层级
+| 层级 | 变量 | 字号 | 行高 |
+|------|------|------|------|
+| 特大号 | `@rbd-display-size` | 36px | 50px |
+| 大标题 | `@rbd-title-big-size` | 24px | 36px |
+| 一级标题 | `@rbd-title-size` | 18px | 26px |
+| 二级标题 | `@rbd-sub-title-size` | 16px | 24px |
+| 正文 | `@rbd-content-size` | 14px | 22px |
+| 辅助文字 | `@rbd-auxiliary-size` | 12px | 20px |
+
+### 阴影
+| 变量 | 用途 |
+|------|------|
+| `@rbd-min-card-shadow` | 卡片默认阴影 |
+| `@rbd-card-shadow` | 卡片标准阴影 |
+| `@rbd-card-shadow-hover` | 卡片悬浮阴影 |
+
+### 状态色
+| 状态 | 变量 | 颜色 |
+|------|------|------|
+| 运行中/成功 | `@rbd-success-status` | `#00D777` |
+| 异常 | `@rbd-error-status` | `#CD0200` |
+| 警告 | `@rbd-warning-status` | `#F69D4A` |
+| 下线 | `@rbd-down-status` | `#708090` |
+| 处理中 | `@rbd-processing-status` | `#1890ff` |
+
+### 背景和边框
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| `@rbd-background-color` | `#f2f4f7` | 页面背景 |
+| `@border-color-base` | `#E2E2E2` | 通用边框 |
 
 ## Coding Conventions
 
-- Use Ant Design 3.x components (NOT v4/v5 — no hooks-based antd API)
-- Use class components with `@connect` decorator (DVA pattern)
-- Use DVA for state management (not raw Redux)
+- Use Ant Design **3.x** components (NOT v4/v5 — no hooks-based antd API)
+- Use **class components** with `@connect` decorator (DVA pattern, NOT function components)
+- Use DVA for state management (not raw Redux or React hooks state)
 - API calls go through service functions, never directly in components
+- **Use Less variables** from `config/theme.js` — never hardcode colors, font sizes, or shadows
 - i18n: add translations in both `zh-CN` and `en-US` locale files
 - Route config in `config/router.config.js`
 - Commit messages in English, Conventional Commits format
+- New `.less` files should import theme variables via `@import '~antd/lib/style/themes/default.less'` if needed
+
