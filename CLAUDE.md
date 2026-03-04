@@ -151,6 +151,47 @@ export default SomePage;
 - All API calls go through `src/utils/request.js` utility
 - API base URL configured in `config/api.config.js`
 
+## Plugin Host Integration (JSInject)
+
+rainbond-ui 作为宿主通过 SystemJS 动态加载插件前端模块。
+
+### Loading Chain
+
+```
+插件路由进入 → importAppPagePlugin(meta, regionName, type)
+  → SystemJS.import('/console/regions/{region}/static/plugins/{meta.name}')
+  → pluginExports.plugin.init(meta)
+  → 按渲染键取页面组件
+```
+
+### Key Files
+
+| 文件 | 职责 |
+|------|------|
+| `src/utils/importPlugins.js` | SystemJS 初始化 + 依赖暴露 + 插件加载 |
+| `src/components/RBDPluginsCom/index.js` | 团队/应用插件容器（传值 + 渲染） |
+| `src/components/EnterprisePluginsCom/index.js` | 企业插件容器 |
+| `src/utils/pulginUtils.js` | 渲染键选择逻辑 |
+
+### Rendering Keys
+
+- 团队/应用：`root` / `OtherPages`
+- 企业：`OperationLogPage` / `EntryLogPage` / `PermissionPage` / `CustomizationPage` / `AppBackUpPage` / `PackageUploadPage`
+
+### Host → Plugin Props
+
+**团队容器：** `dispatch` / `formatMessage` / `jumpRouter(url)` / `globalUtile` / `baseInfo`（含 colorPrimary / currentLocale / token / appDetail 等）
+
+**企业容器额外：** `reduxInfo` / `componentData`
+
+### CRITICAL: Version Mismatch
+
+- **宿主（rainbond-ui）用 Antd 3.19**
+- **插件用 Antd 5.x**
+- 插件必须用 `prefixCls` 隔离样式，否则会污染宿主
+- `xu-demo-data` 版本必须主/子项目一致
+
+
 ## Build & Verify
 
 ```bash
