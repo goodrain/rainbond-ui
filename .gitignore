@@ -26,3 +26,5 @@ jsconfig.json
 /build/dist
 .scannerwork
 local_release.sh
+.agents/
+.claude/knowledge/
