@@ -574,21 +574,19 @@ class GlobalHeader extends PureComponent {
               {formatMessage({ id: 'menu.switcher.workspace', defaultMessage: '工作空间' })}
             </span>
           </div>
-          {!showBill && (
-            <div
-              ref={this.switcherRefs[1]}
-              className={`${styles.switcherItem} ${isExplore ? styles.active : ''}`}
-              onClick={this.handleSwitchToExplore}
-            >
-              <Icon
-                component={isExplore ? SVG_ICONS.exploreActive : SVG_ICONS.exploreInactive}
-                className={styles.switcherIcon}
-              />
-              <span className={styles.switcherText}>
-                {formatMessage({ id: 'menu.switcher.appmarket', defaultMessage: '应用市场' })}
-              </span>
-            </div>
-          )}
+          <div
+            ref={this.switcherRefs[1]}
+            className={`${styles.switcherItem} ${isExplore ? styles.active : ''}`}
+            onClick={this.handleSwitchToExplore}
+          >
+            <Icon
+              component={isExplore ? SVG_ICONS.exploreActive : SVG_ICONS.exploreInactive}
+              className={styles.switcherIcon}
+            />
+            <span className={styles.switcherText}>
+              {formatMessage({ id: 'menu.switcher.appmarket', defaultMessage: '应用市场' })}
+            </span>
+          </div>
           {currentUser.is_enterprise_admin && (
             <div
               ref={this.switcherRefs[2]}
