@@ -551,7 +551,7 @@ export default class CreateCheck extends PureComponent {
             {(platform_url && (
               <span>
                 <a
-                  href={`${platform_url}docs/use-manual/component-create/language-support/`}
+                  href={`${platform_url}docs/how-to-guides/app-deploy/source-code/`}
                   target="_blank"
                 >
                   {formatMessage({ id: 'componentCheck.tooltip.title.p8' })}

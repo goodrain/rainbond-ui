@@ -1976,7 +1976,7 @@ export default class CreateCheck extends React.Component {
               <div>{formatMessage({ id: 'componentCheck.tooltip.title.p7' })}</div>
               {formatMessage({ id: 'componentCheck.tooltip.title.p4' })}{' '}
               <a
-                href={`${platform_url}docs/use-manual/component-create/language-support/`}
+                href={`${platform_url}docs/how-to-guides/app-deploy/source-code/`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

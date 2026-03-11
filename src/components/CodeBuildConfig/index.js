@@ -263,15 +263,22 @@ class CodeBuildConfig extends PureComponent {
   render() {
     const runtimeInfo = this.props.runtimeInfo || '';
     const { languageType } = this.state;
+    const normalizedLanguageType = (languageType || '').toLowerCase();
     // 支持复合语言（如 "dockerfile,Node.js"）—— 只要包含 dockerfile 就视为 dockerfile 构建
-    const isDockerfile = (languageType || '').toLowerCase().includes('dockerfile');
+    const isDockerfile = normalizedLanguageType.includes('dockerfile');
+    const isStaticLanguage = normalizedLanguageType === 'static';
+    // BUILD_FRAMEWORK 是源码检测结果，非 Node 组件也可能携带该字段。
+    // 仅在组件语言本身是 Node/static 时，才将其作为老数据的 CNB 兼容信号。
+    const hasLegacyCNBFramework = !!runtimeInfo?.BUILD_FRAMEWORK
+      && (isNodeJSLanguage(languageType) || isStaticLanguage);
     // 创建流程：BUILD_TYPE 还没写入数据库，根据语言类型判断
     // 已有组件：根据 BUILD_TYPE / CNB 参数判断
     // dockerfile 语言不走 CNB，即使 runtimeInfo 中残留 CNB 参数
     const isCNB = !isDockerfile && (
-      (this.props.isCreate && (isNodeJSLanguage(languageType) || (languageType || '').toLowerCase() === 'static'))
+      (this.props.isCreate && (isNodeJSLanguage(languageType) || isStaticLanguage))
       || runtimeInfo?.BUILD_TYPE === 'cnb'
-      || !!(runtimeInfo?.CNB_FRAMEWORK || runtimeInfo?.BUILD_FRAMEWORK)
+      || !!runtimeInfo?.CNB_FRAMEWORK
+      || hasLegacyCNBFramework
     );
     const formItemLayout = {
       labelCol: {

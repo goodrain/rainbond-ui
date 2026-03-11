@@ -190,15 +190,15 @@ export function isUrl(path) {
 let platform_url = cookie.get("platform_url");
 
 export const languageObj = {
-  Dockefile: `${platform_url}docs/use-manual/component-create/language-support/dockefile`,
-  Java: `${platform_url}docs/use-manual/component-create/language-support/java/`,
-  PHP: `${platform_url}docs/use-manual/component-create/language-support/php/`,
-  Python: `${platform_url}docs/use-manual/component-create/language-support/python/`,
-  Nodejs: `${platform_url}docs/use-manual/component-create/language-support/nodejs/`,
-  NodeJSStatic: `${platform_url}docs/use-manual/component-create/language-support/nodejs-static/`,
-  Go: `${platform_url}docs/use-manual/component-create/language-support/golang/`,
-  Netcore: `${platform_url}docs/use-manual/component-create/language-support/netcore/`,
-  Html: `${platform_url}docs/use-manual/component-create/language-support/html/`
+  Dockefile: `${platform_url}docs/how-to-guides/app-deploy/source-code/dockefile`,
+  Java: `${platform_url}docs/how-to-guides/app-deploy/source-code/springboot`,
+  PHP: `${platform_url}docs/how-to-guides/app-deploy/source-code/php`,
+  Python: `${platform_url}docs/how-to-guides/app-deploy/source-code/python`,
+  Nodejs: `${platform_url}docs/how-to-guides/app-deploy/source-code/nodejs`,
+  NodeJSStatic: `${platform_url}docs/how-to-guides/app-deploy/source-code/nodejs`,
+  Go: `${platform_url}docs/how-to-guides/app-deploy/source-code/golang`,
+  Netcore: `${platform_url}docs/how-to-guides/app-deploy/source-code/netcore`,
+  Html: `${platform_url}docs/how-to-guides/app-deploy/source-code/html`
 };
 
 export const volumeTypeObj = {
