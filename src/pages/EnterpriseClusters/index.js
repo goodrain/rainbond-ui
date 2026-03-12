@@ -366,7 +366,7 @@ export default class EnterpriseClusters extends PureComponent {
       clusterLoadings,
       isNeedAuthz
     } = this.state;
-    const region_nums = (licenseInfo && licenseInfo.expect_cluster) || 0;
+    const region_nums = (licenseInfo && licenseInfo.cluster_limit) || 0;
     const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
     const moreSvg = () => (
       <svg
