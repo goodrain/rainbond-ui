@@ -103,6 +103,16 @@ export default class index extends Component {
         const match = inputString.match(pattern);
         return match ? match[1] : '';
     }
+    getActualRouteName = (record) => {
+        const originalName = record && record.original_name;
+        if (originalName && originalName.includes('|')) {
+            const parts = originalName.split('|');
+            if (parts.length > 1 && parts[1]) {
+                return parts[1];
+            }
+        }
+        return record && record.name ? record.name : '';
+    }
     onClose = () => {
         this.props.onClose({}, "add")
     }
@@ -167,8 +177,7 @@ export default class index extends Component {
                 }
 
                 if (editInfo && Object.keys(editInfo).length > 0) {
-                    const splitString = editInfo.name.split("|")[0];
-                    data.name = splitString
+                    data.name = this.getActualRouteName(editInfo)
                 }
                 if (values.priority) {
                     data.priority = Number(values.priority);
@@ -480,8 +489,8 @@ export default class index extends Component {
 
     handleValidatorsHosts = (_, val, callback) => {
         let isPass = true;
-        // 修改正则表达式以支持泛域名格式
-        const reg = /^(\*\.)?[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+        // RFC 1123 允许域名标签以数字开头，这里需要和后端校验保持一致。
+        const reg = /^(\*\.)?[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
         if (val && val.length > 0) {
             // 检查是否有重复项
             const uniqueValues = new Set(val);

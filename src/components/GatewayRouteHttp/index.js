@@ -39,6 +39,16 @@ export default class index extends Component {
     componentDidMount() {
         this.getTableData();
     }
+    getActualRouteName = record => {
+        const originalName = record && record.original_name;
+        if (originalName && originalName.includes('|')) {
+            const parts = originalName.split('|');
+            if (parts.length > 1 && parts[1]) {
+                return parts[1];
+            }
+        }
+        return record && record.name ? record.name : '';
+    }
     // 获取表格信息
     getTableData = () => {
         this.setState({ tableLoading: true })
@@ -126,7 +136,7 @@ export default class index extends Component {
             type: 'gateWay/deleteApiGateway',
             payload: {
                 teamName: teamName,
-                name: data.name.split("|")[0] || '',
+                name: this.getActualRouteName(data),
                 appID: appID || '',
                 type: type
             },
@@ -183,7 +193,7 @@ export default class index extends Component {
                 type: 'gateWay/closeAutomaticIssuance',
                 payload: {
                     teamName: globalUtil.getCurrTeamName(),
-                    route_name: record.name,
+                    route_name: this.getActualRouteName(record),
                 },
                 callback: res => {
                 if(res && res.status_code == 200) {
@@ -203,26 +213,26 @@ export default class index extends Component {
             dispatch({
                 type: 'gateWay/openAutomaticIssuance',
                 payload: {
-                teamName: globalUtil.getCurrTeamName(),
-                region_app_id: record.region_app_id,
-                route_name: record.name,
-                domains: record.match.hosts,
-            },
-            callback: res => {
-                if(res && res.status_code == 200) {
-                    notification.success({
-                        message: formatMessage({ id: 'notification.success.succeeded' }),
+                    teamName: globalUtil.getCurrTeamName(),
+                    region_app_id: record.region_app_id,
+                    route_name: this.getActualRouteName(record),
+                    domains: record.match.hosts,
+                },
+                callback: res => {
+                    if(res && res.status_code == 200) {
+                        notification.success({
+                            message: formatMessage({ id: 'notification.success.succeeded' }),
+                        });
+                        this.getTableData()
+                    }
+                },
+                handleError: (err) => {
+                    notification.error({
+                        message: formatMessage({ id: 'notification.error.edit' }),
                     });
-                    this.getTableData()
                 }
-            },
-            handleError: (err) => {
-                notification.error({
-                    message: formatMessage({ id: 'notification.error.edit' }),
-                });
-            }
-        })
-    }
+            })
+        }
     }
     isStartWithStar = (arr) => {
         return arr.some(item => item.startsWith('*'));
