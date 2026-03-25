@@ -506,7 +506,8 @@ export async function createShare(
         scope: body.scope,
         target: body.target,
         snapshot_app_id: body.snapshot_app_id,
-        snapshot_version: body.snapshot_version
+        snapshot_version: body.snapshot_version,
+        snapshot_mode: body.snapshot_mode
       }
     }
   );

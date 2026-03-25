@@ -1,0 +1,103 @@
+meta:
+  name: "app-version-delete-history"
+  version: "1.0"
+  repo: "/Users/zhangqihang/MyWork/workrc"
+  branch: "v6.7.0-release-dev"
+  design_doc: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/docs/plans/2026-03-24-app-version-delete-design.md"
+
+sprints:
+  - id: sprint-1
+    name: "Console Snapshot Delete API"
+    commits:
+      - id: commit-1
+        message: "feat: add app snapshot delete api"
+        tasks: [task-1.1, task-1.2]
+    tasks:
+      - id: task-1.1
+        name: "Add snapshot delete service rule"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/zhangqihang/MyWork/workrc/rainbond-console/console/services/app_version_service.py"
+              lines: "250-262,431-460"
+        steps:
+          - action: "implement"
+            description: "Add a delete_snapshot method that loads the hidden template, rejects deleting the latest snapshot, and removes only historical snapshot records."
+            run: "python -m py_compile console/services/app_version_service.py"
+            expect: "PASS"
+        acceptance:
+          - cmd: "python -m py_compile console/services/app_version_service.py"
+            expect: "PASS"
+        references:
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-console/console/services/app_version_service.py:250-262"
+            note: "Current snapshot list ordering defines which version is current"
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-console/console/services/app_version_service.py:431-460"
+            note: "Current snapshot lookup and rollback validation"
+      - id: task-1.2
+        name: "Expose delete endpoint on snapshot detail route"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/zhangqihang/MyWork/workrc/rainbond-console/console/views/app_version.py"
+              lines: "41-46"
+        steps:
+          - action: "implement"
+            description: "Add DELETE handling for app snapshot detail requests and return a success message after the service deletes a historical snapshot."
+            run: "python -m py_compile console/views/app_version.py"
+            expect: "PASS"
+        acceptance:
+          - cmd: "python -m py_compile console/views/app_version.py"
+            expect: "PASS"
+          - cmd: "make check"
+            expect: "PASS"
+        references:
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-console/console/views/app_version.py:41-46"
+            note: "Existing snapshot detail endpoint to extend with DELETE"
+
+  - id: sprint-2
+    name: "UI Historical Snapshot Delete Flow"
+    commits:
+      - id: commit-2
+        message: "feat: support deleting historical app snapshots"
+        tasks: [task-2.1, task-2.2]
+    tasks:
+      - id: task-2.1
+        name: "Add app snapshot delete service helper"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/services/api.js"
+              lines: "523-574"
+        steps:
+          - action: "implement"
+            description: "Add a deleteAppVersionSnapshot request helper for the new console DELETE endpoint."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/services/api.js:523-574"
+            note: "Existing app version overview, list, detail and rollback helpers"
+      - id: task-2.2
+        name: "Show delete action on history-only timeline nodes"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/pages/AppVersion/index.js"
+              lines: "331-350,561-584,936-1065"
+        steps:
+          - action: "implement"
+            description: "Add a delete confirmation flow, show delete only on non-latest snapshot items, and refresh overview plus snapshot timeline after successful deletion."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/pages/AppVersion/index.js:331-350"
+            note: "Existing snapshot fetch and refresh entrypoint"
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/pages/AppVersion/index.js:561-584"
+            note: "Existing action callback style for snapshot publish flow"
+          - path: "/Users/zhangqihang/MyWork/workrc/rainbond-ui/src/pages/AppVersion/index.js:936-1065"
+            note: "Current timeline action rendering area"

@@ -544,8 +544,12 @@ export async function createAppVersionSnapshot(body = {}) {
     {
       method: 'post',
       data: {
+        version: body.version || '',
         version_alias: body.version_alias || '',
-        app_version_info: body.app_version_info || ''
+        app_version_info: body.app_version_info || '',
+        share_service_list: body.share_service_list || [],
+        share_plugin_list: body.share_plugin_list || [],
+        share_k8s_resources: body.share_k8s_resources || []
       }
     }
   );
@@ -556,6 +560,15 @@ export async function getAppVersionSnapshotDetail(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-versions/${body.version_id}`,
     {
       method: 'get'
+    }
+  );
+}
+
+export async function deleteAppVersionSnapshot(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-versions/${body.version_id}`,
+    {
+      method: 'delete'
     }
   );
 }

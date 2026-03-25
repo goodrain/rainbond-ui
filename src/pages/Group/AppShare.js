@@ -30,12 +30,14 @@ import {
   Tabs,
   Popover,
   Drawer,
+  Progress,
   Tag
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
+import { createAppVersionSnapshot, getAppVersionOverview } from '../../services/api';
 import CreateAppModels from '../../components/CreateAppModels';
 import FooterToolbar from '../../components/FooterToolbar';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -51,6 +53,7 @@ import pluginUtil from '../../utils/plugin';
 import BatchEditPublishComponent from './components/BatchEditPublishComponent';
 import CodeMirrorForm from '../../components/CodeMirrorForm'
 import mytabcss from './mytab.less';
+import styles from './publish.less';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 
 const { TabPane } = Tabs;
@@ -68,11 +71,43 @@ const formItemLayout = {
   }
 };
 
+const compactFormItemLayout = {
+  labelCol: {
+    span: 6
+  },
+  wrapperCol: {
+    span: 18
+  }
+};
+
+const verticalFormItemLayout = {
+  labelCol: {
+    span: 24
+  },
+  wrapperCol: {
+    span: 24
+  }
+};
+
 const token = cookie.get('token');
 const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
 }
+
+const DEFAULT_SNAPSHOT_VERSION = '0.0.1';
+
+const buildNextSnapshotVersion = latestVersion => {
+  if (!latestVersion) {
+    return DEFAULT_SNAPSHOT_VERSION;
+  }
+  const parts = String(latestVersion).split('.');
+  if (parts.length !== 3 || parts.some(part => !/^\d+$/.test(part))) {
+    return DEFAULT_SNAPSHOT_VERSION;
+  }
+  const [major, minor, patch] = parts.map(item => Number(item));
+  return `${major}.${minor}.${patch + 1}`;
+};
 
 // @Form.create()
 class AppInfo extends PureComponent {
@@ -177,26 +212,23 @@ class AppInfo extends PureComponent {
     const { getFieldDecorator } = form;
     if (app.service_env_map_list && app.service_env_map_list.length) {
       return (
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
-          <h4
-            style={{
-              marginBottom: 8
-            }}
-          >
-
-            {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}
-          </h4>
-          <Divider />
-          <Row>
+        <div className={styles.componentSection}>
+          <div className={styles.componentSectionHeader}>
+            <div>
+              <div className={styles.componentSectionTitle}>
+                {formatMessage({ id: 'appPublish.shop.pages.title.environment_variable' })}
+              </div>
+              <div className={styles.componentSectionDesc}>
+                发布时会保留这些环境变量，作为模板默认配置供后续安装复用。
+              </div>
+            </div>
+          </div>
+          <Row gutter={20}>
             {app.service_env_map_list.map(item => {
               const { attr_name, attr_value } = item;
               return (
-                <Col span={8}>
-                  <FormItem label={attr_name} style={{ padding: 16 }}>
+                <Col xs={24} md={12} xl={8} key={`${ID}_${attr_name}`}>
+                  <FormItem label={attr_name}>
                     {getFieldDecorator(`env||${attr_name}||${ID}`, {
                       initialValue: attr_value,
                       rules: [
@@ -223,21 +255,19 @@ class AppInfo extends PureComponent {
     if (app.extend_method_map) {
       const steps = getFieldValue(`${ID}||step_node`);
       return (
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
-          <h4
-            style={{
-              marginBottom: 8
-            }}
-          >
-            {formatMessage({ id: 'appPublish.shop.pages.title.flexible' })}
-          </h4>
-          <Divider />
-          <Row>
-            <Col span={8}>
+        <div className={styles.componentSection}>
+          <div className={styles.componentSectionHeader}>
+            <div>
+              <div className={styles.componentSectionTitle}>
+                {formatMessage({ id: 'appPublish.shop.pages.title.flexible' })}
+              </div>
+              <div className={styles.componentSectionDesc}>
+                伸缩规则会作为组件模板的一部分保留下来，建议在发布前完成检查。
+              </div>
+            </div>
+          </div>
+          <Row gutter={20}>
+            <Col xs={24} md={12} xl={8}>
               <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.min_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||min_node`, {
                   initialValue: app.extend_method_map.min_node,
@@ -257,7 +287,7 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={12} xl={8}>
               <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.max_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||max_node`, {
                   initialValue: app.extend_method_map.max_node,
@@ -277,7 +307,7 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={12} xl={8}>
               <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.step_node' })} style={pd16}>
                 {getFieldDecorator(`${ID}||step_node`, {
                   initialValue: app.extend_method_map.step_node,
@@ -297,7 +327,7 @@ class AppInfo extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={12} xl={8}>
               <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.init_memory' })} style={pd16}>
                 {getFieldDecorator(`${ID}||init_memory`, {
                   initialValue: app.extend_method_map.init_memory || 0,
@@ -316,12 +346,12 @@ class AppInfo extends PureComponent {
                     step={app.extend_method_map.step_memory}
                   />
                 )}
-                <div style={{ color: '#999999', fontSize: '12px' }}>
+                <div className={styles.formHint}>
                   {formatMessage({ id: 'appPublish.shop.pages.form.quota0.desc' })}
                 </div>
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={12} xl={8}>
               <FormItem label={formatMessage({ id: 'appPublish.shop.pages.form.label.container_cpu' })} style={pd16}>
                 {getFieldDecorator(`${ID}||container_cpu`, {
                   initialValue: app.extend_method_map.container_cpu || 0,
@@ -342,7 +372,7 @@ class AppInfo extends PureComponent {
                     placeholder={formatMessage({ id: 'placeholder.appShare.container_cpu' })}
                   />
                 )}
-                <div style={{ color: '#999999', fontSize: '12px' }}>
+                <div className={styles.formHint}>
                   {formatMessage({ id: 'appPublish.shop.pages.form.quota1000.desc' })}
                 </div>
               </FormItem>
@@ -421,11 +451,15 @@ export default class Main extends PureComponent {
       k8sContent: '',
       k8sName: "",
       recoders: [],
+      snapshotNextVersion: DEFAULT_SNAPSHOT_VERSION,
     };
     this.com = [];
     this.share_group_info = null;
   }
   componentDidMount() {
+    if (this.isSnapshotMode()) {
+      this.initSnapshotVersion();
+    }
     this.fetchAppDetail();
     this.fetchRecord();
     this.getShareInfo();
@@ -443,6 +477,60 @@ export default class Main extends PureComponent {
       shareId: this.props.match.params.shareId
     };
   }
+
+  isSnapshotMode = () => {
+    const query = (this.props.location && this.props.location.query) || {};
+    return query.mode === 'snapshot';
+  };
+
+  initSnapshotVersion = () => {
+    const query = (this.props.location && this.props.location.query) || {};
+    if (query.latest_snapshot_version) {
+      this.updateSnapshotNextVersion(buildNextSnapshotVersion(query.latest_snapshot_version));
+      return;
+    }
+    const { teamName, appID } = this.props.match.params;
+    getAppVersionOverview({
+      team_name: teamName,
+      group_id: appID
+    })
+      .then(res => {
+        const overview = (res && res.bean) || {};
+        this.updateSnapshotNextVersion(buildNextSnapshotVersion(overview.current_version));
+      })
+      .catch(() => {
+        this.updateSnapshotNextVersion(DEFAULT_SNAPSHOT_VERSION);
+      });
+  };
+
+  updateSnapshotNextVersion = nextVersion => {
+    const { form } = this.props;
+    const previousAutoVersion = this.state.snapshotNextVersion || DEFAULT_SNAPSHOT_VERSION;
+    this.setState(
+      { snapshotNextVersion: nextVersion || DEFAULT_SNAPSHOT_VERSION },
+      () => {
+        if (!this.state.info) {
+          return;
+        }
+        const currentVersion = form.getFieldValue('version');
+        if (!currentVersion || currentVersion === previousAutoVersion) {
+          form.setFieldsValue({
+            version: this.state.snapshotNextVersion
+          });
+        }
+      }
+    );
+  };
+
+  applySnapshotVersionIfNeeded = () => {
+    const { form } = this.props;
+    const currentVersion = form.getFieldValue('version');
+    if (!currentVersion) {
+      form.setFieldsValue({
+        version: this.state.snapshotNextVersion || DEFAULT_SNAPSHOT_VERSION
+      });
+    }
+  };
   getBase64 = file => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -474,6 +562,10 @@ export default class Main extends PureComponent {
             tabk: data.bean && data.bean.share_service_list && data.bean.share_service_list[0] && data.bean.share_service_list[0].service_share_uuid,
             share_service_list: data.bean.share_service_list,
             share_k8s_resources: data.bean.share_k8s_resources
+          }, () => {
+            if (this.isSnapshotMode()) {
+              this.applySnapshotVersionIfNeeded();
+            }
           });
           if (
             data.bean.share_service_list &&
@@ -656,11 +748,13 @@ export default class Main extends PureComponent {
   handleSubmitConditions = () => {
     const { record, versionInfo } = this.state;
     const { form } = this.props;
+    const isSnapshotMode = this.isSnapshotMode();
     form.validateFieldsAndScroll(
       { scroll: { offsetTop: 80 } },
       (err, values) => {
         if (!err) {
           if (
+            !isSnapshotMode &&
             record.scope !== 'goodrain' &&
             versionInfo &&
             values.version === versionInfo.version &&
@@ -685,6 +779,7 @@ export default class Main extends PureComponent {
   handleSubmit = () => {
     const { dispatch, form } = this.props;
     const { record, sharearrs, share_service_list, isAppPlugin, share_k8s_resources } = this.state;
+    const isSnapshotMode = this.isSnapshotMode();
     const newinfo = {};
     form.validateFields((err, values) => {
       if (!err) {
@@ -806,6 +901,51 @@ export default class Main extends PureComponent {
         newinfo.share_k8s_resources = share_k8s_resources
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
+        if (isSnapshotMode) {
+          createAppVersionSnapshot({
+            team_name: teamName,
+            group_id: appID,
+            version: values.version,
+            version_alias: values.version_alias,
+            app_version_info: values.describe,
+            share_service_list: arr,
+            share_plugin_list: this.state.plugin_list,
+            share_k8s_resources: share_k8s_resources
+          }).then(res => {
+            this.setState({ submitLoading: false });
+            const bean = (res && res.bean) || {};
+            if (bean.created === false) {
+              notification.warning({
+                message: (res && res.msg_show) || '当前没有新的变更，无需创建快照'
+              });
+              return;
+            }
+            const finish = () => {
+              dispatch(
+                routerRedux.replace(
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/version`
+                )
+              );
+            };
+            dispatch({
+              type: 'application/giveupShare',
+              payload: {
+                team_name: teamName,
+                share_id: shareId
+              },
+              callback: finish
+            });
+            notification.success({
+              message: (res && res.msg_show) || '创建快照成功'
+            });
+          }).catch(errs => {
+            this.setState({ submitLoading: false });
+            const data = errs && errs.data;
+            const msg = (data && data.msg_show) || '创建快照失败';
+            notification.warning({ message: msg });
+          });
+          return;
+        }
         dispatch({
           type: 'application/subShareInfo',
           payload: {
@@ -830,7 +970,7 @@ export default class Main extends PureComponent {
                       openInNewTab(data.app_market_url);
                     }
                     dispatch(
-                      routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/publish`)
+                      routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/version`)
                     );
                   },
                   handleError: err => {
@@ -864,6 +1004,7 @@ export default class Main extends PureComponent {
 
   handleGiveup = () => {
     const groupId = this.props.match.params.appID;
+    const isSnapshotMode = this.isSnapshotMode();
 
     const { dispatch } = this.props;
     dispatch({
@@ -875,7 +1016,9 @@ export default class Main extends PureComponent {
       callback: () => {
         dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/overview`
+            isSnapshotMode
+              ? `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/version`
+              : `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/overview`
           )
         );
       }
@@ -950,7 +1093,15 @@ export default class Main extends PureComponent {
 
   handleSetFieldsValue = (versionInfo, isCreate) => {
     const { setFieldsValue } = this.props.form;
+    const isSnapshotMode = this.isSnapshotMode();
     this.setState({ versionInfo });
+    if (isSnapshotMode) {
+      setFieldsValue({
+        version: this.state.snapshotNextVersion || DEFAULT_SNAPSHOT_VERSION,
+        describe: ''
+      });
+      return;
+    }
     setFieldsValue({
       version: isCreate ? '0.1' : ''
     });
@@ -1145,6 +1296,7 @@ export default class Main extends PureComponent {
       appModelInfo,
       batchEditShow,
       recoders,
+      snapshotNextVersion,
     } = this.state;
     const Application = getFieldValue('app_id');
     let breadcrumbList = [];
@@ -1159,8 +1311,8 @@ export default class Main extends PureComponent {
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
     breadcrumbList.push({
-      title: formatMessage({ id: 'appPublish.btn.record.list.title' }),
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
+      title: formatMessage({ id: 'appVersion.page.title' }),
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/version`
     });
     if (record && record.scope === 'goodrain') {
       breadcrumbList.push({ title: formatMessage({ id: 'appPublish.btn.market' }) });
@@ -1181,436 +1333,652 @@ export default class Main extends PureComponent {
       total: count,
       pageSize: perPageNum,
     };
-    const app_arch = appDetail.app_arch || []
+    const snapshotMode = this.isSnapshotMode();
+    const currentVersion = getFieldValue('version') || (snapshotMode ? snapshotNextVersion : ((versionInfo && versionInfo.version) || '-'));
+    const currentDescription = getFieldValue('describe') || '';
+    const isPlatformPluginEnabled = !!getFieldValue('is_platform_plugin');
+    const activeApp = apps.find(item => item.service_share_uuid === tabk) || apps[0] || null;
+    const publishTargetLabel = record && record.scope === 'goodrain'
+      ? formatMessage({ id: 'appPublish.btn.market' })
+      : formatMessage({ id: 'appPublish.btn.local' });
+    const platformPluginReady = !isPlatformPluginEnabled || (
+      !!getFieldValue('plugin_id') &&
+      !!getFieldValue('plugin_name') &&
+      !!getFieldValue('plugin_type') &&
+      !!getFieldValue('entry_path') &&
+      ((getFieldValue('inject_position') || []).length > 0)
+    );
+    const checklistItems = [
+      {
+        key: 'version',
+        label: snapshotMode ? '快照版本已填写' : '版本信息已填写',
+        desc: snapshotMode ? '版本号符合快照规范，可以直接固化当前状态。' : '版本号符合发布规范，可以进入后续发布流程。',
+        done: !!currentVersion && /^[0-9]+(\.[0-9]+){1,2}$/.test(currentVersion)
+      },
+      {
+        key: 'description',
+        label: '版本说明已补充',
+        desc: currentDescription ? '已经填写版本说明，后续查看版本时会更容易理解这次变更。' : '建议补充版本说明，方便后续排查和回溯。',
+        done: !!String(currentDescription).trim()
+      },
+      !snapshotMode ? {
+        key: 'template',
+        label: '应用模板已确认',
+        desc: Application ? `当前将基于 ${(model && model.app_name) || '选中模板'} 发布。` : '请选择应用模板，避免发布入口缺少模板上下文。',
+        done: !!Application
+      } : null,
+      {
+        key: 'components',
+        label: '组件清单已确认',
+        desc: apps.length > 0 ? `当前保留 ${apps.length} 个组件参与${snapshotMode ? '快照' : '发布'}。` : '至少需要保留一个组件。',
+        done: apps.length > 0
+      },
+      {
+        key: 'plugin',
+        label: isPlatformPluginEnabled ? '平台插件配置完整' : '平台插件未启用',
+        desc: isPlatformPluginEnabled ? '请确认插件 ID、注入位置与入口路径都已填写。' : '未启用平台插件时，可以跳过这组配置。',
+        done: platformPluginReady
+      },
+      {
+        key: 'resources',
+        label: '资源清单已生成',
+        desc: count > 0 ? `本次共包含 ${count} 个资源，可在提交前做最终核对。` : '当前没有识别到资源内容，建议确认分享记录是否完整。',
+        done: count > 0
+      }
+    ].filter(item => item);
+    const completedCount = checklistItems.filter(item => item.done).length;
+    const completionPercent = checklistItems.length > 0
+      ? Math.round((completedCount / checklistItems.length) * 100)
+      : 0;
+    const heroStats = [
+      {
+        label: '组件数量',
+        value: apps.length
+      },
+      {
+        label: '资源数量',
+        value: count
+      },
+      {
+        label: '插件数量',
+        value: plugins.length
+      },
+      {
+        label: snapshotMode ? '建议版本' : '当前版本',
+        value: currentVersion || '-'
+      }
+    ];
+    const activeComponentMeta = activeApp
+      ? `当前组件 ${activeApp.service_cname || activeApp.service_alias || '-'}，环境变量 ${(activeApp.service_env_map_list || []).length} 项，连接信息 ${(activeApp.service_connect_info_map_list || []).length} 项，${activeApp.extend_method_map ? '已配置伸缩规则' : '未配置伸缩规则'}`
+      : '';
     return (
       <PageHeaderLayout
-      title={'发布应用'}
-      content={'发布应用是指将当前运行的应用进行模型化，形成应用模版发布到当前平台的组件库或开源应用商店，供当前平台或开源应用商店的用户使用。'}
-      titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}
+        title={snapshotMode ? '创建快照' : '发布应用'}
+        content={snapshotMode ? '创建快照是指将当前应用的状态固化为一个版本，用于后续回滚或发布。' : '发布应用是指将当前运行的应用进行模型化，形成应用模版发布到当前平台的组件库或开源应用商店，供当前平台或开源应用商店的用户使用。'}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}
       >
-        <div>
-          <Card
-            style={{
-              marginBottom: 24
-            }}
-            title={formatMessage({ id: 'appPublish.btn.record.list.title.versions' })}
-            bodyStyle={{
-              padding: 0
-            }}
-          >
-            <div
-              style={{
-                padding: '24px'
-              }}
-            >
-              <Row gutter={24}>
-                <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.title.appMode' })}>
-                    {getFieldDecorator('app_id', {
-                      initialValue: recoders.length > 1 ? model.app_id : '',
-                      rules: [
-                        {
-                          required: true,
-                          message: formatMessage({ id: 'placeholder.appShare.appTemplate' })
-                        }
-                      ]
-                    })(
-                      <Select
-                        getPopupContainer={triggerNode =>
-                          triggerNode.parentNode
-                        }
-                        style={{ width: '60%' }}
-                        showSearch
-                        filterOption={(input, option) =>
-                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                        onChange={this.changeCurrentModel}
-                        placeholder={formatMessage({ id: 'placeholder.appShare.selectAppTemplate' })}
-                      >
-                        {models.map(item => (
-                          <Option key={item.app_id}>{item.app_name}</Option>
-                        ))}
-                      </Select>
-                    )}
-                    {Application && recoders.length > 1 && (
-                      <Button
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => {
-                          this.showEditorAppModel(Application);
-                        }}
-                      >
-                        {formatMessage({ id: 'appPublish.btn.record.list.label.deitAppTemplate' })}
-                      </Button>
-                    )}
-                    <Button
-                      style={{
-                        textAlign: 'center',
-                        marginLeft: 10
-                      }}
-                      onClick={this.showCreateAppModel}
-                    >
-                      {formatMessage({ id: 'appPublish.btn.record.list.label.newAppTemplate' })}
-                    </Button>
-                  </Form.Item>
-                </Col>
-                <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version' })}>
-                    {getFieldDecorator('version', {
-                      initialValue: '',
-                      rules: [
-                        {
-                          required: true,
-                          validator: this.checkVersion
-                        }
-                      ]
-                    })(
-                      <AutoComplete
-                        style={{ width: '100%' }}
-                        onChange={this.changeCurrentVersion}
-                        placeholder={formatMessage({ id: 'placeholder.appShare.version' })}
-                      >
-                        {versions &&
-                          versions.length > 0 &&
-                          versions.map((item, index) => {
-                            const { version } = item;
-                            return (
-                              <AutoComplete.Option
-                                key={`version${index}`}
-                                value={version}
-                              >
-                                {version}
-                              </AutoComplete.Option>
-                            );
-                          })}
-                      </AutoComplete>
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col span="12">
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version_alias' })}>
-                    {getFieldDecorator('version_alias', {
-                      initialValue:
-                        (versionInfo && versionInfo.version_alias) || '',
-                      rules: [
-                        {
-                          max: 64,
-                          message: formatMessage({ id: 'placeholder.appShare.max64' })
-                        }
-                      ]
-                    })(
-                      <Input
-                        style={{ width: '60%' }}
-                        placeholder={formatMessage({ id: 'placeholder.appShare.version_alias' })}
-                      />
-                    )}
-                  </Form.Item>
-
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.is_plugin' })}>
-                    {getFieldDecorator('is_plugin', {
-                      initialValue: (versionInfo && (versionInfo.is_plugin)) || false
-                    })(
-                      plugins.length > 0 ? (
-                        <Checkbox>
-                        </Checkbox>
-                      ) : (
-                        <Checkbox disabled>
-                        </Checkbox>
-                      )
-
-                    )}
-                  </Form.Item>
-
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}>
-                    {getFieldDecorator('is_platform_plugin', {
-                      valuePropName: 'checked',
-                      initialValue: (versionInfo && versionInfo.is_platform_plugin) || false
-                    })(
-                      <Checkbox onChange={(e) => { this.setState({ isPlatformPlugin: e.target.checked }); }}>
-                      </Checkbox>
-                    )}
-                  </Form.Item>
-
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
-                    {getFieldDecorator('arch', {
-                      initialValue: null
-                    })(
-                      <>
-                        {app_arch.length > 0 &&
-                          app_arch.map((item) => {
-                            return <Tag>{item}</Tag>
-                          })}
-                      </>
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col span="12" style={{ height: '104px' }}>
-                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.describe' })}>
-                    {getFieldDecorator('describe', {
-                      initialValue:
-                        (versionInfo &&
-                          (versionInfo.describe || versionInfo.app_describe)) ||
-                        '',
-                      rules: [
-                        {
-                          max: 255,
-                          message: formatMessage({ id: 'placeholder.max255' })
-                        }
-                      ]
-                    })(
-                      <TextArea
-                        placeholder={formatMessage({ id: 'placeholder.appShare.describe' })}
-                        style={{ height: '70px' }}
-                      />
-                    )}
-                  </Form.Item>
-                </Col>
-              </Row>
-              {getFieldValue('is_platform_plugin') && (
-                <div>
-                  <Divider>{formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}</Divider>
-                  <Row gutter={24}>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' })}>
-                        {getFieldDecorator('plugin_id', {
-                          initialValue: (versionInfo && versionInfo.plugin_id) || '',
-                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' }) }]
-                        })(<Input placeholder="rainbond-xxx" />)}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' })}>
-                        {getFieldDecorator('plugin_name', {
-                          initialValue: (versionInfo && versionInfo.plugin_name) || '',
-                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' }) }]
-                        })(<Input />)}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' })}>
-                        {getFieldDecorator('plugin_type', {
-                          initialValue: (versionInfo && versionInfo.plugin_type) || 'Iframe',
-                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' }) }]
-                        })(
-                          <Select style={{ width: '100%' }}>
-                            <Option value="JSInject">JSInject</Option>
-                            <Option value="Iframe">Iframe</Option>
-                          </Select>
-                        )}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
-                        {getFieldDecorator('frontend_component', {
-                          initialValue: (versionInfo && versionInfo.frontend_component) || ''
-                        })(
-                          <Select style={{ width: '100%' }} allowClear placeholder={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
-                            {apps.map(item => (
-                              <Option key={item.service_cname} value={item.service_cname}>{item.service_cname}</Option>
-                            ))}
-                          </Select>
-                        )}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' })}>
-                        {getFieldDecorator('entry_path', {
-                          initialValue: (versionInfo && versionInfo.entry_path) || '/static/main.js',
-                          rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' }) }]
-                        })(<Input placeholder="/static/main.js" />)}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.inject_position' })}>
-                        {getFieldDecorator('inject_position', {
-                          initialValue: (versionInfo && versionInfo.inject_position) || []
-                        })(
-                          <Select style={{ width: '100%' }} mode="multiple" placeholder="请选择注入位置">
-                            <Option value="Platform">平台</Option>
-                            <Option value="Team">团队</Option>
-                            <Option value="Application">应用</Option>
-                            <Option value="Component">组件</Option>
-                          </Select>
-                        )}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.menu_title' })}>
-                        {getFieldDecorator('menu_title', {
-                          initialValue: (versionInfo && versionInfo.menu_title) || ''
-                        })(<Input />)}
-                      </Form.Item>
-                    </Col>
-                    <Col span="24">
-                      <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} label={formatMessage({ id: 'appPublish.btn.record.list.label.route_path' })}>
-                        {getFieldDecorator('route_path', {
-                          initialValue: (versionInfo && versionInfo.route_path) || ''
-                        })(<Input addonBefore="/plugins/" placeholder="my-plugin" />)}
-                      </Form.Item>
-                    </Col>
-                  </Row>
+        <div className={styles.publishPage}>
+          <div className={styles.publishHero}>
+            <div className={styles.publishHeroContent}>
+              <div className={styles.publishHeroTags}>
+                <Tag color="blue">{snapshotMode ? '快照模式' : '发布模式'}</Tag>
+                <Tag>{publishTargetLabel}</Tag>
+                {plugins.length > 0 && <Tag color="cyan">{`关联插件 ${plugins.length}`}</Tag>}
+                <Tag color={completionPercent === 100 ? 'green' : 'orange'}>{`准备度 ${completionPercent}%`}</Tag>
+              </div>
+              <h2 className={styles.publishHeroTitle}>
+                {snapshotMode ? '先定义快照版本，再固化当前运行状态' : '先确定版本模板，再完成发布清单整理'}
+              </h2>
+              <p className={styles.publishHeroDesc}>
+                {snapshotMode
+                  ? '当前页面会把版本信息、组件配置和资源清单一起固化为快照，方便后续回滚和再次发布。'
+                  : '当前页面会整理模板、版本、组件与插件信息，确保进入后续发布流程时结构清晰、信息完整。'}
+              </p>
+              <div className={styles.publishHeroMeta}>
+                <div className={styles.publishHeroMetaItem}>
+                  <span>应用</span>
+                  <strong>{appDetail.group_name || '-'}</strong>
                 </div>
-              )}
-            </div>
-          </Card>
-          {apps && apps.length > 0 &&
-            <Card
-              style={{
-                marginBottom: 24
-              }}
-              title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_component_config' })}
-              bodyStyle={{
-                padding: 0
-              }}
-            >
-              <div
-                style={{
-                  padding: '24px'
-                }}
-              >
-                <div className={mytabcss.mytab}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '16px',
-                      lineHeight: '32px'
-                    }}
-                  >
-                    <h4
-                      className={mytabcss.required}
-                      style={{
-                        marginBottom: 0
-                      }}
-                    >
-                      {formatMessage({ id: 'appPublish.btn.record.list.title.edit_publish_componentMsg' })}
-                    </h4>
-                    <Button
-                      style={{ float: 'right' }}
-                      onClick={() => {
-                        this.setState({ batchEditShow: true });
-                      }}
-                    >
-                      {formatMessage({ id: 'appPublish.btn.record.list.title.bulk_edit' })}
-                    </Button>
-                  </div>
-                  <div className={mytabcss.mytabtit} id="mytabtit">
-                    <Tabs
-                      type="editable-card"
-                      hideAdd
-                      activeKey={tabk}
-                      onChange={this.tabClick}
-                      onEdit={(targetKey, action) => {
-                        if (action === 'remove') {
-                          this.removeComponent(targetKey);
-                        }
-                      }}
-                    >
-                      {apps && apps.map(apptit => {
-                        const id = apptit.service_share_uuid
-                        return (
-                          <TabPane
-                            key={id}
-                            tab={
-                              <span className={mytabcss.cont}>
-                                <a
-                                  tab={apptit.service_cname}
-                                  onClick={() => {
-                                    this.tabClick(id);
-                                  }}
-                                >
-                                  {apptit.service_cname}
-                                </a>
-                              </span>
-                            }
-                          >
-                            <AppInfo
-                              key={id}
-                              form={form}
-                              app={apptit}
-                              getref={this.save}
-                              tab={apptit.service_alias}
-                              ID={apptit.service_id}
-                            />
-                          </TabPane>
-                        );
-                      })}
-                    </Tabs>
-                  </div>
+                <div className={styles.publishHeroMetaItem}>
+                  <span>{snapshotMode ? '快照版本' : '当前版本'}</span>
+                  <strong>{currentVersion || '-'}</strong>
+                </div>
+                <div className={styles.publishHeroMetaItem}>
+                  <span>当前焦点组件</span>
+                  <strong>{(activeApp && (activeApp.service_cname || activeApp.service_alias)) || '-'}</strong>
                 </div>
               </div>
-            </Card>
-          }
-          {plugins && plugins.length > 0 &&
-            <Card
-              style={{
-                marginBottom: 24
-              }}
-              title={formatMessage({ id: 'appPublish.btn.record.list.title.publish_pluginMsg' })}
-            >
-              <Table
-                size="middle"
-                rowKey={(record, index) => index}
-                dataSource={plugins}
-                columns={[
-                  {
-                    title: formatMessage({ id: 'appPublish.btn.record.list.table.plugin_alias' }),
-                    dataIndex: 'plugin_alias'
-                  },
-                  {
-                    title: formatMessage({ id: 'appPublish.btn.record.list.table.category' }),
-                    dataIndex: 'category',
-                    render: v => {
-                      return pluginUtil.getCategoryCN(v);
-                    }
-                  },
-                  {
-                    title: formatMessage({ id: 'appPublish.btn.record.list.table.build_version' }),
-                    dataIndex: 'build_version'
-                  }
-                ]}
-              />
-            </Card>
-          }
-          <Card
-            style={{
-              marginBottom: 128
-            }}
-            title={formatMessage({ id: 'appPublish.btn.record.list.title.k8s' })}
-          >
-            <Table
-              size="middle"
-              rowKey={(record, index) => index}
-              dataSource={curPageData}
-              columns={[
-                {
-                  title: formatMessage({ id: 'appPublish.btn.record.list.table.name' }),
-                  dataIndex: 'name',
-                  key: 'name',
-                  align: 'left',
-                },
-                {
-                  title: formatMessage({ id: 'appPublish.btn.record.list.table.kind' }),
-                  dataIndex: 'kind',
-                  key: 'kind',
-                  align: 'left',
-                },
-                {
-                  title: formatMessage({ id: 'appPublish.btn.record.list.table.content' }),
-                  dataIndex: 'content',
-                  key: "content",
-                  align: 'center',
-                  render: (text, record) => {
-                    return <>
-                      <Button onClick={() => this.showDrawer(text, record)}>
-                        {formatMessage({ id: 'appPublish.btn.record.list.table.view_details' })}
+              <div className={styles.heroInlineProgress}>
+                <div className={styles.heroProgressHead}>
+                  <div>
+                    <div className={styles.heroProgressTitle}>提交前准备度</div>
+                    <div className={styles.heroProgressMeta}>{`${completedCount}/${checklistItems.length} 项已完成`}</div>
+                  </div>
+                  <div className={styles.heroProgressValue}>{`${completionPercent}%`}</div>
+                </div>
+                <Progress percent={completionPercent} showInfo={false} strokeWidth={8} />
+              </div>
+            </div>
+            <div className={styles.publishHeroStats}>
+              {heroStats.map(item => (
+                <div className={styles.heroStatCard} key={item.label}>
+                  <div className={styles.heroStatLabel}>{item.label}</div>
+                  <div className={styles.heroStatValue}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className={styles.publishLayout}>
+            <div className={styles.publishMain}>
+              <div className={styles.inlineChecklist}>
+                {checklistItems.map(item => (
+                  <div className={`${styles.inlineChecklistItem} ${item.done ? styles.inlineChecklistItemDone : styles.inlineChecklistItemTodo}`} key={item.key}>
+                    <Icon type={item.done ? 'check-circle' : 'clock-circle'} />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+              <Card
+                className={styles.publishCard}
+                title={(
+                  <div className={styles.cardHead}>
+                    <div className={styles.cardHeadText}>
+                      <div className={styles.cardTitle}>
+                        {snapshotMode ? '快照版本设置' : formatMessage({ id: 'appPublish.btn.record.list.title.versions' })}
+                      </div>
+                      <div className={styles.cardDesc}>
+                        {snapshotMode
+                          ? '先确认快照版本和版本说明，再把当前应用状态固化为一个可追溯的版本。'
+                          : '把模板、版本号、别名和插件属性放在同一个卡片里，减少首屏来回滚动。'}
+                      </div>
+                    </div>
+                    {!snapshotMode && recoders.length > 0 && (
+                      <div className={styles.cardHeadAside}>
+                        <Tag color={completionPercent === 100 ? 'green' : 'blue'}>{`${completedCount}/${checklistItems.length} 已完成`}</Tag>
+                        <Tag color="blue">{`历史版本 ${recoders.length}`}</Tag>
+                      </div>
+                    )}
+                    {snapshotMode && (
+                      <div className={styles.cardHeadAside}>
+                        <Tag color={completionPercent === 100 ? 'green' : 'blue'}>{`${completedCount}/${checklistItems.length} 已完成`}</Tag>
+                      </div>
+                    )}
+                  </div>
+                )}
+                bodyStyle={{ padding: 0 }}
+              >
+                <div className={styles.publishCardBody}>
+                  <div className={styles.versionGrid}>
+                    <div className={styles.versionMain}>
+                      {!snapshotMode && (
+                        <div className={styles.templatePanel}>
+                          <Form.Item {...compactFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.title.appMode' })}>
+                            {getFieldDecorator('app_id', {
+                              initialValue: recoders.length > 1 ? model.app_id : '',
+                              rules: [
+                                {
+                                  required: true,
+                                  message: formatMessage({ id: 'placeholder.appShare.appTemplate' })
+                                }
+                              ]
+                            })(
+                              <Select
+                                getPopupContainer={triggerNode =>
+                                  triggerNode.parentNode
+                                }
+                                showSearch
+                                filterOption={(input, option) =>
+                                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                                onChange={this.changeCurrentModel}
+                                placeholder={formatMessage({ id: 'placeholder.appShare.selectAppTemplate' })}
+                              >
+                                {models.map(item => (
+                                  <Option key={item.app_id}>{item.app_name}</Option>
+                                ))}
+                              </Select>
+                            )}
+                          </Form.Item>
+                          <div className={styles.templateActions}>
+                            {Application && recoders.length > 1 && (
+                              <Button
+                                onClick={() => {
+                                  this.showEditorAppModel(Application);
+                                }}
+                              >
+                                {formatMessage({ id: 'appPublish.btn.record.list.label.deitAppTemplate' })}
+                              </Button>
+                            )}
+                            <Button onClick={this.showCreateAppModel}>
+                              {formatMessage({ id: 'appPublish.btn.record.list.label.newAppTemplate' })}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      <Form.Item {...compactFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version' })}>
+                        {getFieldDecorator('version', {
+                          initialValue: snapshotMode ? snapshotNextVersion : '',
+                          rules: [
+                            {
+                              required: true,
+                              validator: this.checkVersion
+                            }
+                          ]
+                        })(
+                          snapshotMode ? (
+                            <Input
+                              style={{ width: '100%' }}
+                              placeholder={formatMessage({ id: 'placeholder.appShare.version' })}
+                            />
+                          ) : (
+                            <AutoComplete
+                              style={{ width: '100%' }}
+                              onChange={this.changeCurrentVersion}
+                              placeholder={formatMessage({ id: 'placeholder.appShare.version' })}
+                            >
+                              {versions &&
+                                versions.length > 0 &&
+                                versions.map((item, index) => {
+                                  const { version } = item;
+                                  return (
+                                    <AutoComplete.Option
+                                      key={`version${index}`}
+                                      value={version}
+                                    >
+                                      {version}
+                                    </AutoComplete.Option>
+                                  );
+                                })}
+                            </AutoComplete>
+                          )
+                        )}
+                      </Form.Item>
+                      <Form.Item
+                        {...compactFormItemLayout}
+                        className={styles.fullTextareaItem}
+                        label={formatMessage({ id: 'appPublish.btn.record.list.label.describe' })}
+                      >
+                        {getFieldDecorator('describe', {
+                          initialValue:
+                            (!snapshotMode &&
+                              versionInfo &&
+                              (versionInfo.describe || versionInfo.app_describe)) ||
+                            '',
+                          rules: [
+                            {
+                              max: 255,
+                              message: formatMessage({ id: 'placeholder.max255' })
+                            }
+                          ]
+                        })(
+                          <TextArea
+                            placeholder={formatMessage({ id: 'placeholder.appShare.describe' })}
+                            style={{ minHeight: '88px' }}
+                          />
+                        )}
+                      </Form.Item>
+                    </div>
+                    <div className={styles.versionMeta}>
+                      {!snapshotMode && (
+                        <Fragment>
+                          <div className={styles.metaTitle}>发布元信息</div>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.version_alias' })}>
+                            {getFieldDecorator('version_alias', {
+                              initialValue:
+                                (versionInfo && versionInfo.version_alias) || '',
+                              rules: [
+                                {
+                                  max: 64,
+                                  message: formatMessage({ id: 'placeholder.appShare.max64' })
+                                }
+                              ]
+                            })(
+                              <Input placeholder={formatMessage({ id: 'placeholder.appShare.version_alias' })} />
+                            )}
+                          </Form.Item>
+                          <div className={styles.checkboxPanel}>
+                            <div className={styles.checkboxRow}>
+                              <span>{formatMessage({ id: 'appPublish.btn.record.list.label.is_plugin' })}</span>
+                              {getFieldDecorator('is_plugin', {
+                                initialValue: (versionInfo && versionInfo.is_plugin) || false
+                              })(
+                                plugins.length > 0 ? (
+                                  <Checkbox />
+                                ) : (
+                                  <Checkbox disabled />
+                                )
+                              )}
+                            </div>
+                            <div className={styles.checkboxRow}>
+                              <span>{formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}</span>
+                              {getFieldDecorator('is_platform_plugin', {
+                                valuePropName: 'checked',
+                                initialValue: (versionInfo && versionInfo.is_platform_plugin) || false
+                              })(
+                                <Checkbox onChange={(e) => { this.setState({ isPlatformPlugin: e.target.checked }); }} />
+                              )}
+                            </div>
+                          </div>
+                        </Fragment>
+                      )}
+                      <div className={styles.metaTitle}>{snapshotMode ? '快照摘要' : '架构与兼容性'}</div>
+                      <div className={styles.metaSummaryList}>
+                        <div className={styles.metaSummaryItem}>
+                          <span className={styles.metaLabel}>应用名称</span>
+                          <span className={styles.metaValue}>{appDetail.group_name || '-'}</span>
+                        </div>
+                        <div className={styles.metaSummaryItem}>
+                          <span className={styles.metaLabel}>{snapshotMode ? '建议版本' : '发布范围'}</span>
+                          <span className={styles.metaValue}>{snapshotMode ? (snapshotNextVersion || '-') : publishTargetLabel}</span>
+                        </div>
+                        <div className={styles.metaSummaryItem}>
+                          <span className={styles.metaLabel}>组件 / 资源</span>
+                          <span className={styles.metaValue}>{`${apps.length} / ${count}`}</span>
+                        </div>
+                      </div>
+                      <div className={styles.archBlock}>
+                        <div className={styles.metaLabel}>{formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}</div>
+                        <div className={styles.archTags}>
+                          {appDetail.app_arch && appDetail.app_arch.length > 0 ? (
+                            appDetail.app_arch.map(item => (
+                              <Tag key={item}>{item}</Tag>
+                            ))
+                          ) : (
+                            <span className={styles.emptyText}>暂未识别</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {getFieldValue('is_platform_plugin') && (
+                    <div className={styles.pluginPanel}>
+                      <div className={styles.pluginPanelHeader}>
+                        <div>
+                          <div className={styles.componentSectionTitle}>
+                            {formatMessage({ id: 'appPublish.btn.record.list.label.is_platform_plugin' })}
+                          </div>
+                          <div className={styles.componentSectionDesc}>
+                            平台插件需要补全注入位置和入口配置，确保发布后能被宿主正常加载。
+                          </div>
+                        </div>
+                      </div>
+                      <Row gutter={20}>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' })}>
+                            {getFieldDecorator('plugin_id', {
+                              initialValue: (versionInfo && versionInfo.plugin_id) || '',
+                              rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_id' }) }]
+                            })(<Input placeholder="rainbond-xxx" />)}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' })}>
+                            {getFieldDecorator('plugin_name', {
+                              initialValue: (versionInfo && versionInfo.plugin_name) || '',
+                              rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_name' }) }]
+                            })(<Input />)}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' })}>
+                            {getFieldDecorator('plugin_type', {
+                              initialValue: (versionInfo && versionInfo.plugin_type) || 'Iframe',
+                              rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.plugin_type' }) }]
+                            })(
+                              <Select style={{ width: '100%' }}>
+                                <Option value="JSInject">JSInject</Option>
+                                <Option value="Iframe">Iframe</Option>
+                              </Select>
+                            )}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
+                            {getFieldDecorator('frontend_component', {
+                              initialValue: (versionInfo && versionInfo.frontend_component) || ''
+                            })(
+                              <Select style={{ width: '100%' }} allowClear placeholder={formatMessage({ id: 'appPublish.btn.record.list.label.frontend_component' })}>
+                                {apps.map(item => (
+                                  <Option key={item.service_cname} value={item.service_cname}>{item.service_cname}</Option>
+                                ))}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' })}>
+                            {getFieldDecorator('entry_path', {
+                              initialValue: (versionInfo && versionInfo.entry_path) || '/static/main.js',
+                              rules: [{ required: true, message: formatMessage({ id: 'appPublish.btn.record.list.label.entry_path' }) }]
+                            })(<Input placeholder="/static/main.js" />)}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.inject_position' })}>
+                            {getFieldDecorator('inject_position', {
+                              initialValue: (versionInfo && versionInfo.inject_position) || []
+                            })(
+                              <Select style={{ width: '100%' }} mode="multiple" placeholder="请选择注入位置">
+                                <Option value="Platform">平台</Option>
+                                <Option value="Team">团队</Option>
+                                <Option value="Application">应用</Option>
+                                <Option value="Component">组件</Option>
+                              </Select>
+                            )}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.menu_title' })}>
+                            {getFieldDecorator('menu_title', {
+                              initialValue: (versionInfo && versionInfo.menu_title) || ''
+                            })(<Input />)}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} xl={12}>
+                          <Form.Item {...verticalFormItemLayout} label={formatMessage({ id: 'appPublish.btn.record.list.label.route_path' })}>
+                            {getFieldDecorator('route_path', {
+                              initialValue: (versionInfo && versionInfo.route_path) || ''
+                            })(<Input addonBefore="/plugins/" placeholder="my-plugin" />)}
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
+                </div>
+              </Card>
+              {apps && apps.length > 0 &&
+                <Card
+                  className={styles.publishCard}
+                  title={(
+                    <div className={styles.cardHead}>
+                      <div className={styles.cardHeadText}>
+                        <div className={styles.cardTitle}>
+                          {formatMessage({ id: 'appPublish.btn.record.list.title.publish_component_config' })}
+                        </div>
+                        <div className={styles.cardDesc}>
+                          {snapshotMode
+                            ? '选中的组件配置会随快照一起保存，后续回滚时会按这里的参数恢复。'
+                            : '在这里精简组件、校对环境变量和伸缩参数，避免发布模板过于冗长。'}
+                        </div>
+                      </div>
+                      <div className={styles.cardHeadAside}>
+                        <Tag color="blue">{`${apps.length} 个组件`}</Tag>
+                      </div>
+                    </div>
+                  )}
+                  bodyStyle={{ padding: 0 }}
+                >
+                  <div className={styles.publishCardBody}>
+                    <div className={styles.componentToolbar}>
+                      <div>
+                        <h4 className={`${mytabcss.required} ${styles.componentToolbarTitle}`}>
+                          {formatMessage({ id: 'appPublish.btn.record.list.title.edit_publish_componentMsg' })}
+                        </h4>
+                        <div className={styles.componentToolbarDesc}>
+                          标签页按组件拆分，适合逐个核对环境变量、连接信息和伸缩规则。
+                        </div>
+                        {activeComponentMeta && (
+                          <div className={styles.componentToolbarMeta}>
+                            {activeComponentMeta}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        onClick={() => {
+                          this.setState({ batchEditShow: true });
+                        }}
+                      >
+                        {formatMessage({ id: 'appPublish.btn.record.list.title.bulk_edit' })}
                       </Button>
-                    </>
-                  }
-                },
-              ]}
-              pagination={pagination}
-            />
-          </Card>
+                    </div>
+                    <div className={styles.tabsShell}>
+                      <div className={mytabcss.mytabtit} id="mytabtit">
+                        <Tabs
+                          type="editable-card"
+                          hideAdd
+                          activeKey={tabk}
+                          onChange={this.tabClick}
+                          onEdit={(targetKey, action) => {
+                            if (action === 'remove') {
+                              this.removeComponent(targetKey);
+                            }
+                          }}
+                        >
+                          {apps && apps.map(apptit => {
+                            const id = apptit.service_share_uuid
+                            return (
+                              <TabPane
+                                key={id}
+                                tab={
+                                  <span className={mytabcss.cont}>
+                                    <a
+                                      tab={apptit.service_cname}
+                                      onClick={() => {
+                                        this.tabClick(id);
+                                      }}
+                                    >
+                                      {apptit.service_cname}
+                                    </a>
+                                  </span>
+                                }
+                              >
+                                <AppInfo
+                                  key={id}
+                                  form={form}
+                                  app={apptit}
+                                  getref={this.save}
+                                  tab={apptit.service_alias}
+                                  ID={apptit.service_id}
+                                />
+                              </TabPane>
+                            );
+                          })}
+                        </Tabs>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              }
+              {plugins && plugins.length > 0 &&
+                <Card
+                  className={styles.publishCard}
+                  title={(
+                    <div className={styles.cardHead}>
+                      <div className={styles.cardHeadText}>
+                        <div className={styles.cardTitle}>
+                          {formatMessage({ id: 'appPublish.btn.record.list.title.publish_pluginMsg' })}
+                        </div>
+                        <div className={styles.cardDesc}>
+                          当前选中组件关联到的插件会在这里统一展示，便于发布前快速核对。
+                        </div>
+                      </div>
+                      <div className={styles.cardHeadAside}>
+                        <Tag color="cyan">{`${plugins.length} 个插件`}</Tag>
+                      </div>
+                    </div>
+                  )}
+                >
+                  <Table
+                    size="middle"
+                    rowKey={(record, index) => index}
+                    dataSource={plugins}
+                    columns={[
+                      {
+                        title: formatMessage({ id: 'appPublish.btn.record.list.table.plugin_alias' }),
+                        dataIndex: 'plugin_alias'
+                      },
+                      {
+                        title: formatMessage({ id: 'appPublish.btn.record.list.table.category' }),
+                        dataIndex: 'category',
+                        render: v => {
+                          return pluginUtil.getCategoryCN(v);
+                        }
+                      },
+                      {
+                        title: formatMessage({ id: 'appPublish.btn.record.list.table.build_version' }),
+                        dataIndex: 'build_version'
+                      }
+                    ]}
+                  />
+                </Card>
+              }
+              <Card
+                className={styles.publishCard}
+                style={{
+                  marginBottom: 128
+                }}
+                title={(
+                  <div className={styles.cardHead}>
+                    <div className={styles.cardHeadText}>
+                      <div className={styles.cardTitle}>
+                        {formatMessage({ id: 'appPublish.btn.record.list.title.k8s' })}
+                      </div>
+                      <div className={styles.cardDesc}>
+                        这里会列出将随模板或快照一起保留的资源，方便你在提交前做最终检查。
+                      </div>
+                    </div>
+                    <div className={styles.cardHeadAside}>
+                      <Tag>{`${count} 个资源`}</Tag>
+                    </div>
+                  </div>
+                )}
+              >
+                <Table
+                  size="middle"
+                  rowKey={(record, index) => index}
+                  dataSource={curPageData}
+                  columns={[
+                    {
+                      title: formatMessage({ id: 'appPublish.btn.record.list.table.name' }),
+                      dataIndex: 'name',
+                      key: 'name',
+                      align: 'left',
+                    },
+                    {
+                      title: formatMessage({ id: 'appPublish.btn.record.list.table.kind' }),
+                      dataIndex: 'kind',
+                      key: 'kind',
+                      align: 'left',
+                    },
+                    {
+                      title: formatMessage({ id: 'appPublish.btn.record.list.table.content' }),
+                      dataIndex: 'content',
+                      key: "content",
+                      align: 'center',
+                      render: (text, item) => {
+                        return (
+                          <Button onClick={() => this.showDrawer(text, item)}>
+                            {formatMessage({ id: 'appPublish.btn.record.list.table.view_details' })}
+                          </Button>
+                        );
+                      }
+                    },
+                  ]}
+                  pagination={pagination}
+                />
+              </Card>
+            </div>
+          </div>
           <Drawer
             title={formatMessage({ id: 'appPublish.btn.record.list.title.detailMsg' })}
             placement="right"
@@ -1709,7 +2077,9 @@ export default class Main extends PureComponent {
               disabled={loading.effects['application/giveupShare']}
               onClick={this.handleGiveup}
             >
-              {formatMessage({ id: 'button.give_up_release' })}
+              {formatMessage({
+                id: snapshotMode ? 'button.cancel_snapshot' : 'button.give_up_release'
+              })}
             </Button>
           </FooterToolbar>
         </div>

@@ -145,6 +145,7 @@
         'button.close':'关闭',
         'button.open':'开通',
         'button.submit':'提交',
+        'button.cancel_snapshot':'取消快照',
         'button.give_up_release':'放弃发布',
         'button.affirm_publish':'确认发布',
         'button.retry':'重试',

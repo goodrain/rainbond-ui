@@ -252,6 +252,8 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .personalStats {
@@ -460,6 +462,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .historyTitle {
@@ -516,17 +519,24 @@
   box-shadow: 0 12px 28px rgba(236, 102, 60, 0.08);
 }
 
-.timelineCurrent {
+.timelineRuntime {
   border-color: #f2d088;
   background: linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
   box-shadow: 0 12px 28px rgba(212, 151, 35, 0.08);
 }
 
-.timelineHistory {
+.timelineCurrent {
   border-color: #b9e6ca;
   background: linear-gradient(180deg, #f4fcf7 0%, #ffffff 100%);
+  box-shadow: 0 12px 28px rgba(39, 174, 96, 0.1);
 }
 
+.timelineHistory {
+  border-color: #d9e4f2;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.timelineDotRuntime,
 .timelineDotUpgrade,
 .timelineDotCurrent,
 .timelineDotHistory {
@@ -537,19 +547,24 @@
   border-radius: 50%;
 }
 
+.timelineDotRuntime {
+  background: #d5a02d;
+  box-shadow: 0 0 0 4px rgba(213, 160, 45, 0.18);
+}
+
 .timelineDotUpgrade {
   background: #ee6b3b;
   box-shadow: 0 0 0 4px rgba(238, 107, 59, 0.18);
 }
 
 .timelineDotCurrent {
-  background: #d5a02d;
-  box-shadow: 0 0 0 4px rgba(213, 160, 45, 0.18);
+  background: #27ae60;
+  box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.16);
 }
 
 .timelineDotHistory {
-  background: #27ae60;
-  box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.16);
+  background: #91a3bf;
+  box-shadow: 0 0 0 4px rgba(145, 163, 191, 0.18);
 }
 
 .timelineHeader {
@@ -576,14 +591,27 @@
   color: #dd5d2d;
 }
 
-.timelineTypeTagCurrent {
+.timelineTypeTagRuntime {
   background: #fff6df;
   color: #9b6b0f;
 }
 
-.timelineTypeTagHistory {
+.timelineTypeTagCurrent {
   background: #edf8f1;
   color: #1b8b4c;
+}
+
+.timelineTypeTagHistory {
+  background: #eef3f8;
+  color: #59708f;
+}
+
+.timelineTitleRow {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 6px;
 }
 
 .timelineTitle {
@@ -591,16 +619,22 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 8px 0 6px;
   color: @heading-color;
   font-size: 22px;
   font-weight: 700;
 }
 
-.timelineSubTitle {
-  margin-bottom: 10px;
+.timelineTitlePrefix {
+  color: @heading-color;
+}
+
+.timelineVersionDesc {
+  flex: 1;
+  min-width: 240px;
+  padding-top: 4px;
   color: @text-color-secondary;
   font-size: 14px;
+  line-height: 1.7;
 }
 
 .timelineMeta {
@@ -613,7 +647,35 @@
   padding: 12px 14px;
   border-radius: 12px;
   background: #f7f9fc;
-  color: @text-color;
+}
+
+.timelineComponentLabel {
+  margin-bottom: 10px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.timelineComponentList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timelineComponentChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 1px solid #e3ebf5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: @heading-color;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.timelineComponentEmpty {
+  color: @text-color-secondary;
   font-size: 13px;
   line-height: 1.8;
 }
@@ -623,6 +685,9 @@
   align-items: flex-start;
   gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 320px;
 }
 
 .timelineTags {
@@ -874,6 +939,247 @@
   line-height: 1.8;
 }
 
+.detailCompareHint {
+  margin-bottom: 16px;
+  color: @text-color-secondary;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.detailSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.detailSummaryItem {
+  padding: 12px 14px;
+  border: 1px solid #e8eef6;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.detailSummaryLabel {
+  display: block;
+  margin-bottom: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.detailSummaryValue {
+  color: @heading-color;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.detailSection {
+  margin-top: 18px;
+}
+
+.detailSectionTitle {
+  margin-bottom: 10px;
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.detailComponentTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detailComponentTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 1px solid #dfe7f2;
+  border-radius: 999px;
+  background: #ffffff;
+  color: @heading-color;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.detailUpdatedComponentList {
+  background: transparent;
+}
+
+.detailUpdatedComponentList :global(.ant-collapse-item) + :global(.ant-collapse-item) {
+  margin-top: 14px;
+}
+
+.detailUpdatedComponentList :global(.ant-collapse-item) {
+  border: none;
+}
+
+.detailUpdatedComponentList :global(.ant-collapse-header) {
+  padding: 0 !important;
+}
+
+.detailUpdatedComponentList :global(.ant-collapse-content-box) {
+  padding: 0 !important;
+}
+
+.detailUpdatedComponentList :global(.ant-collapse-content) {
+  border-top: 1px solid #eef2f7;
+  margin-top: 12px;
+  padding-top: 16px;
+}
+
+.detailUpdatedComponent {
+  padding: 16px;
+  border: 1px solid #e8eef6;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.detailUpdatedComponentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detailUpdatedComponentTitle {
+  color: @heading-color;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.detailUpdatedComponentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.detailUpdatedComponentBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f3f7fd;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.detailFieldList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailFieldBlock {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f7f9fc;
+}
+
+.detailFieldTitle {
+  margin-bottom: 10px;
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.detailChangeGroup + .detailChangeGroup {
+  margin-top: 10px;
+}
+
+.detailChangeHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.detailChangeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailChangeAdded {
+  background: #edf8f1;
+  color: #1b8b4c;
+}
+
+.detailChangeRemoved {
+  background: #fff1ee;
+  color: #d84b37;
+}
+
+.detailChangeUpdated {
+  background: #fff7e6;
+  color: #b7791f;
+}
+
+.detailEntryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailEntry {
+  padding: 10px 12px;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.detailEntryIdentity {
+  margin-bottom: 6px;
+  color: @heading-color;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailEntrySingle,
+.detailEntryDiff {
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.detailEntryCode {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.detailEntryDetails {
+  margin: 0;
+}
+
+.detailEntryDetailsSummary {
+  cursor: pointer;
+  outline: none;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.detailEmptyText {
+  color: @text-color-secondary;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
 @media (max-width: 1280px) {
   .overviewHeader,
   .upgradeBannerInner,
@@ -900,9 +1206,28 @@
 
   .timelineActions,
   .tableActions,
-  .switcherActions {
+  .switcherActions,
+  .personalActions {
     width: 100%;
     flex-wrap: wrap;
     justify-content: flex-start;
+  }
+
+  .timelineTitleRow {
+    flex-direction: column;
+  }
+
+  .timelineVersionDesc {
+    min-width: 0;
+    padding-top: 0;
+  }
+
+  .detailSummaryGrid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .detailUpdatedComponentHeader {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

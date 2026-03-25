@@ -1,40 +1,609 @@
 @import "~antd/lib/style/themes/default.less";
 
-.publishContainer {
-
+.publishPage {
+  padding-bottom: 24px;
 }
 
-.publishHeader {
+.publishHero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid #dce7fb;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 52%, #ffffff 100%);
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.publishHeroContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.publishHeroTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.publishHeroTitle {
+  margin: 0 0 10px;
+  color: @heading-color;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.publishHeroDesc {
+  max-width: 860px;
+  margin: 0;
+  color: @text-color-secondary;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.publishHeroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.publishHeroMetaItem {
+  min-width: 150px;
+  padding: 10px 12px;
+  border: 1px solid rgba(21, 90, 239, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.publishHeroMetaItem span {
+  display: block;
+  margin-bottom: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.publishHeroMetaItem strong {
+  color: @heading-color;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.heroInlineProgress {
+  max-width: 520px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(21, 90, 239, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.heroProgressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.heroProgressTitle {
+  color: @heading-color;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.heroProgressMeta {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.heroProgressValue {
+  color: @primary-color;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.publishHeroStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 12px;
+  min-width: 280px;
+}
+
+.heroStatCard {
+  padding: 12px 14px;
+  border: 1px solid #e3ebfb;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.heroStatLabel {
+  margin-bottom: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.heroStatValue {
+  color: @heading-color;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.publishLayout {
+  display: block;
+}
+
+.publishMain {
+  min-width: 0;
+}
+
+.publishCard,
+.sideCard {
+  overflow: hidden;
+  border: 1px solid #e7edf6;
+  border-radius: 18px;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.publishCardBody {
+  padding: 24px;
+}
+
+.inlineChecklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.inlineChecklistItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.inlineChecklistItemDone {
+  color: #0f8f53;
+  background: #f3fcf7;
+  border: 1px solid #d8f1e2;
+}
+
+.inlineChecklistItemTodo {
+  color: #bc7a1a;
+  background: #fff9ef;
+  border: 1px solid #f4e5c3;
+}
+
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cardHeadText {
+  min-width: 0;
+}
+
+.cardHeadAside {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cardTitle {
+  color: @heading-color;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cardDesc {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.versionGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.versionMain {
+  min-width: 0;
+}
+
+.templatePanel {
+  margin-bottom: 12px;
+}
+
+.templateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-left: 25%;
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+.fullTextareaItem {
+  margin-bottom: 0;
+}
+
+.versionMeta {
+  padding: 18px;
+  border: 1px solid #e7edf6;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.metaTitle {
+  margin-bottom: 12px;
+  color: @heading-color;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.checkboxPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.checkboxRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 24px 0;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #edf2f8;
+  border-radius: 12px;
+  background: #ffffff;
+  color: @heading-color;
+  font-size: 13px;
 }
 
-.sectionHeader {
+.metaSummaryList {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  span {
-    display: flex;
-    align-items: center;
-    margin-right: 8px;
+.metaSummaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid #edf2f8;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.metaLabel {
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.metaValue {
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.archBlock {
+  margin-top: 18px;
+}
+
+.archTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.emptyText {
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.pluginPanel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed #e3ebf6;
+}
+
+.pluginPanelHeader {
+  margin-bottom: 16px;
+}
+
+.componentToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.componentToolbarTitle {
+  margin-bottom: 4px;
+  color: @heading-color;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.componentToolbarDesc {
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.componentToolbarMeta {
+  margin-top: 4px;
+  color: @rbd-label-color;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.tabsShell {
+  padding: 16px 18px 0;
+  border: 1px solid #edf2f8;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.tabsShell :global {
+  .ant-tabs-bar {
+    margin-bottom: 18px;
   }
 
-  h2 {
-    font-size: @rbd-sub-title-size;
-    color: @text-color;
-    line-height: @rbd-sub-title-line-height;
-    font-weight: 600;
-    margin: 0;
-    font-family: PingFangSC-Medium;
+  .ant-tabs-tabpane {
+    padding-bottom: 8px;
   }
 }
 
-.version {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  white-space: nowrap;
-  width: 200px;
+.componentSection {
+  margin-bottom: 20px;
+  padding: 18px 20px 4px;
+  border: 1px solid #edf2f8;
+  border-radius: 16px;
+  background: #fcfdff;
+}
+
+.componentSectionHeader {
+  margin-bottom: 14px;
+}
+
+.componentSectionTitle {
+  color: @heading-color;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.componentSectionDesc {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.formHint {
+  margin-top: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.sideTitle {
+  color: @heading-color;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sideDesc {
+  margin-top: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid #edf2f8;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.summaryLabel {
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.summaryValue {
+  color: @heading-color;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.checklistHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.checklistPercent {
+  color: @primary-color;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.checklistMeta {
+  margin-top: 10px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.checklistList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #edf2f8;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.checklistItemDone {
+  background: #f6fffb;
+  border-color: #d7f2e1;
+}
+
+.checklistItemTodo {
+  background: #fffaf3;
+  border-color: #f5e7c8;
+}
+
+.checklistIcon {
+  margin-top: 2px;
+  font-size: 16px;
+}
+
+.checklistItemDone .checklistIcon {
+  color: @success-color;
+}
+
+.checklistItemTodo .checklistIcon {
+  color: @warning-color;
+}
+
+.checklistBody {
+  min-width: 0;
+}
+
+.checklistLabel {
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.checklistDesc {
+  margin-top: 2px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.sideTips {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.sideTips li + li {
+  margin-top: 8px;
+}
+
+.sideDivider {
+  height: 1px;
+  margin: 18px 0 16px;
+  background: #edf2f8;
+}
+
+@media (max-width: 1439px) {
+}
+
+@media (max-width: 1199px) {
+  .publishHero {
+    flex-direction: column;
+  }
+
+  .publishHeroStats {
+    min-width: 0;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .versionGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .publishHero {
+    padding: 18px;
+  }
+
+  .publishCardBody {
+    padding: 16px;
+  }
+
+  .publishHeroStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .publishHeroMeta {
+    flex-direction: column;
+  }
+
+  .componentToolbar,
+  .cardHead,
+  .heroProgressHead {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .templateActions {
+    padding-left: 0;
+  }
+
+  .inlineChecklist {
+    flex-direction: column;
+  }
+
+  .metaSummaryItem {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

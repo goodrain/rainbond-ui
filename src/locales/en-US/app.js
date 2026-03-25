@@ -115,6 +115,7 @@ const appOverview = {
 const appPublish = {
   'appPublish.title': 'Publish Management',
   'appPublish.desc': 'Application publishing means to model the currently running applications, form application templates and release them to the enterprise application market or cloud application store, so as to support standardized application delivery or sharing',
+  'appPublish.btn.publish': 'Publish',
   'appPublish.btn.local': 'Deploy Locally',
   'appPublish.btn.market': 'Deploy to Cloud',
   'appPublish.table.publishName':'App Template Name',
@@ -621,6 +622,7 @@ const appVersionMock = {
   'appVersion.action.synced': 'Already Synced',
   'appVersion.action.detail': 'Details',
   'appVersion.action.publish': 'Publish',
+  'appVersion.action.exporting': 'Exporting',
   'appVersion.action.rollback': 'Rollback',
   'appVersion.action.disabled': 'Create another snapshot after components change again',
   'appVersion.notification.created': 'Snapshot created',
@@ -646,6 +648,8 @@ const appVersionMock = {
   'appVersion.modal.create.desc': 'Save the current app state as a snapshot that can be rolled back or published.',
   'appVersion.modal.create.placeholder': 'Add a short note, for example: update GitLab settings before release.',
   'appVersion.modal.rollback.title': 'Rollback to Snapshot',
-  'appVersion.modal.rollback.desc': 'Switch the current app to snapshot {version} as the new running baseline.'
+  'appVersion.modal.rollback.desc': 'Switch the current app to snapshot {version} as the new running baseline.',
+  'appVersion.export.confirm.title': 'Export Snapshot',
+  'appVersion.export.confirm.desc': 'Export this snapshot as a rainbond-app package?'
 }
 export default Object.assign({}, appOverview, appPublish, appBackups, appConfiguration, appUpgrade, appConfiguration, addKubenetesResource, appDynamic, componentCheck, appGateway, otherAppAssembly, topology, JavaMaven, helmAppInstall, appVersionMock);

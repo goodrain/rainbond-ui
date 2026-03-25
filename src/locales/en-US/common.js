@@ -147,6 +147,7 @@
         'button.close':'Close',
         'button.open':'Open',
         'button.submit':'Submit',
+        'button.cancel_snapshot':'Cancel snapshot',
         'button.give_up_release':'Give up',
         'button.affirm_publish':'Confirm',
         'button.retry':'Retry',
