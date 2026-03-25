@@ -16,6 +16,7 @@ import utils from './en-US/utils'
 import login from './en-US/login'
 import versionUpdata from './en-US/versionUpdata'
 import explore from './en-US/explore'
+import resource from './en-US/resource'
 
 export default {
   'navBar.lang': 'lang',
@@ -40,5 +41,6 @@ export default {
   ...utils,
   ...login,
   ...versionUpdata,
-  ...explore
+  ...explore,
+  ...resource
 };

@@ -1,13 +1,24 @@
+@import '~antd/lib/style/themes/default.less';
+
 .page {
-  min-height: 100vh;
-  padding: 24px;
-  background: @rbd-background-color;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.pageHeaderLayout {
+  background: @component-background;
+  box-shadow: none;
+
+  &:hover {
+    box-shadow: none;
+  }
 }
 
 .pageHeader {
   margin-bottom: 16px;
   padding: 22px 24px;
-  background: #fff;
+  background: @component-background;
   border: 1px solid fade(@primary-color, 10%);
   border-radius: 16px;
   box-shadow: @rbd-min-card-shadow;
@@ -89,8 +100,8 @@
   align-self: stretch;
   width: 272px;
   flex-shrink: 0;
-  padding: 18px 16px;
-  background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+  padding: 16px;
+  background: linear-gradient(180deg, fade(@primary-color, 4%) 0%, @component-background 100%);
   border: 1px solid fade(@primary-color, 8%);
   border-radius: 16px;
   box-shadow: @rbd-min-card-shadow;
@@ -120,7 +131,7 @@
 
 .sidebarButton {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   width: 100%;
   padding: 12px 14px;
@@ -155,30 +166,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   border-radius: 12px;
   background: fade(@primary-color, 10%);
   color: @primary-color;
-  font-size: 16px;
+  font-size: @rbd-title-big-size;
 }
 
 .sidebarButtonActive .sidebarButtonIcon {
   background: @primary-color;
-  color: #fff;
+  color: @component-background;
 }
 
 .sidebarButtonBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   flex: 1;
   min-width: 0;
-}
-
-.sidebarButtonTitleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  min-height: 44px;
 }
 
 .sidebarButtonTitle {
@@ -190,23 +198,10 @@
 
 .sidebarButtonDescription {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
-}
-
-.sidebarButtonCount {
-  min-width: 28px;
-  height: 24px;
-  padding: 0 8px;
-  border: 1px solid fade(@primary-color, 12%);
-  border-radius: 999px;
-  background: #fff;
-  color: @primary-color;
-  font-size: @rbd-auxiliary-size;
-  line-height: 22px;
-  text-align: center;
 }
 
 .mainPanel {
@@ -218,10 +213,9 @@
 
 .sectionHero {
   min-width: 0;
-  padding: 24px 24px 20px;
+  padding: 16px;
   background:
-    linear-gradient(180deg, fade(@primary-color, 5%) 0%, rgba(255, 255, 255, 0.98) 100%);
-  border-bottom: 1px solid #eef1f6;
+    linear-gradient(180deg, fade(@primary-color, 5%) 0%, fade(@component-background, 98%) 100%);
 }
 
 .sectionHeroTop {
@@ -249,7 +243,7 @@
   border-radius: 16px;
   background: fade(@primary-color, 10%);
   color: @primary-color;
-  font-size: 22px;
+  font-size: @rbd-title-big-size;
 }
 
 .sectionHeroCopy {
@@ -269,17 +263,17 @@
 .sectionHeroTitle {
   margin: 0;
   color: @rbd-title-color;
-  font-size: @rbd-title-size;
-  line-height: @rbd-title-line-height;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
   font-weight: 600;
 }
 
 .sectionHeroDescription {
   max-width: none;
-  margin: 6px 0 0;
   color: @text-color-secondary;
   font-size: @rbd-content-size;
   line-height: @rbd-content-line-height;
+  margin-bottom: 0;
 }
 
 .sectionTips {
@@ -310,15 +304,14 @@
 .metricCard {
   display: flex;
   flex-direction: column;
-  height: 136px;
-  padding: 14px 16px;
-  border: 1px solid #eef1f6;
+  padding: 12px;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 14px;
-  background: #fff;
+  background: @component-background;
 }
 
 .metricCardDefault {
-  background: #fff;
+  background: @component-background;
 }
 
 .metricCardRunning {
@@ -343,62 +336,21 @@
 }
 
 .metricValue {
-  margin-top: 8px;
   color: @heading-color;
-  font-size: 26px;
-  line-height: 34px;
+  font-size: @rbd-title-size;
+  line-height: @rbd-title-line-height;
   font-weight: 600;
 }
 
 .metricHelper {
   margin-top: auto;
-  min-height: 40px;
   overflow: hidden;
   color: @rbd-label-color;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
-
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-.summaryBar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.summaryItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: @rbd-background-color;
-  color: @heading-color;
-  font-size: @rbd-auxiliary-size;
-  line-height: @rbd-auxiliary-line-height;
-}
-
-.summaryItemRunning {
-  background: fade(@rbd-success-status, 10%);
-  color: darken(@rbd-success-status, 18%);
-}
-
-.summaryItemWarning {
-  background: fade(@rbd-warning-status, 12%);
-  color: darken(@rbd-warning-status, 18%);
-}
-
-.summaryItemError {
-  background: fade(@rbd-error-status, 10%);
-  color: darken(@rbd-error-status, 12%);
-}
-
-.summaryItemLabel {
-  opacity: 0.85;
 }
 
 .contentCardAnchor {
@@ -420,7 +372,7 @@
   border: 1px solid fade(@primary-color, 8%);
   border-radius: 16px;
   box-shadow: @rbd-card-shadow;
-  background: #fff;
+  background: @component-background;
 
   :global {
     .ant-card-body {
@@ -435,9 +387,8 @@
 
 .contentHeader {
   min-width: 0;
-  padding: 18px 24px 16px;
-  border-bottom: 1px solid #eef1f6;
-  background: #fff;
+  padding:16px;
+  background: @component-background;
 }
 
 .contentTitle {
@@ -460,8 +411,8 @@
   flex: 1;
   flex-direction: column;
   min-width: 0;
-  padding: 20px 24px 24px;
-  background: #fff;
+  padding: 0 16px 16px;
+  background: @component-background;
 }
 
 .toolbar {
@@ -517,15 +468,15 @@
     }
 
     .ant-table {
-      border: 1px solid #eef1f6;
+      border: 1px solid fade(@heading-color, 10%);
       border-radius: 14px;
     }
 
     .ant-table-thead > tr > th {
       padding: 14px 16px;
-      background: #f8fafc;
+      background: @rbd-background-color;
       color: @heading-color;
-      border-bottom: 1px solid #eef1f6;
+      border-bottom: 1px solid fade(@heading-color, 10%);
       font-weight: 600;
     }
 
@@ -573,7 +524,7 @@
   border-radius: 20px;
   background: fade(@primary-color, 10%);
   color: @primary-color;
-  font-size: 28px;
+  font-size: @rbd-display-size;
 }
 
 .emptyStateTitle {
@@ -627,7 +578,7 @@
   border-radius: 10px;
   background: fade(@primary-color, 9%);
   color: @primary-color;
-  font-size: 16px;
+  font-size: @rbd-sub-title-size;
 }
 
 .yamlModalHeaderCopy {
@@ -651,9 +602,9 @@
 
 .yamlUploadTrigger {
   border-radius: 999px;
-  border-color: #d8dee8;
+  border-color: @border-color-base;
   color: @heading-color;
-  background: #fff;
+  background: @component-background;
 
   &:hover,
   &:focus {
@@ -671,12 +622,12 @@
 
     .ant-modal-header {
       padding: 18px 24px 16px;
-      border-bottom: 1px solid #eef1f6;
+      border-bottom: 1px solid fade(@heading-color, 10%);
     }
 
     .ant-modal-footer {
       padding: 16px 24px 20px;
-      border-top: 1px solid #eef1f6;
+      border-top: 1px solid fade(@heading-color, 10%);
     }
   }
 }
@@ -706,7 +657,7 @@
   background: fade(@primary-color, 6%);
   color: @primary-color;
   font-size: @rbd-auxiliary-size;
-  line-height: 24px;
+  line-height: @rbd-auxiliary-line-height;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -730,10 +681,10 @@
   height: 24px;
   padding: 0 8px;
   border-radius: 999px;
-  background: #f5f7fa;
+  background: @rbd-background-color;
   color: @rbd-label-color;
-  font-size: 11px;
-  line-height: 24px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   white-space: nowrap;
 }
 
@@ -742,19 +693,441 @@
     textarea.ant-input {
       min-height: 460px;
       padding: 16px 18px;
-      border: 1px solid #d8dee8;
+      border: 1px solid @border-color-base;
       border-radius: 14px;
-      background: #fcfdff;
-      line-height: 1.65;
-      box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.03);
+      background: fade(@component-background, 96%);
+      color: @text-color;
+      font-size: @rbd-content-size;
+      line-height: @rbd-content-line-height;
+      box-shadow: inset 0 1px 2px fade(@heading-color, 6%);
 
       &:focus {
         border-color: fade(@primary-color, 45%);
         box-shadow: 0 0 0 3px fade(@primary-color, 10%);
-        background: #fff;
+        background: @component-background;
       }
     }
   }
+}
+
+.statusDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.statusDotPoint {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusDotRunning {
+  color: @rbd-success-status;
+}
+
+.statusDotRunning .statusDotPoint {
+  background: @rbd-success-status;
+}
+
+.statusDotWarning {
+  color: @rbd-warning-status;
+}
+
+.statusDotWarning .statusDotPoint {
+  background: @rbd-warning-status;
+}
+
+.statusDotError {
+  color: @rbd-error-status;
+}
+
+.statusDotError .statusDotPoint {
+  background: @rbd-error-status;
+}
+
+.statusDotDefault {
+  color: @rbd-label-color;
+}
+
+.statusDotDefault .statusDotPoint {
+  background: @rbd-label-color;
+}
+
+.resourceLink {
+  color: @primary-color;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.resourceLinkSecondary {
+  color: @text-color-secondary;
+}
+
+.resourceLinkDanger {
+  color: @error-color;
+}
+
+.resourceLinkMuted {
+  color: @rbd-label-color;
+}
+
+.tableAuxText {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.monoCode {
+  color: @text-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+.inlineCodePill {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: @rbd-background-color;
+  color: @text-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+.smallTag {
+  font-size: @rbd-auxiliary-size;
+}
+
+.tagPrimary {
+  color: @primary-color;
+  background: fade(@primary-color, 8%);
+  border-color: fade(@primary-color, 18%);
+}
+
+.tagWarning {
+  color: @warning-color;
+  background: fade(@warning-color, 10%);
+  border-color: fade(@warning-color, 18%);
+}
+
+.tagInfo {
+  color: @text-color-secondary;
+  background: @rbd-background-color;
+  border-color: fade(@heading-color, 10%);
+}
+
+.tagSuccess {
+  color: @success-color;
+  background: fade(@success-color, 10%);
+  border-color: fade(@success-color, 18%);
+}
+
+.chartVersionText {
+  margin-left: 4px;
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.metricValueRunning {
+  color: @rbd-success-status;
+}
+
+.metricValueWarning {
+  color: @rbd-warning-status;
+}
+
+.metricValueDefault {
+  color: @text-color;
+}
+
+.modalBanner {
+  padding: 14px 16px;
+  border: 1px solid fade(@primary-color, 16%);
+  border-radius: 8px;
+  background: fade(@primary-color, 4%);
+}
+
+.modalBannerTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 600;
+}
+
+.modalBannerMeta {
+  margin-top: 4px;
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalBannerText {
+  margin-top: 10px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalSoftText {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalMutedText {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalEmptyText {
+  color: @rbd-label-color;
+}
+
+.modalLoadingBlock {
+  padding: 60px 0;
+  text-align: center;
+}
+
+.modalSidebarTitle {
+  padding: 8px 12px 4px;
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  font-weight: 500;
+}
+
+.modalRepoSidebar {
+  border-right: 1px solid fade(@heading-color, 10%);
+}
+
+.modalRepoItem {
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  color: @text-color;
+  border-right: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.modalRepoItemActive {
+  color: @primary-color;
+  background: fade(@primary-color, 7%);
+  border-right-color: @primary-color;
+  font-weight: 500;
+}
+
+.modalRepoItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modalSelectedPill {
+  padding: 6px 10px;
+  border: 1px solid fade(@heading-color, 10%);
+  border-radius: 999px;
+  background: fade(@primary-color, 3%);
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalSelectedName {
+  color: @text-color;
+  font-weight: 500;
+}
+
+.modalSelectedStateError {
+  color: @error-color;
+}
+
+.modalSelectedStateLoading {
+  color: @primary-color;
+}
+
+.modalSelectedStateReady {
+  color: @success-color;
+}
+
+.modalSelectedStateDefault {
+  color: @rbd-label-color;
+}
+
+.modalCard {
+  border: 1px solid fade(@heading-color, 10%);
+  border-radius: 6px;
+}
+
+.modalCardActive {
+  border-color: @primary-color;
+  box-shadow: 0 0 0 3px fade(@primary-color, 8%);
+}
+
+.modalCardIcon {
+  margin-right: 7px;
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+}
+
+.modalCardTitle {
+  color: @primary-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 600;
+}
+
+.modalCardDesc {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalTagPrimary {
+  margin: 0;
+  font-size: @rbd-auxiliary-size;
+}
+
+.modalStepHint {
+  margin-top: 10px;
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalSectionNotice {
+  padding: 10px 14px;
+  border: 1px solid fade(@primary-color, 16%);
+  border-radius: 6px;
+  background: fade(@primary-color, 4%);
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalSectionTitle {
+  color: @heading-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.modalSectionLabel {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 500;
+}
+
+.modalWarningNotice {
+  padding: 10px 12px;
+  border: 1px solid fade(@warning-color, 24%);
+  border-radius: 6px;
+  background: fade(@warning-color, 10%);
+  color: darken(@warning-color, 18%);
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalDashedNotice {
+  padding: 10px 14px;
+  border: 1px dashed fade(@primary-color, 20%);
+  border-radius: 6px;
+  background: fade(@primary-color, 2%);
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalDarkEditor {
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  background: darken(@heading-color, 18%);
+  color: fade(@component-background, 90%);
+  border: 1px solid fade(@component-background, 18%);
+}
+
+.modalReadme {
+  padding: 12px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  white-space: pre-wrap;
+}
+
+.modalAuthButton {
+  min-width: 96px;
+  border-color: fade(@heading-color, 18%);
+  background: @component-background;
+  color: @text-color;
+  box-shadow: none;
+}
+
+.modalAuthButtonActive {
+  border-color: @primary-color;
+  background: @primary-color;
+  color: @component-background;
+}
+
+.modalUploadBox {
+  border: 1px solid fade(@heading-color, 10%);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.modalUploadFile {
+  color: @text-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalUploadIcon {
+  margin-right: 6px;
+  color: @rbd-label-color;
+}
+
+.modalInfoGrid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  row-gap: 14px;
+  column-gap: 16px;
+}
+
+.modalInfoLabel {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.modalInfoValue {
+  color: @text-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.modalCurrentVersion {
+  color: fade(@heading-color, 45%);
+}
+
+.riskConfirmText {
+  color: @text-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.riskConfirmSpacer {
+  margin-top: 12px;
+}
+
+.riskConfirmDanger {
+  color: @error-color;
 }
 
 .toolbar :global(.ant-select-selection),

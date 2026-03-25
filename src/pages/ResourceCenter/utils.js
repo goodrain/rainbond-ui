@@ -1,48 +1,121 @@
-const WORKLOAD_KIND_OPTIONS = [
-  { label: '无状态组件', value: 'deployments', group: 'apps', kind: 'Deployment' },
-  { label: '有状态组件', value: 'statefulsets', group: 'apps', kind: 'StatefulSet' },
-  { label: '守护进程组件', value: 'daemonsets', group: 'apps', kind: 'DaemonSet' },
-  { label: '定时任务', value: 'cronjobs', group: 'batch', kind: 'CronJob' },
-];
+import { formatMessage } from '@/utils/intl';
 
-const STATUS_META = {
-  running: { color: '#00D777', text: '运行中', tone: 'running' },
-  active: { color: '#00D777', text: '运行中', tone: 'running' },
-  ready: { color: '#00D777', text: '已就绪', tone: 'running' },
-  available: { color: '#00D777', text: '可用', tone: 'running' },
-  bound: { color: '#155aef', text: '已绑定', tone: 'running' },
-  deployed: { color: '#00D777', text: '已部署', tone: 'running' },
-  succeeded: { color: '#00D777', text: '已完成', tone: 'running' },
-  completed: { color: '#00D777', text: '已完成', tone: 'running' },
-  pending: { color: '#F69D4A', text: '等待中', tone: 'warning' },
-  warning: { color: '#F69D4A', text: '警告', tone: 'warning' },
-  starting: { color: '#F69D4A', text: '启动中', tone: 'warning' },
-  creating: { color: '#F69D4A', text: '创建中', tone: 'warning' },
-  containercreating: { color: '#F69D4A', text: '创建中', tone: 'warning' },
-  podinitializing: { color: '#F69D4A', text: '初始化中', tone: 'warning' },
-  terminating: { color: '#F69D4A', text: '终止中', tone: 'warning' },
-  uninstalling: { color: '#F69D4A', text: '卸载中', tone: 'warning' },
-  superseded: { color: '#8d9bad', text: '已替换', tone: 'default' },
-  failed: { color: '#CD0200', text: '异常', tone: 'error' },
-  error: { color: '#CD0200', text: '异常', tone: 'error' },
-  abnormal: { color: '#CD0200', text: '异常', tone: 'error' },
-  crashloopbackoff: { color: '#CD0200', text: '异常', tone: 'error' },
-  imagepullbackoff: { color: '#CD0200', text: '镜像拉取失败', tone: 'error' },
-  errimagepull: { color: '#CD0200', text: '镜像拉取失败', tone: 'error' },
-  unknown: { color: '#8d9bad', text: '未知', tone: 'default' },
-  terminated: { color: '#8d9bad', text: '已终止', tone: 'default' },
+const moment = require('moment');
+const theme = require('../../../config/theme');
+
+const getWorkloadKindOptions = () => ([
+  { label: formatMessage({ id: 'resourceCenter.workloadKind.deployment' }), value: 'deployments', group: 'apps', kind: 'Deployment' },
+  { label: formatMessage({ id: 'resourceCenter.workloadKind.statefulset' }), value: 'statefulsets', group: 'apps', kind: 'StatefulSet' },
+  { label: formatMessage({ id: 'resourceCenter.workloadKind.daemonset' }), value: 'daemonsets', group: 'apps', kind: 'DaemonSet' },
+  { label: formatMessage({ id: 'resourceCenter.workloadKind.cronjob' }), value: 'cronjobs', group: 'batch', kind: 'CronJob' },
+]);
+
+const STATUS_MESSAGE_MAP = {
+  running: 'resourceCenter.status.running',
+  active: 'resourceCenter.status.running',
+  ready: 'resourceCenter.status.ready',
+  available: 'resourceCenter.status.available',
+  bound: 'resourceCenter.status.bound',
+  deployed: 'resourceCenter.status.deployed',
+  succeeded: 'resourceCenter.status.completed',
+  completed: 'resourceCenter.status.completed',
+  pending: 'resourceCenter.status.pending',
+  warning: 'resourceCenter.status.warning',
+  starting: 'resourceCenter.status.starting',
+  creating: 'resourceCenter.status.creating',
+  containercreating: 'resourceCenter.status.creating',
+  podinitializing: 'resourceCenter.status.initializing',
+  terminating: 'resourceCenter.status.terminating',
+  uninstalling: 'resourceCenter.status.uninstalling',
+  superseded: 'resourceCenter.status.superseded',
+  failed: 'resourceCenter.status.failed',
+  error: 'resourceCenter.status.failed',
+  abnormal: 'resourceCenter.status.failed',
+  crashloopbackoff: 'resourceCenter.status.failed',
+  imagepullbackoff: 'resourceCenter.status.imagePullFailed',
+  errimagepull: 'resourceCenter.status.imagePullFailed',
+  unknown: 'resourceCenter.status.unknown',
+  terminated: 'resourceCenter.status.terminated',
+};
+
+const STATUS_TONE_MAP = {
+  running: 'running',
+  active: 'running',
+  ready: 'running',
+  available: 'running',
+  bound: 'running',
+  deployed: 'running',
+  succeeded: 'running',
+  completed: 'running',
+  pending: 'warning',
+  warning: 'warning',
+  starting: 'warning',
+  creating: 'warning',
+  containercreating: 'warning',
+  podinitializing: 'warning',
+  terminating: 'warning',
+  uninstalling: 'warning',
+  superseded: 'default',
+  failed: 'error',
+  error: 'error',
+  abnormal: 'error',
+  crashloopbackoff: 'error',
+  imagepullbackoff: 'error',
+  errimagepull: 'error',
+  unknown: 'default',
+  terminated: 'default',
+};
+
+const STATUS_COLOR_MAP = {
+  running: theme['rbd-success-status'],
+  active: theme['rbd-success-status'],
+  ready: theme['rbd-success-status'],
+  available: theme['rbd-success-status'],
+  bound: theme['primary-color'],
+  deployed: theme['rbd-success-status'],
+  succeeded: theme['rbd-success-status'],
+  completed: theme['rbd-success-status'],
+  pending: theme['rbd-warning-status'],
+  warning: theme['rbd-warning-status'],
+  starting: theme['rbd-warning-status'],
+  creating: theme['rbd-warning-status'],
+  containercreating: theme['rbd-warning-status'],
+  podinitializing: theme['rbd-warning-status'],
+  terminating: theme['rbd-warning-status'],
+  uninstalling: theme['rbd-warning-status'],
+  superseded: theme['rbd-label-color'],
+  failed: theme['rbd-error-status'],
+  error: theme['rbd-error-status'],
+  abnormal: theme['rbd-error-status'],
+  crashloopbackoff: theme['rbd-error-status'],
+  imagepullbackoff: theme['rbd-error-status'],
+  errimagepull: theme['rbd-error-status'],
+  unknown: theme['rbd-label-color'],
+  terminated: theme['rbd-label-color'],
 };
 
 function normalizeValue(value) {
   return (value || '').toString().trim().toLowerCase();
 }
 
+export function formatToBeijingTime(value, fallback = '-') {
+  if (!value) {
+    return fallback;
+  }
+  const parsed = moment(value);
+  if (!parsed.isValid()) {
+    return value || fallback;
+  }
+  return parsed.utcOffset(8 * 60).format('YYYY-MM-DD HH:mm:ss');
+}
+
 export function getResourceStatusMeta(status) {
   const normalized = normalizeValue(status);
-  return STATUS_META[normalized] || {
-    color: '#8d9bad',
-    text: status || '-',
-    tone: 'default',
+  const messageId = STATUS_MESSAGE_MAP[normalized];
+  return {
+    color: STATUS_COLOR_MAP[normalized] || theme['rbd-label-color'],
+    text: messageId ? formatMessage({ id: messageId }) : (status || '-'),
+    tone: STATUS_TONE_MAP[normalized] || 'default',
   };
 }
 
@@ -56,10 +129,10 @@ export function getResourceStatusTone(status) {
 
 export function getWorkloadKindLabel(value) {
   const normalized = normalizeValue(value);
-  const matched = WORKLOAD_KIND_OPTIONS.find(item => (
+  const matched = getWorkloadKindOptions().find(item => (
     normalizeValue(item.value) === normalized || normalizeValue(item.kind) === normalized
   ));
   return matched ? matched.label : value || '-';
 }
 
-export { WORKLOAD_KIND_OPTIONS };
+export { getWorkloadKindOptions };

@@ -72,7 +72,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
       const firstCluster = clusterList[0];
       resourceItems.push({
         name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '平台资源' }),
-        icon: getMenuSvg.getSvg('resource'),
+        icon: getMenuSvg.getSvg('StorageMgtL'),
         path: `/enterprise/${eid}/region/${firstCluster.region_name}/platform-resources`,
         authority: ['admin', 'user']
       });

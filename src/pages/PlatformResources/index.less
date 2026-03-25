@@ -1,63 +1,26 @@
+@import '~antd/lib/style/themes/default.less';
+
+.pageHeaderLayout {
+  background: @component-background;
+}
+
 .platformResourcesPage {
-  min-height: 100vh;
+  min-height: 0;
   background:
-    linear-gradient(180deg, rgba(21, 90, 239, 0.06) 0, rgba(21, 90, 239, 0) 220px),
-    @rbd-background-color;
+    linear-gradient(180deg, fade(@primary-color, 6%) 0, fade(@primary-color, 0%) 220px),
+    transparent;
 }
 
 .pageShell {
-  padding: 24px;
+  padding: 0;
 }
 
 .pageHeader {
+  background: @component-background;
+}
+
+.pageHeaderTopCompact {
   margin-bottom: 20px;
-  padding: 28px 28px 0;
-  background: #fff;
-  border: 1px solid rgba(21, 90, 239, 0.08);
-  border-radius: 16px;
-  box-shadow: @rbd-card-shadow;
-}
-
-.pageHeaderTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.pageTitleBlock {
-  min-width: 300px;
-  flex: 1;
-}
-
-.pageEyebrow {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  color: @primary-color;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  background: rgba(21, 90, 239, 0.08);
-  border-radius: 999px;
-}
-
-.pageTitle {
-  margin: 12px 0 8px;
-  color: @heading-color;
-  font-size: 28px;
-  line-height: 36px;
-  font-weight: 700;
-}
-
-.pageDescription {
-  max-width: 720px;
-  margin: 0;
-  color: @text-color-secondary;
-  font-size: 14px;
-  line-height: 22px;
 }
 
 .pageStats {
@@ -69,53 +32,66 @@
   flex: 1;
 }
 
+.pageStatsFull {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .statCard {
   min-height: 88px;
-  padding: 14px 16px;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-  border: 1px solid #edf1f7;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, @component-background 0%, fade(@primary-color, 3%) 100%);
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 14px;
 }
 
 .statLabel {
-  margin-bottom: 6px;
   color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
 }
 
 .statValue {
   color: @heading-color;
-  font-size: 22px;
-  line-height: 30px;
+  font-size: @rbd-title-big-size;
+  line-height: @rbd-title-big-line-height;
   font-weight: 700;
   word-break: break-word;
 }
 
 .statHint {
-  margin-top: 4px;
   color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
 }
 
-.heroTabs {
-  :global {
-    .ant-tabs-bar {
-      margin: 0;
-      border-bottom: 0;
-    }
+.tabBarStyle {
+  overflow: visible !important;
 
+  :global {
     .ant-tabs-nav-container {
-      margin-bottom: -1px;
+      overflow: visible !important;
+      height: 38px !important;
     }
 
     .ant-tabs-tab {
-      margin-right: 18px;
-      padding: 0 0 16px;
-      color: @text-color-secondary;
-      font-size: 14px;
-      transition: color 0.2s ease;
+      height: 38px !important;
+      margin-right: 0 !important;
+      background-color: @component-background !important;
+      border: 1px solid @border-color-base !important;
+      border-left: none !important;
+      border-radius: 0 !important;
+      box-sizing: border-box;
+    }
+
+    .ant-tabs-tab:first-child {
+      border-left: 1px solid @border-color-base !important;
+    }
+
+    .ant-tabs-bar {
+      margin: 0;
     }
 
     .ant-tabs-tab:hover {
@@ -123,14 +99,30 @@
     }
 
     .ant-tabs-tab-active {
-      color: @primary-color;
-      font-weight: 600;
+      color: @primary-color !important;
     }
 
     .ant-tabs-ink-bar {
-      height: 3px;
-      background: @primary-color;
-      border-radius: 3px;
+      bottom: -1px !important;
+    }
+
+    .ant-tabs-top-content {
+      border-radius: 5px;
+    }
+
+    .ant-tabs-content,
+    .ant-tabs-content-animated,
+    .ant-tabs-card-content,
+    .ant-tabs-tabpane {
+      display: none;
+    }
+
+    .ant-tabs-nav-scroll {
+      overflow: visible !important;
+    }
+
+    .ant-tabs-nav-container-scrolling {
+      overflow: visible !important;
     }
   }
 }
@@ -143,10 +135,8 @@
 
 .workspaceCard {
   overflow: hidden;
-  background: #fff;
+  background: @component-background;
   border: 0;
-  border-radius: 16px;
-  box-shadow: @rbd-card-shadow;
 
   :global {
     .ant-card-body {
@@ -156,7 +146,6 @@
 }
 
 .innerTabs {
-  padding: 0 24px 24px;
 
   :global {
     .ant-tabs-bar {
@@ -166,7 +155,8 @@
     .ant-tabs-nav .ant-tabs-tab {
       margin-right: 32px;
       padding: 16px 0 14px;
-      font-size: 14px;
+      font-size: @rbd-content-size;
+      line-height: @rbd-content-line-height;
     }
 
     .ant-tabs-tab-active {
@@ -182,73 +172,11 @@
   }
 }
 
-.sectionIntro {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 24px 0 8px;
-}
-
-.sectionIntroMain {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.sectionIcon {
-  display: flex;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  color: @primary-color;
-  font-size: 18px;
-  background: rgba(21, 90, 239, 0.08);
-  border-radius: 12px;
-}
-
-.sectionEyebrow {
-  margin-bottom: 4px;
-  color: @primary-color;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.sectionTitle {
-  margin-bottom: 4px;
-  color: @heading-color;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 600;
-}
-
-.sectionDescription {
-  max-width: 720px;
-  margin: 0;
-  color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 22px;
-}
-
-.sectionIntroHint {
-  padding: 8px 12px;
-  color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 20px;
-  white-space: nowrap;
-  background: #f6f8fb;
-  border: 1px solid #edf1f7;
-  border-radius: 999px;
-}
-
 .tabPanel {
-  padding-top: 8px;
+  padding-top: 24px;
 }
 
-.tableActionBar {
+.sectionIntro {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -256,25 +184,54 @@
   margin-bottom: 16px;
 }
 
-.actionTitle {
+.sectionIntroMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sectionIcon {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  color: @primary-color;
+  font-size: @rbd-title-size;
+  background: fade(@primary-color, 8%);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
   margin-bottom: 4px;
   color: @heading-color;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
   font-weight: 600;
 }
 
-.actionDescription {
+.sectionDescription {
   max-width: 720px;
+  margin: 0;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: @rbd-auxiliary-size;
+  // line-height: @rbd-auxiliary-line-heigh;
+}
+
+.sectionIntroAction {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .tableShell {
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #edf1f7;
+  background: @component-background;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 14px;
 
   :global {
@@ -282,19 +239,19 @@
       color: @text-color;
     }
 
-    .ant-table-thead > tr > th {
+    .ant-table-thead>tr>th {
       color: @heading-color;
       font-weight: 600;
-      background: #f8fafc;
-      border-bottom: 1px solid #edf1f7;
+      background: @rbd-background-color;
+      border-bottom: 1px solid fade(@heading-color, 10%);
     }
 
-    .ant-table-tbody > tr > td {
-      border-bottom: 1px solid #f1f4f8;
+    .ant-table-tbody>tr>td {
+      border-bottom: 1px solid fade(@heading-color, 6%);
     }
 
-    .ant-table-tbody > tr:hover > td {
-      background: #f8fbff;
+    .ant-table-tbody>tr:hover>td {
+      background: fade(@primary-color, 3%);
     }
 
     .ant-table-pagination.ant-pagination {
@@ -309,30 +266,32 @@
   padding: 2px 8px;
   overflow: hidden;
   color: @heading-color;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   white-space: nowrap;
   text-overflow: ellipsis;
   vertical-align: middle;
-  background: #f6f8fb;
-  border: 1px solid #edf1f7;
+  background: @rbd-background-color;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 999px;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
 .configLayout {
-  max-width: 840px;
+  display: flex;
+  gap: 24px;
 }
 
 .configCard {
-  border: 1px solid #edf1f7;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 16px;
   box-shadow: none;
+  width: 100%;
 
   :global {
     .ant-card-head {
       min-height: 64px;
-      border-bottom: 1px solid #edf1f7;
+      border-bottom: 1px solid fade(@heading-color, 10%);
     }
 
     .ant-card-head-title {
@@ -350,8 +309,8 @@
 .configLead {
   margin-bottom: 20px;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 22px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
 }
 
 .valueBox {
@@ -360,8 +319,8 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  background: #f8fafc;
-  border: 1px solid #edf1f7;
+  background: @rbd-background-color;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 12px;
   flex-wrap: wrap;
 }
@@ -372,16 +331,16 @@
   gap: 14px 24px;
   margin-top: 18px;
   padding: 18px 20px;
-  background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
-  border: 1px solid #edf1f7;
+  background: linear-gradient(180deg, fade(@primary-color, 3%) 0%, @rbd-background-color 100%);
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 14px;
 }
 
 .infoItemLabel {
   margin-bottom: 4px;
   color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
 }
 
 .infoItemValue {
@@ -390,39 +349,29 @@
   word-break: break-word;
 }
 
-.noticeBanner {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 16px;
-  padding: 14px 16px;
-  color: #8a5a22;
-  font-size: 13px;
-  line-height: 22px;
-  background: rgba(255, 141, 60, 0.08);
-  border: 1px solid rgba(255, 141, 60, 0.25);
-  border-radius: 14px;
-}
+.noticeBanner {}
 
 .resourceWorkbench {
   display: flex;
   min-height: 620px;
   max-height: calc(100vh - 220px);
   overflow: hidden;
+  padding-top: 12px;
 }
 
 .resourceNavigator {
   display: flex;
-  width: 304px;
+  width: 300px;
   min-height: 0;
   flex-direction: column;
-  background: linear-gradient(180deg, #fbfdff 0%, #f7f9fc 100%);
-  border-right: 1px solid #eef2f7;
+  border-radius: 14px;
+  background: linear-gradient(180deg, fade(@primary-color, 3%) 0%, @rbd-background-color 100%);
+  border: 1px solid fade(@heading-color, 10%);
 }
 
 .navigatorHeader {
-  padding: 22px 20px 16px;
-  border-bottom: 1px solid #eef2f7;
+  padding: 12px;
+  border-bottom: 1px solid fade(@heading-color, 10%);
 }
 
 .navigatorTitleRow {
@@ -437,7 +386,8 @@
   display: block;
   margin-bottom: 4px;
   color: @primary-color;
-  font-size: 12px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -446,29 +396,27 @@
 .navigatorTitle {
   margin: 0;
   color: @heading-color;
-  font-size: 18px;
-  line-height: 26px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
   font-weight: 600;
 }
 
 .navigatorDesc {
   margin: 0 0 14px;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
 }
 
 .countBadge {
   display: inline-flex;
-  min-width: 32px;
-  height: 32px;
+  min-width: 12px;
+  height: 12px;
   align-items: center;
   justify-content: center;
-  padding: 0 10px;
+  padding: 2px;
   color: @primary-color;
   font-weight: 600;
-  background: rgba(21, 90, 239, 0.08);
-  border-radius: 999px;
 }
 
 .navigatorSearch {
@@ -496,8 +444,7 @@
 
 .navigatorItem {
   width: 100%;
-  margin-bottom: 10px;
-  padding: 14px;
+  padding: 6px;
   color: inherit;
   text-align: left;
   background: transparent;
@@ -508,14 +455,14 @@
 }
 
 .navigatorItem:hover {
-  background: #fff;
-  border-color: #e8eef8;
+  background: @component-background;
+  border-color: fade(@primary-color, 12%);
   box-shadow: @rbd-min-card-shadow;
 }
 
 .navigatorItemActive {
-  background: #fff;
-  border-color: rgba(21, 90, 239, 0.22);
+  background: @component-background;
+  border-color: fade(@primary-color, 22%);
   box-shadow: @rbd-card-shadow;
 }
 
@@ -546,24 +493,25 @@
 
 .itemTitle {
   color: @heading-color;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
   font-weight: 600;
   word-break: break-word;
 }
 
 .itemDisabledText {
   color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
 }
 
 .itemMeta {
-  margin-top: 8px;
   color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 20px;
-  word-break: break-all;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .itemCapabilities {
@@ -577,32 +525,32 @@
   align-items: center;
   padding: 2px 8px;
   color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 18px;
-  background: #f6f8fb;
-  border: 1px solid #edf1f7;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  background: @rbd-background-color;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 999px;
 }
 
 .itemCapabilityActive {
   color: @primary-color;
-  background: rgba(21, 90, 239, 0.08);
-  border-color: rgba(21, 90, 239, 0.12);
+  background: fade(@primary-color, 8%);
+  border-color: fade(@primary-color, 12%);
 }
 
 .resourceWorkspace {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  padding: 24px;
+  padding: 0 0 0 24px;
   overflow: auto;
 }
 
 .resourceHero {
   margin-bottom: 16px;
   padding: 20px 22px;
-  background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
-  border: 1px solid #edf1f7;
+  background: linear-gradient(180deg, fade(@primary-color, 3%) 0%, @rbd-background-color 100%);
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 16px;
 }
 
@@ -617,7 +565,8 @@
 .resourceHeroEyebrow {
   margin-bottom: 6px;
   color: @primary-color;
-  font-size: 12px;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -634,8 +583,8 @@
 .resourceHeroTitle {
   margin: 0;
   color: @heading-color;
-  font-size: 24px;
-  line-height: 32px;
+  font-size: @rbd-title-big-size;
+  line-height: @rbd-title-big-line-height;
   font-weight: 700;
 }
 
@@ -643,8 +592,8 @@
   max-width: 760px;
   margin: 10px 0 0;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 22px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
 }
 
 .metaChips {
@@ -658,10 +607,10 @@
   align-items: center;
   padding: 4px 10px;
   color: @heading-color;
-  font-size: 12px;
-  line-height: 18px;
-  background: #fff;
-  border: 1px solid #e6ecf5;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  background: @component-background;
+  border: 1px solid fade(@heading-color, 10%);
   border-radius: 999px;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
@@ -679,15 +628,15 @@
   align-items: center;
   gap: 10px;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
   flex-wrap: wrap;
 }
 
 .toolbarDot {
   width: 4px;
   height: 4px;
-  background: #c6d1e3;
+  background: fade(@heading-color, 24%);
   border-radius: 50%;
 }
 
@@ -702,44 +651,91 @@
   width: 240px;
 }
 
-.emptyWorkspace {
-  display: flex;
-  min-height: 560px;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.emptyStateCard {
-  max-width: 420px;
-  padding: 36px 28px;
-  text-align: center;
-  background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
-  border: 1px dashed #d9e2f2;
-  border-radius: 18px;
-}
-
-.emptyIcon {
-  margin-bottom: 16px;
-  color: #c0c9d6;
-  font-size: 36px;
-  line-height: 1;
-}
-
-.emptyTitle {
-  margin-bottom: 8px;
-  color: @heading-color;
-  font-size: 18px;
-  line-height: 26px;
+.linkPrimary {
+  color: @primary-color;
   font-weight: 600;
 }
 
-.emptyDesc {
-  margin: 0;
+.linkSecondary {
+  color: @primary-color;
+}
+
+.linkDanger {
+  color: @error-color;
+}
+
+.smallTag {
+  margin-left: 8px;
+  font-size: @rbd-auxiliary-size;
+}
+
+.mutedText {
+  color: @rbd-label-color;
+}
+
+.emptyTableText {
+  padding: 48px 0;
+  color: @rbd-label-color;
+}
+
+.modalTitleIcon {
+  margin-right: 8px;
+}
+
+.modalLead {
+  margin-bottom: 8px;
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 22px;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.monoEditor {
+  :global {
+    textarea.ant-input {
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: @rbd-content-size;
+      line-height: @rbd-content-line-height;
+    }
+  }
+}
+
+.monoEditorReadonly {
+  :global {
+    textarea.ant-input {
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: @rbd-auxiliary-size;
+      line-height: @rbd-auxiliary-line-height;
+    }
+  }
+}
+
+.primaryIcon {
+  margin-right: 8px;
+  color: @primary-color;
+}
+
+.primaryMiniIcon {
+  margin-right: 6px;
+  color: @primary-color;
+}
+
+.primaryIconOnly {
+  color: @primary-color;
+}
+
+.mutedInline {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+}
+
+.valueStrong {
+  color: @heading-color;
+  font-weight: 600;
+}
+
+.noticeIcon {
+  margin-top: 3px;
+  color: @warning-color;
 }
 
 @media (max-width: 1280px) {
@@ -767,6 +763,10 @@
   .pageStats {
     max-width: none;
   }
+
+  .pageStatsFull {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -788,6 +788,10 @@
     min-width: 100%;
   }
 
+  .sectionIntroMain {
+    align-items: flex-start;
+  }
+
   .innerTabs {
     padding: 0 16px 16px;
   }
@@ -796,8 +800,9 @@
     flex-direction: column;
   }
 
-  .tableActionBar {
+  .sectionIntroAction {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .infoGrid {

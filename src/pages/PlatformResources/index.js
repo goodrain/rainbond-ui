@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { formatMessage } from '@/utils/intl';
 import {
   Tabs,
   Table,
@@ -13,13 +14,20 @@ import {
   Icon,
   Spin,
   Empty,
+  Alert
 } from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
+
+const theme = require('../../../config/theme');
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 const { Option } = Select;
+
+const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
 
 const COMMON_RESOURCE_KINDS = [
   'Deployment', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
@@ -29,51 +37,45 @@ const COMMON_RESOURCE_KINDS = [
   'CustomResourceDefinition',
 ];
 
-const STORAGE_SECTION_META = {
+const getStorageSectionMeta = () => ({
   storageclass: {
     icon: 'database',
-    eyebrow: 'Storage Workspace',
-    title: '存储类',
-    description: '集中维护集群可用的 StorageClass，统一梳理默认能力、绑定模式和回收策略。',
-    hint: '适合管理存储能力供给',
+    title: t('platformResources.section.storageclass.title', '存储类'),
+    description: t('platformResources.section.storageclass.description', '集中维护集群可用的 StorageClass，统一梳理默认能力、绑定模式和回收策略。'),
   },
   pv: {
     icon: 'hdd',
-    eyebrow: 'Storage Workspace',
-    title: '存储卷',
-    description: '查看 PersistentVolume 的容量、状态和绑定关系，快速定位存储生命周期问题。',
-    hint: '适合排查存储状态',
+    title: t('platformResources.section.pv.title', '存储卷'),
+    description: t('platformResources.section.pv.description', '查看 PersistentVolume 的容量、状态和绑定关系，快速定位存储生命周期问题。'),
   },
   storageconfig: {
     icon: 'setting',
-    eyebrow: 'Storage Workspace',
-    title: '存储配置',
-    description: '控制应用市场安装应用时使用的默认存储类，保持平台安装体验一致。',
-    hint: '影响后续安装默认行为',
+    title: t('platformResources.section.config.title', '存储配置'),
+    description: t('platformResources.section.config.description', '控制应用市场安装应用时使用的默认存储类，保持平台安装体验一致。'),
   },
-};
+});
 
-const STATUS_MAP = {
-  running: { color: '#00D777', text: '运行中' },
-  available: { color: '#00D777', text: '可用' },
-  bound: { color: '#155aef', text: '已绑定' },
-  released: { color: '#F69D4A', text: '已释放' },
-  failed: { color: '#CD0200', text: '失败' },
-  warning: { color: '#F69D4A', text: '警告' },
-};
+const getStatusMap = () => ({
+  running: { color: theme['rbd-success-status'], text: t('platformResources.status.running', '运行中') },
+  available: { color: theme['rbd-success-status'], text: t('platformResources.status.available', '可用') },
+  bound: { color: theme['primary-color'], text: t('platformResources.status.bound', '已绑定') },
+  released: { color: theme['rbd-warning-status'], text: t('platformResources.status.released', '已释放') },
+  failed: { color: theme['rbd-error-status'], text: t('platformResources.status.failed', '失败') },
+  warning: { color: theme['rbd-warning-status'], text: t('platformResources.status.warning', '警告') },
+});
 
 const STORAGE_RESOURCE_TYPES = {
   storageclass: {
     group: 'storage.k8s.io',
     version: 'v1',
     resource: 'storageclasses',
-    label: '存储类',
+    label: 'storageclass',
   },
   pv: {
     group: '',
     version: 'v1',
     resource: 'persistentvolumes',
-    label: '存储卷',
+    label: 'pv',
   },
 };
 
@@ -126,9 +128,10 @@ function serializeYaml(bean) {
 }
 
 const StatusDot = ({ status }) => {
-  const current = STATUS_MAP[(status || '').toLowerCase()] || { color: '#8d9bad', text: status || '-' };
+  const statusMap = getStatusMap();
+  const current = statusMap[(status || '').toLowerCase()] || { color: theme['rbd-label-color'], text: status || '-' };
   return (
-    <span>
+    <span className={styles.statusDot}>
       <span
         style={{
           display: 'inline-block',
@@ -190,6 +193,15 @@ class PlatformResources extends PureComponent {
     this.fetchPlatformResources();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const resourcesChanged = prevProps.platformResources !== this.props.platformResources;
+    const switchedToOther = prevState.mainTab !== this.state.mainTab && this.state.mainTab === 'other';
+
+    if (resourcesChanged || switchedToOther) {
+      this.ensureSelectedResourceType();
+    }
+  }
+
   getParams() {
     const { match } = this.props;
     return (match && match.params) || {};
@@ -217,6 +229,45 @@ class PlatformResources extends PureComponent {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
     dispatch({ type: 'platformResources/fetchPlatformResources', payload: { eid, region: regionName } });
+  };
+
+  getFirstSelectableResourceType = (resources = this.props.platformResources) => {
+    const list = Array.isArray(resources) ? sortResourceTypes(resources) : [];
+    return list.find(type => hasVerb(type, 'list')) || null;
+  };
+
+  getCurrentSelectedType = () => {
+    const { selectedType } = this.state;
+    return selectedType || this.getFirstSelectableResourceType();
+  };
+
+  ensureSelectedResourceType = () => {
+    const { mainTab, selectedType } = this.state;
+    const { dispatch, platformResources } = this.props;
+
+    if (mainTab !== 'other') {
+      return;
+    }
+
+    const currentResources = Array.isArray(platformResources) ? platformResources : [];
+    const firstSelectableType = this.getFirstSelectableResourceType(currentResources);
+
+    if (!firstSelectableType) {
+      if (selectedType) {
+        this.setState({ selectedType: null, instanceSearchText: '' });
+        dispatch({ type: 'platformResources/save', payload: { resourceInstances: [] } });
+      }
+      return;
+    }
+
+    const currentValid = selectedType && currentResources.some(type => (
+      hasVerb(type, 'list') && getTypeKey(type) === getTypeKey(selectedType)
+    ));
+
+    if (!currentValid) {
+      this.setState({ selectedType: firstSelectableType, instanceSearchText: '' });
+      this.fetchInstancesForType(firstSelectableType);
+    }
   };
 
   fetchInstancesForType = (type) => {
@@ -431,16 +482,13 @@ class PlatformResources extends PureComponent {
     this.fetchInstancesForType(type);
   };
 
-  handleBackToTypes = () => {
-    const { dispatch } = this.props;
-    this.setState({ selectedType: null, instanceSearchText: '' });
-    dispatch({ type: 'platformResources/save', payload: { resourceInstances: [] } });
-  };
-
   handleViewInstanceYaml = (record) => {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
-    const { selectedType } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     dispatch({
       type: 'platformResources/fetchResourceInstance',
       payload: {
@@ -470,7 +518,10 @@ class PlatformResources extends PureComponent {
   handleEditInstanceYaml = (record) => {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
-    const { selectedType } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     dispatch({
       type: 'platformResources/fetchResourceInstance',
       payload: {
@@ -500,7 +551,11 @@ class PlatformResources extends PureComponent {
   handleSaveInstanceYaml = () => {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
-    const { selectedType, instanceModal } = this.state;
+    const { instanceModal } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     this.setState({ instanceModal: { ...instanceModal, saving: true } });
     dispatch({
       type: 'platformResources/updateResourceInstance',
@@ -533,7 +588,10 @@ class PlatformResources extends PureComponent {
   };
 
   handleOpenCreateInstance = () => {
-    const { selectedType } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     const apiVersion = getTypeApiVersion(selectedType);
     this.setState({
       instanceModal: {
@@ -549,7 +607,11 @@ class PlatformResources extends PureComponent {
   handleCreateInstanceConfirm = () => {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
-    const { selectedType, instanceModal } = this.state;
+    const { instanceModal } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     this.setState({ instanceModal: { ...instanceModal, saving: true } });
     dispatch({
       type: 'platformResources/createResourceInstance',
@@ -583,7 +645,10 @@ class PlatformResources extends PureComponent {
   handleDeleteInstance = (record) => {
     const { dispatch } = this.props;
     const { eid, regionName } = this.getParams();
-    const { selectedType } = this.state;
+    const selectedType = this.getCurrentSelectedType();
+    if (!selectedType) {
+      return;
+    }
     dispatch({
       type: 'platformResources/deletePlatformResource',
       payload: {
@@ -598,20 +663,15 @@ class PlatformResources extends PureComponent {
     });
   };
 
-  renderSectionIntro = (meta) => {
+  renderSectionIntro = (meta, action) => {
     return (
       <div className={styles.sectionIntro}>
         <div className={styles.sectionIntroMain}>
-          <div className={styles.sectionIcon}>
-            <Icon type={meta.icon} />
-          </div>
           <div>
-            <div className={styles.sectionEyebrow}>{meta.eyebrow}</div>
-            <div className={styles.sectionTitle}>{meta.title}</div>
             <p className={styles.sectionDescription}>{meta.description}</p>
           </div>
         </div>
-        <div className={styles.sectionIntroHint}>{meta.hint}</div>
+        {action && <div className={styles.sectionIntroAction}>{action}</div>}
       </div>
     );
   };
@@ -622,38 +682,31 @@ class PlatformResources extends PureComponent {
 
     const stats = [
       {
-        label: '存储类',
+        label: t('platformResources.section.storageclass.title', '存储类'),
         value: storageClasses.length,
         hint: 'StorageClass',
       },
       {
-        label: '存储卷',
+        label: t('platformResources.section.pv.title', '存储卷'),
         value: persistentVolumes.length,
         hint: 'PersistentVolume',
       },
       {
-        label: '资源类型',
+        label: t('platformResources.common.resourceCatalog', '资源目录'),
         value: platformResources.length,
-        hint: '可浏览的全局 Kind',
+        hint: t('platformResources.common.browsableKinds', '可浏览的全局 Kind'),
       },
       {
-        label: '默认存储',
-        value: storageConfig && storageConfig.default_storage_class ? storageConfig.default_storage_class : '未配置',
-        hint: '应用市场默认使用',
+        label: t('platformResources.common.defaultStorageClass', '默认 StorageClass'),
+        value: storageConfig && storageConfig.default_storage_class ? storageConfig.default_storage_class : t('platformResources.common.unconfigured', '未配置'),
+        hint: 'StorageClass',
       },
     ];
 
     return (
       <div className={styles.pageHeader}>
-        <div className={styles.pageHeaderTop}>
-          <div className={styles.pageTitleBlock}>
-            <span className={styles.pageEyebrow}>Platform Control Plane</span>
-            <h1 className={styles.pageTitle}>平台资源</h1>
-            <p className={styles.pageDescription}>
-              围绕集群级存储与 Kubernetes 全局资源，提供更清晰的资源目录、集中筛选和 YAML 级操作工作区。
-            </p>
-          </div>
-          <div className={styles.pageStats}>
+        <div className={styles.pageHeaderTopCompact}>
+          <div className={`${styles.pageStats} ${styles.pageStatsFull}`}>
             {stats.map(item => (
               <div key={item.label} className={styles.statCard}>
                 <div className={styles.statLabel}>{item.label}</div>
@@ -666,26 +719,11 @@ class PlatformResources extends PureComponent {
         <Tabs
           activeKey={mainTab}
           onChange={this.handleMainTabChange}
-          className={styles.heroTabs}
+          type="card"
+          className={styles.tabBarStyle}
         >
-          <TabPane
-            key="storage"
-            tab={(
-              <span>
-                <Icon type="database" style={{ marginRight: 6 }} />
-                全局存储
-              </span>
-            )}
-          />
-          <TabPane
-            key="other"
-            tab={(
-              <span>
-                <Icon type="appstore" style={{ marginRight: 6 }} />
-                其他资源
-              </span>
-            )}
-          />
+          <TabPane key="storage" tab={t('platformResources.tab.storage', '全局存储')} />
+          <TabPane key="other" tab={t('platformResources.tab.other', '其他资源')} />
         </Tabs>
       </div>
     );
@@ -693,15 +731,16 @@ class PlatformResources extends PureComponent {
 
   renderStorageClassTab() {
     const { storageClasses } = this.props;
+    const sectionMeta = getStorageSectionMeta();
     const columns = [
       {
-        title: '名称',
+        title: t('platformResources.common.name', '名称'),
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => (
           <span>
             <a
-              style={{ color: '#155aef', fontWeight: 600 }}
+              className={styles.linkPrimary}
               onClick={e => {
                 e.preventDefault();
                 this.handleOpenStorageResourceYaml(record, 'storageclass', 'view');
@@ -709,7 +748,7 @@ class PlatformResources extends PureComponent {
             >
               {text}
             </a>
-            {record.is_default && <Tag color="blue" style={{ marginLeft: 8, fontSize: 11 }}>默认</Tag>}
+            {record.is_default && <Tag className={styles.smallTag} style={{ marginLeft: 8 }}>{t('platformResources.common.default', '默认')}</Tag>}
           </span>
         ),
       },
@@ -720,41 +759,42 @@ class PlatformResources extends PureComponent {
         render: value => <span className={styles.codeText}>{value || '-'}</span>,
       },
       {
-        title: '回收策略',
+        title: t('platformResources.common.reclaimPolicy', '回收策略'),
         dataIndex: 'reclaim_policy',
         key: 'reclaim_policy',
         render: value => <Tag>{value || '-'}</Tag>,
       },
       {
-        title: '绑定模式',
+        title: t('platformResources.common.bindingMode', '绑定模式'),
         dataIndex: 'volume_binding_mode',
         key: 'volume_binding_mode',
         render: value => value || '-',
       },
       {
-        title: '存储卷数',
+        title: 'PV Count',
         dataIndex: 'pv_count',
         key: 'pv_count',
         align: 'center',
         width: 120,
       },
       {
-        title: '操作',
+        title: t('platformResources.common.operation', '操作'),
         key: 'action',
         width: 136,
         render: (_, record) => (
           <span>
             <a
+              className={styles.linkSecondary}
               style={{ marginRight: 12 }}
               onClick={e => {
                 e.preventDefault();
                 this.handleOpenStorageResourceYaml(record, 'storageclass', 'edit');
               }}
             >
-              编辑
+              {t('platformResources.common.edit', '编辑')}
             </a>
-            <Popconfirm title={`确认删除 "${record.name}"？`} onConfirm={() => this.handleDeleteStorageClass(record.name)}>
-              <a style={{ color: '#FC481B' }}>删除</a>
+            <Popconfirm title={t('resourceCenter.common.confirmDelete', '确认删除 "{name}"？', { name: record.name })} onConfirm={() => this.handleDeleteStorageClass(record.name)}>
+              <a className={styles.linkDanger}>{t('platformResources.common.delete', '删除')}</a>
             </Popconfirm>
           </span>
         ),
@@ -763,16 +803,12 @@ class PlatformResources extends PureComponent {
 
     return (
       <div className={styles.tabPanel}>
-        {this.renderSectionIntro(STORAGE_SECTION_META.storageclass)}
-        <div className={styles.tableActionBar}>
-          <div>
-            <div className={styles.actionTitle}>存储类列表</div>
-            <div className={styles.actionDescription}>优先展示常用存储能力，便于快速浏览默认类、Provisioner 和策略差异。</div>
-          </div>
+        {this.renderSectionIntro(
+          sectionMeta.storageclass,
           <Button type="primary" icon="plus" onClick={() => this.setState({ createModalVisible: true })}>
-            创建存储类
+            {t('platformResources.common.createStorageClass', '创建存储类')}
           </Button>
-        </div>
+        )}
         <div className={styles.tableShell}>
           <Table
             dataSource={storageClasses}
@@ -780,7 +816,7 @@ class PlatformResources extends PureComponent {
             rowKey="name"
             size="middle"
             pagination={storageClasses.length > 10 ? { pageSize: 10, size: 'small' } : false}
-            locale={{ emptyText: <div style={{ padding: '48px 0', color: '#8d9bad' }}>暂无存储类</div> }}
+            locale={{ emptyText: <div className={styles.emptyTableText}>{t('platformResources.common.noStorageClass', '暂无存储类')}</div> }}
           />
         </div>
       </div>
@@ -790,15 +826,16 @@ class PlatformResources extends PureComponent {
   renderPVTab() {
     const { persistentVolumes } = this.props;
     const { pvCreateVisible, pvCreateYaml } = this.state;
+    const sectionMeta = getStorageSectionMeta();
 
     const columns = [
       {
-        title: '名称',
+        title: t('platformResources.common.name', '名称'),
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => (
           <a
-            style={{ color: '#155aef', fontWeight: 600 }}
+            className={styles.linkPrimary}
             onClick={e => {
               e.preventDefault();
               this.handleOpenStorageResourceYaml(record, 'pv', 'view');
@@ -809,65 +846,66 @@ class PlatformResources extends PureComponent {
         ),
       },
       {
-        title: '容量',
+        title: t('platformResources.common.capacity', '容量'),
         dataIndex: 'capacity',
         key: 'capacity',
         render: value => <Tag color="geekblue">{value || '-'}</Tag>,
       },
       {
-        title: '访问模式',
+        title: t('platformResources.common.accessModes', '访问模式'),
         dataIndex: 'access_modes',
         key: 'access_modes',
         render: modes => {
           const list = Array.isArray(modes) ? modes : [modes].filter(Boolean);
           return list.map(mode => (
-            <Tag key={mode} style={{ fontSize: 11 }}>
+            <Tag key={mode} className={styles.smallTag}>
               {mode}
             </Tag>
           ));
         },
       },
       {
-        title: '存储类',
+        title: t('platformResources.common.storageClass', '存储类'),
         dataIndex: 'storage_class',
         key: 'storage_class',
-        render: value => (value ? <span className={styles.codeText}>{value}</span> : <span style={{ color: '#8d9bad' }}>-</span>),
+        render: value => (value ? <span className={styles.codeText}>{value}</span> : <span className={styles.mutedText}>-</span>),
       },
       {
-        title: '状态',
+        title: t('platformResources.common.status', '状态'),
         dataIndex: 'status',
         key: 'status',
         render: value => <StatusDot status={value} />,
       },
       {
-        title: '回收策略',
+        title: t('platformResources.common.reclaimPolicy', '回收策略'),
         dataIndex: 'reclaim_policy',
         key: 'reclaim_policy',
         render: value => value || '-',
       },
       {
-        title: '绑定到',
+        title: t('platformResources.common.claim', '绑定到'),
         dataIndex: 'claim',
         key: 'claim',
-        render: value => value || <span style={{ color: '#8d9bad' }}>-</span>,
+        render: value => value || <span className={styles.mutedText}>-</span>,
       },
       {
-        title: '操作',
+        title: t('platformResources.common.operation', '操作'),
         key: 'action',
         width: 136,
         render: (_, record) => (
           <span>
             <a
+              className={styles.linkSecondary}
               style={{ marginRight: 12 }}
               onClick={e => {
                 e.preventDefault();
                 this.handleOpenStorageResourceYaml(record, 'pv', 'edit');
               }}
             >
-              编辑
+              {t('platformResources.common.edit', '编辑')}
             </a>
-            <Popconfirm title={`确认删除存储卷 "${record.name}"？`} onConfirm={() => this.handleDeletePV(record.name)}>
-              <a style={{ color: '#FC481B' }}>删除</a>
+            <Popconfirm title={t('resourceCenter.common.confirmDelete', '确认删除 "{name}"？', { name: record.name })} onConfirm={() => this.handleDeletePV(record.name)}>
+              <a className={styles.linkDanger}>{t('platformResources.common.delete', '删除')}</a>
             </Popconfirm>
           </span>
         ),
@@ -876,20 +914,16 @@ class PlatformResources extends PureComponent {
 
     return (
       <div className={styles.tabPanel}>
-        {this.renderSectionIntro(STORAGE_SECTION_META.pv)}
-        <div className={styles.tableActionBar}>
-          <div>
-            <div className={styles.actionTitle}>存储卷列表</div>
-            <div className={styles.actionDescription}>把容量、绑定关系和状态放进同一张工作表，定位异常卷时不需要频繁切换视角。</div>
-          </div>
+        {this.renderSectionIntro(
+          sectionMeta.pv,
           <Button
             type="primary"
             icon="plus"
             onClick={() => this.setState({ pvCreateVisible: true, pvCreateYaml: '' })}
           >
-            创建存储卷
+            {t('platformResources.common.createPv', '创建存储卷')}
           </Button>
-        </div>
+        )}
         <div className={styles.tableShell}>
           <Table
             dataSource={persistentVolumes}
@@ -897,26 +931,26 @@ class PlatformResources extends PureComponent {
             rowKey="name"
             size="middle"
             pagination={persistentVolumes.length > 10 ? { pageSize: 10, size: 'small' } : false}
-            locale={{ emptyText: <div style={{ padding: '48px 0', color: '#8d9bad' }}>暂无存储卷</div> }}
+            locale={{ emptyText: <div className={styles.emptyTableText}>{t('platformResources.common.noPv', '暂无存储卷')}</div> }}
           />
         </div>
 
         <Modal
-          title={<span><Icon type="plus" style={{ marginRight: 8 }} />YAML 创建存储卷</span>}
+          title={<span><Icon type="plus" className={styles.modalTitleIcon} />{t('platformResources.modal.createPv', 'YAML 创建存储卷')}</span>}
           visible={pvCreateVisible}
           onOk={this.handleCreatePVConfirm}
           onCancel={() => this.setState({ pvCreateVisible: false, pvCreateYaml: '' })}
           width={680}
-          okText="创建"
-          cancelText="取消"
+          okText={t('platformResources.common.create', '创建')}
+          cancelText={t('platformResources.common.cancel', '取消')}
         >
-          <p style={{ color: '#676f83', marginBottom: 8, fontSize: 13 }}>粘贴 PersistentVolume 的 YAML 定义内容。</p>
+          <p className={styles.modalLead}>{t('platformResources.modal.lead.pv', '粘贴 PersistentVolume 的 YAML 定义内容。')}</p>
           <TextArea
             rows={16}
             value={pvCreateYaml}
             onChange={e => this.setState({ pvCreateYaml: e.target.value })}
             placeholder={'apiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: my-pv\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n    - ReadWriteOnce'}
-            style={{ fontFamily: 'monospace', fontSize: 13 }}
+            className={styles.monoEditor}
           />
         </Modal>
       </div>
@@ -928,23 +962,24 @@ class PlatformResources extends PureComponent {
     const { configEditing, selectedStorageClass } = this.state;
     const currentStorageClass = storageConfig && storageConfig.default_storage_class;
     const currentStorageInfo = storageClasses.find(sc => sc.name === currentStorageClass);
+    const sectionMeta = getStorageSectionMeta();
 
     return (
       <div className={styles.tabPanel}>
-        {this.renderSectionIntro(STORAGE_SECTION_META.storageconfig)}
+        {this.renderSectionIntro(sectionMeta.storageconfig)}
         <div className={styles.configLayout}>
           <Card
             bordered={false}
             className={styles.configCard}
-            title={<span><Icon type="database" style={{ color: '#155aef', marginRight: 8 }} />应用市场默认存储配置</span>}
+            title={<span><Icon type="database" className={styles.primaryIcon} />{t('platformResources.common.platformDefaultStorage', '应用市场默认存储配置')}</span>}
             extra={
               configEditing ? (
                 <span>
                   <Button type="primary" size="small" onClick={this.handleSaveStorageConfig} style={{ marginRight: 8 }}>
-                    保存
+                    {t('platformResources.common.save', '保存')}
                   </Button>
                   <Button size="small" onClick={() => this.setState({ configEditing: false, selectedStorageClass: null })}>
-                    取消
+                    {t('platformResources.common.cancel', '取消')}
                   </Button>
                 </span>
               ) : (
@@ -953,39 +988,39 @@ class PlatformResources extends PureComponent {
                   icon="edit"
                   onClick={() => this.setState({ configEditing: true, selectedStorageClass: currentStorageClass })}
                 >
-                  修改
+                  {t('platformResources.common.modify', '修改')}
                 </Button>
               )
             }
           >
             <p className={styles.configLead}>
-              配置从应用市场安装应用时默认使用的 StorageClass，安装后仍可在应用层级按需单独调整。
+              {t('platformResources.common.configLead', '配置从应用市场安装应用时默认使用的 StorageClass，安装后仍可在应用层级按需单独调整。')}
             </p>
             <div style={{ marginBottom: 20 }}>
-              <div className={styles.infoItemLabel}>默认 StorageClass</div>
+              <div className={styles.infoItemLabel}>{t('platformResources.common.defaultStorageClass', '默认 StorageClass')}</div>
               {configEditing ? (
                 <Select
                   style={{ width: '100%' }}
                   value={selectedStorageClass}
                   onChange={value => this.setState({ selectedStorageClass: value })}
-                  placeholder="请选择存储类"
+                  placeholder={t('platformResources.section.storageclass.title', '存储类')}
                 >
                   {storageClasses.map(sc => (
                     <Option key={sc.name} value={sc.name}>
-                      <Icon type="database" style={{ marginRight: 6, color: '#155aef' }} />
+                      <Icon type="database" className={styles.primaryMiniIcon} />
                       {sc.name}
-                      {sc.is_default && <Tag color="blue" style={{ marginLeft: 8, fontSize: 11 }}>默认</Tag>}
-                      <span style={{ color: '#8d9bad', marginLeft: 8, fontSize: 12 }}>({sc.provisioner})</span>
+                      {sc.is_default && <Tag className={styles.smallTag} style={{ marginLeft: 8 }}>{t('platformResources.common.default', '默认')}</Tag>}
+                      <span className={styles.mutedInline} style={{ marginLeft: 8 }}>({sc.provisioner})</span>
                     </Option>
                   ))}
                 </Select>
               ) : (
                 <div className={styles.valueBox}>
-                  <Icon type="database" style={{ color: '#155aef' }} />
-                  <span style={{ color: '#495464', fontWeight: 600 }}>
-                    {currentStorageClass || <span style={{ color: '#8d9bad' }}>未配置</span>}
+                  <Icon type="database" className={styles.primaryIconOnly} />
+                  <span className={styles.valueStrong}>
+                    {currentStorageClass || <span className={styles.mutedText}>{t('platformResources.common.unconfigured', '未配置')}</span>}
                   </span>
-                  {currentStorageInfo && <span style={{ color: '#8d9bad', fontSize: 12 }}>({currentStorageInfo.provisioner})</span>}
+                  {currentStorageInfo && <span className={styles.mutedInline}>({currentStorageInfo.provisioner})</span>}
                 </div>
               )}
             </div>
@@ -995,8 +1030,8 @@ class PlatformResources extends PureComponent {
                 {[
                   ['StorageClass', currentStorageInfo.name],
                   ['Provisioner', currentStorageInfo.provisioner],
-                  ['回收策略', currentStorageInfo.reclaim_policy || '-'],
-                  ['集群默认', currentStorageInfo.is_default ? '是' : '否'],
+                  [t('platformResources.common.reclaimPolicy', '回收策略'), currentStorageInfo.reclaim_policy || '-'],
+                  [t('platformResources.common.clusterDefault', '集群默认'), currentStorageInfo.is_default ? t('platformResources.common.yes', '是') : t('platformResources.common.no', '否')],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <div className={styles.infoItemLabel}>{label}</div>
@@ -1008,10 +1043,12 @@ class PlatformResources extends PureComponent {
           </Card>
 
           <div className={styles.noticeBanner}>
-            <Icon type="info-circle" style={{ marginTop: 3, color: '#F69D4A' }} />
-            <span>
-              此配置仅影响从应用市场新安装的应用，已安装应用不会被回写修改。如需调整现有应用的存储，请前往应用级配置页面处理。
-            </span>
+            <Alert
+              message={t('platformResources.common.noticeTitle', '注意事项')}
+              description={t('platformResources.common.noticeDesc', '此配置仅影响从应用市场新安装的应用，已安装应用不会被回写修改。如需调整现有应用的存储，请前往应用级配置页面处理。')}
+              type="warning"
+              showIcon
+            />
           </div>
         </div>
       </div>
@@ -1038,9 +1075,10 @@ class PlatformResources extends PureComponent {
         : platformResources
     );
 
-    const canCreate = hasVerb(selectedType, 'create');
-    const canUpdate = hasVerb(selectedType, 'update') || hasVerb(selectedType, 'patch');
-    const canDelete = hasVerb(selectedType, 'delete');
+    const currentType = selectedType || this.getFirstSelectableResourceType(platformResources);
+    const canCreate = hasVerb(currentType, 'create');
+    const canUpdate = hasVerb(currentType, 'update') || hasVerb(currentType, 'patch');
+    const canDelete = hasVerb(currentType, 'delete');
     const items = Array.isArray(resourceInstances) ? resourceInstances : [];
     const filteredInstances = instanceSearchText
       ? items.filter(resource => ((resource.metadata && resource.metadata.name) || '').toLowerCase().includes(instanceSearchText.toLowerCase()))
@@ -1048,11 +1086,11 @@ class PlatformResources extends PureComponent {
 
     const instanceColumns = [
       {
-        title: '名称',
+        title: t('platformResources.common.name', '名称'),
         key: 'name',
         render: (_, record) => (
           <a
-            style={{ color: '#155aef', fontWeight: 600 }}
+            className={styles.linkPrimary}
             onClick={e => {
               e.preventDefault();
               this.handleViewInstanceYaml(record);
@@ -1063,34 +1101,35 @@ class PlatformResources extends PureComponent {
         ),
       },
       {
-        title: '创建时间',
+        title: t('platformResources.common.createTime', '创建时间'),
         key: 'createdAt',
         width: 190,
         render: (_, record) => formatCreationTime(record.metadata && record.metadata.creationTimestamp),
       },
       {
-        title: '操作',
+        title: t('platformResources.common.operation', '操作'),
         key: 'action',
         width: 128,
         render: (_, record) => (
           <span>
             {canUpdate && (
               <a
+                className={styles.linkSecondary}
                 style={{ marginRight: 12 }}
                 onClick={e => {
                   e.preventDefault();
                   this.handleEditInstanceYaml(record);
                 }}
               >
-                编辑
+                {t('platformResources.common.edit', '编辑')}
               </a>
             )}
             {canDelete && (
               <Popconfirm
-                title={`确认删除 "${record.metadata && record.metadata.name}"？`}
+                title={t('resourceCenter.common.confirmDelete', '确认删除 "{name}"？', { name: record.metadata && record.metadata.name })}
                 onConfirm={() => this.handleDeleteInstance(record)}
               >
-                <a style={{ color: '#FC481B' }}>删除</a>
+                <a className={styles.linkDanger}>{t('platformResources.common.delete', '删除')}</a>
               </Popconfirm>
             )}
           </span>
@@ -1099,33 +1138,33 @@ class PlatformResources extends PureComponent {
     ];
 
     const modalTitle = instanceModal.mode === 'create'
-      ? `创建 ${selectedType ? selectedType.kind : ''}`
+      ? t('platformResources.modal.createResource', '创建 {kind}', { kind: currentType ? currentType.kind : '' })
       : instanceModal.mode === 'edit'
-        ? `编辑 - ${instanceModal.name}`
-        : `查看 YAML - ${instanceModal.name}`;
+        ? t('platformResources.modal.editResource', '编辑 - {name}', { name: instanceModal.name })
+        : t('platformResources.modal.viewResource', '查看 YAML - {name}', { name: instanceModal.name });
 
     const modalFooter = instanceModal.mode === 'view'
       ? [
-          <Button key="close" onClick={() => this.setState({ instanceModal: { ...instanceModal, visible: false } })}>
-            关闭
-          </Button>,
-        ]
+        <Button key="close" onClick={() => this.setState({ instanceModal: { ...instanceModal, visible: false } })}>
+          {t('platformResources.common.close', '关闭')}
+        </Button>,
+      ]
       : [
-          <Button
-            key="cancel"
-            onClick={() => this.setState({ instanceModal: { ...instanceModal, visible: false, saving: false } })}
-          >
-            取消
-          </Button>,
-          <Button
-            key="ok"
-            type="primary"
-            loading={instanceModal.saving}
-            onClick={instanceModal.mode === 'create' ? this.handleCreateInstanceConfirm : this.handleSaveInstanceYaml}
-          >
-            {instanceModal.mode === 'create' ? '创建' : '保存'}
-          </Button>,
-        ];
+        <Button
+          key="cancel"
+          onClick={() => this.setState({ instanceModal: { ...instanceModal, visible: false, saving: false } })}
+        >
+          {t('platformResources.common.cancel', '取消')}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={instanceModal.saving}
+          onClick={instanceModal.mode === 'create' ? this.handleCreateInstanceConfirm : this.handleSaveInstanceYaml}
+        >
+          {instanceModal.mode === 'create' ? t('platformResources.common.create', '创建') : t('platformResources.common.save', '保存')}
+        </Button>,
+      ];
 
     return (
       <div className={styles.resourceWorkbench}>
@@ -1133,14 +1172,12 @@ class PlatformResources extends PureComponent {
           <div className={styles.navigatorHeader}>
             <div className={styles.navigatorTitleRow}>
               <div>
-                <span className={styles.navigatorEyebrow}>Resource Catalog</span>
-                <h2 className={styles.navigatorTitle}>资源目录</h2>
+                <h2 className={styles.navigatorTitle}>{t('platformResources.common.resourceCatalog', '资源目录')}</h2>
               </div>
               <span className={styles.countBadge}>{platformResources.length}</span>
             </div>
-            <p className={styles.navigatorDesc}>目录直接展示每个 Kind 的 group 和 resource，选择后可在右侧查看实例并执行 YAML 级操作。</p>
             <Input.Search
-              placeholder="搜索 Kind、group 或 resource"
+              placeholder={t('platformResources.common.searchType', '搜索 Kind、group 或 resource')}
               value={typeSearchText}
               allowClear
               onChange={e => this.setState({ typeSearchText: e.target.value })}
@@ -1150,7 +1187,7 @@ class PlatformResources extends PureComponent {
 
           <div className={styles.navigatorBody}>
             {filteredTypes.map(type => {
-              const isActive = selectedType && getTypeKey(selectedType) === getTypeKey(type);
+              const isActive = currentType && getTypeKey(currentType) === getTypeKey(type);
               const canList = hasVerb(type, 'list');
               return (
                 <button
@@ -1167,7 +1204,7 @@ class PlatformResources extends PureComponent {
                   <div className={styles.itemTitleRow}>
                     <div className={styles.itemTitleMain}>
                       <span className={styles.itemTitle}>{type.kind || '-'}</span>
-                      {!canList && <span className={styles.itemDisabledText}>不可浏览</span>}
+                      {!canList && <span className={styles.itemDisabledText}>{t('platformResources.common.notBrowsable', '不可浏览')}</span>}
                     </div>
                   </div>
                   <div className={styles.itemMeta}>
@@ -1179,57 +1216,41 @@ class PlatformResources extends PureComponent {
 
             {filteredTypes.length === 0 && (
               <div className={styles.navigatorEmpty}>
-                <Empty description="没有匹配的资源类型" />
+                <Empty description={t('platformResources.common.noMatchedTypes', '没有匹配的资源类型')} />
               </div>
             )}
           </div>
         </div>
 
         <div className={styles.resourceWorkspace}>
-          {!selectedType ? (
-            <div className={styles.emptyWorkspace}>
-              <div className={styles.emptyStateCard}>
-                <div className={styles.emptyIcon}>
-                  <Icon type="appstore" />
-                </div>
-                <div className={styles.emptyTitle}>从左侧选择一个资源类型</div>
-                <p className={styles.emptyDesc}>
-                  选中后会在这里展示实例列表、搜索入口，以及查看、编辑、创建 YAML 的操作工作区。
-                </p>
-              </div>
-            </div>
-          ) : (
+          {currentType && (
             <React.Fragment>
               <div className={styles.resourceHero}>
                 <div className={styles.resourceHeroTop}>
                   <div>
-                    <div className={styles.resourceHeroEyebrow}>Resource Workspace</div>
+                    <div className={styles.resourceHeroEyebrow}>{t('platformResources.common.resourceWorkspace', '资源工作区')}</div>
                     <div className={styles.resourceHeroTitleRow}>
-                      <h2 className={styles.resourceHeroTitle}>{selectedType.kind}</h2>
+                      <h2 className={styles.resourceHeroTitle}>{currentType.kind}</h2>
                     </div>
                     <div className={styles.metaChips}>
-                      <span className={styles.metaChip}>{getTypeApiVersion(selectedType)}</span>
-                      <span className={styles.metaChip}>{selectedType.resource}</span>
-                      <span className={styles.metaChip}>{selectedType.group || 'core api'}</span>
+                      <span className={styles.metaChip}>{getTypeApiVersion(currentType)}</span>
+                      <span className={styles.metaChip}>{currentType.resource}</span>
+                      <span className={styles.metaChip}>{currentType.group || 'core api'}</span>
                     </div>
-                    <p className={styles.resourceHeroDesc}>
-                      统一查看 {selectedType.kind} 实例，支持 YAML 浏览、编辑与创建操作，适合在平台层做全局资源维护。
-                    </p>
                   </div>
-                  <Button icon="rollback" onClick={this.handleBackToTypes}>清空选择</Button>
                 </div>
 
                 <div className={styles.workspaceToolbar}>
                   <div className={styles.toolbarSummary}>
-                    <span>{instanceSearchText ? `${filteredInstances.length}/${items.length} 个实例` : `${items.length} 个实例`}</span>
-                    <span className={styles.toolbarDot} />
-                    <span>支持 YAML 工作流</span>
-                    <span className={styles.toolbarDot} />
-                    <span>实例名称可快速搜索</span>
+                    <span>
+                      {instanceSearchText
+                        ? t('platformResources.common.instancesCount', '{current}/{total} 个实例', { current: filteredInstances.length, total: items.length })
+                        : t('platformResources.common.instancesCountOnly', '{total} 个实例', { total: items.length })}
+                    </span>
                   </div>
                   <div className={styles.workspaceToolbarActions}>
                     <Input.Search
-                      placeholder="搜索实例名称..."
+                      placeholder={t('platformResources.common.searchInstance', '搜索实例名称...')}
                       value={instanceSearchText}
                       allowClear
                       onChange={e => this.setState({ instanceSearchText: e.target.value })}
@@ -1237,7 +1258,7 @@ class PlatformResources extends PureComponent {
                     />
                     {canCreate && (
                       <Button type="primary" icon="plus" onClick={this.handleOpenCreateInstance}>
-                        创建
+                        {t('platformResources.common.create', '创建')}
                       </Button>
                     )}
                   </div>
@@ -1249,13 +1270,15 @@ class PlatformResources extends PureComponent {
                   <Table
                     dataSource={filteredInstances}
                     columns={instanceColumns}
-                    rowKey={(record, index) => (record.metadata && (record.metadata.uid || record.metadata.name)) || `${selectedType.resource}-${index}`}
+                    rowKey={(record, index) => (record.metadata && (record.metadata.uid || record.metadata.name)) || `${currentType.resource}-${index}`}
                     size="middle"
                     pagination={filteredInstances.length > 20 ? { pageSize: 20, size: 'small' } : false}
                     locale={{
                       emptyText: (
-                        <div style={{ padding: '56px 0', color: '#8d9bad' }}>
-                          {instancesLoading ? '加载中...' : `暂无 ${selectedType.kind} 实例`}
+                        <div className={styles.emptyTableText}>
+                          {instancesLoading
+                            ? t('resourceCenter.common.loading', '加载中...')
+                            : t('platformResources.common.noInstances', '暂无 {kind} 实例', { kind: currentType.kind })}
                         </div>
                       ),
                     }}
@@ -1264,7 +1287,7 @@ class PlatformResources extends PureComponent {
               </div>
 
               <Modal
-                title={<span><Icon type="code" style={{ marginRight: 8 }} />{modalTitle}</span>}
+                title={<span><Icon type="code" className={styles.modalTitleIcon} />{modalTitle}</span>}
                 visible={instanceModal.visible}
                 onCancel={() => this.setState({ instanceModal: { ...instanceModal, visible: false, saving: false } })}
                 footer={modalFooter}
@@ -1278,7 +1301,7 @@ class PlatformResources extends PureComponent {
                   onChange={instanceModal.mode !== 'view'
                     ? e => this.setState({ instanceModal: { ...instanceModal, content: e.target.value } })
                     : undefined}
-                  style={{ fontFamily: 'monospace', fontSize: 12 }}
+                  className={styles.monoEditorReadonly}
                 />
               </Modal>
             </React.Fragment>
@@ -1298,13 +1321,13 @@ class PlatformResources extends PureComponent {
           onChange={this.handleStorageSubTabChange}
           className={styles.innerTabs}
         >
-          <TabPane key="storageclass" tab="存储类">
+          <TabPane key="storageclass" tab={t('platformResources.section.storageclass.title', '存储类')}>
             {this.renderStorageClassTab()}
           </TabPane>
-          <TabPane key="pv" tab="存储卷">
+          <TabPane key="pv" tab={t('platformResources.section.pv.title', '存储卷')}>
             {this.renderPVTab()}
           </TabPane>
-          <TabPane key="storageconfig" tab="存储配置">
+          <TabPane key="storageconfig" tab={t('platformResources.section.config.title', '存储配置')}>
             {this.renderStorageConfigTab()}
           </TabPane>
         </Tabs>
@@ -1316,88 +1339,95 @@ class PlatformResources extends PureComponent {
     const { createModalVisible, yamlContent, mainTab, storageResourceModal } = this.state;
 
     const storageResourceModalTitle = storageResourceModal.mode === 'edit'
-      ? `编辑 YAML - ${storageResourceModal.title} - ${storageResourceModal.name}`
-      : `查看 YAML - ${storageResourceModal.title} - ${storageResourceModal.name}`;
+      ? t('platformResources.modal.editYaml', '编辑 YAML - {title} - {name}', { title: storageResourceModal.title, name: storageResourceModal.name })
+      : t('platformResources.modal.viewYaml', '查看 YAML - {title} - {name}', { title: storageResourceModal.title, name: storageResourceModal.name });
 
     const storageResourceModalFooter = storageResourceModal.mode === 'view'
       ? [
-          <Button key="close" onClick={this.closeStorageResourceModal}>
-            关闭
-          </Button>,
-        ]
+        <Button key="close" onClick={this.closeStorageResourceModal}>
+          {t('platformResources.common.close', '关闭')}
+        </Button>,
+      ]
       : [
-          <Button key="cancel" onClick={this.closeStorageResourceModal}>
-            取消
-          </Button>,
-          <Button
-            key="ok"
-            type="primary"
-            loading={storageResourceModal.saving}
-            onClick={this.handleSaveStorageResourceYaml}
-          >
-            保存
-          </Button>,
-        ];
+        <Button key="cancel" onClick={this.closeStorageResourceModal}>
+          {t('platformResources.common.cancel', '取消')}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={storageResourceModal.saving}
+          onClick={this.handleSaveStorageResourceYaml}
+        >
+          {t('platformResources.common.save', '保存')}
+        </Button>,
+      ];
 
     return (
-      <div className={styles.platformResourcesPage}>
-        <div className={styles.pageShell}>
-          {this.renderPageHeader()}
+      <PageHeaderLayout
+        title={t('platformResources.page.title', '存储管理')}
+        content={t('platformResources.header.content', '围绕集群级存储与 Kubernetes 全局资源，提供更清晰的资源目录、集中筛选和 YAML 级操作工作区。')}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('StorageMgtL', 18)}
+        wrapperClassName={styles.pageHeaderLayout}
+      >
+        <div className={styles.platformResourcesPage}>
+          <div className={styles.pageShell}>
+            {this.renderPageHeader()}
 
-          <div className={styles.pageContent}>
-            {mainTab === 'storage' && this.renderStorageWorkspace()}
+            <div className={styles.pageContent}>
+              {mainTab === 'storage' && this.renderStorageWorkspace()}
 
-            {mainTab === 'other' && (
-              <Card bordered={false} className={styles.workspaceCard}>
-                {this.renderOtherResourcesTab()}
-              </Card>
-            )}
-          </div>
+              {mainTab === 'other' && (
+                <Card bordered={false} className={styles.workspaceCard}>
+                  {this.renderOtherResourcesTab()}
+                </Card>
+              )}
+            </div>
 
-          <Modal
-            title={<span><Icon type="code" style={{ marginRight: 8 }} />YAML 创建存储类</span>}
-            visible={createModalVisible}
-            onOk={this.handleCreateConfirm}
-            onCancel={() => this.setState({ createModalVisible: false, yamlContent: '' })}
-            width={680}
-            okText="创建"
-            cancelText="取消"
-          >
-            <p style={{ color: '#676f83', marginBottom: 8, fontSize: 13 }}>粘贴 StorageClass 的 YAML 定义内容。</p>
-            <TextArea
-              rows={16}
-              value={yamlContent}
-              onChange={e => this.setState({ yamlContent: e.target.value })}
-              placeholder={'apiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: my-storage\nprovisioner: your.provisioner'}
-              style={{ fontFamily: 'monospace', fontSize: 13 }}
-            />
-          </Modal>
+            <Modal
+              title={<span><Icon type="code" className={styles.modalTitleIcon} />{t('platformResources.modal.createStorageClass', 'YAML 创建存储类')}</span>}
+              visible={createModalVisible}
+              onOk={this.handleCreateConfirm}
+              onCancel={() => this.setState({ createModalVisible: false, yamlContent: '' })}
+              width={680}
+              okText={t('platformResources.common.create', '创建')}
+              cancelText={t('platformResources.common.cancel', '取消')}
+            >
+              <p className={styles.modalLead}>{t('platformResources.modal.lead.storageClass', '粘贴 StorageClass 的 YAML 定义内容。')}</p>
+              <TextArea
+                rows={16}
+                value={yamlContent}
+                onChange={e => this.setState({ yamlContent: e.target.value })}
+                placeholder={'apiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: my-storage\nprovisioner: your.provisioner'}
+                className={styles.monoEditor}
+              />
+            </Modal>
 
-          <Modal
-            title={<span><Icon type="code" style={{ marginRight: 8 }} />{storageResourceModalTitle}</span>}
-            visible={storageResourceModal.visible}
-            onCancel={this.closeStorageResourceModal}
-            footer={storageResourceModalFooter}
-            width={760}
-            destroyOnClose
-          >
-            <TextArea
-              rows={22}
-              readOnly={storageResourceModal.mode === 'view'}
-              value={storageResourceModal.content}
-              onChange={storageResourceModal.mode !== 'view'
-                ? e => this.setState({
+            <Modal
+              title={<span><Icon type="code" className={styles.modalTitleIcon} />{storageResourceModalTitle}</span>}
+              visible={storageResourceModal.visible}
+              onCancel={this.closeStorageResourceModal}
+              footer={storageResourceModalFooter}
+              width={760}
+              destroyOnClose
+            >
+              <TextArea
+                rows={22}
+                readOnly={storageResourceModal.mode === 'view'}
+                value={storageResourceModal.content}
+                onChange={storageResourceModal.mode !== 'view'
+                  ? e => this.setState({
                     storageResourceModal: {
                       ...storageResourceModal,
                       content: e.target.value,
                     },
                   })
-                : undefined}
-              style={{ fontFamily: 'monospace', fontSize: 12 }}
-            />
-          </Modal>
+                  : undefined}
+                className={styles.monoEditorReadonly}
+              />
+            </Modal>
+          </div>
         </div>
-      </div>
+      </PageHeaderLayout>
     );
   }
 }

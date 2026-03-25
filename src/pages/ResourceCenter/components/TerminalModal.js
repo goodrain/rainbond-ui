@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Modal, Select } from 'antd';
+import { formatMessage } from '@/utils/intl';
 import XTerm from '../../Component/WebConsole/xTerm';
 import styles from '../detail.less';
 
@@ -38,7 +39,7 @@ class TerminalModal extends PureComponent {
         footer={null}
         width={980}
         destroyOnClose
-        title="Web 终端"
+        title={formatMessage({ id: 'resourceCenter.common.webTerminal' })}
         bodyStyle={{ padding: 0 }}
       >
         <div className={styles.terminalToolbar}>
@@ -70,7 +71,7 @@ class TerminalModal extends PureComponent {
             height={560}
           />
         ) : (
-          <div className={styles.terminalEmpty}>当前没有可连接的终端实例</div>
+          <div className={styles.terminalEmpty}>{formatMessage({ id: 'resourceCenter.terminal.empty', defaultMessage: '当前没有可连接的终端实例' })}</div>
         )}
       </Modal>
     );

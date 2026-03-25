@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import { formatMessage } from '@/utils/intl';
 import {
   Button,
   Card,
@@ -12,12 +13,17 @@ import {
   Tabs,
   Tag,
 } from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
+import ResourceBreadcrumbTitle from './components/ResourceBreadcrumbTitle';
 import styles from './detail.less';
 import { openInNewTab } from '../../utils/utils';
+import { formatToBeijingTime } from './utils';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
+const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
 
 function safeYaml(value) {
   if (!value) {
@@ -160,18 +166,18 @@ function getEndpointStatus(service = {}, endpointRows = []) {
   const hasSelector = Object.keys(spec.selector || {}).length > 0;
 
   if (metadata.deletionTimestamp) {
-    return { text: '删除中', className: styles.statusError };
+    return { text: t('resourceCenter.detail.deleting', '删除中'), className: styles.statusError };
   }
   if (spec.type === 'ExternalName') {
-    return { text: '外部服务', className: styles.statusDefault };
+    return { text: t('resourceCenter.detail.externalService', '外部服务'), className: styles.statusDefault };
   }
   if (endpointRows.length > 0) {
-    return { text: '已发现端点', className: styles.statusRunning };
+    return { text: t('resourceCenter.detail.endpointsFound', '已发现端点'), className: styles.statusRunning };
   }
   if (hasSelector) {
-    return { text: '无可用端点', className: styles.statusWarning };
+    return { text: t('resourceCenter.detail.noAvailableEndpoints', '无可用端点'), className: styles.statusWarning };
   }
-  return { text: '无选择器', className: styles.statusDefault };
+  return { text: t('resourceCenter.detail.noSelector', '无选择器'), className: styles.statusDefault };
 }
 
 @connect(({ resourceCenterDetail, loading }) => ({
@@ -289,7 +295,7 @@ class ServiceDetail extends PureComponent {
       },
       callback: res => {
         if (res) {
-          notification.success({ message: 'YAML 保存成功' });
+          notification.success({ message: t('resourceCenter.yaml.saveSuccess', 'YAML 保存成功') });
           this.fetchDetail();
         }
       },
@@ -315,25 +321,25 @@ class ServiceDetail extends PureComponent {
     const health = getEndpointStatus(service, endpointRows);
     const ports = spec.ports || [];
     const portColumns = [
-      { title: '名称', dataIndex: 'name', key: 'name', render: value => value || '-' },
-      { title: '服务端口', dataIndex: 'port', key: 'port', width: 110, render: value => value || '-' },
-      { title: '协议', dataIndex: 'protocol', key: 'protocol', width: 100, render: value => value || 'TCP' },
+      { title: t('resourceCenter.common.name', '名称'), dataIndex: 'name', key: 'name', render: value => value || '-' },
+      { title: t('resourceCenter.detail.servicePortCount', '服务端口'), dataIndex: 'port', key: 'port', width: 110, render: value => value || '-' },
+      { title: t('platformResources.common.protocol', '协议'), dataIndex: 'protocol', key: 'protocol', width: 100, render: value => value || 'TCP' },
       {
-        title: '目标端口',
+        title: t('resourceCenter.detail.targetPort', '目标端口'),
         dataIndex: 'targetPort',
         key: 'targetPort',
         width: 120,
         render: value => value !== undefined && value !== null && value !== '' ? String(value) : '-',
       },
       {
-        title: '节点端口',
+        title: t('resourceCenter.detail.nodePort', '节点端口'),
         dataIndex: 'nodePort',
         key: 'nodePort',
         width: 120,
         render: value => value || '-',
       },
       {
-        title: '访问地址',
+        title: t('resourceCenter.detail.accessAddress', '访问地址'),
         key: 'accessUrl',
         render: (_, record) => {
           const url = buildNodePortAccessUrl(record);
@@ -341,49 +347,51 @@ class ServiceDetail extends PureComponent {
         },
       },
       {
-        title: '操作',
+        title: t('resourceCenter.common.operation', '操作'),
         key: 'action',
         width: 100,
         render: (_, record) => {
           const url = buildNodePortAccessUrl(record);
           return url ? (
             <Button size="small" onClick={() => openInNewTab(url)}>
-              访问
+              {t('resourceCenter.detail.goVisit', '访问')}
             </Button>
           ) : '-';
         },
       },
     ];
     const endpointColumns = [
-      { title: 'IP', dataIndex: 'ip', key: 'ip', render: value => value ? <span className={styles.monoText}>{value}</span> : '-' },
-      { title: '端口', dataIndex: 'port', key: 'port', width: 100 },
-      { title: '协议', dataIndex: 'protocol', key: 'protocol', width: 100 },
-      { title: '端口名', dataIndex: 'portName', key: 'portName', width: 120 },
-      { title: '节点', dataIndex: 'nodeName', key: 'nodeName', render: value => value || '-' },
-      { title: '目标对象', dataIndex: 'target', key: 'target', render: value => value || '-' },
+      { title: t('resourceCenter.common.ip', 'IP'), dataIndex: 'ip', key: 'ip', render: value => value ? <span className={styles.monoText}>{value}</span> : '-' },
+      { title: t('resourceCenter.common.ports', '端口'), dataIndex: 'port', key: 'port', width: 100 },
+      { title: t('platformResources.common.protocol', '协议'), dataIndex: 'protocol', key: 'protocol', width: 100 },
+      { title: t('resourceCenter.detail.portName', '端口名'), dataIndex: 'portName', key: 'portName', width: 120 },
+      { title: t('resourceCenter.detail.node', '节点'), dataIndex: 'nodeName', key: 'nodeName', render: value => value || '-' },
+      { title: t('resourceCenter.detail.targetObject', '目标对象'), dataIndex: 'target', key: 'target', render: value => value || '-' },
       {
-        title: '状态',
+        title: t('resourceCenter.common.status', '状态'),
         dataIndex: 'ready',
         key: 'ready',
         width: 100,
-        render: value => value ? <span className={styles.statusRunning}>就绪</span> : <span className={styles.statusWarning}>未就绪</span>,
+        render: value => value ? <span className={styles.statusRunning}>{t('resourceCenter.detail.ready', '就绪')}</span> : <span className={styles.statusWarning}>{t('resourceCenter.detail.notReady', '未就绪')}</span>,
       },
     ];
-    const addressLabel = spec.type === 'ExternalName' ? 'External Name' : 'Cluster IP';
+    const addressLabel = spec.type === 'ExternalName'
+      ? t('resourceCenter.detail.externalName', 'External Name')
+      : t('resourceCenter.detail.clusterIp', 'Cluster IP');
 
     return (
       <div>
         <div className={styles.heroStats}>
           <div className={styles.statCard}>
-            <div className={styles.statLabel}>服务类型</div>
+            <div className={styles.statLabel}>{t('resourceCenter.detail.serviceType', '服务类型')}</div>
             <div className={styles.statValue}>{spec.type || 'ClusterIP'}</div>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statLabel}>服务端口</div>
+            <div className={styles.statLabel}>{t('resourceCenter.detail.servicePortCount', '服务端口')}</div>
             <div className={styles.statValue}>{ports.length}</div>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statLabel}>后端端点</div>
+            <div className={styles.statLabel}>{t('resourceCenter.detail.endpointCount', '后端端点')}</div>
             <div className={styles.statValue}>{endpointRows.length}</div>
           </div>
           <div className={styles.statCard}>
@@ -393,25 +401,25 @@ class ServiceDetail extends PureComponent {
         </div>
 
         <div className={styles.overviewGrid}>
-          <Card bordered={false} className={styles.infoCard} title={<span className={styles.cardTitle}>基本信息</span>}>
+          <Card bordered={false} className={styles.infoCard} title={<span className={styles.cardTitle}>{t('resourceCenter.detail.basicInfo', '基本信息')}</span>}>
             <div className={styles.infoList}>
-              {this.renderInfoRow('名称', metadata.name)}
-              {this.renderInfoRow('端点状态', <span className={health.className}>{health.text}</span>)}
-              {this.renderInfoRow('命名空间', metadata.namespace)}
-              {this.renderInfoRow('创建时间', metadata.creationTimestamp)}
-              {this.renderInfoRow('API Version', service.apiVersion || '-')}
-              {this.renderInfoRow('会话保持', spec.sessionAffinity || 'None')}
+              {this.renderInfoRow(t('resourceCenter.common.name', '名称'), metadata.name)}
+              {this.renderInfoRow(t('resourceCenter.detail.endpointHealth', '端点状态'), <span className={health.className}>{health.text}</span>)}
+              {this.renderInfoRow(t('resourceCenter.common.namespace', '命名空间'), metadata.namespace)}
+              {this.renderInfoRow(t('resourceCenter.common.createdAt', '创建时间'), formatToBeijingTime(metadata.creationTimestamp))}
+              {this.renderInfoRow(t('resourceCenter.detail.apiVersion', 'API Version'), service.apiVersion || '-')}
+              {this.renderInfoRow(t('resourceCenter.detail.sessionAffinity', '会话保持'), spec.sessionAffinity || 'None')}
               {this.renderInfoRow(addressLabel, <code className={styles.monoText}>{formatClusterAddress(spec)}</code>)}
-              {this.renderInfoRow('外部访问地址', formatExternalAccess(service))}
-              {this.renderInfoRow('资源版本', metadata.resourceVersion || '-')}
-              {this.renderInfoRow('流量策略', spec.externalTrafficPolicy || '-')}
+              {this.renderInfoRow(t('resourceCenter.detail.externalAccess', '外部访问地址'), formatExternalAccess(service))}
+              {this.renderInfoRow(t('resourceCenter.detail.resourceVersion', '资源版本'), metadata.resourceVersion || '-')}
+              {this.renderInfoRow(t('resourceCenter.detail.trafficPolicy', '流量策略'), spec.externalTrafficPolicy || '-')}
             </div>
           </Card>
-          <Card bordered={false} className={styles.infoCard} title={<span className={styles.cardTitle}>标签与选择器</span>}>
+          <Card bordered={false} className={styles.infoCard} title={<span className={styles.cardTitle}>{t('resourceCenter.detail.labelsAndSelectors', '标签与选择器')}</span>}>
             <div className={styles.infoList}>
-              {this.renderInfoRow('选择器', formatMapTags(spec.selector))}
-              {this.renderInfoRow('资源标签', formatMapTags(metadata.labels))}
-              {this.renderInfoRow('资源注解', formatMapTags(metadata.annotations))}
+              {this.renderInfoRow(t('resourceCenter.detail.selector', '选择器'), formatMapTags(spec.selector))}
+              {this.renderInfoRow(t('resourceCenter.detail.resourceLabels', '资源标签'), formatMapTags(metadata.labels))}
+              {this.renderInfoRow(t('resourceCenter.detail.resourceAnnotations', '资源注解'), formatMapTags(metadata.annotations))}
             </div>
           </Card>
         </div>
@@ -420,11 +428,11 @@ class ServiceDetail extends PureComponent {
           <Card bordered={false} className={styles.workspaceCard}>
             <div className={styles.toolbar}>
               <div>
-                <div className={styles.cardTitle}>端口映射</div>
+                <div className={styles.cardTitle}>{t('resourceCenter.detail.portMapping', '端口映射')}</div>
                 <div className={styles.toolbarMeta}>
-                  <span>{`${ports.length} 个服务端口`}</span>
+                  <span>{t('resourceCenter.detail.servicePortMeta', '{count} 个服务端口', { count: ports.length })}</span>
                   <span className={styles.toolbarDot} />
-                  <span>聚焦 Service 暴露端口、目标端口与 NodePort</span>
+                  <span>{t('resourceCenter.detail.servicePortHint', '聚焦 Service 暴露端口、目标端口与 NodePort')}</span>
                 </div>
               </div>
             </div>
@@ -434,7 +442,7 @@ class ServiceDetail extends PureComponent {
                 dataSource={ports}
                 columns={portColumns}
                 pagination={false}
-                locale={{ emptyText: <Empty description="当前服务没有暴露端口" /> }}
+                locale={{ emptyText: <Empty description={t('resourceCenter.detail.noExposedPorts', '当前服务没有暴露端口')} /> }}
               />
             </div>
           </Card>
@@ -444,11 +452,11 @@ class ServiceDetail extends PureComponent {
           <Card bordered={false} className={styles.workspaceCard}>
             <div className={styles.toolbar}>
               <div>
-                <div className={styles.cardTitle}>后端端点</div>
+                <div className={styles.cardTitle}>{t('resourceCenter.detail.backendEndpoints', '后端端点')}</div>
                 <div className={styles.toolbarMeta}>
-                  <span>{`${endpointRows.length} 条端点记录`}</span>
+                  <span>{t('resourceCenter.detail.endpointMeta', '{count} 条端点记录', { count: endpointRows.length })}</span>
                   <span className={styles.toolbarDot} />
-                  <span>展示当前 Service 关联到的 Pod IP、端口和目标对象</span>
+                  <span>{t('resourceCenter.detail.endpointHint', '展示当前 Service 关联到的 Pod IP、端口和目标对象')}</span>
                 </div>
               </div>
             </div>
@@ -458,7 +466,7 @@ class ServiceDetail extends PureComponent {
                 dataSource={endpointRows}
                 columns={endpointColumns}
                 pagination={endpointRows.length > 10 ? { pageSize: 10, size: 'small' } : false}
-                locale={{ emptyText: <Empty description="当前服务暂无后端端点" /> }}
+                locale={{ emptyText: <Empty description={t('resourceCenter.detail.noBackendEndpoints', '当前服务暂无后端端点')} /> }}
               />
             </div>
           </Card>
@@ -470,11 +478,11 @@ class ServiceDetail extends PureComponent {
   renderEventsTab() {
     const { events, eventsLoading } = this.props;
     const columns = [
-      { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
-      { title: '原因', dataIndex: 'reason', key: 'reason', width: 160 },
-      { title: '消息', dataIndex: 'message', key: 'message' },
-      { title: '次数', dataIndex: 'count', key: 'count', width: 90 },
-      { title: '最后时间', dataIndex: 'last_timestamp', key: 'last_timestamp', width: 180 },
+      { title: t('resourceCenter.common.type', '类型'), dataIndex: 'type', key: 'type', width: 100 },
+      { title: t('resourceCenter.common.reason', '原因'), dataIndex: 'reason', key: 'reason', width: 160 },
+      { title: t('resourceCenter.common.message', '消息'), dataIndex: 'message', key: 'message' },
+      { title: t('resourceCenter.common.count', '次数'), dataIndex: 'count', key: 'count', width: 90 },
+      { title: t('resourceCenter.common.lastTime', '最后时间'), dataIndex: 'last_timestamp', key: 'last_timestamp', width: 180, render: value => formatToBeijingTime(value) },
     ];
 
     return (
@@ -484,7 +492,7 @@ class ServiceDetail extends PureComponent {
         dataSource={events}
         columns={columns}
         pagination={events.length > 10 ? { pageSize: 10, size: 'small' } : false}
-        locale={{ emptyText: <Empty description="暂无事件" /> }}
+        locale={{ emptyText: <Empty description={t('resourceCenter.detail.noEvents', '暂无事件')} /> }}
       />
     );
   }
@@ -492,7 +500,7 @@ class ServiceDetail extends PureComponent {
   renderYamlTab() {
     return (
       <div className={styles.yamlPanel}>
-        <div className={styles.yamlHint}>YAML 与当前 Service 对象保持一致，可直接查看或编辑保存。</div>
+        <div className={styles.yamlHint}>{t('resourceCenter.detail.serviceYamlHint', 'YAML 与当前 Service 对象保持一致，可直接查看或编辑保存。')}</div>
         <TextArea
           rows={28}
           value={this.state.yamlText}
@@ -500,8 +508,8 @@ class ServiceDetail extends PureComponent {
           className={styles.yamlEditor}
         />
         <div className={styles.yamlActions}>
-          <Button onClick={this.fetchDetail}>重置</Button>
-          <Button type="primary" onClick={this.handleSaveYaml}>保存 YAML</Button>
+          <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>
+          <Button type="primary" onClick={this.handleSaveYaml}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
         </div>
       </div>
     );
@@ -516,62 +524,67 @@ class ServiceDetail extends PureComponent {
     const health = getEndpointStatus(service, endpointRows);
 
     return (
-      <div className={styles.detailPage}>
-        <div className={styles.detailHeader}>
-          <div className={styles.breadcrumb}>
-            <button type="button" className={styles.breadcrumbLink} onClick={this.goToResourceCenter}>
-              K8S 原生资源
-            </button>
-            <span className={styles.breadcrumbSeparator}>/</span>
-            <button type="button" className={styles.breadcrumbLink} onClick={this.goToServiceList}>
-              服务
-            </button>
-            <span className={styles.breadcrumbSeparator}>/</span>
-            <span>{metadata.name || this.getRouteParams().serviceName}</span>
-          </div>
-          <div className={styles.headerRow}>
-            <div className={styles.titleWrap}>
-              <span className={styles.eyebrow}>Service Detail Workspace</span>
-              <div className={styles.titleLine}>
-                <h1 className={styles.title}>{metadata.name || '-'}</h1>
-                <span className={health.className}>{health.text}</span>
-                <Tag color="blue">{spec.type || 'ClusterIP'}</Tag>
+      <PageHeaderLayout
+        title={(
+          <ResourceBreadcrumbTitle
+            items={[
+              { label: t('resourceCenter.page.title', 'K8S 原生资源'), onClick: this.goToResourceCenter },
+              { label: t('resourceCenter.tab.network.title', '网络'), onClick: this.goToServiceList },
+            ]}
+            current={metadata.name || this.getRouteParams().serviceName}
+            styles={styles}
+          />
+        )}
+        content={t('resourceCenter.detail.serviceContent', '查看服务概览、端口映射、后端端点、事件与 YAML 配置。')}
+        titleSvg={pageheaderSvg.getPageHeaderSvg('k8s', 18)}
+        wrapperClassName={styles.detailPageLayout}
+      >
+        <div className={styles.detailPage}>
+          <div className={styles.detailHeader}>
+            <div className={styles.headerRow}>
+              <div className={styles.titleWrap}>
+                <span className={styles.eyebrow}>{t('resourceCenter.tab.network.title', '网络')}</span>
+                <div className={styles.titleLine}>
+                  <h1 className={styles.title}>{metadata.name || '-'}</h1>
+                  <span className={health.className}>{health.text}</span>
+                  <Tag color="blue">{spec.type || 'ClusterIP'}</Tag>
+                </div>
+                <div className={styles.summaryText}>
+                  {t('resourceCenter.detail.serviceSummary', '服务详情页聚焦流量入口本身，支持查看端口映射、后端端点、事件和 YAML，便于从 Helm Release 或资源列表继续下钻排查。')}
+                </div>
               </div>
-              <div className={styles.summaryText}>
-                服务详情页聚焦流量入口本身，支持查看端口映射、后端端点、事件和 YAML，便于从 Helm Release 或资源列表继续下钻排查。
+              <div className={styles.headerActions}>
+                <Button icon="left" onClick={this.goToServiceList}>
+                  {t('resourceCenter.detail.returnService', '返回服务列表')}
+                </Button>
+                <Button onClick={this.fetchDetail}>
+                  {t('resourceCenter.common.refresh', '刷新')}
+                </Button>
               </div>
             </div>
-            <div className={styles.headerActions}>
-              <Button icon="left" onClick={this.goToServiceList}>
-                返回服务列表
-              </Button>
-              <Button onClick={this.fetchDetail}>
-                刷新
-              </Button>
-            </div>
           </div>
+
+          <Spin spinning={detailLoading}>
+            {serviceDetail ? (
+              <Card bordered={false} className={styles.workspaceCard} bodyStyle={{ padding: '22px 24px 28px' }}>
+                <Tabs activeKey={this.state.activeTab} onChange={this.handleTabChange}>
+                  <TabPane tab={t('resourceCenter.common.overview', '概览')} key="overview">{this.renderOverview()}</TabPane>
+                  <TabPane tab={t('resourceCenter.common.events', '事件')} key="events">{this.renderEventsTab()}</TabPane>
+                  <TabPane tab="YAML" key="yaml">{this.renderYamlTab()}</TabPane>
+                </Tabs>
+              </Card>
+            ) : null}
+
+            {!detailLoading && !serviceDetail && (
+              <Card bordered={false} className={styles.workspaceCard}>
+                <div className={styles.emptyPanel}>
+                  <Empty description={t('resourceCenter.detail.noServiceDetail', '未找到服务详情')} />
+                </div>
+              </Card>
+            )}
+          </Spin>
         </div>
-
-        <Spin spinning={detailLoading}>
-          {serviceDetail ? (
-            <Card bordered={false} className={styles.workspaceCard} bodyStyle={{ padding: '22px 24px 28px' }}>
-              <Tabs activeKey={this.state.activeTab} onChange={this.handleTabChange}>
-                <TabPane tab="概览" key="overview">{this.renderOverview()}</TabPane>
-                <TabPane tab="事件" key="events">{this.renderEventsTab()}</TabPane>
-                <TabPane tab="YAML" key="yaml">{this.renderYamlTab()}</TabPane>
-              </Tabs>
-            </Card>
-          ) : null}
-
-          {!detailLoading && !serviceDetail && (
-            <Card bordered={false} className={styles.workspaceCard}>
-              <div className={styles.emptyPanel}>
-                <Empty description="未找到服务详情" />
-              </div>
-            </Card>
-          )}
-        </Spin>
-      </div>
+      </PageHeaderLayout>
     );
   }
 }

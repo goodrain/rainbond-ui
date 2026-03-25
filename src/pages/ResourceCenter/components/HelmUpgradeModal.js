@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
 import {
   Avatar,
   Button,
@@ -18,9 +19,12 @@ import {
 } from 'antd';
 import Result from '@/components/Result';
 import { getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
+import HelmIcon from './HelmIcon';
+import styles from '../index.less';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
 
 function getChartDescription(chart = {}) {
   return chart.description || (chart.versions && chart.versions[0] && chart.versions[0].description) || '';
@@ -228,7 +232,7 @@ export default class HelmUpgradeModal extends PureComponent {
               previewData: null,
               previewFileKey: '',
               previewStatus: 'error',
-              previewError: '未在已记录仓库中找到当前 Chart，请检查 Helm 仓库配置。',
+              previewError: t('resourceCenter.helm.upgrade.lockedChartMissing', '未在已记录仓库中找到当前 Chart，请检查 Helm 仓库配置。'),
               configVisible: false,
             });
             return;
@@ -345,7 +349,7 @@ export default class HelmUpgradeModal extends PureComponent {
       },
       handleError: err => {
         notification.error({
-          message: this.getErrorMessage(err, '初始化 Chart 上传会话失败'),
+          message: this.getErrorMessage(err, t('resourceCenter.helm.uploadSessionInitFailed', '初始化 Chart 上传会话失败')),
         });
       },
     });
@@ -378,7 +382,7 @@ export default class HelmUpgradeModal extends PureComponent {
       },
       handleError: err => {
         notification.error({
-          message: this.getErrorMessage(err, '读取上传状态失败'),
+          message: this.getErrorMessage(err, t('resourceCenter.helm.uploadStatusLoadFailed', '读取上传状态失败')),
         });
       },
     });
@@ -397,7 +401,7 @@ export default class HelmUpgradeModal extends PureComponent {
       this.fetchUploadStatus();
     }
     if (info.file && info.file.status === 'error') {
-      notification.error({ message: 'Chart 包上传失败' });
+      notification.error({ message: t('resourceCenter.helm.uploadFailed', 'Chart 包上传失败') });
     }
   };
 
@@ -430,7 +434,7 @@ export default class HelmUpgradeModal extends PureComponent {
       },
       handleError: err => {
         notification.error({
-          message: this.getErrorMessage(err, '删除上传包失败'),
+          message: this.getErrorMessage(err, t('resourceCenter.helm.uploadDeleteFailed', '删除上传包失败')),
         });
       },
     });
@@ -476,7 +480,7 @@ export default class HelmUpgradeModal extends PureComponent {
       payload,
       callback: bean => this.applyPreview(bean, sourceType),
       handleError: err => {
-        const message = this.getErrorMessage(err, 'Chart 检测失败');
+        const message = this.getErrorMessage(err, t('resourceCenter.helm.previewFailed', 'Chart 检测失败'));
         this.setState({
           previewLoading: false,
           previewStatus: 'error',
@@ -514,16 +518,16 @@ export default class HelmUpgradeModal extends PureComponent {
 
   confirmRiskAndSubmit = (risk, submit) => {
     Modal.confirm({
-      title: '检测到跨 Chart 升级风险',
-      okText: '明确确认并继续',
-      cancelText: '取消',
+      title: t('resourceCenter.helm.crossChartRiskTitle', '检测到跨 Chart 升级风险'),
+      okText: t('resourceCenter.helm.crossChartRiskConfirm', '明确确认并继续'),
+      cancelText: t('resourceCenter.common.cancel', '取消'),
       width: 620,
       content: (
-        <div style={{ color: '#495464', lineHeight: '24px' }}>
-          <div>当前 Release Chart：<strong>{risk.currentChart}</strong></div>
-          <div>目标升级 Chart：<strong>{risk.previewChart}</strong></div>
-          <div style={{ marginTop: 12 }}>Helm upgrade 不会自动清理旧资源，这种跨 Chart 升级可能导致资源混跑、流量异常和回滚不可预期。</div>
-          <div style={{ marginTop: 12 }}>更推荐使用 `helm uninstall + helm install` 完成替换，或使用新的 release 名称部署。</div>
+        <div className={styles.riskConfirmText}>
+          <div>{t('resourceCenter.helm.crossChartRisk.current', '当前 Release Chart：')}<strong>{risk.currentChart}</strong></div>
+          <div>{t('resourceCenter.helm.crossChartRisk.target', '目标升级 Chart：')}<strong>{risk.previewChart}</strong></div>
+          <div className={styles.riskConfirmSpacer}>{t('resourceCenter.helm.upgrade.riskDesc', 'Helm upgrade 不会自动清理旧资源，这种跨 Chart 升级可能导致资源混跑、流量异常和回滚不可预期。')}</div>
+          <div className={styles.riskConfirmSpacer}>{t('resourceCenter.helm.crossChartRisk.suggestion', '更推荐使用 `helm uninstall + helm install` 完成替换，或使用新的 release 名称部署。')}</div>
         </div>
       ),
       onOk: submit,
@@ -550,9 +554,9 @@ export default class HelmUpgradeModal extends PureComponent {
 
     if (sourceType === 'store') {
       if (!selectedChart) {
-        validationMessage = '请先选择一个 Helm Chart';
+        validationMessage = t('resourceCenter.helm.validation.selectChart', '请先选择一个 Helm Chart');
       } else if (!storeForm.version || !previewData) {
-        validationMessage = '请先完成 Chart 检测';
+        validationMessage = t('resourceCenter.helm.upgrade.validation.finishPreview', '请先完成 Chart 检测');
       } else {
         payload = {
           team: teamName,
@@ -569,11 +573,11 @@ export default class HelmUpgradeModal extends PureComponent {
       const chartUrl = this.buildExternalChartUrl();
       const isOCI = chartUrl.indexOf('oci://') === 0;
       if (!chartUrl) {
-        validationMessage = '请填写 Chart 地址';
+        validationMessage = t('resourceCenter.helm.validation.chartUrl', '请填写 Chart 地址');
       } else if (externalForm.auth_type === 'basic' && (!externalForm.username || !externalForm.password)) {
-        validationMessage = '请选择 Basic 鉴权时填写用户名和密码';
+        validationMessage = t('resourceCenter.helm.validation.basicAuth', '请选择 Basic 鉴权时填写用户名和密码');
       } else if (!previewData) {
-        validationMessage = '请先检测 Chart';
+        validationMessage = t('resourceCenter.helm.validation.previewFirst', '请先检测 Chart');
       } else {
         payload = {
           team: teamName,
@@ -587,7 +591,7 @@ export default class HelmUpgradeModal extends PureComponent {
         };
       }
     } else if (!uploadEventId || !uploadChartInfo) {
-      validationMessage = '请先上传并检测 Chart 包';
+      validationMessage = t('resourceCenter.helm.validation.uploadFirst', '请先上传并检测 Chart 包');
     } else {
       payload = {
         team: teamName,
@@ -619,7 +623,7 @@ export default class HelmUpgradeModal extends PureComponent {
         handleError: err => {
           this.setState({ installLoading: false });
           notification.error({
-            message: this.getErrorMessage(err, '升级失败'),
+            message: this.getErrorMessage(err, t('resourceCenter.helm.upgradeFailed', '升级失败')),
           });
         },
       });
@@ -641,24 +645,21 @@ export default class HelmUpgradeModal extends PureComponent {
     const target = this.props.targetRelease || {};
     const sourceInfo = this.getSourceInfo();
     const sourceText = this.isStoreLocked()
-      ? `升级方式：Helm 商店（仓库 ${sourceInfo.repo_name || '-' }，Chart ${sourceInfo.chart_name || target.chart || '-'})`
-      : '升级方式：通用升级（第三方仓库 / OCI 或上传 Chart 包）';
+      ? t('resourceCenter.helm.upgrade.storeMode', '升级方式：Helm 商店（仓库 {repo}，Chart {chart}）', {
+        repo: sourceInfo.repo_name || '-',
+        chart: sourceInfo.chart_name || target.chart || '-',
+      })
+      : t('resourceCenter.helm.upgrade.genericMode', '升级方式：通用升级（第三方仓库 / OCI 或上传 Chart 包）');
     return (
-      <div style={{
-        marginBottom: 16,
-        padding: '14px 16px',
-        borderRadius: 8,
-        border: '1px solid #d9e6ff',
-        background: '#f7faff',
-      }}>
-        <div style={{ fontSize: 15, fontWeight: 600, color: '#495464' }}>
-          升级 Release：{target.name || '-'}
+      <div className={styles.modalBanner} style={{ marginBottom: 16 }}>
+        <div className={styles.modalBannerTitle}>
+          {t('resourceCenter.helm.modal.upgradeRelease', '升级 Release：')}{target.name || '-'}
         </div>
-        <div style={{ marginTop: 4, fontSize: 12, color: '#8d9bad' }}>
-          当前 Chart：{target.chart || '-'}
-          <span style={{ marginLeft: 8 }}>当前版本：{target.chart_version || '-'}</span>
+        <div className={styles.modalBannerMeta}>
+          {t('resourceCenter.helm.modal.currentChart', '当前 Chart：')}{target.chart || '-'}
+          <span style={{ marginLeft: 8 }}>{t('resourceCenter.helm.modal.currentVersion', '当前版本：')}{target.chart_version || '-'}</span>
         </div>
-        <div style={{ marginTop: 6, fontSize: 12, color: '#6f7b8f' }}>
+        <div className={styles.modalSoftText} style={{ marginTop: 6 }}>
           {sourceText}
         </div>
       </div>
@@ -671,8 +672,8 @@ export default class HelmUpgradeModal extends PureComponent {
     }
     const { sourceType } = this.state;
     const tabs = [
-      { key: 'external', label: '第三方仓库 / OCI', helper: '支持官方、自建 Repo 与 OCI' },
-      { key: 'upload', label: '上传 Chart 包', helper: '上传 .tgz 后直接升级' },
+      { key: 'external', label: t('resourceCenter.helm.modal.tabExternal', '第三方仓库 / OCI'), helper: t('resourceCenter.helm.modal.tabExternalHelper', '支持官方、自建 Repo 与 OCI') },
+      { key: 'upload', label: t('resourceCenter.helm.modal.tabUpload', '上传 Chart 包'), helper: t('resourceCenter.helm.modal.tabUploadHelper', '上传 .tgz 后直接安装 Release') },
     ];
     return (
       <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
@@ -689,17 +690,11 @@ export default class HelmUpgradeModal extends PureComponent {
                 previewError: '',
                 configVisible: false,
               })}
-              style={{
-                flex: 1,
-                cursor: 'pointer',
-                borderRadius: 10,
-                border: active ? '1px solid #b4c8ff' : '1px solid #eef0f5',
-                background: active ? '#f6f9ff' : '#fff',
-                padding: '12px 14px',
-              }}
+              className={`${styles.modalCard} ${active ? styles.modalCardActive : ''}`}
+              style={{ flex: 1, cursor: 'pointer', padding: '12px 14px' }}
             >
-              <div style={{ fontSize: 13, fontWeight: 600, color: active ? '#155aef' : '#495464' }}>{tab.label}</div>
-              <div style={{ marginTop: 4, fontSize: 12, color: '#8d9bad', lineHeight: '18px' }}>{tab.helper}</div>
+              <div className={active ? styles.resourceLink : styles.modalSectionLabel}>{tab.label}</div>
+              <div className={styles.modalMutedText} style={{ marginTop: 4 }}>{tab.helper}</div>
             </div>
           );
         })}
@@ -723,10 +718,10 @@ export default class HelmUpgradeModal extends PureComponent {
     const chartDesc = preview.description || getChartDescription(selectedChart);
     const chartVersion = preview.version || (selectedChart && selectedChart.versions && selectedChart.versions[0] && selectedChart.versions[0].version) || '-';
     const sourceLabel = sourceType === 'store'
-      ? `仓库：${currentRepo || '-'}`
+      ? t('resourceCenter.helm.modal.repoSource', '仓库：{value}', { value: currentRepo || '-' })
       : sourceType === 'external'
-        ? `来源：${this.buildExternalChartUrl() || '-'}`
-        : `上传会话：${uploadEventId || '-'}`;
+        ? t('resourceCenter.helm.modal.sourceUrl', '来源：{value}', { value: this.buildExternalChartUrl() || '-' })
+        : t('resourceCenter.helm.modal.uploadSession', '上传会话：{value}', { value: uploadEventId || '-' });
     return (
       <Card size="small" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
@@ -735,14 +730,14 @@ export default class HelmUpgradeModal extends PureComponent {
             size={48}
             src={this.getChartIcon(selectedChart) || preview.icon}
             icon="appstore"
-            style={{ background: 'rgba(21,90,239,0.08)', color: '#155aef', flexShrink: 0 }}
+            className={styles.modalCardIcon}
           />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#495464', marginBottom: 4 }}>{chartName}</div>
-            {chartDesc ? <div style={{ fontSize: 13, color: '#6f7b8f', lineHeight: '22px', marginBottom: 8 }}>{chartDesc}</div> : null}
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 12, color: '#8d9bad' }}>
+            <div className={styles.modalSectionTitle} style={{ marginBottom: 4 }}>{chartName}</div>
+            {chartDesc ? <div className={styles.modalSoftText} style={{ marginBottom: 8 }}>{chartDesc}</div> : null}
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }} className={styles.modalMutedText}>
               <span>{sourceLabel}</span>
-              <span>版本号 {chartVersion}</span>
+              <span>{t('resourceCenter.helm.modal.versionLabel', '版本号 {value}', { value: chartVersion })}</span>
             </div>
           </div>
         </div>
@@ -755,7 +750,7 @@ export default class HelmUpgradeModal extends PureComponent {
     if (previewStatus === 'checking') {
       return (
         <Card>
-          <Result type="ing" title="应用包检验中" description="应用包检验中，请耐心等候..." style={{ marginTop: 36, marginBottom: 12 }} />
+          <Result type="ing" title={t('resourceCenter.helm.modal.checkingTitle', '应用包检验中')} description={t('resourceCenter.helm.modal.checkingDesc', '应用包检验中，请耐心等候...')} style={{ marginTop: 36, marginBottom: 12 }} />
         </Card>
       );
     }
@@ -764,8 +759,8 @@ export default class HelmUpgradeModal extends PureComponent {
         <Card>
           <Result
             type="success"
-            title="应用包检验成功"
-            description="应用包检验成功，已自动展开 values 配置。"
+            title={t('resourceCenter.helm.modal.checkSuccessTitle', '应用包检验成功')}
+            description={t('resourceCenter.helm.upgrade.checkSuccessDesc', '应用包检验成功，已自动展开 values 配置。')}
             style={{ marginTop: 36, marginBottom: 12 }}
           />
         </Card>
@@ -776,8 +771,8 @@ export default class HelmUpgradeModal extends PureComponent {
         <Card>
           <Result
             type="error"
-            title="应用包检验失败"
-            description={previewError || 'Chart 检测失败，请检查地址、权限或 Chart 内容。'}
+            title={t('resourceCenter.helm.modal.checkFailedTitle', '应用包检验失败')}
+            description={previewError || t('resourceCenter.helm.modal.checkFailedDesc', 'Chart 检测失败，请检查地址、权限或 Chart 内容。')}
             style={{ marginTop: 36, marginBottom: 12 }}
           />
         </Card>
@@ -799,9 +794,9 @@ export default class HelmUpgradeModal extends PureComponent {
     const valuesField = formKey === 'external' ? 'externalForm' : formKey === 'upload' ? 'uploadForm' : 'storeForm';
     return (
       <Collapse bordered={false} defaultActiveKey={['config', 'readme']}>
-        <Collapse.Panel key="config" header="配置选项">
+        <Collapse.Panel key="config" header={t('resourceCenter.helm.modal.configOptions', '配置选项')}>
           {formKey === 'upload' && (
-            <Form.Item label="版本" style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.common.version', '版本')} style={{ marginBottom: 16 }}>
               <Input
                 value={formState.version || (previewData && previewData.version) || ''}
                 onChange={e => this.setState({
@@ -810,12 +805,12 @@ export default class HelmUpgradeModal extends PureComponent {
                     version: e.target.value,
                   },
                 })}
-                placeholder="默认使用解析出的版本"
+                placeholder={t('resourceCenter.helm.modal.defaultVersionHint', '默认使用解析出的版本')}
               />
             </Form.Item>
           )}
           {valueFiles.length > 0 && (
-            <Form.Item label="Values 文件" style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.common.valuesFile', 'Values 文件')} style={{ marginBottom: 16 }}>
               <Select value={previewFileKey} onChange={this.handlePreviewFileChange}>
                 {valueFiles.map(fileKey => <Option key={fileKey} value={fileKey}>{fileKey}</Option>)}
               </Select>
@@ -832,20 +827,15 @@ export default class HelmUpgradeModal extends PureComponent {
                 },
               })}
               style={{
-                fontFamily: 'SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-                fontSize: 13,
-                lineHeight: '22px',
                 minHeight: 320,
-                background: '#1f2329',
-                color: '#e6edf3',
-                border: '1px solid #3b4552',
               }}
+              className={styles.modalDarkEditor}
             />
           </Form.Item>
         </Collapse.Panel>
         {readme ? (
-          <Collapse.Panel key="readme" header="应用说明">
-            <div style={{ padding: '12px', whiteSpace: 'pre-wrap', fontSize: 12, color: '#6f7b8f', lineHeight: '20px', maxHeight: 240, overflowY: 'auto' }}>
+          <Collapse.Panel key="readme" header={t('resourceCenter.helm.modal.readmeTitle', '应用说明')}>
+            <div className={styles.modalReadme} style={{ maxHeight: 240, overflowY: 'auto' }}>
               {readme}
             </div>
           </Collapse.Panel>
@@ -873,31 +863,31 @@ export default class HelmUpgradeModal extends PureComponent {
     const lockedChartName = this.getLockedChartName();
     if (this.isStoreLocked()) {
       if (repoLoading || chartLoading) {
-        return <div style={{ textAlign: 'center', padding: '60px 0' }}><Spin tip="加载商店应用信息..." /></div>;
+        return <div style={{ textAlign: 'center', padding: '60px 0' }}><Spin tip={t('resourceCenter.helm.upgrade.loadingStoreInfo', '加载商店应用信息...')} /></div>;
       }
       return (
         <div>
-          <div style={{ background: '#f7f9ff', border: '1px solid #d0dbff', borderRadius: 6, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#6f7b8f', lineHeight: '20px' }}>
-            当前 Release 由 Helm 商店安装。升级时仓库与 Chart 已固定，只需选择目标版本并修改 values。
+          <div className={styles.modalSectionNotice} style={{ marginBottom: 20 }}>
+            {t('resourceCenter.helm.upgrade.storeNotice', '当前 Release 由 Helm 商店安装。升级时仓库与 Chart 已固定，只需选择目标版本并修改 values。')}
           </div>
           {this.renderPreviewHeader()}
           <Form layout="vertical">
-            <Form.Item label="来源仓库" style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.detail.sourceRepo', '来源仓库')} style={{ marginBottom: 16 }}>
               <Input value={currentRepo || this.getLockedRepoName()} disabled />
             </Form.Item>
-            <Form.Item label="Chart" style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.common.chart', 'Chart')} style={{ marginBottom: 16 }}>
               <Input value={lockedChartName} disabled />
             </Form.Item>
-            <Form.Item label="版本" required style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.common.version', '版本')} required style={{ marginBottom: 16 }}>
               {versions.length > 0 ? (
                 <Select value={storeForm.version} onChange={this.handleStoreVersionChange}>
                   {versions.map(ver => <Option key={ver.version} value={ver.version}>{ver.version}</Option>)}
                 </Select>
               ) : (
-                <Input value={storeForm.version} disabled placeholder="正在读取可升级版本" />
+                <Input value={storeForm.version} disabled placeholder={t('resourceCenter.helm.upgrade.loadingVersions', '正在读取可升级版本')} />
               )}
             </Form.Item>
-            <Form.Item label="Release 名称" style={{ marginBottom: 16 }}>
+            <Form.Item label={t('resourceCenter.common.releaseName', 'Release 名称')} style={{ marginBottom: 16 }}>
               <Input value={storeForm.release_name} disabled />
             </Form.Item>
           </Form>
@@ -906,16 +896,16 @@ export default class HelmUpgradeModal extends PureComponent {
       );
     }
     if (repoLoading) {
-      return <div style={{ textAlign: 'center', padding: '60px 0' }}><Spin tip="加载仓库列表..." /></div>;
+      return <div className={styles.modalLoadingBlock}><Spin tip={t('resourceCenter.helm.modal.loadingRepos', '加载仓库列表...')} /></div>;
     }
     if (!repos.length) {
-      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 Helm 仓库" style={{ padding: '60px 0' }} />;
+      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('resourceCenter.helm.modal.noRepos', '暂无 Helm 仓库，请先在应用市场中添加 Helm 仓库')} className={styles.modalLoadingBlock} />;
     }
     return (
       <div>
         <div style={{ display: 'flex', minHeight: 360 }}>
-          <div style={{ width: 160, flexShrink: 0, borderRight: '1px solid #eef0f5', paddingRight: 0 }}>
-            <div style={{ fontSize: 12, color: '#8d9bad', padding: '8px 12px 4px', fontWeight: 500 }}>Helm 仓库</div>
+          <div className={styles.modalRepoSidebar} style={{ width: 160, flexShrink: 0, paddingRight: 0 }}>
+            <div className={styles.modalSidebarTitle}>{t('resourceCenter.helm.modal.repoTitle', 'Helm 仓库')}</div>
             {repos.map(repo => {
               const name = repo.name || repo.repo_name || repo;
               const active = currentRepo === name;
@@ -923,18 +913,10 @@ export default class HelmUpgradeModal extends PureComponent {
                 <div
                   key={name}
                   onClick={() => this.handleRepoSelect(name)}
-                  style={{
-                    padding: '9px 12px',
-                    cursor: 'pointer',
-                    fontSize: 13,
-                    color: active ? '#155aef' : '#495464',
-                    background: active ? 'rgba(21,90,239,0.07)' : 'transparent',
-                    borderRight: active ? '2px solid #155aef' : '2px solid transparent',
-                    fontWeight: active ? 500 : 400,
-                  }}
+                  className={`${styles.modalRepoItem} ${active ? styles.modalRepoItemActive : ''}`}
                 >
-                  <Icon type="database" style={{ fontSize: 12, opacity: 0.7, marginRight: 6 }} />
-                  <span>{name}</span>
+                  <Icon type="database" className={styles.modalUploadIcon} />
+                  <span className={styles.modalRepoItemText}>{name}</span>
                 </div>
               );
             })}
@@ -942,7 +924,7 @@ export default class HelmUpgradeModal extends PureComponent {
           <div style={{ flex: 1, paddingLeft: 16 }}>
             <div style={{ marginBottom: 12 }}>
               <Input.Search
-                placeholder="搜索 Chart 名称..."
+                placeholder={t('resourceCenter.helm.modal.searchChart', '搜索 Chart 名称...')}
                 value={chartSearch}
                 onChange={e => this.handleChartSearch(e.target.value)}
                 onSearch={this.handleChartSearch}
@@ -952,9 +934,9 @@ export default class HelmUpgradeModal extends PureComponent {
               />
             </div>
             {chartLoading ? (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}><Spin tip="加载 Chart 列表..." /></div>
+              <div className={styles.modalLoadingBlock}><Spin tip={t('resourceCenter.helm.modal.loadingCharts', '加载 Chart 列表...')} /></div>
             ) : !charts.length ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 Chart" style={{ padding: '60px 0' }} />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('resourceCenter.helm.modal.noCharts', '暂无 Chart')} className={styles.modalLoadingBlock} />
             ) : (
               <>
                 <List
@@ -970,7 +952,8 @@ export default class HelmUpgradeModal extends PureComponent {
                           hoverable
                           onClick={() => this.handleChartSelect(chart)}
                           bodyStyle={{ padding: '12px 14px' }}
-                          style={{ cursor: 'pointer', borderRadius: 6, border: '1px solid #eef0f5' }}
+                          className={styles.modalCard}
+                          style={{ cursor: 'pointer' }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
                             <Avatar
@@ -978,14 +961,14 @@ export default class HelmUpgradeModal extends PureComponent {
                               size={20}
                               src={this.getChartIcon(chart)}
                               icon="appstore"
-                              style={{ marginRight: 7, background: 'rgba(21,90,239,0.08)', color: '#155aef' }}
+                              className={styles.modalCardIcon}
                             />
-                            <span style={{ fontWeight: 600, fontSize: 13, color: '#155aef' }}>{chart.name}</span>
+                            <span className={styles.modalCardTitle}>{chart.name}</span>
                           </div>
-                          <div style={{ fontSize: 11, color: '#8d9bad', marginBottom: 6 }}>{getChartDescription(chart)}</div>
+                          <div className={styles.modalCardDesc} style={{ marginBottom: 6 }}>{getChartDescription(chart)}</div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            {latestVer ? <Tag color="geekblue" style={{ fontSize: 11, margin: 0 }}>{latestVer}</Tag> : null}
-                            {versionsList.length > 1 ? <span style={{ fontSize: 11, color: '#8d9bad' }}>共 {versionsList.length} 个版本</span> : null}
+                            {latestVer ? <Tag className={`${styles.smallTag} ${styles.tagPrimary} ${styles.modalTagPrimary}`}>{latestVer}</Tag> : null}
+                            {versionsList.length > 1 ? <span className={styles.modalMutedText}>{t('resourceCenter.helm.modal.versionCount', '共 {count} 个版本', { count: versionsList.length })}</span> : null}
                           </div>
                         </Card>
                       </List.Item>
@@ -1015,7 +998,7 @@ export default class HelmUpgradeModal extends PureComponent {
           <div style={{ marginTop: 16 }}>
             {this.renderPreviewHeader()}
             <Form layout="vertical">
-              <Form.Item label="版本" required style={{ marginBottom: 16 }}>
+              <Form.Item label={t('resourceCenter.common.version', '版本')} required style={{ marginBottom: 16 }}>
                 {versions.length > 0 ? (
                   <Select value={storeForm.version} onChange={this.handleStoreVersionChange}>
                     {versions.map(ver => <Option key={ver.version} value={ver.version}>{ver.version}</Option>)}
@@ -1024,7 +1007,7 @@ export default class HelmUpgradeModal extends PureComponent {
                   <Input value={storeForm.version} disabled />
                 )}
               </Form.Item>
-              <Form.Item label="Release 名称" style={{ marginBottom: 16 }}>
+              <Form.Item label={t('resourceCenter.common.releaseName', 'Release 名称')} style={{ marginBottom: 16 }}>
                 <Input value={storeForm.release_name} disabled />
               </Form.Item>
             </Form>
@@ -1042,11 +1025,11 @@ export default class HelmUpgradeModal extends PureComponent {
     const detectDisabled = !chartUrl || (isBasicAuth && (!externalForm.username || !externalForm.password));
     return (
       <div>
-        <div style={{ background: '#f7f9ff', border: '1px solid #d0dbff', borderRadius: 6, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#6f7b8f', lineHeight: '20px' }}>
-          请直接填写 Chart 地址，支持 Helm Repo 包地址和 OCI 制品地址。
+        <div className={styles.modalSectionNotice} style={{ marginBottom: 20 }}>
+          {t('resourceCenter.helm.modal.externalNoticeShort', '请直接填写 Chart 地址，支持 Helm Repo 包地址和 OCI 制品地址。')}
         </div>
         <Form layout="vertical">
-          <Form.Item label="Chart 地址" required style={{ marginBottom: 8 }}>
+          <Form.Item label={t('resourceCenter.common.chartAddress', 'Chart 地址')} required style={{ marginBottom: 8 }}>
             <Input.Group compact>
               <Select value={externalForm.chart_protocol} onChange={value => this.handleExternalFieldChange('chart_protocol', value)} style={{ width: 120 }}>
                 <Option value="https://">https://</Option>
@@ -1061,7 +1044,7 @@ export default class HelmUpgradeModal extends PureComponent {
               />
             </Input.Group>
           </Form.Item>
-          <Form.Item label="鉴权方式" required style={{ marginBottom: 16 }}>
+          <Form.Item label={t('resourceCenter.common.authType', '鉴权方式')} required style={{ marginBottom: 16 }}>
             <Select value={externalForm.auth_type} onChange={value => this.handleExternalFieldChange('auth_type', value)} style={{ width: 180 }}>
               <Option value="none">None</Option>
               <Option value="basic">Basic</Option>
@@ -1069,15 +1052,15 @@ export default class HelmUpgradeModal extends PureComponent {
           </Form.Item>
           {isBasicAuth ? (
             <>
-              <Form.Item label="用户名" required style={{ marginBottom: 16 }}>
+              <Form.Item label={t('resourceCenter.common.username', '用户名')} required style={{ marginBottom: 16 }}>
                 <Input value={externalForm.username} onChange={e => this.handleExternalFieldChange('username', e.target.value)} />
               </Form.Item>
-              <Form.Item label="密码" required style={{ marginBottom: 16 }}>
+              <Form.Item label={t('resourceCenter.common.password', '密码')} required style={{ marginBottom: 16 }}>
                 <Input.Password value={externalForm.password} onChange={e => this.handleExternalFieldChange('password', e.target.value)} />
               </Form.Item>
             </>
           ) : null}
-          <Form.Item label="Release 名称" style={{ marginBottom: 16 }}>
+          <Form.Item label={t('resourceCenter.common.releaseName', 'Release 名称')} style={{ marginBottom: 16 }}>
             <Input value={externalForm.release_name} disabled />
           </Form.Item>
           <Form.Item style={{ marginBottom: 16 }}>
@@ -1098,7 +1081,7 @@ export default class HelmUpgradeModal extends PureComponent {
                 }, 'external');
               }}
             >
-              检测 Chart
+              {t('resourceCenter.helm.modal.detectChart', '检测 Chart')}
             </Button>
           </Form.Item>
         </Form>
@@ -1118,11 +1101,11 @@ export default class HelmUpgradeModal extends PureComponent {
     } = this.state;
     return (
       <div>
-        <div style={{ background: '#f7f9ff', border: '1px solid #d0dbff', borderRadius: 6, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#6f7b8f', lineHeight: '20px' }}>
-          上传 `.tgz` Chart 包后，系统会自动解析版本与默认 values，并直接以 Helm Release 方式升级。
+        <div className={styles.modalSectionNotice} style={{ marginBottom: 20 }}>
+          {t('resourceCenter.helm.upgrade.uploadNotice', '上传 `.tgz` Chart 包后，系统会自动解析版本与默认 values，并直接以 Helm Release 方式升级。')}
         </div>
         <Form layout="vertical">
-          <Form.Item label="上传 Chart 包" required style={{ marginBottom: 12 }}>
+          <Form.Item label={t('resourceCenter.helm.modal.uploadChartLabel', '上传 Chart 包')} required style={{ marginBottom: 12 }}>
             <Upload
               name="packageTarFile"
               fileList={uploadFileList}
@@ -1131,21 +1114,21 @@ export default class HelmUpgradeModal extends PureComponent {
               onRemove={() => this.setState({ uploadFileList: [] })}
               accept=".tgz"
             >
-              <Button icon="upload" disabled={!uploadRecord || !uploadRecord.upload_url}>选择 Chart 包</Button>
+              <Button icon="upload" disabled={!uploadRecord || !uploadRecord.upload_url}>{t('resourceCenter.helm.modal.selectChartPackage', '选择 Chart 包')}</Button>
             </Upload>
           </Form.Item>
           {uploadExistFiles.length ? (
-            <Form.Item label="已上传文件" style={{ marginBottom: 12 }}>
-              <div style={{ border: '1px solid #eef0f5', borderRadius: 6, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Form.Item label={t('resourceCenter.helm.modal.uploadedFiles', '已上传文件')} style={{ marginBottom: 12 }}>
+              <div className={styles.modalUploadBox} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   {uploadExistFiles.map(item => (
-                    <div key={item} style={{ fontSize: 12, color: '#495464', lineHeight: '20px' }}>
-                      <Icon type="inbox" style={{ marginRight: 6, color: '#8d9bad' }} />
+                    <div key={item} className={styles.modalUploadFile}>
+                      <Icon type="inbox" className={styles.modalUploadIcon} />
                       {item}
                     </div>
                   ))}
                 </div>
-                <Button type="link" style={{ paddingRight: 0 }} onClick={this.handleUploadRemove}>删除</Button>
+                <Button type="link" style={{ paddingRight: 0 }} onClick={this.handleUploadRemove}>{t('resourceCenter.common.delete', '删除')}</Button>
               </div>
             </Form.Item>
           ) : null}
@@ -1165,7 +1148,7 @@ export default class HelmUpgradeModal extends PureComponent {
                   }, 'upload');
                 }}
               >
-                检测 Chart
+                {t('resourceCenter.helm.modal.detectChart', '检测 Chart')}
               </Button>
             </Form.Item>
           ) : null}
@@ -1173,7 +1156,7 @@ export default class HelmUpgradeModal extends PureComponent {
         {!configVisible ? this.renderPreviewHeader() : null}
         {configVisible ? this.renderConfigPanel('upload') : (
           this.state.previewStatus === 'idle'
-            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="上传并检测后将在这里展示 Chart 信息" />
+            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('resourceCenter.helm.upgrade.uploadPreviewHint', '上传并检测后将在这里展示 Chart 信息')} />
             : this.renderDetectState()
         )}
       </div>
@@ -1212,8 +1195,8 @@ export default class HelmUpgradeModal extends PureComponent {
     }
     return (
       <span>
-        <Button onClick={this.props.onClose} style={{ marginRight: 8 }}>取消</Button>
-        <Button type="primary" loading={installLoading} disabled={disabled} onClick={this.handleSubmit}>升级</Button>
+        <Button onClick={this.props.onClose} style={{ marginRight: 8 }}>{t('resourceCenter.common.cancel', '取消')}</Button>
+        <Button type="primary" loading={installLoading} disabled={disabled} onClick={this.handleSubmit}>{t('resourceCenter.common.upgrade', '升级')}</Button>
       </span>
     );
   }
@@ -1223,8 +1206,8 @@ export default class HelmUpgradeModal extends PureComponent {
       <Modal
         title={(
           <span>
-            <Icon type="rocket" style={{ marginRight: 8 }} />
-            升级 Helm Release
+            <HelmIcon size={16} className={styles.modalMutedText} style={{ marginRight: 8 }} />
+            {t('resourceCenter.helm.modal.upgradeTitle', '升级 Helm Release')}
           </span>
         )}
         visible={this.props.visible}

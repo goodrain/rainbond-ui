@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Button, Empty, Icon, Input, Select, Switch } from 'antd';
+import { formatMessage } from '@/utils/intl';
 import { getPodLogsStreamUrl } from '../../../services/teamResource';
 import styles from '../detail.less';
 
@@ -85,7 +86,7 @@ class PodLogStream extends PureComponent {
     source.onerror = () => {
       this.setState({
         connecting: false,
-        error: this.state.logs.length > 0 ? '' : '日志流连接已断开，请刷新重试',
+        error: this.state.logs.length > 0 ? '' : formatMessage({ id: 'resourceCenter.logs.disconnected', defaultMessage: '日志流连接已断开，请刷新重试' }),
       });
       this.closeStream();
     };
@@ -99,7 +100,7 @@ class PodLogStream extends PureComponent {
     if (!podName) {
       return (
         <div className={styles.emptyPanel}>
-          <Empty description="当前没有可查看日志的实例" />
+          <Empty description={formatMessage({ id: 'resourceCenter.logs.noPod', defaultMessage: '当前没有可查看日志的实例' })} />
         </div>
       );
     }
@@ -109,7 +110,7 @@ class PodLogStream extends PureComponent {
         <div className={styles.logToolbar}>
           <div className={styles.logTitle}>
             <Icon type="file-text" />
-            <span>{title || '日志'}</span>
+            <span>{title || formatMessage({ id: 'resourceCenter.common.logs' })}</span>
           </div>
           <div className={styles.logActions}>
             <Select
@@ -128,10 +129,10 @@ class PodLogStream extends PureComponent {
               style={{ width: 88 }}
               onChange={e => this.setState({ lines: Number(e.target.value) || 200 })}
             />
-            <span className={styles.logSwitchLabel}>自动滚动</span>
+            <span className={styles.logSwitchLabel}>{formatMessage({ id: 'resourceCenter.logs.autoScroll', defaultMessage: '自动滚动' })}</span>
             <Switch size="small" checked={autoScroll} onChange={checked => this.setState({ autoScroll: checked })} />
-            <Button size="small" onClick={this.openStream}>刷新</Button>
-            <Button size="small" onClick={() => this.setState({ logs: [] })}>清空</Button>
+            <Button size="small" onClick={this.openStream}>{formatMessage({ id: 'resourceCenter.common.refresh' })}</Button>
+            <Button size="small" onClick={() => this.setState({ logs: [] })}>{formatMessage({ id: 'resourceCenter.logs.clear', defaultMessage: '清空' })}</Button>
           </div>
         </div>
 
@@ -142,7 +143,7 @@ class PodLogStream extends PureComponent {
           }}
         >
           {connecting && logs.length === 0 && (
-            <div className={styles.logPlaceholder}>正在连接日志流...</div>
+            <div className={styles.logPlaceholder}>{formatMessage({ id: 'resourceCenter.logs.connecting', defaultMessage: '正在连接日志流...' })}</div>
           )}
           {!connecting && error && logs.length === 0 && (
             <div className={styles.logPlaceholder}>{error}</div>
@@ -151,7 +152,7 @@ class PodLogStream extends PureComponent {
             <pre>{logs.join('\n')}</pre>
           )}
           {!connecting && !error && logs.length === 0 && (
-            <div className={styles.logPlaceholder}>暂无日志输出</div>
+            <div className={styles.logPlaceholder}>{formatMessage({ id: 'resourceCenter.logs.empty', defaultMessage: '暂无日志输出' })}</div>
           )}
         </div>
       </div>

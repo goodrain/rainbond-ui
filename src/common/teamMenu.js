@@ -50,7 +50,7 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
   if (enterpriseSettings && enterpriseSettings.enable_team_resource_view) {
     overviewItems.push({
       name: formatMessage({ id: 'menu.team.resource_center', defaultMessage: 'K8S Native Resources' }),
-      icon: getMenuSvg.getSvg('resource'),
+      icon: getMenuSvg.getSvg('k8s'),
       path: `team/${teamName}/region/${regionName}/resource-center`,
       authority: ['admin', 'user']
     });
