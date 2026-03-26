@@ -5,6 +5,7 @@ import { getPodLogsStreamUrl } from '../../../services/teamResource';
 import styles from '../detail.less';
 
 const { Option } = Select;
+const STREAM_CONNECT_TIMEOUT = 3000;
 
 class PodLogStream extends PureComponent {
   state = {
@@ -54,6 +55,10 @@ class PodLogStream extends PureComponent {
   };
 
   closeStream = () => {
+    if (this.connectingTimer) {
+      clearTimeout(this.connectingTimer);
+      this.connectingTimer = null;
+    }
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
@@ -76,14 +81,31 @@ class PodLogStream extends PureComponent {
       lines,
     });
     const source = new EventSource(url, { withCredentials: true });
+    this.connectingTimer = setTimeout(() => {
+      if (this.eventSource === source) {
+        this.setState({ connecting: false });
+      }
+    }, STREAM_CONNECT_TIMEOUT);
     source.onopen = () => {
+      if (this.connectingTimer) {
+        clearTimeout(this.connectingTimer);
+        this.connectingTimer = null;
+      }
       this.setState({ connecting: false, error: '' });
     };
     source.onmessage = event => {
+      if (this.connectingTimer) {
+        clearTimeout(this.connectingTimer);
+        this.connectingTimer = null;
+      }
       const nextLogs = [...this.state.logs, event.data].slice(-1000);
       this.setState({ logs: nextLogs, connecting: false });
     };
     source.onerror = () => {
+      if (this.connectingTimer) {
+        clearTimeout(this.connectingTimer);
+        this.connectingTimer = null;
+      }
       this.setState({
         connecting: false,
         error: this.state.logs.length > 0 ? '' : formatMessage({ id: 'resourceCenter.logs.disconnected', defaultMessage: '日志流连接已断开，请刷新重试' }),

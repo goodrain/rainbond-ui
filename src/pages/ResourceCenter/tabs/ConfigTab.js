@@ -6,6 +6,7 @@ import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
 import { formatToBeijingTime } from '../utils';
 
+
 const CONFIG_TABLE_SCROLL_X = 800;
 
 class ConfigTab extends PureComponent {
