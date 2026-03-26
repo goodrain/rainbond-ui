@@ -196,6 +196,9 @@ const global = {
     }
     return '';
   },
+  getTeamPluginTabPath(teamName = this.getCurrTeamName(), regionName = this.getCurrRegionName()) {
+    return `/team/${teamName}/region/${regionName}/team?tab=plugin`;
+  },
   getComponentID() {
     const reg = /components\/([^\/]+)/;
     const hash = window.location.hash || window.location.pathname || '';

@@ -10,6 +10,7 @@ import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage';
+import PluginListContent from '../Plugin/components/PluginListContent';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import pluginUtile from '../../utils/pulginUtils';
@@ -46,46 +47,51 @@ export default class Index extends PureComponent {
       eventPermissions: this.handlePermissions('team_dynamic'),
       memberPermissions: this.handlePermissions('team_member'),
       datecenterPermissions: this.handlePermissions('team_region'),
-      rolePermissions: this.handlePermissions('team_role')
+      rolePermissions: this.handlePermissions('team_role'),
+      pluginPermissions: this.handlePermissions('team_plugin_manage')
     };
   }
 
   componentWillMount() {
-    const { dispatch, location } = this.props;
+    const { dispatch, location, pluginsList } = this.props;
+    const permissions = this.getPermissionsFromProps();
+    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList);
     const {
       eventPermissions: { isAccess: dynamicAccess },
       memberPermissions: { isAccess: memberAccess },
       datecenterPermissions: { isAccess: datecenterAccess },
-      rolePermissions: { isAccess: roleAccess }
-    } = this.state;
+      rolePermissions: { isAccess: roleAccess },
+      pluginPermissions: { isAccess: pluginAccess }
+    } = permissions;
 
     // 检查权限
-    if (!dynamicAccess && !memberAccess && !datecenterAccess && !roleAccess) {
+    if (!dynamicAccess && !memberAccess && !datecenterAccess && !roleAccess && !pluginAccess) {
       globalUtil.withoutPermission(dispatch);
       return;
     }
 
-    // 确定默认scope
-    let scope = 'event';
-    if (dynamicAccess) {
-      scope = 'event';
-    } else if (memberAccess) {
-      scope = 'member';
-    } else if (roleAccess) {
-      scope = 'role';
-    }
-
-    // 从路由state中获取配置
-    if (location?.state?.config) {
-      scope = location.state.config;
-    }
-
-    this.setState({ scope });
+    this.setState({
+      ...permissions,
+      scope: this.getResolvedScope(location, permissions, showEnterprisePlugin)
+    });
   }
 
   componentDidMount() {
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.loadOverview();
+  }
+
+  componentDidUpdate(prevProps) {
+    const locationChanged =
+      prevProps.location?.search !== this.props.location?.search ||
+      prevProps.location?.state?.config !== this.props.location?.state?.config;
+    const permissionsChanged =
+      prevProps.currentTeamPermissionsInfo !== this.props.currentTeamPermissionsInfo;
+    const pluginListChanged = prevProps.pluginsList !== this.props.pluginsList;
+
+    if (locationChanged || permissionsChanged || pluginListChanged) {
+      this.syncViewState();
+    }
   }
 
   // 获取登录后的默认跳转URL
@@ -111,6 +117,81 @@ export default class Index extends PureComponent {
       type
     );
   };
+
+  getPermissionsFromProps = () => {
+    return {
+      eventPermissions: this.handlePermissions('team_dynamic'),
+      memberPermissions: this.handlePermissions('team_member'),
+      datecenterPermissions: this.handlePermissions('team_region'),
+      rolePermissions: this.handlePermissions('team_role'),
+      pluginPermissions: this.handlePermissions('team_plugin_manage')
+    };
+  };
+
+  getRequestedScope = (location = this.props.location) => {
+    const search = (location && location.search) || '';
+    const query = new URLSearchParams(search);
+    return query.get('tab') || (location && location.state && location.state.config) || '';
+  };
+
+  getDefaultScope = (permissions, showEnterprisePlugin) => {
+    if (permissions.eventPermissions.isAccess) {
+      return 'event';
+    }
+    if (permissions.memberPermissions.isAccess) {
+      return 'member';
+    }
+    if (permissions.rolePermissions.isAccess && showEnterprisePlugin) {
+      return 'role';
+    }
+    if (permissions.pluginPermissions.isAccess) {
+      return 'plugin';
+    }
+    return '';
+  };
+
+  getResolvedScope = (location, permissions, showEnterprisePlugin) => {
+    const requestedScope = this.getRequestedScope(location);
+    if (requestedScope === 'event' && permissions.eventPermissions.isAccess) {
+      return 'event';
+    }
+    if (requestedScope === 'member' && permissions.memberPermissions.isAccess) {
+      return 'member';
+    }
+    if (
+      requestedScope === 'role' &&
+      permissions.rolePermissions.isAccess &&
+      showEnterprisePlugin
+    ) {
+      return 'role';
+    }
+    if (requestedScope === 'plugin' && permissions.pluginPermissions.isAccess) {
+      return 'plugin';
+    }
+    return this.getDefaultScope(permissions, showEnterprisePlugin);
+  };
+
+  syncViewState = () => {
+    const permissions = this.getPermissionsFromProps();
+    const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(this.props.pluginsList);
+    const nextScope = this.getResolvedScope(this.props.location, permissions, showEnterprisePlugin);
+
+    this.setState(prevState => {
+      const updates = {};
+      ['eventPermissions', 'memberPermissions', 'datecenterPermissions', 'rolePermissions', 'pluginPermissions'].forEach(
+        key => {
+          if (JSON.stringify(prevState[key]) !== JSON.stringify(permissions[key])) {
+            updates[key] = permissions[key];
+          }
+        }
+      );
+      if (nextScope && prevState.scope !== nextScope) {
+        updates.scope = nextScope;
+      }
+      return Object.keys(updates).length > 0 ? updates : null;
+    });
+  };
+
   // 获取团队基本信息
   loadOverview = () => {
     const { dispatch } = this.props;
@@ -250,7 +331,14 @@ export default class Index extends PureComponent {
 
   // Tab切换
   handleTabChange = key => {
+    const { dispatch } = this.props;
     this.setState({ scope: key });
+    dispatch(
+      routerRedux.push({
+        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/team`,
+        search: `?tab=${key}`
+      })
+    );
   };
 
   // 跳转到首页
@@ -280,12 +368,14 @@ export default class Index extends PureComponent {
       eventPermissions,
       memberPermissions,
       rolePermissions,
+      pluginPermissions,
       logoInfo
     } = this.state;
 
     const dynamicAccess = eventPermissions?.isAccess;
     const memberAccess = memberPermissions?.isAccess;
     const roleAccess = rolePermissions?.isAccess;
+    const pluginAccess = pluginPermissions?.isAccess;
     const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(pluginsList);
     const isEnterpriseAdmin = teamUtil.canDeleteTeam(currUser);
     // 页面头部内容
@@ -350,6 +440,12 @@ export default class Index extends PureComponent {
         tab: formatMessage({ id: 'teamManage.tabs.role' })
       });
     }
+    if (pluginAccess) {
+      tabList.push({
+        key: 'plugin',
+        tab: formatMessage({ id: 'teamManage.tabs.plugin' })
+      });
+    }
 
     // 构建面包屑
     const breadcrumbList = createTeam(
@@ -362,7 +458,19 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         tabList={tabList}
-        tabActiveKey={scope || 'event'}
+        tabActiveKey={
+          scope ||
+          this.getDefaultScope(
+            {
+              eventPermissions,
+              memberPermissions,
+              rolePermissions,
+              pluginPermissions
+            },
+            showEnterprisePlugin
+          ) ||
+          'event'
+        }
         onTabChange={this.handleTabChange}
         content={pageHeaderContent}
         extraContent={extraContent}
@@ -382,6 +490,8 @@ export default class Index extends PureComponent {
         {scope === 'event' && dynamicAccess && (
           <TeamEventList memberPermissions={memberPermissions} />
         )}
+
+        {scope === 'plugin' && pluginAccess && <PluginListContent />}
 
         {showEditName && (
           <MoveTeam

@@ -48,6 +48,7 @@ const teamOverview = {
   'teamOverview.selectMethodTip':'选择方式快速创建',
   'teamOverview.supportMethods':'支持多种构建方式',
   'teamOverview.startCreate':'开始创建',
+  'teamOverview.visitApp':'访问应用',
 }
 
 //团队下的应用
@@ -536,6 +537,7 @@ const teamManage = {
   'teamManage.tabs.member.table.delete':'删除',
   'teamManage.tabs.member.table.editRole':'修改角色',
   'teamManage.tabs.member.table.turnOver':'移交团队',
+  'teamManage.tabs.plugin':'插件',
 
   //集群 cluster
   'teamManage.tabs.cluster':'集群',

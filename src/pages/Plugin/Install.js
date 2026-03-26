@@ -19,11 +19,10 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...val,
       },
-      callback: data => {
+      callback: () => {
         this.props.dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${data &&
-              data.bean.plugin_id}`
+            globalUtil.getTeamPluginTabPath()
           )
         );
       },

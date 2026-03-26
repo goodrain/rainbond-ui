@@ -8,6 +8,7 @@ import { getTablePagination, getTableScroll } from '../helpers';
 import { getWorkloadKindOptions, getWorkloadKindLabel, formatToBeijingTime } from '../utils';
 
 const { Option } = Select;
+const WORKLOAD_TABLE_SCROLL_X = 940;
 
 class WorkloadTab extends PureComponent {
   render() {
@@ -114,7 +115,7 @@ class WorkloadTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
-          scroll={getTableScroll(columns)}
+          scroll={getTableScroll(WORKLOAD_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}
         />

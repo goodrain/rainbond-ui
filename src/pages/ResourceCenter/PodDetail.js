@@ -2,11 +2,11 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
   Button,
   Card,
   Empty,
-  Input,
   notification,
   Table,
   Tabs,
@@ -21,7 +21,6 @@ import TerminalModal from './components/TerminalModal';
 import styles from './detail.less';
 import { formatToBeijingTime, getResourceStatusText, getResourceStatusTone } from './utils';
 
-const { TextArea } = Input;
 const { TabPane } = Tabs;
 const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
 
@@ -348,11 +347,15 @@ class PodDetail extends PureComponent {
     return (
       <div className={styles.yamlPanel}>
         <div className={styles.yamlHint}>{t('resourceCenter.detail.podYamlHint', 'YAML 与当前容器组对象保持一致，可直接查看或编辑保存。')}</div>
-        <TextArea
-          rows={28}
+        <CodeMirrorForm
+          mode="yaml"
           value={this.state.yamlText}
-          onChange={e => this.setState({ yamlText: e.target.value })}
-          className={styles.yamlEditor}
+          onChange={yamlText => this.setState({ yamlText })}
+          isHeader={false}
+          isUpload={false}
+          isAmplifications={false}
+          editorHeight={560}
+          style={{ marginBottom: 0 }}
         />
         <div className={styles.yamlActions}>
           <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>

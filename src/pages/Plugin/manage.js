@@ -701,7 +701,7 @@ export default class Index extends PureComponent {
     );
     breadcrumbList.push({
       title: formatMessage({id:'teamOther.manage.list'}),
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/myplugns`
+      href: globalUtil.getTeamPluginTabPath(currentTeam.team_name, currentRegionName)
     });
     breadcrumbList.push({ title: currInfo.plugin_alias });
     return (
@@ -713,7 +713,7 @@ export default class Index extends PureComponent {
           <Button onClick={() => {
             const { dispatch } = this.props;
             dispatch(
-              routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+              routerRedux.push(globalUtil.getTeamPluginTabPath())
             );
           }} type="default">
               <Icon type="home" />{formatMessage({ id: 'global.fetchAccessText.plugin' })}

@@ -2,46 +2,97 @@
 @import "../../../utils/utils.less";
 
 .teamEventListWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100vh - 320px);
+  min-height: 520px;
+  min-width: 0;
+
   // 团队概览样式
   .teamOverview {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #e3e3e3;
+    flex-shrink: 0;
   }
 
   .basicInfoRow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
     box-sizing: border-box;
-    margin: 8px 0px 0;
+    margin: 8px 0 0;
 
     .basicInfo {
-      text-align: center;
-      border-radius: 8px;
-      padding: 10px 12px;
+      min-height: 92px;
+      padding: 12px 14px;
+      text-align: left;
+      border-radius: 12px;
+      background: radial-gradient(circle at top right,
+        fade(@primary-color, 8%) 0%,
+        fade(@primary-color, 4%) 40%,
+        transparent 80%);
+      border: 1px solid fade(@primary-color, 10%);
+      box-shadow: @rbd-min-card-shadow;
 
       .basicInfoTitle {
         font-weight: 500;
         font-size: 12px;
         color: @rbd-auxiliary-color-secondary;
         line-height: 1.4;
+        word-break: break-word;
       }
 
       .basicInfoContent {
-        color: @primary-color;
+        color: @heading-color;
         font-size: 24px;
         font-weight: 600;
         width: 100%;
         height: auto;
-        text-align: center;
-        margin-top: 4px;
+        text-align: left;
+        margin-top: 10px;
+        line-height: 1.2;
+        word-break: break-word;
       }
     }
   }
 }
 
 .eventListContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
   background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e3e3e3;
+  overflow: hidden;
+
+  :global {
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+    }
+  }
+}
+
+.eventListBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.eventListPagination {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid fade(@primary-color, 8%);
 }
 
 .eventListHeader {
@@ -72,6 +123,8 @@
 }
 
 .activitiesList {
+  min-height: 100%;
+
   .username {
     color: @text-color;
   }
@@ -85,9 +138,9 @@
       margin-bottom: 12px;
       padding: 12px;
       border: 1px solid #e3e3e3;
-        border-radius: 12px;
+      border-radius: 12px;
     }
-}
+  }
 }
 
 .eventItem {
@@ -302,6 +355,16 @@
 }
 
 @media screen and (max-width: @screen-xl) and (min-width: @screen-lg) {
+  .teamEventListWrapper {
+    height: calc(100vh - 340px);
+  }
+
+  .teamOverview {
+    .basicInfoRow {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   .activeCard {
     margin-bottom: 24px;
   }
@@ -320,6 +383,22 @@
 }
 
 @media screen and (max-width: @screen-lg) {
+  .teamEventListWrapper {
+    height: auto;
+    min-height: 0;
+  }
+
+  .teamOverview {
+    .basicInfoRow {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .eventListContainer {
+    max-height: calc(100vh - 360px);
+    min-height: 320px;
+  }
+
   .activeCard {
     margin-bottom: 24px;
   }
@@ -356,6 +435,12 @@
 }
 
 @media screen and (max-width: @screen-sm) {
+  .teamOverview {
+    .basicInfoRow {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .pageHeaderContent {
     display: block;
 

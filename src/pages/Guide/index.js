@@ -842,7 +842,7 @@ export default class Index extends PureComponent {
               onClick={() => {
                 this.props.dispatch(
                   routerRedux.push(
-                    `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`
+                    globalUtil.getTeamPluginTabPath()
                   )
                 );
               }}

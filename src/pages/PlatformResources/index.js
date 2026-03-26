@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from '@/utils/intl';
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
   Tabs,
   Table,
@@ -24,7 +25,6 @@ import styles from './index.less';
 const theme = require('../../../config/theme');
 
 const { TabPane } = Tabs;
-const { TextArea } = Input;
 const { Option } = Select;
 
 const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
@@ -945,12 +945,15 @@ class PlatformResources extends PureComponent {
           cancelText={t('platformResources.common.cancel', '取消')}
         >
           <p className={styles.modalLead}>{t('platformResources.modal.lead.pv', '粘贴 PersistentVolume 的 YAML 定义内容。')}</p>
-          <TextArea
-            rows={16}
+          <CodeMirrorForm
+            mode="yaml"
             value={pvCreateYaml}
-            onChange={e => this.setState({ pvCreateYaml: e.target.value })}
-            placeholder={'apiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: my-pv\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n    - ReadWriteOnce'}
-            className={styles.monoEditor}
+            onChange={value => this.setState({ pvCreateYaml: value })}
+            isHeader={false}
+            isUpload={false}
+            isAmplifications={false}
+            editorHeight={320}
+            style={{ marginBottom: 0 }}
           />
         </Modal>
       </div>
@@ -1294,14 +1297,19 @@ class PlatformResources extends PureComponent {
                 width={760}
                 destroyOnClose
               >
-                <TextArea
-                  rows={22}
+                <CodeMirrorForm
+                  mode="yaml"
                   readOnly={instanceModal.mode === 'view'}
+                  disabled={instanceModal.mode === 'view'}
                   value={instanceModal.content}
                   onChange={instanceModal.mode !== 'view'
-                    ? e => this.setState({ instanceModal: { ...instanceModal, content: e.target.value } })
+                    ? value => this.setState({ instanceModal: { ...instanceModal, content: value } })
                     : undefined}
-                  className={styles.monoEditorReadonly}
+                  isHeader={false}
+                  isUpload={false}
+                  isAmplifications={false}
+                  editorHeight={460}
+                  style={{ marginBottom: 0 }}
                 />
               </Modal>
             </React.Fragment>
@@ -1393,12 +1401,15 @@ class PlatformResources extends PureComponent {
               cancelText={t('platformResources.common.cancel', '取消')}
             >
               <p className={styles.modalLead}>{t('platformResources.modal.lead.storageClass', '粘贴 StorageClass 的 YAML 定义内容。')}</p>
-              <TextArea
-                rows={16}
+              <CodeMirrorForm
+                mode="yaml"
                 value={yamlContent}
-                onChange={e => this.setState({ yamlContent: e.target.value })}
-                placeholder={'apiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: my-storage\nprovisioner: your.provisioner'}
-                className={styles.monoEditor}
+                onChange={value => this.setState({ yamlContent: value })}
+                isHeader={false}
+                isUpload={false}
+                isAmplifications={false}
+                editorHeight={320}
+                style={{ marginBottom: 0 }}
               />
             </Modal>
 
@@ -1410,19 +1421,24 @@ class PlatformResources extends PureComponent {
               width={760}
               destroyOnClose
             >
-              <TextArea
-                rows={22}
+              <CodeMirrorForm
+                mode="yaml"
                 readOnly={storageResourceModal.mode === 'view'}
+                disabled={storageResourceModal.mode === 'view'}
                 value={storageResourceModal.content}
                 onChange={storageResourceModal.mode !== 'view'
-                  ? e => this.setState({
+                  ? value => this.setState({
                     storageResourceModal: {
                       ...storageResourceModal,
-                      content: e.target.value,
+                      content: value,
                     },
                   })
                   : undefined}
-                className={styles.monoEditorReadonly}
+                isHeader={false}
+                isUpload={false}
+                isAmplifications={false}
+                editorHeight={460}
+                style={{ marginBottom: 0 }}
               />
             </Modal>
           </div>

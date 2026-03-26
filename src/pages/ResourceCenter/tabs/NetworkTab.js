@@ -6,6 +6,8 @@ import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
 import { formatToBeijingTime } from '../utils';
 
+const NETWORK_TABLE_SCROLL_X = 1250;
+
 class NetworkTab extends PureComponent {
   render() {
     const {
@@ -26,6 +28,7 @@ class NetworkTab extends PureComponent {
         dataIndex: 'name',
         key: 'name',
         width: 220,
+        fixed: 'left',
         render: (text, record) => (
           <span className={styles.resourceLink} onClick={() => onDetail(record)}>
             {text}
@@ -65,9 +68,10 @@ class NetworkTab extends PureComponent {
         title: formatMessage({ id: 'resourceCenter.common.operation' }),
         key: 'action',
         width: 140,
+        fixed: 'right',
         render: (_, record) => (
           <span>
-            <a className={styles.resourceLinkSecondary} onClick={() => onEditYaml(record)}>{formatMessage({ id: 'resourceCenter.common.edit' })}</a>
+            <a className={styles.resourceLink} onClick={() => onEditYaml(record)}>{formatMessage({ id: 'resourceCenter.common.edit' })}</a>
             <Divider type="vertical" />
             <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
               <a className={styles.resourceLinkDanger}>{formatMessage({ id: 'resourceCenter.common.delete' })}</a>
@@ -93,7 +97,7 @@ class NetworkTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
-          scroll={getTableScroll(columns)}
+          scroll={getTableScroll(NETWORK_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}
         />

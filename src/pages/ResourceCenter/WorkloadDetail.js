@@ -2,11 +2,11 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import {
   Button,
   Card,
   Empty,
-  Input,
   notification,
   Select,
   Spin,
@@ -28,7 +28,6 @@ import {
   getWorkloadKindLabel,
 } from './utils';
 
-const { TextArea } = Input;
 const { TabPane } = Tabs;
 const { Option } = Select;
 const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
@@ -501,11 +500,15 @@ class WorkloadDetail extends PureComponent {
     return (
       <div className={styles.yamlPanel}>
         <div className={styles.yamlHint}>{t('resourceCenter.detail.workloadYamlHint', 'YAML 是当前工作负载的原始资源定义。你可以直接修改后保存。')}</div>
-        <TextArea
-          rows={28}
+        <CodeMirrorForm
+          mode="yaml"
           value={this.state.yamlText}
-          onChange={e => this.setState({ yamlText: e.target.value })}
-          className={styles.yamlEditor}
+          onChange={yamlText => this.setState({ yamlText })}
+          isHeader={false}
+          isUpload={false}
+          isAmplifications={false}
+          editorHeight={560}
+          style={{ marginBottom: 0 }}
         />
         <div className={styles.yamlActions}>
           <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>

@@ -29,7 +29,7 @@ export default class AppDeteleResource extends PureComponent {
     }
 
     handleDeleteResource = () => {
-        const { dispatch, onCancel, group_id, team_name, regionName } = this.props;
+        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect } = this.props;
         dispatch({
           type: 'application/deleteGroupAllResource',
           payload: {
@@ -40,11 +40,16 @@ export default class AppDeteleResource extends PureComponent {
             if (res && res.status_code === 200) {
               notification.success({ message: formatMessage({id:'notification.success.delete'}) });
               onCancel()
-              dispatch(
-                routerRedux.replace(
-                  `/team/${team_name}/region/${regionName}/index`
-                )
-              );
+              if (onSuccess) {
+                onSuccess(res);
+              }
+              if (!skipRedirect) {
+                dispatch(
+                  routerRedux.replace(
+                    `/team/${team_name}/region/${regionName}/index`
+                  )
+                );
+              }
             }
           }
         });

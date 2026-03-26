@@ -16,7 +16,7 @@ function renderTabIcon(icon, size) {
   if (icon === 'network-custom') return <NetworkIcon size={size} />;
   if (icon === 'config-custom') return <ConfigIcon size={size} />;
   if (icon === 'storage-custom') return <StorageIcon size={size} />;
-  return <Icon type={icon} />;
+  return <Icon type={icon} style={{ fontSize: size }} />;
 }
 
 class ResourceSidebar extends PureComponent {
@@ -38,7 +38,7 @@ class ResourceSidebar extends PureComponent {
                 onClick={() => onTabChange(tab)}
               >
                 <span className={styles.sidebarButtonIcon}>
-                  {renderTabIcon(meta.icon, 22)}
+                  {renderTabIcon(meta.icon, 18)}
                 </span>
                 <span className={styles.sidebarButtonBody}>
                   <span className={styles.sidebarButtonTitle}>{meta.title}</span>

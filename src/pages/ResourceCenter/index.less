@@ -98,9 +98,9 @@
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  width: 272px;
+  width: 240px;
   flex-shrink: 0;
-  padding: 16px;
+  padding: 14px;
   background: linear-gradient(180deg, fade(@primary-color, 4%) 0%, @component-background 100%);
   border: 1px solid fade(@primary-color, 8%);
   border-radius: 16px;
@@ -114,7 +114,7 @@
 }
 
 .sidebarGroupTitle {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: @rbd-label-color;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
@@ -125,19 +125,19 @@
 .sidebarGroupItems {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
 }
 
 .sidebarButton {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   text-align: left;
   border: 1px solid transparent;
-  border-radius: 14px;
+  border-radius: 12px;
   background: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -166,13 +166,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: fade(@primary-color, 10%);
   color: @primary-color;
-  font-size: @rbd-title-big-size;
+  font-size: @rbd-title-size;
 }
 
 .sidebarButtonActive .sidebarButtonIcon {
@@ -186,19 +186,19 @@
   justify-content: center;
   flex: 1;
   min-width: 0;
-  min-height: 44px;
+  min-height: 38px;
 }
 
 .sidebarButtonTitle {
   color: @heading-color;
   font-size: @rbd-content-size;
-  line-height: @rbd-content-line-height;
+  line-height: @rbd-auxiliary-line-height;
   font-weight: 600;
 }
 
 .sidebarButtonDescription {
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
   color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
@@ -413,6 +413,11 @@
   min-width: 0;
   padding: 0 16px 16px;
   background: @component-background;
+
+  > * {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .toolbar {

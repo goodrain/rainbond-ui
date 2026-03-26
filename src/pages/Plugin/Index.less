@@ -741,7 +741,10 @@
 // Plugin page card styles (separate from market app card)
 .pluginCard {
   position: relative;
-  background: @rbd-background-color;
+  background: radial-gradient(circle at top right,
+    fade(@primary-color, 8%) 0%,
+    fade(@primary-color, 4%) 40%,
+    transparent 80%);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -892,7 +895,10 @@
 // Add plugin card style
 .addPluginCard {
   position: relative;
-  background: @rbd-background-color;
+  background: radial-gradient(circle at top right,
+    fade(@primary-color, 8%) 0%,
+    fade(@primary-color, 4%) 40%,
+    transparent 80%);
   border-radius: 12px;
   padding: 16px;
   display: flex;

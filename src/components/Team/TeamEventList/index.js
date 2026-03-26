@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { List, Spin, Row, Col } from 'antd';
+import { List, Pagination, Spin } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -268,63 +268,81 @@ export default class EventList extends PureComponent {
       onChange: this.handlePageChange
     };
 
+    const overviewItems = [
+      {
+        key: 'app',
+        title: formatMessage({ id: 'versionUpdata_6_1.appNum' }),
+        value: isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'
+      },
+      {
+        key: 'service',
+        title: formatMessage({ id: 'versionUpdata_6_1.serviceNum' }),
+        value: isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'
+      },
+      {
+        key: 'cpu',
+        title: `${formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} (${this.handlUnit(
+          'cpu',
+          index?.overviewInfo?.cpu_usage,
+          'm'
+        )})`,
+        value: isTeamOverview
+          ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0
+          : '**'
+      },
+      {
+        key: 'memory',
+        title: `${formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} (${this.handlUnit(
+          'memory',
+          index?.overviewInfo?.memory_usage,
+          'MB'
+        )})`,
+        value: isTeamOverview
+          ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0
+          : '**'
+      },
+      {
+        key: 'storage',
+        title: showStorageUsed
+          ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})`
+          : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`,
+        value: isTeamOverview
+          ? showStorageUsed
+            ? storageUsed?.value
+            : index?.overviewInfo?.disk_usage
+          : '**'
+      }
+    ];
+
     return (
       <div className={styles.teamEventListWrapper}>
         {/* 团队概览部分 */}
         {(index?.overviewInfo?.region_health || loadingOverview) && (
           <div className={styles.teamOverview}>
-            <Row type="flex" justify="space-between" className={styles.basicInfoRow}>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.appNum' })}</div>
-                  <div className={styles.basicInfoContent}>
-                    {isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'}
-                  </div>
+            <div className={styles.basicInfoRow}>
+              {overviewItems.map(item => (
+                <div key={item.key} className={styles.basicInfo}>
+                  <div className={styles.basicInfoTitle}>{item.title}</div>
+                  <div className={styles.basicInfoContent}>{item.value}</div>
                 </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.serviceNum' })}</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} ({this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm')})</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} ({this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB')})</div>
-                  <div className={styles.basicInfoContent}>{isTeamOverview ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0 : '**'}</div>
-                </div>
-              </Col>
-              <Col span={4}>
-                <div className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>
-                    {showStorageUsed ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})` : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`}
-                  </div>
-                  <div className={styles.basicInfoContent}>
-                    {isTeamOverview ? (showStorageUsed ? storageUsed?.value : index?.overviewInfo?.disk_usage) : '**'}
-                  </div>
-                </div>
-              </Col>
-            </Row>
+              ))}
+            </div>
           </div>
         )}
 
         {/* 事件列表部分 */}
         <div className={styles.eventListContainer}>
           <Spin spinning={activitiesLoading}>
-            <List
-              pagination={total > pageSize ? pagination : false}
-              size="large"
-            >
+            <div className={styles.eventListBody}>
               <div className={styles.activitiesList}>
-                {this.renderActivities()}
+                <List size="large">{this.renderActivities()}</List>
               </div>
-            </List>
+            </div>
+            {total > pageSize && (
+              <div className={styles.eventListPagination}>
+                <Pagination {...pagination} />
+              </div>
+            )}
           </Spin>
         </div>
       </div>

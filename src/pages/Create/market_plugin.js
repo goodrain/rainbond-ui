@@ -128,6 +128,11 @@ export default class Main extends PureComponent {
     };
     this.mount = false;
   }
+
+  getPluginHomePath = () => {
+    return globalUtil.getTeamPluginTabPath();
+  };
+
   componentWillMount() {
     const { currentTeamPermissionsInfo, dispatch } = this.props;
     // roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
@@ -535,7 +540,7 @@ export default class Main extends PureComponent {
           }
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/myplugns`
+              this.getPluginHomePath()
             )
           );
         },
@@ -631,7 +636,7 @@ export default class Main extends PureComponent {
             this.onCancelCreate();
             dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/myplugns`
+                this.getPluginHomePath()
               )
             );
           }
@@ -720,7 +725,7 @@ export default class Main extends PureComponent {
             this.setState({ is_deploy: true });
             this.props.dispatch(
               routerRedux.push(
-                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/myplugns`
+                this.getPluginHomePath()
               )
             );
           }
@@ -1316,7 +1321,7 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+                    routerRedux.push(this.getPluginHomePath())
                   );
                 }} type="default">
                     <Icon type="home" /> {formatMessage({ id: 'global.fetchAccessText.plugin' })}
@@ -1407,7 +1412,7 @@ export default class Main extends PureComponent {
                 <Button onClick={() => {
                   const { dispatch } = this.props;
                   dispatch(
-                    routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`)
+                    routerRedux.push(this.getPluginHomePath())
                   );
                 }} type="default">
                     <Icon type="home" />{formatMessage({ id: 'global.fetchAccessText.plugin' })}

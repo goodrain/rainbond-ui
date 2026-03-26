@@ -1,5 +1,6 @@
-import { DEFAULT_TABLE_COLUMN_WIDTH } from './constants';
 import { getResourceStatusMeta } from './utils';
+
+const RESOURCE_TABLE_SCROLL_X = 1320;
 
 export function parseVersionToken(input) {
   const value = (input || '').trim();
@@ -61,13 +62,9 @@ export function getDistinctCount(list = [], getter) {
   ).size;
 }
 
-export function getTableScroll(columns) {
+export function getTableScroll(scrollX = RESOURCE_TABLE_SCROLL_X) {
   return {
-    x: columns.reduce(
-      (width, column) =>
-        width + (typeof column.width === 'number' ? column.width : DEFAULT_TABLE_COLUMN_WIDTH),
-      0
-    ),
+    x: scrollX,
   };
 }
 

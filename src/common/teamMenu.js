@@ -65,7 +65,6 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
   // ============ 第二组：管理功能 ============
   if (permissionsInfo) {
     const {
-      isTeamPluginManage,
       isTeamDynamic,
       isTeamRegion,
       isTeamRole,
@@ -80,16 +79,6 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
         name: formatMessage({ id: 'menu.team.pipeline' }),
         icon: getMenuSvg.getSvg('Pipeline'),
         path: `team/${teamName}/region/${regionName}/Pipeline`,
-        authority: ['admin', 'user']
-      });
-    }
-
-    // 插件管理
-    if (isTeamPluginManage) {
-      adminItems.push({
-        name: formatMessage({ id: 'menu.team.plugin' }),
-        icon: getMenuSvg.getSvg('api'),
-        path: `team/${teamName}/region/${regionName}/myplugns`,
         authority: ['admin', 'user']
       });
     }

@@ -1036,7 +1036,7 @@ export default class Index extends PureComponent {
           <FormattedMessage id='componentOverview.body.renderUnInstalled.not'/>{' '}
           <Link
             style={{ marginTop: 32 }}
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`}
+            to={globalUtil.getTeamPluginTabPath()}
           >
             
             <FormattedMessage id='componentOverview.body.renderUnInstalled.install'/>

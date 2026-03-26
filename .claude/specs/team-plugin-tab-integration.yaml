@@ -1,0 +1,133 @@
+meta:
+  name: "team-plugin-tab-integration"
+  version: "1.0"
+  repo: "/Users/guox/Desktop/Project/6.28/rainbond-ui"
+  branch: "v6.7.0-release-dev"
+  design_doc: "/Users/guox/Desktop/Project/6.28/rainbond-ui/docs/plans/2026-03-25-team-plugin-tab-integration-design.md"
+
+sprints:
+  - id: sprint-1
+    name: "Extract Reusable Plugin Home Content"
+    commits:
+      - id: commit-1
+        message: "refactor: extract reusable plugin home content"
+        tasks: [task-1.1, task-1.2]
+    tasks:
+      - id: task-1.1
+        name: "Move plugin home list logic into a reusable content component"
+        status: pending
+        files:
+          create:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/components/PluginListContent.js"
+          modify:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js"
+              lines: "181-647"
+        steps:
+          - action: "implement"
+            description: "Extract the plugin home card list, default plugin install flow, delete flow, and create/install navigation into a reusable component that does not render its own PageHeaderLayout."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js:181-647"
+            note: "Current plugin home list implementation to be extracted"
+      - id: task-1.2
+        name: "Keep plugin detail route shell and embedded home usage compatible"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js"
+              lines: "651-683"
+        steps:
+          - action: "implement"
+            description: "Update the Plugin route shell so the extracted home content can still be reused where needed, while pluginId-based Manage rendering remains unchanged."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js:651-683"
+            note: "Current route split between plugin home and detail pages"
+
+  - id: sprint-2
+    name: "Integrate Team Plugin Tab And Retire Legacy Home Route"
+    commits:
+      - id: commit-2
+        message: "feat: show plugin home in team settings tab"
+        tasks: [task-2.1, task-2.2, task-2.3]
+    tasks:
+      - id: task-2.1
+        name: "Add plugin tab to Team settings page with query-driven activation"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Team/index.js"
+              lines: "1-414"
+        steps:
+          - action: "implement"
+            description: "Parse location.search for tab, add a plugin tab gated by team_plugin_manage permission, and render the extracted plugin home content when scope equals plugin."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Team/index.js:27-80"
+            note: "Current scope initialization logic"
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Team/index.js:332-414"
+            note: "Current Team tab list and tab body rendering"
+      - id: task-2.2
+        name: "Redirect legacy /myplugns home route to the Team plugin tab"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js"
+              lines: "651-683"
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/config/router.config.js"
+              lines: "568-603"
+        steps:
+          - action: "implement"
+            description: "Keep /myplugns/:pluginId for detail pages, but redirect /myplugns to /team/:teamName/region/:regionName/team?tab=plugin so old links and menu entries still land on the new integrated home."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/config/router.config.js:568-603"
+            note: "Legacy plugin route definitions"
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/index.js:669-683"
+            note: "Current pluginId-based render split"
+      - id: task-2.3
+        name: "Unify create and market-install success return paths"
+        status: pending
+        files:
+          modify:
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/Create.js"
+              lines: "16-36"
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Create/market_plugin.js"
+              lines: "495-725,1304-1477"
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/locales/zh-CN/team.js"
+              lines: "503-579"
+            - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/locales/en-US/team.js"
+              lines: "493-573"
+        steps:
+          - action: "implement"
+            description: "Replace success redirects that still return to /myplugns with /team/:teamName/region/:regionName/team?tab=plugin, and add any missing Team tab locale text for the new plugin entry."
+            run: "yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "yarn build"
+            expect: "PASS"
+        references:
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Plugin/Create.js:16-36"
+            note: "Create plugin success redirect"
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Create/market_plugin.js:509-539"
+            note: "Market install modal success redirect"
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Create/market_plugin.js:610-636"
+            note: "Local market create success redirect"
+          - path: "/Users/guox/Desktop/Project/6.28/rainbond-ui/src/pages/Create/market_plugin.js:696-724"
+            note: "Cloud market create success redirect"

@@ -1,12 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Modal, Input, Card, notification } from 'antd';
+import { Modal, Card, notification } from 'antd';
 import { formatMessage } from '@/utils/intl';
+import CodeMirrorForm from '@/components/CodeMirrorForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
+import { getPreferredHelmValuesFileKey } from './helmValues';
 import { getWorkloadKindOptions, getResourceStatusMeta } from './utils';
 import {
   DEFAULT_TAB,
@@ -32,8 +34,6 @@ import NetworkTab from './tabs/NetworkTab';
 import ConfigTab from './tabs/ConfigTab';
 import StorageTab from './tabs/StorageTab';
 import HelmTab from './tabs/HelmTab';
-
-const { TextArea } = Input;
 
 @connect(({ teamResources, enterprise }) => ({
   resources: teamResources.resources,
@@ -1118,7 +1118,7 @@ class ResourceCenter extends PureComponent {
   });
 
   applyHelmPreview = (preview, sourceType, callback) => {
-    const valuesMap = (preview && preview.values) || {};
+    const valuesMap = (preview && preview.values) || {};    
     const firstKey = getPreferredHelmValuesFileKey(valuesMap);
     const decodedValues = firstKey ? this.decodeBase64Text(valuesMap[firstKey]) : '';
     const formStateKey = this.getHelmFormStateKey(sourceType);
@@ -1162,6 +1162,8 @@ class ResourceCenter extends PureComponent {
       payload,
       callback: bean => this.applyHelmPreview(bean, sourceType, callback),
       handleError: err => {
+        console.log(err,"err");
+        
         const message = this.getHelmErrorMessage(err, formatMessage({ id: 'resourceCenter.helm.previewFailed', defaultMessage: 'Chart 检测失败' }));
         this.setState({
           helmPreviewLoading: false,
@@ -1689,12 +1691,15 @@ class ResourceCenter extends PureComponent {
                 <span className={styles.yamlMiniTip}>{formatMessage({ id: 'resourceCenter.yaml.toolbar.manualEdit' })}</span>
               </div>
             </div>
-            <TextArea
-              className={styles.yamlEditor}
-              rows={20}
+            <CodeMirrorForm
+              mode="yaml"
               value={yamlContent}
-              onChange={e => this.setState({ yamlContent: e.target.value })}
-              placeholder={formatMessage({ id: 'resourceCenter.yaml.placeholder' })}
+              onChange={value => this.setState({ yamlContent: value })}
+              isHeader={false}
+              isUpload={false}
+              isAmplifications={false}
+              editorHeight={420}
+              style={{ marginBottom: 0 }}
             />
           </Modal>
 
