@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import { getResourceStatusMeta } from './utils';
 
 const RESOURCE_TABLE_SCROLL_X = 1320;
 
+=======
+import { DEFAULT_TABLE_COLUMN_WIDTH } from './constants';
+import { getResourceStatusMeta } from './utils';
+
+>>>>>>> 09e2d6e0dff30194ad9e152f7e2acacfc141bb8e
 export function parseVersionToken(input) {
   const value = (input || '').trim();
   if (!value) {

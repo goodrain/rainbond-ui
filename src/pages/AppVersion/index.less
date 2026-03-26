@@ -574,6 +574,11 @@
   gap: 16px;
 }
 
+.timelineMain {
+  flex: 1;
+  min-width: 0;
+}
+
 .timelineTypeTag {
   display: inline-flex;
   align-items: center;
@@ -683,11 +688,11 @@
 .timelineActions {
   display: flex;
   align-items: flex-start;
+  align-content: flex-start;
   gap: 10px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   flex-wrap: wrap;
   justify-content: flex-end;
-  max-width: 320px;
 }
 
 .timelineTags {
@@ -1147,9 +1152,116 @@
 
 .detailEntrySingle,
 .detailEntryDiff {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   color: @text-color-secondary;
   font-size: 12px;
   line-height: 1.8;
+}
+
+.detailValueSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailValueGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.detailValueItem {
+  padding: 10px 12px;
+  border: 1px solid #e9eef6;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.detailValueLabel {
+  margin-bottom: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.detailValueText,
+.detailValueFallback {
+  color: @heading-color;
+  font-size: 12px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detailRawBlock {
+  padding-top: 2px;
+}
+
+.detailCompareTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailCompareRow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.detailCompareHeaderRow {
+  align-items: center;
+}
+
+.detailCompareLabel {
+  display: flex;
+  align-items: center;
+  color: @heading-color;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.detailCompareCellTitle {
+  padding: 0 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailCompareCell {
+  padding: 10px 12px;
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: @heading-color;
+  font-size: 12px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detailCompareRawGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.detailCompareRawItem {
+  padding: 12px;
+  border: 1px dashed #dbe5f0;
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.detailCompareRawTitle {
+  margin-bottom: 6px;
+  color: @heading-color;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .detailEntryCode {
@@ -1164,6 +1276,40 @@
 
 .detailEntryDetails {
   margin: 0;
+}
+
+.rollbackLayout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.rollbackListPanel {
+  width: 360px;
+  flex-shrink: 0;
+}
+
+.rollbackDetailPanel {
+  flex: 1;
+  min-width: 0;
+}
+
+.rollbackRecordActive {
+  :global {
+    td {
+      background: #f0f6ff !important;
+    }
+  }
+}
+
+.rollbackDetailEmpty {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d9e4f2;
+  border-radius: 14px;
+  background: #fbfdff;
 }
 
 .detailEntryDetailsSummary {
@@ -1229,5 +1375,31 @@
   .detailUpdatedComponentHeader {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .detailValueGrid,
+  .detailCompareRawGrid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .detailCompareRow {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .detailCompareHeaderRow {
+    display: none;
+  }
+
+  .detailCompareLabel {
+    margin-top: 4px;
+  }
+
+  .rollbackLayout {
+    flex-direction: column;
+  }
+
+  .rollbackListPanel {
+    width: 100%;
   }
 }

@@ -24,6 +24,7 @@ import roleUtil from '../../utils/newRole';
 import { fetchMarketAuthority } from '../../utils/authority';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import upgradeInfoUtil from '../Upgrade/UpgradeInfo/info-util';
 import {
   getApplication as fetchInstalledSources,
   getUpdateRecordsList,
@@ -31,7 +32,10 @@ import {
   getAppVersionSnapshots,
   getAppVersionSnapshotDetail,
   deleteAppVersionSnapshot,
-  rollbackAppVersionSnapshot
+  rollbackAppVersionSnapshot,
+  getAppVersionRollbackRecords,
+  getAppVersionRollbackRecordDetail,
+  deleteAppVersionRollbackRecord
 } from '../../services/api';
 import {
   createShare,
@@ -81,6 +85,12 @@ export default class AppVersion extends PureComponent {
       publishRecords: [],
       publishRecordsLoading: false,
       publishRecordsVisible: false,
+      rollbackRecordsVisible: false,
+      rollbackRecordsLoading: false,
+      rollbackRecordDetailLoading: false,
+      rollbackRecords: [],
+      rollbackRecordDetail: null,
+      selectedRollbackRecordId: null,
       selectStoreVisible: false,
       storeLoading: false,
       storeList: [],
@@ -251,6 +261,15 @@ export default class AppVersion extends PureComponent {
     this.fetchSnapshotExportStatuses(snapshotVersions);
   };
 
+  shouldMarkSnapshotExportUnavailable = error => {
+    const status = error && error.response && error.response.status;
+    const msgShow =
+      (error && error.msg_show) ||
+      (error && error.response && error.response.data && error.response.data.msg_show) ||
+      '';
+    return status === 404 || ['应用商店不存在', '云市应用不存在'].includes(msgShow);
+  };
+
   fetchSnapshotExportStatuses = async versions => {
     const { overview } = this.state;
     const templateId = overview && overview.template_id;
@@ -267,6 +286,8 @@ export default class AppVersion extends PureComponent {
           app_id: templateId,
           app_version: targetVersions.join('#')
         }
+      }, error => {
+        throw error;
       });
       if (this.unmounted) {
         return;
@@ -298,6 +319,20 @@ export default class AppVersion extends PureComponent {
     } catch (error) {
       if (!this.unmounted) {
         this.clearSnapshotExportPolling();
+        if (this.shouldMarkSnapshotExportUnavailable(error)) {
+          const unavailableStatusMap = {};
+          targetVersions.forEach(version => {
+            unavailableStatusMap[version] = this.normalizeSnapshotExportStatus({
+              no_export: 'true'
+            });
+          });
+          this.setState(prevState => ({
+            snapshotExportStatusMap: {
+              ...prevState.snapshotExportStatusMap,
+              ...unavailableStatusMap
+            }
+          }));
+        }
       }
     }
   };
@@ -325,43 +360,180 @@ export default class AppVersion extends PureComponent {
     }
   };
 
+  isRollbackRecordFinished = status => {
+    return ![1, 2, 4].includes(Number(status));
+  };
+
+  updateRollbackRecordInState = recordDetail => {
+    if (!recordDetail) {
+      return;
+    }
+    const recordId = recordDetail.ID || recordDetail.id;
+    this.setState(prevState => {
+      const rollbackRecords = (prevState.rollbackRecords || []).slice();
+      const recordIndex = rollbackRecords.findIndex(
+        item => `${item.ID || item.id}` === `${recordId}`
+      );
+      if (recordIndex > -1) {
+        rollbackRecords[recordIndex] = {
+          ...rollbackRecords[recordIndex],
+          ...recordDetail
+        };
+      } else {
+        rollbackRecords.unshift(recordDetail);
+      }
+      return {
+        rollbackRecords,
+        rollbackRecordDetail: recordDetail,
+        selectedRollbackRecordId: recordId
+      };
+    });
+  };
+
+  fetchRollbackRecordDetail = async (recordId, showLoading = true) => {
+    if (!recordId || this.unmounted) {
+      return null;
+    }
+    if (showLoading && !this.unmounted) {
+      this.setState({ rollbackRecordDetailLoading: true });
+    }
+    try {
+      const res = await getAppVersionRollbackRecordDetail({
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getAppId(),
+        record_id: recordId
+      });
+      if (this.unmounted) {
+        return null;
+      }
+      const rollbackRecordDetail = (res && res.bean) || null;
+      this.updateRollbackRecordInState(rollbackRecordDetail);
+      return rollbackRecordDetail;
+    } catch (error) {
+      if (this.unmounted) {
+        return null;
+      }
+      this.setState({ rollbackRecordDetail: null });
+      return null;
+    } finally {
+      if (!this.unmounted && showLoading) {
+        this.setState({ rollbackRecordDetailLoading: false });
+      }
+    }
+  };
+
+  fetchRollbackRecords = async preferredRecordId => {
+    if (this.unmounted) {
+      return;
+    }
+    this.setState({ rollbackRecordsLoading: true, rollbackRecordsVisible: true });
+    try {
+      const res = await getAppVersionRollbackRecords({
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getAppId()
+      });
+      const rollbackRecords = (res && res.list) || [];
+      if (this.unmounted) {
+        return;
+      }
+      const selectedRollbackRecordId =
+        preferredRecordId ||
+        this.state.selectedRollbackRecordId ||
+        ((rollbackRecords[0] && (rollbackRecords[0].ID || rollbackRecords[0].id)) || null);
+      this.setState(
+        {
+          rollbackRecords,
+          rollbackRecordsLoading: false,
+          selectedRollbackRecordId
+        },
+        () => {
+          if (selectedRollbackRecordId) {
+            this.fetchRollbackRecordDetail(selectedRollbackRecordId, false);
+          }
+        }
+      );
+    } catch (error) {
+      if (!this.unmounted) {
+        this.setState({
+          rollbackRecords: [],
+          rollbackRecordsLoading: false
+        });
+      }
+    }
+  };
+
+  openRollbackRecordsDrawer = recordId => {
+    this.fetchRollbackRecords(recordId);
+  };
+
+  closeRollbackRecordsDrawer = () => {
+    this.clearRollbackRefreshPolling();
+    this.setState({
+      rollbackRecordsVisible: false,
+      rollbackRecordDetail: null,
+      rollbackRecordDetailLoading: false
+    });
+  };
+
+  canDeleteRollbackRecord = record => {
+    const status = Number(record && record.status);
+    return ![1, 2, 4].includes(status);
+  };
+
+  handleDeleteRollbackRecord = async recordId => {
+    try {
+      await deleteAppVersionRollbackRecord({
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getAppId(),
+        record_id: recordId
+      });
+      notification.success({ message: '删除成功' });
+      const nextSelectedId =
+        `${this.state.selectedRollbackRecordId}` === `${recordId}`
+          ? null
+          : this.state.selectedRollbackRecordId;
+      this.setState({
+        rollbackRecordDetail: nextSelectedId ? this.state.rollbackRecordDetail : null,
+        selectedRollbackRecordId: nextSelectedId
+      });
+      this.fetchRollbackRecords(nextSelectedId);
+    } catch (error) {
+      notification.error({
+        message: this.getRequestErrorMessage(error, '删除失败')
+      });
+    }
+  };
+
+  confirmDeleteRollbackRecord = record => {
+    if (!this.canDeleteRollbackRecord(record)) {
+      return;
+    }
+    Modal.confirm({
+      title: '删除回滚记录',
+      content: '删除后该回滚记录将不可恢复，确认继续吗？',
+      okText: '确认删除',
+      cancelText: '取消',
+      onOk: () => this.handleDeleteRollbackRecord(record.ID || record.id)
+    });
+  };
+
   pollRollbackRecordUntilSettled = async (recordId, attempt = 0) => {
     if (!recordId || this.unmounted) {
       return;
     }
     const maxAttempts = 30;
-    const finishedStatuses = [5, 7, 9, 10];
-    try {
-      const res = await getUpdateRecordsList({
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getAppId(),
-        page: 1,
-        pageSize: 100,
-        status__gt: 1
-      });
-      const upgradeRecords = (res && res.list) || [];
-      if (this.unmounted) {
-        return;
-      }
-      this.setState({ upgradeRecords });
-      const rollbackRecord = upgradeRecords.find(
-        item => `${item.ID || item.id}` === `${recordId}`
-      );
-      const rollbackStatus = rollbackRecord && rollbackRecord.status;
-      if (finishedStatuses.includes(rollbackStatus)) {
-        this.rollbackRefreshTimer = null;
-        await Promise.all([
-          this.fetchAppVersionOverview(),
-          this.fetchSnapshotVersions(),
-          this.fetchUpgradeRecords(),
-          this.fetchAppDetail()
-        ]);
-        return;
-      }
-    } catch (error) {
-      if (this.unmounted) {
-        return;
-      }
+    const rollbackRecordDetail = await this.fetchRollbackRecordDetail(recordId, false);
+    const rollbackStatus = rollbackRecordDetail && rollbackRecordDetail.status;
+
+    if (this.isRollbackRecordFinished(rollbackStatus)) {
+      this.rollbackRefreshTimer = null;
+      await Promise.all([
+        this.fetchAppVersionOverview(),
+        this.fetchSnapshotVersions(),
+        this.fetchAppDetail(),
+        this.fetchRollbackRecords(recordId)
+      ]);
+      return;
     }
 
     if (attempt >= maxAttempts || this.unmounted) {
@@ -369,8 +541,8 @@ export default class AppVersion extends PureComponent {
       await Promise.all([
         this.fetchAppVersionOverview(),
         this.fetchSnapshotVersions(),
-        this.fetchUpgradeRecords(),
-        this.fetchAppDetail()
+        this.fetchAppDetail(),
+        this.fetchRollbackRecords(recordId)
       ]);
       return;
     }
@@ -446,7 +618,7 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  fetchAppVersionOverview = async () => {
+  fetchAppVersionOverview = async ({ refreshExportStatus = true } = {}) => {
     try {
       const res = await getAppVersionOverview({
         team_name: globalUtil.getCurrTeamName(),
@@ -460,7 +632,9 @@ export default class AppVersion extends PureComponent {
           overview: (res && res.bean) || {}
         },
         () => {
-          this.refreshSnapshotExportStatuses();
+          if (refreshExportStatus) {
+            this.refreshSnapshotExportStatuses();
+          }
         }
       );
     } catch (error) {
@@ -472,7 +646,7 @@ export default class AppVersion extends PureComponent {
     }
   };
 
-  fetchSnapshotVersions = async () => {
+  fetchSnapshotVersions = async ({ refreshExportStatus = true } = {}) => {
     try {
       const res = await getAppVersionSnapshots({
         team_name: globalUtil.getCurrTeamName(),
@@ -489,7 +663,9 @@ export default class AppVersion extends PureComponent {
           snapshotVersions
         },
         () => {
-          this.refreshSnapshotExportStatuses(this.getSnapshotExportVersions(snapshotVersions));
+          if (refreshExportStatus) {
+            this.refreshSnapshotExportStatuses(this.getSnapshotExportVersions(snapshotVersions));
+          }
         }
       );
     } catch (error) {
@@ -1026,61 +1202,256 @@ export default class AppVersion extends PureComponent {
     return '-';
   };
 
-  formatDiffFieldItem = (fieldKey, item = {}) => {
-    if (fieldKey === 'service_env_map_list') {
-      const key = item.attr_name || '-';
-      const value = item.attr_value || '';
-      return `${key}=${value}`;
-    }
-    if (fieldKey === 'service_connect_info_map_list') {
-      const key = item.attr_name || '-';
-      const value = item.attr_value || '';
-      return `${key}=${value}`;
-    }
-    if (fieldKey === 'port_map_list') {
-      const segments = [`容器端口 ${item.container_port || '-'}/${String(item.protocol || 'tcp').toUpperCase()}`];
-      if (item.port_alias) {
-        segments.push(`别名 ${item.port_alias}`);
-      }
-      if (item.k8s_service_name) {
-        segments.push(`服务 ${item.k8s_service_name}`);
-      }
-      return segments.join('，');
-    }
-    if (fieldKey === 'service_volume_map_list') {
-      const segments = [`${item.volume_name || '-'} -> ${item.volume_path || '-'}`];
-      if (item.volume_capacity !== undefined && item.volume_capacity !== null && item.volume_capacity !== '') {
-        segments.push(`容量 ${item.volume_capacity}`);
-      }
-      if (item.volume_type) {
-        segments.push(`类型 ${item.volume_type}`);
-      }
-      return segments.join('，');
-    }
-    if (fieldKey === 'probes') {
-      const segments = [item.probe_id || item.mode || 'probe'];
-      if (item.mode) {
-        segments.push(`类型 ${item.mode}`);
-      }
-      if (item.port !== undefined && item.port !== null && item.port !== '') {
-        segments.push(`端口 ${item.port}`);
-      }
-      if (item.path) {
-        segments.push(`路径 ${item.path}`);
-      }
-      if (item.cmd) {
-        segments.push(`命令 ${item.cmd}`);
-      }
-      if (item.failure_threshold !== undefined && item.failure_threshold !== null && item.failure_threshold !== '') {
-        segments.push(`失败阈值 ${item.failure_threshold}`);
-      }
-      return segments.join('，');
-    }
+  isEmptyDetailValue = value =>
+    value === undefined || value === null || value === '';
+
+  isScalarDetailValue = value =>
+    value === undefined ||
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean';
+
+  isScalarDetailArray = value =>
+    Array.isArray(value) &&
+    value.every(item => this.isScalarDetailValue(item));
+
+  areDetailValuesEqual = (left, right) => {
     try {
-      return JSON.stringify(item);
+      return JSON.stringify(left) === JSON.stringify(right);
     } catch (error) {
+      return left === right;
+    }
+  };
+
+  getReadableDetailLabel = key => {
+    const labelMap = {
+      attr_name: '名称',
+      attr_value: '值',
+      scope: '作用域',
+      name: '键',
+      container_port: '容器端口',
+      protocol: '协议',
+      port_alias: '端口别名',
+      k8s_service_name: '服务名',
+      node_port: '节点端口',
+      lb_mapping_port: 'LB端口',
+      volume_name: '卷名称',
+      volume_path: '挂载路径',
+      volume_capacity: '容量',
+      volume_type: '类型',
+      access_mode: '访问模式',
+      volume_provider_name: '存储类',
+      probe_id: '探针标识',
+      mode: '探针类型',
+      port: '端口',
+      path: '路径',
+      cmd: '命令',
+      scheme: '协议',
+      initial_delay_second: '初始延迟',
+      period_second: '探测周期',
+      timeout_second: '超时时间',
+      success_threshold: '成功阈值',
+      failure_threshold: '失败阈值',
+      min_node: '最小实例',
+      max_node: '最大实例',
+      step_node: '扩容步长',
+      min_memory: '最小内存',
+      init_memory: '初始内存',
+      max_memory: '最大内存',
+      step_memory: '内存步长',
+      min_cpu: '最小 CPU',
+      init_cpu: '初始 CPU',
+      container_cpu: 'CPU',
+      max_cpu: '最大 CPU',
+      step_cpu: 'CPU 步长',
+      is_restart: '变更后重启',
+      build_version: '构建版本',
+      deploy_version: '部署版本',
+      update_time: '更新时间'
+    };
+    return labelMap[key] || key;
+  };
+
+  getFieldRowSchema = fieldKey => {
+    const schemaMap = {
+      service_env_map_list: ['attr_name', 'attr_value', 'scope'],
+      service_connect_info_map_list: ['attr_name', 'attr_value'],
+      extend_method_map: [
+        'min_node',
+        'max_node',
+        'step_node',
+        'min_memory',
+        'init_memory',
+        'max_memory',
+        'step_memory',
+        'min_cpu',
+        'init_cpu',
+        'container_cpu',
+        'max_cpu',
+        'step_cpu',
+        'is_restart'
+      ],
+      port_map_list: [
+        'container_port',
+        'protocol',
+        'port_alias',
+        'k8s_service_name',
+        'node_port',
+        'lb_mapping_port'
+      ],
+      service_volume_map_list: [
+        'volume_name',
+        'volume_path',
+        'volume_capacity',
+        'volume_type',
+        'access_mode',
+        'volume_provider_name'
+      ],
+      probes: [
+        'probe_id',
+        'mode',
+        'port',
+        'path',
+        'cmd',
+        'scheme',
+        'initial_delay_second',
+        'period_second',
+        'timeout_second',
+        'success_threshold',
+        'failure_threshold'
+      ]
+    };
+    return schemaMap[fieldKey] || [];
+  };
+
+  formatDetailScalarValue = value => {
+    if (this.isEmptyDetailValue(value)) {
       return '-';
     }
+    if (typeof value === 'boolean') {
+      return value ? '是' : '否';
+    }
+    return String(value);
+  };
+
+  describeComplexDetailValue = value => {
+    if (Array.isArray(value)) {
+      return `数组（${value.length} 项，请展开查看原始配置）`;
+    }
+    if (value && typeof value === 'object') {
+      return `对象（${Object.keys(value).length} 个字段，请展开查看原始配置）`;
+    }
+    return this.formatDetailScalarValue(value);
+  };
+
+  formatDetailPreviewValue = value => {
+    if (this.isScalarDetailArray(value)) {
+      const items = value
+        .map(item => this.formatDetailScalarValue(item))
+        .filter(item => item && item !== '-');
+      return items.length > 0 ? items.join('，') : '-';
+    }
+    if (Array.isArray(value) || (value && typeof value === 'object')) {
+      return this.describeComplexDetailValue(value);
+    }
+    return this.formatDetailScalarValue(value);
+  };
+
+  formatDetailRowValue = (key, value) => {
+    if (
+      ['min_node', 'max_node', 'step_node'].includes(key) &&
+      !this.isEmptyDetailValue(value)
+    ) {
+      return `${value} 个`;
+    }
+    if (
+      ['min_memory', 'init_memory', 'max_memory', 'step_memory'].includes(key) &&
+      !this.isEmptyDetailValue(value)
+    ) {
+      return `${value} MB`;
+    }
+    if (
+      ['min_cpu', 'init_cpu', 'container_cpu', 'max_cpu', 'step_cpu'].includes(key) &&
+      !this.isEmptyDetailValue(value)
+    ) {
+      return `${value} m`;
+    }
+    if (key === 'is_restart' && !this.isEmptyDetailValue(value)) {
+      return String(value) === '1' || value === true ? '是' : '否';
+    }
+    if ((key === 'protocol' || key === 'scheme') && !this.isEmptyDetailValue(value)) {
+      return String(value).toUpperCase();
+    }
+    return this.formatDetailPreviewValue(value);
+  };
+
+  getSummaryRowsForValue = (fieldKey, value, compareValue) => {
+    if (this.isScalarDetailValue(value) || this.isScalarDetailArray(value)) {
+      return [
+        {
+          key: 'value',
+          label: '值',
+          value: this.formatDetailPreviewValue(value)
+        }
+      ];
+    }
+    if (!value || typeof value !== 'object') {
+      return [];
+    }
+
+    const rows = [];
+    const schemaKeys = this.getFieldRowSchema(fieldKey);
+    const usedKeys = {};
+
+    schemaKeys.forEach(key => {
+      usedKeys[key] = true;
+      const currentValue = value[key];
+      const compareItem = compareValue && compareValue[key];
+      const hasValue =
+        !this.isEmptyDetailValue(currentValue) &&
+        (!Array.isArray(currentValue) || currentValue.length > 0);
+      if (!hasValue && (!compareValue || this.areDetailValuesEqual(currentValue, compareItem))) {
+        return;
+      }
+      rows.push({
+        key,
+        label: this.getReadableDetailLabel(key),
+        value: this.formatDetailRowValue(key, currentValue)
+      });
+    });
+
+    Object.keys(value)
+      .sort()
+      .forEach(key => {
+        if (usedKeys[key]) {
+          return;
+        }
+        const currentValue = value[key];
+        const compareItem = compareValue && compareValue[key];
+        const isCollection =
+          Array.isArray(currentValue) ||
+          (currentValue && typeof currentValue === 'object');
+        if (isCollection && !this.isScalarDetailArray(currentValue)) {
+          return;
+        }
+        if (
+          this.isEmptyDetailValue(currentValue) &&
+          (!compareValue || this.areDetailValuesEqual(currentValue, compareItem))
+        ) {
+          return;
+        }
+        if (compareValue && this.areDetailValuesEqual(currentValue, compareItem)) {
+          return;
+        }
+        rows.push({
+          key,
+          label: this.getReadableDetailLabel(key),
+          value: this.formatDetailRowValue(key, currentValue)
+        });
+      });
+
+    return rows;
   };
 
   formatOtherChangeValue = value => {
@@ -1097,19 +1468,144 @@ export default class AppVersion extends PureComponent {
     }
   };
 
-  renderOtherChangeValueBlock = value => {
+  shouldRenderRawValue = (fieldKey, value) => {
+    if (typeof value === 'string') {
+      return value.length > 160 || value.indexOf('\n') > -1;
+    }
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+    if (!this.getFieldRowSchema(fieldKey).length) {
+      return true;
+    }
+    const keyCount = Array.isArray(value) ? value.length : Object.keys(value).length;
+    return keyCount > 6;
+  };
+
+  renderOtherChangeValueBlock = (value, summaryLabel = '查看原始 JSON') => {
     const formattedValue = this.formatOtherChangeValue(value);
-    const shouldCollapse = formattedValue.length > 160 || formattedValue.indexOf('\n') > -1;
+    const shouldCollapse =
+      (value && typeof value === 'object') ||
+      formattedValue.length > 160 ||
+      formattedValue.indexOf('\n') > -1;
     if (!shouldCollapse) {
       return <pre className={styles.detailEntryCode}>{formattedValue}</pre>;
     }
     return (
       <details className={styles.detailEntryDetails}>
         <summary className={styles.detailEntryDetailsSummary}>
-          {formattedValue.slice(0, 160)}...
+          {summaryLabel}
         </summary>
         <pre className={styles.detailEntryCode}>{formattedValue}</pre>
       </details>
+    );
+  };
+
+  renderFieldValueSummary = (fieldKey, value) => {
+    const rows = this.getSummaryRowsForValue(fieldKey, value);
+    return (
+      <div className={styles.detailValueSummary}>
+        {rows.length > 0 ? (
+          <div className={styles.detailValueGrid}>
+            {rows.map(row => (
+              <div
+                key={`${fieldKey}-${row.key}`}
+                className={styles.detailValueItem}
+              >
+                <div className={styles.detailValueLabel}>{row.label}</div>
+                <div className={styles.detailValueText}>{row.value}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.detailValueFallback}>
+            {this.formatDetailPreviewValue(value)}
+          </div>
+        )}
+        {this.shouldRenderRawValue(fieldKey, value) ? (
+          <div className={styles.detailRawBlock}>
+            {this.renderOtherChangeValueBlock(value)}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  getFieldCompareRows = (fieldKey, before, after) => {
+    const beforeRows = this.getSummaryRowsForValue(fieldKey, before, after);
+    const afterRows = this.getSummaryRowsForValue(fieldKey, after, before);
+    const rowMap = {};
+    const order = [];
+
+    const appendRow = (row, side) => {
+      if (!rowMap[row.key]) {
+        rowMap[row.key] = {
+          key: row.key,
+          label: row.label,
+          before: '-',
+          after: '-'
+        };
+        order.push(row.key);
+      }
+      rowMap[row.key][side] = row.value;
+    };
+
+    beforeRows.forEach(row => appendRow(row, 'before'));
+    afterRows.forEach(row => appendRow(row, 'after'));
+
+    if (order.length === 0) {
+      return [
+        {
+          key: 'raw',
+          label: '内容',
+          before: this.describeComplexDetailValue(before),
+          after: this.describeComplexDetailValue(after)
+        }
+      ];
+    }
+
+    return order.map(key => rowMap[key]);
+  };
+
+  renderFieldValueCompare = (fieldKey, before, after) => {
+    const rows = this.getFieldCompareRows(fieldKey, before, after);
+    const showBeforeRaw = this.shouldRenderRawValue(fieldKey, before);
+    const showAfterRaw = this.shouldRenderRawValue(fieldKey, after);
+
+    return (
+      <div className={styles.detailCompareTable}>
+        <div className={`${styles.detailCompareRow} ${styles.detailCompareHeaderRow}`}>
+          <div className={styles.detailCompareLabel}>字段</div>
+          <div className={styles.detailCompareCellTitle}>之前</div>
+          <div className={styles.detailCompareCellTitle}>现在</div>
+        </div>
+        {rows.map(row => (
+          <div
+            key={`${fieldKey}-${row.key}`}
+            className={styles.detailCompareRow}
+          >
+            <div className={styles.detailCompareLabel}>{row.label}</div>
+            <div className={styles.detailCompareCell}>{row.before}</div>
+            <div className={styles.detailCompareCell}>{row.after}</div>
+          </div>
+        ))}
+        {showBeforeRaw || showAfterRaw ? (
+          <div className={styles.detailCompareRawGrid}>
+            {showBeforeRaw ? (
+              <div className={styles.detailCompareRawItem}>
+                <div className={styles.detailCompareRawTitle}>之前原始配置</div>
+                {this.renderOtherChangeValueBlock(before, '查看之前的原始 JSON')}
+              </div>
+            ) : null}
+            {showAfterRaw ? (
+              <div className={styles.detailCompareRawItem}>
+                <div className={styles.detailCompareRawTitle}>现在原始配置</div>
+                {this.renderOtherChangeValueBlock(after, '查看现在的原始 JSON')}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     );
   };
 
@@ -1186,20 +1682,19 @@ export default class AppVersion extends PureComponent {
           <span>{entries.length} 项</span>
         </div>
         <div className={styles.detailEntryList}>
-          {entries.map(entry => (
+          {entries.map((entry, index) => (
             <div
-              key={`${changeType}-${entry.identity}`}
+              key={`${changeType}-${entry.identity || index}`}
               className={styles.detailEntry}
             >
-              <div className={styles.detailEntryIdentity}>{entry.identity}</div>
+              <div className={styles.detailEntryIdentity}>{entry.identity || '未命名条目'}</div>
               {changeType === 'updated' ? (
                 <div className={styles.detailEntryDiff}>
-                  <div>之前：{this.formatDiffFieldItem(fieldKey, entry.before)}</div>
-                  <div>现在：{this.formatDiffFieldItem(fieldKey, entry.after)}</div>
+                  {this.renderFieldValueCompare(fieldKey, entry.before, entry.after)}
                 </div>
               ) : (
                 <div className={styles.detailEntrySingle}>
-                  {this.formatDiffFieldItem(fieldKey, entry.item)}
+                  {this.renderFieldValueSummary(fieldKey, entry.item)}
                 </div>
               )}
             </div>
@@ -1266,16 +1761,7 @@ export default class AppVersion extends PureComponent {
                     className={styles.detailFieldBlock}
                   >
                     <div className={styles.detailFieldTitle}>{change.field_label}</div>
-                    <div className={styles.detailEntryList}>
-                      <div className={styles.detailEntry}>
-                        <div className={styles.detailEntryIdentity}>之前</div>
-                        {this.renderOtherChangeValueBlock(change.before)}
-                      </div>
-                      <div className={styles.detailEntry}>
-                        <div className={styles.detailEntryIdentity}>现在</div>
-                        {this.renderOtherChangeValueBlock(change.after)}
-                      </div>
-                    </div>
+                    {this.renderFieldValueCompare(change.field_key, change.before, change.after)}
                   </div>
                 ))}
               </div>
@@ -1433,29 +1919,10 @@ export default class AppVersion extends PureComponent {
       });
     }
 
-    if (baselineSnapshot) {
-      timeline.push({
-        id: `snapshot-${baselineSnapshot.version_id}`,
-        version: baselineSnapshot.version || '未命名版本',
-        createTime: baselineSnapshot.create_time,
-        timeLabel: '创建于',
-        description: baselineSnapshot.app_version_info || '当前快照未填写版本说明',
-        componentLabel: '包含组件',
-        componentNames: baselineSnapshot.includedComponentNames || [],
-        emptyComponentText: '当前版本未返回组件信息',
-        actionVersion: baselineSnapshot.version || '',
-        detail: baselineSnapshot,
-        timelineState: 'current',
-        isCurrent: true,
-        isCurrentBaseline: true,
-        isLatestCreated: `${baselineSnapshot.version_id}` === `${versions[0] && versions[0].version_id}`,
-      });
-    }
-
     return timeline.concat(
-      versions
-        .filter(record => `${record.version_id}` !== `${baselineSnapshotId || ''}`)
-        .map((record, index) => ({
+      versions.map((record, index) => {
+        const isCurrentBaseline = `${record.version_id}` === `${baselineSnapshotId || ''}`;
+        return {
           id: `snapshot-${record.version_id}`,
           version: record.version || '未命名版本',
           createTime: record.create_time,
@@ -1466,14 +1933,16 @@ export default class AppVersion extends PureComponent {
           emptyComponentText: '当前版本未返回组件信息',
           actionVersion: record.version || '',
           detail: record,
-          timelineState:
-            baselineSnapshotIndex !== -1 && index < baselineSnapshotIndex
+          timelineState: isCurrentBaseline
+            ? 'current'
+            : baselineSnapshotIndex !== -1 && index < baselineSnapshotIndex
               ? 'upgrade'
               : 'history',
-          isCurrent: false,
-          isCurrentBaseline: false,
+          isCurrent: isCurrentBaseline,
+          isCurrentBaseline,
           isLatestCreated: `${record.version_id}` === `${versions[0] && versions[0].version_id}`,
-        }))
+        };
+      })
     );
   };
 
@@ -1526,7 +1995,11 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  handleRollbackSnapshot = async versionId => {
+  handleRollbackSnapshot = async item => {
+    const versionId = item && item.detail && item.detail.version_id;
+    if (!versionId) {
+      return;
+    }
     try {
       const res = await rollbackAppVersionSnapshot({
         team_name: globalUtil.getCurrTeamName(),
@@ -1534,23 +2007,37 @@ export default class AppVersion extends PureComponent {
         version_id: versionId
       });
       this.clearRollbackRefreshPolling();
-      await this.fetchUpgradeRecords();
       const rollbackRecord = (res && res.bean) || {};
       const rollbackRecordId = rollbackRecord.ID || rollbackRecord.id;
+      this.openRollbackRecordsDrawer(rollbackRecordId);
       if (rollbackRecordId) {
         this.pollRollbackRecordUntilSettled(rollbackRecordId);
       } else {
         await Promise.all([
           this.fetchAppVersionOverview(),
           this.fetchSnapshotVersions(),
-          this.fetchUpgradeRecords(),
-          this.fetchAppDetail()
+          this.fetchAppDetail(),
+          this.fetchRollbackRecords()
         ]);
       }
       notification.success({ message: '回滚任务已创建' });
     } catch (error) {
       notification.error({ message: '回滚失败' });
     }
+  };
+
+  confirmRollbackSnapshot = item => {
+    const snapshotVersion = item && item.detail && item.detail.version;
+    if (!snapshotVersion) {
+      return;
+    }
+    Modal.confirm({
+      title: '确认回滚',
+      content: `应用当前运行态将回滚到快照 ${snapshotVersion}，未保存的修改可能会丢失，确认继续吗？`,
+      okText: '确认回滚',
+      cancelText: '取消',
+      onOk: () => this.handleRollbackSnapshot(item)
+    });
   };
 
   getRequestErrorMessage = (error, fallback) => {
@@ -1572,8 +2059,10 @@ export default class AppVersion extends PureComponent {
       notification.success({
         message: (res && res.msg_show) || '删除成功'
       });
-      this.fetchAppVersionOverview();
-      this.fetchSnapshotVersions();
+      await Promise.all([
+        this.fetchAppVersionOverview({ refreshExportStatus: false }),
+        this.fetchSnapshotVersions({ refreshExportStatus: false })
+      ]);
     } catch (error) {
       notification.error({
         message: this.getRequestErrorMessage(error, '删除失败')
@@ -1659,6 +2148,26 @@ export default class AppVersion extends PureComponent {
     this.setState({ showExporterApp: false, exporterAppData: null });
   };
 
+  buildPublishRecordExportData = record => {
+    const versions = Array.isArray(record && record.version)
+      ? record.version.filter(Boolean)
+      : record && record.version
+        ? [record.version]
+        : [];
+    return {
+      ...record,
+      version: versions,
+      versions_info:
+        versions.length > 0
+          ? versions.map(version => ({
+              ...(record && record.app_version_info ? record.app_version_info : {}),
+              version
+            }))
+          : [],
+      app_id: record && record.app_model_id
+    };
+  };
+
   openPublishRecordsDrawer = () => {
     this.setState({ publishRecordsVisible: true });
   };
@@ -1671,13 +2180,14 @@ export default class AppVersion extends PureComponent {
     if (!data) {
       return;
     }
+    const exporterAppData = this.buildPublishRecordExportData(data);
+    if (!exporterAppData.app_id || exporterAppData.version.length === 0) {
+      notification.warning({ message: '当前发布记录暂不可导出' });
+      return;
+    }
     this.setState({
       showExporterApp: true,
-      exporterAppData: {
-        ...data,
-        version: Array.isArray(data.version) ? data.version : Array.of(data.version),
-        app_id: data.app_model_id
-      }
+      exporterAppData
     });
   };
 
@@ -1747,6 +2257,17 @@ export default class AppVersion extends PureComponent {
     return !!currentOverview.has_changes;
   };
 
+  renderRollbackStatusTag = status => {
+    if (status === undefined || status === null || status === '') {
+      return <Tag>未知</Tag>;
+    }
+    return (
+      <Tag color={upgradeInfoUtil.getStatusColor(status)}>
+        {upgradeInfoUtil.getStatusCNS(status)}
+      </Tag>
+    );
+  };
+
   renderPersonalOverview = () => {
     const personalTemplate = this.getPersonalTemplate();
     const latestPublish = this.getLatestPublishRecord();
@@ -1775,6 +2296,10 @@ export default class AppVersion extends PureComponent {
               disabled={!this.canCreateSnapshot(overview)}
             >
               创建快照
+            </Button>
+            <Button onClick={() => this.openRollbackRecordsDrawer()}>
+              <Icon type="history" />
+              回滚状态
             </Button>
             <Button onClick={this.openPublishRecordsDrawer}>
               <Icon type="profile" />
@@ -2076,8 +2601,10 @@ export default class AppVersion extends PureComponent {
         className={styles.historyCard}
         title={
           <div className={styles.historyTitle}>
-            <Icon type="clock-circle" />
-            <span>版本时间线</span>
+            <div>
+              <Icon type="clock-circle" />
+              <span>版本时间线</span>
+            </div>
           </div>
         }
       >
@@ -2114,7 +2641,7 @@ export default class AppVersion extends PureComponent {
                   }`}
                 >
                   <div className={styles.timelineHeader}>
-                    <div>
+                    <div className={styles.timelineMain}>
                       <div className={styles.timelineTopline}>
                         <span
                           className={`${styles.timelineTypeTag} ${
@@ -2208,7 +2735,7 @@ export default class AppVersion extends PureComponent {
                         />
                       ) : null}
                       {this.canRollbackSnapshot(item) ? (
-                        <Button size="small" onClick={() => this.handleRollbackSnapshot(item.detail.version_id)}>
+                        <Button size="small" onClick={() => this.confirmRollbackSnapshot(item)}>
                           回滚
                         </Button>
                       ) : null}
@@ -2473,6 +3000,152 @@ export default class AppVersion extends PureComponent {
     );
   };
 
+  renderRollbackRecordsDrawer = () => {
+    const {
+      rollbackRecordsVisible,
+      rollbackRecordsLoading,
+      rollbackRecords,
+      rollbackRecordDetail,
+      rollbackRecordDetailLoading,
+      selectedRollbackRecordId
+    } = this.state;
+
+    const columns = [
+      {
+        title: '回滚到版本',
+        dataIndex: 'version',
+        key: 'version'
+      },
+      {
+        title: '回滚前版本',
+        dataIndex: 'old_version',
+        key: 'old_version'
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key: 'status',
+        render: status => this.renderRollbackStatusTag(status)
+      },
+      {
+        title: '操作',
+        key: 'action',
+        render: (_, record) => (
+          <div className={styles.tableActions}>
+            {this.canDeleteRollbackRecord(record) ? (
+              <Button
+                size="small"
+                onClick={event => {
+                  event.stopPropagation();
+                  this.confirmDeleteRollbackRecord(record);
+                }}
+              >
+                删除
+              </Button>
+            ) : null}
+          </div>
+        )
+      }
+    ];
+
+    const serviceRecordColumns = [
+      {
+        title: '组件',
+        dataIndex: 'service_cname',
+        key: 'service_cname'
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key: 'status',
+        render: status => this.renderRollbackStatusTag(status)
+      },
+      {
+        title: '事件 ID',
+        dataIndex: 'event_id',
+        key: 'event_id',
+        render: value => value || '-'
+      }
+    ];
+
+    return (
+      <Drawer
+        title="回滚状态"
+        width={860}
+        visible={rollbackRecordsVisible}
+        onClose={this.closeRollbackRecordsDrawer}
+      >
+        <div className={styles.templateToolbar}>
+          <div>
+            <div className={styles.templateTitle}>回滚记录</div>
+            <div className={styles.templateHint}>
+              左侧选择一条回滚记录，右侧查看当前状态和组件级明细。进行中会自动刷新。
+            </div>
+          </div>
+          <div className={styles.timelineActions}>
+            <Button onClick={() => this.fetchRollbackRecords(selectedRollbackRecordId)}>
+              刷新
+            </Button>
+          </div>
+        </div>
+        <div className={styles.rollbackLayout}>
+          <div className={styles.rollbackListPanel}>
+            <Table
+              rowKey={record => record.ID || record.id}
+              columns={columns}
+              dataSource={rollbackRecords}
+              loading={rollbackRecordsLoading}
+              pagination={false}
+              className={styles.templateTable}
+              rowClassName={record =>
+                `${selectedRollbackRecordId}` === `${record.ID || record.id}`
+                  ? styles.rollbackRecordActive
+                  : ''
+              }
+              onRow={record => ({
+                onClick: () => this.fetchRollbackRecordDetail(record.ID || record.id, false)
+              })}
+            />
+          </div>
+          <div className={styles.rollbackDetailPanel}>
+            {rollbackRecordDetailLoading ? (
+              <div style={{ padding: '32px 0', textAlign: 'center' }}>
+                <Spin />
+              </div>
+            ) : rollbackRecordDetail ? (
+              <>
+                <div className={styles.drawerBlock}>
+                  <div className={styles.drawerTitle}>任务概览</div>
+                  <div className={styles.drawerDesc}>
+                    <p>回滚到版本：{rollbackRecordDetail.version || '-'}</p>
+                    <p>回滚前版本：{rollbackRecordDetail.old_version || '-'}</p>
+                    <p>当前状态：{this.renderRollbackStatusTag(rollbackRecordDetail.status)}</p>
+                    <p>创建时间：{this.formatTime(rollbackRecordDetail.create_time)}</p>
+                    <p>更新时间：{this.formatTime(rollbackRecordDetail.update_time)}</p>
+                  </div>
+                </div>
+                <div className={styles.drawerBlock}>
+                  <div className={styles.drawerTitle}>组件状态</div>
+                  <Table
+                    rowKey={record => record.ID || `${record.service_id}-${record.event_id || ''}`}
+                    columns={serviceRecordColumns}
+                    dataSource={rollbackRecordDetail.service_record || []}
+                    pagination={false}
+                    size="small"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className={styles.rollbackDetailEmpty}>
+                <Empty description="请选择一条回滚记录查看详情" />
+              </div>
+            )}
+          </div>
+        </div>
+      </Drawer>
+    );
+  };
+
   render() {
     const {
       selectStoreVisible,
@@ -2510,6 +3183,7 @@ export default class AppVersion extends PureComponent {
           )}
         </div>
         {this.renderPublishRecordsDrawer()}
+        {this.renderRollbackRecordsDrawer()}
         {this.renderSourceUpgradeDrawer()}
         {this.renderDetailDrawer()}
         {showExporterApp && exporterAppData && (

@@ -31,7 +31,19 @@ function getChartDescription(chart = {}) {
 }
 
 export default class HelmUpgradeModal extends PureComponent {
+  previewRequestId = 0;
   state = this.buildInitialState();
+
+  getNextPreviewRequestId = () => {
+    this.previewRequestId += 1;
+    return this.previewRequestId;
+  };
+
+  invalidatePreviewRequests = () => {
+    this.previewRequestId += 1;
+  };
+
+  isLatestPreviewRequest = requestId => requestId === this.previewRequestId;
 
   getSourceInfo() {
     return ((this.props.targetRelease || {}).source_info) || {};
@@ -56,12 +68,16 @@ export default class HelmUpgradeModal extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const becameVisible = this.props.visible && !prevProps.visible;
+    const becameHidden = !this.props.visible && prevProps.visible;
     const targetChanged = (
       this.props.visible &&
       prevProps.targetRelease &&
       this.props.targetRelease &&
       prevProps.targetRelease.name !== this.props.targetRelease.name
     );
+    if (becameHidden) {
+      this.invalidatePreviewRequests();
+    }
     if (becameVisible || targetChanged) {
       this.resetState();
       this.fetchHelmRepos();
@@ -114,7 +130,21 @@ export default class HelmUpgradeModal extends PureComponent {
   }
 
   resetState = () => {
+    this.invalidatePreviewRequests();
     this.setState(this.buildInitialState());
+  };
+
+  buildPreviewResetState = (extra = {}) => {
+    this.invalidatePreviewRequests();
+    return {
+      previewLoading: false,
+      previewData: null,
+      previewFileKey: '',
+      previewStatus: 'idle',
+      previewError: '',
+      configVisible: false,
+      ...extra,
+    };
   };
 
   getParams() {
@@ -201,10 +231,7 @@ export default class HelmUpgradeModal extends PureComponent {
       allCharts: [],
       charts: [],
       selectedChart: null,
-      previewData: null,
-      previewFileKey: '',
-      previewStatus: 'idle',
-      configVisible: false,
+      ...this.buildPreviewResetState(),
     });
     dispatch({
       type: 'market/fetchHelmMarkets',
@@ -271,10 +298,7 @@ export default class HelmUpgradeModal extends PureComponent {
     const version = (versions[0] && versions[0].version) || '';
     this.setState({
       selectedChart: chart,
-      previewData: null,
-      previewFileKey: '',
-      previewStatus: 'idle',
-      configVisible: false,
+      ...this.buildPreviewResetState(),
       storeForm: {
         ...this.state.storeForm,
         version,
@@ -298,10 +322,7 @@ export default class HelmUpgradeModal extends PureComponent {
     const { teamName, regionName } = this.getParams();
     this.setState({
       storeForm: { ...storeForm, version },
-      previewData: null,
-      previewFileKey: '',
-      previewStatus: 'idle',
-      configVisible: false,
+      ...this.buildPreviewResetState(),
     }, () => {
       this.fetchChartPreview({
         team: teamName,
@@ -321,12 +342,7 @@ export default class HelmUpgradeModal extends PureComponent {
         ...this.state.externalForm,
         [key]: value,
       },
-      ...(resetKeys.indexOf(key) > -1 ? {
-        previewData: null,
-        previewFileKey: '',
-        previewStatus: 'idle',
-        configVisible: false,
-      } : {}),
+      ...(resetKeys.indexOf(key) > -1 ? this.buildPreviewResetState() : {}),
     });
   };
 
@@ -374,10 +390,7 @@ export default class HelmUpgradeModal extends PureComponent {
         this.setState({
           uploadExistFiles: existFiles,
           uploadLoading: false,
-          previewData: null,
-          previewFileKey: '',
-          previewStatus: 'idle',
-          configVisible: false,
+          ...this.buildPreviewResetState(),
         });
       },
       handleError: err => {
@@ -420,10 +433,7 @@ export default class HelmUpgradeModal extends PureComponent {
           uploadFileList: [],
           uploadExistFiles: [],
           uploadChartInfo: null,
-          previewData: null,
-          previewFileKey: '',
-          previewStatus: 'idle',
-          configVisible: false,
+          ...this.buildPreviewResetState(),
           uploadForm: {
             version: '',
             release_name: ((this.props.targetRelease || {}).name) || '',
@@ -469,6 +479,7 @@ export default class HelmUpgradeModal extends PureComponent {
 
   fetchChartPreview = (payload, sourceType) => {
     const { dispatch } = this.props;
+    const requestId = this.getNextPreviewRequestId();
     this.setState({
       previewLoading: true,
       previewStatus: 'checking',
@@ -478,8 +489,16 @@ export default class HelmUpgradeModal extends PureComponent {
     dispatch({
       type: 'teamResources/previewHelmChart',
       payload,
-      callback: bean => this.applyPreview(bean, sourceType),
+      callback: bean => {
+        if (!this.isLatestPreviewRequest(requestId)) {
+          return;
+        }
+        this.applyPreview(bean, sourceType);
+      },
       handleError: err => {
+        if (!this.isLatestPreviewRequest(requestId)) {
+          return;
+        }
         const message = this.getErrorMessage(err, t('resourceCenter.helm.previewFailed', 'Chart 检测失败'));
         this.setState({
           previewLoading: false,
@@ -684,11 +703,7 @@ export default class HelmUpgradeModal extends PureComponent {
               key={tab.key}
               onClick={() => this.setState({
                 sourceType: tab.key,
-                previewData: null,
-                previewFileKey: '',
-                previewStatus: 'idle',
-                previewError: '',
-                configVisible: false,
+                ...this.buildPreviewResetState(),
               })}
               className={`${styles.modalCard} ${active ? styles.modalCardActive : ''}`}
               style={{ flex: 1, cursor: 'pointer', padding: '12px 14px' }}

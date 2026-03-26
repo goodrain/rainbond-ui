@@ -367,13 +367,14 @@ export async function getMarketApp(param) {
 /*
    应用导出状态查询
 */
-export function queryExport(body = {}) {
+export function queryExport(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/export`,
 
     {
       method: 'get',
-      params: body.body
+      params: body.body,
+      handleError
     }
   );
 }

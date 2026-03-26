@@ -1,5 +1,6 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { buildPodLogsStreamUrl } from './teamResourceLogStream';
 
 const base = (team, region) =>
   `${apiconfig.baseUrl}/console/teams/${team}/regions/${region}`;
@@ -158,13 +159,8 @@ export async function getResourceWSInfo(body = {}) {
 }
 
 export function getPodLogsStreamUrl(body = {}) {
-  const query = [];
-  if (body.container) {
-    query.push(`container=${encodeURIComponent(body.container)}`);
-  }
-  if (body.lines) {
-    query.push(`lines=${encodeURIComponent(body.lines)}`);
-  }
-  const suffix = query.length > 0 ? `?${query.join('&')}` : '';
-  return `${base(body.team, body.region)}/resource-center/pods/${body.pod_name}/logs${suffix}`;
+  return buildPodLogsStreamUrl({
+    ...body,
+    baseUrl: apiconfig.baseUrl,
+  });
 }

@@ -63,9 +63,9 @@ class CreateAppModels extends PureComponent {
   }
   componentDidMount() {
     this.getTags();
-    const { isShared, adminer } = this.state;
-    if (isShared && adminer) {
-      this.getEnterpriseTeams();
+    const { isShared } = this.state;
+    if (isShared) {
+      this.getAvailableTeams();
     }
     this.fetchOrganizations();
   }
@@ -112,19 +112,52 @@ class CreateAppModels extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          if (res.bean && res.bean.list) {
-            const listNum = (res.bean && res.bean.total_count) || 0;
-            const isAdd = !!(listNum && listNum > page_size);
+          const teamList = (res.bean && res.bean.list) || [];
+          const listNum = (res.bean && res.bean.total_count) || 0;
+          const isAdd = !!(listNum && listNum > page_size);
 
-            this.setState({
-              teamList: res.bean.list,
-              isAddLicense: isAdd,
-              enterpriseTeamsLoading: false
-            });
-          }
+          this.setState({
+            teamList,
+            isAddLicense: isAdd,
+            enterpriseTeamsLoading: false
+          });
+          return;
         }
+        this.setState({ enterpriseTeamsLoading: false });
       }
     });
+  };
+  getMyTeams = name => {
+    const { dispatch, eid } = this.props;
+    const { page, page_size } = this.state;
+    dispatch({
+      type: 'global/fetchMyTeams',
+      payload: {
+        name,
+        page,
+        page_size,
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            teamList: res.list || [],
+            isAddLicense: false,
+            enterpriseTeamsLoading: false
+          });
+          return;
+        }
+        this.setState({ enterpriseTeamsLoading: false });
+      }
+    });
+  };
+  getAvailableTeams = name => {
+    const { adminer } = this.state;
+    if (adminer) {
+      this.getEnterpriseTeams(name);
+      return;
+    }
+    this.getMyTeams(name);
   };
   addTeams = () => {
     this.setState(
@@ -133,7 +166,7 @@ class CreateAppModels extends PureComponent {
         page_size: this.state.page_size + 10
       },
       () => {
-        this.getEnterpriseTeams();
+        this.getAvailableTeams();
       }
     );
   };

@@ -422,7 +422,6 @@ export default class app extends Component {
         },
         appPermissions: {
           isAppOverview,
-          isAppRelease,
           isAppUpgrade,
           isAppGatewayMonitor,
           isAppRouteManage,
@@ -458,15 +457,6 @@ export default class app extends Component {
         show: linkList && linkList.length > 0,
         type: 'component', // 特殊标识组件类型
         component: <VisterBtnWithIcon linkList={linkList} type={!isSlidePanel ? 'default' : 'primary'} /> // 直接传入组件
-      },
-      {
-        key: 'appRelease',
-        type: 'button',
-        icon: 'file-text',
-        text: <FormattedMessage id="versionUpdata_6_4.overview.template" />,
-        show: isAppRelease && !isSlidePanel,
-        disabled: false,
-        onClick: () => this.handleJump('publish')
       },
       {
         key: 'appUpgrade',
@@ -573,8 +563,8 @@ export default class app extends Component {
   // 渲染操作按钮
   renderOperations(operations, showDetailButton) {
     let content = [];
-    // 固定展示的按钮key: 添加、访问、模板、升级
-    const fixedKeys = ['addComponent', 'appSnapshot', 'visitor', 'appRelease', 'appUpgrade'];
+    // 固定展示的按钮key: 添加、访问、升级
+    const fixedKeys = ['addComponent', 'appSnapshot', 'visitor', 'appUpgrade'];
 
     // 分离固定展示的按钮和其他按钮
     const fixedButtons = operations.filter(op => fixedKeys.includes(op.key));

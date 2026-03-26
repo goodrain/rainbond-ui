@@ -135,7 +135,7 @@ const global = {
     'global.fetchStateOptTypeText.stop-tennant':'停止租户',
     'global.fetchStateOptTypeText.set-language':'设置组件语言',
     'global.fetchStateOptTypeText.delete-service':'删除组件',
-    'global.fetchStateOptTypeText.upgrade-service':'升级组件',
+    'global.fetchStateOptTypeText.upgrade-service':'更新组件',
     'global.fetchStateOptTypeText.delete-buildversion':'删除构建版本',
     'global.fetchStateOptTypeText.share-service':'发布组件',
     'global.fetchStateOptTypeText.share-wb':'发布到内部市场',

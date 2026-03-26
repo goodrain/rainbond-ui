@@ -135,7 +135,7 @@ const global = {
     'global.fetchStateOptTypeText.stop-tennant':'Stop team',
     'global.fetchStateOptTypeText.set-language':'Set language',
     'global.fetchStateOptTypeText.delete-service':'Delete component',
-    'global.fetchStateOptTypeText.upgrade-service':'Upgrade components',
+    'global.fetchStateOptTypeText.upgrade-service':'Update component',
     'global.fetchStateOptTypeText.delete-buildversion':'Delete build version',
     'global.fetchStateOptTypeText.share-service':'Publish component',
     'global.fetchStateOptTypeText.share-wb':'Publish to local',

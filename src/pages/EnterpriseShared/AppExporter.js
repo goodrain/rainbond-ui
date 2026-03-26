@@ -12,6 +12,37 @@ const { confirm } = Modal;
 const { Option } = Select;
 const { Description } = DescriptionList;
 
+const normalizeVersionsInfo = app => {
+  const versionsInfo = Array.isArray(app && app.versions_info)
+    ? app.versions_info.filter(item => item && item.version)
+    : [];
+  if (versionsInfo.length > 0) {
+    return versionsInfo;
+  }
+  const versions = Array.isArray(app && app.version)
+    ? app.version.filter(Boolean)
+    : app && app.version
+      ? [app.version]
+      : [];
+  return versions.map(version => ({
+    ...(app && app.app_version_info ? app.app_version_info : {}),
+    version
+  }));
+};
+
+const normalizeExportVersion = app => {
+  const versionsInfo = normalizeVersionsInfo(app);
+  if (versionsInfo.length > 0) {
+    return [versionsInfo[versionsInfo.length - 1].version];
+  }
+  const versions = Array.isArray(app && app.version)
+    ? app.version.filter(Boolean)
+    : app && app.version
+      ? [app.version]
+      : [];
+  return versions.length > 0 ? [versions[0]] : [];
+};
+
 @connect(({ user }) => ({
   user: user.currentUser
 }))
@@ -19,15 +50,13 @@ export default class AppExporter extends PureComponent {
   constructor(props) {
     super(props);
     const { app = {} } = props;
+    const exportVersionList = normalizeVersionsInfo(app);
+    const exportVersion = normalizeExportVersion(app);
     this.state = {
       app_exporte_status: null,
-      exportVersionList: app.versions_info || [],
-      versionInfo: {},
-      exportVersion:
-        (app.versions_info &&
-          app.versions_info.length > 0 && [
-            app.versions_info[app.versions_info.length - 1].version
-          ]) || app.version,
+      exportVersionList,
+      versionInfo: exportVersionList[exportVersionList.length - 1] || {},
+      exportVersion,
       teamName: '',
       page: 1,
       page_size: 1,
@@ -37,7 +66,7 @@ export default class AppExporter extends PureComponent {
   }
   componentDidMount() {
     const { exportVersionList, exportVersion } = this.state;
-    if (exportVersionList && exportVersionList.length > 0 && exportVersion) {
+    if (exportVersion && exportVersion.length > 0) {
       this.handleVersionInfo();
     }
     this.queryExport();
@@ -253,6 +282,12 @@ export default class AppExporter extends PureComponent {
         this.setState({
           versionInfo: currentVersionInfo[0]
         });
+      } else {
+        this.setState({
+          versionInfo: {
+            version: exportVersion[0]
+          }
+        });
       }
     }
   };
@@ -370,74 +405,55 @@ export default class AppExporter extends PureComponent {
   };
   queryExport = () => {
     const { app, eid, dispatch, setIsExporting } = this.props;
-
-    let group_version = this.state.exportVersion;
-
-    group_version = group_version.join();
+    const { exportVersion } = this.state;
+    const groupVersions = Array.isArray(exportVersion)
+      ? exportVersion.filter(Boolean)
+      : exportVersion
+        ? [exportVersion]
+        : [];
+    if (!app || !app.app_id || !eid || groupVersions.length === 0) {
+      if (setIsExporting) {
+        setIsExporting(false);
+      }
+      this.setState({
+        app_exporte_status: null,
+        no_export: false
+      });
+      return;
+    }
     dispatch({
       type: 'market/queryExport',
       payload: {
         enterprise_id: eid,
         body: {
           app_id: app.app_id,
-          app_version: group_version
+          app_version: groupVersions.join('#')
         }
       },
       callback: data => {
         if (data) {
-          if (data.list[0].no_export == 'true') {
-            this.setState({
-              no_export: true
-            })
+          const exportStatus = data.list && data.list.length > 0 ? data.list[0] : null;
+          const isExporting = !!(
+            exportStatus &&
+            ((exportStatus.rainbond_app &&
+              exportStatus.rainbond_app.status == 'exporting') ||
+              (exportStatus.docker_compose &&
+                exportStatus.docker_compose.status == 'exporting') ||
+              (exportStatus.slug && exportStatus.slug.status == 'exporting') ||
+              (exportStatus.helm_chart && exportStatus.helm_chart.status == 'exporting'))
+          );
+          this.setState({
+            no_export: !!(exportStatus && exportStatus.no_export == 'true'),
+            app_exporte_status: exportStatus
+          });
+          if (setIsExporting) {
+            setIsExporting(isExporting);
           }
-          if (
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].rainbond_app &&
-              data.list[0].rainbond_app.status == 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].docker_compose &&
-              data.list[0].docker_compose.status == 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].slug &&
-              data.list[0].slug.status == 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].helm_chart &&
-              data.list[0].helm_chart.status == 'exporting')
-          ) {
-            setIsExporting(true);
+          if (isExporting) {
             setTimeout(() => {
               this.queryExport();
             }, 5000);
           }
-
-          if (
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].rainbond_app &&
-              data.list[0].rainbond_app.status != 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].docker_compose &&
-              data.list[0].docker_compose.status != 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].slug &&
-              data.list[0].slug.status != 'exporting') ||
-            (data.list &&
-              data.list.length > 0 &&
-              data.list[0].helm_chart &&
-              data.list[0].helm_chart.status != 'exporting')
-          ) {
-            setIsExporting(false);
-          }
-          this.setState({
-            app_exporte_status:
-              data.list && data.list.length > 0 && data.list[0]
-          });
         }
       }
     });

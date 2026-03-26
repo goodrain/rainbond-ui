@@ -582,6 +582,33 @@ export async function rollbackAppVersionSnapshot(body = {}) {
   );
 }
 
+export async function getAppVersionRollbackRecords(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-version-rollback-records`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+export async function getAppVersionRollbackRecordDetail(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-version-rollback-records/${body.record_id}`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+export async function deleteAppVersionRollbackRecord(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-version-rollback-records/${body.record_id}`,
+    {
+      method: 'delete'
+    }
+  );
+}
+
 export async function getUpgradeRecordsHelmList(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/releases`,

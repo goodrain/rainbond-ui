@@ -45,6 +45,18 @@ import HelmTab from './tabs/HelmTab';
 }))
 class ResourceCenter extends PureComponent {
   contentCardRef = React.createRef();
+  helmPreviewRequestId = 0;
+
+  getNextHelmPreviewRequestId = () => {
+    this.helmPreviewRequestId += 1;
+    return this.helmPreviewRequestId;
+  };
+
+  invalidateHelmPreviewRequests = () => {
+    this.helmPreviewRequestId += 1;
+  };
+
+  isLatestHelmPreviewRequest = requestId => requestId === this.helmPreviewRequestId;
 
   state = {
     activeTab: DEFAULT_TAB,
@@ -667,12 +679,14 @@ class ResourceCenter extends PureComponent {
   };
 
   openHelmInstallModal = () => {
+    this.invalidateHelmPreviewRequests();
     this.setState(this.buildHelmModalState('install'));
     this.fetchHelmRepos();
     this.initHelmUploadSession();
   };
 
   openHelmUpgradeModal = (release) => {
+    this.invalidateHelmPreviewRequests();
     this.setState(this.buildHelmModalState('upgrade', release));
     this.fetchHelmRepos();
     this.initHelmUploadSession();
@@ -895,8 +909,7 @@ class ResourceCenter extends PureComponent {
       helmStep: 'basic',
       helmCurrentRepo: helmAutoUpgradeInfo.repoName,
       helmSelectedChart: chart,
-      helmPreviewData: null,
-      helmPreviewFileKey: '',
+      ...this.buildHelmPreviewResetState(),
       helmForm: {
         version,
         release_name: (helmTargetRelease && helmTargetRelease.name) || '',
@@ -924,6 +937,8 @@ class ResourceCenter extends PureComponent {
       helmChartPage: 1,
       helmAllCharts: [],
       helmCharts: [],
+      helmSelectedChart: null,
+      ...this.buildHelmPreviewResetState(),
     });
     dispatch({
       type: 'market/fetchHelmMarkets',
@@ -974,8 +989,7 @@ class ResourceCenter extends PureComponent {
     this.setState({
       helmSelectedChart: chart,
       helmStep: 'source',
-      helmPreviewData: null,
-      helmPreviewFileKey: '',
+      ...this.buildHelmPreviewResetState(),
       helmForm: {
         version,
         release_name: helmModalMode === 'upgrade' && helmTargetRelease ? helmTargetRelease.name : '',
@@ -998,8 +1012,7 @@ class ResourceCenter extends PureComponent {
     const { teamName, regionName } = this.getParams();
     this.setState({
       helmForm: { ...helmForm, version },
-      helmPreviewData: null,
-      helmPreviewFileKey: '',
+      ...this.buildHelmPreviewResetState(),
     }, () => {
       this.fetchHelmChartPreview({
         team: teamName,
@@ -1108,14 +1121,18 @@ class ResourceCenter extends PureComponent {
     }));
   };
 
-  buildHelmPreviewResetState = (extra = {}) => ({
-    helmPreviewData: null,
-    helmPreviewFileKey: '',
-    helmPreviewStatus: 'idle',
-    helmPreviewError: '',
-    helmConfigVisible: false,
-    ...extra,
-  });
+  buildHelmPreviewResetState = (extra = {}) => {
+    this.invalidateHelmPreviewRequests();
+    return {
+      helmPreviewLoading: false,
+      helmPreviewData: null,
+      helmPreviewFileKey: '',
+      helmPreviewStatus: 'idle',
+      helmPreviewError: '',
+      helmConfigVisible: false,
+      ...extra,
+    };
+  };
 
   applyHelmPreview = (preview, sourceType, callback) => {
     const valuesMap = (preview && preview.values) || {};    
@@ -1149,6 +1166,7 @@ class ResourceCenter extends PureComponent {
 
   fetchHelmChartPreview = (payload, sourceType, callback) => {
     const { dispatch } = this.props;
+    const requestId = this.getNextHelmPreviewRequestId();
     this.setState({
       helmPreviewLoading: true,
       helmPreviewData: null,
@@ -1160,10 +1178,16 @@ class ResourceCenter extends PureComponent {
     dispatch({
       type: 'teamResources/previewHelmChart',
       payload,
-      callback: bean => this.applyHelmPreview(bean, sourceType, callback),
+      callback: bean => {
+        if (!this.isLatestHelmPreviewRequest(requestId)) {
+          return;
+        }
+        this.applyHelmPreview(bean, sourceType, callback);
+      },
       handleError: err => {
-        console.log(err,"err");
-        
+        if (!this.isLatestHelmPreviewRequest(requestId)) {
+          return;
+        }
         const message = this.getHelmErrorMessage(err, formatMessage({ id: 'resourceCenter.helm.previewFailed', defaultMessage: 'Chart 检测失败' }));
         this.setState({
           helmPreviewLoading: false,
@@ -1464,6 +1488,7 @@ class ResourceCenter extends PureComponent {
   };
 
   handleHelmModalClose = () => {
+    this.invalidateHelmPreviewRequests();
     this.setState({
       helmModalVisible: false,
       helmValuesEditorVisible: false,
