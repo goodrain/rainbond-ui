@@ -7,11 +7,8 @@ import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
 import { formatToBeijingTime } from '../utils';
 
-<<<<<<< HEAD
 const HELM_TABLE_SCROLL_X = 1180;
 
-=======
->>>>>>> 09e2d6e0dff30194ad9e152f7e2acacfc141bb8e
 class HelmTab extends PureComponent {
   render() {
     const {
@@ -31,10 +28,7 @@ class HelmTab extends PureComponent {
         dataIndex: 'name',
         key: 'name',
         width: 220,
-<<<<<<< HEAD
         fixed: 'left',
-=======
->>>>>>> 09e2d6e0dff30194ad9e152f7e2acacfc141bb8e
         render: (text, record) => (
           <span className={styles.resourceLink} onClick={() => onDetail(record)}>
             {text}
