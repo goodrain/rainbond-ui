@@ -1386,6 +1386,71 @@ export default class AppVersion extends PureComponent {
     return this.formatDetailPreviewValue(value);
   };
 
+  pickFirstReadableValue = (...values) => {
+    for (let index = 0; index < values.length; index += 1) {
+      if (!this.isEmptyDetailValue(values[index])) {
+        return values[index];
+      }
+    }
+    return '';
+  };
+
+  getCuratedFieldSummaryRows = (fieldKey, value) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+
+    if (fieldKey === 'extend_method_map') {
+      const instanceCount = this.pickFirstReadableValue(value.min_node, value.max_node);
+      const memory = this.pickFirstReadableValue(value.init_memory, value.min_memory, value.max_memory);
+      const cpu = this.pickFirstReadableValue(
+        value.container_cpu,
+        value.init_cpu,
+        value.min_cpu,
+        value.max_cpu
+      );
+
+      return [
+        {
+          key: 'instance_count',
+          label: '实例数',
+          value: this.isEmptyDetailValue(instanceCount) ? '-' : `${instanceCount} 个`
+        },
+        {
+          key: 'memory',
+          label: '内存',
+          value: this.isEmptyDetailValue(memory) ? '-' : `${memory} MB`
+        },
+        {
+          key: 'cpu',
+          label: 'CPU',
+          value: this.isEmptyDetailValue(cpu) ? '-' : `${cpu} m`
+        }
+      ];
+    }
+
+    if (fieldKey === 'service_volume_map_list') {
+      const mountSource = value.volume_name || '-';
+      const mountTarget = value.volume_path || '-';
+      const volumeCapacity = this.pickFirstReadableValue(value.volume_capacity);
+
+      return [
+        {
+          key: 'mount',
+          label: '挂载',
+          value: `${mountSource} -> ${mountTarget}`
+        },
+        {
+          key: 'capacity',
+          label: '容量',
+          value: this.isEmptyDetailValue(volumeCapacity) ? '-' : String(volumeCapacity)
+        }
+      ];
+    }
+
+    return null;
+  };
+
   getSummaryRowsForValue = (fieldKey, value, compareValue) => {
     if (this.isScalarDetailValue(value) || this.isScalarDetailArray(value)) {
       return [
@@ -1398,6 +1463,11 @@ export default class AppVersion extends PureComponent {
     }
     if (!value || typeof value !== 'object') {
       return [];
+    }
+
+    const curatedRows = this.getCuratedFieldSummaryRows(fieldKey, value);
+    if (curatedRows) {
+      return curatedRows;
     }
 
     const rows = [];
@@ -1475,11 +1545,13 @@ export default class AppVersion extends PureComponent {
     if (!value || typeof value !== 'object') {
       return false;
     }
-    if (!this.getFieldRowSchema(fieldKey).length) {
-      return true;
+    if (this.getCuratedFieldSummaryRows(fieldKey, value)) {
+      return false;
     }
-    const keyCount = Array.isArray(value) ? value.length : Object.keys(value).length;
-    return keyCount > 6;
+    if (this.getFieldRowSchema(fieldKey).length) {
+      return false;
+    }
+    return true;
   };
 
   renderOtherChangeValueBlock = (value, summaryLabel = '查看原始 JSON') => {
