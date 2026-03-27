@@ -1,0 +1,287 @@
+.dependencyConfigModal {
+  :global {
+    .ant-modal {
+      max-width: calc(100vw - 32px);
+    }
+
+    .ant-modal-body {
+      padding: 0;
+    }
+
+    .ant-modal-footer {
+      padding: 14px 18px;
+    }
+
+    .ant-alert {
+      border-radius: 10px;
+    }
+
+    .ant-tabs-bar {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+.header {
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid @border-color-base;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.titleIcon {
+  margin-right: 8px;
+  color: @primary-color;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.titleText {
+  color: @primary-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.pathRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  color: @rbd-title-big-color;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.pathArrow {
+  margin: 0 8px;
+  color: @rbd-auxiliary-color-secondary;
+  font-size: 16px;
+}
+
+.summary {
+  margin-top: 6px;
+  color: @rbd-content-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+}
+
+.content {
+  padding: 14px 18px 2px;
+}
+
+.aliasCard {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px solid fade(@primary-color, 14%);
+  border-radius: 12px;
+  background: fade(@primary-color, 8%);
+}
+
+.aliasTitle {
+  color: @primary-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.aliasDesc {
+  margin-top: 4px;
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.aliasForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.portField {
+  width: 170px;
+}
+
+.aliasField {
+  flex: 1;
+}
+
+.fieldLabel {
+  margin-bottom: 6px;
+  color: @rbd-sub-title-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  font-weight: 600;
+}
+
+.aliasHint {
+  margin-top: 6px;
+  color: @rbd-auxiliary-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.emptyTip {
+  margin-top: 8px;
+  color: @warning-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.panelGrid {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.previewPanel,
+.codePanel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  color: @rbd-title-big-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 600;
+}
+
+.panelTitle :global(.anticon) {
+  margin-right: 8px;
+}
+
+.panelExtra {
+  color: @rbd-auxiliary-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.successIcon {
+  color: @success-color;
+}
+
+.codeIcon {
+  color: @primary-color;
+}
+
+.envBlock {
+  flex: 1;
+  min-height: 170px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #111a33;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.envLine {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.envLine:last-child {
+  margin-bottom: 0;
+}
+
+.envName {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.envSplit {
+  margin: 0 6px;
+  color: #cbd5e1;
+}
+
+.envValue {
+  color: #f8fafc;
+}
+
+.emptyEnv {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 170px;
+  padding: 14px 16px;
+  border: 1px dashed @border-color-base;
+  border-radius: 12px;
+  color: @rbd-auxiliary-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.notice {
+  margin-top: 10px;
+}
+
+.codeBlock {
+  flex: 1;
+  min-height: 220px;
+  padding: 12px 14px;
+  border: 1px solid @border-color-base;
+  border-radius: 12px;
+  background: #f8fafc;
+  overflow: auto;
+}
+
+.codeBlock pre {
+  margin: 0;
+  color: @rbd-content-color;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .aliasForm,
+  .panelGrid {
+    display: block;
+  }
+
+  .codePanel {
+    margin-top: 12px;
+  }
+
+  .portField {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .pathRow {
+    font-size: @rbd-sub-title-size;
+    line-height: @rbd-sub-title-line-height;
+  }
+
+  .pathArrow {
+    font-size: 14px;
+  }
+}

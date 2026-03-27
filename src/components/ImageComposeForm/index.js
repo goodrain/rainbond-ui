@@ -216,7 +216,7 @@ export default class Index extends PureComponent {
             {!group_id &&
               <>
                 <Form.Item
-                  label={formatMessage({ id: 'popover.newApp.appName' })}
+                  label={"名称"}
                   {...formItemLayout}
                 >
                   {getFieldDecorator('group_name', {
@@ -224,7 +224,7 @@ export default class Index extends PureComponent {
                     rules: getGroupNameRules()
                   })(<Input placeholder={formatMessage({ id: 'popover.newApp.appName.placeholder' })} />)}
                 </Form.Item>
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_component_name' })}>
+                <Form.Item {...formItemLayout} label={"英文名称"}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
                     rules: getK8sAppNameRules()

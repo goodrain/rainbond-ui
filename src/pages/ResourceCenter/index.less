@@ -913,6 +913,9 @@
 }
 
 .modalRepoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 9px 12px;
   cursor: pointer;
   font-size: @rbd-content-size;
@@ -929,7 +932,13 @@
   font-weight: 500;
 }
 
+.modalRepoItemIcon {
+  flex-shrink: 0;
+}
+
 .modalRepoItemText {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -975,17 +984,82 @@
   box-shadow: 0 0 0 3px fade(@primary-color, 8%);
 }
 
+.modalSourceOption {
+  background-color: @component-background;
+  background-image: radial-gradient(circle at top right,
+    fade(@primary-color, 8%) 0%,
+    fade(@primary-color, 4%) 40%,
+    transparent 80%);
+  transition: all 0.2s;
+}
+
+.modalSourceOptionActive {
+  background-color: fade(@primary-color, 4%);
+}
+
 .modalCardIcon {
   margin-right: 7px;
   background: fade(@primary-color, 8%);
   color: @primary-color;
 }
 
+.modalChartCard {
+  min-height: 106px;
+}
+
+.modalChartCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.modalChartCardMeta {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
 .modalCardTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: @primary-color;
   font-size: @rbd-content-size;
   line-height: @rbd-content-line-height;
   font-weight: 600;
+}
+
+.modalChartStatus {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.modalChartStatusError {
+  color: @error-color;
+  background: fade(@error-color, 10%);
+}
+
+.modalChartStatusLoading {
+  color: @primary-color;
+  background: fade(@primary-color, 10%);
+}
+
+.modalChartStatusReady {
+  color: @success-color;
+  background: fade(@success-color, 10%);
+}
+
+.modalChartStatusDefault {
+  color: @rbd-label-color;
+  background: fade(@heading-color, 6%);
 }
 
 .modalCardDesc {

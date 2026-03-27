@@ -112,8 +112,9 @@
 
 .personalCard {
   border: 1px solid #e8eef6;
-  border-radius: 20px;
+  border-radius: 24px;
   box-shadow: none;
+  overflow: hidden;
   background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
 
   :global {
@@ -234,7 +235,7 @@
 }
 
 .personalTitle {
-  margin: 10px 0 8px;
+  margin: 0 0 8px;
   color: @heading-color;
   font-size: 26px;
   font-weight: 700;
@@ -468,30 +469,60 @@
 .historyTitle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: @heading-color;
   font-size: 18px;
   font-weight: 700;
+
+  :global {
+    .anticon {
+      font-size: 18px;
+      line-height: 1;
+    }
+  }
 }
 
 .historyTimeline {
-  margin-top: 4px;
+  width: 60%;
+  max-width: 100%;
+  margin: 4px auto 0;
+  padding: 2px 0 6px;
 
   :global {
     .ant-timeline-item {
+      width: 100%;
       padding-bottom: 28px;
     }
 
+    .ant-timeline-item-content {
+      top: 0;
+      width: calc(100% - 32px);
+      margin-left: 32px;
+    }
+
     .ant-timeline-item-tail {
+      top: 7px;
+      left: 4px;
       border-left: 2px solid #dbe7f7;
     }
 
     .ant-timeline-item-head {
       width: 14px;
       height: 14px;
-      left: 0;
-      margin-left: -6px;
+      left: -2px;
+      margin-left: 0;
       border-width: 3px;
+    }
+
+    .ant-timeline-item-head-custom {
+      top: 7px;
+      left: 5px;
+      width: 14px;
+      height: 14px;
+      margin-top: 0;
+      padding: 0;
+      line-height: 1;
+      transform: translate(-50%, -50%);
     }
   }
 }
@@ -500,11 +531,12 @@
   border: 1px solid #e8eef6;
   border-radius: 18px;
   box-shadow: none;
+  text-align: left;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 
   :global {
     .ant-card-body {
-      padding: 18px 20px;
+      padding: 14px 16px;
     }
   }
 }
@@ -571,7 +603,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .timelineMain {
@@ -582,12 +614,12 @@
 .timelineTypeTag {
   display: inline-flex;
   align-items: center;
-  height: 24px;
-  padding: 0 10px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
   background: fade(@primary-color, 10%);
   color: @primary-color;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -615,17 +647,17 @@
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 8px 0 6px;
+  gap: 8px;
+  margin: 6px 0 4px;
 }
 
 .timelineTitle {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   color: @heading-color;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -636,26 +668,26 @@
 .timelineVersionDesc {
   flex: 1;
   min-width: 240px;
-  padding-top: 4px;
+  padding-top: 2px;
   color: @text-color-secondary;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .timelineMeta {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: @text-color-secondary;
   font-size: 12px;
 }
 
 .timelineSummary {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 12px;
   background: #f7f9fc;
 }
 
 .timelineComponentLabel {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: @text-color-secondary;
   font-size: 12px;
   font-weight: 700;
@@ -664,32 +696,32 @@
 .timelineComponentList {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .timelineComponentChip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: 2px 10px;
   border: 1px solid #e3ebf5;
   border-radius: 999px;
   background: #ffffff;
   color: @heading-color;
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .timelineComponentEmpty {
   color: @text-color-secondary;
-  font-size: 13px;
-  line-height: 1.8;
+  font-size: 12px;
+  line-height: 1.7;
 }
 
 .timelineActions {
   display: flex;
   align-items: flex-start;
   align-content: flex-start;
-  gap: 10px;
+  gap: 8px;
   flex: 0 0 auto;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -1366,6 +1398,16 @@
   .timelineVersionDesc {
     min-width: 0;
     padding-top: 0;
+  }
+
+  .historyTimeline {
+    width: 100%;
+
+    :global {
+      .ant-timeline-item-content {
+        width: auto;
+      }
+    }
   }
 
   .detailSummaryGrid {

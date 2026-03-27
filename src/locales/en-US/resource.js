@@ -247,7 +247,7 @@ const resource = {
   'resourceCenter.helm.modal.upgradeGuide': 'Select the target application and version manually from the Helm store, a third-party repo / OCI source, or an uploaded chart package.',
   'resourceCenter.helm.modal.loadingRepos': 'Loading repositories...',
   'resourceCenter.helm.modal.noRepos': 'No Helm repositories are available. Please add one in the application marketplace first.',
-  'resourceCenter.helm.modal.repoTitle': 'Helm Repositories',
+  'resourceCenter.helm.modal.repoTitle': 'Repository List',
   'resourceCenter.helm.modal.searchChart': 'Search chart name...',
   'resourceCenter.helm.modal.selectedChart': 'Selected {name}',
   'resourceCenter.helm.modal.detectFailed': 'Validation failed',

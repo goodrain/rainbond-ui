@@ -25,6 +25,8 @@ class CodeMirrorForm extends PureComponent {
       fullScreen: false
     };
     this.CodeMirrorRef = '';
+    this.refreshTimer = null;
+    this.refreshAnimationFrame = null;
   }
 
   getValueFromProps = (props = this.props) => {
@@ -74,6 +76,43 @@ class CodeMirrorForm extends PureComponent {
     editor.setSize('100%', editorHeight || null);
   };
 
+  clearEditorRefreshTask = () => {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+
+    if (this.refreshAnimationFrame && typeof window !== 'undefined' && window.cancelAnimationFrame) {
+      window.cancelAnimationFrame(this.refreshAnimationFrame);
+      this.refreshAnimationFrame = null;
+    }
+  };
+
+  refreshEditor = () => {
+    const editor = this.getEditor();
+
+    if (editor && editor.refresh) {
+      editor.refresh();
+      this.setEditorSize();
+    }
+  };
+
+  scheduleEditorRefresh = (delay = 0) => {
+    this.clearEditorRefreshTask();
+
+    this.refreshTimer = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+        this.refreshAnimationFrame = window.requestAnimationFrame(() => {
+          this.refreshAnimationFrame = null;
+          this.refreshEditor();
+        });
+      } else {
+        this.refreshEditor();
+      }
+      this.refreshTimer = null;
+    }, delay);
+  };
+
   emitValue = (value) => {
     const { onChange, name, setFieldsValue } = this.props;
 
@@ -108,15 +147,35 @@ class CodeMirrorForm extends PureComponent {
 
     this.syncEditorValue();
     this.setEditorSize();
+    this.scheduleEditorRefresh();
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const prevValue = this.getValueFromProps(prevProps);
+    const currentValue = this.getValueFromProps();
+    const becameVisible = !prevProps.visible && this.props.visible;
+
     if (
       prevProps.editorHeight !== this.props.editorHeight ||
       prevState.fullScreen !== this.state.fullScreen
     ) {
       this.setEditorSize();
+      this.scheduleEditorRefresh(becameVisible ? 200 : 0);
+      return;
     }
+
+    if (prevValue !== currentValue) {
+      this.scheduleEditorRefresh(becameVisible ? 200 : 0);
+      return;
+    }
+
+    if (becameVisible) {
+      this.scheduleEditorRefresh(200);
+    }
+  }
+
+  componentWillUnmount() {
+    this.clearEditorRefreshTask();
   }
 
   saveRef = ref => {

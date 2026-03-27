@@ -48,6 +48,7 @@ export default class Overview extends Component {
       tableDataLoading: false
     }
   }
+
   componentWillMount() {
     this.loadComponents();
   }

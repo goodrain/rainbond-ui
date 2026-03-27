@@ -19,6 +19,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import apiconfig from '../../../config/api.config';
 import ConfirmModal from '../ConfirmModal'
+import DependencyConfigModal from './DependencyConfigModal';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import dateUtil from '../../utils/date-util';
@@ -27,8 +28,32 @@ import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import list from '@/models/list';
 import styless from '../../components/CreateTeam/index.less';
-import { addRelationedApp, removeRelationedApp } from '../../services/app';
+import {
+  addRelationedApp,
+  editPortAlias,
+  getOuterEnvs,
+  getPorts,
+  removeRelationedApp,
+  updateRolling
+} from '../../services/app';
 import styles from './index.less'
+
+const getDefaultDependencyConfigState = () => ({
+  dependencyConfigVisible: false,
+  dependencyConfigLoading: false,
+  dependencyConfigSubmitting: false,
+  dependencyConfigSource: null,
+  dependencyConfigTarget: null,
+  dependencyConfigPorts: [],
+  dependencyConfigAllEnvs: [],
+  dependencyConfigSelectedPort: '',
+  dependencyConfigAlias: '',
+  dependencyConfigInitialAliases: {},
+  dependencyConfigActiveLanguage: 'java',
+  dependencyConfigShouldUpdate: true
+});
+
+const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 @connect(
   ({ user, appControl, global, teamControl, enterprise, loading }) => ({
     currUser: user.currentUser,
@@ -68,12 +93,14 @@ class Index extends React.Component {
     teamName: '',
     regionName: '',
     build: false,
+    ...getDefaultDependencyConfigState()
   }
+
   componentWillMount() {
     const that = this
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const { group_id: groupId, dispatch, apps } = this.props;
+    const { group_id: groupId, dispatch } = this.props;
     const appID = globalUtil.getAppID();
     const componentID = globalUtil.getSlidePanelComponentID();
     const timestamp = new Date().getTime();
@@ -120,7 +147,7 @@ class Index extends React.Component {
             )
           )
         } else {
-          const app = apps.find(app => app.service_alias === componentID);
+          const app = (that.props.apps || []).find(app => app.service_alias === componentID);
           if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
             dispatch(
               routerRedux.push(
@@ -311,26 +338,14 @@ class Index extends React.Component {
         }).then(res => {
 
           if (res && res.status_code === 200) {
-            notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
-            dispatch(
-              routerRedux.push(
-                `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
-              )
-            );
-
-            // 检查是否需要更新组件
-            if (sourceShape !== 'undeploy' && sourceShape !== 'closed' && sourceShape !== 'stopping') {
-              Modal.confirm({
-                title: formatMessage({ id: 'notification.success.Depend_add_need_update' }),
-                okText: formatMessage({ id: 'button.update' }),
-                onOk: () => {
-                  dispatch({
-                    type: 'appControl/putUpdateRolling',
-                    payload: { team_name: teamName, app_alias: sourceServiceAlias }
-                  });
-                }
-              });
-            }
+            that.openDependencyConfigModal({
+              sourceServiceAlias,
+              sourceServiceCname,
+              sourceShape,
+              targetServiceId: targetNodeId,
+              targetServiceAlias,
+              targetServiceCname
+            });
           } else if (res && res.status_code === 201) {
             // 需要选择端口
             if (res.list && res.list.length > 0) {
@@ -342,12 +357,15 @@ class Index extends React.Component {
                 container_port: res.list[0]
               }).then(portRes => {
                 if (portRes && portRes.status_code === 200) {
-                  notification.success({ message: formatMessage({ id: 'notification.success.Depend_add' }) });
-                  dispatch(
-                    routerRedux.push(
-                      `/team/${teamName}/region/${regionName}/apps/${appID}/overview?refresh=${timestamp}`
-                    )
-                  );
+                  that.openDependencyConfigModal({
+                    sourceServiceAlias,
+                    sourceServiceCname,
+                    sourceShape,
+                    targetServiceId: targetNodeId,
+                    targetServiceAlias,
+                    targetServiceCname,
+                    preferredPort: res.list[0]
+                  });
                 }
               });
             }
@@ -458,6 +476,337 @@ class Index extends React.Component {
       }, '*');
     }
   }
+
+  getTargetAppDetail = (targetServiceId, targetServiceAlias) => {
+    const currentApps = this.props.apps || [];
+    return (
+      currentApps.find(app => `${app.service_id}` === `${targetServiceId}`) ||
+      currentApps.find(app => app.service_alias === targetServiceAlias) ||
+      null
+    );
+  };
+
+  getDependencyDisplayName = (component, fallbackCname, fallbackAlias) => {
+    return (
+      (component && (component.service_cname || component.service_alias)) ||
+      fallbackCname ||
+      fallbackAlias ||
+      ''
+    );
+  };
+
+  getSelectablePorts = (ports = []) => {
+    const openedInnerPorts = ports.filter(port => port.is_inner_service);
+    return openedInnerPorts.length ? openedInnerPorts : ports;
+  };
+
+  getSelectedDependencyPort = () => {
+    const { dependencyConfigPorts, dependencyConfigSelectedPort } = this.state;
+    return dependencyConfigPorts.find(
+      port => `${port.container_port}` === `${dependencyConfigSelectedPort}`
+    );
+  };
+
+  getDependencyPreviewEnvs = () => {
+    const {
+      dependencyConfigAllEnvs,
+      dependencyConfigAlias,
+      dependencyConfigSelectedPort
+    } = this.state;
+    const selectedPort = this.getSelectedDependencyPort();
+
+    if (!selectedPort) {
+      return [];
+    }
+
+    const exactPortEnvs = dependencyConfigAllEnvs.filter(
+      env => `${env.container_port}` === `${dependencyConfigSelectedPort}`
+    );
+    const sharedEnvs = dependencyConfigAllEnvs.filter(
+      env => Number(env.container_port) === 0
+    );
+
+    const previewEnvs = exactPortEnvs.length
+      ? exactPortEnvs.concat(
+        sharedEnvs.filter(
+          env =>
+            !exactPortEnvs.some(item => item.attr_name === env.attr_name)
+        )
+      )
+      : dependencyConfigAllEnvs;
+
+    const originalAlias = selectedPort.port_alias || '';
+    const nextAlias = dependencyConfigAlias || originalAlias;
+    const aliasPattern = originalAlias
+      ? new RegExp(`^${escapeRegExp(originalAlias)}`)
+      : null;
+
+    return previewEnvs.map(env => {
+      const attrName = env.attr_name || '';
+      return {
+        ...env,
+        attr_name:
+          aliasPattern && attrName.indexOf(`${originalAlias}_`) === 0
+            ? attrName.replace(aliasPattern, nextAlias)
+            : attrName
+      };
+    });
+  };
+
+  openDependencyConfigModal = ({
+    sourceServiceAlias,
+    sourceServiceCname,
+    sourceShape,
+    targetServiceId,
+    targetServiceAlias,
+    targetServiceCname,
+    preferredPort
+  }) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const targetApp = this.getTargetAppDetail(targetServiceId, targetServiceAlias);
+    const resolvedTargetAlias =
+      (targetApp && targetApp.service_alias) || targetServiceAlias;
+
+    if (!resolvedTargetAlias) {
+      notification.warning({
+        message: formatMessage({ id: 'topology.dependency_config.load_failed' })
+      });
+      return;
+    }
+
+    const dependencyConfigSource = {
+      service_alias: sourceServiceAlias,
+      displayName: this.getDependencyDisplayName(
+        null,
+        sourceServiceCname,
+        sourceServiceAlias
+      ),
+      shape: sourceShape
+    };
+
+    const dependencyConfigTarget = {
+      ...(targetApp || {}),
+      service_alias: resolvedTargetAlias,
+      displayName: this.getDependencyDisplayName(
+        targetApp,
+        targetServiceCname,
+        resolvedTargetAlias
+      )
+    };
+
+    this.setState({
+      ...getDefaultDependencyConfigState(),
+      dependencyConfigVisible: true,
+      dependencyConfigLoading: true,
+      dependencyConfigSource,
+      dependencyConfigTarget,
+      dependencyConfigShouldUpdate:
+        sourceShape !== 'undeploy' &&
+        sourceShape !== 'closed' &&
+        sourceShape !== 'stopping'
+    });
+
+    Promise.all([
+      getPorts({
+        team_name: teamName,
+        app_alias: resolvedTargetAlias
+      }).catch(() => null),
+      getOuterEnvs({
+        team_name: teamName,
+        app_alias: resolvedTargetAlias,
+        page: 1,
+        page_size: 1000,
+        env_name: ''
+      }).catch(() => null)
+    ]).then(([portsRes, envRes]) => {
+      const rawPorts = portsRes && portsRes.list ? portsRes.list : [];
+      const dependencyConfigPorts = this.getSelectablePorts(rawPorts);
+      const dependencyConfigInitialAliases = dependencyConfigPorts.reduce(
+        (result, port) => {
+          result[`${port.container_port}`] = port.port_alias || '';
+          return result;
+        },
+        {}
+      );
+
+      let dependencyConfigSelectedPort = '';
+
+      if (
+        preferredPort &&
+        dependencyConfigPorts.some(
+          port => `${port.container_port}` === `${preferredPort}`
+        )
+      ) {
+        dependencyConfigSelectedPort = `${preferredPort}`;
+      } else if (dependencyConfigPorts.length) {
+        dependencyConfigSelectedPort = `${dependencyConfigPorts[0].container_port}`;
+      }
+
+      this.setState({
+        dependencyConfigLoading: false,
+        dependencyConfigPorts,
+        dependencyConfigAllEnvs: envRes && envRes.list ? envRes.list : [],
+        dependencyConfigInitialAliases,
+        dependencyConfigSelectedPort,
+        dependencyConfigAlias:
+          dependencyConfigInitialAliases[dependencyConfigSelectedPort] || ''
+      });
+    });
+  };
+
+  closeDependencyConfigModal = () => {
+    this.setState(getDefaultDependencyConfigState());
+  };
+
+  refreshTopologyOverview = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const { dispatch, group_id: groupId } = this.props;
+    const timestamp = new Date().getTime();
+
+    dispatch(
+      routerRedux.push(
+        `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?refresh=${timestamp}`
+      )
+    );
+  };
+
+  handleDependencyConfigCancel = () => {
+    this.closeDependencyConfigModal();
+    this.refreshTopologyOverview();
+  };
+
+  handleDependencyPortChange = value => {
+    const { dependencyConfigInitialAliases } = this.state;
+    this.setState({
+      dependencyConfigSelectedPort: value,
+      dependencyConfigAlias: dependencyConfigInitialAliases[value] || '',
+      dependencyConfigActiveLanguage: 'java'
+    });
+  };
+
+  handleDependencyAliasChange = e => {
+    this.setState({
+      dependencyConfigAlias: e.target.value
+    });
+  };
+
+  handleDependencyLanguageChange = dependencyConfigActiveLanguage => {
+    this.setState({ dependencyConfigActiveLanguage });
+  };
+
+  handleDependencyConfigSubmit = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const selectedPort = this.getSelectedDependencyPort();
+    const {
+      dependencyConfigAlias,
+      dependencyConfigInitialAliases,
+      dependencyConfigShouldUpdate,
+      dependencyConfigSource,
+      dependencyConfigTarget,
+      dependencyConfigPorts
+    } = this.state;
+
+    if (!selectedPort || !dependencyConfigTarget || !dependencyConfigSource) {
+      return;
+    }
+
+    const nextAlias = (dependencyConfigAlias || '').trim();
+
+    if (!nextAlias) {
+      notification.warning({
+        message: formatMessage({ id: 'topology.dependency_config.alias_required' })
+      });
+      return;
+    }
+
+    if (!/^[A-Z][A-Z0-9_]*$/.test(nextAlias)) {
+      notification.warning({
+        message: formatMessage({ id: 'topology.dependency_config.alias_invalid' })
+      });
+      return;
+    }
+
+    const portKey = `${selectedPort.container_port}`;
+    const originalAlias = dependencyConfigInitialAliases[portKey] || '';
+    const aliasChanged = nextAlias !== originalAlias;
+
+    this.setState({ dependencyConfigSubmitting: true });
+
+    const saveAliasRequest = aliasChanged
+      ? editPortAlias({
+        team_name: teamName,
+        app_alias: dependencyConfigTarget.service_alias,
+        k8s_service_name: selectedPort.k8s_service_name,
+        port: selectedPort.container_port,
+        port_alias: nextAlias
+      })
+      : Promise.resolve({ status_code: 200 });
+
+    saveAliasRequest
+      .then(res => {
+        if (!res || (res.status_code && res.status_code >= 400)) {
+          throw { step: 'edit' };
+        }
+
+        if (!dependencyConfigShouldUpdate) {
+          return { updated: false };
+        }
+
+        return updateRolling({
+          team_name: teamName,
+          app_alias: dependencyConfigSource.service_alias
+        }).then(updateRes => {
+          if (!updateRes || (updateRes.status_code && updateRes.status_code >= 400)) {
+            throw { step: 'update' };
+          }
+          return { updated: true };
+        });
+      })
+      .then(({ updated }) => {
+        const nextPorts = aliasChanged
+          ? dependencyConfigPorts.map(port => {
+            if (`${port.container_port}` !== portKey) {
+              return port;
+            }
+            return {
+              ...port,
+              port_alias: nextAlias
+            };
+          })
+          : dependencyConfigPorts;
+
+        this.setState({
+          dependencyConfigPorts: nextPorts,
+          dependencyConfigInitialAliases: {
+            ...dependencyConfigInitialAliases,
+            [portKey]: nextAlias
+          },
+          dependencyConfigSubmitting: false
+        });
+
+        notification.success({
+          message: formatMessage({
+            id: updated
+              ? 'notification.success.operationUpdata'
+              : 'notification.success.succeeded'
+          })
+        });
+
+        this.closeDependencyConfigModal();
+        this.refreshTopologyOverview();
+      })
+      .catch(error => {
+        this.setState({ dependencyConfigSubmitting: false });
+        notification.error({
+          message: formatMessage({
+            id: error && error.step === 'edit'
+              ? 'notification.error.edit'
+              : 'notification.error.update'
+          })
+        });
+      });
+  };
 
   // 删除
   cancelDeleteApp = (isOpen = true) => {
@@ -603,13 +952,41 @@ class Index extends React.Component {
 
   render() {
     const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading, flagHeight, iframeHeight } = this.props
-    const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
+    const {
+      flag,
+      promptModal,
+      closes,
+      start,
+      updated,
+      keyes,
+      srcUrl,
+      teamName,
+      regionName,
+      appAlias,
+      build,
+      dependencyConfigVisible,
+      dependencyConfigLoading,
+      dependencyConfigSubmitting,
+      dependencyConfigSource,
+      dependencyConfigTarget,
+      dependencyConfigPorts,
+      dependencyConfigSelectedPort,
+      dependencyConfigAlias,
+      dependencyConfigActiveLanguage,
+      dependencyConfigShouldUpdate
+    } = this.state
     const codeObj = {
       start: formatMessage({ id: 'topology.Topological.start' }),
       stop: formatMessage({ id: 'topology.Topological.stop' }),
       rolling: formatMessage({ id: 'topology.Topological.rolling' }),
       build: formatMessage({ id: 'topology.Topological.build' })
     };
+    const dependencySelectedPort = this.getSelectedDependencyPort();
+    const dependencyPreviewEnvs = this.getDependencyPreviewEnvs();
+    const canSubmitDependencyConfig =
+      !dependencyConfigLoading &&
+      !!dependencySelectedPort &&
+      !!(dependencyConfigAlias || '').trim();
     return (
       // eslint-disable-next-line jsx-a11y/iframe-has-title
       <div key={keyes} style={{ height: iframeHeight }}>
@@ -644,6 +1021,33 @@ class Index extends React.Component {
               {formatMessage({ id: 'topology.Topological.determine' })}{codeObj[promptModal]}{formatMessage({ id: 'topology.Topological.now' })}
             </p>
           </Modal>
+        )}
+        {dependencyConfigVisible && (
+          <DependencyConfigModal
+            visible={dependencyConfigVisible}
+            loading={dependencyConfigLoading}
+            submitting={dependencyConfigSubmitting}
+            sourceName={
+              (dependencyConfigSource && dependencyConfigSource.displayName) || ''
+            }
+            targetName={
+              (dependencyConfigTarget && dependencyConfigTarget.displayName) || ''
+            }
+            ports={dependencyConfigPorts}
+            selectedPortKey={dependencyConfigSelectedPort}
+            selectedPort={dependencySelectedPort}
+            aliasValue={dependencyConfigAlias}
+            envs={dependencyPreviewEnvs}
+            activeLanguage={dependencyConfigActiveLanguage}
+            shouldUpdateService={dependencyConfigShouldUpdate}
+            canSubmit={canSubmitDependencyConfig}
+            onClose={this.closeDependencyConfigModal}
+            onPortChange={this.handleDependencyPortChange}
+            onAliasChange={this.handleDependencyAliasChange}
+            onLanguageChange={this.handleDependencyLanguageChange}
+            onCancelAction={this.handleDependencyConfigCancel}
+            onSubmit={this.handleDependencyConfigSubmit}
+          />
         )}
         <Link
           id="links"

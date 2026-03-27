@@ -2277,12 +2277,7 @@ export default class AppVersion extends PureComponent {
       <Card bordered={false} className={styles.personalCard}>
         <div className={styles.personalHeader}>
           <div>
-            <div className={styles.personalEyebrow}>应用版本</div>
-            <div className={styles.personalTitle}>
-              {personalTemplate.currentVersion === '未创建快照'
-                ? '当前还没有快照版本'
-                : `当前版本 ${personalTemplate.currentVersion}`}
-            </div>
+            <div className={styles.personalTitle}>{this.getAppName()}</div>
             <div className={styles.personalDesc}>
               {overview.has_changes
                 ? `当前应用存在未快照变更：新增 ${changeSummary.added_count || 0} 个组件，修改 ${changeSummary.updated_count || 0} 个组件，删除 ${changeSummary.removed_count || 0} 个组件。`
@@ -2601,10 +2596,8 @@ export default class AppVersion extends PureComponent {
         className={styles.historyCard}
         title={
           <div className={styles.historyTitle}>
-            <div>
-              <Icon type="clock-circle" />
-              <span>版本时间线</span>
-            </div>
+            <Icon type="clock-circle" />
+            <span>版本时间线</span>
           </div>
         }
       >

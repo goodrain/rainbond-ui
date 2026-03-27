@@ -14,7 +14,6 @@ import {
   Popconfirm,
   Select,
   Spin,
-  Steps,
   Table,
   Tag,
   Upload,
@@ -29,7 +28,6 @@ import { formatToBeijingTime } from '../utils';
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { Step } = Steps;
 const t = (id, defaultMessage, values) => formatMessage({ id, defaultMessage }, values);
 
 class HelmModals extends PureComponent {
@@ -79,7 +77,7 @@ class HelmModals extends PureComponent {
     const helmChartLoading = this.getStateValue('helmChartLoading', false);
     const helmChartSearch = this.getStateValue('helmChartSearch', '');
     const helmChartPage = this.getStateValue('helmChartPage', 1);
-    const helmChartPageSize = this.getStateValue('helmChartPageSize', 9);
+    const helmChartPageSize = this.getStateValue('helmChartPageSize', 8);
     const helmChartTotal = this.getStateValue('helmChartTotal', 0);
     const helmSelectedChart = this.getStateValue('helmSelectedChart', null);
     const helmPreviewStatus = this.getStateValue('helmPreviewStatus', 'idle');
@@ -108,7 +106,7 @@ class HelmModals extends PureComponent {
     return (
       <div style={{ display: 'flex', minHeight: 400 }}>
         <div className={styles.modalRepoSidebar} style={{ width: 160, flexShrink: 0, paddingRight: 0 }}>
-          <div className={styles.modalSidebarTitle}>{t('resourceCenter.helm.modal.repoTitle', 'Helm 仓库')}</div>
+          <div className={styles.modalSidebarTitle}>{t('resourceCenter.helm.modal.repoTitle', '仓库列表')}</div>
           {helmRepos.map(repo => {
             const name = repo.name || repo.repo_name || repo;
             const active = helmCurrentRepo === name;
@@ -118,7 +116,7 @@ class HelmModals extends PureComponent {
                 onClick={() => this.props.onRepoSelect(name)}
                 className={`${styles.modalRepoItem} ${active ? styles.modalRepoItemActive : ''}`}
               >
-                <Icon type="database" className={styles.modalMutedText} />
+                <Icon type="database" className={`${styles.modalMutedText} ${styles.modalRepoItemIcon}`} />
                 <span className={styles.modalRepoItemText}>{name}</span>
               </div>
             );
@@ -150,25 +148,6 @@ class HelmModals extends PureComponent {
                 <span className={styles.modalSelectedName}>
                   {t('resourceCenter.helm.modal.selectedChart', '已选 {name}', { name: helmSelectedChart.name })}
                 </span>
-                <span
-                  className={
-                    helmPreviewStatus === 'error'
-                      ? styles.modalSelectedStateError
-                      : helmPreviewLoading
-                        ? styles.modalSelectedStateLoading
-                        : helmPreviewData
-                          ? styles.modalSelectedStateReady
-                          : styles.modalSelectedStateDefault
-                  }
-                >
-                  {helmPreviewStatus === 'error'
-                    ? t('resourceCenter.helm.modal.detectFailed', '检测失败')
-                    : helmPreviewLoading
-                      ? t('resourceCenter.helm.modal.detecting', '检测中...')
-                      : helmPreviewData
-                        ? t('resourceCenter.helm.modal.readyNext', '可下一步')
-                        : t('resourceCenter.helm.modal.selected', '已选择')}
-                </span>
               </div>
             )}
           </div>
@@ -182,12 +161,26 @@ class HelmModals extends PureComponent {
           ) : (
             <>
               <List
-                grid={{ gutter: 12, column: 3 }}
+                grid={{ gutter: 12, column: 2 }}
                 dataSource={helmCharts}
                 renderItem={chart => {
                   const versions = chart.versions || [];
                   const latestVersion = (versions[0] && versions[0].version) || chart.version || '';
                   const selected = helmSelectedChart && helmSelectedChart.name === chart.name;
+                  const chartStatusText = helmPreviewStatus === 'error'
+                    ? t('resourceCenter.helm.modal.detectFailed', '检测失败')
+                    : helmPreviewLoading
+                      ? t('resourceCenter.helm.modal.detecting', '检测中...')
+                      : helmPreviewData
+                        ? t('resourceCenter.helm.modal.readyNext', '可下一步')
+                        : t('resourceCenter.helm.modal.selected', '已选择');
+                  const chartStatusClassName = helmPreviewStatus === 'error'
+                    ? styles.modalChartStatusError
+                    : helmPreviewLoading
+                      ? styles.modalChartStatusLoading
+                      : helmPreviewData
+                        ? styles.modalChartStatusReady
+                        : styles.modalChartStatusDefault;
                   return (
                     <List.Item style={{ marginBottom: 8 }}>
                       <Card
@@ -195,24 +188,26 @@ class HelmModals extends PureComponent {
                         hoverable
                         onClick={() => this.props.onChartSelect(chart)}
                         bodyStyle={{ padding: '12px 14px' }}
-                        className={`${styles.modalCard} ${selected ? styles.modalCardActive : ''}`}
+                        className={`${styles.modalCard} ${styles.modalChartCard} ${selected ? styles.modalCardActive : ''}`}
                         style={{ cursor: 'pointer' }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
-                          <Avatar
-                            shape="square"
-                            size={20}
-                            src={getHelmChartIcon(chart)}
-                            icon="appstore"
-                            className={styles.modalCardIcon}
-                          />
-                          <span className={styles.modalCardTitle} title={chart.name} style={{ maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {chart.name}
-                          </span>
+                        <div className={styles.modalChartCardHeader}>
+                          <div className={styles.modalChartCardMeta}>
+                            <Avatar
+                              shape="square"
+                              size={20}
+                              src={getHelmChartIcon(chart)}
+                              icon="appstore"
+                              className={styles.modalCardIcon}
+                            />
+                            <span className={styles.modalCardTitle} title={chart.name}>
+                              {chart.name}
+                            </span>
+                          </div>
                           {selected && (
-                            <Tag className={`${styles.smallTag} ${styles.tagPrimary}`} style={{ marginLeft: 'auto', marginRight: 0 }}>
-                              {t('resourceCenter.helm.modal.selectedShort', '已选')}
-                            </Tag>
+                            <span className={`${styles.modalChartStatus} ${chartStatusClassName}`}>
+                              {chartStatusText}
+                            </span>
                           )}
                         </div>
                         {chart.description && (
@@ -532,33 +527,14 @@ class HelmModals extends PureComponent {
             <div
               key={tab.key}
               onClick={() => this.props.onSourceChange(tab.key)}
-              className={`${styles.modalCard} ${active ? styles.modalCardActive : ''}`}
-              style={{ flex: 1, cursor: 'pointer', padding: '12px 14px', transition: 'all 0.2s' }}
+              className={`${styles.modalCard} ${styles.modalSourceOption} ${active ? `${styles.modalCardActive} ${styles.modalSourceOptionActive}` : ''}`}
+              style={{ flex: 1, cursor: 'pointer', padding: '12px 14px' }}
             >
               <div className={active ? styles.resourceLink : styles.modalSectionLabel}>{tab.label}</div>
               <div className={styles.modalMutedText} style={{ marginTop: 4 }}>{tab.helper}</div>
             </div>
           );
         })}
-      </div>
-    );
-  }
-
-  renderHelmStepNavigation() {
-    const steps = this.props.getWizardSteps();
-    const currentIndex = this.props.getStepIndex();
-    const currentStep = steps[currentIndex] || steps[0];
-
-    return (
-      <div style={{ marginBottom: 18 }}>
-        <Steps current={currentIndex} size="small">
-          {steps.map(step => (
-            <Step key={step.key} title={step.title} />
-          ))}
-        </Steps>
-        <div className={styles.modalStepHint}>
-          {currentStep && currentStep.helper}
-        </div>
       </div>
     );
   }
@@ -799,7 +775,6 @@ class HelmModals extends PureComponent {
         bodyStyle={{ padding: '16px 24px', minHeight: 560 }}
       >
         {this.renderHelmUpgradeAssistant()}
-        {this.renderHelmStepNavigation()}
         {helmStep === 'source' && this.renderHelmSourceTabs()}
         {this.renderHelmStepContent()}
       </Modal>

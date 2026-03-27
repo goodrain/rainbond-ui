@@ -99,6 +99,65 @@
   animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.groupSectionList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.groupSection {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sectionOrder {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: @rbd-label-color;
+}
+
+.sectionDesc {
+  font-size: 12px;
+  font-weight: 600;
+  color: @text-color-secondary;
+}
+
+.sectionMenuList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+}
+
+.sectionEmpty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: @text-color-secondary;
+  background: #f7f9fc;
+  border-radius: 12px;
+}
+
 .menuDivider {
   display: flex;
   align-items: center;
@@ -135,52 +194,53 @@
 .menuItem {
   display: flex;
   align-items: center;
-  padding: 15px;
-  background: @rbd-background-color;
-  border-radius: 12px;
+  min-height: 44px;
+  padding: 9px 10px;
+  background: transparent;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: @rbd-card-shadow;
+  box-shadow: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
 
   &:hover {
     background: @primary-1;
-    box-shadow: @rbd-card-shadow-hover;
-    transform: translateY(-2px);
+    box-shadow: none;
+    transform: translateY(-1px);
 
     .menuIcon {
       color: @text-color;
       background: @primary-2;
-      transform: scale(1.08) rotate(2deg);
+      transform: scale(1.06);
     }
 
     .menuTitle {
       color: @text-color;
-      transform: translateX(3px);
+      transform: translateX(2px);
     }
 
     .arrowIcon {
       color: @text-color;
-      transform: translateX(3px);
+      transform: translateX(2px);
     }
   }
 
   &:active {
     background: @primary-1;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
-    transform: translateY(0) scale(0.98);
+    box-shadow: none;
+    transform: translateY(0);
   }
 
   .menuIcon {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: @rbd-background-color;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 14px;
-    font-size: 20px;
+    margin-right: 8px;
+    font-size: 14px;
     color: @text-color-secondary;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -196,16 +256,79 @@
 
   .menuTitle {
     flex: 1;
-    font-size: 16px;
+    font-size: 14px;
     color: @text-color;
-    font-weight: 500;
+    font-weight: 400;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 20px;
+  }
+
+  .arrowIcon {
+    font-size: 14px;
+    color: #d9d9d9;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.menuItemDisabled {
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+    box-shadow: none;
+    transform: translateY(0);
+
+    .menuIcon {
+      color: inherit;
+      background: transparent;
+      transform: none;
+    }
+
+    .menuTitle {
+      color: @text-color;
+      transform: none;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.menuItemRepository {
+  min-height: 76px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid fade(@border-color-base, 90%);
+
+  &:hover {
+    border-color: fade(@primary-color, 36%);
+  }
+
+  .menuIcon {
+    width: 40px;
+    height: 40px;
+    margin-right: 14px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+
+  .menuTitle {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 22px;
   }
 
   .arrowIcon {
     font-size: 16px;
-    color: #d9d9d9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@media (max-width: 640px) {
+  .sectionMenuList {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -308,6 +431,7 @@
     }
   }
 }
+
 
 .pluginContent {
   width: 100%;

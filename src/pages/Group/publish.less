@@ -206,6 +206,10 @@
   align-items: start;
 }
 
+.publishLayoutSingle {
+  display: block;
+}
+
 .publishMain {
   min-width: 0;
 }
@@ -229,6 +233,33 @@
 
 .publishCardBody {
   padding: 24px;
+}
+
+.snapshotMergedSection {
+  overflow: hidden;
+}
+
+.snapshotMergedSection + .snapshotMergedSection {
+  border-top: 1px solid #edf2f8;
+}
+
+.snapshotMergedSectionActive {
+  background: #fbfdff;
+}
+
+.snapshotMergedSectionHeader {
+  padding: 24px 24px 0;
+}
+
+.snapshotMergedSectionHeadRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.snapshotMergedSectionLast {
+  margin-bottom: 128px;
 }
 
 .stepNav {
@@ -675,48 +706,15 @@
 
 .componentToolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 16px;
 }
 
-.componentToolbarTitle {
-  margin-bottom: 4px;
-  color: @heading-color;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.componentToolbarDesc {
-  color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 1.8;
-}
-
-.componentToolbarMeta {
-  margin-top: 4px;
-  color: @rbd-label-color;
-  font-size: 12px;
-  line-height: 1.8;
-}
-
 .tabsShell {
-  padding: 16px 18px 0;
-  border: 1px solid #edf2f8;
-  border-radius: 16px;
-  background: #ffffff;
 }
 
-.tabsShell :global {
-  .ant-tabs-bar {
-    margin-bottom: 18px;
-  }
-
-  .ant-tabs-tabpane {
-    padding-bottom: 8px;
-  }
-}
 
 .sectionSubCard {
   margin-top: 18px;
@@ -935,6 +933,10 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .publishLayoutSingle {
+    display: block;
+  }
+
   .publishSideInner {
     position: static;
   }
@@ -979,6 +981,15 @@
     padding: 16px;
   }
 
+  .snapshotMergedSectionHeader {
+    padding: 16px 16px 0;
+  }
+
+  .snapshotMergedSectionHeadRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .stepNav {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1013,6 +1024,10 @@
   }
 
   .stepSectionLast {
+    margin-bottom: 112px;
+  }
+
+  .snapshotMergedSectionLast {
     margin-bottom: 112px;
   }
 

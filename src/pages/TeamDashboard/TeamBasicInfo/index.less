@@ -70,20 +70,6 @@
       border: 1px solid fade(@border-color-base, 60%);
       position: relative;
 
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 80%;
-        height: 80%;
-        background: radial-gradient(circle at top right,
-          fade(@primary-color, 8%) 0%,
-          fade(@primary-color, 4%) 40%,
-          transparent 80%);
-        pointer-events: none;
-        z-index: 0;
-      }
 
       // 卡片主内容
       .appCardContent {
@@ -100,11 +86,13 @@
           justify-content: space-between;
           align-items: center;
           gap: 12px;
+          min-width: 0;
 
           .appCardIdentity {
             display: flex;
             align-items: center;
             flex: 1;
+            width: 0;
             min-width: 0;
 
             .appIcon {
@@ -122,7 +110,12 @@
 
               .appIconInitial {
                 display: block;
+                width: 100%;
                 max-width: 100%;
+                overflow: hidden;
+                text-align: center;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 font-size: 24px;
                 font-weight: 600;
                 line-height: 1;
@@ -140,11 +133,16 @@
               .appTitleRow {
                 display: flex;
                 align-items: center;
+                width: 100%;
                 min-width: 0;
               }
 
               .appName {
                 display: block;
+                flex: 1;
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
                 font-size: 18px;
                 font-weight: 600;
                 color: @text-color;

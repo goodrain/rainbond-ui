@@ -83,7 +83,7 @@ class ResourceCenter extends PureComponent {
     helmChartLoading: false,
     helmChartSearch: '',
     helmChartPage: 1,
-    helmChartPageSize: 9,
+    helmChartPageSize: 8,
     helmChartTotal: 0,
     helmSelectedChart: null,     // 用户点选的 chart
     helmForm: { version: '', release_name: '', values: '' },
@@ -129,17 +129,71 @@ class ResourceCenter extends PureComponent {
 
   componentDidMount() {
     const initialViewState = this.getInitialViewState();
-    this.setState(initialViewState, () => {
+    const { openHelmInstall, openCreateResource, ...initialState } = initialViewState;
+    this.setState(initialState, () => {
       this.fetchTabData(
-        initialViewState.activeTab,
-        initialViewState.activeTab === 'workload'
+        initialState.activeTab,
+        initialState.activeTab === 'workload'
           ? {
-            resource: initialViewState.workloadKind,
-            group: initialViewState.workloadKindGroup,
+            resource: initialState.workloadKind,
+            group: initialState.workloadKindGroup,
           }
           : {}
       );
+      if (openHelmInstall) {
+        this.openHelmInstallFromQuery();
+      } else if (openCreateResource) {
+        this.openCreateResourceFromQuery();
+      }
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    const prevQuery = this.getLocationQuery(prevProps.location);
+    const nextQuery = this.getLocationQuery();
+    const prevOpenHelmInstall = this.shouldOpenHelmInstall(prevQuery.openHelmInstall);
+    const nextOpenHelmInstall = this.shouldOpenHelmInstall(nextQuery.openHelmInstall);
+    const prevOpenCreateResource = this.shouldOpenCreateResource(prevQuery.openCreateResource);
+    const nextOpenCreateResource = this.shouldOpenCreateResource(nextQuery.openCreateResource);
+
+    if (
+      prevQuery.tab !== nextQuery.tab ||
+      prevQuery.workloadKind !== nextQuery.workloadKind
+    ) {
+      const nextViewState = this.getInitialViewState();
+      const { openHelmInstall, openCreateResource, ...nextState } = nextViewState;
+      this.setState({
+        activeTab: nextState.activeTab,
+        workloadKind: nextState.workloadKind,
+        workloadKindGroup: nextState.workloadKindGroup,
+        searchText: ''
+      }, () => {
+        this.fetchTabData(
+          nextState.activeTab,
+          nextState.activeTab === 'workload'
+            ? {
+              resource: nextState.workloadKind,
+              group: nextState.workloadKindGroup,
+            }
+            : {}
+        );
+        if (openHelmInstall) {
+          this.openHelmInstallFromQuery();
+        } else if (openCreateResource) {
+          this.openCreateResourceFromQuery();
+        }
+      });
+      return;
+    }
+
+    if (!prevOpenHelmInstall && nextOpenHelmInstall) {
+      this.openHelmInstallFromQuery();
+      return;
+    }
+
+    if (!prevOpenCreateResource && nextOpenCreateResource) {
+      this.openCreateResourceFromQuery();
+    }
   }
 
   componentWillUnmount() {
@@ -150,27 +204,109 @@ class ResourceCenter extends PureComponent {
     return (match && match.params) || {};
   }
 
-  getLocationQuery() {
-    const { location } = this.props;
+  getLocationQuery(locationArg = this.props.location) {
+    const location = locationArg || {};
     const query = (location && location.query) || {};
     const searchParams = location && location.search ? new URLSearchParams(location.search) : null;
     return {
       tab: query.tab || (searchParams && searchParams.get('tab')) || '',
       workloadKind: query.workloadKind || (searchParams && searchParams.get('workloadKind')) || '',
+      openHelmInstall: query.openHelmInstall || (searchParams && searchParams.get('openHelmInstall')) || '',
+      openCreateResource: query.openCreateResource || (searchParams && searchParams.get('openCreateResource')) || '',
     };
   }
 
+  shouldOpenHelmInstall = (value) => value === true || value === 'true' || value === '1';
+  shouldOpenCreateResource = (value) => value === true || value === 'true' || value === '1';
+
   getInitialViewState() {
-    const { tab, workloadKind } = this.getLocationQuery();
+    const { tab, workloadKind, openHelmInstall, openCreateResource } = this.getLocationQuery();
     const workloadKindOptions = getWorkloadKindOptions();
     const matchedWorkloadKind = workloadKindOptions.find(item => item.value === workloadKind) || workloadKindOptions[0];
     const tabMeta = getTabMetaMap();
+    const shouldOpenHelmInstall = this.shouldOpenHelmInstall(openHelmInstall);
+    const shouldOpenCreateResource = this.shouldOpenCreateResource(openCreateResource);
+    const targetTab = shouldOpenHelmInstall ? 'helm' : (shouldOpenCreateResource ? 'workload' : tab);
     return {
-      activeTab: tabMeta[tab] ? tab : DEFAULT_TAB,
+      activeTab: tabMeta[targetTab] ? targetTab : DEFAULT_TAB,
       workloadKind: matchedWorkloadKind.value,
       workloadKindGroup: matchedWorkloadKind.group,
+      openHelmInstall: shouldOpenHelmInstall,
+      openCreateResource: shouldOpenCreateResource,
     };
   }
+
+  consumeHelmInstallQuery = (tab = 'helm') => {
+    const { dispatch, location } = this.props;
+    const { teamName, regionName } = this.getParams();
+    const nextQuery = { ...((location && location.query) || {}) };
+    const searchParams = location && location.search ? new URLSearchParams(location.search) : null;
+
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        if (nextQuery[key] === undefined) {
+          nextQuery[key] = value;
+        }
+      });
+    }
+
+    delete nextQuery.openHelmInstall;
+    nextQuery.tab = tab;
+
+    dispatch(routerRedux.replace({
+      pathname: `/team/${teamName}/region/${regionName}/resource-center`,
+      query: nextQuery,
+    }));
+  };
+
+  openHelmInstallFromQuery = () => {
+    if (this.state.activeTab !== 'helm') {
+      this.setState({ activeTab: 'helm' }, () => {
+        this.fetchTabData('helm');
+        this.openHelmInstallModal();
+        this.consumeHelmInstallQuery('helm');
+      });
+      return;
+    }
+    this.openHelmInstallModal();
+    this.consumeHelmInstallQuery('helm');
+  };
+
+  consumeCreateResourceQuery = (tab = 'workload') => {
+    const { dispatch, location } = this.props;
+    const { teamName, regionName } = this.getParams();
+    const nextQuery = { ...((location && location.query) || {}) };
+    const searchParams = location && location.search ? new URLSearchParams(location.search) : null;
+
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        if (nextQuery[key] === undefined) {
+          nextQuery[key] = value;
+        }
+      });
+    }
+
+    delete nextQuery.openCreateResource;
+    nextQuery.tab = tab;
+
+    dispatch(routerRedux.replace({
+      pathname: `/team/${teamName}/region/${regionName}/resource-center`,
+      query: nextQuery,
+    }));
+  };
+
+  openCreateResourceFromQuery = () => {
+    if (this.state.activeTab !== 'workload') {
+      this.setState({ activeTab: 'workload' }, () => {
+        this.fetchTabData('workload');
+        this.openCreateChooser();
+        this.consumeCreateResourceQuery('workload');
+      });
+      return;
+    }
+    this.openCreateChooser();
+    this.consumeCreateResourceQuery('workload');
+  };
 
   fetchTabData = (tab, extra = {}) => {
     const { dispatch } = this.props;
@@ -1719,6 +1855,7 @@ class ResourceCenter extends PureComponent {
             <CodeMirrorForm
               mode="yaml"
               value={yamlContent}
+              visible={yamlModalVisible}
               onChange={value => this.setState({ yamlContent: value })}
               isHeader={false}
               isUpload={false}
@@ -1732,8 +1869,6 @@ class ResourceCenter extends PureComponent {
             modalState={this.state}
             getFormState={this.getHelmFormState}
             updateFormState={this.updateHelmFormState}
-            getWizardSteps={this.getHelmWizardSteps}
-            getStepIndex={this.getHelmStepIndex}
             canProceedStep={this.canProceedHelmStep}
             canInstall={this.canInstallHelm}
             buildHelmExternalChartUrl={this.buildHelmExternalChartUrl}

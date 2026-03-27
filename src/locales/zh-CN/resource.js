@@ -247,7 +247,7 @@ const resource = {
   'resourceCenter.helm.modal.upgradeGuide': '请从 Helm 商店、第三方仓库 / OCI 或上传 Chart 包中手动选择目标应用与版本进行升级。',
   'resourceCenter.helm.modal.loadingRepos': '加载仓库列表...',
   'resourceCenter.helm.modal.noRepos': '暂无 Helm 仓库，请先在应用市场中添加 Helm 仓库',
-  'resourceCenter.helm.modal.repoTitle': 'Helm 仓库',
+  'resourceCenter.helm.modal.repoTitle': '仓库列表',
   'resourceCenter.helm.modal.searchChart': '搜索 Chart 名称...',
   'resourceCenter.helm.modal.selectedChart': '已选 {name}',
   'resourceCenter.helm.modal.detectFailed': '检测失败',
