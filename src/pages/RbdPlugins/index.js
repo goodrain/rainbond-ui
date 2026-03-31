@@ -7,6 +7,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
+import { renderPlatformPluginIcon } from '../../utils/platformPluginIcon';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
@@ -196,7 +197,7 @@ export default class Index extends Component {
             <PageHeaderLayout
               title={plugins?.display_name}
               content={plugins?.description}
-              pluginSVg={plugins?.icon}
+              pluginSVg={renderPlatformPluginIcon(plugins, { size: 20 })}
               extraContent={
                 this.state.showSelect ?
                   <>

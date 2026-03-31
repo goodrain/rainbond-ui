@@ -7,6 +7,7 @@ import { formatMessage } from '@/utils/intl';
 import moment from 'moment';
 import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
+import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
 const { TabPane } = Tabs;
@@ -501,20 +502,7 @@ class Index extends PureComponent {
     };
 
     renderPluginIcon = (item) => {
-        if (item.logo) {
-            return <img src={item.logo} alt="" />;
-        }
-        if (item.icon) {
-            return global.fetchSvg(item.icon, global.getPublicColor());
-        }
-        return (
-            <svg className="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
-                <path d="M512.45099 1024L64.997835 767.475541 64.383834 255.475541 511.222988 0l447.453156 256.524459 0.614001 512-446.839155 255.475541z m401.454255-745.192425l-402.682257-234.266926L109.154733 277.758657l0.614001 467.433768 402.682256 234.266926 402.068256-233.218008-0.614001-467.433768z" fill={global.getPublicColor()} />
-                <path d="M491.063292 511.232499h44.770899v356.632189h-44.770899z" fill={global.getPublicColor()} />
-                <path d="M524.424008 530.599111l-22.38545-38.579724 310.198371-178.213761 22.38545 38.579724z" fill={global.getPublicColor()} />
-                <path d="M524.424008 492.019387l-22.38545 38.579724-310.172788-178.213761 22.38545-38.579724z" fill={global.getPublicColor()} />
-            </svg>
-        );
+        return renderPlatformPluginIcon(item, { size: 44, color: global.getPublicColor() });
     }
 
     renderPluginCard = (item) => {
