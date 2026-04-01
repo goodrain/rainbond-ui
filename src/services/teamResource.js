@@ -22,11 +22,23 @@ export async function getNsResource(body = {}) {
 }
 
 export async function createNsResource(body = {}) {
+  const params = {};
+  if (body.group) {
+    params.group = body.group;
+  }
+  if (body.version) {
+    params.version = body.version;
+  }
+  if (body.resource) {
+    params.resource = body.resource;
+  }
   return request(`${base(body.team, body.region)}/ns-resources?source=${body.source || 'manual'}`, {
     method: 'post',
     data: body.yaml,
-    params: { group: body.group, version: body.version, resource: body.resource },
-    headers: { 'Content-Type': 'application/yaml' }
+    params,
+    headers: { 'Content-Type': 'application/yaml' },
+    handleError: body.handleError,
+    showLoading: body.showLoading
   });
 }
 
