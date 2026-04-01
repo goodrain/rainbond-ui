@@ -104,7 +104,9 @@ builder export_app
 - 对 `apps` 中的每个组件：
   - 若已有 `share_image`，保持不变
   - 若没有 `share_image`，但有 `image`，则将 `share_image` 回填为当前 `image`
-- 对 `plugins` 保持现有逻辑不变
+- 对 `plugins` 中的每个插件：
+  - 若已有 `share_image`，保持不变
+  - 若没有 `share_image`，但有 `image`，则将 `share_image` 回填为当前 `image`
 - 其它导出元数据（描述、版本说明、图片、helm 参数）保持原样
 
 这样可以同时覆盖：
@@ -216,8 +218,8 @@ builder export_app
 在 `console/services/app_import_and_export_service.py` 中新增模板归一化逻辑：
 
 - 深拷贝 `app_template`
-- 遍历 `apps`
-- 对缺失 `share_image` 但存在 `image` 的组件做回填
+- 遍历 `apps/plugins`
+- 对缺失 `share_image` 但存在 `image` 的组件或插件做回填
 - 返回补齐后的模板再继续写入 `annotations`、`helm_chart`
 
 实现要求：
@@ -246,6 +248,7 @@ builder export_app
 - 文件：`console/tests/app_import_and_export_service_test.py`
 - 实现内容：
   - 验证当组件只有 `image` 没有 `share_image` 时，导出 metadata 会自动回填 `share_image`
+  - 验证当插件只有 `image` 没有 `share_image` 时，导出 metadata 也会自动回填 `share_image`
   - 验证已有 `share_image` 时不会被覆盖
 - 验收标准：
   - 新增测试先失败，修复后通过
@@ -278,6 +281,8 @@ builder export_app
   - 继续透传当前团队、集群、企业 ID
 - 验收标准：
   - 同一应用不同快照节点打开导出弹窗时，导出版本正确
+  - `queryExport` 能按当前快照版本返回 `rainbond-app / docker-compose / helm-chart / slug` 对应状态
+  - `helm-chart` 导出仍能走 `AppExporter` 里的 dry-run 校验路径
 
 ## 八、关键参考代码
 | 功能 | 文件 | 说明 |

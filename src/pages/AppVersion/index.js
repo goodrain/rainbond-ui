@@ -45,7 +45,6 @@ import {
   giveupShare as cancelShareRecord
 } from '../../services/application';
 import { getAppModelLastRecord, postUpgradeRecord } from '../../services/app';
-import { appExport } from '../../services/market';
 import SelectStore from '../../components/SelectStore';
 import AuthCompany from '../../components/AuthCompany';
 import AppExporter from '../EnterpriseShared/AppExporter';
@@ -100,7 +99,6 @@ export default class AppVersion extends PureComponent {
       exporterAppData: null,
       sharedAppExporting: false
     };
-    this.snapshotExportPollingTimer = null;
     this.rollbackRefreshTimer = null;
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
@@ -121,7 +119,6 @@ export default class AppVersion extends PureComponent {
 
   componentWillUnmount() {
     this.unmounted = true;
-    this.clearSnapshotExportPolling();
     this.clearRollbackRefreshPolling();
   }
 
@@ -463,13 +460,7 @@ export default class AppVersion extends PureComponent {
       return false;
     }
     const { overview } = this.state;
-    const exportStatus = this.getSnapshotExportStatus(version);
-    return !!(
-      overview &&
-      overview.template_id &&
-      this.getEnterpriseId() &&
-      !exportStatus.no_export
-    );
+    return !!(overview && overview.template_id && this.getEnterpriseId());
   };
 
   syncRoutePanel = () => {
@@ -524,7 +515,7 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  fetchAppVersionOverview = async ({ refreshExportStatus = true } = {}) => {
+  fetchAppVersionOverview = async () => {
     try {
       const res = await getAppVersionOverview({
         team_name: globalUtil.getCurrTeamName(),
@@ -536,11 +527,6 @@ export default class AppVersion extends PureComponent {
       this.setState(
         {
           overview: (res && res.bean) || {}
-        },
-        () => {
-          if (refreshExportStatus) {
-            this.refreshSnapshotExportStatuses();
-          }
         }
       );
     } catch (error) {
@@ -552,7 +538,7 @@ export default class AppVersion extends PureComponent {
     }
   };
 
-  fetchSnapshotVersions = async ({ refreshExportStatus = true } = {}) => {
+  fetchSnapshotVersions = async () => {
     try {
       const res = await getAppVersionSnapshots({
         team_name: globalUtil.getCurrTeamName(),
@@ -567,19 +553,12 @@ export default class AppVersion extends PureComponent {
       this.setState(
         {
           snapshotVersions
-        },
-        () => {
-          if (refreshExportStatus) {
-            this.refreshSnapshotExportStatuses(this.getSnapshotExportVersions(snapshotVersions));
-          }
         }
       );
     } catch (error) {
       if (!this.unmounted) {
         this.setState({
-          snapshotVersions: [],
-          snapshotExportStatusMap: {},
-          snapshotExportLoadingMap: {}
+          snapshotVersions: []
         });
       }
     }
@@ -1933,9 +1912,7 @@ export default class AppVersion extends PureComponent {
       });
       overview = (res && res.bean) || {};
       if (!this.unmounted) {
-        this.setState({ overview }, () => {
-          this.refreshSnapshotExportStatuses();
-        });
+        this.setState({ overview });
       }
     } catch (error) {
       overview = this.state.overview || {};
@@ -2196,34 +2173,6 @@ export default class AppVersion extends PureComponent {
       showExporterApp: true,
       exporterAppData
     });
-  };
-
-  handleExportSnapshot = version => {
-    const { overview } = this.state;
-    const enterpriseId = this.getEnterpriseId();
-    if (!overview || !overview.template_id || !enterpriseId || !version) {
-      notification.warning({ message: '当前快照暂不可导出' });
-      return Promise.resolve();
-    }
-    this.setSnapshotExportLoading(version, true);
-    return appExport({
-      enterprise_id: enterpriseId,
-      app_id: overview.template_id,
-      app_versions: [version],
-      format: 'rainbond-app'
-    })
-      .then(() => {
-        notification.success({
-          message: formatMessage({
-            id: 'notification.success.operate_successfully',
-            defaultMessage: '操作成功，开始导出，请稍等！'
-          })
-        });
-        return this.fetchSnapshotExportStatuses([version]);
-      })
-      .finally(() => {
-        this.setSnapshotExportLoading(version, false);
-      });
   };
 
   canRollbackSnapshot = item => {
