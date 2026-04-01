@@ -18,6 +18,7 @@ import {
   Upload,
 } from 'antd';
 import Result from '@/components/Result';
+import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from '../helmChartUrl';
 import { getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
 import HelmIcon from './HelmIcon';
 import styles from '../index.less';
@@ -177,14 +178,26 @@ export default class HelmUpgradeModal extends PureComponent {
 
   buildExternalChartUrl = () => {
     const { externalForm } = this.state;
-    const address = (externalForm.chart_address || '').trim();
-    if (!address) {
-      return '';
-    }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(address)) {
-      return address;
-    }
-    return `${externalForm.chart_protocol || 'https://'}${address}`;
+    return getHelmChartUrlValidation(
+      externalForm.chart_protocol,
+      externalForm.chart_address,
+    ).chartUrl;
+  };
+
+  getExternalChartValidation = () => {
+    const { externalForm } = this.state;
+    return getHelmChartUrlValidation(
+      externalForm.chart_protocol,
+      externalForm.chart_address,
+    );
+  };
+
+  getExternalChartValidationMessage = () => {
+    const { errorCode } = this.getExternalChartValidation();
+    return getHelmChartUrlValidationMessage(
+      errorCode,
+      descriptor => formatMessage(descriptor),
+    );
   };
 
   fetchHelmRepos = () => {
@@ -597,10 +610,13 @@ export default class HelmUpgradeModal extends PureComponent {
         };
       }
     } else if (sourceType === 'external') {
-      const chartUrl = this.buildExternalChartUrl();
+      const chartValidation = this.getExternalChartValidation();
+      const chartUrl = chartValidation.chartUrl;
       const isOCI = chartUrl.indexOf('oci://') === 0;
-      if (!chartUrl) {
+      if (!chartValidation.hasValue) {
         validationMessage = t('resourceCenter.helm.validation.chartUrl', '请填写 Chart 地址');
+      } else if (chartValidation.errorCode) {
+        validationMessage = this.getExternalChartValidationMessage();
       } else if (externalForm.auth_type === 'basic' && (!externalForm.username || !externalForm.password)) {
         validationMessage = t('resourceCenter.helm.validation.basicAuth', '请选择 Basic 鉴权时填写用户名和密码');
       } else if (!previewData) {
@@ -1043,6 +1059,7 @@ export default class HelmUpgradeModal extends PureComponent {
 
   renderExternalPane() {
     const { externalForm, previewLoading, configVisible } = this.state;
+    const chartValidationMessage = this.getExternalChartValidationMessage();
     const isBasicAuth = externalForm.auth_type === 'basic';
     const chartUrl = this.buildExternalChartUrl();
     const detectDisabled = !chartUrl || (isBasicAuth && (!externalForm.username || !externalForm.password));
@@ -1052,7 +1069,13 @@ export default class HelmUpgradeModal extends PureComponent {
           {t('resourceCenter.helm.modal.externalNoticeShort', '请直接填写 Chart 地址，支持 Helm Repo 包地址和 OCI 制品地址。')}
         </div>
         <Form layout="vertical">
-          <Form.Item label={t('resourceCenter.common.chartAddress', 'Chart 地址')} required style={{ marginBottom: 8 }}>
+          <Form.Item
+            label={t('resourceCenter.common.chartAddress', 'Chart 地址')}
+            required
+            style={{ marginBottom: 8 }}
+            validateStatus={chartValidationMessage ? 'error' : undefined}
+            help={chartValidationMessage || undefined}
+          >
             <Input.Group compact>
               <Select value={externalForm.chart_protocol} onChange={value => this.handleExternalFieldChange('chart_protocol', value)} style={{ width: 120 }}>
                 <Option value="https://">https://</Option>

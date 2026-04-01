@@ -8,6 +8,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
+import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from './helmChartUrl';
 import { getPreferredHelmValuesFileKey } from './helmValues';
 import { getWorkloadKindOptions, getResourceStatusMeta } from './utils';
 import {
@@ -744,7 +745,7 @@ class ResourceCenter extends PureComponent {
         return !!helmSelectedChart && !!helmPreviewData && !helmPreviewLoading;
       }
       if (helmSourceType === 'external') {
-        const chartUrl = this.buildHelmExternalChartUrl();
+        const chartUrl = this.getHelmExternalChartValidation().chartUrl;
         return !!chartUrl && !(
           helmExternalForm.auth_type === 'basic'
           && (!helmExternalForm.username || !helmExternalForm.password)
@@ -773,7 +774,7 @@ class ResourceCenter extends PureComponent {
     const { teamName, regionName } = this.getParams();
     const { helmSourceType, helmExternalForm, helmUploadEventId } = this.state;
     if (helmSourceType === 'external') {
-      const chartUrl = this.buildHelmExternalChartUrl();
+      const chartUrl = this.getHelmExternalChartValidation().chartUrl;
       if (!chartUrl) {
         return null;
       }
@@ -1220,16 +1221,24 @@ class ResourceCenter extends PureComponent {
     });
   };
 
-  buildHelmExternalChartUrl = () => {
+  getHelmExternalChartValidation = () => {
     const { helmExternalForm } = this.state;
-    const chartAddress = (helmExternalForm.chart_address || '').trim();
-    if (!chartAddress) {
-      return '';
-    }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(chartAddress)) {
-      return chartAddress;
-    }
-    return `${helmExternalForm.chart_protocol || 'https://'}${chartAddress}`;
+    return getHelmChartUrlValidation(
+      helmExternalForm.chart_protocol,
+      helmExternalForm.chart_address,
+    );
+  };
+
+  getHelmExternalChartValidationMessage = () => {
+    const { errorCode } = this.getHelmExternalChartValidation();
+    return getHelmChartUrlValidationMessage(
+      errorCode,
+      descriptor => formatMessage(descriptor),
+    );
+  };
+
+  buildHelmExternalChartUrl = () => {
+    return this.getHelmExternalChartValidation().chartUrl;
   };
 
   initHelmUploadSession = () => {
@@ -1580,12 +1589,15 @@ class ResourceCenter extends PureComponent {
         };
       }
     } else if (helmSourceType === 'external') {
-      const chartUrl = this.buildHelmExternalChartUrl();
+      const chartValidation = this.getHelmExternalChartValidation();
+      const chartUrl = chartValidation.chartUrl;
       const isOCI = chartUrl.indexOf('oci://') === 0;
       if (!helmExternalForm.release_name) {
         validationMessage = formatMessage({ id: 'resourceCenter.helm.validation.releaseName', defaultMessage: '请填写 Release 名称' });
-      } else if (!chartUrl) {
+      } else if (!chartValidation.hasValue) {
         validationMessage = formatMessage({ id: 'resourceCenter.helm.validation.chartUrl', defaultMessage: '请填写 Chart 地址' });
+      } else if (chartValidation.errorCode) {
+        validationMessage = this.getHelmExternalChartValidationMessage();
       } else if (
         helmExternalForm.auth_type === 'basic'
         && (!helmExternalForm.username || !helmExternalForm.password)
@@ -1955,6 +1967,7 @@ class ResourceCenter extends PureComponent {
             canProceedStep={this.canProceedHelmStep}
             canInstall={this.canInstallHelm}
             buildHelmExternalChartUrl={this.buildHelmExternalChartUrl}
+            getHelmExternalChartValidationMessage={this.getHelmExternalChartValidationMessage}
             getHelmChartIcon={this.getHelmChartIcon}
             decodeBase64Text={this.decodeBase64Text}
             onSourceChange={this.handleHelmSourceChange}

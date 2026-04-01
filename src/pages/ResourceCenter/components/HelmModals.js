@@ -542,6 +542,9 @@ class HelmModals extends PureComponent {
   renderHelmExternalSourceForm() {
     const helmExternalForm = this.getStateValue('helmExternalForm', {});
     const helmPreviewStatus = this.getStateValue('helmPreviewStatus', 'idle');
+    const chartValidationMessage = this.props.getHelmExternalChartValidationMessage
+      ? this.props.getHelmExternalChartValidationMessage()
+      : '';
     const isBasicAuth = helmExternalForm.auth_type === 'basic';
     return (
       <div>
@@ -549,7 +552,13 @@ class HelmModals extends PureComponent {
           {t('resourceCenter.helm.modal.externalNotice', '请直接填写 Chart 地址，支持 Helm 官方或自建 Helm Repo 中的 Chart 包地址，以及使用 OCI 格式的制品仓库。点击下一步后会自动检测并解析 Chart。')}
         </div>
         <Form layout="vertical">
-          <Form.Item label={t('resourceCenter.common.chartAddress', 'Chart 地址')} required style={{ marginBottom: 8 }}>
+          <Form.Item
+            label={t('resourceCenter.common.chartAddress', 'Chart 地址')}
+            required
+            style={{ marginBottom: 8 }}
+            validateStatus={chartValidationMessage ? 'error' : undefined}
+            help={chartValidationMessage || undefined}
+          >
             <Input.Group compact>
               <Select
                 value={helmExternalForm.chart_protocol}
