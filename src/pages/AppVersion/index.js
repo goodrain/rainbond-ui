@@ -45,6 +45,7 @@ import {
   giveupShare as cancelShareRecord
 } from '../../services/application';
 import { getAppModelLastRecord, postUpgradeRecord } from '../../services/app';
+import AppExportAction from '../../components/AppExportAction';
 import SelectStore from '../../components/SelectStore';
 import AuthCompany from '../../components/AuthCompany';
 import AppExporter from '../EnterpriseShared/AppExporter';
@@ -1671,7 +1672,6 @@ export default class AppVersion extends PureComponent {
       <Collapse
         bordered={false}
         defaultActiveKey={defaultActiveKeys}
-        expandIconPosition='right'
         className={styles.detailUpdatedComponentList}
       >
         {updatedComponents.map(component => (
@@ -2677,15 +2677,11 @@ export default class AppVersion extends PureComponent {
                         })
                       ) : null}
                       {item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
-                        <Button
-                          size="small"
-                          type="primary"
-                          ghost
+                        <AppExportAction
+                          confirmBeforeExport={false}
                           disabled={!this.canExportSnapshot(item.actionVersion)}
-                          onClick={() => this.showSnapshotExport(item.detail)}
-                        >
-                          {formatMessage({ id: 'button.export' })}
-                        </Button>
+                          onExport={() => this.showSnapshotExport(item.detail)}
+                        />
                       ) : null}
                       {this.canRollbackSnapshot(item) ? (
                         <Button size="small" onClick={() => this.confirmRollbackSnapshot(item)}>

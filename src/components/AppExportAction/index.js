@@ -27,10 +27,15 @@ const AppExportAction = ({
   disabled = false,
   exportStatus = {},
   loading = false,
-  onExport
+  onExport,
+  confirmBeforeExport = true
 }) => {
   const showExportConfirm = () => {
     if (disabled || !onExport) {
+      return;
+    }
+    if (!confirmBeforeExport) {
+      onExport();
       return;
     }
     Modal.confirm({
