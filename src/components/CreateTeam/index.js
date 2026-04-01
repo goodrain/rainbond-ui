@@ -134,21 +134,21 @@ class CreateTeam extends PureComponent {
     }
 
     if (activeTab === 'bind') {
-      if (!selectedNamespace) {
-        return;
-      }
-      if (onOk) {
+      form.validateFields(['team_name_bind'], (err, values) => {
+        if (err || !selectedNamespace || !onOk) {
+          return;
+        }
         onOk({
           namespace: selectedNamespace,
           useable_regions: [selectedRegion],
           bind_existing_namespace: true,
-          team_name: form.getFieldValue('team_name_bind')
+          team_name: values.team_name_bind
         });
-      }
+      });
       return;
     }
 
-    form.validateFields((err, values) => {
+    form.validateFields(['team_name', 'namespace', 'useable_regions', 'logo'], (err, values) => {
       if (!err && onOk) {
         if (values.logo) {
           values.logo = imageUrl;
