@@ -10,7 +10,6 @@ export default function handleAPIError(err) {
     data = err.data;
   }
   if (data) {
-    const detailMessage = data.msg_show || data.msg;
     switch (data.code) {
       case 7028:
         messages =  `${formatMessage({id:'utils.errror.install'})}`;
@@ -46,11 +45,11 @@ export default function handleAPIError(err) {
         messages = `${formatMessage({id:'utils.errror.Upgrade_only'})}`;
         break;
       case 500:
-        messages = detailMessage || `${formatMessage({id:'utils.errror.try_again'})}`;
+        messages = `${formatMessage({id:'utils.errror.try_again'})}`;
         break;
       default:
-        if (!messages && detailMessage) {
-          notification.warning({ message: detailMessage });
+        if (!messages && data.msg_show) {
+          notification.warning({ message: data.msg_show });
         }
     }
     if (messages) {

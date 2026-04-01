@@ -45,10 +45,11 @@ import {
   giveupShare as cancelShareRecord
 } from '../../services/application';
 import { getAppModelLastRecord, postUpgradeRecord } from '../../services/app';
+import { appExport, queryExport } from '../../services/market';
+import AppExportAction from '../../components/AppExportAction';
 import SelectStore from '../../components/SelectStore';
 import AuthCompany from '../../components/AuthCompany';
 import AppExporter from '../EnterpriseShared/AppExporter';
-import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
 
 const { Panel } = Collapse;
@@ -79,6 +80,8 @@ export default class AppVersion extends PureComponent {
       detailVisible: false,
       detailRecord: null,
       sourceUpgradeVisible: false,
+      snapshotExportStatusMap: {},
+      snapshotExportLoadingMap: {},
       publishRecords: [],
       publishRecordsLoading: false,
       publishRecordsVisible: false,
@@ -99,6 +102,7 @@ export default class AppVersion extends PureComponent {
       exporterAppData: null,
       sharedAppExporting: false
     };
+    this.snapshotExportPollingTimer = null;
     this.rollbackRefreshTimer = null;
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
@@ -119,6 +123,7 @@ export default class AppVersion extends PureComponent {
 
   componentWillUnmount() {
     this.unmounted = true;
+    this.clearSnapshotExportPolling();
     this.clearRollbackRefreshPolling();
   }
 
@@ -201,6 +206,154 @@ export default class AppVersion extends PureComponent {
         `/team/${teamName}/region/${regionName}/apps/${appID}/share/${recordId}/${stepName}${stepName === 'one' ? query : ''}`
       )
     );
+  };
+
+  clearSnapshotExportPolling = () => {
+    if (this.snapshotExportPollingTimer) {
+      clearTimeout(this.snapshotExportPollingTimer);
+      this.snapshotExportPollingTimer = null;
+    }
+  };
+
+  normalizeSnapshotExportStatus = statusInfo => {
+    if (!statusInfo) {
+      return {
+        is_export_before: false,
+        status: 'not_export',
+        file_path: '',
+        no_export: false
+      };
+    }
+    if (statusInfo.no_export === 'true') {
+      return {
+        is_export_before: false,
+        status: 'not_export',
+        file_path: '',
+        no_export: true
+      };
+    }
+    const rainbondApp = statusInfo.rainbond_app || {};
+    return {
+      is_export_before: !!rainbondApp.is_export_before,
+      status: rainbondApp.status || 'not_export',
+      file_path: rainbondApp.file_path || '',
+      no_export: false
+    };
+  };
+
+  getSnapshotExportVersions = records => {
+    return (records || this.state.snapshotVersions || [])
+      .map(item => item && item.version)
+      .filter(Boolean);
+  };
+
+  refreshSnapshotExportStatuses = versions => {
+    const snapshotVersions = versions || this.getSnapshotExportVersions();
+    const { overview } = this.state;
+    if (!snapshotVersions.length) {
+      this.clearSnapshotExportPolling();
+      this.setState({
+        snapshotExportStatusMap: {},
+        snapshotExportLoadingMap: {}
+      });
+      return;
+    }
+    if (!overview || !overview.template_id || !this.getEnterpriseId()) {
+      return;
+    }
+    this.fetchSnapshotExportStatuses(snapshotVersions);
+  };
+
+  shouldMarkSnapshotExportUnavailable = error => {
+    const status = error && error.response && error.response.status;
+    const msgShow =
+      (error && error.msg_show) ||
+      (error && error.response && error.response.data && error.response.data.msg_show) ||
+      '';
+    return status === 404 || ['应用商店不存在', '云市应用不存在'].includes(msgShow);
+  };
+
+  fetchSnapshotExportStatuses = async versions => {
+    const { overview } = this.state;
+    const templateId = overview && overview.template_id;
+    const enterpriseId = this.getEnterpriseId();
+    const targetVersions = (versions || []).filter(Boolean);
+    this.clearSnapshotExportPolling();
+    if (!templateId || !enterpriseId || !targetVersions.length) {
+      return;
+    }
+    try {
+      const res = await queryExport({
+        enterprise_id: enterpriseId,
+        body: {
+          app_id: templateId,
+          app_version: targetVersions.join('#')
+        }
+      }, error => {
+        throw error;
+      });
+      if (this.unmounted) {
+        return;
+      }
+      const statusList = (res && res.list) || [];
+      const nextStatusMap = {};
+      targetVersions.forEach((version, index) => {
+        nextStatusMap[version] = this.normalizeSnapshotExportStatus(statusList[index]);
+      });
+      this.setState(
+        prevState => ({
+          snapshotExportStatusMap: {
+            ...prevState.snapshotExportStatusMap,
+            ...nextStatusMap
+          }
+        }),
+        () => {
+          const exportingVersions = targetVersions.filter(version => {
+            const status = this.state.snapshotExportStatusMap[version];
+            return status && status.status === 'exporting';
+          });
+          if (exportingVersions.length) {
+            this.snapshotExportPollingTimer = setTimeout(() => {
+              this.fetchSnapshotExportStatuses(exportingVersions);
+            }, 5000);
+          }
+        }
+      );
+    } catch (error) {
+      if (!this.unmounted) {
+        this.clearSnapshotExportPolling();
+        if (this.shouldMarkSnapshotExportUnavailable(error)) {
+          const unavailableStatusMap = {};
+          targetVersions.forEach(version => {
+            unavailableStatusMap[version] = this.normalizeSnapshotExportStatus({
+              no_export: 'true'
+            });
+          });
+          this.setState(prevState => ({
+            snapshotExportStatusMap: {
+              ...prevState.snapshotExportStatusMap,
+              ...unavailableStatusMap
+            }
+          }));
+        }
+      }
+    }
+  };
+
+  getSnapshotExportStatus = version => {
+    return this.state.snapshotExportStatusMap[version] || this.normalizeSnapshotExportStatus();
+  };
+
+  setSnapshotExportLoading = (version, loading) => {
+    if (!version || this.unmounted) {
+      return;
+    }
+    this.setState(prevState => ({
+      snapshotExportLoadingMap: {
+        ...prevState.snapshotExportLoadingMap,
+        [version]: loading
+      }
+    }));
   };
 
   clearRollbackRefreshPolling = () => {
@@ -460,7 +613,13 @@ export default class AppVersion extends PureComponent {
       return false;
     }
     const { overview } = this.state;
-    return !!(overview && overview.template_id && this.getEnterpriseId());
+    const exportStatus = this.getSnapshotExportStatus(version);
+    return !!(
+      overview &&
+      overview.template_id &&
+      this.getEnterpriseId() &&
+      !exportStatus.no_export
+    );
   };
 
   syncRoutePanel = () => {
@@ -515,7 +674,7 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  fetchAppVersionOverview = async () => {
+  fetchAppVersionOverview = async ({ refreshExportStatus = true } = {}) => {
     try {
       const res = await getAppVersionOverview({
         team_name: globalUtil.getCurrTeamName(),
@@ -527,6 +686,11 @@ export default class AppVersion extends PureComponent {
       this.setState(
         {
           overview: (res && res.bean) || {}
+        },
+        () => {
+          if (refreshExportStatus) {
+            this.refreshSnapshotExportStatuses();
+          }
         }
       );
     } catch (error) {
@@ -538,7 +702,7 @@ export default class AppVersion extends PureComponent {
     }
   };
 
-  fetchSnapshotVersions = async () => {
+  fetchSnapshotVersions = async ({ refreshExportStatus = true } = {}) => {
     try {
       const res = await getAppVersionSnapshots({
         team_name: globalUtil.getCurrTeamName(),
@@ -553,12 +717,19 @@ export default class AppVersion extends PureComponent {
       this.setState(
         {
           snapshotVersions
+        },
+        () => {
+          if (refreshExportStatus) {
+            this.refreshSnapshotExportStatuses(this.getSnapshotExportVersions(snapshotVersions));
+          }
         }
       );
     } catch (error) {
       if (!this.unmounted) {
         this.setState({
-          snapshotVersions: []
+          snapshotVersions: [],
+          snapshotExportStatusMap: {},
+          snapshotExportLoadingMap: {}
         });
       }
     }
@@ -1009,7 +1180,9 @@ export default class AppVersion extends PureComponent {
 
   closeSourceUpgradeDrawer = callback => {
     this.setState({ sourceUpgradeVisible: false }, () => {
-      runCloseCallback(callback);
+      if (callback) {
+        callback();
+      }
     });
   };
 
@@ -1671,7 +1844,6 @@ export default class AppVersion extends PureComponent {
       <Collapse
         bordered={false}
         defaultActiveKey={defaultActiveKeys}
-        expandIconPosition='right'
         className={styles.detailUpdatedComponentList}
       >
         {updatedComponents.map(component => (
@@ -1913,7 +2085,9 @@ export default class AppVersion extends PureComponent {
       });
       overview = (res && res.bean) || {};
       if (!this.unmounted) {
-        this.setState({ overview });
+        this.setState({ overview }, () => {
+          this.refreshSnapshotExportStatuses();
+        });
       }
     } catch (error) {
       overview = this.state.overview || {};
@@ -2145,35 +2319,32 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  buildSnapshotExportData = detail => {
+  handleExportSnapshot = version => {
     const { overview } = this.state;
-    const version = detail && detail.version;
-    if (!overview || !overview.template_id || !version) {
-      return null;
-    }
-    const versionInfo = detail && detail.version_info ? detail.version_info : {};
-    return {
-      app_id: overview.template_id,
-      version: [version],
-      versions_info: [
-        {
-          ...versionInfo,
-          version
-        }
-      ]
-    };
-  };
-
-  showSnapshotExport = detail => {
-    const exporterAppData = this.buildSnapshotExportData(detail);
-    if (!exporterAppData) {
+    const enterpriseId = this.getEnterpriseId();
+    if (!overview || !overview.template_id || !enterpriseId || !version) {
       notification.warning({ message: '当前快照暂不可导出' });
-      return;
+      return Promise.resolve();
     }
-    this.setState({
-      showExporterApp: true,
-      exporterAppData
-    });
+    this.setSnapshotExportLoading(version, true);
+    return appExport({
+      enterprise_id: enterpriseId,
+      app_id: overview.template_id,
+      app_versions: [version],
+      format: 'rainbond-app'
+    })
+      .then(() => {
+        notification.success({
+          message: formatMessage({
+            id: 'notification.success.operate_successfully',
+            defaultMessage: '操作成功，开始导出，请稍等！'
+          })
+        });
+        return this.fetchSnapshotExportStatuses([version]);
+      })
+      .finally(() => {
+        this.setSnapshotExportLoading(version, false);
+      });
   };
 
   canRollbackSnapshot = item => {
@@ -2677,15 +2848,12 @@ export default class AppVersion extends PureComponent {
                         })
                       ) : null}
                       {item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
-                        <Button
-                          size="small"
-                          type="primary"
-                          ghost
+                        <AppExportAction
+                          exportStatus={this.getSnapshotExportStatus(item.actionVersion)}
+                          loading={!!this.state.snapshotExportLoadingMap[item.actionVersion]}
                           disabled={!this.canExportSnapshot(item.actionVersion)}
-                          onClick={() => this.showSnapshotExport(item.detail)}
-                        >
-                          {formatMessage({ id: 'button.export' })}
-                        </Button>
+                          onExport={() => this.handleExportSnapshot(item.actionVersion)}
+                        />
                       ) : null}
                       {this.canRollbackSnapshot(item) ? (
                         <Button size="small" onClick={() => this.confirmRollbackSnapshot(item)}>

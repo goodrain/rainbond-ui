@@ -184,7 +184,6 @@ function getEndpointStatus(service = {}, endpointRows = []) {
   events: resourceCenterDetail.events,
   detailLoading: loading.effects['resourceCenterDetail/fetchServiceDetail'],
   eventsLoading: loading.effects['resourceCenterDetail/fetchEvents'],
-  yamlSaving: loading.effects['resourceCenterDetail/saveYaml'],
 }))
 class ServiceDetail extends PureComponent {
   state = {
@@ -498,7 +497,6 @@ class ServiceDetail extends PureComponent {
   }
 
   renderYamlTab() {
-    const { detailLoading, yamlSaving } = this.props;
     return (
       <div className={styles.yamlPanel}>
         <div className={styles.yamlHint}>{t('resourceCenter.detail.serviceYamlHint', 'YAML 与当前 Service 对象保持一致，可直接查看或编辑保存。')}</div>
@@ -513,8 +511,8 @@ class ServiceDetail extends PureComponent {
           style={{ marginBottom: 0 }}
         />
         <div className={styles.yamlActions}>
-          <Button onClick={this.fetchDetail} loading={detailLoading}>{t('resourceCenter.common.reset', '重置')}</Button>
-          <Button type="primary" onClick={this.handleSaveYaml} loading={yamlSaving}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
+          <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>
+          <Button type="primary" onClick={this.handleSaveYaml}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
         </div>
       </div>
     );
@@ -562,7 +560,7 @@ class ServiceDetail extends PureComponent {
                 <Button icon="left" onClick={this.goToServiceList}>
                   {t('resourceCenter.detail.returnService', '返回服务列表')}
                 </Button>
-                <Button onClick={this.fetchDetail} loading={detailLoading}>
+                <Button onClick={this.fetchDetail}>
                   {t('resourceCenter.common.refresh', '刷新')}
                 </Button>
               </div>

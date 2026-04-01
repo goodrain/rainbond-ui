@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { Table, Popconfirm, Divider } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import ResourceToolbar from '../components/ResourceToolbar';
-import AsyncTextAction from '../components/AsyncTextAction';
 import StatusDot from '../components/StatusDot';
 import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
@@ -17,11 +16,9 @@ class HelmTab extends PureComponent {
       searchText,
       onSearchChange,
       onRefresh,
-      refreshLoading,
       onInstall,
       onDetail,
       onUninstall,
-      uninstallingName,
       emptyContent,
     } = this.props;
 
@@ -68,17 +65,9 @@ class HelmTab extends PureComponent {
           <span>
             <a className={styles.resourceLink} onClick={() => onDetail(record)}>{formatMessage({ id: 'resourceCenter.common.detail' })}</a>
             <Divider type="vertical" />
-            {uninstallingName === record.name ? (
-              <AsyncTextAction loading danger>
-                {formatMessage({ id: 'resourceCenter.common.uninstall' })}
-              </AsyncTextAction>
-            ) : (
-              <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmUninstall' }, { name: record.name })} onConfirm={() => onUninstall(record.name)}>
-                <AsyncTextAction danger>
-                  {formatMessage({ id: 'resourceCenter.common.uninstall' })}
-                </AsyncTextAction>
-              </Popconfirm>
-            )}
+            <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmUninstall' }, { name: record.name })} onConfirm={() => onUninstall(record.name)}>
+              <a className={styles.resourceLinkDanger}>{formatMessage({ id: 'resourceCenter.common.uninstall' })}</a>
+            </Popconfirm>
           </span>
         ),
       },
@@ -91,7 +80,6 @@ class HelmTab extends PureComponent {
           searchText={searchText}
           onSearchChange={onSearchChange}
           onRefresh={onRefresh}
-          refreshLoading={refreshLoading}
           primaryActionLabel={formatMessage({ id: 'resourceCenter.common.install' })}
           onPrimaryAction={onInstall}
         />
@@ -101,7 +89,6 @@ class HelmTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
-          loading={refreshLoading}
           scroll={getTableScroll(HELM_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}

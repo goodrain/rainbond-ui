@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { Table, Tag, Popconfirm, Divider } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import ResourceToolbar from '../components/ResourceToolbar';
-import AsyncTextAction from '../components/AsyncTextAction';
 import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
 import { formatToBeijingTime } from '../utils';
@@ -16,13 +15,10 @@ class NetworkTab extends PureComponent {
       searchText,
       onSearchChange,
       onRefresh,
-      refreshLoading,
       onCreate,
       onDetail,
       onEditYaml,
       onDelete,
-      deletingName,
-      yamlLoadingName,
       emptyContent,
     } = this.props;
 
@@ -74,21 +70,11 @@ class NetworkTab extends PureComponent {
         fixed: 'right',
         render: (_, record) => (
           <span>
-            <AsyncTextAction loading={yamlLoadingName === record.name} onClick={() => onEditYaml(record)}>
-              {formatMessage({ id: 'resourceCenter.common.edit' })}
-            </AsyncTextAction>
+            <a className={styles.resourceLink} onClick={() => onEditYaml(record)}>{formatMessage({ id: 'resourceCenter.common.edit' })}</a>
             <Divider type="vertical" />
-            {deletingName === record.name ? (
-              <AsyncTextAction loading danger>
-                {formatMessage({ id: 'resourceCenter.common.delete' })}
-              </AsyncTextAction>
-            ) : (
-              <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
-                <AsyncTextAction danger>
-                  {formatMessage({ id: 'resourceCenter.common.delete' })}
-                </AsyncTextAction>
-              </Popconfirm>
-            )}
+            <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
+              <a className={styles.resourceLinkDanger}>{formatMessage({ id: 'resourceCenter.common.delete' })}</a>
+            </Popconfirm>
           </span>
         ),
       },
@@ -101,7 +87,6 @@ class NetworkTab extends PureComponent {
           searchText={searchText}
           onSearchChange={onSearchChange}
           onRefresh={onRefresh}
-          refreshLoading={refreshLoading}
           primaryActionLabel={formatMessage({ id: 'resourceCenter.common.createResource' })}
           onPrimaryAction={onCreate}
         />
@@ -111,7 +96,6 @@ class NetworkTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
-          loading={refreshLoading}
           scroll={getTableScroll(NETWORK_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}

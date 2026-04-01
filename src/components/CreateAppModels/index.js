@@ -282,16 +282,9 @@ class CreateAppModels extends PureComponent {
       organizationsLoading: loading
     });
   };
-
-  getResolvedScope = values => {
-    const { fixedScope, defaultScope } = this.props;
-    return fixedScope || values.scope || defaultScope || 'enterprise';
-  };
-
   upAppModel = values => {
     const { dispatch, eid, appInfo, onOk, team_name } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
-    const scope = this.getResolvedScope(values);
 
     const arr = [];
     if (
@@ -317,12 +310,12 @@ class CreateAppModels extends PureComponent {
       app_id: appInfo.app_id,
       dev_status: values.dev_status ? 'release' : '',
       describe: values.describe,
-      scope: isShared && scope !== 'enterprise' ? 'team' : scope
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope
     };
-    if (team_name && scope !== 'enterprise') {
+    if (team_name) {
       body.create_team = team_name;
-    } else if (isShared && scope !== 'enterprise') {
-      body.create_team = scope;
+    } else if (isShared && values.scope !== 'enterprise') {
+      body.create_team = values.scope;
     }
     dispatch({
       type: 'market/upAppModel',
@@ -339,7 +332,6 @@ class CreateAppModels extends PureComponent {
   createAppModel = values => {
     const { dispatch, eid, onOk, currentTeam, marketId } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
-    const scope = this.getResolvedScope(values);
     const arr = [];
     const tags = [];
     if (
@@ -395,15 +387,15 @@ class CreateAppModels extends PureComponent {
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
-      scope: isShared && scope !== 'enterprise' ? 'team' : scope,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
       team_name: currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
       tag_ids: arr
     };
 
-    if (isShared && scope !== 'enterprise') {
-      customBody.create_team = scope;
+    if (isShared && values.scope !== 'enterprise') {
+      customBody.create_team = values.scope;
     }
 
     dispatch({
@@ -447,7 +439,6 @@ class CreateAppModels extends PureComponent {
       title,
       appInfo,
       defaultScope,
-      fixedScope,
       marketId,
       appName,
       marketVersion,
@@ -573,14 +564,14 @@ class CreateAppModels extends PureComponent {
                   {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
                 </div>
               </FormItem>
-              {!marketId && !fixedScope && (
+              {!marketId && (
                 <FormItem {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.scope' })}>
                   {getFieldDecorator('scope', {
                     initialValue: appInfo
                       ? isShared && appInfo.scope && appInfo.scope === 'team'
                         ? appInfo.create_team
                         : appInfo.scope
-                      : fixedScope || defaultScope || 'enterprise',
+                      : defaultScope || 'enterprise',
                     rules: [
                       {
                         required: true,

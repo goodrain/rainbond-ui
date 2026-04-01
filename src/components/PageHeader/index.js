@@ -147,19 +147,6 @@ export default class PageHeader extends PureComponent {
     );
   };
 
-  renderPluginIcon = pluginSVg => {
-    if (!pluginSVg) {
-      return null;
-    }
-    if (React.isValidElement(pluginSVg)) {
-      return pluginSVg;
-    }
-    if (typeof pluginSVg === 'string') {
-      return <img src={pluginSVg} alt="" />;
-    }
-    return pluginSVg;
-  };
-
   render() {
     const {
       title,
@@ -196,11 +183,7 @@ export default class PageHeader extends PureComponent {
             {logo && <div className={styles.logo}>{logo}</div>}
             <div className={styles.main}>
               <div className={styles.row} style={{ marginBottom: '4px' }}>
-                {pluginSVg && (
-                  <div className={styles.Plugin_Icon}>
-                    {this.renderPluginIcon(pluginSVg)}
-                  </div>
-                )}
+                {pluginSVg && <div className={styles.Plugin_Icon}><img src={pluginSVg} alt=""/></div>}
                 {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}
                 {title && <h1 className={styles.title}>{title}</h1>}
                 {action && <div className={styles.action}>{action}</div>}
