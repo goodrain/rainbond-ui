@@ -977,6 +977,7 @@ class AppPublishSetting extends PureComponent {
             eid={currentEnterprise && currentEnterprise.enterprise_id}
             onOk={this.handleCreateAppModel}
             defaultScope="team"
+            fixedScope="enterprise"
             marketId={marketId}
             marketVersion={marketVersion}
             onCancel={this.hideCreateAppModel}
@@ -993,6 +994,7 @@ class AppPublishSetting extends PureComponent {
             eid={currentEnterprise && currentEnterprise.enterprise_id}
             onOk={this.handleEditorAppModel}
             defaultScope="team"
+            fixedScope="enterprise"
             onCancel={this.hideEditorAppModel}
           />
         )}
