@@ -73,6 +73,7 @@ function formatIngressRules(ingress) {
   wsInfo: resourceCenterDetail.wsInfo,
   detailLoading: loading.effects['resourceCenterDetail/fetchWorkloadDetail'],
   eventsLoading: loading.effects['resourceCenterDetail/fetchEvents'],
+  yamlSaving: loading.effects['resourceCenterDetail/saveYaml'],
 }))
 class WorkloadDetail extends PureComponent {
   state = {
@@ -497,6 +498,7 @@ class WorkloadDetail extends PureComponent {
   }
 
   renderYamlTab() {
+    const { detailLoading, yamlSaving } = this.props;
     return (
       <div className={styles.yamlPanel}>
         <div className={styles.yamlHint}>{t('resourceCenter.detail.workloadYamlHint', 'YAML 是当前工作负载的原始资源定义。你可以直接修改后保存。')}</div>
@@ -511,8 +513,8 @@ class WorkloadDetail extends PureComponent {
           style={{ marginBottom: 0 }}
         />
         <div className={styles.yamlActions}>
-          <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>
-          <Button type="primary" onClick={this.handleSaveYaml}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
+          <Button onClick={this.fetchDetail} loading={detailLoading}>{t('resourceCenter.common.reset', '重置')}</Button>
+          <Button type="primary" onClick={this.handleSaveYaml} loading={yamlSaving}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
         </div>
       </div>
     );

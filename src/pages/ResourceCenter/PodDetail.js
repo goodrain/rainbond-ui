@@ -65,6 +65,7 @@ function formatPorts(containers) {
   wsInfo: resourceCenterDetail.wsInfo,
   detailLoading: loading.effects['resourceCenterDetail/fetchPodDetail'],
   eventsLoading: loading.effects['resourceCenterDetail/fetchEvents'],
+  yamlSaving: loading.effects['resourceCenterDetail/saveYaml'],
 }))
 class PodDetail extends PureComponent {
   state = {
@@ -344,6 +345,7 @@ class PodDetail extends PureComponent {
   }
 
   renderYamlTab() {
+    const { detailLoading, yamlSaving } = this.props;
     return (
       <div className={styles.yamlPanel}>
         <div className={styles.yamlHint}>{t('resourceCenter.detail.podYamlHint', 'YAML 与当前容器组对象保持一致，可直接查看或编辑保存。')}</div>
@@ -358,8 +360,8 @@ class PodDetail extends PureComponent {
           style={{ marginBottom: 0 }}
         />
         <div className={styles.yamlActions}>
-          <Button onClick={this.fetchDetail}>{t('resourceCenter.common.reset', '重置')}</Button>
-          <Button type="primary" onClick={this.handleSaveYaml}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
+          <Button onClick={this.fetchDetail} loading={detailLoading}>{t('resourceCenter.common.reset', '重置')}</Button>
+          <Button type="primary" onClick={this.handleSaveYaml} loading={yamlSaving}>{t('resourceCenter.common.saveYaml', '保存 YAML')}</Button>
         </div>
       </div>
     );

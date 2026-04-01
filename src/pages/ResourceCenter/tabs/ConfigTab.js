@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Table, Tag, Popconfirm, Divider } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import ResourceToolbar from '../components/ResourceToolbar';
+import AsyncTextAction from '../components/AsyncTextAction';
 import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
 import { formatToBeijingTime } from '../utils';
@@ -16,9 +17,12 @@ class ConfigTab extends PureComponent {
       searchText,
       onSearchChange,
       onRefresh,
+      refreshLoading,
       onCreate,
       onEditYaml,
       onDelete,
+      deletingName,
+      yamlLoadingName,
       emptyContent,
     } = this.props;
 
@@ -28,12 +32,12 @@ class ConfigTab extends PureComponent {
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => (
-          <span
-            className={styles.resourceLink}
+          <AsyncTextAction
+            loading={yamlLoadingName === record.name}
             onClick={() => onEditYaml(record)}
           >
             {text}
-          </span>
+          </AsyncTextAction>
         ),
       },
       {
@@ -57,11 +61,21 @@ class ConfigTab extends PureComponent {
         width: 140,
         render: (_, record) => (
           <span>
-            <a className={styles.resourceLink} onClick={() => onEditYaml(record)}>{formatMessage({ id: 'resourceCenter.common.edit' })}</a>
+            <AsyncTextAction loading={yamlLoadingName === record.name} onClick={() => onEditYaml(record)}>
+              {formatMessage({ id: 'resourceCenter.common.edit' })}
+            </AsyncTextAction>
             <Divider type="vertical" />
-            <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
-              <a className={styles.resourceLinkDanger}>{formatMessage({ id: 'resourceCenter.common.delete' })}</a>
-            </Popconfirm>
+            {deletingName === record.name ? (
+              <AsyncTextAction loading danger>
+                {formatMessage({ id: 'resourceCenter.common.delete' })}
+              </AsyncTextAction>
+            ) : (
+              <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
+                <AsyncTextAction danger>
+                  {formatMessage({ id: 'resourceCenter.common.delete' })}
+                </AsyncTextAction>
+              </Popconfirm>
+            )}
           </span>
         ),
       },
@@ -74,6 +88,7 @@ class ConfigTab extends PureComponent {
           searchText={searchText}
           onSearchChange={onSearchChange}
           onRefresh={onRefresh}
+          refreshLoading={refreshLoading}
           primaryActionLabel={formatMessage({ id: 'resourceCenter.common.createResource' })}
           onPrimaryAction={onCreate}
         />
@@ -83,6 +98,7 @@ class ConfigTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
+          loading={refreshLoading}
           scroll={getTableScroll(CONFIG_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}

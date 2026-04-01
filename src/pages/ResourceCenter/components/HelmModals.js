@@ -621,6 +621,7 @@ class HelmModals extends PureComponent {
     const helmUploadRecord = this.getStateValue('helmUploadRecord', {});
     const helmUploadFileList = this.getStateValue('helmUploadFileList', []);
     const helmUploadExistFiles = this.getStateValue('helmUploadExistFiles', []);
+    const helmUploadLoading = this.getStateValue('helmUploadLoading', false);
     const helmPreviewStatus = this.getStateValue('helmPreviewStatus', 'idle');
 
     return (
@@ -639,7 +640,7 @@ class HelmModals extends PureComponent {
               onRemove={this.props.onResetUploadFileList}
               accept=".tgz"
             >
-              <Button icon="upload" disabled={!helmUploadRecord || !helmUploadRecord.upload_url}>
+              <Button icon="upload" loading={helmUploadLoading} disabled={!helmUploadRecord || !helmUploadRecord.upload_url}>
                 {t('resourceCenter.helm.modal.selectChartPackage', '选择 Chart 包')}
               </Button>
             </Upload>
@@ -656,7 +657,7 @@ class HelmModals extends PureComponent {
                     </div>
                   ))}
                 </div>
-                <Button type="link" style={{ paddingRight: 0 }} onClick={this.props.onUploadRemove}>
+                <Button type="link" style={{ paddingRight: 0 }} onClick={this.props.onUploadRemove} loading={helmUploadLoading}>
                   {t('resourceCenter.common.delete', '删除')}
                 </Button>
               </div>

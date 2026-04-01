@@ -11,6 +11,7 @@ class ResourceToolbar extends PureComponent {
       searchText,
       onSearchChange,
       onRefresh,
+      refreshLoading,
       primaryActionLabel,
       onPrimaryAction,
     } = this.props;
@@ -29,7 +30,7 @@ class ResourceToolbar extends PureComponent {
           />
         </div>
         <div className={styles.toolbarActions}>
-          <Button icon="reload" onClick={onRefresh}>
+          <Button icon="reload" onClick={onRefresh} loading={refreshLoading}>
             {formatMessage({ id: 'resourceCenter.common.refresh' })}
           </Button>
           <Button type="primary" icon="plus" onClick={onPrimaryAction}>
