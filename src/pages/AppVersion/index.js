@@ -1671,6 +1671,7 @@ export default class AppVersion extends PureComponent {
       <Collapse
         bordered={false}
         defaultActiveKey={defaultActiveKeys}
+        expandIconPosition='right'
         className={styles.detailUpdatedComponentList}
       >
         {updatedComponents.map(component => (
