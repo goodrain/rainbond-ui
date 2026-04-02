@@ -254,14 +254,14 @@ class ServiceDetail extends PureComponent {
   getResourceCenterRoute() {
     const params = this.getRouteParams();
     return {
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
     };
   }
 
   getServiceListRoute() {
     const params = this.getRouteParams();
     return {
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
       query: {
         tab: 'network',
       },

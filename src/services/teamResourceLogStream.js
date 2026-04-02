@@ -9,7 +9,7 @@ function buildPodLogsStreamUrl(body = {}) {
   }
 
   const suffix = query.length > 0 ? `?${query.join('&')}` : '';
-  return `${body.baseUrl || ''}/console/teams/${body.team}/regions/${body.region}/resource-center/pods/${body.pod_name}/logs${suffix}`;
+  return `${body.baseUrl || ''}/console/teams/${body.team}/regions/${body.region}/k8s-center/pods/${body.pod_name}/logs${suffix}`;
 }
 
 module.exports = {

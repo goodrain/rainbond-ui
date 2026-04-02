@@ -123,7 +123,7 @@ class HelmDetail extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getRouteParams();
     dispatch(routerRedux.push({
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
       query: { tab: 'helm' },
     }));
   };
@@ -132,7 +132,7 @@ class HelmDetail extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getRouteParams();
     dispatch(routerRedux.push({
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
     }));
   };
 
@@ -144,7 +144,7 @@ class HelmDetail extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getRouteParams();
     dispatch(routerRedux.push({
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center/workloads/${route.resource}/${record.name}`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center/workloads/${route.resource}/${record.name}`,
       query: {
         group: route.group,
         version: route.version,
@@ -159,7 +159,7 @@ class HelmDetail extends PureComponent {
     const params = this.getRouteParams();
     const serviceName = (record && record.name) || record;
     dispatch(routerRedux.push({
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center/services/${serviceName}`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center/services/${serviceName}`,
     }));
   };
 

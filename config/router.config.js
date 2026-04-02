@@ -347,35 +347,35 @@ export default [
             title: '流水线'
           },
           {
-            path: '/team/:teamName/region/:regionName/resource-center/workloads/:resource/:name',
+            path: '/team/:teamName/region/:regionName/k8s-center/workloads/:resource/:name',
             component: './ResourceCenter/WorkloadDetail',
             name: 'ResourceCenterWorkloadDetail',
             authority: ['admin', 'user'],
             title: '工作负载详情'
           },
           {
-            path: '/team/:teamName/region/:regionName/resource-center/pods/:podName',
+            path: '/team/:teamName/region/:regionName/k8s-center/pods/:podName',
             component: './ResourceCenter/PodDetail',
             name: 'ResourceCenterPodDetail',
             authority: ['admin', 'user'],
             title: '容器组详情'
           },
           {
-            path: '/team/:teamName/region/:regionName/resource-center/services/:serviceName',
+            path: '/team/:teamName/region/:regionName/k8s-center/services/:serviceName',
             component: './ResourceCenter/ServiceDetail',
             name: 'ResourceCenterServiceDetail',
             authority: ['admin', 'user'],
             title: '服务详情'
           },
           {
-            path: '/team/:teamName/region/:regionName/resource-center/helm/:releaseName',
+            path: '/team/:teamName/region/:regionName/k8s-center/helm/:releaseName',
             component: './ResourceCenter/HelmDetail',
             name: 'ResourceCenterHelmDetail',
             authority: ['admin', 'user'],
             title: 'Helm 应用详情'
           },
           {
-            path: '/team/:teamName/region/:regionName/resource-center',
+            path: '/team/:teamName/region/:regionName/k8s-center',
             component: './ResourceCenter',
             name: 'ResourceCenter',
             authority: ['admin', 'user'],

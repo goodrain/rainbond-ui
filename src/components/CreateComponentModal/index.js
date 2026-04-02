@@ -1441,7 +1441,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       const regionName = globalUtil.getCurrRegionName();
       dispatch(
         routerRedux.push({
-          pathname: `/team/${teamName}/region/${regionName}/resource-center`,
+          pathname: `/team/${teamName}/region/${regionName}/k8s-center`,
           query: {
             tab: 'helm',
             openHelmInstall: 'true'
@@ -1457,7 +1457,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       const regionName = globalUtil.getCurrRegionName();
       dispatch(
         routerRedux.push({
-          pathname: `/team/${teamName}/region/${regionName}/resource-center`,
+          pathname: `/team/${teamName}/region/${regionName}/k8s-center`,
           query: {
             tab: 'workload',
             openCreateResource: 'true'

@@ -139,21 +139,21 @@ class PodDetail extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getRouteParams();
     dispatch(routerRedux.push({
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center/services/${serviceName}`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center/services/${serviceName}`,
     }));
   };
 
   getResourceCenterRoute() {
     const params = this.getRouteParams();
     return {
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
     };
   }
 
   getPodListRoute() {
     const params = this.getRouteParams();
     return {
-      pathname: `/team/${params.teamName}/region/${params.regionName}/resource-center`,
+      pathname: `/team/${params.teamName}/region/${params.regionName}/k8s-center`,
       query: {
         tab: 'pod',
       },
