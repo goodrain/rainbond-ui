@@ -145,27 +145,27 @@ export async function rollbackHelmRelease(body = {}) {
 }
 
 export async function getWorkloadDetail(body = {}) {
-  return request(`${base(body.team, body.region)}/k8s-center/workloads/${body.resource}/${body.name}`, {
+  return request(`${base(body.team, body.region)}/resource-center/workloads/${body.resource}/${body.name}`, {
     method: 'get',
     params: { group: body.group, version: body.version }
   });
 }
 
 export async function getPodDetail(body = {}) {
-  return request(`${base(body.team, body.region)}/k8s-center/pods/${body.pod_name}`, {
+  return request(`${base(body.team, body.region)}/resource-center/pods/${body.pod_name}`, {
     method: 'get'
   });
 }
 
 export async function getResourceEvents(body = {}) {
-  return request(`${base(body.team, body.region)}/k8s-center/events`, {
+  return request(`${base(body.team, body.region)}/resource-center/events`, {
     method: 'get',
     params: { kind: body.kind, name: body.name, namespace: body.namespace }
   });
 }
 
 export async function getResourceWSInfo(body = {}) {
-  return request(`${base(body.team, body.region)}/k8s-center/ws-info`, {
+  return request(`${base(body.team, body.region)}/resource-center/ws-info`, {
     method: 'get'
   });
 }
