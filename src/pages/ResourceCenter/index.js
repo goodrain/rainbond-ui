@@ -1,13 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Modal, Card, notification } from 'antd';
+import { Modal, Card, notification, Button, Alert, Spin, Tag } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
+import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from './helmChartUrl';
 import { getPreferredHelmValuesFileKey } from './helmValues';
 import { getWorkloadKindOptions, getResourceStatusMeta } from './utils';
 import {
@@ -34,13 +35,21 @@ import ConfigTab from './tabs/ConfigTab';
 import StorageTab from './tabs/StorageTab';
 import HelmTab from './tabs/HelmTab';
 
-@connect(({ teamResources, enterprise }) => ({
+@connect(({ teamResources, enterprise, loading }) => ({
   resources: teamResources.resources,
   helmReleases: teamResources.helmReleases,
   helmPreview: teamResources.helmPreview,
   helmReleaseHistory: teamResources.helmReleaseHistory,
   total: teamResources.total,
   currentEnterprise: enterprise.currentEnterprise,
+  resourceListLoading: loading.effects['teamResources/fetchResources'],
+  configListLoading: loading.effects['teamResources/fetchConfigResources'],
+  helmListLoading: loading.effects['teamResources/fetchHelmReleases'],
+  resourceYamlLoading: loading.effects['teamResources/fetchResource'],
+  createResourceLoading: loading.effects['teamResources/createResource'],
+  updateResourceLoading: loading.effects['teamResources/updateResource'],
+  deleteResourceLoading: loading.effects['teamResources/deleteResource'],
+  uninstallReleaseLoading: loading.effects['teamResources/uninstallRelease'],
 }))
 class ResourceCenter extends PureComponent {
   contentCardRef = React.createRef();
@@ -63,9 +72,15 @@ class ResourceCenter extends PureComponent {
     workloadKindGroup: 'apps',
     yamlModalVisible: false,
     yamlModalMode: 'create',
+    yamlModalStep: 'editor',
     yamlContent: '',
     yamlTargetName: '',
     yamlTargetParams: null,
+    yamlResult: null,
+    yamlResultLoading: false,
+    openingYamlName: '',
+    deletingResourceName: '',
+    uninstallingReleaseName: '',
     searchText: '',
     // Helm 应用商店弹窗状态
     helmModalVisible: false,
@@ -192,6 +207,20 @@ class ResourceCenter extends PureComponent {
 
     if (!prevOpenCreateResource && nextOpenCreateResource) {
       this.openCreateResourceFromQuery();
+    }
+
+    const nextState = {};
+    if (prevProps.resourceYamlLoading && !this.props.resourceYamlLoading && this.state.openingYamlName) {
+      nextState.openingYamlName = '';
+    }
+    if (prevProps.deleteResourceLoading && !this.props.deleteResourceLoading && this.state.deletingResourceName) {
+      nextState.deletingResourceName = '';
+    }
+    if (prevProps.uninstallReleaseLoading && !this.props.uninstallReleaseLoading && this.state.uninstallingReleaseName) {
+      nextState.uninstallingReleaseName = '';
+    }
+    if (Object.keys(nextState).length > 0) {
+      this.setState(nextState);
     }
   }
 
@@ -363,33 +392,179 @@ class ResourceCenter extends PureComponent {
     return this.getCurrentResourceParams(tab);
   };
 
-  resolveCreateResourceParams = (resourceParams, yamlContent) => {
-    if (!resourceParams || resourceParams.resource !== 'configmaps') {
-      return resourceParams;
+  getYamlResultTone = (yamlResult) => {
+    const summary = (yamlResult && yamlResult.summary) || {};
+    if (summary.failure_count > 0 && summary.success_count > 0) {
+      return 'warning';
     }
-    try {
-      const [firstDoc] = jsYaml.loadAll(yamlContent).filter(Boolean);
-      const kind = ((firstDoc && firstDoc.kind) || '').toLowerCase();
-      if (kind === 'secret') {
-        return { ...resourceParams, resource: 'secrets' };
-      }
-      if (kind === 'configmap') {
-        return { ...resourceParams, resource: 'configmaps' };
-      }
-    } catch (e) {
-      return resourceParams;
+    if (summary.failure_count > 0) {
+      return 'error';
     }
-    return resourceParams;
+    return 'success';
+  };
+
+  buildYamlResultSummary = (yamlResult) => {
+    const summary = (yamlResult && yamlResult.summary) || {};
+    const total = Number(summary.total || 0);
+    const successCount = Number(summary.success_count || 0);
+    const failureCount = Number(summary.failure_count || 0);
+
+    if (failureCount === 0) {
+      return formatMessage(
+        { id: 'resourceCenter.yaml.result.summary.success', defaultMessage: '共创建 {total} 个资源，全部成功' },
+        { total }
+      );
+    }
+    if (successCount === 0) {
+      return formatMessage(
+        { id: 'resourceCenter.yaml.result.summary.failure', defaultMessage: '共创建 {total} 个资源，全部失败' },
+        { total }
+      );
+    }
+    return formatMessage(
+      { id: 'resourceCenter.yaml.result.summary.partial', defaultMessage: '共创建 {total} 个资源，{success} 个成功，{failure} 个失败' },
+      { total, success: successCount, failure: failureCount }
+    );
+  };
+
+  normalizeYamlCreateResult = (payload = {}) => {
+    const responsePayload = payload.response_data || payload;
+    const responseData = (responsePayload && responsePayload.data) || {};
+    const bean = payload.bean || responseData.bean || {};
+    const results = bean.results || [];
+    const summary = bean.summary || {
+      total: results.length,
+      success_count: results.filter(item => item && item.success).length,
+      failure_count: results.filter(item => item && !item.success).length,
+      partial_success: results.some(item => item && item.success) && results.some(item => item && !item.success),
+    };
+    return {
+      statusCode: payload.business_code || payload._condition || responsePayload.code || 500,
+      message: bean.message || responsePayload.msg_show || responsePayload.msg || '',
+      summary,
+      results,
+    };
+  };
+
+  openYamlResult = (payload) => {
+    this.setState({
+      yamlModalStep: 'result',
+      yamlResultLoading: false,
+      yamlResult: this.normalizeYamlCreateResult(payload),
+    });
+  };
+
+  handleYamlCreateError = (error) => {
+    this.openYamlResult(error && error.response && error.response.data ? error.response.data : {});
+  };
+
+  handleBackToYamlEditor = () => {
+    this.setState({
+      yamlModalStep: 'editor',
+      yamlResultLoading: false,
+    });
+  };
+
+  handleRefreshYamlResult = () => {
+    this.fetchTabData(this.state.activeTab);
+  };
+
+  renderYamlResultPanel = () => {
+    const { yamlResultLoading, yamlResult } = this.state;
+    if (yamlResultLoading) {
+      return (
+        <div className={styles.yamlResultLoading}>
+          <Spin />
+          <div className={styles.yamlResultLoadingText}>
+            {formatMessage({ id: 'resourceCenter.yaml.result.loading', defaultMessage: '正在创建资源，请稍候...' })}
+          </div>
+        </div>
+      );
+    }
+
+    if (!yamlResult) {
+      return null;
+    }
+
+    const summary = yamlResult.summary || {};
+    const tone = this.getYamlResultTone(yamlResult);
+    const alertType = tone === 'success' ? 'success' : (tone === 'warning' ? 'warning' : 'error');
+    return (
+      <div className={styles.yamlResultPanel}>
+        <Alert
+          type={alertType}
+          showIcon
+          className={styles.yamlResultAlert}
+          message={this.buildYamlResultSummary(yamlResult)}
+          description={yamlResult.message || undefined}
+        />
+
+        <div className={styles.yamlResultStats}>
+          <div className={styles.yamlResultStatCard}>
+            <div className={styles.yamlResultStatLabel}>{formatMessage({ id: 'resourceCenter.yaml.result.total', defaultMessage: '总数' })}</div>
+            <div className={styles.yamlResultStatValue}>{summary.total || 0}</div>
+          </div>
+          <div className={styles.yamlResultStatCard}>
+            <div className={styles.yamlResultStatLabel}>{formatMessage({ id: 'resourceCenter.yaml.result.successCount', defaultMessage: '成功' })}</div>
+            <div className={styles.yamlResultStatValue}>{summary.success_count || 0}</div>
+          </div>
+          <div className={styles.yamlResultStatCard}>
+            <div className={styles.yamlResultStatLabel}>{formatMessage({ id: 'resourceCenter.yaml.result.failureCount', defaultMessage: '失败' })}</div>
+            <div className={styles.yamlResultStatValue}>{summary.failure_count || 0}</div>
+          </div>
+        </div>
+
+        <div className={styles.yamlResultList}>
+          {(yamlResult.results || []).map(item => {
+            const displayName = item.name || formatMessage(
+              { id: 'resourceCenter.yaml.result.docFallback', defaultMessage: '文档 #{index}' },
+              { index: item.index }
+            );
+            return (
+              <div key={`${item.index}-${item.kind || 'unknown'}-${item.name || 'unnamed'}`} className={styles.yamlResultItem}>
+                <div className={styles.yamlResultItemHeader}>
+                  <div className={styles.yamlResultItemTitle}>
+                    <span className={styles.yamlResultItemName}>{displayName}</span>
+                    {item.kind ? <span className={styles.yamlResultItemKind}>{item.kind}</span> : null}
+                    {item.namespace ? <span className={styles.yamlResultItemNamespace}>{item.namespace}</span> : null}
+                    {item.resource_scope ? (
+                      <Tag color={item.resource_scope === 'cluster' ? 'blue' : 'cyan'}>
+                        {item.resource_scope === 'cluster'
+                          ? formatMessage({ id: 'resourceCenter.yaml.result.scope.cluster', defaultMessage: 'Cluster' })
+                          : formatMessage({ id: 'resourceCenter.yaml.result.scope.namespaced', defaultMessage: 'Namespaced' })}
+                      </Tag>
+                    ) : null}
+                  </div>
+                  <Tag color={item.success ? 'green' : 'red'}>
+                    {item.success
+                      ? formatMessage({ id: 'resourceCenter.yaml.result.item.success', defaultMessage: '成功' })
+                      : formatMessage({ id: 'resourceCenter.yaml.result.item.failure', defaultMessage: '失败' })}
+                  </Tag>
+                </div>
+                <div className={styles.yamlResultItemMessage}>{item.message}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   closeYamlModal = () => {
+    const { activeTab, yamlResult } = this.state;
     this.setState({
       yamlModalVisible: false,
       yamlModalMode: 'create',
+      yamlModalStep: 'editor',
       yamlContent: '',
       yamlTargetName: '',
       yamlTargetParams: null,
+      yamlResult: null,
+      yamlResultLoading: false,
     });
+    if (yamlResult && yamlResult.summary && Number(yamlResult.summary.success_count) > 0) {
+      this.fetchTabData(activeTab);
+    }
   };
 
   getTabMeta = (tab = this.state.activeTab) => {
@@ -400,6 +575,17 @@ class ResourceCenter extends PureComponent {
   getActiveData = (tab = this.state.activeTab) => {
     const { resources, helmReleases } = this.props;
     return tab === 'helm' ? (helmReleases || []) : (resources || []);
+  };
+
+  getTabLoading = (tab = this.state.activeTab) => {
+    const { resourceListLoading, configListLoading, helmListLoading } = this.props;
+    if (tab === 'helm') {
+      return !!helmListLoading;
+    }
+    if (tab === 'config') {
+      return !!configListLoading;
+    }
+    return !!resourceListLoading;
   };
 
   getMetricCards = () => {
@@ -484,9 +670,12 @@ class ResourceCenter extends PureComponent {
     this.setState({
       yamlModalVisible: true,
       yamlModalMode: 'create',
+      yamlModalStep: 'editor',
       yamlContent: '',
       yamlTargetName: '',
       yamlTargetParams: this.getCurrentResourceParams(),
+      yamlResult: null,
+      yamlResultLoading: false,
     });
   };
 
@@ -498,22 +687,32 @@ class ResourceCenter extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.getParams();
     const { yamlContent, activeTab, yamlModalMode, yamlTargetName, yamlTargetParams } = this.state;
-    const rawResourceParams = yamlTargetParams || this.getCurrentResourceParams();
-    const resourceParams = yamlModalMode === 'edit'
-      ? rawResourceParams
-      : this.resolveCreateResourceParams(rawResourceParams, yamlContent);
     const action = yamlModalMode === 'edit' ? 'teamResources/updateResource' : 'teamResources/createResource';
+    const rawResourceParams = yamlTargetParams || this.getCurrentResourceParams();
     const payload = yamlModalMode === 'edit'
-      ? { team: teamName, region: regionName, name: yamlTargetName, yaml: yamlContent, ...resourceParams }
-      : { team: teamName, region: regionName, source: 'yaml', yaml: yamlContent, ...resourceParams };
+      ? { team: teamName, region: regionName, name: yamlTargetName, yaml: yamlContent, ...rawResourceParams }
+      : { team: teamName, region: regionName, source: 'yaml', yaml: yamlContent };
+
+    if (yamlModalMode !== 'edit') {
+      this.setState({
+        yamlModalStep: 'result',
+        yamlResult: null,
+        yamlResultLoading: true,
+      });
+    }
     dispatch({
       type: action,
       payload,
-      callback: () => {
-        notification.success({ message: formatMessage({ id: yamlModalMode === 'edit' ? 'resourceCenter.yaml.saveSuccess' : 'resourceCenter.yaml.createSuccess' }) });
-        this.closeYamlModal();
-        this.fetchTabData(activeTab);
+      callback: res => {
+        if (yamlModalMode === 'edit') {
+          notification.success({ message: formatMessage({ id: 'resourceCenter.yaml.saveSuccess' }) });
+          this.closeYamlModal();
+          this.fetchTabData(activeTab);
+          return;
+        }
+        this.openYamlResult(res || {});
       },
+      handleError: yamlModalMode === 'edit' ? null : this.handleYamlCreateError,
     });
   };
 
@@ -530,9 +729,12 @@ class ResourceCenter extends PureComponent {
       this.setState({
         yamlModalVisible: true,
         yamlModalMode: 'create',
+        yamlModalStep: 'editor',
         yamlContent: content,
         yamlTargetName: '',
         yamlTargetParams: this.getCurrentResourceParams(),
+        yamlResult: null,
+        yamlResultLoading: false,
       });
     };
     reader.readAsText(file);
@@ -542,6 +744,7 @@ class ResourceCenter extends PureComponent {
   handleOpenResourceYaml = (record, resourceParams) => {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.getParams();
+    this.setState({ openingYamlName: record.name });
     dispatch({
       type: 'teamResources/fetchResource',
       payload: {
@@ -554,10 +757,17 @@ class ResourceCenter extends PureComponent {
         this.setState({
           yamlModalVisible: true,
           yamlModalMode: 'edit',
+          yamlModalStep: 'editor',
           yamlTargetName: record.name,
           yamlTargetParams: resourceParams || this.getCurrentResourceParams(),
+          openingYamlName: '',
           yamlContent: jsYaml.dump(bean, { noRefs: true, lineWidth: 120 }),
+          yamlResult: null,
+          yamlResultLoading: false,
         });
+      },
+      handleError: () => {
+        this.setState({ openingYamlName: '' });
       },
     });
   };
@@ -703,7 +913,7 @@ class ResourceCenter extends PureComponent {
         return !!helmSelectedChart && !!helmPreviewData && !helmPreviewLoading;
       }
       if (helmSourceType === 'external') {
-        const chartUrl = this.buildHelmExternalChartUrl();
+        const chartUrl = this.getHelmExternalChartValidation().chartUrl;
         return !!chartUrl && !(
           helmExternalForm.auth_type === 'basic'
           && (!helmExternalForm.username || !helmExternalForm.password)
@@ -732,7 +942,7 @@ class ResourceCenter extends PureComponent {
     const { teamName, regionName } = this.getParams();
     const { helmSourceType, helmExternalForm, helmUploadEventId } = this.state;
     if (helmSourceType === 'external') {
-      const chartUrl = this.buildHelmExternalChartUrl();
+      const chartUrl = this.getHelmExternalChartValidation().chartUrl;
       if (!chartUrl) {
         return null;
       }
@@ -1179,16 +1389,24 @@ class ResourceCenter extends PureComponent {
     });
   };
 
-  buildHelmExternalChartUrl = () => {
+  getHelmExternalChartValidation = () => {
     const { helmExternalForm } = this.state;
-    const chartAddress = (helmExternalForm.chart_address || '').trim();
-    if (!chartAddress) {
-      return '';
-    }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(chartAddress)) {
-      return chartAddress;
-    }
-    return `${helmExternalForm.chart_protocol || 'https://'}${chartAddress}`;
+    return getHelmChartUrlValidation(
+      helmExternalForm.chart_protocol,
+      helmExternalForm.chart_address,
+    );
+  };
+
+  getHelmExternalChartValidationMessage = () => {
+    const { errorCode } = this.getHelmExternalChartValidation();
+    return getHelmChartUrlValidationMessage(
+      errorCode,
+      descriptor => formatMessage(descriptor),
+    );
+  };
+
+  buildHelmExternalChartUrl = () => {
+    return this.getHelmExternalChartValidation().chartUrl;
   };
 
   initHelmUploadSession = () => {
@@ -1376,6 +1594,7 @@ class ResourceCenter extends PureComponent {
         });
       },
       handleError: err => {
+        this.setState({ helmUploadLoading: false });
         notification.error({
           message: (err && err.msg_show) || formatMessage({ id: 'resourceCenter.helm.uploadStatusLoadFailed', defaultMessage: '读取上传状态失败' }),
         });
@@ -1392,10 +1611,14 @@ class ResourceCenter extends PureComponent {
       return true;
     });
     this.setState({ helmUploadFileList: fileList });
+    if (info.file && info.file.status === 'uploading') {
+      this.setState({ helmUploadLoading: true });
+    }
     if (info.file && info.file.status === 'done') {
       this.fetchHelmUploadStatusAndInfo();
     }
     if (info.file && info.file.status === 'error') {
+      this.setState({ helmUploadLoading: false });
       notification.error({
         message: formatMessage({ id: 'resourceCenter.helm.uploadFailed', defaultMessage: 'Chart 包上传失败' }),
       });
@@ -1409,6 +1632,7 @@ class ResourceCenter extends PureComponent {
     if (!helmUploadEventId) {
       return;
     }
+    this.setState({ helmUploadLoading: true });
     dispatch({
       type: 'createApp/deleteJarWarUploadStatus',
       payload: {
@@ -1420,6 +1644,7 @@ class ResourceCenter extends PureComponent {
           helmUploadFileList: [],
           helmUploadExistFiles: [],
           helmUploadChartInfo: null,
+          helmUploadLoading: false,
           ...this.buildHelmPreviewResetState(),
           helmUploadForm: {
             version: '',
@@ -1430,6 +1655,7 @@ class ResourceCenter extends PureComponent {
         this.initHelmUploadSession();
       },
       handleError: err => {
+        this.setState({ helmUploadLoading: false });
         notification.error({
           message: (err && err.msg_show) || formatMessage({ id: 'resourceCenter.helm.uploadDeleteFailed', defaultMessage: '删除上传包失败' }),
         });
@@ -1531,12 +1757,15 @@ class ResourceCenter extends PureComponent {
         };
       }
     } else if (helmSourceType === 'external') {
-      const chartUrl = this.buildHelmExternalChartUrl();
+      const chartValidation = this.getHelmExternalChartValidation();
+      const chartUrl = chartValidation.chartUrl;
       const isOCI = chartUrl.indexOf('oci://') === 0;
       if (!helmExternalForm.release_name) {
         validationMessage = formatMessage({ id: 'resourceCenter.helm.validation.releaseName', defaultMessage: '请填写 Release 名称' });
-      } else if (!chartUrl) {
+      } else if (!chartValidation.hasValue) {
         validationMessage = formatMessage({ id: 'resourceCenter.helm.validation.chartUrl', defaultMessage: '请填写 Chart 地址' });
+      } else if (chartValidation.errorCode) {
+        validationMessage = this.getHelmExternalChartValidationMessage();
       } else if (
         helmExternalForm.auth_type === 'basic'
         && (!helmExternalForm.username || !helmExternalForm.password)
@@ -1635,10 +1864,14 @@ class ResourceCenter extends PureComponent {
   handleHelmUninstall = (releaseName) => {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.getParams();
+    this.setState({ uninstallingReleaseName: releaseName });
     dispatch({
       type: 'teamResources/uninstallRelease',
       payload: { team: teamName, region: regionName, release_name: releaseName },
-      callback: () => this.fetchTabData('helm'),
+      callback: () => {
+        this.setState({ uninstallingReleaseName: '' });
+        this.fetchTabData('helm');
+      },
     });
   };
 
@@ -1667,10 +1900,14 @@ class ResourceCenter extends PureComponent {
     const { teamName, regionName } = this.getParams();
     const { activeTab } = this.state;
     const resourceParams = this.getRecordResourceParams(record, activeTab);
+    this.setState({ deletingResourceName: record.name });
     dispatch({
       type: 'teamResources/deleteResource',
       payload: { team: teamName, region: regionName, name: record.name, ...resourceParams },
-      callback: () => this.fetchTabData(activeTab),
+      callback: () => {
+        this.setState({ deletingResourceName: '' });
+        this.fetchTabData(activeTab);
+      },
     });
   };
 
@@ -1694,8 +1931,16 @@ class ResourceCenter extends PureComponent {
   };
 
   renderCurrentTab = () => {
-    const { activeTab, workloadKind, searchText } = this.state;
+    const {
+      activeTab,
+      workloadKind,
+      searchText,
+      openingYamlName,
+      deletingResourceName,
+      uninstallingReleaseName,
+    } = this.state;
     const { resources, helmReleases } = this.props;
+    const tabLoading = this.getTabLoading(activeTab);
 
     if (activeTab === 'helm') {
       const data = searchText
@@ -1707,9 +1952,11 @@ class ResourceCenter extends PureComponent {
           searchText={searchText}
           onSearchChange={value => this.setState({ searchText: value })}
           onRefresh={() => this.fetchTabData(activeTab)}
+          refreshLoading={tabLoading}
           onInstall={this.openHelmInstallModal}
           onDetail={this.jumpToHelmDetail}
           onUninstall={this.handleHelmUninstall}
+          uninstallingName={uninstallingReleaseName}
           emptyContent={this.renderEmptyState('helm')}
         />
       );
@@ -1722,10 +1969,12 @@ class ResourceCenter extends PureComponent {
           searchText={searchText}
           onSearchChange={value => this.setState({ searchText: value })}
           onRefresh={() => this.fetchTabData(activeTab)}
+          refreshLoading={tabLoading}
           onCreate={this.openCreateChooser}
           onWorkloadKindChange={this.handleWorkloadKindChange}
           onDetail={this.jumpToWorkloadDetail}
           onDelete={this.handleDeleteResource}
+          deletingName={deletingResourceName}
           emptyContent={this.renderEmptyState('workload')}
         />
       );
@@ -1737,9 +1986,11 @@ class ResourceCenter extends PureComponent {
           searchText={searchText}
           onSearchChange={value => this.setState({ searchText: value })}
           onRefresh={() => this.fetchTabData(activeTab)}
+          refreshLoading={tabLoading}
           onCreate={this.openCreateChooser}
           onDetail={this.jumpToPodDetail}
           onDelete={this.handleDeleteResource}
+          deletingName={deletingResourceName}
           emptyContent={this.renderEmptyState('pod')}
         />
       );
@@ -1751,10 +2002,13 @@ class ResourceCenter extends PureComponent {
           searchText={searchText}
           onSearchChange={value => this.setState({ searchText: value })}
           onRefresh={() => this.fetchTabData(activeTab)}
+          refreshLoading={tabLoading}
           onCreate={this.openCreateChooser}
           onDetail={this.jumpToServiceDetail}
           onEditYaml={record => this.handleOpenResourceYaml(record, { group: '', version: 'v1', resource: 'services' })}
           onDelete={this.handleDeleteResource}
+          deletingName={deletingResourceName}
+          yamlLoadingName={openingYamlName}
           emptyContent={this.renderEmptyState('network')}
         />
       );
@@ -1766,9 +2020,12 @@ class ResourceCenter extends PureComponent {
           searchText={searchText}
           onSearchChange={value => this.setState({ searchText: value })}
           onRefresh={() => this.fetchTabData(activeTab)}
+          refreshLoading={tabLoading}
           onCreate={this.openCreateChooser}
           onEditYaml={record => this.handleOpenResourceYaml(record, this.getRecordResourceParams(record, 'config'))}
           onDelete={this.handleDeleteResource}
+          deletingName={deletingResourceName}
+          yamlLoadingName={openingYamlName}
           emptyContent={this.renderEmptyState('config')}
         />
       );
@@ -1779,9 +2036,12 @@ class ResourceCenter extends PureComponent {
         searchText={searchText}
         onSearchChange={value => this.setState({ searchText: value })}
         onRefresh={() => this.fetchTabData(activeTab)}
+        refreshLoading={tabLoading}
         onCreate={this.openCreateChooser}
         onEditYaml={record => this.handleOpenResourceYaml(record, { group: '', version: 'v1', resource: 'persistentvolumeclaims' })}
         onDelete={this.handleDeleteResource}
+        deletingName={deletingResourceName}
+        yamlLoadingName={openingYamlName}
         emptyContent={this.renderEmptyState('storage')}
       />
     );
@@ -1792,7 +2052,10 @@ class ResourceCenter extends PureComponent {
       yamlModalVisible,
       yamlContent,
       yamlModalMode,
+      yamlModalStep,
+      yamlResult,
     } = this.state;
+    const { createResourceLoading, updateResourceLoading } = this.props;
     const activeData = this.getActiveData();
     const currentMeta = this.getTabMeta();
     const tabMetaMap = getTabMetaMap();
@@ -1801,6 +2064,19 @@ class ResourceCenter extends PureComponent {
       tab: tabMetaMap[tab].title,
     }));
     const summary = getStatusSummary(activeData);
+    const yamlSubmitting = yamlModalMode === 'edit' ? updateResourceLoading : createResourceLoading;
+    const yamlResultStep = yamlModalMode === 'create' && yamlModalStep === 'result';
+    const yamlModalFooter = yamlResultStep ? [
+      <Button key="close" onClick={this.closeYamlModal} disabled={this.state.yamlResultLoading}>
+        {formatMessage({ id: 'resourceCenter.common.close', defaultMessage: '关闭' })}
+      </Button>,
+      <Button key="back" onClick={this.handleBackToYamlEditor} disabled={this.state.yamlResultLoading}>
+        {formatMessage({ id: 'resourceCenter.yaml.result.back', defaultMessage: '返回修改 YAML' })}
+      </Button>,
+      <Button key="refresh" type="primary" onClick={this.handleRefreshYamlResult} disabled={this.state.yamlResultLoading}>
+        {formatMessage({ id: 'resourceCenter.yaml.result.refresh', defaultMessage: '刷新列表' })}
+      </Button>,
+    ] : undefined;
 
     return (
       <PageHeaderLayout
@@ -1830,13 +2106,15 @@ class ResourceCenter extends PureComponent {
           <Modal
             title={<YamlModalHeader mode={yamlModalMode} onUpload={this.handleYamlUpload} />}
             visible={yamlModalVisible}
-            onOk={this.handleYamlCreate}
+            onOk={yamlResultStep ? undefined : this.handleYamlCreate}
             onCancel={this.closeYamlModal}
             width={820}
+            confirmLoading={yamlResultStep ? false : yamlSubmitting}
             okText={formatMessage({ id: yamlModalMode === 'edit' ? 'resourceCenter.yaml.ok.edit' : 'resourceCenter.yaml.ok.create', defaultMessage: yamlModalMode === 'edit' ? '保存' : '创建' })}
             cancelText={formatMessage({ id: 'resourceCenter.common.cancel' })}
             wrapClassName={styles.yamlModalWrap}
             bodyStyle={{ padding: '0 24px 24px' }}
+            footer={yamlModalFooter}
           >
             <div className={styles.yamlModalToolbar}>
               <div className={styles.yamlModalToolbarInfo}>
@@ -1850,19 +2128,26 @@ class ResourceCenter extends PureComponent {
               <div className={styles.yamlModalToolbarTips}>
                 <span className={styles.yamlMiniTip}>{formatMessage({ id: 'resourceCenter.yaml.toolbar.multiDoc' })}</span>
                 <span className={styles.yamlMiniTip}>{formatMessage({ id: 'resourceCenter.yaml.toolbar.manualEdit' })}</span>
+                {yamlResultStep && yamlResult ? (
+                  <span className={styles.yamlMiniTip}>
+                    {this.buildYamlResultSummary(yamlResult)}
+                  </span>
+                ) : null}
               </div>
             </div>
-            <CodeMirrorForm
-              mode="yaml"
-              value={yamlContent}
-              visible={yamlModalVisible}
-              onChange={value => this.setState({ yamlContent: value })}
-              isHeader={false}
-              isUpload={false}
-              isAmplifications={false}
-              editorHeight={420}
-              style={{ marginBottom: 0 }}
-            />
+            {yamlResultStep ? this.renderYamlResultPanel() : (
+              <CodeMirrorForm
+                mode="yaml"
+                value={yamlContent}
+                visible={yamlModalVisible}
+                onChange={value => this.setState({ yamlContent: value })}
+                isHeader={false}
+                isUpload={false}
+                isAmplifications={false}
+                editorHeight={420}
+                style={{ marginBottom: 0 }}
+              />
+            )}
           </Modal>
 
           <HelmModals
@@ -1872,6 +2157,7 @@ class ResourceCenter extends PureComponent {
             canProceedStep={this.canProceedHelmStep}
             canInstall={this.canInstallHelm}
             buildHelmExternalChartUrl={this.buildHelmExternalChartUrl}
+            getHelmExternalChartValidationMessage={this.getHelmExternalChartValidationMessage}
             getHelmChartIcon={this.getHelmChartIcon}
             decodeBase64Text={this.decodeBase64Text}
             onSourceChange={this.handleHelmSourceChange}

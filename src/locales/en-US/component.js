@@ -1015,10 +1015,6 @@ const componentOverview = {
     // tabs栏>Resource>PythonCNBConfig
     'componentOverview.body.PythonCNBConfig.disable_cache_tip': 'Controls whether build cache is disabled for this build',
     'componentOverview.body.PythonCNBConfig.python_version_tip': 'Select the Python major version used for build and runtime',
-    'componentOverview.body.PythonCNBConfig.package_manager': 'Package Manager',
-    'componentOverview.body.PythonCNBConfig.package_manager_tip': 'Displays the Python package manager detected from the repository',
-    'componentOverview.body.PythonCNBConfig.package_manager_version': 'Package Manager Version',
-    'componentOverview.body.PythonCNBConfig.package_manager_version_tip': 'Specify the pip / pipenv / poetry version, or leave empty to use the buildpack default version',
     'componentOverview.body.PythonCNBConfig.mirror_source': 'Mirror Source',
     'componentOverview.body.PythonCNBConfig.mirror_source_tip': 'Specify the mirror source used by pip / pipenv. Defaults to the Tsinghua mirror',
     'componentOverview.body.PythonCNBConfig.trusted_host': 'Trusted Host',

@@ -35,7 +35,7 @@ const getGoDefaultVersion = (policy = {}, currentValue = '') => {
   if (currentValue) {
     return currentValue;
   }
-  return policy?.golang?.go?.default_version || (policy?.golang?.go?.visible_versions || [])[0] || '';
+  return policy?.golang?.go?.default_version || '';
 };
 
 class GolangCNBConfig extends PureComponent {

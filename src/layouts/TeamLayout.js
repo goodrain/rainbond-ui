@@ -40,6 +40,7 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
+const { buildTeamMenuEnterpriseSettings } = require('./teamMenuEnterprise');
 const { Content } = Layout;
 Modal.defaultProps.width = 480;
 
@@ -880,7 +881,7 @@ class TeamLayout extends PureComponent {
         );
       }
     }
-    const safeEnterpriseForMenu = enterprise || {};
+    const safeEnterpriseForMenu = buildTeamMenuEnterpriseSettings(enterprise, currentEnterprise);
     let menuData = getMenuData(
       teamName,
       regionName,
@@ -906,7 +907,7 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
-    const safeEnterprise = enterprise || {};
+    const safeEnterprise = buildTeamMenuEnterpriseSettings(enterprise, currentEnterprise);
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, safeEnterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
     const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';

@@ -9,7 +9,6 @@ import React, { PureComponent } from 'react';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
-const DEFAULT_JAVA_VERSIONS = ['8', '11', '17', '21'];
 const PROCFILE_HELP = '可选，留空时使用 Paketo 默认启动进程；仓库根目录存在 Procfile 时会由 Paketo 识别';
 const PROCFILE_LABEL = (
   <span>
@@ -31,17 +30,14 @@ const renderLabelWithTip = (label, tip) => (
 
 const getJavaRuntimePolicy = (policy = {}) => policy?.java?.jdk || {};
 
-const getJavaVersions = (policy = {}) => {
-  const versions = getJavaRuntimePolicy(policy).visible_versions || [];
-  return versions.length > 0 ? versions : DEFAULT_JAVA_VERSIONS;
-};
+const getJavaVersions = (policy = {}) => getJavaRuntimePolicy(policy).visible_versions || [];
 
 const getJavaDefaultVersion = (policy = {}, currentValue = '') => {
   if (currentValue) {
     return currentValue;
   }
   const runtimePolicy = getJavaRuntimePolicy(policy);
-  return runtimePolicy.default_version || (runtimePolicy.visible_versions || [])[0] || '17';
+  return runtimePolicy.default_version || '';
 };
 
 const normalizeLanguage = languageType => (languageType || '').toLowerCase();

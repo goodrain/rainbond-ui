@@ -153,7 +153,7 @@ class PodLogStream extends PureComponent {
             />
             <span className={styles.logSwitchLabel}>{formatMessage({ id: 'resourceCenter.logs.autoScroll', defaultMessage: '自动滚动' })}</span>
             <Switch size="small" checked={autoScroll} onChange={checked => this.setState({ autoScroll: checked })} />
-            <Button size="small" onClick={this.openStream}>{formatMessage({ id: 'resourceCenter.common.refresh' })}</Button>
+            <Button size="small" onClick={this.openStream} loading={connecting}>{formatMessage({ id: 'resourceCenter.common.refresh' })}</Button>
             <Button size="small" onClick={() => this.setState({ logs: [] })}>{formatMessage({ id: 'resourceCenter.logs.clear', defaultMessage: '清空' })}</Button>
           </div>
         </div>

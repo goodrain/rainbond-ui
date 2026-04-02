@@ -18,6 +18,7 @@ import {
   Upload,
 } from 'antd';
 import Result from '@/components/Result';
+import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from '../helmChartUrl';
 import { getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
 import HelmIcon from './HelmIcon';
 import styles from '../index.less';
@@ -177,14 +178,26 @@ export default class HelmUpgradeModal extends PureComponent {
 
   buildExternalChartUrl = () => {
     const { externalForm } = this.state;
-    const address = (externalForm.chart_address || '').trim();
-    if (!address) {
-      return '';
-    }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(address)) {
-      return address;
-    }
-    return `${externalForm.chart_protocol || 'https://'}${address}`;
+    return getHelmChartUrlValidation(
+      externalForm.chart_protocol,
+      externalForm.chart_address,
+    ).chartUrl;
+  };
+
+  getExternalChartValidation = () => {
+    const { externalForm } = this.state;
+    return getHelmChartUrlValidation(
+      externalForm.chart_protocol,
+      externalForm.chart_address,
+    );
+  };
+
+  getExternalChartValidationMessage = () => {
+    const { errorCode } = this.getExternalChartValidation();
+    return getHelmChartUrlValidationMessage(
+      errorCode,
+      descriptor => formatMessage(descriptor),
+    );
   };
 
   fetchHelmRepos = () => {
@@ -394,6 +407,7 @@ export default class HelmUpgradeModal extends PureComponent {
         });
       },
       handleError: err => {
+        this.setState({ uploadLoading: false });
         notification.error({
           message: this.getErrorMessage(err, t('resourceCenter.helm.uploadStatusLoadFailed', '读取上传状态失败')),
         });
@@ -410,10 +424,14 @@ export default class HelmUpgradeModal extends PureComponent {
       return true;
     });
     this.setState({ uploadFileList: fileList });
+    if (info.file && info.file.status === 'uploading') {
+      this.setState({ uploadLoading: true });
+    }
     if (info.file && info.file.status === 'done') {
       this.fetchUploadStatus();
     }
     if (info.file && info.file.status === 'error') {
+      this.setState({ uploadLoading: false });
       notification.error({ message: t('resourceCenter.helm.uploadFailed', 'Chart 包上传失败') });
     }
   };
@@ -425,6 +443,7 @@ export default class HelmUpgradeModal extends PureComponent {
     if (!uploadEventId) {
       return;
     }
+    this.setState({ uploadLoading: true });
     dispatch({
       type: 'createApp/deleteJarWarUploadStatus',
       payload: { team_name: teamName, event_id: uploadEventId },
@@ -433,6 +452,7 @@ export default class HelmUpgradeModal extends PureComponent {
           uploadFileList: [],
           uploadExistFiles: [],
           uploadChartInfo: null,
+          uploadLoading: false,
           ...this.buildPreviewResetState(),
           uploadForm: {
             version: '',
@@ -443,6 +463,7 @@ export default class HelmUpgradeModal extends PureComponent {
         this.initHelmUploadSession();
       },
       handleError: err => {
+        this.setState({ uploadLoading: false });
         notification.error({
           message: this.getErrorMessage(err, t('resourceCenter.helm.uploadDeleteFailed', '删除上传包失败')),
         });
@@ -589,10 +610,13 @@ export default class HelmUpgradeModal extends PureComponent {
         };
       }
     } else if (sourceType === 'external') {
-      const chartUrl = this.buildExternalChartUrl();
+      const chartValidation = this.getExternalChartValidation();
+      const chartUrl = chartValidation.chartUrl;
       const isOCI = chartUrl.indexOf('oci://') === 0;
-      if (!chartUrl) {
+      if (!chartValidation.hasValue) {
         validationMessage = t('resourceCenter.helm.validation.chartUrl', '请填写 Chart 地址');
+      } else if (chartValidation.errorCode) {
+        validationMessage = this.getExternalChartValidationMessage();
       } else if (externalForm.auth_type === 'basic' && (!externalForm.username || !externalForm.password)) {
         validationMessage = t('resourceCenter.helm.validation.basicAuth', '请选择 Basic 鉴权时填写用户名和密码');
       } else if (!previewData) {
@@ -1035,6 +1059,7 @@ export default class HelmUpgradeModal extends PureComponent {
 
   renderExternalPane() {
     const { externalForm, previewLoading, configVisible } = this.state;
+    const chartValidationMessage = this.getExternalChartValidationMessage();
     const isBasicAuth = externalForm.auth_type === 'basic';
     const chartUrl = this.buildExternalChartUrl();
     const detectDisabled = !chartUrl || (isBasicAuth && (!externalForm.username || !externalForm.password));
@@ -1044,7 +1069,13 @@ export default class HelmUpgradeModal extends PureComponent {
           {t('resourceCenter.helm.modal.externalNoticeShort', '请直接填写 Chart 地址，支持 Helm Repo 包地址和 OCI 制品地址。')}
         </div>
         <Form layout="vertical">
-          <Form.Item label={t('resourceCenter.common.chartAddress', 'Chart 地址')} required style={{ marginBottom: 8 }}>
+          <Form.Item
+            label={t('resourceCenter.common.chartAddress', 'Chart 地址')}
+            required
+            style={{ marginBottom: 8 }}
+            validateStatus={chartValidationMessage ? 'error' : undefined}
+            help={chartValidationMessage || undefined}
+          >
             <Input.Group compact>
               <Select value={externalForm.chart_protocol} onChange={value => this.handleExternalFieldChange('chart_protocol', value)} style={{ width: 120 }}>
                 <Option value="https://">https://</Option>
@@ -1111,6 +1142,7 @@ export default class HelmUpgradeModal extends PureComponent {
       uploadRecord,
       uploadFileList,
       uploadExistFiles,
+      uploadLoading,
       previewLoading,
       configVisible,
     } = this.state;
@@ -1129,7 +1161,7 @@ export default class HelmUpgradeModal extends PureComponent {
               onRemove={() => this.setState({ uploadFileList: [] })}
               accept=".tgz"
             >
-              <Button icon="upload" disabled={!uploadRecord || !uploadRecord.upload_url}>{t('resourceCenter.helm.modal.selectChartPackage', '选择 Chart 包')}</Button>
+              <Button icon="upload" loading={uploadLoading} disabled={!uploadRecord || !uploadRecord.upload_url}>{t('resourceCenter.helm.modal.selectChartPackage', '选择 Chart 包')}</Button>
             </Upload>
           </Form.Item>
           {uploadExistFiles.length ? (
@@ -1143,7 +1175,7 @@ export default class HelmUpgradeModal extends PureComponent {
                     </div>
                   ))}
                 </div>
-                <Button type="link" style={{ paddingRight: 0 }} onClick={this.handleUploadRemove}>{t('resourceCenter.common.delete', '删除')}</Button>
+                <Button type="link" style={{ paddingRight: 0 }} onClick={this.handleUploadRemove} loading={uploadLoading}>{t('resourceCenter.common.delete', '删除')}</Button>
               </div>
             </Form.Item>
           ) : null}

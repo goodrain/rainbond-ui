@@ -35,7 +35,7 @@ const getDotnetDefaultVersion = (policy = {}, currentValue = '') => {
   if (currentValue) {
     return currentValue;
   }
-  return policy?.dotnet?.framework?.default_version || (policy?.dotnet?.framework?.visible_versions || [])[0] || '';
+  return policy?.dotnet?.framework?.default_version || '';
 };
 
 class DotnetCNBConfig extends PureComponent {

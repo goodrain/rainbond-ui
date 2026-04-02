@@ -35,7 +35,7 @@ const getPHPDefaultVersion = (policy = {}, currentValue = '') => {
   if (currentValue) {
     return currentValue;
   }
-  return policy?.php?.php?.default_version || (policy?.php?.php?.visible_versions || [])[0] || '';
+  return policy?.php?.php?.default_version || '';
 };
 
 class PHPCNBConfig extends PureComponent {

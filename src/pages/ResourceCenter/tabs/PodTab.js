@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Table, Popconfirm, Divider } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import ResourceToolbar from '../components/ResourceToolbar';
+import AsyncTextAction from '../components/AsyncTextAction';
 import StatusDot from '../components/StatusDot';
 import styles from '../index.less';
 import { getTablePagination, getTableScroll } from '../helpers';
@@ -16,9 +17,11 @@ class PodTab extends PureComponent {
       searchText,
       onSearchChange,
       onRefresh,
+      refreshLoading,
       onCreate,
       onDetail,
       onDelete,
+      deletingName,
       emptyContent,
     } = this.props;
 
@@ -63,9 +66,17 @@ class PodTab extends PureComponent {
           <span>
             <a className={styles.resourceLink} onClick={() => onDetail(record)}>{formatMessage({ id: 'resourceCenter.common.detail' })}</a>
             <Divider type="vertical" />
-            <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
-              <a className={styles.resourceLinkDanger}>{formatMessage({ id: 'resourceCenter.common.delete' })}</a>
-            </Popconfirm>
+            {deletingName === record.name ? (
+              <AsyncTextAction loading danger>
+                {formatMessage({ id: 'resourceCenter.common.delete' })}
+              </AsyncTextAction>
+            ) : (
+              <Popconfirm title={formatMessage({ id: 'resourceCenter.common.confirmDelete' }, { name: record.name })} onConfirm={() => onDelete(record)}>
+                <AsyncTextAction danger>
+                  {formatMessage({ id: 'resourceCenter.common.delete' })}
+                </AsyncTextAction>
+              </Popconfirm>
+            )}
           </span>
         ),
       },
@@ -78,6 +89,7 @@ class PodTab extends PureComponent {
           searchText={searchText}
           onSearchChange={onSearchChange}
           onRefresh={onRefresh}
+          refreshLoading={refreshLoading}
           primaryActionLabel={formatMessage({ id: 'resourceCenter.common.createResource' })}
           onPrimaryAction={onCreate}
         />
@@ -87,6 +99,7 @@ class PodTab extends PureComponent {
           columns={columns}
           rowKey="name"
           size="middle"
+          loading={refreshLoading}
           scroll={getTableScroll(POD_TABLE_SCROLL_X)}
           pagination={getTablePagination(data)}
           locale={{ emptyText: emptyContent }}

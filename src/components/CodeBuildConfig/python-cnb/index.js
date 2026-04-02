@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-import { Form, Icon, Input, Radio, Switch, Tag, Tooltip } from 'antd';
+import { Form, Icon, Input, Radio, Switch, Tooltip } from 'antd';
 import { formatMessage } from '@/utils/intl';
 
 const RadioGroup = Radio.Group;
-const DEFAULT_PYTHON_VERSIONS = ['3.10', '3.11', '3.12', '3.13'];
 const DEFAULT_PYTHON_MIRROR_SOURCE = 'https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple';
 
 const renderLabelWithTip = (label, tip) => (
@@ -15,16 +14,13 @@ const renderLabelWithTip = (label, tip) => (
   </span>
 );
 
-const getPythonVersions = (policy = {}) => {
-  const versions = policy?.python?.cpython?.visible_versions || [];
-  return versions.length > 0 ? versions : DEFAULT_PYTHON_VERSIONS;
-};
+const getPythonVersions = (policy = {}) => policy?.python?.cpython?.visible_versions || [];
 
 const getPythonDefaultVersion = (policy = {}, currentValue = '') => {
   if (currentValue) {
     return currentValue;
   }
-  return policy?.python?.cpython?.default_version || (policy?.python?.cpython?.visible_versions || [])[0] || '3.12';
+  return policy?.python?.cpython?.default_version || '';
 };
 
 const firstNonEmptyEnv = (envs = {}, keys = []) => {
@@ -46,17 +42,6 @@ const isTruthy = value =>
 const getPackageManager = envs =>
   firstNonEmptyEnv(envs, ['BUILD_PYTHON_PACKAGE_MANAGER']) || 'pip';
 
-const getStartCommandSourceLabel = envs => {
-  const source = firstNonEmptyEnv(envs, ['start_command_source', 'START_COMMAND_SOURCE']);
-  if (source === 'procfile') {
-    return formatMessage({ id: 'componentOverview.body.PythonCNBConfig.source_procfile' });
-  }
-  if (source === 'user') {
-    return formatMessage({ id: 'componentOverview.body.PythonCNBConfig.source_user' });
-  }
-  return formatMessage({ id: 'componentOverview.body.PythonCNBConfig.source_auto' });
-};
-
 class PythonCNBConfig extends PureComponent {
   render() {
     const formItemLayout = {
@@ -67,7 +52,6 @@ class PythonCNBConfig extends PureComponent {
     const { getFieldDecorator } = form;
     const versions = getPythonVersions(cnbVersionPolicy);
     const packageManager = getPackageManager(envs);
-    const startSourceLabel = getStartCommandSourceLabel(envs);
 
     return (
       <div>
@@ -104,30 +88,6 @@ class PythonCNBConfig extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-
-        <Form.Item
-          {...formItemLayout}
-          label={renderLabelWithTip(
-            formatMessage({ id: 'componentOverview.body.PythonCNBConfig.package_manager' }),
-            formatMessage({ id: 'componentOverview.body.PythonCNBConfig.package_manager_tip' })
-          )}
-        >
-          <span>{packageManager}</span>
-        </Form.Item>
-
-        {packageManager !== 'conda' && (
-          <Form.Item
-            {...formItemLayout}
-            label={renderLabelWithTip(
-              formatMessage({ id: 'componentOverview.body.PythonCNBConfig.package_manager_version' }),
-              formatMessage({ id: 'componentOverview.body.PythonCNBConfig.package_manager_version_tip' })
-            )}
-          >
-            {getFieldDecorator('BUILD_PYTHON_PACKAGE_MANAGER_VERSION', {
-              initialValue: firstNonEmptyEnv(envs, ['BUILD_PYTHON_PACKAGE_MANAGER_VERSION'])
-            })(<Input placeholder="24.0 / 2024.4.1 / 1.8.3" />)}
-          </Form.Item>
-        )}
 
         {(packageManager === 'pip' || packageManager === 'pipenv') && (
           <Form.Item
@@ -206,7 +166,6 @@ class PythonCNBConfig extends PureComponent {
             formatMessage({ id: 'componentOverview.body.PythonCNBConfig.start_command_tip' })
           )}
         >
-          <Tag color="blue" style={{ marginRight: 8 }}>{startSourceLabel}</Tag>
           {getFieldDecorator('BUILD_PROCFILE', {
             initialValue: firstNonEmptyEnv(envs, ['BUILD_PROCFILE'])
           })(<Input placeholder={formatMessage({ id: 'componentOverview.body.PythonCNBConfig.start_command_placeholder' })} />)}

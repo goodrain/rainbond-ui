@@ -1028,10 +1028,6 @@ const componentOverview = {
     // tabs栏>Resource>PythonCNBConfig
     'componentOverview.body.PythonCNBConfig.disable_cache_tip': '控制本次构建是否禁用缓存',
     'componentOverview.body.PythonCNBConfig.python_version_tip': '选择构建和运行时使用的 Python 主版本',
-    'componentOverview.body.PythonCNBConfig.package_manager': '包管理器',
-    'componentOverview.body.PythonCNBConfig.package_manager_tip': '展示当前仓库自动识别出的 Python 包管理器',
-    'componentOverview.body.PythonCNBConfig.package_manager_version': '包管理器版本',
-    'componentOverview.body.PythonCNBConfig.package_manager_version_tip': '指定 pip / pipenv / poetry 版本，留空时使用 buildpack 默认版本',
     'componentOverview.body.PythonCNBConfig.mirror_source': '镜像源',
     'componentOverview.body.PythonCNBConfig.mirror_source_tip': '指定 pip / pipenv 使用的镜像源地址，默认使用清华镜像源',
     'componentOverview.body.PythonCNBConfig.trusted_host': '可信主机',

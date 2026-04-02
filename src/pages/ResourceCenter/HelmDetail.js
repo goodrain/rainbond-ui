@@ -514,7 +514,7 @@ class HelmDetail extends PureComponent {
               <div className={styles.headerActions}>
                 <Button type="primary" onClick={() => this.setState({ upgradeVisible: true })}>{t('resourceCenter.common.upgrade', '升级')}</Button>
                 <Button onClick={() => this.setState({ activeTab: 'history' })}>{t('resourceCenter.common.rollback', '回滚')}</Button>
-                <Button onClick={() => this.fetchDetail()}>{t('resourceCenter.common.refresh', '刷新')}</Button>
+                <Button onClick={() => this.fetchDetail()} loading={detailLoading}>{t('resourceCenter.common.refresh', '刷新')}</Button>
               </div>
             </div>
           </div>

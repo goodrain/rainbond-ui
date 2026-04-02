@@ -102,9 +102,9 @@ export default {
       const resources = [...configMaps, ...secrets];
       yield put({ type: 'save', payload: { resources, total: resources.length } });
     },
-    *createResource({ payload, callback }, { call }) {
-      const res = yield call(createNsResource, payload);
-      if (callback) callback(res);
+    *createResource({ payload, callback, handleError }, { call }) {
+      const res = yield call(createNsResource, { ...payload, handleError });
+      if (res && callback) callback(res);
     },
     *fetchResource({ payload, callback, handleError }, { call, put }) {
       try {

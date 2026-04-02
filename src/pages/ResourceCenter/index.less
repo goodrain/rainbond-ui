@@ -747,6 +747,114 @@
   white-space: nowrap;
 }
 
+.yamlResultPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 420px;
+  padding-top: 4px;
+}
+
+.yamlResultLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  gap: 12px;
+  color: @text-color-secondary;
+}
+
+.yamlResultLoadingText {
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.yamlResultAlert {
+  border-radius: 12px;
+}
+
+.yamlResultStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.yamlResultStatCard {
+  padding: 14px 16px;
+  border: 1px solid fade(@primary-color, 10%);
+  border-radius: 12px;
+  background: fade(@primary-color, 3%);
+}
+
+.yamlResultStatLabel {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.yamlResultStatValue {
+  margin-top: 8px;
+  color: @heading-color;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.yamlResultList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.yamlResultItem {
+  padding: 14px 16px;
+  border: 1px solid @border-color-base;
+  border-radius: 12px;
+  background: @component-background;
+}
+
+.yamlResultItemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.yamlResultItemTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.yamlResultItemName {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 600;
+}
+
+.yamlResultItemKind,
+.yamlResultItemNamespace {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
+.yamlResultItemMessage {
+  margin-top: 10px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-content-line-height;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
 .yamlEditor {
   :global {
     textarea.ant-input {
@@ -832,6 +940,17 @@
 
 .resourceLinkMuted {
   color: @rbd-label-color;
+}
+
+.resourceActionText {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.resourceActionDisabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .tableAuxText {

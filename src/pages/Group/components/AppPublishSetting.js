@@ -903,6 +903,7 @@ class AppPublishSetting extends PureComponent {
 
   renderSnapshotSummary = () => {
     const { record, share_service_list, plugin_list, publish_mode } = this.state;
+    const snapshotVersion = (record && (record.version || record.share_version)) || '-';
     const componentNames = share_service_list.map(item => {
       return item.service_cname || item.service_alias || item.service_id;
     }).filter(Boolean);
@@ -919,7 +920,7 @@ class AppPublishSetting extends PureComponent {
         <div className={styles.publishCardBody}>
           <div style={{ marginBottom: 16 }}>
             <span className={styles.cardDesc}>快照版本：</span>
-            <Tag color="blue">{(record && record.share_version) || '-'}</Tag>
+            <Tag color="blue">{snapshotVersion}</Tag>
           </div>
           <div style={{ marginBottom: 16 }}>
             <div className={styles.cardTitle} style={{ marginBottom: 12 }}>
@@ -976,6 +977,7 @@ class AppPublishSetting extends PureComponent {
             eid={currentEnterprise && currentEnterprise.enterprise_id}
             onOk={this.handleCreateAppModel}
             defaultScope="team"
+            fixedScope="enterprise"
             marketId={marketId}
             marketVersion={marketVersion}
             onCancel={this.hideCreateAppModel}
@@ -992,6 +994,7 @@ class AppPublishSetting extends PureComponent {
             eid={currentEnterprise && currentEnterprise.enterprise_id}
             onOk={this.handleEditorAppModel}
             defaultScope="team"
+            fixedScope="enterprise"
             onCancel={this.hideEditorAppModel}
           />
         )}
