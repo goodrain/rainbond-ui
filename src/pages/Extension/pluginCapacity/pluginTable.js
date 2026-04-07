@@ -1,4 +1,4 @@
-import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert } from 'antd';
+import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert, Empty } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -30,6 +30,7 @@ class Index extends PureComponent {
             installResultBean: null,
             isServiceExpired: false,
             subscribeUntil: null,
+            licenseValid: false,
             defaultPluginList: [
                 {
                     "plugin_name": "监控中心",
@@ -153,11 +154,14 @@ class Index extends PureComponent {
                     this.setState({
                         subscribeUntil,
                         isServiceExpired: isExpired,
+                        licenseValid: !!res.bean.valid,
                     });
+                } else {
+                    this.setState({ licenseValid: false });
                 }
             },
             handleError: error => {
-                
+                this.setState({ licenseValid: false });
             }
         });
     }
@@ -507,8 +511,12 @@ class Index extends PureComponent {
 
     renderPluginCard = (item) => {
         const { plugin_id, description, plugin_name, status, installed_version, urls, installed, latest_version } = item;
-        const { installingPlugins, isServiceExpired } = this.state;
+        const { installingPlugins, isServiceExpired, licenseValid } = this.state;
         const isInstalling = installingPlugins[plugin_id];
+        const appLevel = item.app_level || item.appLevel || 'enterprise';
+        const isCommercial = appLevel !== 'free';
+        const levelText = isCommercial ? '商业' : '免费';
+        const levelColor = isCommercial ? 'blue' : 'green';
         return (
             <div className={styles.boxs} key={plugin_id}>
                 <Col span={2} className={styles.icons}>
@@ -520,7 +528,7 @@ class Index extends PureComponent {
                             ? <a onClick={() => this.onJumpApp(item)}>{plugin_name || plugin_id}</a>
                             : <span>{plugin_name || plugin_id}</span>
                         }
-                        <Tag color="blue" className={styles.commercialTag}>商业</Tag>
+                        <Tag color={levelColor} className={styles.commercialTag}>{levelText}</Tag>
                     </p>
                     <p className={styles.pluginDesc}>{description}</p>
                 </Col>
@@ -556,6 +564,10 @@ class Index extends PureComponent {
                                 <Tooltip title="服务已过期，无法安装插件">
                                     <Button size="small" type="primary" disabled>安装</Button>
                                 </Tooltip>
+                            ) : isCommercial && !licenseValid ? (
+                                <Button size="small" type="primary" onClick={this.handleShowAuthModal}>
+                                    安装
+                                </Button>
                             ) : (
                                 <Button size="small" type="primary" loading={isInstalling} onClick={() => this.handleInstallPlugin(item)}>
                                     {isInstalling ? '安装中' : '安装'}
@@ -621,8 +633,8 @@ class Index extends PureComponent {
                     </div>
                 )}
                 {pluginList.length === 0 && !loading && (
-                    <div style={{ marginTop: '24px', minHeight: '300px' }}>
-                        {defaultPluginList.map((item, index) => this.renderDefaultPluginCard(item, index))}
+                    <div style={{ marginTop: '24px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Empty description="暂无可用插件" />
                     </div>
                 )}
                 {loading && (
