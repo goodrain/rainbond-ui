@@ -12,6 +12,7 @@ import RbdPluginsCom from '../RBDPluginsCom';
 import AppMarketContent from '../AppMarketContent';
 import ImageNameForm from '../ImageNameForm';
 import ImageComposeForm from '../ImageComposeForm';
+import ImageVirtualMachineForm from '../ImageVirtualMachineForm';
 import AddOrEditImageRegistry from '../AddOrEditImageRegistry';
 import OauthForm from '../OauthForm';
 import CodeCustomForm from '../CodeCustomForm';
@@ -106,6 +107,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [loadingDatabaseInfo, setLoadingDatabaseInfo] = useState(false);
   const [currentDatabaseType, setCurrentDatabaseType] = useState(null);
   const [showDatabaseForm, setShowDatabaseForm] = useState(false);
+  const [virtualMachineImages, setVirtualMachineImages] = useState([]);
 
   // 插件相关状态
   const [availablePlugins, setAvailablePlugins] = useState([]);
@@ -160,6 +162,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const thirdPartyFormRef = useRef(null);
   const thirdListFormRef = useRef(null);
   const databaseFormRef = useRef(null);
+  const vmFormRef = useRef(null);
   const marketInstallFormRef = useRef(null);
   const localInstallFormRef = useRef(null);
   const imageRepoFormRef = useRef(null);
@@ -880,8 +883,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     ...(showVmEntry ? [{
       iconSrc: InstalledVmIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm' }),
-      key: 'vm-display',
-      displayOnly: true,
+      key: 'vm',
+      showForm: true,
+      formType: 'vm',
       iconColor: '#fa8c16',
     }] : []),
     ...(showLlmEntry ? [{
@@ -1139,6 +1143,29 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
+  const fetchVirtualMachineImages = () => {
+    const teamName = globalUtil.getCurrTeamName();
+
+    if (!teamName) {
+      setVirtualMachineImages([]);
+      return;
+    }
+
+    dispatch({
+      type: 'createApp/getAppByVirtualMachineImage',
+      payload: {
+        team_name: teamName
+      },
+      callback: data => {
+        setVirtualMachineImages((data && data.list) || []);
+      },
+      handleError: err => {
+        setVirtualMachineImages([]);
+        handleAPIError(err);
+      }
+    });
+  };
+
   // 监听滚动事件进行自动加载 - 商店应用
   useEffect(() => {
     if (currentView !== 'marketStore') {
@@ -1283,8 +1310,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     if (visible && currentView === 'form') {
       fetchLocalImageList();
       fetchArchInfo();
+      if (currentFormType === 'vm') {
+        fetchVirtualMachineImages();
+      }
     }
-  }, [visible, currentView]);
+  }, [visible, currentView, currentFormType]);
 
   // 当弹窗打开时，获取可用插件
   useEffect(() => {
@@ -1709,6 +1739,25 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       });
     } else if (currentFormType === 'database') {
       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
+    } else if (currentFormType === 'vm') {
+      dispatch({
+        type: 'createApp/createAppByVirtualMachine',
+        payload: {
+          team_name: teamName,
+          event_id,
+          ...value
+        },
+        callback: data => {
+          if (data) {
+            const appAlias = data.bean.service_alias;
+            dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
+            onCancel();
+          }
+        },
+        handleError: err => {
+          handleAPIError(err);
+        }
+      });
     } else if (currentFormType === 'code-custom') {
       // 源码提交
       const username = value.username_1;
@@ -1980,6 +2029,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         if (currentFormType === 'helm') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.helm' });
         if (currentFormType === 'third-party') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.third_party' });
         if (currentFormType === 'database') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' });
+        if (currentFormType === 'vm') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm' });
         return formatMessage({ id: 'componentOverview.body.CreateComponentModal.create_component' });
       default:
         return formatMessage({ id: 'componentOverview.body.CreateComponentModal.create_component' });
@@ -2137,6 +2187,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           break;
         case 'database':
           formRef = databaseFormRef.current;
+          break;
+        case 'vm':
+          formRef = vmFormRef.current;
           break;
         default:
           break;
@@ -2445,6 +2498,16 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 showSubmitBtn={false}
                 groupId={globalUtil.getAppID()}
+              />
+            )}
+            {currentFormType === 'vm' && (
+              <ImageVirtualMachineForm
+                wrappedComponentRef={vmFormRef}
+                onSubmit={handleInstallApp}
+                dispatch={dispatch}
+                archInfo={archInfo}
+                virtualMachineImage={virtualMachineImages}
+                showSubmitBtn={false}
               />
             )}
           </div>

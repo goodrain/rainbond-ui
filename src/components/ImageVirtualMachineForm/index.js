@@ -360,12 +360,15 @@ export default class Index extends PureComponent {
       arch = archInfo && archInfo[0]
     }
     const group_id = globalUtil.getAppID()
+    const initialGroupId = isService
+      ? Number(groupId)
+      : data.group_id || (group_id ? Number(group_id) : undefined)
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
-              initialValue: isService ? Number(groupId) : data.group_id || Number(group_id),
+              initialValue: initialGroupId,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
             })(
               <Select
