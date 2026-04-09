@@ -172,9 +172,9 @@ class VMAssetCatalogModal extends PureComponent {
       {
         title: formatMessage({ id: 'Vm.assetCatalog.actions' }),
         key: 'actions',
-        width: 260,
+        width: 280,
         render: (_, record) => (
-          <div>
+          <div style={{ whiteSpace: 'nowrap' }}>
             <Tooltip title={record.status !== 'ready' ? formatMessage({ id: 'Vm.assetCatalog.useDisabled' }) : ''}>
               <a
                 style={{ color: record.status !== 'ready' ? '#bfbfbf' : undefined }}
@@ -221,6 +221,7 @@ class VMAssetCatalogModal extends PureComponent {
         )
       }
     ];
+    const tableScrollX = columns.reduce((total, column) => total + (Number(column.width) || 0), 0);
 
     return (
       <Fragment>
@@ -245,6 +246,7 @@ class VMAssetCatalogModal extends PureComponent {
             dataSource={filteredAssets}
             columns={columns}
             pagination={{ pageSize: 8, hideOnSinglePage: true }}
+            scroll={{ x: tableScrollX }}
             locale={{
               emptyText: <Empty description={formatMessage({ id: 'Vm.assetCatalog.empty' })} />
             }}
