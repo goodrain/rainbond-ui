@@ -283,10 +283,13 @@ export async function createAppByVirtualMachine(body = {}) {
         service_cname: body.service_cname,
         k8s_component_name: body.k8s_component_name,
         image_name: body.image_name,
+        source_type: body.source_type,
+        asset_id: body.asset_id,
         arch: body.arch,
         vm_url: body.vm_url,
         event_id: body.event_id,
         clone_source_name: body.clone_source_name,
+        boot_mode: body.boot_mode,
         gpu_enabled: body.gpu_enabled,
         gpu_resources: body.gpu_resources,
         usb_enabled: body.usb_enabled,
@@ -304,9 +307,38 @@ export async function createAppByVirtualMachine(body = {}) {
 */
 export async function getAppByVirtualMachineImage(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/virtual_machine_image`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets`,
     {
       method: 'get',
+    }
+  );
+}
+
+/*
+   虚拟机镜像资产快速复制
+*/
+export async function cloneVMAsset(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets/clone`,
+    {
+      method: 'post',
+      data: {
+        source_asset_id: body.source_asset_id,
+        source_name: body.source_name,
+        name: body.name,
+      }
+    }
+  );
+}
+
+/*
+   删除虚拟机镜像资产
+*/
+export async function deleteVMAsset(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets/${body.asset_id}`,
+    {
+      method: 'delete',
     }
   );
 }

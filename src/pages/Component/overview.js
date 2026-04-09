@@ -20,6 +20,7 @@ import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
+import VMProfilePanel from './component/Basic/VMProfilePanel';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
@@ -398,9 +399,11 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
-    this.loadBuildSourceInfo();
+    if (this.props.method !== 'vm') {
+      this.loadBuildSourceInfo();
+      this.getVersionList();
+    }
     this.fetchAppDiskAndMemory();
-    this.getVersionList();
     this.load();
   }
 
@@ -694,6 +697,10 @@ export default class Index extends PureComponent {
   handleMore = more => {
     this.setState({
       more
+    }, () => {
+      if (more && this.props.method === 'vm' && this.state.dataList.length === 0) {
+        this.getVersionList();
+      }
     });
   };
 
@@ -757,9 +764,13 @@ export default class Index extends PureComponent {
           more={more}
           socket={socket}
           method={method}
+          vmProfile={appDetail?.vm_profile}
           showStorageUsed={showStorageUsed}
           storageUsed={storageUsed}
         />
+        {!more && method === 'vm' && appDetail?.vm_profile && (
+          <VMProfilePanel vmProfile={appDetail.vm_profile} />
+        )}
         
         {more && (
           <BuildHistory
