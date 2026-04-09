@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip, notification } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip, notification, Switch, Progress, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
@@ -13,6 +13,8 @@ import ubuntuOS from '../../../public/images/ubuntu.png';
 import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
+import handleAPIError from '../../utils/error';
+import ChunkUploader from '../../utils/ChunkUploader';
 import styles from './index.less';
 
 
@@ -42,7 +44,7 @@ const formItemLayouts = {
     groups: global.groups,
     rainbondInfo: global.rainbondInfo,
     createAppByDockerrunLoading:
-    loading.effects['createApp/createAppByDockerrun'],
+    loading.effects['createApp/createAppByVirtualMachine'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
@@ -58,10 +60,24 @@ export default class Index extends PureComponent {
       addGroup: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       radioKey: 'public',
+      uploadMode: 'normal',
       fileList: [],
       percents: false,
       vmShow: false,
       existFileList: [],
+      chunkUploadProgress: 0,
+      isChunkUploading: false,
+      currentFile: null,
+      chunkUploader: null,
+      vmCapabilities: {
+        chunk_upload_supported: false,
+        gpu_supported: false,
+        usb_supported: false,
+        network_modes: ['random'],
+        gpu_resources: [],
+        usb_resources: [],
+        networks: []
+      },
       PublicVm: [
         { vm_url: 'https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso', image_name: 'centos7.9' },
         { vm_url: 'https://mirrors.aliyun.com/anolis/7.9/isos/GA/x86_64/AnolisOS-7.9-Minimal-x86_64-dvd.iso', image_name: 'anolisos7.9' },
@@ -82,6 +98,7 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.fetchPipePipeline();
+    this.fetchVMCapabilities();
     this.handleJarWarUpload();
     const { handleType, groupId } = this.props;
     const group_id = globalUtil.getAppID()
@@ -121,6 +138,42 @@ export default class Index extends PureComponent {
           })
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  }
+  fetchVMCapabilities = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'createApp/getVMCapabilities',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        const capabilities = (res && res.bean) || this.state.vmCapabilities;
+        this.setState(prevState => {
+          const nextState = {
+            vmCapabilities: capabilities
+          };
+          if (!capabilities.chunk_upload_supported && prevState.uploadMode === 'chunk') {
+            nextState.uploadMode = 'normal';
+          }
+          if (
+            capabilities.chunk_upload_supported &&
+            prevState.uploadMode === 'normal' &&
+            prevState.fileList.length === 0 &&
+            prevState.existFileList.length === 0 &&
+            !prevState.currentFile
+          ) {
+            nextState.uploadMode = 'chunk';
+          }
+          return nextState;
+        });
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   //查询上传状态
@@ -154,13 +207,15 @@ export default class Index extends PureComponent {
           }, 3000);
         }
       },
-      handleError: () => { }
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   //删除上传文件
   handleJarWarUploadDelete = () => {
     const { event_id } = this.state
-    const { dispatch } = this.props
+    const { dispatch, form } = this.props
     dispatch({
       type: "createApp/deleteJarWarUploadStatus",
       payload: {
@@ -170,14 +225,23 @@ export default class Index extends PureComponent {
       callback: (data) => {
         if (data.bean.res == 'ok') {
           this.setState({
-            existFileList: []
+            existFileList: [],
+            fileList: [],
+            currentFile: null,
+            chunkUploader: null,
+            chunkUploadProgress: 0,
+            isChunkUploading: false
           });
+          form.setFieldsValue({ packageTarFile: [] });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
           })
           this.handleJarWarUpload()
         }
       },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   }
   onAddGroup = () => {
@@ -197,16 +261,37 @@ export default class Index extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    const { event_id, radioKey } = this.state
+    const { event_id, radioKey, uploadMode, existFileList, isChunkUploading } = this.state
     const { form, onSubmit, archInfo } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit) {
+        if (radioKey === 'upload' && uploadMode === 'chunk' && isChunkUploading) {
+          message.warning(formatMessage({ id: 'teamAdd.create.upload.waitForCompletion' }));
+          return;
+        }
+        if (radioKey === 'upload' && existFileList.length === 0) {
+          message.warning(formatMessage({ id: 'teamAdd.create.upload.finishBeforeSubmit' }));
+          return;
+        }
         if (archInfo && archInfo.length != 2 && archInfo.length != 0) {
           fieldsValue.arch = archInfo[0]
         }
         if (radioKey == 'public') {
           fieldsValue.vm_url = this.state.selectUrl
           fieldsValue.image_name = this.state.selectName
+        }
+        if (radioKey !== 'clone') {
+          fieldsValue.clone_source_name = '';
+        }
+        if (!fieldsValue.gpu_enabled) {
+          fieldsValue.gpu_resources = [];
+        }
+        if (!fieldsValue.usb_enabled) {
+          fieldsValue.usb_resources = [];
+        }
+        if (fieldsValue.network_mode !== 'fixed') {
+          fieldsValue.network_name = '';
+          fieldsValue.fixed_ip = '';
         }
         onSubmit(fieldsValue, radioKey == 'upload' ? event_id : '');
       }
@@ -234,6 +319,141 @@ export default class Index extends PureComponent {
       radioKey: key.target.value
     })
   }
+  onUploadModeChange = (e) => {
+    if (e.target.value === 'chunk' && !this.state.vmCapabilities.chunk_upload_supported) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.chunkUnsupported' }));
+      return;
+    }
+    this.setState({ uploadMode: e.target.value });
+  };
+  validateRuntimeResources = (enabledField, messageId) => (_, value, callback) => {
+    if (!this.props.form.getFieldValue(enabledField)) {
+      callback();
+      return;
+    }
+    if (value && value.length > 0) {
+      callback();
+      return;
+    }
+    callback(new Error(formatMessage({ id: messageId })));
+  };
+  handleChunkFileSelect = (file) => {
+    const { event_id, record, vmCapabilities } = this.state;
+    if (!vmCapabilities.chunk_upload_supported) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.chunkUnsupported' }));
+      return false;
+    }
+    if (!event_id || !record || !record.upload_url) {
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploaderInitFailed' }));
+      return false;
+    }
+    const allowedTypes = ['.img', '.qcow2', '.iso', '.tar', '.gz', '.xz'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedTypes.includes(fileExt)) {
+      message.error(formatMessage({ id: 'Vm.createVm.package' }));
+      return false;
+    }
+    this.setState({ currentFile: file });
+    const uploader = new ChunkUploader(file, event_id, {
+      uploadUrl: record.upload_url,
+      chunkSize: 5 * 1024 * 1024,
+      concurrency: 5
+    });
+    this.setState({ chunkUploader: uploader });
+    return false;
+  };
+  handleStartChunkUpload = async () => {
+    const { chunkUploader, currentFile, vmCapabilities } = this.state;
+    const { form } = this.props;
+    if (!vmCapabilities.chunk_upload_supported) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.chunkUnsupported' }));
+      return;
+    }
+    if (!currentFile) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.selectFileFirst' }));
+      return;
+    }
+    if (!chunkUploader) {
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploaderInitFailed' }));
+      return;
+    }
+    this.setState({ isChunkUploading: true, chunkUploadProgress: 0 });
+    try {
+      await chunkUploader.upload((progress) => {
+        this.setState({ chunkUploadProgress: progress });
+      });
+      notification.success({
+        message: formatMessage({ id: 'notification.success.upload_file' })
+      });
+      const virtualFileList = [{
+        uid: '-1',
+        name: currentFile.name,
+        status: 'done',
+        response: { msg: 'success' }
+      }];
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 100,
+        existFileList: [currentFile.name],
+        fileList: virtualFileList
+      });
+      form.setFieldsValue({
+        packageTarFile: virtualFileList
+      });
+      this.handleJarWarUploadStatus();
+    } catch (error) {
+      message.error(formatMessage({ id: 'teamAdd.create.upload.uploadFailed' }) + ': ' + (error.message || 'Unknown error'));
+      this.setState({ isChunkUploading: false });
+    }
+  };
+  handlePauseChunkUpload = () => {
+    const { chunkUploader } = this.state;
+    if (chunkUploader) {
+      chunkUploader.pause();
+      this.setState({ isChunkUploading: false });
+      message.info(formatMessage({ id: 'teamAdd.create.upload.pauseSuccess' }));
+    }
+  };
+  handleResumeChunkUpload = async () => {
+    const { chunkUploader } = this.state;
+    if (!chunkUploader) {
+      message.error(formatMessage({ id: 'teamAdd.create.upload.noUploadTask' }));
+      return;
+    }
+    this.setState({ isChunkUploading: true });
+    try {
+      await chunkUploader.resume((progress) => {
+        this.setState({ chunkUploadProgress: progress });
+      });
+      notification.success({
+        message: formatMessage({ id: 'teamAdd.create.upload.resumeSuccess' })
+      });
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 100
+      });
+      this.handleJarWarUploadStatus();
+    } catch (error) {
+      message.error(formatMessage({ id: 'teamAdd.create.upload.resumeFailed' }) + ': ' + (error.message || 'Unknown error'));
+      this.setState({ isChunkUploading: false });
+    }
+  };
+  handleCancelChunkUpload = async () => {
+    const { chunkUploader } = this.state;
+    const { form } = this.props;
+    if (chunkUploader) {
+      await chunkUploader.cancel();
+      this.setState({
+        isChunkUploading: false,
+        chunkUploadProgress: 0,
+        currentFile: null,
+        chunkUploader: null,
+        fileList: []
+      });
+      form.setFieldsValue({ packageTarFile: [] });
+      message.info(formatMessage({ id: 'teamAdd.create.upload.cancelSuccess' }));
+    }
+  };
   //上传
   onChangeUpload = info => {
     let { fileList } = info;
@@ -348,7 +568,7 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const isService = handleType && handleType === 'Service';
     const host = rainbondInfo.document?.enable ? rainbondInfo.document.value.platform_url : 'https://www.rainbond.com'
-    const { language, radioKey, fileList, vmShow, existFileList, PublicVm, selectName, creatComPermission: {
+    const { language, radioKey, fileList, vmShow, existFileList, PublicVm, selectName, uploadMode, vmCapabilities, isChunkUploading, chunkUploadProgress, currentFile, creatComPermission: {
       isCreate
     } } = this.state;
     const is_language = language ? formItemLayout : formItemLayouts;
@@ -419,6 +639,7 @@ export default class Index extends PureComponent {
                 <Radio value='public'>{formatMessage({ id: 'Vm.createVm.public' })}</Radio>
                 <Radio value='address'>{formatMessage({ id: 'Vm.createVm.add' })}</Radio>
                 <Radio value='upload'>{formatMessage({ id: 'Vm.createVm.upload' })}</Radio>
+                {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='clone'>{formatMessage({ id: 'Vm.createVm.clone' })}</Radio>}
                 {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({ id: 'Vm.createVm.have' })}</Radio>}
               </Radio.Group>
             )}
@@ -462,6 +683,14 @@ export default class Index extends PureComponent {
               }
               {radioKey == 'upload' &&
                 <>
+                  <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.upload.mode' })}>
+                    <Radio.Group onChange={this.onUploadModeChange} value={uploadMode}>
+                      <Radio value="normal">{formatMessage({ id: 'teamAdd.create.upload.mode.normal' })}</Radio>
+                      <Radio value="chunk" disabled={!vmCapabilities.chunk_upload_supported}>
+                        {formatMessage({ id: 'teamAdd.create.upload.mode.chunk' })}
+                      </Radio>
+                    </Radio.Group>
+                  </Form.Item>
                   <Form.Item
                     {...is_language}
                     label={formatMessage({ id: 'Vm.createVm.imgUpload' })}
@@ -471,7 +700,7 @@ export default class Index extends PureComponent {
                       rules: [
                       ]
                     })(
-                      <>
+                      uploadMode === 'normal' ? (
                         <Upload
                           fileList={fileList}
                           name="packageTarFile"
@@ -479,15 +708,65 @@ export default class Index extends PureComponent {
                           onRemove={this.onRemove}
                           action={this.state.record.upload_url}
                           headers={myheaders}
-                          multiple={true}
+                          maxCount={1}
+                          multiple={false}
                         >
-
                           <Button>
                             <Icon type="upload" />
                             {formatMessage({ id: 'Vm.createVm.imgUpload' })}
                           </Button>
                         </Upload>
-                      </>
+                      ) : (
+                        <Fragment>
+                          <Upload
+                            accept=".img,.qcow2,.iso,.tar,.gz,.xz"
+                            beforeUpload={this.handleChunkFileSelect}
+                            maxCount={1}
+                            showUploadList={false}
+                          >
+                            <Button>
+                              <Icon type="upload" /> {formatMessage({ id: 'teamAdd.create.upload.selectFile' })}
+                            </Button>
+                          </Upload>
+                          {currentFile && (
+                            <div style={{ marginTop: 10 }}>
+                              <div>
+                                <Icon type="file" style={{ marginRight: 8 }} />
+                                {currentFile.name}
+                                <span style={{ marginLeft: 8, color: '#999' }}>
+                                  ({(currentFile.size / 1024 / 1024).toFixed(2)} MB)
+                                </span>
+                              </div>
+                              <div style={{ marginTop: 10 }}>
+                                <Progress
+                                  percent={Math.floor(chunkUploadProgress)}
+                                  status={isChunkUploading ? 'active' : 'normal'}
+                                />
+                              </div>
+                              <div style={{ marginTop: 10 }}>
+                                {!isChunkUploading && chunkUploadProgress === 0 && (
+                                  <Button type="primary" onClick={this.handleStartChunkUpload}>
+                                    {formatMessage({ id: 'teamAdd.create.upload.startUpload' })}
+                                  </Button>
+                                )}
+                                {isChunkUploading && (
+                                  <Button onClick={this.handlePauseChunkUpload}>
+                                    {formatMessage({ id: 'teamAdd.create.upload.pause' })}
+                                  </Button>
+                                )}
+                                {!isChunkUploading && chunkUploadProgress > 0 && chunkUploadProgress < 100 && (
+                                  <Button type="primary" onClick={this.handleResumeChunkUpload}>
+                                    {formatMessage({ id: 'teamAdd.create.upload.resume' })}
+                                  </Button>
+                                )}
+                                <Button style={{ marginLeft: 8 }} onClick={this.handleCancelChunkUpload}>
+                                  {formatMessage({ id: 'teamAdd.create.upload.cancel' })}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </Fragment>
+                      )
                     )}
                   </Form.Item>
                   <Form.Item
@@ -533,6 +812,26 @@ export default class Index extends PureComponent {
                   </Form.Item>
                 </>
               }
+              {radioKey == 'clone' && (
+                <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.cloneSource' })}>
+                  {getFieldDecorator('clone_source_name', {
+                    rules: [
+                      { required: true }
+                    ]
+                  })(
+                    <Select
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                      placeholder={formatMessage({ id: 'Vm.createVm.cloneSourcePlaceholder' })}
+                    >
+                      {(virtualMachineImage || []).map(image => {
+                        return (
+                          <Option value={image.name}>{image.name}</Option>
+                        );
+                      })}
+                    </Select>
+                  )}
+                </Form.Item>
+              )}
               {radioKey != 'public' &&
                 <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.imgName' })} >
                   {getFieldDecorator('image_name', {
@@ -573,6 +872,118 @@ export default class Index extends PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>}
+
+          {vmCapabilities.gpu_supported && (
+            <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.gpu' })}>
+              {getFieldDecorator('gpu_enabled', {
+                valuePropName: 'checked',
+                initialValue: false
+              })(
+                <Switch />
+              )}
+            </Form.Item>
+          )}
+          {vmCapabilities.gpu_supported && form.getFieldValue('gpu_enabled') && (
+            <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.gpuResources' })}>
+              {getFieldDecorator('gpu_resources', {
+                initialValue: [],
+                rules: [
+                  {
+                    validator: this.validateRuntimeResources('gpu_enabled', 'Vm.createVm.gpuResourcesRequired')
+                  }
+                ]
+              })(
+                <Select
+                  mode="multiple"
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder={formatMessage({ id: 'Vm.createVm.gpuResourcesPlaceholder' })}
+                >
+                  {(vmCapabilities.gpu_resources || []).map(resource => (
+                    <Option key={resource} value={resource}>{resource}</Option>
+                  ))}
+                </Select>
+              )}
+            </Form.Item>
+          )}
+
+          {vmCapabilities.usb_supported && (
+            <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.usb' })}>
+              {getFieldDecorator('usb_enabled', {
+                valuePropName: 'checked',
+                initialValue: false
+              })(
+                <Switch />
+              )}
+            </Form.Item>
+          )}
+          {vmCapabilities.usb_supported && form.getFieldValue('usb_enabled') && (
+            <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.usbResources' })}>
+              {getFieldDecorator('usb_resources', {
+                initialValue: [],
+                rules: [
+                  {
+                    validator: this.validateRuntimeResources('usb_enabled', 'Vm.createVm.usbResourcesRequired')
+                  }
+                ]
+              })(
+                <Select
+                  mode="multiple"
+                  getPopupContainer={triggerNode => triggerNode.parentNode}
+                  placeholder={formatMessage({ id: 'Vm.createVm.usbResourcesPlaceholder' })}
+                >
+                  {(vmCapabilities.usb_resources || []).map(resource => (
+                    <Option key={resource} value={resource}>{resource}</Option>
+                  ))}
+                </Select>
+              )}
+            </Form.Item>
+          )}
+
+          <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.networkMode' })}>
+            {getFieldDecorator('network_mode', {
+              initialValue: 'random'
+            })(
+              <Radio.Group>
+                <Radio value="random">{formatMessage({ id: 'Vm.createVm.networkRandom' })}</Radio>
+                <Radio value="fixed" disabled={(vmCapabilities.network_modes || []).indexOf('fixed') === -1}>
+                  {formatMessage({ id: 'Vm.createVm.networkFixed' })}
+                </Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
+
+          {form.getFieldValue('network_mode') === 'fixed' && (
+            <Fragment>
+              <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.networkName' })}>
+                {getFieldDecorator('network_name', {
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' }) }
+                  ]
+                })(
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
+                  >
+                    {(vmCapabilities.networks || []).map(item => {
+                      const value = `${item.namespace}/${item.name}`;
+                      return (
+                        <Option key={value} value={value}>{value}</Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </Form.Item>
+              <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.fixedIP' })}>
+                {getFieldDecorator('fixed_ip', {
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' }) }
+                  ]
+                })(
+                  <Input placeholder={formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })} />
+                )}
+              </Form.Item>
+            </Fragment>
+          )}
 
           {showSubmitBtn ? (
 

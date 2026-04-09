@@ -284,6 +284,14 @@ export async function createAppByVirtualMachine(body = {}) {
         arch: body.arch,
         vm_url: body.vm_url,
         event_id: body.event_id,
+        clone_source_name: body.clone_source_name,
+        gpu_enabled: body.gpu_enabled,
+        gpu_resources: body.gpu_resources,
+        usb_enabled: body.usb_enabled,
+        usb_resources: body.usb_resources,
+        network_mode: body.network_mode,
+        network_name: body.network_name,
+        fixed_ip: body.fixed_ip,
       }
     }
   );
@@ -295,6 +303,18 @@ export async function createAppByVirtualMachine(body = {}) {
 export async function getAppByVirtualMachineImage(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/virtual_machine_image`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/*
+   虚拟机能力探测
+*/
+export async function getVMCapabilities(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`,
     {
       method: 'get',
     }
