@@ -1,6 +1,7 @@
 import { Empty, Input, Modal, Popconfirm, Table, Tag, Tooltip } from 'antd';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
+import styles from './index.less';
 
 class VMAssetCatalogModal extends PureComponent {
   constructor(props) {
@@ -120,63 +121,73 @@ class VMAssetCatalogModal extends PureComponent {
         title: formatMessage({ id: 'Vm.assetCatalog.name' }),
         dataIndex: 'name',
         key: 'name',
-        width: 180,
-        render: value => <span style={{ fontWeight: 500 }}>{value}</span>
+        width: 160,
+        render: value => (
+          <span className={styles.nameText} title={value}>
+            {value}
+          </span>
+        )
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.source' }),
         dataIndex: 'source_type',
         key: 'source_type',
-        width: 120,
+        width: 110,
         render: value => <Tag color="blue">{this.getSourceLabel(value)}</Tag>
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.archFormat' }),
         key: 'arch_format',
-        width: 150,
-        render: (_, record) => `${record.arch || '-'} / ${record.format || '-'}`
+        width: 130,
+        render: (_, record) => (
+          <span className={styles.textWrap}>
+            {`${record.arch || '-'} / ${record.format || '-'}`}
+          </span>
+        )
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.size' }),
         dataIndex: 'size_bytes',
         key: 'size_bytes',
-        width: 110,
+        width: 100,
         render: value => this.formatBytes(value)
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.status' }),
         dataIndex: 'status',
         key: 'status',
-        width: 120,
+        width: 110,
         render: value => <Tag>{value || formatMessage({ id: 'Vm.assetCatalog.statusUnknown' })}</Tag>
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.diskCount' }),
         dataIndex: 'disk_count',
         key: 'disk_count',
-        width: 100,
+        width: 90,
         render: value => value || '-'
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.references' }),
         dataIndex: 'reference_count',
         key: 'reference_count',
-        width: 100,
+        width: 90,
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.createdAt' }),
         dataIndex: 'create_time',
         key: 'create_time',
-        width: 170,
+        width: 160,
+        render: value => <span className={styles.textWrap}>{value || '-'}</span>
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.actions' }),
         key: 'actions',
-        width: 280,
+        width: 220,
         render: (_, record) => (
-          <div style={{ whiteSpace: 'nowrap' }}>
+          <div className={styles.actionCell}>
             <Tooltip title={record.status !== 'ready' ? formatMessage({ id: 'Vm.assetCatalog.useDisabled' }) : ''}>
               <a
+                className={styles.actionLink}
                 style={{ color: record.status !== 'ready' ? '#bfbfbf' : undefined }}
                 onClick={e => {
                   if (record.status !== 'ready') {
@@ -189,10 +200,10 @@ class VMAssetCatalogModal extends PureComponent {
                 {formatMessage({ id: 'Vm.assetCatalog.useAsset' })}
               </a>
             </Tooltip>
-            <a style={{ marginLeft: 12 }} onClick={() => this.openCloneModal(record)}>
+            <a className={styles.actionLink} onClick={() => this.openCloneModal(record)}>
               {formatMessage({ id: 'Vm.assetCatalog.clone' })}
             </a>
-            <a style={{ marginLeft: 12 }} onClick={() => this.setState({ detailAsset: record })}>
+            <a className={styles.actionLink} onClick={() => this.setState({ detailAsset: record })}>
               {formatMessage({ id: 'Vm.assetCatalog.detail' })}
             </a>
             <Popconfirm
@@ -206,7 +217,8 @@ class VMAssetCatalogModal extends PureComponent {
                 title={record.reference_count > 0 ? formatMessage({ id: 'Vm.assetCatalog.deleteDisabled' }) : ''}
               >
                 <a
-                  style={{ marginLeft: 12, color: record.reference_count > 0 ? '#bfbfbf' : undefined }}
+                  className={styles.actionLink}
+                  style={{ color: record.reference_count > 0 ? '#bfbfbf' : undefined }}
                   onClick={e => {
                     if (record.reference_count > 0 || deleteLoadingId === record.id) {
                       e.preventDefault();
@@ -228,12 +240,14 @@ class VMAssetCatalogModal extends PureComponent {
         <Modal
           title={formatMessage({ id: 'Vm.assetCatalog.title' })}
           visible={visible}
-          width={1100}
+          width={1200}
+          wrapClassName={styles.assetCatalogModal}
+          bodyStyle={{ overflowX: 'hidden' }}
           footer={null}
           onCancel={onCancel}
           destroyOnClose
         >
-          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+          <div className={styles.toolbar}>
             <Input.Search
               placeholder={formatMessage({ id: 'Vm.assetCatalog.searchPlaceholder' })}
               style={{ width: 320 }}
@@ -241,16 +255,19 @@ class VMAssetCatalogModal extends PureComponent {
               onChange={e => this.setState({ keyword: e.target.value })}
             />
           </div>
-          <Table
-            rowKey="id"
-            dataSource={filteredAssets}
-            columns={columns}
-            pagination={{ pageSize: 8, hideOnSinglePage: true }}
-            scroll={{ x: tableScrollX }}
-            locale={{
-              emptyText: <Empty description={formatMessage({ id: 'Vm.assetCatalog.empty' })} />
-            }}
-          />
+          <div className={styles.tableWrap}>
+            <Table
+              rowKey="id"
+              dataSource={filteredAssets}
+              columns={columns}
+              tableLayout="fixed"
+              pagination={{ pageSize: 8, hideOnSinglePage: true }}
+              scroll={{ x: tableScrollX }}
+              locale={{
+                emptyText: <Empty description={formatMessage({ id: 'Vm.assetCatalog.empty' })} />
+              }}
+            />
+          </div>
         </Modal>
 
         <Modal

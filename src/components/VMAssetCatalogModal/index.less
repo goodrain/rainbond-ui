@@ -1,0 +1,68 @@
+@import '~antd/lib/style/themes/default.less';
+
+.assetCatalogModal {
+  :global {
+    .ant-modal {
+      max-width: calc(100vw - 32px);
+    }
+
+    .ant-modal-body {
+      overflow-x: hidden;
+    }
+  }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.tableWrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+
+  :global {
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table,
+    .ant-table-content,
+    .ant-table-scroll,
+    .ant-table-body {
+      min-width: 0;
+    }
+
+    .ant-table-body {
+      overflow-x: auto !important;
+    }
+  }
+}
+
+.nameText {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.textWrap {
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 20px;
+}
+
+.actionCell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  white-space: normal;
+}
+
+.actionLink {
+  margin-left: 0 !important;
+}
