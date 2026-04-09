@@ -10,7 +10,8 @@ class VMProfilePanel extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone'
+      clone: 'Vm.createVm.clone',
+      vm_export: 'Vm.export.sourceLabel'
     };
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
@@ -38,6 +39,7 @@ class VMProfilePanel extends PureComponent {
     const { vmProfile = {} } = this.props;
     const asset = vmProfile.asset || {};
     const runtime = vmProfile.runtime || {};
+    const latestExport = vmProfile.latest_export || {};
     const connections = vmProfile.connections || {};
 
     return (
@@ -108,6 +110,10 @@ class VMProfilePanel extends PureComponent {
               {this.renderLine(
                 formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
                 asset.reference_count
+              )}
+              {this.renderLine(
+                formatMessage({ id: 'Vm.export.latest' }),
+                latestExport.name ? `${latestExport.name} / ${latestExport.status || '-'}` : '-'
               )}
               <div style={{ marginTop: 12 }}>
                 {connections.vnc_url ? (

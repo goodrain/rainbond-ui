@@ -803,6 +803,7 @@ const Vm = {
   'Vm.assetCatalog.delete': '删除',
   'Vm.assetCatalog.deleteConfirm': '确认删除该镜像资产吗？',
   'Vm.assetCatalog.deleteDisabled': '该镜像资产仍被虚拟机引用，暂不支持删除',
+  'Vm.assetCatalog.useDisabled': '镜像资产尚未就绪，暂时不能用于创建虚拟机',
   'Vm.assetCatalog.detail': '查看详情',
   'Vm.assetCatalog.detailTitle': '镜像资产详情',
   'Vm.assetCatalog.searchPlaceholder': '按名称、来源或状态搜索',
@@ -812,6 +813,16 @@ const Vm = {
   'Vm.assetCatalog.sourceAsset': '来源资产',
   'Vm.assetCatalog.sourceUri': '来源地址',
   'Vm.assetCatalog.bootMode': '启动模式',
+  'Vm.assetCatalog.diskCount': '磁盘数',
+  'Vm.export.action': '导出到镜像组',
+  'Vm.export.modalTitle': '导出当前虚拟机到镜像组',
+  'Vm.export.namePlaceholder': '请输入导出资产名称',
+  'Vm.export.closedOnly': '请先关闭虚拟机，再执行导出',
+  'Vm.export.started': '导出任务已启动，正在导出到镜像组',
+  'Vm.export.success': '虚拟机导出完成，已写入镜像组',
+  'Vm.export.failed': '虚拟机导出失败',
+  'Vm.export.latest': '最近导出',
+  'Vm.export.sourceLabel': 'VM 导出',
 }
 
 const gatewayplugin = {

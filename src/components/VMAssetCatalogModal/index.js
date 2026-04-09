@@ -22,7 +22,8 @@ class VMAssetCatalogModal extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone'
+      clone: 'Vm.createVm.clone',
+      vm_export: 'Vm.export.sourceLabel'
     };
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
@@ -150,6 +151,13 @@ class VMAssetCatalogModal extends PureComponent {
         render: value => <Tag>{value || formatMessage({ id: 'Vm.assetCatalog.statusUnknown' })}</Tag>
       },
       {
+        title: formatMessage({ id: 'Vm.assetCatalog.diskCount' }),
+        dataIndex: 'disk_count',
+        key: 'disk_count',
+        width: 100,
+        render: value => value || '-'
+      },
+      {
         title: formatMessage({ id: 'Vm.assetCatalog.references' }),
         dataIndex: 'reference_count',
         key: 'reference_count',
@@ -167,9 +175,20 @@ class VMAssetCatalogModal extends PureComponent {
         width: 260,
         render: (_, record) => (
           <div>
-            <a onClick={() => onUseAsset && onUseAsset(record)}>
-              {formatMessage({ id: 'Vm.assetCatalog.useAsset' })}
-            </a>
+            <Tooltip title={record.status !== 'ready' ? formatMessage({ id: 'Vm.assetCatalog.useDisabled' }) : ''}>
+              <a
+                style={{ color: record.status !== 'ready' ? '#bfbfbf' : undefined }}
+                onClick={e => {
+                  if (record.status !== 'ready') {
+                    e.preventDefault();
+                    return;
+                  }
+                  onUseAsset && onUseAsset(record);
+                }}
+              >
+                {formatMessage({ id: 'Vm.assetCatalog.useAsset' })}
+              </a>
+            </Tooltip>
             <a style={{ marginLeft: 12 }} onClick={() => this.openCloneModal(record)}>
               {formatMessage({ id: 'Vm.assetCatalog.clone' })}
             </a>
@@ -258,6 +277,7 @@ class VMAssetCatalogModal extends PureComponent {
           {detailAsset && (
             <div>
               {this.renderDetailLine(formatMessage({ id: 'Vm.assetCatalog.name' }), detailAsset.name)}
+              {this.renderDetailLine(formatMessage({ id: 'Vm.assetCatalog.diskCount' }), detailAsset.disk_count)}
               {this.renderDetailLine(formatMessage({ id: 'Vm.assetCatalog.source' }),
                 this.getSourceLabel(detailAsset.source_type))}
               {this.renderDetailLine(formatMessage({ id: 'Vm.assetCatalog.sourceUri' }), detailAsset.source_uri)}

@@ -350,6 +350,10 @@ class Main extends PureComponent {
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
     this.props.dispatch({ type: 'kubeblocks/clearClusterDetail' });
+    if (this.vmExportTimer) {
+      clearTimeout(this.vmExportTimer);
+      this.vmExportTimer = null;
+    }
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
@@ -1037,6 +1041,82 @@ class Main extends PureComponent {
       }
     });
   }
+  pollVMExportStatus = (assetId, count = 0) => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    if (!assetId || count > 40) {
+      return;
+    }
+    dispatch({
+      type: 'appControl/getVMExportStatus',
+      payload: {
+        team_name,
+        app_alias: serviceAlias,
+        asset_id: assetId
+      },
+      callback: res => {
+        const asset = res && res.bean;
+        if (!asset || !asset.status) {
+          return;
+        }
+        this.loadDetail();
+        if (asset.status === 'exporting') {
+          this.vmExportTimer = setTimeout(() => this.pollVMExportStatus(assetId, count + 1), 3000);
+          return;
+        }
+        if (asset.status === 'ready') {
+          notification.success({ message: formatMessage({ id: 'Vm.export.success' }) });
+          return;
+        }
+        if (asset.status === 'failed') {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.failed' }) });
+        }
+      }
+    });
+  };
+  handleVMExport = () => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    const { status } = this.state;
+    if (!status || status.status !== 'closed') {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.closedOnly' }) });
+      return;
+    }
+    let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
+    Modal.confirm({
+      title: formatMessage({ id: 'Vm.export.modalTitle' }),
+      content: (
+        <Input
+          defaultValue={exportName}
+          placeholder={formatMessage({ id: 'Vm.export.namePlaceholder' })}
+          onChange={e => {
+            exportName = e.target.value;
+          }}
+        />
+      ),
+      onOk: () => new Promise((resolve, reject) => {
+        dispatch({
+          type: 'appControl/startVMExport',
+          payload: {
+            team_name,
+            app_alias: serviceAlias,
+            name: exportName
+          },
+          callback: res => {
+            const asset = res && res.bean;
+            if (asset && asset.id) {
+              notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+              this.loadDetail();
+              this.pollVMExportStatus(asset.id);
+              resolve();
+              return;
+            }
+            reject(new Error('vm export start failed'));
+          }
+        });
+      })
+    });
+  };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;
@@ -1252,6 +1332,13 @@ class Main extends PureComponent {
         type: 'button',
         text: status?.status === 'paused' ? "恢复" : '挂起',
         onClick: () => this.handleVm()
+      },
+      {
+        key: 'vmExport',
+        show: method === 'vm' && status?.status === 'closed',
+        type: 'button',
+        text: formatMessage({ id: 'Vm.export.action' }),
+        onClick: () => this.handleVMExport()
       },
       {
         key: 'update',

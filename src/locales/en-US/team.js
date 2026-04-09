@@ -793,6 +793,7 @@ const Vm = {
   'Vm.assetCatalog.delete': 'Delete',
   'Vm.assetCatalog.deleteConfirm': 'Delete this image asset?',
   'Vm.assetCatalog.deleteDisabled': 'This image asset is still referenced by virtual machines',
+  'Vm.assetCatalog.useDisabled': 'This image asset is not ready yet and cannot be used to create a virtual machine',
   'Vm.assetCatalog.detail': 'Details',
   'Vm.assetCatalog.detailTitle': 'Image Asset Detail',
   'Vm.assetCatalog.searchPlaceholder': 'Search by name, source or status',
@@ -802,6 +803,16 @@ const Vm = {
   'Vm.assetCatalog.sourceAsset': 'Source Asset',
   'Vm.assetCatalog.sourceUri': 'Source URI',
   'Vm.assetCatalog.bootMode': 'Boot Mode',
+  'Vm.assetCatalog.diskCount': 'Disk Count',
+  'Vm.export.action': 'Export to Asset Group',
+  'Vm.export.modalTitle': 'Export Current VM to Asset Group',
+  'Vm.export.namePlaceholder': 'Enter the exported asset name',
+  'Vm.export.closedOnly': 'Please shut down the virtual machine before exporting',
+  'Vm.export.started': 'Export started and is being written into the asset group',
+  'Vm.export.success': 'Virtual machine export finished and is now in the asset group',
+  'Vm.export.failed': 'Virtual machine export failed',
+  'Vm.export.latest': 'Latest Export',
+  'Vm.export.sourceLabel': 'VM Export',
 }
 
 const gatewayplugin = {

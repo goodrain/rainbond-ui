@@ -294,6 +294,10 @@ export default class Index extends PureComponent {
           fieldsValue.asset_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
+          if (selectedAsset && selectedAsset.status !== 'ready') {
+            message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
+            return;
+          }
           fieldsValue.source_type = 'existing';
           fieldsValue.asset_id = selectedAsset ? selectedAsset.id : fieldsValue.asset_id || '';
         }
@@ -366,6 +370,11 @@ export default class Index extends PureComponent {
   };
   handleUseAsset = (asset) => {
     const { form } = this.props;
+    if (!asset || asset.status !== 'ready') {
+      message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
+      return;
+    }
+    const runtimeSnapshot = asset && asset.extra && asset.extra.runtime_snapshot ? asset.extra.runtime_snapshot : {};
     this.setState({
       radioKey: 'ok',
       assetCatalogVisible: false
@@ -373,7 +382,15 @@ export default class Index extends PureComponent {
     form.setFieldsValue({
       imagefrom: 'ok',
       image_name: asset.name,
-      asset_id: asset.id
+      asset_id: asset.id,
+      boot_mode: runtimeSnapshot.boot_mode || undefined,
+      gpu_enabled: !!runtimeSnapshot.gpu_enabled,
+      gpu_resources: runtimeSnapshot.gpu_resources || [],
+      usb_enabled: !!runtimeSnapshot.usb_enabled,
+      usb_resources: runtimeSnapshot.usb_resources || [],
+      network_mode: runtimeSnapshot.network_mode || 'random',
+      network_name: runtimeSnapshot.network_name || undefined,
+      fixed_ip: runtimeSnapshot.fixed_ip || undefined
     });
   };
   handleCloneAsset = (asset, name) => {
