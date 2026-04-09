@@ -15,6 +15,7 @@ import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
 import ChunkUploader from '../../utils/ChunkUploader';
+import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
 
 
@@ -60,6 +61,7 @@ export default class Index extends PureComponent {
       addGroup: false,
       language: cookie.get('language') === 'zh-CN' ? true : false,
       radioKey: 'public',
+      assetCatalogVisible: false,
       uploadMode: 'normal',
       fileList: [],
       percents: false,
@@ -279,6 +281,21 @@ export default class Index extends PureComponent {
         if (radioKey == 'public') {
           fieldsValue.vm_url = this.state.selectUrl
           fieldsValue.image_name = this.state.selectName
+          fieldsValue.source_type = 'public';
+          fieldsValue.asset_id = this.findAssetByName(this.state.selectName)?.id || '';
+        } else if (radioKey === 'address') {
+          fieldsValue.source_type = 'url';
+          fieldsValue.asset_id = '';
+        } else if (radioKey === 'upload') {
+          fieldsValue.source_type = 'upload';
+          fieldsValue.asset_id = '';
+        } else if (radioKey === 'clone') {
+          fieldsValue.source_type = 'clone';
+          fieldsValue.asset_id = '';
+        } else {
+          const selectedAsset = this.findAssetByName(fieldsValue.image_name);
+          fieldsValue.source_type = 'existing';
+          fieldsValue.asset_id = selectedAsset ? selectedAsset.id : fieldsValue.asset_id || '';
         }
         if (radioKey !== 'clone') {
           fieldsValue.clone_source_name = '';
@@ -317,8 +334,100 @@ export default class Index extends PureComponent {
   handleChangeImageSource = (key) => {
     this.setState({
       radioKey: key.target.value
-    })
+    });
+    if (this.props.form) {
+      this.props.form.setFieldsValue({
+        asset_id: ''
+      });
+    }
   }
+  openAssetCatalog = () => {
+    this.setState({ assetCatalogVisible: true });
+  };
+  closeAssetCatalog = () => {
+    this.setState({ assetCatalogVisible: false });
+  };
+  findAssetByName = (name) => {
+    const { virtualMachineImage = [] } = this.props;
+    return (virtualMachineImage || []).find(item => item.name === name);
+  };
+  getAssetSourceLabel = (sourceType) => {
+    const sourceMap = {
+      public: 'Vm.createVm.public',
+      url: 'Vm.createVm.add',
+      upload: 'Vm.createVm.upload',
+      existing: 'Vm.createVm.have',
+      clone: 'Vm.createVm.clone'
+    };
+    return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
+  };
+  renderAssetOptionLabel = (asset) => {
+    return `${asset.name} / ${this.getAssetSourceLabel(asset.source_type)} / ${asset.arch || '-'} / ${asset.format || '-'} / ${asset.status || '-'}`;
+  };
+  handleUseAsset = (asset) => {
+    const { form } = this.props;
+    this.setState({
+      radioKey: 'ok',
+      assetCatalogVisible: false
+    });
+    form.setFieldsValue({
+      imagefrom: 'ok',
+      image_name: asset.name,
+      asset_id: asset.id
+    });
+  };
+  handleCloneAsset = (asset, name) => {
+    const { dispatch, onRefreshAssets } = this.props;
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'createApp/cloneVMAsset',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          source_asset_id: asset.id,
+          source_name: asset.name,
+          name
+        },
+        callback: data => {
+          notification.success({
+            message: formatMessage({ id: 'Vm.assetCatalog.cloneSuccess' })
+          });
+          if (onRefreshAssets) {
+            onRefreshAssets();
+          }
+          resolve(data);
+        },
+        handleError: err => {
+          handleAPIError(err);
+          reject(err);
+        }
+      });
+    });
+  };
+  handleDeleteAsset = (asset) => {
+    const { dispatch, onRefreshAssets } = this.props;
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'createApp/deleteVMAsset',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          asset_id: asset.id
+        },
+        callback: data => {
+          notification.success({
+            message: formatMessage({ id: 'notification.success.delete' })
+          });
+          if (onRefreshAssets) {
+            onRefreshAssets();
+          }
+          resolve(data);
+        },
+        handleError: err => {
+          handleAPIError(err);
+          reject(err);
+        }
+      });
+    });
+  };
   onUploadModeChange = (e) => {
     if (e.target.value === 'chunk' && !this.state.vmCapabilities.chunk_upload_supported) {
       message.warning(formatMessage({ id: 'teamAdd.create.upload.chunkUnsupported' }));
@@ -586,6 +695,9 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+          {getFieldDecorator('asset_id', {
+            initialValue: ''
+          })(<Input type="hidden" />)}
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
               initialValue: initialGroupId,
@@ -635,13 +747,20 @@ export default class Index extends PureComponent {
               initialValue: 'public',
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
-              <Radio.Group onChange={this.handleChangeImageSource}>
-                <Radio value='public'>{formatMessage({ id: 'Vm.createVm.public' })}</Radio>
-                <Radio value='address'>{formatMessage({ id: 'Vm.createVm.add' })}</Radio>
-                <Radio value='upload'>{formatMessage({ id: 'Vm.createVm.upload' })}</Radio>
-                {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='clone'>{formatMessage({ id: 'Vm.createVm.clone' })}</Radio>}
-                {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({ id: 'Vm.createVm.have' })}</Radio>}
-              </Radio.Group>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio value='public'>{formatMessage({ id: 'Vm.createVm.public' })}</Radio>
+                  <Radio value='address'>{formatMessage({ id: 'Vm.createVm.add' })}</Radio>
+                  <Radio value='upload'>{formatMessage({ id: 'Vm.createVm.upload' })}</Radio>
+                  {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='clone'>{formatMessage({ id: 'Vm.createVm.clone' })}</Radio>}
+                  {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({ id: 'Vm.createVm.have' })}</Radio>}
+                </Radio.Group>
+                {virtualMachineImage && virtualMachineImage.length > 0 && (
+                  <Button size="small" onClick={this.openAssetCatalog}>
+                    {formatMessage({ id: 'Vm.assetCatalog.manage' })}
+                  </Button>
+                )}
+              </div>
             )}
           </Form.Item>
           {radioKey != 'ok' ? (
@@ -825,7 +944,7 @@ export default class Index extends PureComponent {
                     >
                       {(virtualMachineImage || []).map(image => {
                         return (
-                          <Option value={image.name}>{image.name}</Option>
+                          <Option key={image.id || image.name} value={image.name}>{this.renderAssetOptionLabel(image)}</Option>
                         );
                       })}
                     </Select>
@@ -854,7 +973,7 @@ export default class Index extends PureComponent {
               >
                 {(virtualMachineImage || []).map(image => {
                   return (
-                    <Option value={image.name}>{image.name}</Option>
+                    <Option key={image.id || image.name} value={image.name}>{this.renderAssetOptionLabel(image)}</Option>
                   );
                 })}
               </Select>)}
@@ -1029,6 +1148,14 @@ export default class Index extends PureComponent {
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
+        <VMAssetCatalogModal
+          visible={this.state.assetCatalogVisible}
+          assets={virtualMachineImage || []}
+          onCancel={this.closeAssetCatalog}
+          onUseAsset={this.handleUseAsset}
+          onClone={this.handleCloneAsset}
+          onDelete={this.handleDeleteAsset}
+        />
       </Fragment>
     );
   }
