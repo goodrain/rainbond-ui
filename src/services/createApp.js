@@ -286,7 +286,6 @@ export async function createAppByVirtualMachine(body = {}) {
         arch: body.arch,
         vm_url: body.vm_url,
         event_id: body.event_id,
-        clone_source_name: body.clone_source_name,
         boot_mode: body.boot_mode,
         gpu_enabled: body.gpu_enabled,
         gpu_resources: body.gpu_resources,
@@ -308,23 +307,6 @@ export async function getAppByVirtualMachineImage(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets`,
     {
       method: 'get',
-    }
-  );
-}
-
-/*
-   虚拟机镜像资产快速复制
-*/
-export async function cloneVMAsset(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets/clone`,
-    {
-      method: 'post',
-      data: {
-        source_asset_id: body.source_asset_id,
-        source_name: body.source_name,
-        name: body.name,
-      }
     }
   );
 }

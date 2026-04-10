@@ -289,9 +289,6 @@ export default class Index extends PureComponent {
         } else if (radioKey === 'upload') {
           fieldsValue.source_type = 'upload';
           fieldsValue.asset_id = '';
-        } else if (radioKey === 'clone') {
-          fieldsValue.source_type = 'clone';
-          fieldsValue.asset_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
           if (selectedAsset && selectedAsset.status !== 'ready') {
@@ -300,9 +297,6 @@ export default class Index extends PureComponent {
           }
           fieldsValue.source_type = 'existing';
           fieldsValue.asset_id = selectedAsset ? selectedAsset.id : fieldsValue.asset_id || '';
-        }
-        if (radioKey !== 'clone') {
-          fieldsValue.clone_source_name = '';
         }
         if (!fieldsValue.gpu_enabled) {
           fieldsValue.gpu_resources = [];
@@ -391,33 +385,6 @@ export default class Index extends PureComponent {
       network_mode: runtimeSnapshot.network_mode || 'random',
       network_name: runtimeSnapshot.network_name || undefined,
       fixed_ip: runtimeSnapshot.fixed_ip || undefined
-    });
-  };
-  handleCloneAsset = (asset, name) => {
-    const { dispatch, onRefreshAssets } = this.props;
-    return new Promise((resolve, reject) => {
-      dispatch({
-        type: 'createApp/cloneVMAsset',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          source_asset_id: asset.id,
-          source_name: asset.name,
-          name
-        },
-        callback: data => {
-          notification.success({
-            message: formatMessage({ id: 'Vm.assetCatalog.cloneSuccess' })
-          });
-          if (onRefreshAssets) {
-            onRefreshAssets();
-          }
-          resolve(data);
-        },
-        handleError: err => {
-          handleAPIError(err);
-          reject(err);
-        }
-      });
     });
   };
   handleDeleteAsset = (asset) => {
@@ -769,7 +736,6 @@ export default class Index extends PureComponent {
                   <Radio value='public'>{formatMessage({ id: 'Vm.createVm.public' })}</Radio>
                   <Radio value='address'>{formatMessage({ id: 'Vm.createVm.add' })}</Radio>
                   <Radio value='upload'>{formatMessage({ id: 'Vm.createVm.upload' })}</Radio>
-                  {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='clone'>{formatMessage({ id: 'Vm.createVm.clone' })}</Radio>}
                   {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({ id: 'Vm.createVm.have' })}</Radio>}
                 </Radio.Group>
                 {virtualMachineImage && virtualMachineImage.length > 0 && (
@@ -948,26 +914,6 @@ export default class Index extends PureComponent {
                   </Form.Item>
                 </>
               }
-              {radioKey == 'clone' && (
-                <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.cloneSource' })}>
-                  {getFieldDecorator('clone_source_name', {
-                    rules: [
-                      { required: true }
-                    ]
-                  })(
-                    <Select
-                      getPopupContainer={triggerNode => triggerNode.parentNode}
-                      placeholder={formatMessage({ id: 'Vm.createVm.cloneSourcePlaceholder' })}
-                    >
-                      {(virtualMachineImage || []).map(image => {
-                        return (
-                          <Option key={image.id || image.name} value={image.name}>{this.renderAssetOptionLabel(image)}</Option>
-                        );
-                      })}
-                    </Select>
-                  )}
-                </Form.Item>
-              )}
               {radioKey != 'public' &&
                 <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.imgName' })} >
                   {getFieldDecorator('image_name', {
@@ -1170,7 +1116,6 @@ export default class Index extends PureComponent {
           assets={virtualMachineImage || []}
           onCancel={this.closeAssetCatalog}
           onUseAsset={this.handleUseAsset}
-          onClone={this.handleCloneAsset}
           onDelete={this.handleDeleteAsset}
         />
       </Fragment>

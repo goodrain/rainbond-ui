@@ -8,10 +8,6 @@ class VMAssetCatalogModal extends PureComponent {
     super(props);
     this.state = {
       keyword: '',
-      cloneVisible: false,
-      cloneLoading: false,
-      cloneSource: null,
-      cloneName: '',
       detailAsset: null,
       deleteLoadingId: null
     };
@@ -42,40 +38,6 @@ class VMAssetCatalogModal extends PureComponent {
       unitIndex += 1;
     }
     return `${current.toFixed(current >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
-  };
-
-  openCloneModal = (asset) => {
-    this.setState({
-      cloneVisible: true,
-      cloneSource: asset,
-      cloneName: `${asset.name}-copy`
-    });
-  };
-
-  closeCloneModal = () => {
-    this.setState({
-      cloneVisible: false,
-      cloneLoading: false,
-      cloneSource: null,
-      cloneName: ''
-    });
-  };
-
-  handleClone = async () => {
-    const { cloneSource, cloneName } = this.state;
-    const { onClone } = this.props;
-    if (!cloneSource || !cloneName.trim()) {
-      return;
-    }
-    this.setState({ cloneLoading: true });
-    try {
-      if (onClone) {
-        await onClone(cloneSource, cloneName.trim());
-      }
-      this.closeCloneModal();
-    } catch (e) {
-      this.setState({ cloneLoading: false });
-    }
   };
 
   handleDelete = async (asset) => {
@@ -114,7 +76,7 @@ class VMAssetCatalogModal extends PureComponent {
 
   render() {
     const { visible, onCancel, onUseAsset, assets = [] } = this.props;
-    const { keyword, cloneVisible, cloneLoading, cloneSource, cloneName, detailAsset, deleteLoadingId } = this.state;
+    const { keyword, detailAsset, deleteLoadingId } = this.state;
     const filteredAssets = this.getFilteredAssets();
     const columns = [
       {
@@ -200,9 +162,6 @@ class VMAssetCatalogModal extends PureComponent {
                 {formatMessage({ id: 'Vm.assetCatalog.useAsset' })}
               </a>
             </Tooltip>
-            <a className={styles.actionLink} onClick={() => this.openCloneModal(record)}>
-              {formatMessage({ id: 'Vm.assetCatalog.clone' })}
-            </a>
             <a className={styles.actionLink} onClick={() => this.setState({ detailAsset: record })}>
               {formatMessage({ id: 'Vm.assetCatalog.detail' })}
             </a>
@@ -268,22 +227,6 @@ class VMAssetCatalogModal extends PureComponent {
               }}
             />
           </div>
-        </Modal>
-
-        <Modal
-          title={formatMessage({ id: 'Vm.assetCatalog.cloneTitle' })}
-          visible={cloneVisible}
-          onCancel={this.closeCloneModal}
-          onOk={this.handleClone}
-          confirmLoading={cloneLoading}
-          destroyOnClose
-        >
-          {cloneSource && this.renderDetailLine(formatMessage({ id: 'Vm.assetCatalog.sourceAsset' }), cloneSource.name)}
-          <Input
-            value={cloneName}
-            placeholder={formatMessage({ id: 'Vm.assetCatalog.cloneNamePlaceholder' })}
-            onChange={e => this.setState({ cloneName: e.target.value })}
-          />
         </Modal>
 
         <Modal
