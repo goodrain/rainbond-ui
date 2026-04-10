@@ -348,6 +348,7 @@ export default class Index extends PureComponent {
           fieldsValue.network_name = '';
           fieldsValue.fixed_ip = '';
         }
+        fieldsValue.os_family = fieldsValue.os_family || 'linux';
 
         if (!fieldsValue.group_id) {
           fieldsValue.group_name =
@@ -401,6 +402,7 @@ export default class Index extends PureComponent {
       preset && preset.extra && preset.extra.runtime_snapshot
         ? preset.extra.runtime_snapshot
         : {};
+    const guestOSFamily = this.inferGuestOSFamily(runtimeSnapshot, preset);
     this.appliedTemplateVersionId = preset.template_version_id;
     this.setState(
       {
@@ -413,6 +415,7 @@ export default class Index extends PureComponent {
           asset_id: preset.id,
           template_id: preset.template_id,
           template_version_id: preset.template_version_id,
+          os_family: guestOSFamily,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
@@ -473,6 +476,7 @@ export default class Index extends PureComponent {
       asset && asset.extra && asset.extra.runtime_snapshot
         ? asset.extra.runtime_snapshot
         : {};
+    const guestOSFamily = this.inferGuestOSFamily(runtimeSnapshot, asset);
     this.setState(
       {
         radioKey: 'existing'
@@ -484,6 +488,7 @@ export default class Index extends PureComponent {
           asset_id: asset.id,
           template_id: asset.template_id || undefined,
           template_version_id: asset.template_version_id || undefined,
+          os_family: guestOSFamily,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
@@ -496,6 +501,23 @@ export default class Index extends PureComponent {
         this.closeAssetCatalog();
       }
     );
+  };
+
+  inferGuestOSFamily = (runtimeSnapshot = {}, source = {}) => {
+    const explicit = String(runtimeSnapshot.os_family || source.os_family || '').toLowerCase();
+    if (explicit === 'windows' || explicit === 'linux') {
+      return explicit;
+    }
+    const osHint = String(
+      runtimeSnapshot.os_name ||
+      source.os_name ||
+      source.name ||
+      ''
+    ).toLowerCase();
+    if (osHint.indexOf('windows') > -1) {
+      return 'windows';
+    }
+    return 'linux';
   };
 
   handleDeleteAsset = asset => {
@@ -803,6 +825,27 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
         ) : null}
+
+        <Form.Item label={formatMessage({ id: 'Vm.createVm.guestOS' })}>
+          {getFieldDecorator('os_family', {
+            initialValue: 'linux',
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'Vm.createVm.guestOSRequired' })
+              }
+            ]
+          })(
+            <Radio.Group>
+              <Radio value="linux">
+                {formatMessage({ id: 'Vm.createVm.guestOSLinux' })}
+              </Radio>
+              <Radio value="windows">
+                {formatMessage({ id: 'Vm.createVm.guestOSWindows' })}
+              </Radio>
+            </Radio.Group>
+          )}
+        </Form.Item>
 
         {vmCapabilities.gpu_supported ? (
           <Form.Item label={formatMessage({ id: 'Vm.createVm.gpu' })}>
