@@ -296,7 +296,7 @@ class VMTemplateCenter extends PureComponent {
                 <div className={styles.summaryLabel}>{formatMessage({ id: 'Vm.template.center.disks' })}</div>
                 {(currentVersion.disks || []).map(item => (
                   <div className={styles.diskItem} key={item.disk_key}>
-                    <span>{`${item.disk_name || item.disk_key} / ${item.disk_role}`}</span>
+                    <span>{`${item.disk_name || item.disk_key} / ${item.disk_role}${item.boot_order ? ` / boot ${item.boot_order}` : ''}`}</span>
                     <span>
                       <Tag>{item.status}</Tag>
                       <Tooltip
@@ -314,6 +314,17 @@ class VMTemplateCenter extends PureComponent {
                   </div>
                 ))}
               </div>
+              {(currentVersion.disks || []).some(item => item.status_message) && (
+                <div style={{ marginTop: 12 }}>
+                  {(currentVersion.disks || [])
+                    .filter(item => item.status_message)
+                    .map(item => (
+                      <div key={`${item.disk_key}-message`} style={{ color: '#8d9bad', marginTop: 6 }}>
+                        {`${item.disk_name || item.disk_key}: ${item.status_message}`}
+                      </div>
+                    ))}
+                </div>
+              )}
               {currentVersion.status === 'partial' && (
                 <div style={{ marginTop: 16, color: '#d46b08' }}>
                   {formatMessage({ id: 'Vm.template.center.partialTip' })}
