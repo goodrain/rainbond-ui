@@ -22,7 +22,6 @@ import {
   setNodeLanguage,
   installRamAppCmd,
   getAppByVirtualMachineImage,
-  cloneVMAsset,
   deleteVMAsset,
   getVMCapabilities,
   createAppByVirtualMachine,
@@ -229,12 +228,6 @@ export default {
     },
     *getAppByVirtualMachineImage({ payload, callback, handleError }, { call }) {
       const data = yield call(getAppByVirtualMachineImage, payload, handleError);
-      if (data && callback) {
-        callback(data);
-      }
-    },
-    *cloneVMAsset({ payload, callback, handleError }, { call }) {
-      const data = yield call(cloneVMAsset, payload, handleError);
       if (data && callback) {
         callback(data);
       }
