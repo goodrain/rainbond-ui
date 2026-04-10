@@ -14,14 +14,15 @@ import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const { Option, OptGroup } = Select;
 const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
-const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_network_mode', 'vm_network_name', 'vm_fixed_ip', 'vm_asset_id'];
+const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_network_mode', 'vm_network_name', 'vm_fixed_ip', 'vm_os_family', 'vm_asset_id'];
 const JSON_FIELDS = ['nodeSelector', 'labels', 'annotations'];
 const YAML_FIELDS = ['volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
 const STRING_FIELDS = ['serviceAccountName', 'cmd', 'vm_fixed_ip', 'vm_network_name', 'vm_asset_id'];
 const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostIPC'];
 const SELECT_FIELDS = {
   dnsPolicy: ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None'],
-  vm_network_mode: ['random', 'fixed']
+  vm_network_mode: ['random', 'fixed'],
+  vm_os_family: ['linux', 'windows']
 };
 
 const isSelectField = name => Object.prototype.hasOwnProperty.call(SELECT_FIELDS, name);

@@ -293,6 +293,7 @@ export async function createAppByVirtualMachine(body = {}) {
         gpu_resources: body.gpu_resources,
         usb_enabled: body.usb_enabled,
         usb_resources: body.usb_resources,
+        os_family: body.os_family,
         network_mode: body.network_mode,
         network_name: body.network_name,
         fixed_ip: body.fixed_ip,
