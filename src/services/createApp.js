@@ -765,15 +765,30 @@ export async function updateCustomLanguage(body = {}, handleError) {
   )
 }
 
+function normalizeChunkUploadEventUrl(uploadUrl, eventId) {
+  const normalizedBaseUrl = (uploadUrl || apiconfig.baseUrl || '').replace(/\/$/, '');
+  const eventsPath = '/package_build/component/events';
+  const eventPath = `${eventsPath}/${eventId}`;
+
+  if (normalizedBaseUrl.endsWith(eventPath)) {
+    return normalizedBaseUrl;
+  }
+
+  if (normalizedBaseUrl.endsWith(eventsPath)) {
+    return `${normalizedBaseUrl}/${eventId}`;
+  }
+
+  return `${normalizedBaseUrl}${eventPath}`;
+}
+
 /*
   初始化分片上传会话
 */
 export async function initChunkUpload(body = {}, handleError) {
-  // upload_url 只包含域名，需要拼接完整路径
-  const baseUrl = body.upload_url || apiconfig.baseUrl;
+  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${baseUrl}/package_build/component/events/${body.event_id}/upload/init`,
+    `${eventUploadUrl}/upload/init`,
     {
       method: 'post',
       data: {
@@ -799,11 +814,10 @@ export async function uploadChunk(body = {}, handleError) {
   formData.append('chunk_index', body.chunk_index);
   formData.append('file', body.file);
 
-  // upload_url 只包含域名，需要拼接完整路径
-  const baseUrl = body.upload_url || apiconfig.baseUrl;
+  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${baseUrl}/package_build/component/events/${body.event_id}/upload/chunk`,
+    `${eventUploadUrl}/upload/chunk`,
     {
       method: 'post',
       data: formData,
@@ -819,10 +833,10 @@ export async function uploadChunk(body = {}, handleError) {
   完成分片上传
 */
 export async function completeChunkUpload(body = {}, handleError) {
-  const baseUrl = body.upload_url || apiconfig.baseUrl;
+  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${baseUrl}/package_build/component/events/${body.event_id}/upload/complete`,
+    `${eventUploadUrl}/upload/complete`,
     {
       method: 'post',
       data: {
@@ -840,10 +854,10 @@ export async function completeChunkUpload(body = {}, handleError) {
   查询分片上传状态
 */
 export async function getChunkUploadStatus(body = {}, handleError) {
-  const baseUrl = body.upload_url || apiconfig.baseUrl;
+  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${baseUrl}/package_build/component/events/${body.event_id}/upload/status/${body.session_id}`,
+    `${eventUploadUrl}/upload/status/${body.session_id}`,
     {
       method: 'get',
       headers: {
@@ -858,10 +872,10 @@ export async function getChunkUploadStatus(body = {}, handleError) {
   取消分片上传
 */
 export async function cancelChunkUpload(body = {}, handleError) {
-  const baseUrl = body.upload_url || apiconfig.baseUrl;
+  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${baseUrl}/package_build/component/events/${body.event_id}/upload/${body.session_id}`,
+    `${eventUploadUrl}/${body.session_id}`,
     {
       method: 'delete',
       headers: {
