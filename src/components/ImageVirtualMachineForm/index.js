@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, Tooltip, notification, Switch, Progress, message } from 'antd';
+import { Alert, Button, Form, Input, Select, Radio, Upload, Icon, Tooltip, notification, Switch, Progress, message } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
@@ -91,6 +91,7 @@ export default class Index extends PureComponent {
       comNames: [],
       creatComPermission: {}
     };
+    this.appliedTemplateVersionId = null;
   }
   componentWillMount() {
     this.loop = false;
@@ -111,6 +112,18 @@ export default class Index extends PureComponent {
     }
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
+    }
+    if (this.props.templatePreset) {
+      this.applyTemplatePreset(this.props.templatePreset);
+    }
+  }
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.templatePreset &&
+      (!prevProps.templatePreset ||
+        prevProps.templatePreset.template_version_id !== this.props.templatePreset.template_version_id)
+    ) {
+      this.applyTemplatePreset(this.props.templatePreset);
     }
   }
   handleJarWarUpload = () => {
@@ -283,20 +296,28 @@ export default class Index extends PureComponent {
           fieldsValue.image_name = this.state.selectName
           fieldsValue.source_type = 'public';
           fieldsValue.asset_id = this.findAssetByName(this.state.selectName)?.id || '';
+          fieldsValue.template_id = '';
+          fieldsValue.template_version_id = '';
         } else if (radioKey === 'address') {
           fieldsValue.source_type = 'url';
           fieldsValue.asset_id = '';
+          fieldsValue.template_id = '';
+          fieldsValue.template_version_id = '';
         } else if (radioKey === 'upload') {
           fieldsValue.source_type = 'upload';
           fieldsValue.asset_id = '';
+          fieldsValue.template_id = '';
+          fieldsValue.template_version_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
-          if (selectedAsset && selectedAsset.status !== 'ready') {
+          if (selectedAsset && selectedAsset.status !== 'ready' && selectedAsset.status !== 'partial') {
             message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
             return;
           }
           fieldsValue.source_type = 'existing';
           fieldsValue.asset_id = selectedAsset ? selectedAsset.id : fieldsValue.asset_id || '';
+          fieldsValue.template_id = selectedAsset && selectedAsset.template_id ? selectedAsset.template_id : fieldsValue.template_id || '';
+          fieldsValue.template_version_id = selectedAsset && selectedAsset.template_version_id ? selectedAsset.template_version_id : fieldsValue.template_version_id || '';
         }
         if (!fieldsValue.gpu_enabled) {
           fieldsValue.gpu_resources = [];
@@ -335,10 +356,38 @@ export default class Index extends PureComponent {
     });
     if (this.props.form) {
       this.props.form.setFieldsValue({
-        asset_id: ''
+        asset_id: '',
+        template_id: '',
+        template_version_id: ''
       });
     }
   }
+  applyTemplatePreset = (preset) => {
+    const { form } = this.props;
+    if (!preset || !form || this.appliedTemplateVersionId === preset.template_version_id) {
+      return;
+    }
+    const runtimeSnapshot = preset && preset.extra && preset.extra.runtime_snapshot ? preset.extra.runtime_snapshot : {};
+    this.appliedTemplateVersionId = preset.template_version_id;
+    this.setState({
+      radioKey: 'ok'
+    });
+    form.setFieldsValue({
+      imagefrom: 'ok',
+      image_name: preset.name,
+      asset_id: preset.id,
+      template_id: preset.template_id,
+      template_version_id: preset.template_version_id,
+      boot_mode: runtimeSnapshot.boot_mode || undefined,
+      gpu_enabled: !!runtimeSnapshot.gpu_enabled,
+      gpu_resources: runtimeSnapshot.gpu_resources || [],
+      usb_enabled: !!runtimeSnapshot.usb_enabled,
+      usb_resources: runtimeSnapshot.usb_resources || [],
+      network_mode: runtimeSnapshot.network_mode || 'random',
+      network_name: runtimeSnapshot.network_name || undefined,
+      fixed_ip: runtimeSnapshot.fixed_ip || undefined
+    });
+  };
   openAssetCatalog = () => {
     this.setState({ assetCatalogVisible: true });
   };
@@ -355,7 +404,8 @@ export default class Index extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone'
+      clone: 'Vm.createVm.clone',
+      vm_template: 'Vm.template.center.entry'
     };
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
@@ -377,6 +427,8 @@ export default class Index extends PureComponent {
       imagefrom: 'ok',
       image_name: asset.name,
       asset_id: asset.id,
+      template_id: asset.template_id || undefined,
+      template_version_id: asset.template_version_id || undefined,
       boot_mode: runtimeSnapshot.boot_mode || undefined,
       gpu_enabled: !!runtimeSnapshot.gpu_enabled,
       gpu_resources: runtimeSnapshot.gpu_resources || [],
@@ -682,6 +734,21 @@ export default class Index extends PureComponent {
           {getFieldDecorator('asset_id', {
             initialValue: ''
           })(<Input type="hidden" />)}
+          {getFieldDecorator('template_id', {
+            initialValue: ''
+          })(<Input type="hidden" />)}
+          {getFieldDecorator('template_version_id', {
+            initialValue: ''
+          })(<Input type="hidden" />)}
+          {this.props.templatePreset && this.props.templatePreset.status === 'partial' && (
+            <Form.Item {...is_language} label=" ">
+              <Alert
+                type="warning"
+                showIcon
+                message={formatMessage({ id: 'Vm.template.center.partialTip' })}
+              />
+            </Form.Item>
+          )}
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.appName' })}>
             {getFieldDecorator('group_id', {
               initialValue: initialGroupId,
@@ -739,9 +806,19 @@ export default class Index extends PureComponent {
                   {virtualMachineImage && virtualMachineImage.length > 0 && <Radio value='ok'>{formatMessage({ id: 'Vm.createVm.have' })}</Radio>}
                 </Radio.Group>
                 {virtualMachineImage && virtualMachineImage.length > 0 && (
-                  <Button size="small" onClick={this.openAssetCatalog}>
-                    {formatMessage({ id: 'Vm.assetCatalog.manage' })}
-                  </Button>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <Button size="small" onClick={this.openAssetCatalog}>
+                      {formatMessage({ id: 'Vm.assetCatalog.manage' })}
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        window.location.href = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/vm/templates`;
+                      }}
+                    >
+                      {formatMessage({ id: 'Vm.template.center.entry' })}
+                    </Button>
+                  </div>
                 )}
               </div>
             )}

@@ -993,41 +993,40 @@ class Main extends PureComponent {
   handleVMExport = () => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
-    const { status } = this.state;
-    if (!status || status.status !== 'closed') {
-      notification.warning({ message: formatMessage({ id: 'Vm.export.closedOnly' }) });
-      return;
-    }
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
     Modal.confirm({
-      title: formatMessage({ id: 'Vm.export.modalTitle' }),
+      title: formatMessage({ id: 'Vm.template.modalTitle' }),
       content: (
-        <Input
-          defaultValue={exportName}
-          placeholder={formatMessage({ id: 'Vm.export.namePlaceholder' })}
-          onChange={e => {
-            exportName = e.target.value;
-          }}
-        />
+        <div>
+          <Input
+            defaultValue={exportName}
+            placeholder={formatMessage({ id: 'Vm.template.namePlaceholder' })}
+            onChange={e => {
+              exportName = e.target.value;
+            }}
+          />
+          <div style={{ marginTop: 12, color: '#8d9bad' }}>
+            {formatMessage({ id: 'Vm.template.modalTip' })}
+          </div>
+        </div>
       ),
       onOk: () => new Promise((resolve, reject) => {
         dispatch({
-          type: 'appControl/startVMExport',
+          type: 'appControl/saveVMTemplate',
           payload: {
             team_name,
             app_alias: serviceAlias,
             name: exportName
           },
           callback: res => {
-            const asset = res && res.bean;
-            if (asset && asset.id) {
-              notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+            const template = res && res.bean;
+            if (template && template.id) {
+              notification.success({ message: formatMessage({ id: 'Vm.template.started' }) });
               this.loadDetail();
-              this.pollVMExportStatus(asset.id);
               resolve();
               return;
             }
-            reject(new Error('vm export start failed'));
+            reject(new Error('vm template start failed'));
           }
         });
       })
