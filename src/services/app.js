@@ -3399,6 +3399,20 @@ export async function startVMExport(body = {}) {
   );
 }
 
+export async function saveVMTemplate(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-templates`,
+    {
+      method: 'post',
+      data: {
+        name: body.name,
+        description: body.description || '',
+        include_data_disks: body.include_data_disks !== false
+      }
+    }
+  );
+}
+
 export async function getVMExportStatus(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-export`,

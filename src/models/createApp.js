@@ -24,6 +24,7 @@ import {
   getAppByVirtualMachineImage,
   deleteVMAsset,
   getVMCapabilities,
+  getVMTemplateDetail,
   createAppByVirtualMachine,
   getImageRepositories,
   getImageTags,
@@ -240,6 +241,12 @@ export default {
     },
     *getVMCapabilities({ payload, callback, handleError }, { call }) {
       const data = yield call(getVMCapabilities, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *getVMTemplateDetail({ payload, callback, handleError }, { call }) {
+      const data = yield call(getVMTemplateDetail, payload, handleError);
       if (data && callback) {
         callback(data);
       }

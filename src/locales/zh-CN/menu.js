@@ -47,6 +47,7 @@ const teamMenu = {
   'menu.team.pipeline': '流水线',
   'menu.team.log': '日志查询',
   'menu.team.link': '链路追踪',
+  'menu.VMTemplateCenter': '虚拟机模板',
   'menu.team.create.wizard': '向导页',
 }
 const appMenu = {
