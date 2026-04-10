@@ -27,9 +27,25 @@ const getIcon = icon => {
   return <span className={styles.menuIcon}>{icon}</span>;
 };
 
+const UpgradeStatusIcon = ({ className }) => (
+  <svg
+    className={className}
+    viewBox="0 0 1024 1024"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M323.904 651.072a32 32 0 0 1 17.024 17.024L416 845.76l75.072-177.664a32 32 0 0 1 17.024-17.024L685.76 576 508.16 500.928a32 32 0 0 1-17.024-17.024L416 306.24 340.928 483.84a32 32 0 0 1-17.024 17.024L146.24 576l177.664 75.072zM51.52 605.44a32 32 0 0 1 0-59.008l235.52-99.456 99.456-235.52a32 32 0 0 1 59.008 0l99.456 235.52 235.52 99.456a32 32 0 0 1 0 59.008l-235.52 99.456-99.456 235.52a32 32 0 0 1-59.008 0l-99.456-235.52-235.52-99.456z m688.64-249.28L704 448l-36.224-91.776L576 320l91.776-36.224L704 192l36.224 91.776L832 320l-91.776 36.224z m151.04-169.088L864 256l-27.136-68.864L768 160l68.864-27.136L864 64l27.136 68.864L960 160l-68.864 27.136z m0 704L864 960l-27.136-68.864L768 864l68.864-27.136L864 768l27.136 68.864L960 864l-68.864 27.136z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 @connect(({ loading, global, user }) => ({
   viewLoading: loading.effects['user/addCollectionView'],
   collapsed: global.collapsed,
+  rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser
 }))
 export default class GlobalRouter extends PureComponent {
@@ -39,20 +55,86 @@ export default class GlobalRouter extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     this.state = {
-      expandedKeys: [] // 展开的子菜单 keys
+      expandedKeys: [], // 展开的子菜单 keys
+      hasUpgradeVersion: false
     };
   }
 
   componentDidMount() {
     // 初始化展开状态
     this.initExpandedKeys();
+    this.fetchPlatformUpdateStatus();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.location?.pathname !== this.props.location?.pathname) {
       this.initExpandedKeys();
     }
+
+    if (
+      prevProps.currentUser?.is_enterprise_admin !== this.props.currentUser?.is_enterprise_admin ||
+      prevProps.currentUser?.enterprise_id !== this.props.currentUser?.enterprise_id ||
+      prevProps.currentEnterprise?.enterprise_id !== this.props.currentEnterprise?.enterprise_id ||
+      prevProps.rainbondInfo?.version?.value !== this.props.rainbondInfo?.version?.value
+    ) {
+      this.fetchPlatformUpdateStatus();
+    }
   }
+
+  getEnterpriseId = () => {
+    const { currentEnterprise, currentUser, pathname } = this.props;
+    if (currentEnterprise?.enterprise_id) {
+      return currentEnterprise.enterprise_id;
+    }
+    if (currentUser?.enterprise_id) {
+      return currentUser.enterprise_id;
+    }
+    const match = pathname && pathname.match(/\/enterprise\/([^/]+)/);
+    return match ? match[1] : '';
+  };
+
+  fetchPlatformUpdateStatus = () => {
+    const { dispatch, currentUser, rainbondInfo } = this.props;
+    const enterpriseId = this.getEnterpriseId();
+    const currentVersion = rainbondInfo?.version?.value
+      ? rainbondInfo.version.value.split('-')[0]
+      : '';
+
+    if (!currentUser?.is_enterprise_admin || !enterpriseId || !currentVersion) {
+      if (this.state.hasUpgradeVersion) {
+        this.setState({ hasUpgradeVersion: false });
+      }
+      return;
+    }
+
+    dispatch({
+      type: 'global/fetchAllVersion',
+      callback: res => {
+        const list = Array.isArray(res && res.response_data) ? res.response_data : [];
+        const latestVersion = list[0];
+        const hasUpgradeVersion =
+          !!latestVersion && latestVersion.split('-')[0] !== currentVersion;
+        this.setState({ hasUpgradeVersion });
+      },
+      handleError: () => {
+        this.setState({ hasUpgradeVersion: false });
+      }
+    });
+  };
+
+  handleUpgradeNavigation = () => {
+    const { dispatch, isMobile, onCollapse } = this.props;
+    const enterpriseId = this.getEnterpriseId();
+    if (!enterpriseId) {
+      return;
+    }
+
+    if (isMobile) {
+      onCollapse?.(true);
+    }
+
+    dispatch(routerRedux.push(`/enterprise/${enterpriseId}/setting?type=updateVersion`));
+  };
 
   /**
    * 初始化展开的菜单
@@ -350,6 +432,47 @@ export default class GlobalRouter extends PureComponent {
     return button;
   };
 
+  renderUpgradeEntry = () => {
+    const { collapsed, currentUser } = this.props;
+    const { hasUpgradeVersion } = this.state;
+
+    if (!currentUser?.is_enterprise_admin || !hasUpgradeVersion) {
+      return null;
+    }
+
+    if (collapsed) {
+      return (
+        <Tooltip
+          title={formatMessage({ id: 'platformUpgrade.index.clicktoupload' })}
+          placement="right"
+        >
+          <div
+            className={styles.upgradeShortcut}
+            onClick={this.handleUpgradeNavigation}
+          >
+            <UpgradeStatusIcon className={styles.upgradeStatusIcon} />
+          </div>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <div
+        className={styles.upgradeCard}
+        onClick={this.handleUpgradeNavigation}
+      >
+        <div className={styles.upgradeCardIcon}>
+          <UpgradeStatusIcon className={styles.upgradeStatusIcon} />
+        </div>
+        <div className={styles.upgradeCardContent}>
+          <div className={styles.upgradeCardTitle}>
+            {formatMessage({ id: 'enterpriseOverview.overview.UpdateVersion.title' })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   render() {
     const { showMenu, collapsed } = this.props;
 
@@ -365,8 +488,9 @@ export default class GlobalRouter extends PureComponent {
           </nav>
         </div>
 
-        {/* 底部：收起按钮 */}
+        {/* 底部：升级提示和收起按钮 */}
         <div className={styles.menuFooter}>
+          {this.renderUpgradeEntry()}
           {this.renderCollapseButton()}
         </div>
       </div>
