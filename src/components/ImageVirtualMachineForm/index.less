@@ -60,7 +60,7 @@
 
 .publicVmGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 
@@ -102,12 +102,20 @@
   object-fit: contain;
 }
 
+.publicVmCardFallbackIcon {
+  color: @heading-color;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .publicVmCardName {
   color: @heading-color;
   font-size: 14px;
   font-weight: 600;
   line-height: 22px;
   text-align: center;
+  word-break: break-word;
 }
 
 .uploadPanel {
