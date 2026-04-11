@@ -12,6 +12,7 @@ import {
   Tooltip,
   notification,
   Switch,
+  InputNumber,
   message
 } from 'antd';
 import { connect } from 'dva';
@@ -338,6 +339,9 @@ export default class Index extends PureComponent {
 
         if (!fieldsValue.gpu_enabled) {
           fieldsValue.gpu_resources = [];
+          fieldsValue.gpu_count = 0;
+        } else {
+          fieldsValue.gpu_count = fieldsValue.gpu_count || 1;
         }
         if (!fieldsValue.usb_enabled) {
           fieldsValue.usb_resources = [];
@@ -417,6 +421,7 @@ export default class Index extends PureComponent {
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
+          gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
           usb_resources: runtimeSnapshot.usb_resources || [],
           network_mode: runtimeSnapshot.network_mode || 'random',
@@ -490,6 +495,7 @@ export default class Index extends PureComponent {
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
+          gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
           usb_resources: runtimeSnapshot.usb_resources || [],
           network_mode: runtimeSnapshot.network_mode || 'random',
@@ -554,6 +560,27 @@ export default class Index extends PureComponent {
       return;
     }
     callback(new Error(formatMessage({ id: messageId })));
+  };
+
+  validateGPUCount = (_, value, callback) => {
+    const { form } = this.props;
+    if (!form.getFieldValue('gpu_enabled')) {
+      callback();
+      return;
+    }
+    const gpuResources = form.getFieldValue('gpu_resources') || [];
+    const gpuCount = Number(value);
+    if (!gpuCount || gpuCount < 1) {
+      callback(new Error(formatMessage({ id: 'Vm.createVm.gpuCountRequired' })));
+      return;
+    }
+    if (gpuCount > 1 && gpuResources.length > 1) {
+      callback(
+        new Error(formatMessage({ id: 'Vm.createVm.gpuCountSingleResourceOnly' }))
+      );
+      return;
+    }
+    callback();
   };
 
   onChangeUpload = info => {
@@ -892,6 +919,20 @@ export default class Index extends PureComponent {
                   </Option>
                 ))}
               </Select>
+            )}
+          </Form.Item>
+        ) : null}
+        {vmCapabilities.gpu_supported && form.getFieldValue('gpu_enabled') ? (
+          <Form.Item label={formatMessage({ id: 'Vm.createVm.gpuCount' })}>
+            {getFieldDecorator('gpu_count', {
+              initialValue: 1,
+              rules: [{ validator: this.validateGPUCount }]
+            })(
+              <InputNumber
+                min={1}
+                precision={0}
+                style={{ width: '100%' }}
+              />
             )}
           </Form.Item>
         ) : null}
