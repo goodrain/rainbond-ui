@@ -410,14 +410,13 @@ class Index extends PureComponent {
                   isSelectField(selectVal) &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
-                      <p style={{ whiteSpace: 'nowrap', paddingBottom: 5 }}>{selectVal == "dnsPolicy" ? formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' }) : selectVal}</p>
                       {getFieldDecorator(`${selectVal}`, {
                         initialValue: strValue || undefined,
                         rules: [{ required: false }]
                       })(
                         <Select
                           placeholder={selectVal == "dnsPolicy" ? formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' }) : selectVal}
-                          style={{ width: 220, marginLeft: selectVal == "dnsPolicy" ? 56 : 0 }}
+                          style={{ width: 220 }}
                           onSelect={this.dnsPolicyYamlShow}
                         >
                           {selectOptions.map((item, index) => {
@@ -458,7 +457,6 @@ class Index extends PureComponent {
                   isStringField(selectVal, currentAttribute) &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
-                      <p style={{ whiteSpace: 'nowrap' }}>{inputLabel}</p>
                       <div className={language ? styles.accountName_style : styles.en_accountName_style}>
                         {getFieldDecorator(`${selectVal}`, {
                           initialValue: strValue || '',
@@ -473,13 +471,12 @@ class Index extends PureComponent {
                   BOOLEAN_FIELDS.includes(selectVal) &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
-                      <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{ type: selectVal }} /></p>
                       {getFieldDecorator(`${selectVal}`, {
                         initialValue: strValue || false,
                         rules: [{ required: false }]
                       })(<Switch
                         defaultChecked={strValue || false}
-                        style={{ margin: "20px 0  0 50px" }}
+                        style={{ marginTop: '8px' }}
                       />)}
                     </div>
                   </Form.Item>
@@ -542,7 +539,8 @@ class Index extends PureComponent {
                         </div>
                       }
                       {item.name &&
-                        (item.name == "vm_network_mode") &&
+                        isSelectField(item.name) &&
+                        item.name !== "dnsPolicy" &&
                         <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
                           <Tooltip key={index} placement="top" title={item.attribute_value}>
                             {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'}
