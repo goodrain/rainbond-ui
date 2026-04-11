@@ -298,6 +298,8 @@ export async function createAppByVirtualMachine(body = {}) {
         network_mode: body.network_mode,
         network_name: body.network_name,
         fixed_ip: body.fixed_ip,
+        gateway: body.gateway,
+        dns_servers: body.dns_servers,
       }
     }
   );

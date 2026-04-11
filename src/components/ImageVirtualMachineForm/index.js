@@ -349,6 +349,8 @@ export default class Index extends PureComponent {
         if (fieldsValue.network_mode !== 'fixed') {
           fieldsValue.network_name = '';
           fieldsValue.fixed_ip = '';
+          fieldsValue.gateway = '';
+          fieldsValue.dns_servers = '';
         }
         fieldsValue.os_family = fieldsValue.os_family || 'linux';
 
@@ -426,7 +428,9 @@ export default class Index extends PureComponent {
           usb_resources: runtimeSnapshot.usb_resources || [],
           network_mode: runtimeSnapshot.network_mode || 'random',
           network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined
+          fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+          gateway: runtimeSnapshot.gateway || undefined,
+          dns_servers: runtimeSnapshot.dns_servers || undefined
         });
       }
     );
@@ -500,7 +504,9 @@ export default class Index extends PureComponent {
           usb_resources: runtimeSnapshot.usb_resources || [],
           network_mode: runtimeSnapshot.network_mode || 'random',
           network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined
+          fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+          gateway: runtimeSnapshot.gateway || undefined,
+          dns_servers: runtimeSnapshot.dns_servers || undefined
         });
         this.closeAssetCatalog();
       }
@@ -1035,6 +1041,20 @@ export default class Index extends PureComponent {
               })(
                 <Input
                   placeholder={formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })}
+                />
+              )}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'Vm.createVm.gateway' })}>
+              {getFieldDecorator('gateway')(
+                <Input
+                  placeholder={formatMessage({ id: 'Vm.createVm.gatewayPlaceholder' })}
+                />
+              )}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'Vm.createVm.dnsServers' })}>
+              {getFieldDecorator('dns_servers')(
+                <Input
+                  placeholder={formatMessage({ id: 'Vm.createVm.dnsServersPlaceholder' })}
                 />
               )}
             </Form.Item>
