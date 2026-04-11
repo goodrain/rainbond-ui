@@ -26,6 +26,7 @@ import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
+const { mergeRuntimeFormValues } = require('./runtimeFieldMerge');
 
 const { Option } = Select;
 
@@ -413,24 +414,38 @@ export default class Index extends PureComponent {
         radioKey: 'existing'
       },
       () => {
+        const mergedRuntimeValues = mergeRuntimeFormValues({
+          form,
+          currentValues: form.getFieldsValue([
+            'os_family',
+            'network_mode',
+            'network_name',
+            'fixed_ip',
+            'gateway',
+            'dns_servers'
+          ]),
+          incomingValues: {
+            os_family: guestOSFamily,
+            network_mode: runtimeSnapshot.network_mode || 'random',
+            network_name: runtimeSnapshot.network_name || undefined,
+            fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+            gateway: runtimeSnapshot.gateway || undefined,
+            dns_servers: runtimeSnapshot.dns_servers || undefined
+          }
+        });
         form.setFieldsValue({
           imagefrom: 'existing',
           image_name: preset.name,
           asset_id: preset.id,
           template_id: preset.template_id,
           template_version_id: preset.template_version_id,
-          os_family: guestOSFamily,
+          ...mergedRuntimeValues,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
           gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
-          usb_resources: runtimeSnapshot.usb_resources || [],
-          network_mode: runtimeSnapshot.network_mode || 'random',
-          network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined,
-          gateway: runtimeSnapshot.gateway || undefined,
-          dns_servers: runtimeSnapshot.dns_servers || undefined
+          usb_resources: runtimeSnapshot.usb_resources || []
         });
       }
     );
@@ -489,24 +504,38 @@ export default class Index extends PureComponent {
         radioKey: 'existing'
       },
       () => {
+        const mergedRuntimeValues = mergeRuntimeFormValues({
+          form,
+          currentValues: form.getFieldsValue([
+            'os_family',
+            'network_mode',
+            'network_name',
+            'fixed_ip',
+            'gateway',
+            'dns_servers'
+          ]),
+          incomingValues: {
+            os_family: guestOSFamily,
+            network_mode: runtimeSnapshot.network_mode || 'random',
+            network_name: runtimeSnapshot.network_name || undefined,
+            fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+            gateway: runtimeSnapshot.gateway || undefined,
+            dns_servers: runtimeSnapshot.dns_servers || undefined
+          }
+        });
         form.setFieldsValue({
           imagefrom: 'existing',
           image_name: asset.name,
           asset_id: asset.id,
           template_id: asset.template_id || undefined,
           template_version_id: asset.template_version_id || undefined,
-          os_family: guestOSFamily,
+          ...mergedRuntimeValues,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
           gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
-          usb_resources: runtimeSnapshot.usb_resources || [],
-          network_mode: runtimeSnapshot.network_mode || 'random',
-          network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined,
-          gateway: runtimeSnapshot.gateway || undefined,
-          dns_servers: runtimeSnapshot.dns_servers || undefined
+          usb_resources: runtimeSnapshot.usb_resources || []
         });
         this.closeAssetCatalog();
       }
