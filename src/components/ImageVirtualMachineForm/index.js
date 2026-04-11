@@ -23,37 +23,35 @@ import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
 import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
-import anolisOS from '../../../public/images/anolis.png';
 import centOS from '../../../public/images/centos.png';
-import deepinOS from '../../../public/images/deepin.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
 
 const { Option } = Select;
 
 const PUBLIC_VM_OPTIONS = [
   {
-    key: 'centos7.9',
-    vm_url: 'https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso',
-    image_name: 'centos7.9',
-    icon: centOS
-  },
-  {
-    key: 'anolisos7.9',
-    vm_url: 'https://mirrors.aliyun.com/anolis/7.9/isos/GA/x86_64/AnolisOS-7.9-Minimal-x86_64-dvd.iso',
-    image_name: 'anolisos7.9',
-    icon: anolisOS
-  },
-  {
-    key: 'deepin20.9',
-    vm_url: 'https://mirrors.aliyun.com/deepin-cd/20.9/deepin-desktop-community-20.9-amd64.iso',
-    image_name: 'deepin20.9',
-    icon: deepinOS
-  },
-  {
-    key: 'ubuntu23.10',
-    vm_url: 'https://mirrors.aliyun.com/ubuntu-releases/mantic/ubuntu-23.10-live-server-amd64.iso',
-    image_name: 'ubuntu23.10',
+    key: 'ubuntu22.04.5',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/22.04/ubuntu-22.04.5-live-server-amd64.iso',
+    image_name: 'ubuntu22.04.5',
+    display_name: 'Ubuntu 22.04.5 LTS',
     icon: ubuntuOS
+  },
+  {
+    key: 'debian13.4.0',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.4.0-amd64-standard.iso',
+    image_name: 'debian13.4.0',
+    display_name: 'Debian 13.4.0',
+    icon_label: 'D'
+  },
+  {
+    key: 'centosstream9',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/centos-stream/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso',
+    image_name: 'centosstream9',
+    display_name: 'CentOS Stream 9',
+    icon: centOS
   }
 ];
 
@@ -696,13 +694,21 @@ export default class Index extends PureComponent {
               onClick={() => this.handleSelectPublicVm(item)}
             >
               <div className={styles.publicVmCardIconWrap}>
-                <img
-                  src={item.icon}
-                  alt={item.image_name}
-                  className={styles.publicVmCardIcon}
-                />
+                {item.icon ? (
+                  <img
+                    src={item.icon}
+                    alt={item.display_name || item.image_name}
+                    className={styles.publicVmCardIcon}
+                  />
+                ) : (
+                  <span className={styles.publicVmCardFallbackIcon}>
+                    {item.icon_label || item.image_name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div className={styles.publicVmCardName}>{item.image_name}</div>
+              <div className={styles.publicVmCardName}>
+                {item.display_name || item.image_name}
+              </div>
             </div>
           );
         })}
