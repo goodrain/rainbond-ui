@@ -82,6 +82,14 @@ class VMProfilePanel extends PureComponent {
                 runtime.fixed_ip
               )}
               {this.renderLine(
+                formatMessage({ id: 'Vm.createVm.gateway' }),
+                runtime.gateway
+              )}
+              {this.renderLine(
+                formatMessage({ id: 'Vm.createVm.dnsServers' }),
+                runtime.dns_servers
+              )}
+              {this.renderLine(
                 formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
                 runtime.boot_mode
               )}
