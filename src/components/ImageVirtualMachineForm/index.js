@@ -31,27 +31,27 @@ const { Option } = Select;
 
 const PUBLIC_VM_OPTIONS = [
   {
-    key: 'ubuntu22.04.5',
+    key: 'ubuntu-22.04.5-lts',
     vm_url:
       'https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/22.04/ubuntu-22.04.5-live-server-amd64.iso',
-    image_name: 'ubuntu22.04.5',
+    image_name: 'ubuntu-22.04.5-lts',
     display_name: 'Ubuntu 22.04.5 LTS',
     icon: ubuntuOS
   },
   {
-    key: 'debian13.4.0',
+    key: 'debian-13.4.0-standard',
     vm_url:
       'https://mirrors.tuna.tsinghua.edu.cn/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.4.0-amd64-standard.iso',
-    image_name: 'debian13.4.0',
-    display_name: 'Debian 13.4.0',
+    image_name: 'debian-13.4.0-standard',
+    display_name: 'Debian 13.4.0 Standard',
     icon_label: 'D'
   },
   {
-    key: 'centosstream9',
+    key: 'centos-stream-9-dvd1',
     vm_url:
       'https://mirrors.tuna.tsinghua.edu.cn/centos-stream/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso',
-    image_name: 'centosstream9',
-    display_name: 'CentOS Stream 9',
+    image_name: 'centos-stream-9-dvd1',
+    display_name: 'CentOS Stream 9 DVD1',
     icon: centOS
   }
 ];
