@@ -76,14 +76,19 @@
   transition: all 0.2s ease;
   border: 1px solid @border-color-base;
   margin-bottom: 24px;
+  background: #fff;
 
   &:hover {
     transform: translateY(-1px);
+    border-color: fade(@primary-color, 28%);
   }
 }
 
 .publicVmCardActive {
   color: @primary-color;
+  border-color: @primary-color;
+  background: fade(@primary-color, 6%);
+  box-shadow: 0 0 0 2px fade(@primary-color, 12%);
 }
 
 .publicVmCardIconWrap {
