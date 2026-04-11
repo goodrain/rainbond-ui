@@ -352,6 +352,10 @@ export default class Index extends PureComponent {
           fieldsValue.fixed_ip = '';
           fieldsValue.gateway = '';
           fieldsValue.dns_servers = '';
+        } else if ((this.state.vmCapabilities.networks || []).length === 0) {
+          fieldsValue.network_name = '';
+          fieldsValue.gateway = '';
+          fieldsValue.dns_servers = '';
         }
         fieldsValue.os_family = fieldsValue.os_family || 'linux';
 
@@ -878,6 +882,7 @@ export default class Index extends PureComponent {
   renderRuntimeFields = (archLength, arch, form) => {
     const { getFieldDecorator } = form;
     const { vmCapabilities } = this.state;
+    const hasBusinessNetworks = (vmCapabilities.networks || []).length > 0;
     return (
       <Fragment>
         {archLength === 2 ? (
@@ -1035,30 +1040,32 @@ export default class Index extends PureComponent {
 
         {form.getFieldValue('network_mode') === 'fixed' ? (
           <Fragment>
-            <Form.Item label={formatMessage({ id: 'Vm.createVm.networkName' })}>
-              {getFieldDecorator('network_name', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })
-                  }
-                ]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
-                >
-                  {(vmCapabilities.networks || []).map(item => {
-                    const value = `${item.namespace}/${item.name}`;
-                    return (
-                      <Option key={value} value={value}>
-                        {value}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </Form.Item>
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.networkName' })}>
+                {getFieldDecorator('network_name', {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })
+                    }
+                  ]
+                })(
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
+                  >
+                    {(vmCapabilities.networks || []).map(item => {
+                      const value = `${item.namespace}/${item.name}`;
+                      return (
+                        <Option key={value} value={value}>
+                          {value}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </Form.Item>
+            ) : null}
             <Form.Item label={formatMessage({ id: 'Vm.createVm.fixedIP' })}>
               {getFieldDecorator('fixed_ip', {
                 rules: [
@@ -1073,20 +1080,24 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
-            <Form.Item label={formatMessage({ id: 'Vm.createVm.gateway' })}>
-              {getFieldDecorator('gateway')(
-                <Input
-                  placeholder={formatMessage({ id: 'Vm.createVm.gatewayPlaceholder' })}
-                />
-              )}
-            </Form.Item>
-            <Form.Item label={formatMessage({ id: 'Vm.createVm.dnsServers' })}>
-              {getFieldDecorator('dns_servers')(
-                <Input
-                  placeholder={formatMessage({ id: 'Vm.createVm.dnsServersPlaceholder' })}
-                />
-              )}
-            </Form.Item>
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.gateway' })}>
+                {getFieldDecorator('gateway')(
+                  <Input
+                    placeholder={formatMessage({ id: 'Vm.createVm.gatewayPlaceholder' })}
+                  />
+                )}
+              </Form.Item>
+            ) : null}
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.dnsServers' })}>
+                {getFieldDecorator('dns_servers')(
+                  <Input
+                    placeholder={formatMessage({ id: 'Vm.createVm.dnsServersPlaceholder' })}
+                  />
+                )}
+              </Form.Item>
+            ) : null}
           </Fragment>
         ) : null}
       </Fragment>
