@@ -1386,13 +1386,6 @@ class Main extends PureComponent {
         onClick: () => this.handleVm()
       },
       {
-        key: 'vmTemplate',
-        show: method === 'vm' && status?.status,
-        type: 'button',
-        text: formatMessage({ id: 'Vm.template.action' }),
-        onClick: () => this.handleSaveVMTemplate()
-      },
-      {
         key: 'vmExport',
         show: method === 'vm' && this.canExportVM(status),
         type: 'button',
