@@ -1411,13 +1411,6 @@ class Main extends PureComponent {
           )
         }
         {
-          method == 'vm' && status && status.status && (
-            <Button style={{ marginLeft: 8 }} onClick={this.handleSaveVMTemplate}>
-              {formatMessage({ id: 'Vm.template.action' })}
-            </Button>
-          )
-        }
-        {
           method == 'vm' && this.canExportVM(status) && (
             <Button style={{ marginLeft: 8 }} onClick={this.handleVMExport}>
               {formatMessage({ id: 'Vm.export.action' })}
