@@ -921,7 +921,7 @@ export default class Index extends PureComponent {
         </Form.Item>
 
         {vmCapabilities.gpu_supported ? (
-          <Form.Item label={formatMessage({ id: 'Vm.createVm.gpu' })}>
+          <Form.Item>
             <div className={styles.switchPanel}>
               <div className={styles.switchPanelMeta}>
                 <div className={styles.switchPanelTitle}>
@@ -978,7 +978,7 @@ export default class Index extends PureComponent {
         ) : null}
 
         {vmCapabilities.usb_supported ? (
-          <Form.Item label={formatMessage({ id: 'Vm.createVm.usb' })}>
+          <Form.Item>
             <div className={styles.switchPanel}>
               <div className={styles.switchPanelMeta}>
                 <div className={styles.switchPanelTitle}>
