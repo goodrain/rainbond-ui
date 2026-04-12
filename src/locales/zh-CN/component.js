@@ -1664,6 +1664,7 @@ const componentOther = {
     'Vm.template.center.diskRestoreUnsupported': '该磁盘当前仅恢复磁盘拓扑，不恢复导出内容。',
     'Vm.template.center.partialTip': '该模板为部分可恢复模板。当前仅保证根盘和磁盘拓扑恢复，数据盘内容恢复尚未完全支持。',
     'Vm.template.modalTitle': '保存为模板',
+    'Vm.template.action': '保存为模板',
     'Vm.template.namePlaceholder': '请输入模板名称',
     'Vm.template.modalTip': '系统会自动为当前虚拟机创建快照并生成团队模板。',
     'Vm.template.started': '模板任务已启动',

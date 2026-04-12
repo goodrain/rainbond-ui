@@ -993,16 +993,62 @@ class Main extends PureComponent {
   handleVMExport = () => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
+    const { status } = this.state;
+    if (!status || status.status !== 'closed') {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.closedOnly' }) });
+      return;
+    }
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
+    Modal.confirm({
+      title: formatMessage({ id: 'Vm.export.modalTitle' }),
+      content: (
+        <Input
+          defaultValue={exportName}
+          placeholder={formatMessage({ id: 'Vm.export.namePlaceholder' })}
+          onChange={e => {
+            exportName = e.target.value;
+          }}
+        />
+      ),
+      onOk: () => new Promise((resolve, reject) => {
+        dispatch({
+          type: 'appControl/startVMExport',
+          payload: {
+            team_name,
+            app_alias: serviceAlias,
+            name: exportName
+          },
+          callback: res => {
+            const asset = res && res.bean;
+            if (asset && asset.id) {
+              notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+              this.loadDetail();
+              this.pollVMExportStatus(asset.id);
+              resolve();
+              return;
+            }
+            reject(new Error('vm export start failed'));
+          },
+          handleError: err => {
+            reject(err);
+          }
+        });
+      })
+    });
+  };
+  handleSaveVMTemplate = () => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    let templateName = `${serviceAlias}-template-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
     Modal.confirm({
       title: formatMessage({ id: 'Vm.template.modalTitle' }),
       content: (
         <div>
           <Input
-            defaultValue={exportName}
+            defaultValue={templateName}
             placeholder={formatMessage({ id: 'Vm.template.namePlaceholder' })}
             onChange={e => {
-              exportName = e.target.value;
+              templateName = e.target.value;
             }}
           />
           <div style={{ marginTop: 12, color: '#8d9bad' }}>
@@ -1016,7 +1062,7 @@ class Main extends PureComponent {
           payload: {
             team_name,
             app_alias: serviceAlias,
-            name: exportName
+            name: templateName
           },
           callback: res => {
             const template = res && res.bean;
@@ -1027,6 +1073,9 @@ class Main extends PureComponent {
               return;
             }
             reject(new Error('vm template start failed'));
+          },
+          handleError: err => {
+            reject(err);
           }
         });
       })
@@ -1354,6 +1403,13 @@ class Main extends PureComponent {
         )}
         {
           method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+        }
+        {
+          method == 'vm' && status && status.status && (
+            <Button style={{ marginLeft: 8 }} onClick={this.handleSaveVMTemplate}>
+              {formatMessage({ id: 'Vm.template.action' })}
+            </Button>
+          )
         }
         {
           method == 'vm' && status && status.status == 'closed' && (
