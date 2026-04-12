@@ -71,6 +71,7 @@ import { formatMessage } from '@/utils/intl';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const VM_EXPORT_ALLOWED_STATUSES = ['running', 'paused', 'closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -990,12 +991,15 @@ class Main extends PureComponent {
       }
     });
   };
+  canExportVM = status => {
+    return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
+  };
   handleVMExport = () => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
     const { status } = this.state;
-    if (!status || status.status !== 'closed') {
-      notification.warning({ message: formatMessage({ id: 'Vm.export.closedOnly' }) });
+    if (!this.canExportVM(status)) {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
       return;
     }
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
@@ -1412,7 +1416,7 @@ class Main extends PureComponent {
           )
         }
         {
-          method == 'vm' && status && status.status == 'closed' && (
+          method == 'vm' && this.canExportVM(status) && (
             <Button style={{ marginLeft: 8 }} onClick={this.handleVMExport}>
               {formatMessage({ id: 'Vm.export.action' })}
             </Button>
