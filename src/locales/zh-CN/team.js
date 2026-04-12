@@ -843,6 +843,7 @@ const Vm = {
   'Vm.export.modalTitle': '导出当前虚拟机到镜像组',
   'Vm.export.namePlaceholder': '请输入导出资产名称',
   'Vm.export.closedOnly': '请先关闭虚拟机，再执行导出',
+  'Vm.export.unavailable': '当前虚拟机状态暂不支持导出',
   'Vm.export.started': '导出任务已启动，正在导出到镜像组',
   'Vm.export.success': '虚拟机导出完成，已写入镜像组',
   'Vm.export.failed': '虚拟机导出失败',
