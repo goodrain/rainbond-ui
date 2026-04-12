@@ -2964,6 +2964,7 @@ const global = {
       stop: formatMessage({ id: 'global.fetchStateOptTypeText.stop' }),
       'restart-service': formatMessage({ id: 'global.fetchStateOptTypeText.restart-service' }),
       restart: formatMessage({ id: 'global.fetchStateOptTypeText.restart' }),
+      'export-vm': formatMessage({ id: 'global.fetchStateOptTypeText.export-vm' }),
       'vertical-service': formatMessage({ id: 'global.fetchStateOptTypeText.vertical-service' }),
       vertical: formatMessage({ id: 'global.fetchStateOptTypeText.vertical' }),
       'horizontal-service': formatMessage({ id: 'global.fetchStateOptTypeText.horizontal-service' }),
