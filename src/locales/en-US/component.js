@@ -1652,6 +1652,7 @@ const componentOther = {
     'Vm.template.center.diskRestoreUnsupported': 'This disk currently restores topology only and does not restore exported content.',
     'Vm.template.center.partialTip': 'This template is only partially recoverable. Root disk and disk topology are preserved, but data-disk content restore is not fully supported yet.',
     'Vm.template.modalTitle': 'Save as Template',
+    'Vm.template.action': 'Save as Template',
     'Vm.template.namePlaceholder': 'Enter template name',
     'Vm.template.modalTip': 'The platform will snapshot the current VM and generate a team template automatically.',
     'Vm.template.started': 'Template generation started',
