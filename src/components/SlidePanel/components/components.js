@@ -70,7 +70,7 @@ import DatabaseBackup from '../../../pages/Component/databaseBackup';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
-const VM_EXPORT_ALLOWED_STATUSES = ['running', 'paused'];
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -1380,7 +1380,7 @@ class Main extends PureComponent {
       },
       {
         key: 'vm',
-        show: method === 'vm' && status?.status,
+        show: method === 'vm' && ['running', 'paused'].includes(status?.status),
         type: 'button',
         text: status?.status === 'paused' ? "恢复" : '挂起',
         onClick: () => this.handleVm()
