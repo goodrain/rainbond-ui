@@ -71,7 +71,7 @@ import { formatMessage } from '@/utils/intl';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
-const VM_EXPORT_ALLOWED_STATUSES = ['running', 'paused'];
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -1406,7 +1406,9 @@ class Main extends PureComponent {
           </Button>
         )}
         {
-          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          method == 'vm' && ['running', 'paused'].includes(status.status) && (
+            <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          )
         }
         {
           method == 'vm' && status && status.status && (
