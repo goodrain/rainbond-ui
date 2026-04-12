@@ -70,7 +70,7 @@ import DatabaseBackup from '../../../pages/Component/databaseBackup';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
-const VM_EXPORT_ALLOWED_STATUSES = ['running', 'paused', 'closed'];
+const VM_EXPORT_ALLOWED_STATUSES = ['running', 'paused'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
