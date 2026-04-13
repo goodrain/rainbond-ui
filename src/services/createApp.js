@@ -1,6 +1,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+const { sanitizePackageToolPayload } = require('../utils/sourceBuildPayload');
+
 /*
    源码创建应用
 */
@@ -386,30 +388,31 @@ export function buildApp(body = {}, handleError) {
   Node项目设置语言和依赖
 */
 export async function setNodeLanguage(body = {}) {
+  const payload = sanitizePackageToolPayload(body);
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/package_tool`,
+    `${apiconfig.baseUrl}/console/teams/${payload.team_name}/apps/${payload.app_alias}/package_tool`,
     {
       method: 'post',
       data: {
-        lang: body.lang,
-        package_tool: body.package_tool,
-        dist: body.dist,
-        build_strategy: body.build_strategy,
-        build_env_dict: body.build_env_dict,
+        lang: payload.lang,
+        package_tool: payload.package_tool,
+        dist: payload.dist,
+        build_strategy: payload.build_strategy,
+        build_env_dict: payload.build_env_dict,
         // CNB 构建相关参数
-        cnb_framework: body.cnb_framework,
-        cnb_build_script: body.cnb_build_script,
-        cnb_output_dir: body.cnb_output_dir,
-        cnb_node_version: body.cnb_node_version,
-        cnb_node_env: body.cnb_node_env,
-        cnb_start_script: body.cnb_start_script,
+        cnb_framework: payload.cnb_framework,
+        cnb_build_script: payload.cnb_build_script,
+        cnb_output_dir: payload.cnb_output_dir,
+        cnb_node_version: payload.cnb_node_version,
+        cnb_node_env: payload.cnb_node_env,
+        cnb_start_script: payload.cnb_start_script,
         // CNB Mirror 配置
-        cnb_mirror_source: body.cnb_mirror_source,
-        cnb_mirror_npmrc: body.cnb_mirror_npmrc,
-        cnb_mirror_yarnrc: body.cnb_mirror_yarnrc,
+        cnb_mirror_source: payload.cnb_mirror_source,
+        cnb_mirror_npmrc: payload.cnb_mirror_npmrc,
+        cnb_mirror_yarnrc: payload.cnb_mirror_yarnrc,
         // 配置文件检测标志
-        has_npmrc: body.has_npmrc,
-        has_yarnrc: body.has_yarnrc,
+        has_npmrc: payload.has_npmrc,
+        has_yarnrc: payload.has_yarnrc,
       }
     }
   );

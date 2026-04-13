@@ -10,6 +10,18 @@ const SOURCE_EXAMPLES = [
     linkColor: '#EA2E96'
   },
   {
+    id: 'java-demo',
+    label: 'Java Demo',
+    gitUrl:
+      'https://gitee.com/rainbond/sourcecode-examples.git?dir=java/springboot-maven',
+    repoUrl: 'https://gitee.com/rainbond/sourcecode-examples.git',
+    subdirectory: 'java/springboot-maven',
+    defaultName: 'java-demo',
+    visibleInUI: true,
+    tagColor: 'lime',
+    linkColor: '#A0D912'
+  },
+  {
     id: 'vite-demo',
     label: 'Vite Demo',
     gitUrl: 'https://gitee.com/rainbond/sourcecode-examples.git?dir=nodejs/vite',
@@ -33,15 +45,16 @@ const SOURCE_EXAMPLES = [
     linkColor: '#FA8E14'
   },
   {
-    id: 'php-demo',
-    label: 'PHP Demo',
-    gitUrl: 'https://gitee.com/rainbond/sourcecode-examples.git?dir=php',
+    id: 'go-demo',
+    label: 'Golang Demo',
+    gitUrl:
+      'https://gitee.com/rainbond/sourcecode-examples.git?dir=go/single-module',
     repoUrl: 'https://gitee.com/rainbond/sourcecode-examples.git',
-    subdirectory: 'php',
-    defaultName: 'php-demo',
+    subdirectory: 'go/single-module',
+    defaultName: 'go-demo',
     visibleInUI: true,
-    tagColor: 'volcano',
-    linkColor: '#FA541B'
+    tagColor: 'gold',
+    linkColor: '#FCAD15'
   },
   {
     id: 'python-demo',
@@ -55,30 +68,6 @@ const SOURCE_EXAMPLES = [
     linkColor: '#1990FF'
   },
   {
-    id: 'go-demo',
-    label: 'Golang Demo',
-    gitUrl:
-      'https://gitee.com/rainbond/sourcecode-examples.git?dir=go/single-module',
-    repoUrl: 'https://gitee.com/rainbond/sourcecode-examples.git',
-    subdirectory: 'go/single-module',
-    defaultName: 'go-demo',
-    visibleInUI: true,
-    tagColor: 'gold',
-    linkColor: '#FCAD15'
-  },
-  {
-    id: 'java-demo',
-    label: 'Java Demo',
-    gitUrl:
-      'https://gitee.com/rainbond/sourcecode-examples.git?dir=java/springboot-maven',
-    repoUrl: 'https://gitee.com/rainbond/sourcecode-examples.git',
-    subdirectory: 'java/springboot-maven',
-    defaultName: 'java-demo',
-    visibleInUI: true,
-    tagColor: 'lime',
-    linkColor: '#A0D912'
-  },
-  {
     id: 'dotnet-demo',
     label: '.Net Demo',
     gitUrl: 'https://gitee.com/rainbond/sourcecode-examples.git?dir=dotnet',
@@ -88,6 +77,17 @@ const SOURCE_EXAMPLES = [
     visibleInUI: true,
     tagColor: 'geekblue',
     linkColor: '#3054EB'
+  },
+  {
+    id: 'php-demo',
+    label: 'PHP Demo',
+    gitUrl: 'https://gitee.com/rainbond/sourcecode-examples.git?dir=php',
+    repoUrl: 'https://gitee.com/rainbond/sourcecode-examples.git',
+    subdirectory: 'php',
+    defaultName: 'php-demo',
+    visibleInUI: true,
+    tagColor: 'volcano',
+    linkColor: '#FA541B'
   },
   {
     id: 'python-django',
