@@ -1167,22 +1167,40 @@ export default {
         callback(response);
       }
     },
-    *vmPause({ payload, callback }, { call }) {
-      const response = yield call(vmPause, payload);
-      if (response && callback) {
-        callback(response);
+    *vmPause({ payload, callback, handleError }, { call }) {
+      try {
+        const response = yield call(vmPause, payload);
+        if (response && callback) {
+          callback(response);
+        }
+      } catch (e) {
+        if (handleError) {
+          handleError(e);
+        }
       }
     },
-    *startVMExport({ payload, callback }, { call }) {
-      const response = yield call(startVMExport, payload);
-      if (response && callback) {
-        callback(response);
+    *startVMExport({ payload, callback, handleError }, { call }) {
+      try {
+        const response = yield call(startVMExport, payload);
+        if (response && callback) {
+          callback(response);
+        }
+      } catch (e) {
+        if (handleError) {
+          handleError(e);
+        }
       }
     },
-    *saveVMTemplate({ payload, callback }, { call }) {
-      const response = yield call(saveVMTemplate, payload);
-      if (response && callback) {
-        callback(response);
+    *saveVMTemplate({ payload, callback, handleError }, { call }) {
+      try {
+        const response = yield call(saveVMTemplate, payload);
+        if (response && callback) {
+          callback(response);
+        }
+      } catch (e) {
+        if (handleError) {
+          handleError(e);
+        }
       }
     },
     *getVMExportStatus({ payload, callback }, { call }) {

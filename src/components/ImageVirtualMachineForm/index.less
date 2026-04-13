@@ -60,7 +60,7 @@
 
 .publicVmGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 
@@ -76,14 +76,19 @@
   transition: all 0.2s ease;
   border: 1px solid @border-color-base;
   margin-bottom: 24px;
+  background: #fff;
 
   &:hover {
     transform: translateY(-1px);
+    border-color: fade(@primary-color, 28%);
   }
 }
 
 .publicVmCardActive {
   color: @primary-color;
+  border-color: @primary-color;
+  background: fade(@primary-color, 6%);
+  box-shadow: 0 0 0 2px fade(@primary-color, 12%);
 }
 
 .publicVmCardIconWrap {
@@ -102,12 +107,20 @@
   object-fit: contain;
 }
 
+.publicVmCardFallbackIcon {
+  color: @heading-color;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .publicVmCardName {
   color: @heading-color;
   font-size: 14px;
   font-weight: 600;
   line-height: 22px;
   text-align: center;
+  word-break: break-word;
 }
 
 .uploadPanel {

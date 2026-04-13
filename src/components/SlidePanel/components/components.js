@@ -45,6 +45,7 @@ import regionUtil from '../../../utils/region';
 import roleUtil from '../../../utils/newRole';
 import teamUtil from '../../../utils/team';
 import userUtil from '../../../utils/user';
+import { createVMExportNameContent, normalizeVMExportName } from '@/utils/vm-export';
 import ConnectionInformation from '../../../pages/Component/connectionInformation';
 import EnvironmentConfiguration from '../../../pages/Component/environmentConfiguration';
 import Expansion from '../../../pages/Component/expansion';
@@ -70,6 +71,7 @@ import DatabaseBackup from '../../../pages/Component/databaseBackup';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -1074,27 +1076,30 @@ class Main extends PureComponent {
       }
     });
   };
+  canExportVM = status => {
+    return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
+  };
   handleVMExport = () => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
     const { status } = this.state;
-    if (!status || status.status !== 'closed') {
-      notification.warning({ message: formatMessage({ id: 'Vm.export.closedOnly' }) });
+    if (!this.canExportVM(status)) {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
       return;
     }
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
     Modal.confirm({
       title: formatMessage({ id: 'Vm.export.modalTitle' }),
-      content: (
-        <Input
-          defaultValue={exportName}
-          placeholder={formatMessage({ id: 'Vm.export.namePlaceholder' })}
-          onChange={e => {
-            exportName = e.target.value;
-          }}
-        />
-      ),
+      content: createVMExportNameContent(exportName, value => {
+        exportName = value;
+      }),
       onOk: () => new Promise((resolve, reject) => {
+        exportName = normalizeVMExportName(exportName);
+        if (!exportName) {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.namePlaceholder' }) });
+          reject(new Error('vm export name required'));
+          return;
+        }
         dispatch({
           type: 'appControl/startVMExport',
           payload: {
@@ -1112,6 +1117,54 @@ class Main extends PureComponent {
               return;
             }
             reject(new Error('vm export start failed'));
+          },
+          handleError: err => {
+            reject(err);
+          }
+        });
+      })
+    });
+  };
+  handleSaveVMTemplate = () => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    let templateName = `${serviceAlias}-template-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
+    Modal.confirm({
+      title: formatMessage({ id: 'Vm.template.modalTitle' }),
+      content: (
+        <div>
+          <Input
+            defaultValue={templateName}
+            placeholder={formatMessage({ id: 'Vm.template.namePlaceholder' })}
+            onChange={e => {
+              templateName = e.target.value;
+            }}
+          />
+          <div style={{ marginTop: 12, color: '#8d9bad' }}>
+            {formatMessage({ id: 'Vm.template.modalTip' })}
+          </div>
+        </div>
+      ),
+      onOk: () => new Promise((resolve, reject) => {
+        dispatch({
+          type: 'appControl/saveVMTemplate',
+          payload: {
+            team_name,
+            app_alias: serviceAlias,
+            name: templateName
+          },
+          callback: res => {
+            const template = res && res.bean;
+            if (template && template.id) {
+              notification.success({ message: formatMessage({ id: 'Vm.template.started' }) });
+              this.loadDetail();
+              resolve();
+              return;
+            }
+            reject(new Error('vm template start failed'));
+          },
+          handleError: err => {
+            reject(err);
           }
         });
       })
@@ -1328,14 +1381,14 @@ class Main extends PureComponent {
       },
       {
         key: 'vm',
-        show: method === 'vm' && status?.status,
+        show: method === 'vm' && ['running', 'paused'].includes(status?.status),
         type: 'button',
         text: status?.status === 'paused' ? "恢复" : '挂起',
         onClick: () => this.handleVm()
       },
       {
         key: 'vmExport',
-        show: method === 'vm' && status?.status === 'closed',
+        show: method === 'vm' && this.canExportVM(status),
         type: 'button',
         text: formatMessage({ id: 'Vm.export.action' }),
         onClick: () => this.handleVMExport()

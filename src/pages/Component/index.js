@@ -47,6 +47,7 @@ import regionUtil from '../../utils/region';
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
+import { createVMExportNameContent, normalizeVMExportName } from '@/utils/vm-export';
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
@@ -71,6 +72,7 @@ import { formatMessage } from '@/utils/intl';
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -990,19 +992,68 @@ class Main extends PureComponent {
       }
     });
   };
+  canExportVM = status => {
+    return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
+  };
   handleVMExport = () => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
+    const { status } = this.state;
+    if (!this.canExportVM(status)) {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
+      return;
+    }
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
+    Modal.confirm({
+      title: formatMessage({ id: 'Vm.export.modalTitle' }),
+      content: createVMExportNameContent(exportName, value => {
+        exportName = value;
+      }),
+      onOk: () => new Promise((resolve, reject) => {
+        exportName = normalizeVMExportName(exportName);
+        if (!exportName) {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.namePlaceholder' }) });
+          reject(new Error('vm export name required'));
+          return;
+        }
+        dispatch({
+          type: 'appControl/startVMExport',
+          payload: {
+            team_name,
+            app_alias: serviceAlias,
+            name: exportName
+          },
+          callback: res => {
+            const asset = res && res.bean;
+            if (asset && asset.id) {
+              notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+              this.loadDetail();
+              this.pollVMExportStatus(asset.id);
+              resolve();
+              return;
+            }
+            reject(new Error('vm export start failed'));
+          },
+          handleError: err => {
+            reject(err);
+          }
+        });
+      })
+    });
+  };
+  handleSaveVMTemplate = () => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    let templateName = `${serviceAlias}-template-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
     Modal.confirm({
       title: formatMessage({ id: 'Vm.template.modalTitle' }),
       content: (
         <div>
           <Input
-            defaultValue={exportName}
+            defaultValue={templateName}
             placeholder={formatMessage({ id: 'Vm.template.namePlaceholder' })}
             onChange={e => {
-              exportName = e.target.value;
+              templateName = e.target.value;
             }}
           />
           <div style={{ marginTop: 12, color: '#8d9bad' }}>
@@ -1016,7 +1067,7 @@ class Main extends PureComponent {
           payload: {
             team_name,
             app_alias: serviceAlias,
-            name: exportName
+            name: templateName
           },
           callback: res => {
             const template = res && res.bean;
@@ -1027,6 +1078,9 @@ class Main extends PureComponent {
               return;
             }
             reject(new Error('vm template start failed'));
+          },
+          handleError: err => {
+            reject(err);
           }
         });
       })
@@ -1353,10 +1407,12 @@ class Main extends PureComponent {
           </Button>
         )}
         {
-          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          method == 'vm' && ['running', 'paused'].includes(status.status) && (
+            <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          )
         }
         {
-          method == 'vm' && status && status.status == 'closed' && (
+          method == 'vm' && this.canExportVM(status) && (
             <Button style={{ marginLeft: 8 }} onClick={this.handleVMExport}>
               {formatMessage({ id: 'Vm.export.action' })}
             </Button>

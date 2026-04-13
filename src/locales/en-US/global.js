@@ -128,6 +128,7 @@ const global = {
     'global.fetchStateOptTypeText.stop':'Stop component',
     'global.fetchStateOptTypeText.restart-service':'Restart component',
     'global.fetchStateOptTypeText.restart':'Restart component',
+    'global.fetchStateOptTypeText.export-vm':'Export VM image',
     'global.fetchStateOptTypeText.vertical-service':'Vertical expansion component',
     'global.fetchStateOptTypeText.vertical':'Vertical expansion component',
     'global.fetchStateOptTypeText.horizontal-service':'Horizontal expansion component',

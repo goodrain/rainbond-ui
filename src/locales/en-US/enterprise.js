@@ -142,7 +142,7 @@ const enterpriseOverview = {
     'enterpriseOverview.overview.InstallStep.start': 'Start now',
     // Version update popup window
     'enterpriseOverview.overview.UpdateVersion.title': 'New version update',
-    'enterpriseOverview.overview.UpdateVersion.tip': 'One-click upgrade, no complex steps',
+    'enterpriseOverview.overview.UpdateVersion.tip': 'Want to update a new version?',
 
 }
 //应用市场

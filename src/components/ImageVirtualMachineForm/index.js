@@ -12,6 +12,7 @@ import {
   Tooltip,
   notification,
   Switch,
+  InputNumber,
   message
 } from 'antd';
 import { connect } from 'dva';
@@ -23,37 +24,36 @@ import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
 import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
-import anolisOS from '../../../public/images/anolis.png';
 import centOS from '../../../public/images/centos.png';
-import deepinOS from '../../../public/images/deepin.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
+const { mergeRuntimeFormValues } = require('./runtimeFieldMerge');
 
 const { Option } = Select;
 
 const PUBLIC_VM_OPTIONS = [
   {
-    key: 'centos7.9',
-    vm_url: 'https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso',
-    image_name: 'centos7.9',
-    icon: centOS
-  },
-  {
-    key: 'anolisos7.9',
-    vm_url: 'https://mirrors.aliyun.com/anolis/7.9/isos/GA/x86_64/AnolisOS-7.9-Minimal-x86_64-dvd.iso',
-    image_name: 'anolisos7.9',
-    icon: anolisOS
-  },
-  {
-    key: 'deepin20.9',
-    vm_url: 'https://mirrors.aliyun.com/deepin-cd/20.9/deepin-desktop-community-20.9-amd64.iso',
-    image_name: 'deepin20.9',
-    icon: deepinOS
-  },
-  {
-    key: 'ubuntu23.10',
-    vm_url: 'https://mirrors.aliyun.com/ubuntu-releases/mantic/ubuntu-23.10-live-server-amd64.iso',
-    image_name: 'ubuntu23.10',
+    key: 'ubuntu-22.04.5-lts',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/22.04/ubuntu-22.04.5-live-server-amd64.iso',
+    image_name: 'ubuntu-22.04.5-lts',
+    display_name: 'Ubuntu 22.04.5 LTS',
     icon: ubuntuOS
+  },
+  {
+    key: 'debian-13.4.0-standard',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.4.0-amd64-standard.iso',
+    image_name: 'debian-13.4.0-standard',
+    display_name: 'Debian 13.4.0 Standard',
+    icon_label: 'D'
+  },
+  {
+    key: 'centos-stream-9-dvd1',
+    vm_url:
+      'https://mirrors.tuna.tsinghua.edu.cn/centos-stream/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso',
+    image_name: 'centos-stream-9-dvd1',
+    display_name: 'CentOS Stream 9 DVD1',
+    icon: centOS
   }
 ];
 
@@ -340,6 +340,9 @@ export default class Index extends PureComponent {
 
         if (!fieldsValue.gpu_enabled) {
           fieldsValue.gpu_resources = [];
+          fieldsValue.gpu_count = 0;
+        } else {
+          fieldsValue.gpu_count = fieldsValue.gpu_count || 1;
         }
         if (!fieldsValue.usb_enabled) {
           fieldsValue.usb_resources = [];
@@ -347,7 +350,14 @@ export default class Index extends PureComponent {
         if (fieldsValue.network_mode !== 'fixed') {
           fieldsValue.network_name = '';
           fieldsValue.fixed_ip = '';
+          fieldsValue.gateway = '';
+          fieldsValue.dns_servers = '';
+        } else if ((this.state.vmCapabilities.networks || []).length === 0) {
+          fieldsValue.network_name = '';
+          fieldsValue.gateway = '';
+          fieldsValue.dns_servers = '';
         }
+        fieldsValue.os_family = fieldsValue.os_family || 'linux';
 
         if (!fieldsValue.group_id) {
           fieldsValue.group_name =
@@ -401,26 +411,45 @@ export default class Index extends PureComponent {
       preset && preset.extra && preset.extra.runtime_snapshot
         ? preset.extra.runtime_snapshot
         : {};
+    const guestOSFamily = this.inferGuestOSFamily(runtimeSnapshot, preset);
     this.appliedTemplateVersionId = preset.template_version_id;
     this.setState(
       {
         radioKey: 'existing'
       },
       () => {
+        const mergedRuntimeValues = mergeRuntimeFormValues({
+          form,
+          currentValues: form.getFieldsValue([
+            'os_family',
+            'network_mode',
+            'network_name',
+            'fixed_ip',
+            'gateway',
+            'dns_servers'
+          ]),
+          incomingValues: {
+            os_family: guestOSFamily,
+            network_mode: runtimeSnapshot.network_mode || 'random',
+            network_name: runtimeSnapshot.network_name || undefined,
+            fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+            gateway: runtimeSnapshot.gateway || undefined,
+            dns_servers: runtimeSnapshot.dns_servers || undefined
+          }
+        });
         form.setFieldsValue({
           imagefrom: 'existing',
           image_name: preset.name,
           asset_id: preset.id,
           template_id: preset.template_id,
           template_version_id: preset.template_version_id,
+          ...mergedRuntimeValues,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
+          gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
-          usb_resources: runtimeSnapshot.usb_resources || [],
-          network_mode: runtimeSnapshot.network_mode || 'random',
-          network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined
+          usb_resources: runtimeSnapshot.usb_resources || []
         });
       }
     );
@@ -473,29 +502,65 @@ export default class Index extends PureComponent {
       asset && asset.extra && asset.extra.runtime_snapshot
         ? asset.extra.runtime_snapshot
         : {};
+    const guestOSFamily = this.inferGuestOSFamily(runtimeSnapshot, asset);
     this.setState(
       {
         radioKey: 'existing'
       },
       () => {
+        const mergedRuntimeValues = mergeRuntimeFormValues({
+          form,
+          currentValues: form.getFieldsValue([
+            'os_family',
+            'network_mode',
+            'network_name',
+            'fixed_ip',
+            'gateway',
+            'dns_servers'
+          ]),
+          incomingValues: {
+            os_family: guestOSFamily,
+            network_mode: runtimeSnapshot.network_mode || 'random',
+            network_name: runtimeSnapshot.network_name || undefined,
+            fixed_ip: runtimeSnapshot.fixed_ip || undefined,
+            gateway: runtimeSnapshot.gateway || undefined,
+            dns_servers: runtimeSnapshot.dns_servers || undefined
+          }
+        });
         form.setFieldsValue({
           imagefrom: 'existing',
           image_name: asset.name,
           asset_id: asset.id,
           template_id: asset.template_id || undefined,
           template_version_id: asset.template_version_id || undefined,
+          ...mergedRuntimeValues,
           boot_mode: runtimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!runtimeSnapshot.gpu_enabled,
           gpu_resources: runtimeSnapshot.gpu_resources || [],
+          gpu_count: runtimeSnapshot.gpu_count || 1,
           usb_enabled: !!runtimeSnapshot.usb_enabled,
-          usb_resources: runtimeSnapshot.usb_resources || [],
-          network_mode: runtimeSnapshot.network_mode || 'random',
-          network_name: runtimeSnapshot.network_name || undefined,
-          fixed_ip: runtimeSnapshot.fixed_ip || undefined
+          usb_resources: runtimeSnapshot.usb_resources || []
         });
         this.closeAssetCatalog();
       }
     );
+  };
+
+  inferGuestOSFamily = (runtimeSnapshot = {}, source = {}) => {
+    const explicit = String(runtimeSnapshot.os_family || source.os_family || '').toLowerCase();
+    if (explicit === 'windows' || explicit === 'linux') {
+      return explicit;
+    }
+    const osHint = String(
+      runtimeSnapshot.os_name ||
+      source.os_name ||
+      source.name ||
+      ''
+    ).toLowerCase();
+    if (osHint.indexOf('windows') > -1) {
+      return 'windows';
+    }
+    return 'linux';
   };
 
   handleDeleteAsset = asset => {
@@ -534,6 +599,27 @@ export default class Index extends PureComponent {
       return;
     }
     callback(new Error(formatMessage({ id: messageId })));
+  };
+
+  validateGPUCount = (_, value, callback) => {
+    const { form } = this.props;
+    if (!form.getFieldValue('gpu_enabled')) {
+      callback();
+      return;
+    }
+    const gpuResources = form.getFieldValue('gpu_resources') || [];
+    const gpuCount = Number(value);
+    if (!gpuCount || gpuCount < 1) {
+      callback(new Error(formatMessage({ id: 'Vm.createVm.gpuCountRequired' })));
+      return;
+    }
+    if (gpuCount > 1 && gpuResources.length > 1) {
+      callback(
+        new Error(formatMessage({ id: 'Vm.createVm.gpuCountSingleResourceOnly' }))
+      );
+      return;
+    }
+    callback();
   };
 
   onChangeUpload = info => {
@@ -674,13 +760,21 @@ export default class Index extends PureComponent {
               onClick={() => this.handleSelectPublicVm(item)}
             >
               <div className={styles.publicVmCardIconWrap}>
-                <img
-                  src={item.icon}
-                  alt={item.image_name}
-                  className={styles.publicVmCardIcon}
-                />
+                {item.icon ? (
+                  <img
+                    src={item.icon}
+                    alt={item.display_name || item.image_name}
+                    className={styles.publicVmCardIcon}
+                  />
+                ) : (
+                  <span className={styles.publicVmCardFallbackIcon}>
+                    {item.icon_label || item.image_name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div className={styles.publicVmCardName}>{item.image_name}</div>
+              <div className={styles.publicVmCardName}>
+                {item.display_name || item.image_name}
+              </div>
             </div>
           );
         })}
@@ -788,6 +882,7 @@ export default class Index extends PureComponent {
   renderRuntimeFields = (archLength, arch, form) => {
     const { getFieldDecorator } = form;
     const { vmCapabilities } = this.state;
+    const hasBusinessNetworks = (vmCapabilities.networks || []).length > 0;
     return (
       <Fragment>
         {archLength === 2 ? (
@@ -804,8 +899,29 @@ export default class Index extends PureComponent {
           </Form.Item>
         ) : null}
 
+        <Form.Item label={formatMessage({ id: 'Vm.createVm.guestOS' })}>
+          {getFieldDecorator('os_family', {
+            initialValue: 'linux',
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'Vm.createVm.guestOSRequired' })
+              }
+            ]
+          })(
+            <Radio.Group>
+              <Radio value="linux">
+                {formatMessage({ id: 'Vm.createVm.guestOSLinux' })}
+              </Radio>
+              <Radio value="windows">
+                {formatMessage({ id: 'Vm.createVm.guestOSWindows' })}
+              </Radio>
+            </Radio.Group>
+          )}
+        </Form.Item>
+
         {vmCapabilities.gpu_supported ? (
-          <Form.Item label={formatMessage({ id: 'Vm.createVm.gpu' })}>
+          <Form.Item>
             <div className={styles.switchPanel}>
               <div className={styles.switchPanelMeta}>
                 <div className={styles.switchPanelTitle}>
@@ -846,9 +962,23 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
         ) : null}
+        {vmCapabilities.gpu_supported && form.getFieldValue('gpu_enabled') ? (
+          <Form.Item label={formatMessage({ id: 'Vm.createVm.gpuCount' })}>
+            {getFieldDecorator('gpu_count', {
+              initialValue: 1,
+              rules: [{ validator: this.validateGPUCount }]
+            })(
+              <InputNumber
+                min={1}
+                precision={0}
+                style={{ width: '100%' }}
+              />
+            )}
+          </Form.Item>
+        ) : null}
 
         {vmCapabilities.usb_supported ? (
-          <Form.Item label={formatMessage({ id: 'Vm.createVm.usb' })}>
+          <Form.Item>
             <div className={styles.switchPanel}>
               <div className={styles.switchPanelMeta}>
                 <div className={styles.switchPanelTitle}>
@@ -910,30 +1040,32 @@ export default class Index extends PureComponent {
 
         {form.getFieldValue('network_mode') === 'fixed' ? (
           <Fragment>
-            <Form.Item label={formatMessage({ id: 'Vm.createVm.networkName' })}>
-              {getFieldDecorator('network_name', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })
-                  }
-                ]
-              })(
-                <Select
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                  placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
-                >
-                  {(vmCapabilities.networks || []).map(item => {
-                    const value = `${item.namespace}/${item.name}`;
-                    return (
-                      <Option key={value} value={value}>
-                        {value}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </Form.Item>
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.networkName' })}>
+                {getFieldDecorator('network_name', {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })
+                    }
+                  ]
+                })(
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
+                  >
+                    {(vmCapabilities.networks || []).map(item => {
+                      const value = `${item.namespace}/${item.name}`;
+                      return (
+                        <Option key={value} value={value}>
+                          {value}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                )}
+              </Form.Item>
+            ) : null}
             <Form.Item label={formatMessage({ id: 'Vm.createVm.fixedIP' })}>
               {getFieldDecorator('fixed_ip', {
                 rules: [
@@ -948,6 +1080,24 @@ export default class Index extends PureComponent {
                 />
               )}
             </Form.Item>
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.gateway' })}>
+                {getFieldDecorator('gateway')(
+                  <Input
+                    placeholder={formatMessage({ id: 'Vm.createVm.gatewayPlaceholder' })}
+                  />
+                )}
+              </Form.Item>
+            ) : null}
+            {hasBusinessNetworks ? (
+              <Form.Item label={formatMessage({ id: 'Vm.createVm.dnsServers' })}>
+                {getFieldDecorator('dns_servers')(
+                  <Input
+                    placeholder={formatMessage({ id: 'Vm.createVm.dnsServersPlaceholder' })}
+                  />
+                )}
+              </Form.Item>
+            ) : null}
           </Fragment>
         ) : null}
       </Fragment>
