@@ -164,6 +164,20 @@ export default class Index extends PureComponent {
     return target ? target.group_name : `${fixedGroupId}`;
   };
 
+  inferSourceFormat = (...candidates) => {
+    const knownSuffixes = ['.qcow2', '.img', '.iso', '.tar.gz', '.tar.xz', '.gz', '.xz', '.tar'];
+    for (let i = 0; i < candidates.length; i += 1) {
+      const candidate = `${candidates[i] || ''}`.toLowerCase();
+      for (let j = 0; j < knownSuffixes.length; j += 1) {
+        const suffix = knownSuffixes[j];
+        if (candidate.endsWith(suffix)) {
+          return suffix.slice(1);
+        }
+      }
+    }
+    return '';
+  };
+
   handleJarWarUpload = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -300,17 +314,27 @@ export default class Index extends PureComponent {
           fieldsValue.vm_url = selectedPublicVm.vm_url;
           fieldsValue.image_name = selectedPublicVm.image_name;
           fieldsValue.source_type = 'public';
+          fieldsValue.format = this.inferSourceFormat(
+            selectedPublicVm.format,
+            selectedPublicVm.vm_url,
+            selectedPublicVm.image_name
+          );
           fieldsValue.asset_id =
             this.findAssetByName(selectedPublicVm.image_name)?.id || '';
           fieldsValue.template_id = '';
           fieldsValue.template_version_id = '';
         } else if (radioKey === 'url') {
           fieldsValue.source_type = 'url';
+          fieldsValue.format = this.inferSourceFormat(fieldsValue.vm_url, fieldsValue.image_name);
           fieldsValue.asset_id = '';
           fieldsValue.template_id = '';
           fieldsValue.template_version_id = '';
         } else if (radioKey === 'upload') {
           fieldsValue.source_type = 'upload';
+          fieldsValue.format = this.inferSourceFormat(
+            (existFileList && existFileList[0]) || '',
+            fieldsValue.image_name
+          );
           fieldsValue.asset_id = '';
           fieldsValue.template_id = '';
           fieldsValue.template_version_id = '';
@@ -325,6 +349,14 @@ export default class Index extends PureComponent {
             return;
           }
           fieldsValue.source_type = 'existing';
+          fieldsValue.format = selectedAsset
+            ? this.inferSourceFormat(
+              selectedAsset.format,
+              selectedAsset.source_uri,
+              selectedAsset.image_url,
+              selectedAsset.name
+            )
+            : fieldsValue.format || '';
           fieldsValue.asset_id = selectedAsset
             ? selectedAsset.id
             : fieldsValue.asset_id || '';
