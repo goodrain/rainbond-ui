@@ -118,6 +118,12 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmConnectionPending': '连接信息准备中',
     'componentOverview.body.tab.overview.vmDisabled': '未开启',
     'componentOverview.body.tab.overview.vmEnabled': '已开启',
+    'componentOverview.body.tab.overview.vmEditConfig': '编辑',
+    'componentOverview.body.tab.overview.vmSaveConfig': '保存',
+    'componentOverview.body.tab.overview.vmCancelEdit': '取消',
+    'componentOverview.body.tab.overview.vmRuntimeSaveTip': '保存后将在下次重启或重建虚拟机时生效',
+    'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': '虚拟机配置已保存，将在下次重启或重建后生效',
+    'componentOverview.body.tab.overview.vmRuntimeSaveFailed': '虚拟机配置保存失败，请重试',
 
     // tabs栏>overview>构建版本历史
     'componentOverview.body.tab.overview.buildHistory.buildVersionHistory': '构建版本历史',
