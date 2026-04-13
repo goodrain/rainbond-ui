@@ -724,6 +724,25 @@ export default class Index extends PureComponent {
     });
   };
 
+  refreshVMProfile = () => {
+    const { dispatch, appAlias } = this.props;
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'appControl/fetchDetail',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appAlias
+        },
+        callback: detail => {
+          resolve(detail);
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+
   render() {
     const { status, componentPermissions, socket, appDetail, method, pluginsList } = this.props;
     const {
@@ -769,7 +788,11 @@ export default class Index extends PureComponent {
           storageUsed={storageUsed}
         />
         {!more && method === 'vm' && appDetail?.vm_profile && (
-          <VMProfilePanel vmProfile={appDetail.vm_profile} />
+          <VMProfilePanel
+            vmProfile={appDetail.vm_profile}
+            serviceAlias={this.props.appAlias}
+            onRefresh={this.refreshVMProfile}
+          />
         )}
         
         {more && (

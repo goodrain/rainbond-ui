@@ -118,6 +118,12 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmConnectionPending': 'Connection pending',
     'componentOverview.body.tab.overview.vmDisabled': 'Disabled',
     'componentOverview.body.tab.overview.vmEnabled': 'Enabled',
+    'componentOverview.body.tab.overview.vmEditConfig': 'Edit',
+    'componentOverview.body.tab.overview.vmSaveConfig': 'Save',
+    'componentOverview.body.tab.overview.vmCancelEdit': 'Cancel',
+    'componentOverview.body.tab.overview.vmRuntimeSaveTip': 'Changes take effect the next time the virtual machine is restarted or recreated',
+    'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': 'VM configuration saved. Changes will take effect after the next restart or recreate',
+    'componentOverview.body.tab.overview.vmRuntimeSaveFailed': 'Failed to save VM configuration. Please try again',
 
     // tabs栏>overview>构建版本历史
     'componentOverview.body.tab.overview.buildHistory.buildVersionHistory': 'Build version history',
