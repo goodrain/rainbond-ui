@@ -47,6 +47,7 @@ import regionUtil from '../../utils/region';
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
+import { createVMExportNameContent, normalizeVMExportName } from '@/utils/vm-export';
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
@@ -1005,16 +1006,16 @@ class Main extends PureComponent {
     let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
     Modal.confirm({
       title: formatMessage({ id: 'Vm.export.modalTitle' }),
-      content: (
-        <Input
-          defaultValue={exportName}
-          placeholder={formatMessage({ id: 'Vm.export.namePlaceholder' })}
-          onChange={e => {
-            exportName = e.target.value;
-          }}
-        />
-      ),
+      content: createVMExportNameContent(exportName, value => {
+        exportName = value;
+      }),
       onOk: () => new Promise((resolve, reject) => {
+        exportName = normalizeVMExportName(exportName);
+        if (!exportName) {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.namePlaceholder' }) });
+          reject(new Error('vm export name required'));
+          return;
+        }
         dispatch({
           type: 'appControl/startVMExport',
           payload: {
