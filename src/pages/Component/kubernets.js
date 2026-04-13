@@ -11,11 +11,19 @@ import ConfirmModal from '../../components/ConfirmModal';
 import styles from './kubernets.less';
 import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+const {
+  KEY_VALUE_JSON_FIELDS,
+  buildEditableAttributeFields,
+  formatRawJsonAttributeDisplayValue,
+  formatRawJsonAttributeValue,
+  isRawJsonAttribute,
+  parseRawJsonAttributeValue
+} = require('./kubernetsAttributeHelpers');
 
 const { Option, OptGroup } = Select;
 const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
 const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_network_mode', 'vm_network_name', 'vm_fixed_ip', 'vm_gateway', 'vm_dns_servers', 'vm_os_family', 'vm_asset_id'];
-const JSON_FIELDS = ['nodeSelector', 'labels', 'annotations'];
+const JSON_FIELDS = KEY_VALUE_JSON_FIELDS;
 const YAML_FIELDS = ['volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
 const STRING_FIELDS = ['serviceAccountName', 'cmd', 'vm_fixed_ip', 'vm_network_name', 'vm_gateway', 'vm_dns_servers', 'vm_asset_id'];
 const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostIPC'];
@@ -47,6 +55,7 @@ class Index extends PureComponent {
       havevalArr: [],
       drawerSwitch: "add",
       jsonValue: '',
+      jsonTextValue: '',
       yamlValue: '',
       strValue: '',
       showDeletePort: false,
@@ -115,21 +124,31 @@ class Index extends PureComponent {
       selectVal: undefined,
       yamlValue: '',
       jsonValue: '',
+      jsonTextValue: '',
       strValue: ''
     });
   }
   changeBtn = (val, str, index) => {
     const { allData, TooltipValueArr } = this.state;
     const valueStateMap = {
-      yaml: { yamlValue: val.attribute_value },
-      json: { jsonValue: val.attribute_value },
-      string: { strValue: val.attribute_value }
-    };
-    this.setState({
       jsonValue: '',
+      jsonTextValue: '',
       yamlValue: '',
-      strValue: '',
-      ...valueStateMap[val.save_type],
+      strValue: ''
+    };
+    if (val.save_type === 'yaml') {
+      valueStateMap.yamlValue = val.attribute_value;
+    } else if (val.save_type === 'json') {
+      if (isRawJsonAttribute(val.name, val)) {
+        valueStateMap.jsonTextValue = formatRawJsonAttributeValue(val.attribute_value);
+      } else {
+        valueStateMap.jsonValue = val.attribute_value;
+      }
+    } else if (val.save_type === 'string') {
+      valueStateMap.strValue = val.attribute_value;
+    }
+    this.setState({
+      ...valueStateMap,
       minArr: allData[index],
       visible: true,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.edit_attribute' }),
@@ -177,6 +196,7 @@ class Index extends PureComponent {
       minArr: {},
       selectVal: val,
       jsonValue: '',
+      jsonTextValue: '',
       strValue: '',
       yamlValue: TooltipValueArr[val] || '',
       TooltipValue: TooltipValueArr[val] || ''
@@ -203,6 +223,21 @@ class Index extends PureComponent {
       if (JSON_FIELDS.includes(selectVal)) {
         if (fieldValue && fieldValue[0] && fieldValue[0].key && fieldValue[0].value) {
           label = { name: selectVal, save_type: 'json', attribute_value: fieldValue };
+        }
+      } else if (isRawJsonAttribute(selectVal, minArr)) {
+        if (fieldValue && fieldValue.trim().length > 0) {
+          try {
+            label = {
+              name: selectVal,
+              save_type: 'json',
+              attribute_value: parseRawJsonAttributeValue(fieldValue)
+            };
+          } catch (error) {
+            notification.error({
+              message: `JSON 格式错误: ${error.message}`
+            });
+            return;
+          }
         }
       } else if (YAML_FIELDS.includes(selectVal)) {
         if (fieldValue && fieldValue.length > 0 && fieldValue !== TooltipValue) {
@@ -287,19 +322,20 @@ class Index extends PureComponent {
         </path>
       </svg>
     )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, minArr, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language, } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, minArr, jsonValue, jsonTextValue, yamlValue, strValue, boolvalue, TooltipValue, language, } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const isBool = (drawerSwitch == "add") ? true : false
     const currentAttribute = drawerSwitch === 'change' ? minArr : {};
+    const editableFields = buildEditableAttributeFields(selectArr, drawerSwitch === 'change' ? selectVal : undefined);
     const addible = [];
     const notAddible = [];
-    selectArr.map((item, index) => {
+    editableFields.map((item, index) => {
       if (havevalArr.includes(item) == true) {
         addible.push(item)
       }
       return addible
     })
-    selectArr.map((item, index) => {
+    editableFields.map((item, index) => {
       if (havevalArr.includes(item) == false) {
         notAddible.push(item)
       }
@@ -404,6 +440,23 @@ class Index extends PureComponent {
                       </div>
                     </div>
                   </Form.Item>
+                }
+                {
+                  selectVal &&
+                  isRawJsonAttribute(selectVal, currentAttribute) &&
+                  <CodeMirrorForm
+                    visible={this.state.visible}
+                    setFieldsValue={setFieldsValue}
+                    formItemLayout={formItemLayoutss}
+                    Form={Form}
+                    style={{ marginBottom: '20px' }}
+                    getFieldDecorator={getFieldDecorator}
+                    name={selectVal}
+                    message="JSON content"
+                    data={jsonTextValue || ''}
+                    mode="javascript"
+                    isUpload={false}
+                  />
                 }
                 {
                   selectVal &&
@@ -523,6 +576,24 @@ class Index extends PureComponent {
                         </Tooltip>
                       })
                     }
+                      {item.name &&
+                        isRawJsonAttribute(item.name, item) &&
+                        hasAttributeValue(item.attribute_value) &&
+                        (Array.isArray(item.attribute_value) ? item.attribute_value.map((ele, index) => {
+                          const displayValue = formatRawJsonAttributeDisplayValue(ele);
+                          return <Tooltip key={index} placement="top" title={displayValue}>
+                            <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px", margin: "0 20px 10px 0px" }}>
+                              {displayValue}
+                            </div>
+                          </Tooltip>
+                        }) : (
+                          <Tooltip placement="top" title={formatRawJsonAttributeValue(item.attribute_value)}>
+                            <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
+                              {formatRawJsonAttributeDisplayValue(item.attribute_value)}
+                            </div>
+                          </Tooltip>
+                        ))
+                      }
                       {item.name &&
                         (YAML_FIELDS.includes(item.name) || item.save_type === 'yaml') &&
                         hasAttributeValue(item.attribute_value) &&
