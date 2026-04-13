@@ -108,7 +108,10 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmNetworkInfo': 'Network',
     'componentOverview.body.tab.overview.vmNetworkMode': 'Network Mode',
     'componentOverview.body.tab.overview.vmNetworkName': 'Business Network',
+    'componentOverview.body.tab.overview.vmCurrentPodIP': 'Current Pod IP',
     'componentOverview.body.tab.overview.vmFixedIP': 'Fixed IP',
+    'componentOverview.body.tab.overview.vmFixCurrentIP': 'Pin Current IP',
+    'componentOverview.body.tab.overview.vmUpdateFixedIP': 'Edit Fixed IP',
     'componentOverview.body.tab.overview.vmBootMode': 'Boot Mode',
     'componentOverview.body.tab.overview.vmAccelerationInfo': 'GPU & USB Passthrough',
     'componentOverview.body.tab.overview.vmGpu': 'GPU Passthrough',
@@ -122,6 +125,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmSaveConfig': 'Save',
     'componentOverview.body.tab.overview.vmCancelEdit': 'Cancel',
     'componentOverview.body.tab.overview.vmRuntimeSaveTip': 'Changes take effect the next time the virtual machine is restarted or recreated',
+    'componentOverview.body.tab.overview.vmCurrentPodIPTip': 'The current Pod IP has been filled in automatically. You can adjust it before saving.',
     'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': 'VM configuration saved. Changes will take effect after the next restart or recreate',
     'componentOverview.body.tab.overview.vmRuntimeSaveFailed': 'Failed to save VM configuration. Please try again',
 

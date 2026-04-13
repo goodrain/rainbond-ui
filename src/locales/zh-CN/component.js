@@ -108,7 +108,10 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmNetworkInfo': '网络信息',
     'componentOverview.body.tab.overview.vmNetworkMode': '网络模式',
     'componentOverview.body.tab.overview.vmNetworkName': '业务网络',
+    'componentOverview.body.tab.overview.vmCurrentPodIP': '当前 Pod IP',
     'componentOverview.body.tab.overview.vmFixedIP': '固定 IP',
+    'componentOverview.body.tab.overview.vmFixCurrentIP': '固定当前IP',
+    'componentOverview.body.tab.overview.vmUpdateFixedIP': '修改固定IP',
     'componentOverview.body.tab.overview.vmBootMode': '启动模式',
     'componentOverview.body.tab.overview.vmAccelerationInfo': 'GPU 直通与 USB 透传',
     'componentOverview.body.tab.overview.vmGpu': 'GPU 直通',
@@ -122,6 +125,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmSaveConfig': '保存',
     'componentOverview.body.tab.overview.vmCancelEdit': '取消',
     'componentOverview.body.tab.overview.vmRuntimeSaveTip': '保存后将在下次重启或重建虚拟机时生效',
+    'componentOverview.body.tab.overview.vmCurrentPodIPTip': '表单已自动带入当前 Pod IP，保存前可以按需修改。',
     'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': '虚拟机配置已保存，将在下次重启或重建后生效',
     'componentOverview.body.tab.overview.vmRuntimeSaveFailed': '虚拟机配置保存失败，请重试',
 
