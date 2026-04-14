@@ -68,6 +68,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import { shouldShowGenericVisitAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -1392,6 +1393,12 @@ class Main extends PureComponent {
         app_alias={appAlias}
       />
     );
+    const showGenericVisitAction = shouldShowGenericVisitAction({
+      method,
+      canVisit: appStatusUtil.canVisit(status),
+      isShowThirdParty,
+      isAccess
+    });
     const action = (
       status && status.status &&
       <div>
@@ -1496,17 +1503,7 @@ class Main extends PureComponent {
         ) : (
           ""
         )}
-        {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
-          appStatusUtil.canVisit(status) &&
-          !isShowThirdParty &&
-          isAccess &&
-          visitBtns}
-        {appDetail && appDetail.service && appDetail.service.service_source !== 'market' &&
-          appStatusUtil.canVisit(status) &&
-          !isShowThirdParty &&
-          isAccess &&
-          visitBtns}
-        {isShowThirdParty && isAccess && visitBtns}
+        {showGenericVisitAction && visitBtns}
       </div>
     );
     const tabs = [

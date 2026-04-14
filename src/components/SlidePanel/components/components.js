@@ -67,6 +67,7 @@ import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
+import { shouldShowGenericVisitAction } from '../../../pages/Component/visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -1323,6 +1324,12 @@ class Main extends PureComponent {
         app_alias={globalUtil.getSlidePanelComponentID()}
       />
     );
+    const showGenericVisitAction = shouldShowGenericVisitAction({
+      method,
+      canVisit: appStatusUtil.canVisit(status),
+      isShowThirdParty,
+      isAccess
+    });
     const isShowUpdate = method !== 'vm' && isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
     this.setState({
       isShowUpdate
@@ -1331,12 +1338,7 @@ class Main extends PureComponent {
     const allOperations = [
       {
         key: 'visit',
-        show: (
-          ((appDetail?.service?.service_source === 'market' ||
-            appDetail?.service?.service_source !== 'market') &&
-            appStatusUtil.canVisit(status) && !isShowThirdParty && isAccess) ||
-          (isShowThirdParty && isAccess)
-        ),
+        show: showGenericVisitAction,
         type: 'component',
         component: visitBtns
       },
