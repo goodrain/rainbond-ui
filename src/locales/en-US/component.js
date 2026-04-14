@@ -124,9 +124,9 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmEditConfig': 'Edit',
     'componentOverview.body.tab.overview.vmSaveConfig': 'Save',
     'componentOverview.body.tab.overview.vmCancelEdit': 'Cancel',
-    'componentOverview.body.tab.overview.vmRuntimeSaveTip': 'Changes take effect the next time the virtual machine is restarted or recreated',
+    'componentOverview.body.tab.overview.vmRuntimeSaveTip': 'Changes take effect the next time the virtual machine is restarted',
     'componentOverview.body.tab.overview.vmCurrentPodIPTip': 'The current Pod IP has been filled in automatically. You can adjust it before saving.',
-    'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': 'VM configuration saved. Changes will take effect after the next restart or recreate',
+    'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': 'VM configuration saved. Changes will take effect after the next restart',
     'componentOverview.body.tab.overview.vmRuntimeSaveFailed': 'Failed to save VM configuration. Please try again',
 
     // tabs栏>overview>构建版本历史
