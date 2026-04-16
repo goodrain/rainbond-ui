@@ -26,6 +26,7 @@ import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
 const { mergeRuntimeFormValues, normalizeAssetRuntimeSnapshot } = require('./runtimeFieldMerge');
+const { getSelectableVMAssets, isVMAssetSelectable } = require('./assetReadiness');
 
 const { Option } = Select;
 
@@ -319,11 +320,7 @@ export default class Index extends PureComponent {
           fieldsValue.asset_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
-          if (
-            selectedAsset &&
-            selectedAsset.status !== 'ready' &&
-            selectedAsset.status !== 'partial'
-          ) {
+          if (selectedAsset && !isVMAssetSelectable(selectedAsset)) {
             message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
             return;
           }
@@ -441,7 +438,7 @@ export default class Index extends PureComponent {
 
   handleUseAsset = asset => {
     const { form } = this.props;
-    if (!asset || asset.status !== 'ready') {
+    if (!isVMAssetSelectable(asset)) {
       message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
       return;
     }
@@ -735,6 +732,7 @@ export default class Index extends PureComponent {
     const { form, virtualMachineImage = [] } = this.props;
     const { getFieldDecorator } = form;
     const { radioKey } = this.state;
+    const selectableVirtualMachineImages = getSelectableVMAssets(virtualMachineImage);
 
     if (radioKey === 'public') {
       return this.renderPublicVmCards();
@@ -816,7 +814,7 @@ export default class Index extends PureComponent {
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({ id: 'Vm.createVm.selectImg' })}
             >
-              {(virtualMachineImage || []).map(image => (
+              {selectableVirtualMachineImages.map(image => (
                 <Option key={image.id || image.name} value={image.name}>
                   {this.renderAssetOptionLabel(image)}
                 </Option>
@@ -1212,7 +1210,10 @@ export default class Index extends PureComponent {
                     {formatMessage({ id: 'Vm.createVm.upload' })}
                   </Radio>
                   {virtualMachineImage && virtualMachineImage.length > 0 ? (
-                    <Radio value="existing">
+                    <Radio
+                      value="existing"
+                      disabled={getSelectableVMAssets(virtualMachineImage).length === 0}
+                    >
                       {formatMessage({ id: 'Vm.createVm.have' })}
                     </Radio>
                   ) : null}

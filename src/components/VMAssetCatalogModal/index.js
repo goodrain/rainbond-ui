@@ -1,6 +1,7 @@
 import { Empty, Input, Popconfirm, Tooltip, Button, List, Tag } from 'antd';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
+const { isVMAssetSelectable } = require('../ImageVirtualMachineForm/assetReadiness');
 import styles from './index.less';
 
 class VMAssetCatalogModal extends PureComponent {
@@ -56,7 +57,7 @@ class VMAssetCatalogModal extends PureComponent {
     const { keyword, deleteLoadingId } = this.state;
     const filteredAssets = this.getFilteredAssets();
     const renderAssetItem = asset => {
-      const canUse = asset.status === 'ready';
+      const canUse = isVMAssetSelectable(asset);
       const metaItems = [
         {
           label: formatMessage({ id: 'Vm.assetCatalog.source' }),
@@ -90,7 +91,7 @@ class VMAssetCatalogModal extends PureComponent {
                   <div className={styles.assetMetaLabel}>{item.label}:</div>
                   <div className={styles.assetMetaValue} title={String(item.value)}>
                     {item.label === formatMessage({ id: 'Vm.assetCatalog.status' }) ? (
-                      <Tag color={asset.status === 'ready' ? 'green' : 'orange'}>
+                      <Tag color={canUse ? 'green' : 'orange'}>
                         {item.value}
                       </Tag>
                     ) : (
