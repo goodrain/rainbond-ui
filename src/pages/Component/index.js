@@ -47,7 +47,6 @@ import regionUtil from '../../utils/region';
 import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
-import { createVMExportNameContent, normalizeVMExportName } from '@/utils/vm-export';
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
@@ -996,51 +995,50 @@ class Main extends PureComponent {
   canExportVM = status => {
     return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
   };
-  handleVMExport = () => {
+  startVMExportRequest = forceReplace => {
     const { dispatch } = this.props;
     const { team_name, serviceAlias } = this.fetchParameter();
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'appControl/startVMExport',
+        payload: {
+          team_name,
+          app_alias: serviceAlias,
+          force_replace: !!forceReplace
+        },
+        callback: res => {
+          const asset = res && res.bean;
+          if (asset && asset.requires_confirmation && !forceReplace) {
+            Modal.confirm({
+              title: formatMessage({ id: 'Vm.export.modalTitle' }),
+              content: res.msg_show || formatMessage({ id: 'Vm.export.started' }),
+              onOk: () => this.startVMExportRequest(true).then(resolve).catch(reject)
+            });
+            resolve();
+            return;
+          }
+          if (asset && asset.id) {
+            notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+            this.loadDetail();
+            this.pollVMExportStatus(asset.id);
+            resolve(asset);
+            return;
+          }
+          reject(new Error('vm export start failed'));
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+  handleVMExport = () => {
     const { status } = this.state;
     if (!this.canExportVM(status)) {
       notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
       return;
     }
-    let exportName = `${serviceAlias}-snapshot-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
-    Modal.confirm({
-      title: formatMessage({ id: 'Vm.export.modalTitle' }),
-      content: createVMExportNameContent(exportName, value => {
-        exportName = value;
-      }),
-      onOk: () => new Promise((resolve, reject) => {
-        exportName = normalizeVMExportName(exportName);
-        if (!exportName) {
-          notification.warning({ message: formatMessage({ id: 'Vm.export.namePlaceholder' }) });
-          reject(new Error('vm export name required'));
-          return;
-        }
-        dispatch({
-          type: 'appControl/startVMExport',
-          payload: {
-            team_name,
-            app_alias: serviceAlias,
-            name: exportName
-          },
-          callback: res => {
-            const asset = res && res.bean;
-            if (asset && asset.id) {
-              notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
-              this.loadDetail();
-              this.pollVMExportStatus(asset.id);
-              resolve();
-              return;
-            }
-            reject(new Error('vm export start failed'));
-          },
-          handleError: err => {
-            reject(err);
-          }
-        });
-      })
-    });
+    this.startVMExportRequest(false).catch(() => {});
   };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;

@@ -46,7 +46,7 @@ class VMAssetCatalogModal extends PureComponent {
     }
     const lowerKeyword = keyword.toLowerCase();
     return assets.filter(item => {
-      return [item.name, item.source_type, item.arch, item.format, item.status]
+      return [item.display_name, item.name, item.source_type, item.arch, item.format, item.status]
         .filter(Boolean)
         .some(value => String(value).toLowerCase().indexOf(lowerKeyword) > -1);
     });
@@ -56,12 +56,13 @@ class VMAssetCatalogModal extends PureComponent {
     const { assets = [], onUseAsset } = this.props;
     const { keyword, deleteLoadingId } = this.state;
     const filteredAssets = this.getFilteredAssets();
-    const renderAssetItem = asset => {
-      const canUse = isVMAssetSelectable(asset);
-      const metaItems = [
-        {
-          label: formatMessage({ id: 'Vm.assetCatalog.source' }),
-          value: this.getSourceLabel(asset.source_type)
+      const renderAssetItem = asset => {
+        const canUse = isVMAssetSelectable(asset);
+        const displayName = asset.display_name || asset.name || '-';
+        const metaItems = [
+          {
+            label: formatMessage({ id: 'Vm.assetCatalog.source' }),
+            value: this.getSourceLabel(asset.source_type)
         },
         {
           label: formatMessage({ id: 'Vm.assetCatalog.status' }),
@@ -77,14 +78,14 @@ class VMAssetCatalogModal extends PureComponent {
         }
       ];
 
-      return (
-        <List.Item key={asset.id || asset.name} className={styles.assetItem}>
-          <div className={styles.assetMain}>
-            <div className={styles.assetNameWrap}>
-              <Tooltip title={asset.name}>
-                <span className={styles.nameText}>{asset.name || '-'}</span>
-              </Tooltip>
-            </div>
+        return (
+          <List.Item key={asset.id || asset.name} className={styles.assetItem}>
+            <div className={styles.assetMain}>
+              <div className={styles.assetNameWrap}>
+                <Tooltip title={displayName}>
+                  <span className={styles.nameText}>{displayName}</span>
+                </Tooltip>
+              </div>
             <div className={styles.assetMetaGrid}>
               {metaItems.map(item => (
                 <div key={item.label} className={styles.assetMetaItem}>

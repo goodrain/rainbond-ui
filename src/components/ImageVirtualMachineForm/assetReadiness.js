@@ -16,9 +16,8 @@ const parseVMAssetExtra = asset => {
   }
 };
 
-const hasVMExportManifest = extra => {
-  const manifest = (extra || {}).machine_manifest || {};
-  return Array.isArray(manifest.disks) && manifest.disks.length > 0;
+const getVMExportDisks = extra => {
+  return Array.isArray((extra || {}).disks) ? extra.disks : [];
 };
 
 const isVMAssetSelectable = asset => {
@@ -27,10 +26,15 @@ const isVMAssetSelectable = asset => {
   }
   if (asset.source_type === 'vm_export') {
     const extra = parseVMAssetExtra(asset);
+    const disks = getVMExportDisks(extra);
+    const rootReady = disks.some(
+      disk => disk && disk.disk_role === 'root' && disk.download_url
+    );
+    const allReady = disks.length > 0 && disks.every(disk => disk && disk.download_url);
     return Boolean(
       asset.status === 'ready' &&
-      extra.storage_status === 'ready' &&
-      hasVMExportManifest(extra)
+      rootReady &&
+      allReady
     );
   }
   return Boolean(asset.status === 'ready' && asset.image_url);

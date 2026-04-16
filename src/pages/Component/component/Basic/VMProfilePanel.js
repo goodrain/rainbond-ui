@@ -784,7 +784,7 @@ class VMProfilePanel extends PureComponent {
         <Row gutter={16}>
           <Col xs={24} lg={12}>
             <Card title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />} bordered={false}>
-              {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.name)}
+              {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
               {this.renderLine(
                 formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
                 this.getSourceLabel(asset.source_type)
@@ -930,7 +930,7 @@ class VMProfilePanel extends PureComponent {
               )}
               {this.renderLine(
                 formatMessage({ id: 'Vm.export.latest' }),
-                latestExport.name ? `${latestExport.name} / ${latestExport.status || '-'}` : '-'
+                latestExport.name ? `${latestExport.display_name || latestExport.name} / ${latestExport.status || '-'}` : '-'
               )}
               <div style={{ marginTop: 12 }}>
                 {connections.vnc_url ? (

@@ -433,7 +433,7 @@ export default class Index extends PureComponent {
   };
 
   renderAssetOptionLabel = asset => {
-    return `${asset.name}`;
+    return `${asset.display_name || asset.name}`;
   };
 
   handleUseAsset = asset => {

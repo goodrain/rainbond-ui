@@ -3392,7 +3392,7 @@ export async function startVMExport(body = {}) {
     {
       method: 'post',
       data: {
-        name: body.name,
+        force_replace: !!body.force_replace,
         description: body.description || ''
       }
     }

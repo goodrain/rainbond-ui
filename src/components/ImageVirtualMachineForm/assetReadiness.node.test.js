@@ -28,16 +28,16 @@ assert.strictEqual(
     id: 3,
     source_type: 'vm_export',
     status: 'ready',
-    image_url: 's3://vm-assets/rootdisk.qcow2',
+    image_url: 'https://download/rootdisk.qcow2',
     extra: {
-      storage_status: 'ready',
-      machine_manifest: {
-        disks: [{ disk_key: 'rootdisk', disk_role: 'root' }]
-      }
+      disks: [
+        { disk_key: 'rootdisk', disk_role: 'root', download_url: 'https://download/rootdisk.qcow2' },
+        { disk_key: 'data-1', disk_role: 'data', download_url: 'https://download/data-1.qcow2' }
+      ]
     }
   }),
   true,
-  'should allow exported VM assets only after storage and manifest are ready'
+  'should allow exported VM assets only after all live export urls are ready'
 );
 
 assert.strictEqual(
@@ -45,16 +45,16 @@ assert.strictEqual(
     id: 4,
     source_type: 'vm_export',
     status: 'ready',
-    image_url: 's3://vm-assets/rootdisk.qcow2',
+    image_url: 'https://download/rootdisk.qcow2',
     extra: {
-      storage_status: 'exporting',
-      machine_manifest: {
-        disks: [{ disk_key: 'rootdisk', disk_role: 'root' }]
-      }
+      disks: [
+        { disk_key: 'rootdisk', disk_role: 'root', download_url: 'https://download/rootdisk.qcow2' },
+        { disk_key: 'data-1', disk_role: 'data' }
+      ]
     }
   }),
   false,
-  'should block exported VM assets when storage is not ready yet'
+  'should block exported VM assets when a live export url is missing'
 );
 
 assert.deepStrictEqual(
