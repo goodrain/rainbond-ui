@@ -1126,51 +1126,6 @@ class Main extends PureComponent {
       })
     });
   };
-  handleSaveVMTemplate = () => {
-    const { dispatch } = this.props;
-    const { team_name, serviceAlias } = this.fetchParameter();
-    let templateName = `${serviceAlias}-template-${dateUtil.format(new Date(), 'yyyyMMddhhmmss')}`;
-    Modal.confirm({
-      title: formatMessage({ id: 'Vm.template.modalTitle' }),
-      content: (
-        <div>
-          <Input
-            defaultValue={templateName}
-            placeholder={formatMessage({ id: 'Vm.template.namePlaceholder' })}
-            onChange={e => {
-              templateName = e.target.value;
-            }}
-          />
-          <div style={{ marginTop: 12, color: '#8d9bad' }}>
-            {formatMessage({ id: 'Vm.template.modalTip' })}
-          </div>
-        </div>
-      ),
-      onOk: () => new Promise((resolve, reject) => {
-        dispatch({
-          type: 'appControl/saveVMTemplate',
-          payload: {
-            team_name,
-            app_alias: serviceAlias,
-            name: templateName
-          },
-          callback: res => {
-            const template = res && res.bean;
-            if (template && template.id) {
-              notification.success({ message: formatMessage({ id: 'Vm.template.started' }) });
-              this.loadDetail();
-              resolve();
-              return;
-            }
-            reject(new Error('vm template start failed'));
-          },
-          handleError: err => {
-            reject(err);
-          }
-        });
-      })
-    });
-  };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;

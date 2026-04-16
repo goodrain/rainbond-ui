@@ -46,7 +46,6 @@ const teamMenu = {
   'menu.team.plugin': 'Plugin',
   'menu.team.setting': 'Manage',
   'menu.team.pipeline': 'Pipeline',
-  'menu.VMTemplateCenter': 'VM Templates',
 }
 
 const appMenu = {

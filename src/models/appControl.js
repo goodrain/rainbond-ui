@@ -140,7 +140,6 @@ import {
   upgrade,
   vmPause,
   startVMExport,
-  saveVMTemplate,
   getVMExportStatus,
   getComponentNames,
   getReverseDependency,
@@ -1182,18 +1181,6 @@ export default {
     *startVMExport({ payload, callback, handleError }, { call }) {
       try {
         const response = yield call(startVMExport, payload);
-        if (response && callback) {
-          callback(response);
-        }
-      } catch (e) {
-        if (handleError) {
-          handleError(e);
-        }
-      }
-    },
-    *saveVMTemplate({ payload, callback, handleError }, { call }) {
-      try {
-        const response = yield call(saveVMTemplate, payload);
         if (response && callback) {
           callback(response);
         }

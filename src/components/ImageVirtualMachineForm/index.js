@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 import {
-  Alert,
   Button,
   Form,
   Input,
@@ -120,20 +119,6 @@ export default class Index extends PureComponent {
         )
       });
       this.fetchComponentNames(fixedGroupId);
-    }
-    if (this.props.templatePreset) {
-      this.applyTemplatePreset(this.props.templatePreset);
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (
-      this.props.templatePreset &&
-      (!prevProps.templatePreset ||
-        prevProps.templatePreset.template_version_id !==
-          this.props.templatePreset.template_version_id)
-    ) {
-      this.applyTemplatePreset(this.props.templatePreset);
     }
   }
 
@@ -321,14 +306,10 @@ export default class Index extends PureComponent {
           );
           fieldsValue.asset_id =
             this.findAssetByName(selectedPublicVm.image_name)?.id || '';
-          fieldsValue.template_id = '';
-          fieldsValue.template_version_id = '';
         } else if (radioKey === 'url') {
           fieldsValue.source_type = 'url';
           fieldsValue.format = this.inferSourceFormat(fieldsValue.vm_url, fieldsValue.image_name);
           fieldsValue.asset_id = '';
-          fieldsValue.template_id = '';
-          fieldsValue.template_version_id = '';
         } else if (radioKey === 'upload') {
           fieldsValue.source_type = 'upload';
           fieldsValue.format = this.inferSourceFormat(
@@ -336,8 +317,6 @@ export default class Index extends PureComponent {
             fieldsValue.image_name
           );
           fieldsValue.asset_id = '';
-          fieldsValue.template_id = '';
-          fieldsValue.template_version_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
           if (
@@ -360,14 +339,6 @@ export default class Index extends PureComponent {
           fieldsValue.asset_id = selectedAsset
             ? selectedAsset.id
             : fieldsValue.asset_id || '';
-          fieldsValue.template_id =
-            selectedAsset && selectedAsset.template_id
-              ? selectedAsset.template_id
-              : fieldsValue.template_id || '';
-          fieldsValue.template_version_id =
-            selectedAsset && selectedAsset.template_version_id
-              ? selectedAsset.template_version_id
-              : fieldsValue.template_version_id || '';
         }
 
         if (!fieldsValue.gpu_enabled) {
@@ -428,63 +399,8 @@ export default class Index extends PureComponent {
     });
     form.setFieldsValue({
       imagefrom: radioKey,
-      asset_id: '',
-      template_id: '',
-      template_version_id: ''
+      asset_id: ''
     });
-  };
-
-  applyTemplatePreset = preset => {
-    const { form } = this.props;
-    if (!preset || !form || this.appliedTemplateVersionId === preset.template_version_id) {
-      return;
-    }
-    const runtimeSnapshot =
-      preset && preset.extra && preset.extra.runtime_snapshot
-        ? preset.extra.runtime_snapshot
-        : {};
-    const guestOSFamily = this.inferGuestOSFamily(runtimeSnapshot, preset);
-    this.appliedTemplateVersionId = preset.template_version_id;
-    this.setState(
-      {
-        radioKey: 'existing'
-      },
-      () => {
-        const mergedRuntimeValues = mergeRuntimeFormValues({
-          form,
-          currentValues: form.getFieldsValue([
-            'os_family',
-            'network_mode',
-            'network_name',
-            'fixed_ip',
-            'gateway',
-            'dns_servers'
-          ]),
-          incomingValues: {
-            os_family: guestOSFamily,
-            network_mode: runtimeSnapshot.network_mode || 'random',
-            network_name: runtimeSnapshot.network_name || undefined,
-            fixed_ip: runtimeSnapshot.fixed_ip || undefined,
-            gateway: runtimeSnapshot.gateway || undefined,
-            dns_servers: runtimeSnapshot.dns_servers || undefined
-          }
-        });
-        form.setFieldsValue({
-          imagefrom: 'existing',
-          image_name: preset.name,
-          asset_id: preset.id,
-          template_id: preset.template_id,
-          template_version_id: preset.template_version_id,
-          ...mergedRuntimeValues,
-          boot_mode: runtimeSnapshot.boot_mode || undefined,
-          gpu_enabled: !!runtimeSnapshot.gpu_enabled,
-          gpu_resources: runtimeSnapshot.gpu_resources || [],
-          gpu_count: runtimeSnapshot.gpu_count || 1,
-          usb_enabled: !!runtimeSnapshot.usb_enabled,
-          usb_resources: runtimeSnapshot.usb_resources || []
-        });
-      }
-    );
   };
 
   openAssetCatalog = () => {
@@ -512,8 +428,7 @@ export default class Index extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone',
-      vm_template: 'Vm.template.center.entry'
+      clone: 'Vm.createVm.clone'
     };
     return formatMessage({
       id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown'
@@ -567,8 +482,6 @@ export default class Index extends PureComponent {
           imagefrom: 'existing',
           image_name: asset.name,
           asset_id: asset.id,
-          template_id: asset.template_id || undefined,
-          template_version_id: asset.template_version_id || undefined,
           ...mergedRuntimeValues,
           boot_mode: sanitizedRuntimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!sanitizedRuntimeSnapshot.gpu_enabled,
@@ -1235,22 +1148,6 @@ export default class Index extends PureComponent {
             {getFieldDecorator('asset_id', {
               initialValue: ''
             })(<Input type="hidden" />)}
-            {getFieldDecorator('template_id', {
-              initialValue: ''
-            })(<Input type="hidden" />)}
-            {getFieldDecorator('template_version_id', {
-              initialValue: ''
-            })(<Input type="hidden" />)}
-
-            {this.props.templatePreset &&
-            this.props.templatePreset.status === 'partial' ? (
-              <Alert
-                type="warning"
-                showIcon
-                className={styles.noticeAlert}
-                message={formatMessage({ id: 'Vm.template.center.partialTip' })}
-              />
-            ) : null}
 
             <Form.Item
               label={

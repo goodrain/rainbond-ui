@@ -332,12 +332,6 @@ export default [
             name: 'Team',
             authority: ['admin', 'user']
           },
-          {
-            path: '/team/:teamName/region/:regionName/vm/templates',
-            component: './VMTemplateCenter',
-            name: 'VMTemplateCenter',
-            authority: ['admin', 'user']
-          },
           // {
           //   path: '/team/:teamName/region/:regionName/apps',
           //   component: './AppList',

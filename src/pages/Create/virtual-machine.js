@@ -44,14 +44,12 @@ export default class Index extends PureComponent {
       showUsernameAndPass: false,
       showKey: false,
       addGroup: false,
-      virtualMachineImage: [],
-      templatePreset: null
+      virtualMachineImage: []
     };
   }
 
   componentDidMount(){
     this.handleGetVirtualMachineImage()
-    this.handleLoadTemplatePreset();
   }
 
   handleGetVirtualMachineImage = () => {
@@ -67,64 +65,6 @@ export default class Index extends PureComponent {
             virtualMachineImage: data.list
           });
         }
-      }
-    });
-  }
-
-  buildTemplatePreset = (detail, preferredVersionId) => {
-    if (!detail) {
-      return null;
-    }
-    const versions = detail.versions || [];
-    const targetVersion = versions.find(item => String(item.id) === String(preferredVersionId))
-      || versions.find(item => item.id === detail.latest_ready_version_id)
-      || versions[0];
-    if (!targetVersion) {
-      return null;
-    }
-    return {
-      id: targetVersion.root_asset_id || `template-${targetVersion.id}`,
-      name: `${detail.name}-${targetVersion.version}`,
-      source_type: 'vm_template',
-      status: targetVersion.status,
-      arch: targetVersion.arch,
-      format: (targetVersion.disks && targetVersion.disks[0] && targetVersion.disks[0].format) || '',
-      disk_count: targetVersion.disk_count,
-      extra: {
-        runtime_snapshot: targetVersion.runtime_snapshot || {}
-      },
-      template_id: detail.id,
-      template_version_id: targetVersion.id
-    };
-  }
-
-  handleLoadTemplatePreset = () => {
-    const { dispatch, location } = this.props;
-    const query = (location && location.query) || {};
-    if (!query.template_id) {
-      return;
-    }
-    dispatch({
-      type: 'createApp/getVMTemplateDetail',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        template_id: query.template_id
-      },
-      callback: data => {
-        const detail = data && data.bean;
-        const templatePreset = this.buildTemplatePreset(detail, query.template_version_id);
-        if (!templatePreset) {
-          return;
-        }
-        this.setState(prevState => {
-          const exists = (prevState.virtualMachineImage || []).some(item => String(item.id) === String(templatePreset.id));
-          return {
-            templatePreset,
-            virtualMachineImage: exists
-              ? prevState.virtualMachineImage
-              : [templatePreset].concat(prevState.virtualMachineImage || [])
-          };
-        });
       }
     });
   }
@@ -209,7 +149,6 @@ export default class Index extends PureComponent {
             {...this.props}
             isDemo={true}
             virtualMachineImage={virtualMachineImage}
-            templatePreset={this.state.templatePreset}
             onRefreshAssets={this.handleGetVirtualMachineImage}
           />
         </div>

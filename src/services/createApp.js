@@ -285,8 +285,6 @@ export async function createAppByVirtualMachine(body = {}) {
         image_name: body.image_name,
         source_type: body.source_type,
         asset_id: body.asset_id,
-        template_id: body.template_id,
-        template_version_id: body.template_version_id,
         arch: body.arch,
         vm_url: body.vm_url,
         event_id: body.event_id,
@@ -337,15 +335,6 @@ export async function deleteVMAsset(body = {}) {
 export async function getVMCapabilities(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`,
-    {
-      method: 'get',
-    }
-  );
-}
-
-export async function getVMTemplateDetail(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/templates/${body.template_id}`,
     {
       method: 'get',
     }
