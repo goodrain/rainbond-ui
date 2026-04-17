@@ -774,6 +774,22 @@ class VMProfilePanel extends PureComponent {
     const networkActionText = runtime.fixed_ip
       ? 'componentOverview.body.tab.overview.vmUpdateFixedIP'
       : 'componentOverview.body.tab.overview.vmFixCurrentIP';
+    const overviewColStyle = { display: 'flex' };
+    const overviewCardStyle = { width: '100%', height: '100%', borderRadius: 10 };
+    const overviewCardBodyStyle = {
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
+    };
+    const overviewCardContentStyle = {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column'
+    };
+    const overviewCardActionStyle = {
+      marginTop: 'auto',
+      paddingTop: 12
+    };
 
     return (
       <Card
@@ -781,30 +797,39 @@ class VMProfilePanel extends PureComponent {
         style={{ margin: '12px 0', borderRadius: 12, overflow: 'hidden' }}
         bodyStyle={{ background: '#F0F2F5' }}
       >
-        <Row gutter={16}>
-          <Col xs={24} lg={12}>
-            <Card title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />} bordered={false}>
-              {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
-              {this.renderLine(
-                formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
-                this.getSourceLabel(asset.source_type)
-              )}
-              {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetStatus' }), asset.status)}
-              {this.renderLine(
-                formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetArchFormat' }),
-                `${asset.arch || '-'} / ${asset.format || '-'}`
-              )}
-              {asset.source_asset && this.renderLine(
-                formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetParent' }),
-                asset.source_asset.name
-              )}
+        <Row gutter={16} type="flex">
+          <Col xs={24} lg={12} style={overviewColStyle}>
+            <Card
+              title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />}
+              bordered={false}
+              style={overviewCardStyle}
+              bodyStyle={overviewCardBodyStyle}
+            >
+              <div style={overviewCardContentStyle}>
+                {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
+                {this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
+                  this.getSourceLabel(asset.source_type)
+                )}
+                {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetStatus' }), asset.status)}
+                {this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetArchFormat' }),
+                  `${asset.arch || '-'} / ${asset.format || '-'}`
+                )}
+                {asset.source_asset && this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetParent' }),
+                  asset.source_asset.name
+                )}
+              </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
+          <Col xs={24} lg={12} style={overviewColStyle}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmNetworkInfo" />}
               bordered={false}
               loading={loadingNetworkEditor}
+              style={overviewCardStyle}
+              bodyStyle={overviewCardBodyStyle}
               extra={
                 editingNetwork ? (
                   <div>
@@ -832,49 +857,53 @@ class VMProfilePanel extends PureComponent {
                 ) : null
               }
             >
-              {editingNetwork ? (
-                this.renderNetworkEditor(runtime)
-              ) : (
-                <React.Fragment>
-                  {this.renderLine(
-                    formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkMode' }),
-                    runtime.network_mode || '-'
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkName' }),
-                    runtime.network_name
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
-                    currentPodIP
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
-                    runtime.fixed_ip
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'Vm.createVm.gateway' }),
-                    runtime.gateway
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'Vm.createVm.dnsServers' }),
-                    runtime.dns_servers
-                  )}
-                  {this.renderLine(
-                    formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
-                    runtime.boot_mode
-                  )}
-                </React.Fragment>
-              )}
+              <div style={overviewCardContentStyle}>
+                {editingNetwork ? (
+                  this.renderNetworkEditor(runtime)
+                ) : (
+                  <React.Fragment>
+                    {this.renderLine(
+                      formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkMode' }),
+                      runtime.network_mode || '-'
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkName' }),
+                      runtime.network_name
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
+                      currentPodIP
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
+                      runtime.fixed_ip
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'Vm.createVm.gateway' }),
+                      runtime.gateway
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'Vm.createVm.dnsServers' }),
+                      runtime.dns_servers
+                    )}
+                    {this.renderLine(
+                      formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
+                      runtime.boot_mode
+                    )}
+                  </React.Fragment>
+                )}
+              </div>
             </Card>
           </Col>
         </Row>
-        <Row gutter={16} style={{ marginTop: 16 }}>
-          <Col xs={24} lg={12}>
+        <Row gutter={16} type="flex" style={{ marginTop: 16 }}>
+          <Col xs={24} lg={12} style={overviewColStyle}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmAccelerationInfo" />}
               bordered={false}
               loading={loadingEditor}
+              style={overviewCardStyle}
+              bodyStyle={overviewCardBodyStyle}
               extra={
                 editing ? (
                   <div>
@@ -902,44 +931,53 @@ class VMProfilePanel extends PureComponent {
                 )
               }
             >
-              {editing ? (
-                this.renderEditor(runtime)
-              ) : (
-                <React.Fragment>
-                  <div style={{ marginBottom: 10 }}>
-                    <div style={{ color: '#8d9bad', marginBottom: 8 }}>
-                      <FormattedMessage id="componentOverview.body.tab.overview.vmGpu" />
+              <div style={overviewCardContentStyle}>
+                {editing ? (
+                  this.renderEditor(runtime)
+                ) : (
+                  <React.Fragment>
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ color: '#8d9bad', marginBottom: 8 }}>
+                        <FormattedMessage id="componentOverview.body.tab.overview.vmGpu" />
+                      </div>
+                      <div>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
                     </div>
-                    <div>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
-                  </div>
-                  <div>
-                    <div style={{ color: '#8d9bad', marginBottom: 8 }}>
-                      <FormattedMessage id="componentOverview.body.tab.overview.vmUsb" />
+                    <div>
+                      <div style={{ color: '#8d9bad', marginBottom: 8 }}>
+                        <FormattedMessage id="componentOverview.body.tab.overview.vmUsb" />
+                      </div>
+                      <div>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
                     </div>
-                    <div>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
-                  </div>
-                </React.Fragment>
-              )}
+                  </React.Fragment>
+                )}
+              </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
-            <Card title={<FormattedMessage id="componentOverview.body.tab.overview.vmConnectionInfo" />} bordered={false}>
-              {this.renderLine(
-                formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
-                asset.reference_count
-              )}
-              {this.renderLine(
-                formatMessage({ id: 'Vm.export.latest' }),
-                latestExport.name ? `${latestExport.display_name || latestExport.name} / ${latestExport.status || '-'}` : '-'
-              )}
-              <div style={{ marginTop: 12 }}>
-                {connections.vnc_url ? (
-                  <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
-                    {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
-                  </Button>
-                ) : (
-                  <Tag><FormattedMessage id="componentOverview.body.tab.overview.vmConnectionPending" /></Tag>
+          <Col xs={24} lg={12} style={overviewColStyle}>
+            <Card
+              title={<FormattedMessage id="componentOverview.body.tab.overview.vmConnectionInfo" />}
+              bordered={false}
+              style={overviewCardStyle}
+              bodyStyle={overviewCardBodyStyle}
+            >
+              <div style={overviewCardContentStyle}>
+                {this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
+                  asset.reference_count
                 )}
+                {this.renderLine(
+                  formatMessage({ id: 'Vm.export.latest' }),
+                  latestExport.name ? `${latestExport.display_name || latestExport.name} / ${latestExport.status || '-'}` : '-'
+                )}
+                <div style={overviewCardActionStyle}>
+                  {connections.vnc_url ? (
+                    <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
+                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
+                    </Button>
+                  ) : (
+                    <Tag><FormattedMessage id="componentOverview.body.tab.overview.vmConnectionPending" /></Tag>
+                  )}
+                </div>
               </div>
             </Card>
           </Col>
