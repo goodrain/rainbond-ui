@@ -1480,7 +1480,7 @@ class Main extends PureComponent {
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' })
       });
     }
-    if (isServiceMonitor) {
+    if (isServiceMonitor && method != 'vm') {
       tabs.push({
         key: 'monitor',
         // tab: '监控',
@@ -1623,6 +1623,9 @@ class Main extends PureComponent {
 
     if (!type) {
       type = isShowThirdParty ? 'thirdPartyServices' : 'overview';
+    }
+    if (method == 'vm' && type === 'monitor') {
+      type = 'overview';
     }
     const Com = map[type];
     const formItemLayout = {

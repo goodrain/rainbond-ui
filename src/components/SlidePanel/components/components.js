@@ -342,7 +342,23 @@ class Main extends PureComponent {
 
       // 检测 tab 参数变化，更新 activeTab
       if (currentTab && currentTab !== this.state.activeTab) {
-        this.setState({ activeTab: currentTab });
+        const normalizedTab = this.normalizeActiveTab(
+          currentTab,
+          this.props.appDetail,
+          this.state.isShowThirdParty
+        );
+
+        if (normalizedTab !== currentTab) {
+          const { dispatch } = this.props;
+          dispatch(
+            routerRedux.replace(
+              `${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${currentComponentID}&tab=${normalizedTab}`
+            )
+          );
+          return;
+        }
+
+        this.setState({ activeTab: normalizedTab });
       }
     }
   }
@@ -509,6 +525,29 @@ class Main extends PureComponent {
     }, times);
   };
 
+  normalizeActiveTab = (tab, appDetail, isShowThirdParty = false) => {
+    const method = appDetail?.service?.extend_method;
+    const defaultTab = isShowThirdParty
+      ? 'thirdPartyServices'
+      : method === 'kubeblocks_component'
+        ? 'databaseOverview'
+        : 'overview';
+
+    if (!tab) {
+      return defaultTab;
+    }
+
+    if (method === 'vm' && tab === 'monitor') {
+      return 'overview';
+    }
+
+    if (method === 'kubeblocks_component' && tab === 'overview') {
+      return 'databaseOverview';
+    }
+
+    return tab;
+  };
+
   handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
@@ -585,6 +624,12 @@ class Main extends PureComponent {
       callback: appDetail => {
         this.fetchAppDetail();
         const haveTabKey = globalUtil.getSlidePanelTab();
+        const isShowThirdParty = appDetail.is_third ? appDetail.is_third : false;
+        const initialTab = this.normalizeActiveTab(
+          haveTabKey,
+          appDetail,
+          isShowThirdParty
+        );
         if (val) {
           this.loadBuildState(appDetail, val);
         } else {
@@ -593,18 +638,22 @@ class Main extends PureComponent {
         if (appDetail.service.service_source) {
           const isKBComponent = appDetail?.service?.extend_method === 'kubeblocks_component';
           this.setState({
-            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
+            isShowThirdParty,
             tabsShow: true,
             isShowKubeBlocksComponent: isKBComponent
           }, () => {
             this.setState({
               routerSwitch: false,
-              activeTab: (() => {
-                const targetTab = haveTabKey ? haveTabKey :
-                  this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview';
-                return (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
-              })()
+              activeTab: initialTab
             });
+
+            if (haveTabKey && haveTabKey !== initialTab) {
+              dispatch(
+                routerRedux.replace(
+                  `${prefixUrl}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${initialTab}`
+                )
+              );
+            }
 
             if (isKBComponent) {
               dispatch({
@@ -1667,6 +1716,8 @@ class Main extends PureComponent {
         key: 'monitor',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
         auth: ['isServiceMonitor'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method !== 'vm'
       },
       {
         key: 'environmentConfiguration',
