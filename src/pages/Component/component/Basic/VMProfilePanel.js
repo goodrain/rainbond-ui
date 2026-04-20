@@ -775,9 +775,15 @@ class VMProfilePanel extends PureComponent {
       ? 'componentOverview.body.tab.overview.vmUpdateFixedIP'
       : 'componentOverview.body.tab.overview.vmFixCurrentIP';
     const overviewColStyle = { display: 'flex' };
-    const overviewCardStyle = { width: '100%', height: '100%', borderRadius: 10 };
-    const overviewCardBodyStyle = {
+    const overviewCardStyle = {
+      width: '100%',
       height: '100%',
+      borderRadius: 10,
+      display: 'flex',
+      flexDirection: 'column'
+    };
+    const overviewCardBodyStyle = {
+      flex: 1,
       display: 'flex',
       flexDirection: 'column'
     };
