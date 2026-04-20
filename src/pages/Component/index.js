@@ -67,6 +67,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import { getVisibleComponentPlugins } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
@@ -1284,7 +1285,6 @@ class Main extends PureComponent {
       buildInformationLoading,
       pluginList
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")
     const {
       BuildList,
       componentTimer,
@@ -1317,6 +1317,10 @@ class Main extends PureComponent {
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const CompluginList = getVisibleComponentPlugins(
+      PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
+      appDetail
+    );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
       start: formatMessage({ id: 'componentOverview.header.right.start' }),
@@ -1620,12 +1624,18 @@ class Main extends PureComponent {
       })
     }
     let { type } = this.props.match.params;
+    const visibleTabList = tabsShow ? tabList : overviewTabs;
+    const defaultTabKey = visibleTabList[0] && visibleTabList[0].key
+      ? visibleTabList[0].key
+      : isShowThirdParty
+        ? 'thirdPartyServices'
+        : 'overview';
 
     if (!type) {
-      type = isShowThirdParty ? 'thirdPartyServices' : 'overview';
+      type = defaultTabKey;
     }
-    if (method == 'vm' && type === 'monitor') {
-      type = 'overview';
+    if (!visibleTabList.some(item => item.key === type)) {
+      type = defaultTabKey;
     }
     const Com = map[type];
     const formItemLayout = {
@@ -1666,7 +1676,7 @@ class Main extends PureComponent {
           title={this.renderTitle(componentName)}
           onTabChange={this.handleTabChange}
           tabActiveKey={type}
-          tabList={tabsShow ? tabList : overviewTabs}
+          tabList={visibleTabList}
         >
           {this.state.showMarketAppDetail && (
             <MarketAppDetailShow

@@ -66,6 +66,7 @@ import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
+import { getVisibleComponentPlugins } from '../../../pages/Component/componentPluginHelpers';
 import { shouldShowGenericVisitAction } from '../../../pages/Component/visitActionHelpers';
 
 const FormItem = Form.Item;
@@ -1605,7 +1606,6 @@ class Main extends PureComponent {
         isOtherSetting
       }
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")    
     const {
       BuildList,
       componentTimer,
@@ -1623,6 +1623,10 @@ class Main extends PureComponent {
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const CompluginList = getVisibleComponentPlugins(
+      PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
+      appDetail
+    );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
       start: formatMessage({ id: 'componentOverview.header.right.start' }),
@@ -1792,20 +1796,10 @@ class Main extends PureComponent {
       // 添加插件tabs
       if (CompluginList?.length > 0) {
         CompluginList.forEach(item => {
-          // rainbond-sourcescan 插件只在 service_source 为 source_code 时显示
-          if (item.name === 'rainbond-sourcescan') {
-            if (appDetail?.service?.service_source === 'source_code') {
-              tabs.push({
-                key: item.name,
-                tab: item.display_name
-              });
-            }
-          } else {
-            tabs.push({
-              key: item.name,
-              tab: item.display_name
-            });
-          }
+          tabs.push({
+            key: item.name,
+            tab: item.display_name
+          });
         });
       }
     }
@@ -1851,17 +1845,17 @@ class Main extends PureComponent {
     };
     if (CompluginList && CompluginList.length > 0) {
       CompluginList.forEach(item => {
-        // rainbond-sourcescan 插件只在 service_source 为 source_code 时注册
-        if (item.name === 'rainbond-sourcescan') {
-          if (appDetail?.service?.service_source === 'source_code') {
-            map[item.name] = ComponentPlugin;
-          }
-        } else {
-          map[item.name] = ComponentPlugin;
-        }
+        map[item.name] = ComponentPlugin;
       })
     }
-    const Com = map[activeTab];
+    const visibleTabList = tabsShow ? tabList : overviewTabs;
+    const defaultTabKey = visibleTabList[0] && visibleTabList[0].key
+      ? visibleTabList[0].key
+      : 'overview';
+    const currentActiveTab = visibleTabList.some(item => item.key === activeTab)
+      ? activeTab
+      : defaultTabKey;
+    const Com = map[currentActiveTab];
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1874,7 +1868,7 @@ class Main extends PureComponent {
       appAlias: globalUtil.getSlidePanelComponentID(),
       regionName: globalUtil.getCurrRegionName(),
       teamName: globalUtil.getCurrTeamName(),
-      type: activeTab
+      type: currentActiveTab
     }
     
     return (
@@ -1884,8 +1878,8 @@ class Main extends PureComponent {
           {...this.props.pageHeader}
           title={this.renderTitle(componentName)}
           onTabChange={this.handleTabChange}
-          tabActiveKey={activeTab}
-          tabList={tabsShow ? tabList : overviewTabs}
+          tabActiveKey={currentActiveTab}
+          tabList={visibleTabList}
           content={formatMessage({ id: 'versionUpdata_6_2.componentSettings.desc' })}
         />
         {this.state.showMarketAppDetail && (
@@ -2027,7 +2021,7 @@ class Main extends PureComponent {
           }}
         >
           <CSSTransition
-            key={activeTab}
+            key={currentActiveTab}
             timeout={700}
             classNames="page-zoom"
             unmountOnExit
