@@ -4,6 +4,7 @@ import zhCN from 'antd/lib/locale-provider/zh_CN';
 import enUS from 'antd/lib/locale-provider/en_US';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
+import AgentRootShell from '@/components/AgentHost/RootShell';
 
 // antd 语言包映射
 const antdLocales = {
@@ -33,5 +34,9 @@ export function rootContainer(container) {
   // 设置 moment 语言
   moment.locale(momentLocales[locale] || 'zh-cn');
 
-  return React.createElement(LocaleProvider, { locale: antdLocale }, container);
+  return (
+    <LocaleProvider locale={antdLocale}>
+      <AgentRootShell>{container}</AgentRootShell>
+    </LocaleProvider>
+  );
 }

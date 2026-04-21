@@ -1,0 +1,23 @@
+@import '~antd/lib/style/themes/default.less';
+
+.rootShell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: @rbd-background-color;
+}
+
+.appViewport {
+  min-width: 0;
+  min-height: 100vh;
+  transition: width 0.24s ease;
+}
+
+.appViewportPush {
+  flex: 0 0 auto;
+}
+
+.appViewportFull {
+  flex: 1 1 auto;
+  width: 100%;
+}
