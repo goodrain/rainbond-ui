@@ -84,10 +84,9 @@ assert.deepStrictEqual(
     network_name: undefined,
     fixed_ip: undefined,
     gateway: undefined,
-    dns_servers: undefined,
-    boot_mode: 'uefi'
+    dns_servers: undefined
   },
-  'should clear fixed network defaults when using an exported VM asset'
+  'should clear fixed network defaults and stale boot mode when using an exported VM asset'
 );
 
 assert.deepStrictEqual(

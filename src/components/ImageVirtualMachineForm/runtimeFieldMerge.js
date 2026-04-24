@@ -12,6 +12,7 @@ const normalizeAssetRuntimeSnapshot = ({ asset = {}, runtimeSnapshot = {} }) => 
   if ((asset || {}).source_type !== 'vm_export') {
     return normalized;
   }
+  delete normalized.boot_mode;
   normalized.network_mode = 'random';
   normalized.network_name = undefined;
   normalized.fixed_ip = undefined;
