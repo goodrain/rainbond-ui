@@ -128,7 +128,6 @@ class Index extends PureComponent {
       dataList,
       isThird,
       method,
-      vmProfile,
       showStorageUsed,
       storageUsed
     } = this.props;
@@ -162,12 +161,11 @@ class Index extends PureComponent {
     const statusTextColor = globalUtil.fetchStateColor(currentStatus);
 
     // 版本显示
-    const versionValue = method === 'vm' ? vmProfile?.asset?.name || beanData?.vm_image : beanData?.build_version;
+    const versionValue = method === 'vm' ? beanData?.vm_image : beanData?.build_version;
     const versionLabelId =
       method === 'vm'
         ? 'componentOverview.body.tab.overview.vmImage'
         : 'componentOverview.body.tab.overview.version';
-    const showMoreVersionEntry = method === 'vm' ? !more : dataList && dataList.length > 0 && !more;
 
     // 构建详情配置
     const buildDetailConfig = this.getBuildDetailConfig();
@@ -260,7 +258,7 @@ class Index extends PureComponent {
                       {versionValue || <FormattedMessage id="componentOverview.body.tab.overview.not" />}
                     </span>
                   </Tooltip>
-                  {showMoreVersionEntry && (
+                  {dataList && dataList.length > 0 && !more && (
                     <a onClick={() => this.handleMore(true)} style={{ marginLeft: 8 }}>
                       <FormattedMessage id="componentOverview.body.tab.overview.moreVersion" />
                     </a>

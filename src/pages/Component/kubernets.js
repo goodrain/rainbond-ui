@@ -11,32 +11,8 @@ import ConfirmModal from '../../components/ConfirmModal';
 import styles from './kubernets.less';
 import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-const {
-  KEY_VALUE_JSON_FIELDS,
-  buildEditableAttributeFields,
-  formatRawJsonAttributeDisplayValue,
-  formatRawJsonAttributeValue,
-  isRawJsonAttribute,
-  parseRawJsonAttributeValue
-} = require('./kubernetsAttributeHelpers');
 
 const { Option, OptGroup } = Select;
-const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
-const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_network_mode', 'vm_network_name', 'vm_fixed_ip', 'vm_gateway', 'vm_dns_servers', 'vm_os_family', 'vm_asset_id'];
-const JSON_FIELDS = KEY_VALUE_JSON_FIELDS;
-const YAML_FIELDS = ['volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
-const STRING_FIELDS = ['serviceAccountName', 'cmd', 'vm_fixed_ip', 'vm_network_name', 'vm_gateway', 'vm_dns_servers', 'vm_asset_id'];
-const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostIPC'];
-const SELECT_FIELDS = {
-  dnsPolicy: ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None'],
-  vm_network_mode: ['random', 'fixed'],
-  vm_os_family: ['linux', 'windows']
-};
-
-const isSelectField = name => Object.prototype.hasOwnProperty.call(SELECT_FIELDS, name);
-const isStringField = (name, attribute = {}) => STRING_FIELDS.includes(name) || (attribute.save_type === 'string' && !BOOLEAN_FIELDS.includes(name) && !isSelectField(name));
-const hasAttributeValue = value => Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== '';
-
 @Form.create()
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
@@ -50,12 +26,11 @@ class Index extends PureComponent {
       minArr: {},
       visible: false,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
-      selectArr: DEFAULT_ATTRIBUTE_FIELDS,
+      selectArr: ["nodeSelector", "labels", "volumes", "volumeMounts", 'hostAliases', "affinity", "tolerations", "serviceAccountName", "cmd", "privileged", 'env', "shareProcessNamespace", "dnsPolicy", 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext','livenessProbe','readinessProbe'],
       selectVal: undefined,
       havevalArr: [],
       drawerSwitch: "add",
       jsonValue: '',
-      jsonTextValue: '',
       yamlValue: '',
       strValue: '',
       showDeletePort: false,
@@ -84,7 +59,15 @@ class Index extends PureComponent {
     this.handleGetKubernetes()
     if (this.props.extend_method == 'vm') {
       this.setState({
-        selectArr: VM_ATTRIBUTE_FIELDS
+        selectArr: ['nodeSelector',
+          'labels',
+          'tolerations',
+          'dnsPolicy',
+          'annotations',
+          'affinity',
+          'livenessProbe',
+          'readinessProbe'
+        ]
       })
     }
   }
@@ -120,41 +103,26 @@ class Index extends PureComponent {
       visible: true,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.add' }),
       drawerSwitch: val,
-      minArr: {},
       selectVal: undefined,
-      yamlValue: '',
       jsonValue: '',
-      jsonTextValue: '',
       strValue: ''
     });
   }
   changeBtn = (val, str, index) => {
     const { allData, TooltipValueArr } = this.state;
     const valueStateMap = {
-      jsonValue: '',
-      jsonTextValue: '',
-      yamlValue: '',
-      strValue: ''
+      yaml: { yamlValue: val.attribute_value },
+      json: { jsonValue: val.attribute_value },
+      string: { strValue: val.attribute_value }
     };
-    if (val.save_type === 'yaml') {
-      valueStateMap.yamlValue = val.attribute_value;
-    } else if (val.save_type === 'json') {
-      if (isRawJsonAttribute(val.name, val)) {
-        valueStateMap.jsonTextValue = formatRawJsonAttributeValue(val.attribute_value);
-      } else {
-        valueStateMap.jsonValue = val.attribute_value;
-      }
-    } else if (val.save_type === 'string') {
-      valueStateMap.strValue = val.attribute_value;
-    }
     this.setState({
-      ...valueStateMap,
+      ...valueStateMap[val.save_type],
       minArr: allData[index],
       visible: true,
       drawerTitle: formatMessage({ id: 'componentOverview.body.Kubernetes.edit_attribute' }),
       drawerSwitch: str,
       selectVal: val.name,
-      TooltipValue: TooltipValueArr[val.name] || ''
+      TooltipValue: TooltipValueArr[val.name]
     });
   }
 
@@ -193,13 +161,9 @@ class Index extends PureComponent {
   handleChange = (val) => {
     const { TooltipValueArr } = this.state;
     this.setState({
-      minArr: {},
       selectVal: val,
-      jsonValue: '',
-      jsonTextValue: '',
-      strValue: '',
-      yamlValue: TooltipValueArr[val] || '',
-      TooltipValue: TooltipValueArr[val] || ''
+      yamlValue: TooltipValueArr[val],
+      TooltipValue: TooltipValueArr[val]
     });
   }
 
@@ -211,8 +175,18 @@ class Index extends PureComponent {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { selectVal, TooltipValue, minArr } = this.state;
+    const { selectVal, TooltipValue } = this.state;
     const { form } = this.props;
+
+    // 定义字段类型配置
+    const jsonFields = ['nodeSelector', 'labels', 'annotations'];
+    const yamlFields = [
+      'volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource',
+      'livenessProbe', 'readinessProbe', 'volumes', 'securityContext',
+      'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'
+    ];
+    const stringFields = ['serviceAccountName', 'cmd'];
+    const booleanFields = ['privileged', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC'];
 
     form.validateFields((err, value) => {
       if (err) return;
@@ -220,38 +194,19 @@ class Index extends PureComponent {
       const fieldValue = value[selectVal];
       let label = null;
 
-      if (JSON_FIELDS.includes(selectVal)) {
+      if (jsonFields.includes(selectVal)) {
         if (fieldValue && fieldValue[0] && fieldValue[0].key && fieldValue[0].value) {
           label = { name: selectVal, save_type: 'json', attribute_value: fieldValue };
         }
-      } else if (isRawJsonAttribute(selectVal, minArr)) {
-        if (fieldValue && fieldValue.trim().length > 0) {
-          try {
-            label = {
-              name: selectVal,
-              save_type: 'json',
-              attribute_value: parseRawJsonAttributeValue(fieldValue)
-            };
-          } catch (error) {
-            notification.error({
-              message: `JSON 格式错误: ${error.message}`
-            });
-            return;
-          }
-        }
-      } else if (YAML_FIELDS.includes(selectVal)) {
+      } else if (yamlFields.includes(selectVal)) {
         if (fieldValue && fieldValue.length > 0 && fieldValue !== TooltipValue) {
           label = { name: selectVal, save_type: 'yaml', attribute_value: fieldValue };
         }
-      } else if (selectVal && isSelectField(selectVal)) {
-        if (fieldValue) {
-          label = { name: selectVal, save_type: 'string', attribute_value: fieldValue };
-        }
-      } else if (isStringField(selectVal, minArr)) {
+      } else if (stringFields.includes(selectVal)) {
         if (fieldValue && fieldValue.length > 0) {
           label = { name: selectVal, save_type: 'string', attribute_value: fieldValue };
         }
-      } else if (BOOLEAN_FIELDS.includes(selectVal)) {
+      } else if (booleanFields.includes(selectVal)) {
         if (fieldValue != null) {
           label = { name: selectVal, save_type: 'string', attribute_value: String(fieldValue) };
         }
@@ -322,32 +277,24 @@ class Index extends PureComponent {
         </path>
       </svg>
     )
-    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, minArr, jsonValue, jsonTextValue, yamlValue, strValue, boolvalue, TooltipValue, language, } = this.state;
+    const { drawerTitle, selectArr, selectVal, havevalArr, drawerSwitch, type, allData, jsonValue, yamlValue, strValue, boolvalue, TooltipValue, language, } = this.state;
     const { getFieldDecorator, setFieldsValue } = form;
     const isBool = (drawerSwitch == "add") ? true : false
-    const currentAttribute = drawerSwitch === 'change' ? minArr : {};
-    const editableFields = buildEditableAttributeFields(selectArr, drawerSwitch === 'change' ? selectVal : undefined);
     const addible = [];
     const notAddible = [];
-    editableFields.map((item, index) => {
+    selectArr.map((item, index) => {
       if (havevalArr.includes(item) == true) {
         addible.push(item)
       }
       return addible
     })
-    editableFields.map((item, index) => {
+    selectArr.map((item, index) => {
       if (havevalArr.includes(item) == false) {
         notAddible.push(item)
       }
       return notAddible
     })
-    const selectOptions = selectVal && isSelectField(selectVal) ? SELECT_FIELDS[selectVal] : [];
-    const inputLabel = selectVal === 'serviceAccountName'
-      ? formatMessage({ id: 'componentOverview.body.Kubernetes.input' })
-      : selectVal === 'cmd'
-        ? formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' })
-        : selectVal;
-    const inputPlaceholder = inputLabel || '';
+    const dnsPolicyArr = ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None']
     const formItemLayoutss = {
       labelCol: {
         xs: { span: 24 },
@@ -428,7 +375,7 @@ class Index extends PureComponent {
               </Row>
               <Form onSubmit={this.handleSubmit}>
                 {selectVal &&
-                  JSON_FIELDS.includes(selectVal) &&
+                  ((selectVal == "nodeSelector") || (selectVal == "labels") || (selectVal == "annotations")) &&
                   <Form.Item {...formItemLayouts}>
                     <div style={language ? { width: '100%' } : { marginLeft: 38, width: '100%' }}>
                       <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.key' /></p>
@@ -443,36 +390,20 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  isRawJsonAttribute(selectVal, currentAttribute) &&
-                  <CodeMirrorForm
-                    visible={this.state.visible}
-                    setFieldsValue={setFieldsValue}
-                    formItemLayout={formItemLayoutss}
-                    Form={Form}
-                    style={{ marginBottom: '20px' }}
-                    getFieldDecorator={getFieldDecorator}
-                    name={selectVal}
-                    message="JSON content"
-                    data={jsonTextValue || ''}
-                    mode="javascript"
-                    isUpload={false}
-                  />
-                }
-                {
-                  selectVal &&
-                  isSelectField(selectVal) &&
+                  selectVal == "dnsPolicy" &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
+                      <p style={{ whiteSpace: 'nowrap', paddingBottom: 5 }}>{formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' })}</p>
                       {getFieldDecorator(`${selectVal}`, {
-                        initialValue: strValue || undefined,
+                        initialValue: strValue || false,
                         rules: [{ required: false }]
                       })(
                         <Select
-                          placeholder={selectVal == "dnsPolicy" ? formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' }) : selectVal}
-                          style={{ width: 220 }}
+                          placeholder={formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' })}
+                          style={{ width: 220, marginLeft: 56 }}
                           onSelect={this.dnsPolicyYamlShow}
                         >
-                          {selectOptions.map((item, index) => {
+                          {dnsPolicyArr.map((item, index) => {
                             return <Option
                               key={index}
                               value={item}
@@ -487,7 +418,7 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  YAML_FIELDS.includes(selectVal) &&
+                  ((selectVal == "volumeMounts") || (selectVal == "hostAliases")|| (selectVal == "volumes") || (selectVal == "affinity") || (selectVal == "tolerations") || (selectVal == "env") || (selectVal == "volumeClaimTemplate") || selectVal == "dnsConfig" || selectVal == 'resources' || selectVal == 'lifecycle' || selectVal == 'envFromSource' || selectVal == 'securityContext' || selectVal== "livenessProbe" || selectVal == 'readinessProbe') &&
                   <>
                     <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
                     <CodeMirrorForm
@@ -507,29 +438,46 @@ class Index extends PureComponent {
                 }
                 {
                   selectVal &&
-                  isStringField(selectVal, currentAttribute) &&
+                  selectVal == "serviceAccountName" &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
+                      <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.input' /></p>
                       <div className={language ? styles.accountName_style : styles.en_accountName_style}>
                         {getFieldDecorator(`${selectVal}`, {
                           initialValue: strValue || '',
-                          rules: [{ required: false, message: inputPlaceholder }]
-                        })(<Input placeholder={inputPlaceholder} />)}
+                          rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.Kubernetes.input' }), }]
+                        })(<Input placeholder={formatMessage({ id: 'componentOverview.body.Kubernetes.input' })} />)}
                       </div>
                     </div>
                   </Form.Item>
                 }
                 {
                   selectVal &&
-                  BOOLEAN_FIELDS.includes(selectVal) &&
+                  selectVal == "cmd" &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
+                      <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.input_cmd' /></p>
+                      <div className={language ? styles.accountName_style : styles.en_accountName_style}>
+                        {getFieldDecorator(`${selectVal}`, {
+                          initialValue: strValue || '',
+                          rules: [{ required: false, message: formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' }), }]
+                        })(<Input placeholder={formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' })} />)}
+                      </div>
+                    </div>
+                  </Form.Item>
+                }
+                {
+                  selectVal &&
+                  (selectVal == "privileged" || selectVal == 'shareProcessNamespace' || selectVal == 'hostIPC') &&
+                  <Form.Item  {...formItemLayouts}>
+                    <div style={language ? {} : { marginLeft: 38 }}>
+                      <p style={{ whiteSpace: 'nowrap' }}><FormattedMessage id='componentOverview.body.Kubernetes.privileged' values={{ type: selectVal }} /></p>
                       {getFieldDecorator(`${selectVal}`, {
                         initialValue: strValue || false,
                         rules: [{ required: false }]
                       })(<Switch
                         defaultChecked={strValue || false}
-                        style={{ marginTop: '8px' }}
+                        style={{ margin: "20px 0  0 50px" }}
                       />)}
                     </div>
                   </Form.Item>
@@ -558,15 +506,15 @@ class Index extends PureComponent {
                 allData.length > 0 ? (
                 allData.map((item, index) => {
                   return <Row key={index}>
-                    {(YAML_FIELDS.includes(item.name) || item.save_type === 'yaml') ? (
+                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name=='livenessProbe' || item.name == 'readinessProbe') ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
                     )}
                     <Col span={16}>{
                       item.name &&
-                      JSON_FIELDS.includes(item.name) &&
-                      hasAttributeValue(item.attribute_value) &&
+                      (item.name == "nodeSelector" || item.name == "labels" || item.name == "annotations") &&
+                      item.attribute_value.length > 0 &&
                       item.attribute_value.map((ele, index) => {
                         return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
                           <div className={styles.tipText_style}>
@@ -577,55 +525,39 @@ class Index extends PureComponent {
                       })
                     }
                       {item.name &&
-                        isRawJsonAttribute(item.name, item) &&
-                        hasAttributeValue(item.attribute_value) &&
-                        (Array.isArray(item.attribute_value) ? item.attribute_value.map((ele, index) => {
-                          const displayValue = formatRawJsonAttributeDisplayValue(ele);
-                          return <Tooltip key={index} placement="top" title={displayValue}>
-                            <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px", margin: "0 20px 10px 0px" }}>
-                              {displayValue}
-                            </div>
-                          </Tooltip>
-                        }) : (
-                          <Tooltip placement="top" title={formatRawJsonAttributeValue(item.attribute_value)}>
-                            <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
-                              {formatRawJsonAttributeDisplayValue(item.attribute_value)}
-                            </div>
-                          </Tooltip>
-                        ))
-                      }
-                      {item.name &&
-                        (YAML_FIELDS.includes(item.name) || item.save_type === 'yaml') &&
-                        hasAttributeValue(item.attribute_value) &&
+                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name == 'livenessProbe' || item.name == 'readinessProbe') &&
+                        item.attribute_value.length > 0 &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
                         </div>
                       }
                       {item.name &&
-                        isStringField(item.name, item) &&
+                        (item.name == "serviceAccountName") &&
+                        item.attribute_value.length > 0 &&
                         <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
                           <Tooltip key={index} placement="top" title={item.attribute_value}>
-                            {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'}
+                            {item.attribute_value}
                           </Tooltip>
                         </div>
                       }
                       {item.name &&
-                        isSelectField(item.name) &&
-                        item.name !== "dnsPolicy" &&
+                        (item.name == "cmd") &&
+                        item.attribute_value.length > 0 &&
                         <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
                           <Tooltip key={index} placement="top" title={item.attribute_value}>
-                            {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'}
+                            {item.attribute_value}
                           </Tooltip>
                         </div>
                       }
                       {item.name &&
-                        BOOLEAN_FIELDS.includes(item.name) &&
-                        hasAttributeValue(item.attribute_value) &&
+                        (item.name == "privileged" || item.name == 'shareProcessNamespace' || item.name == 'hostIPC') &&
+                        item.attribute_value.length > 0 &&
                         <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
                       }
                       {item.name &&
                         (item.name == "dnsPolicy") &&
-                        <span style={{ paddingTop: "6px" }}> {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'} </span>
+                        item.attribute_value.length > 0 &&
+                        <span style={{ paddingTop: "6px" }}> {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {item.attribute_value} </span>
                       }
                     </Col>
                     <Col span={3}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit' /></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={() => this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete' /></span></Col>

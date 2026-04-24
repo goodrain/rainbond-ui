@@ -1,254 +1,73 @@
-@import '~antd/lib/style/themes/default.less';
-
-.vmForm {
-  padding: 4px 2px 12px;
-
-  :global {
-    .ant-form-item {
-      margin-bottom: 20px;
+.yaml_container {
+    :global {
+        .ant-upload {
+          width: 200px;
+        }
+        .ant-form-item-children{
+          display: flex;
+        }
+        .ant-upload-list-item-info{
+          margin-right: 12px;
+        }
     }
-
-    .ant-form-item-label>label {
-      font-size: 14px;
-      font-weight: 600;
-      color: @text-color;
-    }
-
-    .ant-radio-group {
+    .update{
+      width: 300px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      max-height: 200px;
+      overflow: hidden;
+      padding: 16px 24px;
+      border: 1px solid #e3e3e3;
+      position: relative;
+      .delete{
+        position: absolute;
+        top: -5%;
+        right: 2%;
+      }
+      .fileName{
+        width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 24px;
+      }
     }
-
-    .ant-select,
-    .ant-input {
-      width: 100%;
-    }
-
-    .ant-upload {
-      display: inline-block;
-    }
-  }
 }
-
-.noticeAlert {
-  margin-bottom: 20px;
-}
-
-.fieldLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-}
-
-.fieldLabelText {
-  color: @text-color;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.assetCatalogTrigger {
-  padding-right: 0 !important;
-}
-
-.inlineGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-.publicVmGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-.publicVmCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid @border-color-base;
-  margin-bottom: 24px;
-  background: #fff;
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: fade(@primary-color, 28%);
-  }
-}
-
-.publicVmCardActive {
-  color: @primary-color;
-  border-color: @primary-color;
-  background: fade(@primary-color, 6%);
-  box-shadow: 0 0 0 2px fade(@primary-color, 12%);
-}
-
-.publicVmCardIconWrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: #f6f8fb;
-  border-radius: 12px;
-}
-
-.publicVmCardIcon {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
-.publicVmCardFallbackIcon {
-  color: @heading-color;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.publicVmCardName {
-  color: @heading-color;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 22px;
-  text-align: center;
-  word-break: break-word;
-}
-
-.uploadPanel {
-  padding: 6px 0 0;
-  background: transparent;
-}
-
-.fileIcon {
-  color: @primary-color;
-}
-
-.fileList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.fileCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-}
-
-.fileMain {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-
-.fileMeta {
-  min-width: 0;
-  flex: 1;
-}
-
-.fileName {
-  overflow: hidden;
-  color: @heading-color;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 20px;
-  text-overflow: ellipsis;
+.file{
+  width: 250px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 24px;
+  border: 1px solid #d9d9d9;
 }
-
-.fileHint {
-  margin-top: 2px;
-  color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 18px;
-}
-
-.fileDelete {
-  padding: 0 !important;
-}
-
-.emptyState {
-  padding: 12px 0;
-  color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 20px;
-  text-align: left;
-}
-
-.switchPanel {
+.public{
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 4px 0;
-}
-
-.switchPanelMeta {
-  flex: 1;
-}
-
-.switchPanelTitle {
-  color: @heading-color;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 20px;
-}
-
-.switchPanelDesc {
-  margin-top: 4px;
-  color: @text-color-secondary;
-  font-size: 12px;
-  line-height: 18px;
-}
-
-.advancedToggle {
-  margin-top: 8px;
-  margin-bottom: 12px;
-
-  :global {
-    .ant-btn {
-      padding-left: 0;
-      color: @primary-color;
+  margin-bottom: 24px;
+  &>div{
+    cursor: pointer;
+    margin:  0 4px;
+    width: 100px;
+    height: 30px;
+    .publicItemName{
       font-weight: 500;
+      line-height: 30px;
+      font-size: 12px;
+      text-align: center;
+      color: #000;
+      border: 1px solid #e3e3e3;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 4px;
+      img{
+        width: 30px;
+        height: 30px;
+      }
     }
   }
-}
-
-.advancedPanel {
-  margin-bottom: 20px;
-  padding: 4px 2px 0;
-}
-
-.advancedDivider {
-  margin-bottom: 18px;
-  border-top: 1px solid fade(@border-color-base, 92%);
-}
-
-.submitRow {
-  margin-bottom: 0 !important;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .inlineGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .fileCard {
-    align-items: flex-start;
-    flex-direction: column;
+  .active{
+    .publicItemName{
+      color: #1890ff;
+      border: 1px solid #1890ff;
+    }
   }
 }

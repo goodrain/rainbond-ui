@@ -1,20 +1,6 @@
 import { Modal } from 'antd';
 import { formatMessage } from '@/utils/intl';
 
-function parseDateValue(date) {
-  if (date instanceof Date) {
-    return new Date(date.getTime());
-  }
-  if (typeof date === 'string') {
-    const normalizedDate = date.replace(/\-/g, '/');
-    const parsedDate = new Date(normalizedDate);
-    if (parsedDate.toString() !== 'Invalid Date') {
-      return parsedDate;
-    }
-  }
-  return new Date(date);
-}
-
 const dateUtil = {
   isWebSocketOpen(websocketURL) {
     const protocolStr = document.location.protocol;
@@ -35,7 +21,10 @@ const dateUtil = {
     return 'through';
   },
   format(date, format) {
-    const dates = parseDateValue(date);
+    let dates = new Date(date.replace(/\-/g, '/'));
+    if (dates == 'Invalid Date') {
+      dates = new Date(date);
+    }
     const map = {
       yyyy() {
         return dates.getFullYear();
@@ -73,7 +62,10 @@ const dateUtil = {
   dateToCN(date, format) {
     // 是否是今天
     function isToday(str) {
-      const d = parseDateValue(str);
+      let d = new Date(str.replace(/\-/g, '/'));
+      if (d == 'Invalid Date') {
+        d = new Date(str);
+      }
       const todaysDate = new Date();
       if (d.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
         return true;
@@ -83,7 +75,10 @@ const dateUtil = {
 
     // 是否昨天
     function isYestday(date) {
-      const d = parseDateValue(date);
+      let d = new Date(date.replace(/\-/g, '/'));
+      if (d == 'Invalid Date') {
+        d = new Date(date);
+      }
       const dates = new Date(); // 当前时间
       const today = new Date(
         dates.getFullYear(),
@@ -95,7 +90,10 @@ const dateUtil = {
     }
     // 是否是前天
     function isBeforeYestday(date) {
-      const d = parseDateValue(date);
+      let d = new Date(date.replace(/\-/g, '/'));
+      if (d == 'Invalid Date') {
+        d = new Date(date);
+      }
       const dates = new Date(); // 当前时间
       const today = new Date(
         dates.getFullYear(),

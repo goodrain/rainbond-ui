@@ -128,7 +128,6 @@ const global = {
     'global.fetchStateOptTypeText.stop':'停止组件',
     'global.fetchStateOptTypeText.restart-service':'重启组件',
     'global.fetchStateOptTypeText.restart':'重启组件',
-    'global.fetchStateOptTypeText.export-vm':'导出虚拟机镜像',
     'global.fetchStateOptTypeText.vertical-service':'垂直扩展组件',
     'global.fetchStateOptTypeText.vertical':'垂直扩展组件',
     'global.fetchStateOptTypeText.horizontal-service':'水平扩展组件',

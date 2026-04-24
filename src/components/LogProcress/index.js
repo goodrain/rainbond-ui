@@ -5,9 +5,6 @@ import React, { PureComponent } from 'react';
 import dateUtil from '../../utils/date-util';
 import domUtil from '../../utils/dom-util';
 import LogSocket from '../../utils/logSocket';
-import logMessageUtil from './message';
-
-const { extractLogMessageText } = logMessageUtil;
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -95,8 +92,17 @@ export default class Index extends PureComponent {
       return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;
     }
     try {
-      const msg = extractLogMessageText(data.message);
-      return `${timeHtml}<span>${this.escapeHtml(msg)}</span>`;
+      const { message } = data;
+      let msg = '';
+      if (message.id) {
+        msg += `${message.id}:`;
+      }
+      msg += message.status || '';
+      msg += message.progress || '';
+      if (msg) {
+        return `${timeHtml}<span>${this.escapeHtml(msg)}</span>`;
+      }
+      return `${timeHtml}<span>${this.escapeHtml(message.stream)}</span>`;
     } catch (e) {
       if (data.message) {
         return `${timeHtml}<span>${this.escapeHtml(data.message)}</span>`;

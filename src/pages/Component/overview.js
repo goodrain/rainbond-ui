@@ -20,7 +20,6 @@ import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
-import VMProfilePanel from './component/Basic/VMProfilePanel';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
@@ -399,11 +398,9 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
-    if (this.props.method !== 'vm') {
-      this.loadBuildSourceInfo();
-      this.getVersionList();
-    }
+    this.loadBuildSourceInfo();
     this.fetchAppDiskAndMemory();
+    this.getVersionList();
     this.load();
   }
 
@@ -697,10 +694,6 @@ export default class Index extends PureComponent {
   handleMore = more => {
     this.setState({
       more
-    }, () => {
-      if (more && this.props.method === 'vm' && this.state.dataList.length === 0) {
-        this.getVersionList();
-      }
     });
   };
 
@@ -721,25 +714,6 @@ export default class Index extends PureComponent {
       handleError: err => {
         handleAPIError(err);
       }
-    });
-  };
-
-  refreshVMProfile = () => {
-    const { dispatch, appAlias } = this.props;
-    return new Promise((resolve, reject) => {
-      dispatch({
-        type: 'appControl/fetchDetail',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: appAlias
-        },
-        callback: detail => {
-          resolve(detail);
-        },
-        handleError: err => {
-          reject(err);
-        }
-      });
     });
   };
 
@@ -783,17 +757,9 @@ export default class Index extends PureComponent {
           more={more}
           socket={socket}
           method={method}
-          vmProfile={appDetail?.vm_profile}
           showStorageUsed={showStorageUsed}
           storageUsed={storageUsed}
         />
-        {!more && method === 'vm' && appDetail?.vm_profile && (
-          <VMProfilePanel
-            vmProfile={appDetail.vm_profile}
-            serviceAlias={this.props.appAlias}
-            onRefresh={this.refreshVMProfile}
-          />
-        )}
         
         {more && (
           <BuildHistory

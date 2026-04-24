@@ -3386,31 +3386,6 @@ export async function vmPause(body = {}) {
   );
 }
 
-export async function startVMExport(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-export`,
-    {
-      method: 'post',
-      data: {
-        force_replace: !!body.force_replace,
-        description: body.description || ''
-      }
-    }
-  );
-}
-
-export async function getVMExportStatus(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-export`,
-    {
-      method: 'get',
-      params: {
-        asset_id: body.asset_id
-      }
-    }
-  );
-}
-
 // 获取应用下下所有组件的英文名称
 export async function getComponentNames(body = {}) {
   return request(
