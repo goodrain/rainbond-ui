@@ -4,7 +4,9 @@ import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '@/utils/global';
-const { isBuildEnvTruthy } = require('../buildEnvHelpers');
+import buildEnvHelpers from '../buildEnvHelpers';
+
+const { isBuildEnvTruthy } = buildEnvHelpers;
 
 // 框架图标（内联 SVG）
 export const FRAMEWORK_ICONS = {

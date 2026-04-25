@@ -179,6 +179,41 @@
     @rbd-background-color;
 }
 
+.workflowCard {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid fade(@primary-color, 16%);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.workflowHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: @primary-color;
+  margin-bottom: 8px;
+}
+
+.workflowTitle {
+  font-size: @rbd-content-size;
+  font-weight: 600;
+}
+
+.workflowSummary {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+  margin-bottom: 8px;
+}
+
+.workflowMeta {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
 .emptyState {
   min-height: 100%;
   display: flex;
@@ -278,9 +313,9 @@
 .messageBubble {
   max-width: calc(100% - 16px);
   border-radius: 16px;
-  padding: 12px 14px;
-  font-size: @rbd-content-size;
-  line-height: 22px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 20px;
   white-space: pre-wrap;
   word-break: break-word;
   box-shadow: @rbd-min-card-shadow;
@@ -299,6 +334,118 @@
   border-top-left-radius: 6px;
 }
 
+.markdownBody {
+  color: @text-color;
+  font-size: 13px;
+  line-height: 20px;
+
+  :global {
+    h1, h2, h3, h4, h5, h6 {
+      color: @heading-color;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    h2 {
+      font-size: 17px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      white-space: normal;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 8px;
+      white-space: normal;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid fade(@border-color-base, 80%);
+      margin: 12px 0;
+    }
+
+    strong {
+      color: @heading-color;
+      font-weight: 600;
+    }
+
+    code {
+      background: #f5f7fb;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+      font-size: 11px;
+    }
+
+    pre {
+      background: #f5f7fb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    th, td {
+      border: 1px solid fade(@border-color-base, 85%);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f9fc;
+      color: @heading-color;
+      font-weight: 600;
+    }
+  }
+}
+
+.messageTraceGroup {
+  margin-bottom: 10px;
+}
+
+.traceGroupStandalone {
+  margin-bottom: 18px;
+}
+
+.traceGroupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: @text-color-secondary;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .traceCard,
 .approvalCard,
 .errorCard {
@@ -313,37 +460,120 @@
   padding: 12px 14px;
 }
 
+.traceCollapse {
+  background: transparent;
+  width: 100%;
+
+  :global {
+    .ant-collapse-item {
+      border: none;
+    }
+
+    .ant-collapse-header {
+      padding: 0 26px 0 0 !important;
+    }
+
+    .ant-collapse-content {
+      border-top: none;
+      background: transparent;
+    }
+
+    .ant-collapse-content-box {
+      padding: 8px 0 0 !important;
+    }
+  }
+}
+
 .traceHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
   color: @heading-color;
   font-size: @rbd-auxiliary-size;
   font-weight: 600;
-  margin-bottom: 8px;
+  min-height: 22px;
+}
+
+.traceHeaderLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-right: 16px;
+}
+
+.traceHeaderTitle {
+  display: inline-block;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .traceBody {
   margin: 0;
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: 11px;
+  line-height: 18px;
   color: @text-color-secondary;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+.thinkingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.thinkingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thinkingText {
+  display: inline-block;
+}
+
 .approvalCard {
   padding: 14px;
+}
+
+.approvalCardInfo {
+  border-color: fade(@primary-color, 28%);
+  background: fade(@primary-color, 4%);
+}
+
+.approvalCardWarning {
   border-color: fade(@warning-color, 30%);
   background: fade(@warning-color, 4%);
+}
+
+.approvalCardDanger {
+  border-color: fade(@error-color, 30%);
+  background: fade(@error-color, 6%);
 }
 
 .approvalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 8px;
+}
+
+.approvalTags {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .approvalTitle {

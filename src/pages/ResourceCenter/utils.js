@@ -1,7 +1,6 @@
 import { formatMessage } from '@/utils/intl';
-
-const moment = require('moment');
-const theme = require('../../../config/theme');
+import moment from 'moment';
+import theme from '../../../config/theme';
 
 const getWorkloadKindOptions = () => ([
   { label: formatMessage({ id: 'resourceCenter.workloadKind.deployment' }), value: 'deployments', group: 'apps', kind: 'Deployment' },

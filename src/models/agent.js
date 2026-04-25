@@ -1,3 +1,4 @@
+import { getDvaApp } from 'umi';
 import {
   clearAgentSession,
   decideAgentApproval,
@@ -8,6 +9,9 @@ import {
   formatAgentContextMessage,
   getAgentContextSignature,
 } from '../utils/agentContext';
+import agentWorkflowState from './agentWorkflowState';
+
+const { extractWorkflowState } = agentWorkflowState;
 
 const defaultState = {
   hydrated: false,
@@ -31,6 +35,8 @@ const defaultState = {
     pathname: '',
   },
   lastContextSignature: '',
+  workflowState: null,
+  structuredResult: null,
   updatedAt: 0,
 };
 
@@ -57,6 +63,9 @@ function normalizePendingApproval(pendingApproval) {
     approvalId: pendingApproval.approvalId || '',
     description: pendingApproval.description || '',
     risk: pendingApproval.risk || 'medium',
+    scope: pendingApproval.scope || '',
+    scopeLabel: pendingApproval.scopeLabel || '',
+    levelLabel: pendingApproval.levelLabel || '',
     runId: pendingApproval.runId || '',
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
@@ -84,6 +93,8 @@ function buildHydratedState(snapshot) {
     lastContextSignature:
       snapshot.lastContextSignature ||
       getAgentContextSignature(snapshot.context || defaultState.context),
+    workflowState: snapshot.workflowState || null,
+    structuredResult: snapshot.structuredResult || null,
     sending: false,
     lastError: '',
   };
@@ -108,16 +119,31 @@ function findApprovalMessageIndex(messages, approvalId) {
 }
 
 function buildTraceContent(data = {}) {
+  const toolName = data.tool_name || '工具调用';
+  const normalizedInput =
+    data && data.input && typeof data.input === 'object'
+      ? JSON.stringify(data.input)
+      : '';
+  const normalizedOutput =
+    data &&
+    data.output &&
+    data.output.structuredContent &&
+    typeof data.output.structuredContent === 'object'
+      ? data.output.structuredContent
+      : data.output;
   const detail = [];
   if (data.input) {
     detail.push(`输入：${JSON.stringify(data.input, null, 2)}`);
   }
-  if (data.output) {
-    detail.push(`输出：${JSON.stringify(data.output, null, 2)}`);
+  if (normalizedOutput) {
+    detail.push(`输出：${JSON.stringify(normalizedOutput, null, 2)}`);
   }
   return {
-    title: data.tool_name || '工具调用',
+    title: toolName,
     detail: detail.join('\n\n'),
+    toolName,
+    inputSignature: normalizedInput,
+    hasOutput: !!data.output,
   };
 }
 
@@ -156,6 +182,28 @@ function applyAgentEvents({
         break;
       }
       case 'chat.trace': {
+        const trace = buildTraceContent(event.data || {});
+        const pendingTraceIndex =
+          trace.hasOutput
+            ? nextMessages.findIndex(item => (
+                item &&
+                item.kind === 'trace' &&
+                item.trace &&
+                item.trace.title === trace.title &&
+                item.trace.inputSignature === trace.inputSignature &&
+                !item.trace.hasOutput
+              ))
+            : -1;
+
+        if (pendingTraceIndex > -1) {
+          nextMessages[pendingTraceIndex] = {
+            ...nextMessages[pendingTraceIndex],
+            trace,
+            eventSequence,
+          };
+          break;
+        }
+
         nextMessages.push(
           createMessage(
             'system',
@@ -163,7 +211,7 @@ function applyAgentEvents({
             '',
             contextSnapshot,
             {
-              trace: buildTraceContent(event.data || {}),
+              trace,
               eventSequence,
             }
           )
@@ -176,6 +224,9 @@ function applyAgentEvents({
           approvalId: data.approval_id || '',
           description: data.description || '',
           risk: data.risk || 'medium',
+          scope: data.scope || '',
+          scopeLabel: data.scope_label || '',
+          levelLabel: data.level_label || '',
           runId: event.runId || '',
           sessionId: event.sessionId || '',
           status: 'pending',
@@ -260,6 +311,33 @@ function applyAgentEvents({
         );
         break;
       }
+      case 'workflow.selected': {
+        nextMessages.push(
+          createMessage(
+            'system',
+            'status',
+            `已进入流程 ${((event.data || {}).workflow_name || 'workflow')}`,
+            contextSnapshot,
+            { eventSequence }
+          )
+        );
+        break;
+      }
+      case 'workflow.stage': {
+        nextMessages.push(
+          createMessage(
+            'system',
+            'status',
+            `当前阶段：${((event.data || {}).workflow_stage || 'unknown')}`,
+            contextSnapshot,
+            { eventSequence }
+          )
+        );
+        break;
+      }
+      case 'workflow.completed': {
+        break;
+      }
       default:
         break;
     }
@@ -269,6 +347,24 @@ function applyAgentEvents({
     messages: nextMessages,
     pendingApproval,
     lastEventSequence,
+    ...extractWorkflowState(events),
+  };
+}
+
+function applyAgentStreamEvent(state, payload) {
+  const merged = applyAgentEvents({
+    messages: state.messages,
+    events: [payload.event],
+    contextSnapshot: payload.contextSnapshot || state.context || {},
+    currentPendingApproval: state.pendingApproval,
+  });
+
+  return {
+    messages: merged.messages,
+    pendingApproval: merged.pendingApproval,
+    lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
+    workflowState: merged.workflowState || state.workflowState,
+    structuredResult: merged.structuredResult || state.structuredResult,
   };
 }
 
@@ -345,17 +441,24 @@ export default {
       });
 
       try {
+        const dvaApp = getDvaApp();
+        const storeDispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
         const response = yield call(sendAgentMessage, {
           conversation_id: state.conversationId,
           message: text,
           context: contextSnapshot,
           currentUser,
-        });
-        const merged = applyAgentEvents({
-          messages: pendingMessages,
-          events: (response && response.events) || [],
-          contextSnapshot,
-          currentPendingApproval: state.pendingApproval,
+          onEvent: event => {
+            if (storeDispatch) {
+              storeDispatch({
+                type: 'agent/applyStreamEvent',
+                payload: {
+                  event,
+                  contextSnapshot,
+                },
+              });
+            }
+          },
         });
 
         yield put({
@@ -363,9 +466,6 @@ export default {
           payload: {
             conversationId: (response && response.sessionId) || state.conversationId,
             activeRunId: (response && response.runId) || state.activeRunId,
-            messages: merged.messages,
-            pendingApproval: merged.pendingApproval,
-            lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
             sending: false,
             updatedAt: Date.now(),
           },
@@ -408,6 +508,8 @@ export default {
       });
 
       try {
+        const dvaApp = getDvaApp();
+        const storeDispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
         const response = yield call(decideAgentApproval, {
           approvalId: pendingApproval.approvalId,
           decision: payload && payload.decision,
@@ -417,21 +519,22 @@ export default {
           afterSequence: pendingApproval.lastSequence || state.lastEventSequence,
           context: state.context,
           currentUser,
-        });
-
-        const merged = applyAgentEvents({
-          messages: state.messages,
-          events: (response && response.events) || [],
-          contextSnapshot: state.context || {},
-          currentPendingApproval: pendingApproval,
+          onEvent: event => {
+            if (storeDispatch) {
+              storeDispatch({
+                type: 'agent/applyStreamEvent',
+                payload: {
+                  event,
+                  contextSnapshot: state.context || {},
+                },
+              });
+            }
+          },
         });
 
         yield put({
           type: 'saveState',
           payload: {
-            messages: merged.messages,
-            pendingApproval: merged.pendingApproval,
-            lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
             sending: false,
             lastError: '',
             updatedAt: Date.now(),
@@ -497,6 +600,20 @@ export default {
       };
     },
 
+    applyStreamEvent(state, { payload }) {
+      const merged = applyAgentStreamEvent(state, payload);
+
+      return {
+        ...state,
+        messages: merged.messages,
+        pendingApproval: merged.pendingApproval,
+        lastEventSequence: merged.lastEventSequence,
+        workflowState: merged.workflowState,
+        structuredResult: merged.structuredResult,
+        updatedAt: Date.now(),
+      };
+    },
+
     clearState(state, { payload }) {
       const preserveVisible = payload && payload.preserveVisible;
       return {
@@ -508,8 +625,15 @@ export default {
         pendingApproval: null,
         activeRunId: '',
         lastEventSequence: 0,
+        workflowState: null,
+        structuredResult: null,
         updatedAt: Date.now(),
       };
     },
   },
+};
+
+export {
+  buildTraceContent,
+  applyAgentEvents,
 };

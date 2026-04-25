@@ -50,12 +50,10 @@ import AuthCompany from '../../components/AuthCompany';
 import AppExporter from '../EnterpriseShared/AppExporter';
 import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
-
-const {
-  getLatestSnapshotVersionSeed
-} = require('../Group/components/snapshotVersionHelpers');
+import snapshotVersionHelpers from '../Group/components/snapshotVersionHelpers';
 
 const { Panel } = Collapse;
+const { getLatestSnapshotVersionSeed } = snapshotVersionHelpers;
 
 @connect(({ application, user, teamControl, enterprise, loading }) => ({
   apps: application.apps || [],

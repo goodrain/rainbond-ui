@@ -1,0 +1,76 @@
+const assert = require('assert');
+const {
+  getExecutedAction,
+  getProposedToolAction,
+  getProposedActionLabel,
+  isStandaloneExecutedActionResult
+} = require('./structuredResultHelpers');
+
+const lowRiskResult = {
+  subflowData: {
+    proposedToolAction: {
+      toolName: 'rainbond_create_app_version_snapshot',
+      requiresApproval: false
+    }
+  }
+};
+
+const highRiskResult = {
+  subflowData: {
+    proposedToolAction: {
+      toolName: 'rainbond_install_app_model',
+      requiresApproval: true
+    }
+  }
+};
+
+const executedResult = {
+  executedAction: {
+    toolName: 'rainbond_install_app_model',
+    requiresApproval: true
+  }
+};
+
+const standaloneExecutedResult = {
+  nextAction: 'none',
+  tool_calls: [{ name: 'rainbond_update_region', status: 'success' }],
+  executedAction: {
+    toolName: 'rainbond_update_region',
+    requiresApproval: true
+  }
+};
+
+const workflowExecutedResult = {
+  workflowId: 'rainbond-app-assistant',
+  nextAction: 'none',
+  tool_calls: [{ name: 'rainbond_update_region', status: 'success' }],
+  executedAction: {
+    toolName: 'rainbond_update_region',
+    requiresApproval: true
+  }
+};
+
+assert.deepStrictEqual(getProposedToolAction(lowRiskResult), {
+  toolName: 'rainbond_create_app_version_snapshot',
+  requiresApproval: false
+});
+assert.strictEqual(getProposedActionLabel(lowRiskResult), '继续执行');
+
+assert.deepStrictEqual(getProposedToolAction(highRiskResult), {
+  toolName: 'rainbond_install_app_model',
+  requiresApproval: true
+});
+assert.strictEqual(getProposedActionLabel(highRiskResult), '申请执行');
+
+assert.strictEqual(getProposedToolAction({}), null);
+assert.strictEqual(getProposedActionLabel({}), '');
+assert.deepStrictEqual(getExecutedAction(executedResult), {
+  toolName: 'rainbond_install_app_model',
+  requiresApproval: true
+});
+assert.strictEqual(getExecutedAction({}), null);
+assert.strictEqual(isStandaloneExecutedActionResult(standaloneExecutedResult), true);
+assert.strictEqual(isStandaloneExecutedActionResult(workflowExecutedResult), false);
+assert.strictEqual(isStandaloneExecutedActionResult({}), false);
+
+console.log('structured result helper tests passed');

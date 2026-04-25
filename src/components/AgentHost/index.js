@@ -1,46 +1,16 @@
 import React, { PureComponent } from 'react';
-import { Button, Icon, Input, Modal, Tag } from 'antd';
+import { Button, Collapse, Icon, Input, Modal, Tag } from 'antd';
+import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
+const approvalMeta = require('./approvalMeta');
+const displayFilters = require('./displayFilters');
+const { renderMarkdownSource } = require('./markdownHelpers');
+const { getApprovalRiskMeta, getApprovalScopeMeta } = approvalMeta;
+const { shouldRenderMessageItem, shouldRenderWorkflowSummary } = displayFilters;
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-
-function buildContextTags(context = {}) {
-  const tags = [];
-
-  if (context.enterpriseId) {
-    tags.push({
-      key: 'enterprise',
-      label: `企业 ${context.enterpriseId}`,
-    });
-  }
-  if (context.teamName) {
-    tags.push({
-      key: 'team',
-      label: `团队 ${context.teamName}`,
-    });
-  }
-  if (context.regionName) {
-    tags.push({
-      key: 'region',
-      label: `集群 ${context.regionName}`,
-    });
-  }
-  if (context.appId) {
-    tags.push({
-      key: 'app',
-      label: `应用 ${context.appId}`,
-    });
-  }
-  if (context.componentId) {
-    tags.push({
-      key: 'component',
-      label: `组件 ${context.componentId}`,
-    });
-  }
-
-  return tags;
-}
+const { Panel } = Collapse;
 
 export default class AgentHost extends PureComponent {
   constructor(props) {
@@ -114,6 +84,17 @@ export default class AgentHost extends PureComponent {
     });
   };
 
+  handleContinueWorkflowAction = () => {
+    const { dispatch, agent } = this.props;
+    dispatch({
+      type: 'agent/sendMessage',
+      payload: {
+        message: '继续执行',
+        context: agent && agent.context,
+      },
+    });
+  };
+
   handlePressEnter = event => {
     if (event.shiftKey) {
       return;
@@ -155,15 +136,30 @@ export default class AgentHost extends PureComponent {
     const trace = item.trace || {};
     return (
       <div key={item.id} className={styles.traceRow}>
-        <div className={styles.traceCard}>
-          <div className={styles.traceHeader}>
-            <Icon type="api" />
-            <span>{trace.title || '工具调用'}</span>
-          </div>
-          {trace.detail ? (
-            <pre className={styles.traceBody}>{trace.detail}</pre>
-          ) : null}
-        </div>
+        <Collapse
+          bordered={false}
+          className={styles.traceCollapse}
+          defaultActiveKey={[]}
+          expandIconPosition="right"
+        >
+          <Panel
+            key={item.id}
+            header={(
+              <div className={styles.traceHeader}>
+                <span className={styles.traceHeaderLeft}>
+                  <Icon type="api" />
+                  <span className={styles.traceHeaderTitle}>
+                    {trace.title || '工具调用'}
+                  </span>
+                </span>
+              </div>
+            )}
+          >
+            {trace.detail ? (
+              <pre className={styles.traceBody}>{trace.detail}</pre>
+            ) : null}
+          </Panel>
+        </Collapse>
       </div>
     );
   };
@@ -173,17 +169,34 @@ export default class AgentHost extends PureComponent {
     const approval = item.approval || {};
     const isPending = approval.status === 'pending';
     const isSending = !!(agent && agent.sending);
+    const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
+    const scopeMeta = getApprovalScopeMeta(approval.scope, approval.scopeLabel);
+    const cardClassName = [
+      styles.approvalCard,
+      styles[riskMeta.cardClass]
+    ].filter(Boolean).join(' ');
 
     return (
       <div key={item.id} className={styles.approvalRow}>
-        <div className={styles.approvalCard}>
+        <div className={cardClassName}>
           <div className={styles.approvalHeader}>
             <span className={styles.approvalTitle}>需要审批</span>
-            <Tag color={approval.risk === 'high' ? 'red' : 'orange'}>
-              {approval.risk === 'high' ? '高风险' : '中风险'}
-            </Tag>
+            <div className={styles.approvalTags}>
+              {scopeMeta.label ? (
+                <Tag color={scopeMeta.color}>
+                  {scopeMeta.label}
+                </Tag>
+              ) : null}
+              <Tag color={riskMeta.color}>
+                {riskMeta.label}
+              </Tag>
+            </div>
           </div>
           <div className={styles.approvalContent}>{item.content}</div>
+          <div className={styles.approvalMeta}>
+            {scopeMeta.label ? `层级：${scopeMeta.label} · ` : ''}
+            等级：{riskMeta.label}
+          </div>
           <div className={styles.approvalMeta}>
             状态：
             {approval.status === 'approved'
@@ -232,6 +245,46 @@ export default class AgentHost extends PureComponent {
     );
   };
 
+  renderWorkflowSummary = () => {
+    if (!shouldRenderWorkflowSummary()) {
+      return null;
+    }
+
+    return null;
+  };
+
+  renderStandaloneTraceGroup = traces => {
+    if (!traces || traces.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className={styles.traceGroupStandalone} key={`trace-group-${traces[0].id}`}>
+        <div className={styles.traceGroupTitle}>
+          <Icon type="api" />
+          <span>工具调用</span>
+        </div>
+        {traces.map(item => this.renderTraceMessage(item))}
+      </div>
+    );
+  };
+
+  renderAssistantTraceGroup = traces => {
+    if (!traces || traces.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className={styles.messageTraceGroup}>
+        <div className={styles.traceGroupTitle}>
+          <Icon type="api" />
+          <span>工具调用</span>
+        </div>
+        {traces.map(item => this.renderTraceMessage(item))}
+      </div>
+    );
+  };
+
   renderMessages = () => {
     const { agent } = this.props;
     const messages = (agent && agent.messages) || [];
@@ -247,33 +300,66 @@ export default class AgentHost extends PureComponent {
       );
     }
 
-      return messages.map(item => {
+      const rendered = [];
+      let pendingTraceItems = [];
+
+      messages.forEach(item => {
+      if (!shouldRenderMessageItem(item)) {
+        return;
+      }
+
       if (item.kind === 'context') {
-        return (
+        if (pendingTraceItems.length > 0) {
+          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+          pendingTraceItems = [];
+        }
+        rendered.push(
           <div key={item.id} className={styles.contextRow}>
             <span className={styles.contextBadge}>{item.content}</span>
           </div>
         );
+        return;
       }
 
       if (item.kind === 'trace') {
-        return this.renderTraceMessage(item);
+        pendingTraceItems.push(item);
+        return;
       }
 
       if (item.kind === 'approval') {
-        return this.renderApprovalMessage(item);
+        pendingTraceItems = [];
+        rendered.push(this.renderApprovalMessage(item));
+        return;
       }
 
       if (item.kind === 'status') {
-        return this.renderStatusMessage(item);
+        if (pendingTraceItems.length > 0) {
+          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+          pendingTraceItems = [];
+        }
+        rendered.push(this.renderStatusMessage(item));
+        return;
       }
 
       if (item.kind === 'error') {
-        return this.renderErrorMessage(item);
+        if (pendingTraceItems.length > 0) {
+          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+          pendingTraceItems = [];
+        }
+        rendered.push(this.renderErrorMessage(item));
+        return;
       }
 
       const isUser = item.role === 'user';
-      return (
+      const traceGroup = !isUser && pendingTraceItems.length > 0
+        ? this.renderAssistantTraceGroup(pendingTraceItems)
+        : null;
+      if (isUser && pendingTraceItems.length > 0) {
+        rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+      }
+      pendingTraceItems = [];
+
+      rendered.push(
         <div
           key={item.id}
           className={`${styles.messageRow} ${isUser ? styles.userRow : styles.assistantRow}`}
@@ -294,21 +380,35 @@ export default class AgentHost extends PureComponent {
               isUser ? styles.userBubble : styles.assistantBubble
             }`}
           >
-            {item.content}
+            {traceGroup}
+            {isUser ? (
+              item.content
+            ) : (
+              <div className={styles.markdownBody}>
+                <ReactMarkdown
+                  source={renderMarkdownSource(item.content || '')}
+                  escapeHtml={false}
+                />
+              </div>
+            )}
           </div>
         </div>
       );
-    });
+      });
+
+      if (pendingTraceItems.length > 0) {
+        rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+      }
+
+      return rendered;
   };
 
   render() {
     const { agent, panelConfig } = this.props;
-    const context = (agent && agent.context) || {};
     const visible = !!(agent && agent.visible);
     const sending = !!(agent && agent.sending);
     const draft = (agent && agent.draft) || '';
     const lastError = (agent && agent.lastError) || '';
-    const tags = buildContextTags(context);
     const width = (panelConfig && panelConfig.width) || 420;
     const mode = (panelConfig && panelConfig.mode) || 'push';
     const isOverlay = mode === 'overlay';
@@ -343,23 +443,17 @@ export default class AgentHost extends PureComponent {
             </div>
 
             <div className={styles.drawerBody}>
-            <div className={styles.contextPanel}>
-              <div className={styles.contextTitle}>当前上下文</div>
-              <div className={styles.contextTags}>
-                {tags.length > 0
-                  ? tags.map(item => (
-                      <Tag key={item.key} className={styles.contextTag}>
-                        {item.label}
-                      </Tag>
-                    ))
-                  : (
-                    <span className={styles.contextFallback}>未识别到具体业务上下文</span>
-                  )}
-              </div>
-            </div>
-
             <div className={styles.messagesPanel} ref={this.setMessagesRef}>
+              {this.renderWorkflowSummary()}
               {this.renderMessages()}
+              {sending ? (
+                <div className={styles.thinkingRow}>
+                  <span className={styles.thinkingIcon}>
+                    <Icon type="loading" />
+                  </span>
+                  <span className={styles.thinkingText}>AI 正在思考...</span>
+                </div>
+              ) : null}
             </div>
 
             {lastError ? <div className={styles.errorText}>{lastError}</div> : null}

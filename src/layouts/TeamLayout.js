@@ -40,8 +40,9 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
-const { buildTeamMenuEnterpriseSettings } = require('./teamMenuEnterprise');
+import teamMenuEnterprise from './teamMenuEnterprise';
 const { Content } = Layout;
+const { buildTeamMenuEnterpriseSettings } = teamMenuEnterprise;
 Modal.defaultProps.width = 480;
 
 const query = {

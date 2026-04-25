@@ -67,6 +67,32 @@ function resolveComponentContext() {
   return { componentId: '', componentSource: '' };
 }
 
+function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
+  const appDetail =
+    state &&
+    state.appControl &&
+    state.appControl.appDetail &&
+    state.appControl.appDetail.service;
+
+  if (!appDetail || !appDetail.service_id) {
+    return fallbackComponentId || '';
+  }
+
+  const runtimeServiceId = appDetail.service_id;
+  const aliases = [
+    appDetail.service_alias,
+    appDetail.service_cname,
+    appDetail.service_id,
+    appDetail.service_key
+  ].filter(Boolean);
+
+  if (!fallbackComponentId || aliases.indexOf(fallbackComponentId) > -1) {
+    return runtimeServiceId;
+  }
+
+  return fallbackComponentId;
+}
+
 export function getAgentRouteSignature(location = {}) {
   return getWindowRouteSignature(location);
 }
@@ -85,7 +111,11 @@ export function isAgentRouteHidden(location = {}) {
 export function buildAgentContext(location = {}, state = {}) {
   const routeSignature = getWindowRouteSignature(location);
   const pathname = normalizeRoutePath(routeSignature);
-  const { componentId, componentSource } = resolveComponentContext();
+  const resolvedComponent = resolveComponentContext();
+  const componentId = resolveComponentRuntimeId(
+    state,
+    resolvedComponent.componentId
+  );
 
   return {
     view: inferView(pathname),
@@ -94,7 +124,7 @@ export function buildAgentContext(location = {}, state = {}) {
     regionName: globalUtil.getCurrRegionName(),
     appId: globalUtil.getAppID(),
     componentId,
-    componentSource,
+    componentSource: resolvedComponent.componentSource,
     pathname
   };
 }

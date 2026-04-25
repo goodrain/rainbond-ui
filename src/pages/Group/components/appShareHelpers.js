@@ -1,9 +1,10 @@
 import { formatMessage } from '@/utils/intl';
+import snapshotVersionHelpers from './snapshotVersionHelpers';
 
 const {
   DEFAULT_SNAPSHOT_VERSION,
   buildNextSnapshotVersion
-} = require('./snapshotVersionHelpers');
+} = snapshotVersionHelpers;
 
 export { DEFAULT_SNAPSHOT_VERSION, buildNextSnapshotVersion };
 

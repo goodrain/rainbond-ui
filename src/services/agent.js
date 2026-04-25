@@ -1,9 +1,12 @@
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
+import agentPayload from './agentPayload';
+const { readSseEvents } = require('./agentStream');
+
+const { buildAgentSessionPayload } = agentPayload;
 
 const AGENT_SESSION_KEY_PREFIX = 'rainbond_ui_agent_session_v1';
 const COPILOT_API_BASE = '/api/v1/copilot';
-const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled'];
 
 function canUseSessionStorage() {
   return typeof window !== 'undefined' && !!window.sessionStorage;
@@ -56,6 +59,9 @@ function normalizePendingApproval(pendingApproval) {
     approvalId: pendingApproval.approvalId || '',
     description: pendingApproval.description || '',
     risk: pendingApproval.risk || 'medium',
+    scope: pendingApproval.scope || '',
+    scopeLabel: pendingApproval.scopeLabel || '',
+    levelLabel: pendingApproval.levelLabel || '',
     runId: pendingApproval.runId || '',
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
@@ -74,6 +80,8 @@ function buildPersistedSnapshot(snapshot) {
     activeRunId: nextSnapshot.activeRunId || '',
     lastEventSequence: nextSnapshot.lastEventSequence || 0,
     lastContextSignature: nextSnapshot.lastContextSignature || '',
+    workflowState: nextSnapshot.workflowState || null,
+    structuredResult: nextSnapshot.structuredResult || null,
     updatedAt: nextSnapshot.updatedAt || 0
   };
 }
@@ -102,21 +110,6 @@ function buildRequestHeaders() {
   return headers;
 }
 
-function buildSessionPayload(context = {}) {
-  return {
-    context: {
-      app_id: context.appId || '',
-      app_name: context.appId || '',
-      page: context.pathname || '',
-      resource: {
-        type: context.componentId ? 'component' : context.appId ? 'app' : 'page',
-        id: context.componentId || context.appId || context.pathname || '',
-        name: context.componentId || context.appId || context.pathname || ''
-      }
-    }
-  };
-}
-
 async function requestJson(path, options = {}) {
   const response = await fetch(path, {
     credentials: 'include',
@@ -136,85 +129,6 @@ async function requestJson(path, options = {}) {
   }
 
   return data;
-}
-
-async function readSseEvents(response) {
-  if (!response.ok) {
-    let errorMessage = response.statusText || '流式请求失败';
-    try {
-      const data = await response.json();
-      errorMessage =
-        (data &&
-          data.error &&
-          (data.error.message || data.error.msg_show || data.error.code)) ||
-        errorMessage;
-    } catch (error) {
-      // ignore json parse errors for non-json SSE failures
-    }
-    throw new Error(errorMessage);
-  }
-
-  const reader = response.body && response.body.getReader ? response.body.getReader() : null;
-
-  if (!reader) {
-    return [];
-  }
-
-  const decoder = new TextDecoder();
-  const events = [];
-  let buffer = '';
-  let shouldStop = false;
-
-  try {
-    while (!shouldStop) {
-      const result = await reader.read();
-      if (result.done) {
-        break;
-      }
-
-      buffer += decoder.decode(result.value, { stream: true }).replace(/\r/g, '');
-
-      let boundaryIndex = buffer.indexOf('\n\n');
-      while (boundaryIndex >= 0) {
-        const rawEvent = buffer.slice(0, boundaryIndex);
-        buffer = buffer.slice(boundaryIndex + 2);
-
-        const dataLine = rawEvent
-          .split('\n')
-          .find(line => line.indexOf('data: ') === 0);
-
-        if (dataLine) {
-          const parsed = JSON.parse(dataLine.slice(6));
-          events.push(parsed);
-
-          if (
-            parsed &&
-            parsed.type === 'run.status' &&
-            parsed.data &&
-            TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
-          ) {
-            shouldStop = true;
-            break;
-          }
-
-          if (parsed && parsed.type === 'run.error') {
-            shouldStop = true;
-            break;
-          }
-        }
-
-        boundaryIndex = buffer.indexOf('\n\n');
-      }
-    }
-  } finally {
-    try {
-      await reader.cancel();
-    } catch (error) {
-      // ignore close errors
-    }
-  }
-
-  return events;
 }
 
 export function persistAgentSession(snapshot, userId) {
@@ -262,7 +176,7 @@ async function ensureSession({ conversationId, currentUser, context }) {
       'Content-Type': 'application/json; charset=utf-8',
       ...buildRequestHeaders()
     },
-    body: JSON.stringify(buildSessionPayload(context))
+    body: JSON.stringify(buildAgentSessionPayload(context))
   });
 
   return payload && payload.data && payload.data.session_id;
@@ -272,8 +186,7 @@ async function streamRun({
   sessionId,
   runId,
   afterSequence,
-  currentUser,
-  context
+  onEvent
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
   const response = await fetch(
@@ -288,7 +201,7 @@ async function streamRun({
     }
   );
 
-  return readSseEvents(response);
+  return readSseEvents(response, { onEvent });
 }
 
 export async function sendAgentMessage(payload = {}) {
@@ -320,7 +233,8 @@ export async function sendAgentMessage(payload = {}) {
       },
       body: JSON.stringify({
         message,
-        stream: true
+        stream: true,
+        context: buildAgentSessionPayload(context).context
       })
     }
   );
@@ -330,8 +244,7 @@ export async function sendAgentMessage(payload = {}) {
     sessionId,
     runId,
     afterSequence: 0,
-    currentUser,
-    context
+    onEvent: payload.onEvent
   });
 
   return {
@@ -365,8 +278,7 @@ export async function decideAgentApproval(payload = {}) {
     sessionId,
     runId,
     afterSequence,
-    currentUser,
-    context
+    onEvent: payload.onEvent
   });
 
   return {
