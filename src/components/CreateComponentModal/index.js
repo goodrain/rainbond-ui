@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Spin, Form, Button } from 'antd';
+import { Modal, Icon, Spin, Form, Button, Empty, Radio } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
 import { formatMessage } from '@/utils/intl';
+import { getTeamLlmModels } from '../../services/aiEngine';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
@@ -51,6 +52,12 @@ import {
   GiteeIcon,
   GiteaIcon
 } from './icons';
+const {
+  buildLlmPluginNavigation,
+  getLlmPluginFromList,
+  getReadyLlmModels,
+  resolveCurrentTeamNamespace,
+} = require('./llmEntryHelpers');
 
 const DATABASE_ICON_MAP = {
   mysql: mysql,
@@ -119,6 +126,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [pluginError, setPluginError] = useState(false);
   const [pluginErrInfo, setPluginErrInfo] = useState('');
   const [importingPlugin, setImportingPlugin] = useState(null);
+  const [showLlmSelectModal, setShowLlmSelectModal] = useState(false);
+  const [llmModelsLoading, setLlmModelsLoading] = useState(false);
+  const [llmModels, setLlmModels] = useState([]);
+  const [llmModelsError, setLlmModelsError] = useState('');
+  const [selectedLlmModel, setSelectedLlmModel] = useState(null);
+  const [selectedLlmPlugin, setSelectedLlmPlugin] = useState(null);
 
   // 应用市场相关状态
   const [marketApps, setMarketApps] = useState([]);
@@ -893,7 +906,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: InstalledLlmIconOrange,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm' }),
       key: 'llm-display',
-      displayOnly: true,
       iconColor: '#722ed1',
     }] : []),
     ...availablePlugins.map(plugin => ({
@@ -1167,6 +1179,92 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
+  const resetLlmSelectorState = () => {
+    setShowLlmSelectModal(false);
+    setLlmModelsLoading(false);
+    setLlmModels([]);
+    setLlmModelsError('');
+    setSelectedLlmModel(null);
+    setSelectedLlmPlugin(null);
+  };
+
+  const handleCloseLlmSelectModal = () => {
+    setShowLlmSelectModal(false);
+    setLlmModelsError('');
+    setSelectedLlmModel(null);
+  };
+
+  const fetchTeamLlmModelsList = (plugin) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName || !plugin) {
+      return;
+    }
+
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    setSelectedLlmPlugin(plugin);
+    setShowLlmSelectModal(true);
+    setLlmModelsLoading(true);
+    setLlmModelsError('');
+    setLlmModels([]);
+    setSelectedLlmModel(null);
+
+    getTeamLlmModels({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+    }).then((res) => {
+      if (res && res.status_code === 200) {
+        const readyModels = getReadyLlmModels(res.models || []);
+        setLlmModels(readyModels);
+        setSelectedLlmModel(readyModels[0] || null);
+        return;
+      }
+
+      setLlmModels([]);
+      setLlmModelsError(
+        formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
+      );
+    }).catch((err) => {
+      setLlmModels([]);
+      setLlmModelsError(
+        formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
+      );
+      handleAPIError(err);
+    }).finally(() => {
+      setLlmModelsLoading(false);
+    });
+  };
+
+  const handleOpenLlmSelector = () => {
+    const llmPlugin = getLlmPluginFromList(pluginsList);
+    fetchTeamLlmModelsList(llmPlugin);
+  };
+
+  const handleConfirmLlmSelection = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!selectedLlmModel || !selectedLlmPlugin || !teamName || !regionName) {
+      return;
+    }
+
+    dispatch(
+      routerRedux.push(
+        buildLlmPluginNavigation({
+          pluginName: selectedLlmPlugin.name,
+          teamName,
+          regionName,
+          modelKey: selectedLlmModel.model_key,
+        })
+      )
+    );
+    handleCloseLlmSelectModal();
+    handleClose();
+  };
+
   // 监听滚动事件进行自动加载 - 商店应用
   useEffect(() => {
     if (currentView !== 'marketStore') {
@@ -1401,10 +1499,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setCurrentFormType('');
       setVmAssetCatalogVisible(false);
       setHasInitialized(false); // 重置初始化标志
+      resetLlmSelectorState();
     }
   }, [visible, initialView, hasInitialized]);
 
   const handleItemClick = (item) => {
+    if (item.key === 'llm-display') {
+      handleOpenLlmSelector();
+      return;
+    }
     if (item.displayOnly) {
       return;
     }
@@ -2569,6 +2672,74 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               </>
             )}
           </>
+        )}
+      </Modal>
+
+      <Modal
+        title={formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_title' })}
+        visible={showLlmSelectModal}
+        onCancel={handleCloseLlmSelectModal}
+        onOk={handleConfirmLlmSelection}
+        okText={formatMessage({ id: 'button.confirm' })}
+        cancelText={formatMessage({ id: 'button.cancel' })}
+        okButtonProps={{ disabled: !selectedLlmModel }}
+        width={720}
+        destroyOnClose
+      >
+        <div className={styles.llmSelectIntro}>
+          <div>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_desc' })}</div>
+          <div className={styles.llmSelectHint}>
+            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_hint' })}
+          </div>
+        </div>
+        {llmModelsLoading ? (
+          <div className={styles.llmSelectLoading}>
+            <Spin size="large" />
+          </div>
+        ) : llmModels.length > 0 ? (
+          <Radio.Group
+            value={selectedLlmModel ? selectedLlmModel.model_key : undefined}
+            onChange={(event) => {
+              const nextModel = llmModels.find((item) => item.model_key === event.target.value) || null;
+              setSelectedLlmModel(nextModel);
+            }}
+            className={styles.llmSelectGroup}
+          >
+            {llmModels.map((model) => {
+              const isActive = selectedLlmModel && selectedLlmModel.model_key === model.model_key;
+
+              return (
+                <label
+                  key={model.model_key}
+                  className={`${styles.llmSelectItem} ${isActive ? styles.llmSelectItemActive : ''}`}
+                >
+                  <Radio value={model.model_key} />
+                  <div className={styles.llmSelectContent}>
+                    <div className={styles.llmSelectHeader}>
+                      <span className={styles.llmSelectName}>
+                        {model.display_name || model.model_id || model.model_key}
+                      </span>
+                      <span className={styles.llmSelectEngine}>
+                        {model.engine_type || 'vLLM'}
+                      </span>
+                    </div>
+                    <div className={styles.llmSelectMeta}>
+                      <span>{model.source_type || 'Model'}</span>
+                      <span>{model.model_id || model.model_key}</span>
+                    </div>
+                    <div className={styles.llmSelectPath}>
+                      {model.local_path || model.source_uri || model.model_key}
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </Radio.Group>
+        ) : (
+          <Empty
+            className={styles.llmSelectEmpty}
+            description={llmModelsError || formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_empty' })}
+          />
         )}
       </Modal>
 

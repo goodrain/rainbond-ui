@@ -1616,6 +1616,11 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_extension': 'Extensions & Middleware',
     'componentOverview.body.CreateComponentModal.vm': 'Virtual Machine (VM)',
     'componentOverview.body.CreateComponentModal.llm': 'Large Language Model (LLM)',
+    'componentOverview.body.CreateComponentModal.llm_select_title': 'Select an Imported LLM',
+    'componentOverview.body.CreateComponentModal.llm_select_desc': 'Choose a team model that is already imported. After confirmation, the AI Engine page will open and the deployment drawer will be expanded automatically.',
+    'componentOverview.body.CreateComponentModal.llm_select_hint': 'Only ready team models are shown here.',
+    'componentOverview.body.CreateComponentModal.llm_select_empty': 'No ready team models are available yet. Please import one from the AI Engine page first.',
+    'componentOverview.body.CreateComponentModal.llm_fetch_failed': 'Failed to load team models. Please try again later.',
     // ComposeCheckInfo
     'composeCheckInfo.pending_upload': 'Pending Upload',
     'composeCheckInfo.detected_services': 'Detected {count} services',

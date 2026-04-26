@@ -1628,6 +1628,11 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_extension': '扩展与中间件',
     'componentOverview.body.CreateComponentModal.vm': '虚拟机 (VM)',
     'componentOverview.body.CreateComponentModal.llm': '大模型 (LLM)',
+    'componentOverview.body.CreateComponentModal.llm_select_title': '选择已引入的大模型',
+    'componentOverview.body.CreateComponentModal.llm_select_desc': '选择一个已经引入完成的团队模型，确认后会跳转到大模型页面并自动打开右侧部署抽屉。',
+    'componentOverview.body.CreateComponentModal.llm_select_hint': '这里只展示当前团队中已就绪的模型。',
+    'componentOverview.body.CreateComponentModal.llm_select_empty': '当前团队还没有已就绪的大模型，请先到大模型页面完成引入。',
+    'componentOverview.body.CreateComponentModal.llm_fetch_failed': '获取团队模型失败，请稍后重试。',
     // ComposeCheckInfo
     'composeCheckInfo.pending_upload': '待上传',
     'composeCheckInfo.detected_services': '检测到 {count} 个服务',

@@ -531,3 +531,110 @@
     }
   }
 }
+
+.llmSelectIntro {
+  margin-bottom: 16px;
+  color: @text-color-secondary;
+  line-height: 22px;
+}
+
+.llmSelectHint {
+  margin-top: 4px;
+  color: @rbd-label-color;
+  font-size: 12px;
+}
+
+.llmSelectLoading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.llmSelectGroup {
+  width: 100%;
+}
+
+.llmSelectItem {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid #e8ecf3;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  & + .llmSelectItem {
+    margin-top: 12px;
+  }
+
+  &:hover {
+    border-color: @primary-color;
+    box-shadow: @rbd-min-card-shadow;
+  }
+
+  :global {
+    .ant-radio-wrapper {
+      margin-top: 2px;
+    }
+
+    .ant-radio {
+      top: 0;
+    }
+  }
+}
+
+.llmSelectItemActive {
+  border-color: @primary-color;
+  background: fade(@primary-color, 6%);
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.llmSelectContent {
+  flex: 1;
+  min-width: 0;
+  margin-left: 12px;
+}
+
+.llmSelectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.llmSelectName {
+  color: @heading-color;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.llmSelectEngine {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: fade(@primary-color, 12%);
+  color: @primary-color;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.llmSelectMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+}
+
+.llmSelectPath {
+  color: @rbd-label-color;
+  font-size: 12px;
+  line-height: 20px;
+  word-break: break-all;
+}
+
+.llmSelectEmpty {
+  padding: 32px 0 16px;
+}
