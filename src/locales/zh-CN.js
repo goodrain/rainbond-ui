@@ -17,6 +17,7 @@ import login from './zh-CN/login'
 import versionUpdata from './zh-CN/versionUpdata'
 import explore from './zh-CN/explore'
 import resource from './zh-CN/resource'
+import cliAuth from './zh-CN/cliAuth'
 export default {
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
@@ -41,5 +42,6 @@ export default {
   ...login,
   ...versionUpdata,
   ...explore,
-  ...resource
+  ...resource,
+  ...cliAuth
 };
