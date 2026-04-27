@@ -187,8 +187,10 @@ export default class AddVolumes extends PureComponent {
     if (volumeCapacityValidation.default) {
       defaultVolumeCapacity = volumeCapacityValidation.default;
     }
-
-
+    const initialVolumeCapacity =
+      !!this.props.editor && data.volume_capacity === 0
+        ? undefined
+        : defaultVolumeCapacity || 10;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -311,7 +313,7 @@ export default class AddVolumes extends PureComponent {
           {(volume_type !== 'volcengine' || volume_type == 'cephfs-external') &&
             <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
               {getFieldDecorator('volume_capacity', {
-                initialValue: defaultVolumeCapacity || 10,
+                initialValue: initialVolumeCapacity,
                 rules: [
                   {
                     validator: this.checkVolumeCapacity
@@ -327,7 +329,7 @@ export default class AddVolumes extends PureComponent {
                   }
                   min={1}
                   max={500}
-                  disabled={!!this.props.editor}
+                  disabled={!!this.props.editor && data.volume_type === 'config-file'}
                 />
               )}
             </FormItem>

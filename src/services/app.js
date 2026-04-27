@@ -1620,6 +1620,7 @@ export async function editorVolume(
     app_alias,
     ID,
     new_volume_path,
+    volume_capacity,
     file_content
   }
 ) {
@@ -1630,7 +1631,13 @@ export async function editorVolume(
       data: {
         mode: body.mode,
         new_volume_path: body.new_volume_path,
-        new_file_content: body.new_file_content
+        new_file_content: body.new_file_content,
+        volume_capacity:
+          body.volume_capacity === ''
+            ? 0
+            : body.volume_capacity !== undefined
+              ? Number(body.volume_capacity)
+              : undefined
       }
     }
   );
