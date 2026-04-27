@@ -50,24 +50,18 @@ export default class CliAuth extends Component {
     }
     this.setState({ status: 'sending', errorMessage: '' });
 
-    fetch(callback, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, state }),
-    })
-      .then(resp => {
-        if (!resp.ok) {
-          throw new Error(`callback ${resp.status}`);
-        }
-        this.setState({ status: 'done' });
-      })
-      .catch(err => {
-        this.setState({
-          status: 'error',
-          errorMessage: (err && err.message) || String(err),
-        });
-      });
+    // Top-level navigation to the loopback callback. fetch/XHR cannot reach
+    // 127.0.0.1 from a public-IP page in modern Chrome regardless of CORS or
+    // Private Network Access headers; navigation is exempt.
+    const sep = callback.indexOf('?') >= 0 ? '&' : '?';
+    const target =
+      callback +
+      sep +
+      'token=' +
+      encodeURIComponent(token) +
+      '&state=' +
+      encodeURIComponent(state);
+    window.location.assign(target);
   };
 
   renderInvalid() {
