@@ -9,6 +9,7 @@ const baseState = {
   messages: [],
   pendingApproval: null,
   lastEventSequence: 0,
+  debugPromptData: null,
 };
 
 const firstState = applyAgentEvent(baseState, {

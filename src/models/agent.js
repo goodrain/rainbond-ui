@@ -6,7 +6,6 @@ import {
   sendAgentMessage,
 } from '../services/agent';
 const { adaptAgentEvent } = require('../services/agentEventAdapter');
-const { logAgentUi, summarizeEvent } = require('../services/agentDebug');
 import {
   formatAgentContextMessage,
   getAgentContextSignature,
@@ -408,12 +407,6 @@ export default {
         return;
       }
 
-      logAgentUi('model:sendMessage:start', {
-        conversationId: state.conversationId,
-        messageLength: text.length,
-        existingMessages: state.messages.length,
-      });
-
       const contextSnapshot = (payload && payload.context) || state.context || {};
       const userMessage = createMessage('user', 'normal', text, contextSnapshot);
       const pendingMessages = state.messages.concat(userMessage);
@@ -438,7 +431,6 @@ export default {
           context: contextSnapshot,
           currentUser,
           onEvent: event => {
-            logAgentUi('model:sendMessage:onEvent', summarizeEvent(event));
             if (storeDispatch) {
               storeDispatch({
                 type: 'agent/applyStreamEvent',
@@ -461,9 +453,6 @@ export default {
           },
         });
       } catch (error) {
-        logAgentUi('model:sendMessage:error', {
-          message: error && error.message ? error.message : String(error),
-        });
         yield put({
           type: 'saveState',
           payload: {
@@ -492,13 +481,6 @@ export default {
         return;
       }
 
-      logAgentUi('model:resolveApproval:start', {
-        approvalId: pendingApproval.approvalId,
-        sessionId: pendingApproval.sessionId || state.conversationId,
-        runId: pendingApproval.runId || state.activeRunId,
-        decision: payload && payload.decision,
-      });
-
       yield put({
         type: 'saveState',
         payload: {
@@ -520,7 +502,6 @@ export default {
           context: state.context,
           currentUser,
           onEvent: event => {
-            logAgentUi('model:resolveApproval:onEvent', summarizeEvent(event));
             if (storeDispatch) {
               storeDispatch({
                 type: 'agent/applyStreamEvent',
@@ -542,9 +523,6 @@ export default {
           },
         });
       } catch (error) {
-        logAgentUi('model:resolveApproval:error', {
-          message: error && error.message ? error.message : String(error),
-        });
         yield put({
           type: 'saveState',
           payload: {
@@ -605,23 +583,7 @@ export default {
     },
 
     applyStreamEvent(state, { payload }) {
-      logAgentUi('model:applyStreamEvent', {
-        beforeMessages: state.messages.length,
-        event: summarizeEvent(payload && payload.event),
-      });
       const merged = applyAgentStreamEvent(state, payload);
-      const lastMessage = merged.messages[merged.messages.length - 1];
-      logAgentUi('model:applyStreamEvent', {
-        afterMessages: merged.messages.length,
-        lastMessageKind: lastMessage && lastMessage.kind ? lastMessage.kind : '',
-        lastMessageRole: lastMessage && lastMessage.role ? lastMessage.role : '',
-        lastMessageId:
-          lastMessage && lastMessage.streamMessageId ? lastMessage.streamMessageId : '',
-        lastMessageLength:
-          lastMessage && typeof lastMessage.content === 'string' ? lastMessage.content.length : 0,
-        lastMessageStreaming: !!(lastMessage && lastMessage.streaming),
-      });
-
       return {
         ...state,
         messages: merged.messages,

@@ -1,13 +1,7 @@
 const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled'];
-const { logAgentUi, summarizeEvent } = require('./agentDebug');
 
 async function readSseEvents(response, options = {}) {
   const { onEvent } = options;
-
-  logAgentUi('sse:reader:start', {
-    status: response.status,
-    ok: response.ok,
-  });
 
   if (!response.ok) {
     let errorMessage = response.statusText || '流式请求失败';
@@ -39,13 +33,9 @@ async function readSseEvents(response, options = {}) {
     while (!shouldStop) {
       const result = await reader.read();
       if (result.done) {
-        logAgentUi('sse:reader:done');
         break;
       }
 
-      logAgentUi('sse:reader:chunk', {
-        byteLength: result.value ? result.value.length : 0,
-      });
       buffer += decoder.decode(result.value, { stream: true }).replace(/\r/g, '');
 
       let boundaryIndex = buffer.indexOf('\n\n');
@@ -60,7 +50,6 @@ async function readSseEvents(response, options = {}) {
         if (dataLine) {
           const parsed = JSON.parse(dataLine.slice(6));
           events.push(parsed);
-          logAgentUi('sse:event', summarizeEvent(parsed));
           if (onEvent) {
             onEvent(parsed);
           }
@@ -72,13 +61,11 @@ async function readSseEvents(response, options = {}) {
             TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
           ) {
             shouldStop = true;
-            logAgentUi('sse:reader:terminal-status', summarizeEvent(parsed));
             break;
           }
 
           if (parsed && parsed.type === 'run.error') {
             shouldStop = true;
-            logAgentUi('sse:reader:terminal-error', summarizeEvent(parsed));
             break;
           }
         }
@@ -89,7 +76,6 @@ async function readSseEvents(response, options = {}) {
   } finally {
     try {
       await reader.cancel();
-      logAgentUi('sse:reader:cancelled');
     } catch (error) {
       // ignore close errors
     }
