@@ -52,11 +52,14 @@ export default class CliAuth extends Component {
 
     fetch(callback, {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, state }),
     })
-      .then(() => {
+      .then(resp => {
+        if (!resp.ok) {
+          throw new Error(`callback ${resp.status}`);
+        }
         this.setState({ status: 'done' });
       })
       .catch(err => {
