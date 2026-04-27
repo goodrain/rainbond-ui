@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Spin, Form, Button, Empty, Radio } from 'antd';
+import { Modal, Icon, Spin, Form, Button, Empty, Radio, Input, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
 import { formatMessage } from '@/utils/intl';
-import { getTeamLlmModels } from '../../services/aiEngine';
+import {
+  createTeamLlmDownload,
+  getTeamLlmModels,
+  uploadTeamLlmArtifact,
+} from '../../services/aiEngine';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
@@ -131,7 +135,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [llmModels, setLlmModels] = useState([]);
   const [llmModelsError, setLlmModelsError] = useState('');
   const [selectedLlmModel, setSelectedLlmModel] = useState(null);
-  const [selectedLlmPlugin, setSelectedLlmPlugin] = useState(null);
+  const [llmSourceType, setLlmSourceType] = useState('modelscope');
+  const [llmSubmitLoading, setLlmSubmitLoading] = useState(false);
+  const [llmUploadFile, setLlmUploadFile] = useState(null);
+  const [llmForm, setLlmForm] = useState({
+    display_name: '',
+    source_uri: '',
+    parameters: '',
+  });
 
   // 应用市场相关状态
   const [marketApps, setMarketApps] = useState([]);
@@ -1179,56 +1190,63 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
+  const isAiEngineSuccess = (res) => !!(res && (res.code === 200 || res.status_code === 200));
+
   const resetLlmSelectorState = () => {
     setShowLlmSelectModal(false);
     setLlmModelsLoading(false);
     setLlmModels([]);
     setLlmModelsError('');
     setSelectedLlmModel(null);
-    setSelectedLlmPlugin(null);
+    setLlmSourceType('modelscope');
+    setLlmSubmitLoading(false);
+    setLlmUploadFile(null);
+    setLlmForm({
+      display_name: '',
+      source_uri: '',
+      parameters: '',
+    });
   };
 
   const handleCloseLlmSelectModal = () => {
-    setShowLlmSelectModal(false);
-    setLlmModelsError('');
-    setSelectedLlmModel(null);
+    resetLlmSelectorState();
   };
 
-  const fetchTeamLlmModelsList = (plugin) => {
+  const fetchTeamLlmModelsList = () => {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
-    if (!teamName || !regionName || !plugin) {
+    if (!teamName || !regionName) {
+      setLlmModels([]);
       return;
     }
 
     const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
 
-    setSelectedLlmPlugin(plugin);
-    setShowLlmSelectModal(true);
     setLlmModelsLoading(true);
     setLlmModelsError('');
-    setLlmModels([]);
-    setSelectedLlmModel(null);
-
     getTeamLlmModels({
       team_name: teamName,
       region_name: regionName,
       namespace,
     }).then((res) => {
-      if (res && res.status_code === 200) {
-        const readyModels = getReadyLlmModels(res.models || []);
+      if (isAiEngineSuccess(res)) {
+        const payload = res.data || res;
+        const readyModels = getReadyLlmModels(payload.models || []);
         setLlmModels(readyModels);
         setSelectedLlmModel(readyModels[0] || null);
         return;
       }
 
       setLlmModels([]);
+      setSelectedLlmModel(null);
       setLlmModelsError(
+        (res && (res.msg || res.msg_show)) ||
         formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
       );
     }).catch((err) => {
       setLlmModels([]);
+      setSelectedLlmModel(null);
       setLlmModelsError(
         formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
       );
@@ -1238,31 +1256,141 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
-  const handleOpenLlmSelector = () => {
+  const buildLlmPluginTarget = (modelKey = '') => {
     const llmPlugin = getLlmPluginFromList(pluginsList);
-    fetchTeamLlmModelsList(llmPlugin);
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!llmPlugin || !teamName || !regionName) {
+      return null;
+    }
+
+    return buildLlmPluginNavigation({
+      pluginName: llmPlugin.name,
+      teamName,
+      regionName,
+      modelKey,
+    });
+  };
+
+  const jumpToLlmPlugin = (modelKey = '') => {
+    const target = buildLlmPluginTarget(modelKey);
+
+    if (!target) {
+      return;
+    }
+
+    dispatch(routerRedux.push(target));
+    handleClose();
+    resetLlmSelectorState();
+  };
+
+  const handleOpenLlmSelector = () => {
+    setShowLlmSelectModal(true);
+    setLlmSourceType('modelscope');
+    setLlmSubmitLoading(false);
+    setLlmUploadFile(null);
+    setLlmForm({
+      display_name: '',
+      source_uri: '',
+      parameters: '',
+    });
+    fetchTeamLlmModelsList();
+  };
+
+  const handleLlmFormChange = (field, value) => {
+    setLlmForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleConfirmLlmSelection = () => {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
-    if (!selectedLlmModel || !selectedLlmPlugin || !teamName || !regionName) {
+    if (!teamName || !regionName) {
       return;
     }
 
-    dispatch(
-      routerRedux.push(
-        buildLlmPluginNavigation({
-          pluginName: selectedLlmPlugin.name,
-          teamName,
-          regionName,
-          modelKey: selectedLlmModel.model_key,
-        })
-      )
-    );
-    handleCloseLlmSelectModal();
-    handleClose();
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    if (llmSourceType === 'local') {
+      if (!selectedLlmModel) {
+        message.warning('请选择要启动的本地模型');
+        return;
+      }
+
+      jumpToLlmPlugin(selectedLlmModel.model_key);
+      return;
+    }
+
+    setLlmSubmitLoading(true);
+
+    if (llmSourceType === 'upload') {
+      if (!llmUploadFile) {
+        setLlmSubmitLoading(false);
+        message.warning('请选择要部署的模型包文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', llmUploadFile);
+      formData.append('display_name', String(llmForm.display_name || '').trim());
+      formData.append('engine_type', 'vLLM');
+      formData.append('parameters', String(llmForm.parameters || '').trim());
+
+      uploadTeamLlmArtifact({
+        team_name: teamName,
+        region_name: regionName,
+        namespace,
+        formData,
+      }).then((res) => {
+        if (isAiEngineSuccess(res)) {
+          message.success('模型已开始部署');
+          jumpToLlmPlugin();
+          return;
+        }
+
+        setLlmSubmitLoading(false);
+        message.error((res && (res.msg || res.msg_show)) || '部署模型失败');
+      }).catch((err) => {
+        setLlmSubmitLoading(false);
+        handleAPIError(err);
+      });
+      return;
+    }
+
+    if (!String(llmForm.source_uri || '').trim()) {
+      setLlmSubmitLoading(false);
+      message.warning('请输入魔搭模型地址');
+      return;
+    }
+
+    createTeamLlmDownload({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+      data: {
+        display_name: String(llmForm.display_name || '').trim(),
+        source_type: llmSourceType,
+        source_uri: String(llmForm.source_uri || '').trim(),
+        engine_type: 'vLLM',
+        parameters: String(llmForm.parameters || '').trim(),
+      },
+    }).then((res) => {
+      if (isAiEngineSuccess(res)) {
+        message.success('模型已开始部署');
+        jumpToLlmPlugin();
+        return;
+      }
+
+      setLlmSubmitLoading(false);
+      message.error((res && (res.msg || res.msg_show)) || '部署模型失败');
+    }).catch((err) => {
+      setLlmSubmitLoading(false);
+      handleAPIError(err);
+    });
   };
 
   // 监听滚动事件进行自动加载 - 商店应用
@@ -1486,6 +1614,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       // 弹窗关闭时，重置所有状态
       resetViewHistory();
       setCurrentView('main');
+      setSelectedPlugin(null);
       setSelectedStore(null);
       setSelectedMarketApp(null);
       setSelectedLocalApp(null);
@@ -1676,6 +1805,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleClose = () => {
     resetViewHistory();
     setCurrentView('main');
+    setSelectedPlugin(null);
     onCancel();
   };
 
@@ -1813,6 +1943,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handlePluginModalClose = () => {
     setPluginModalVisible(false);
     setSelectedPlugin(null);
+    setPluginBaseInfoExtras(null);
     setPluginApp({});
     setPluginLoading(true);
     setPluginError(false);
@@ -2395,8 +2526,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         className={styles.createComponentModal}
         bodyStyle={
           (currentView === 'marketStore' || currentView === 'localMarket')
-            ? { padding: 0 }
-            : {}
+              ? { padding: 0 }
+              : {}
         }
         style={{ top: 60 }}
       >
@@ -2676,71 +2807,134 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       </Modal>
 
       <Modal
-        title={formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_title' })}
+        title="部署模型"
         visible={showLlmSelectModal}
         onCancel={handleCloseLlmSelectModal}
         onOk={handleConfirmLlmSelection}
-        okText={formatMessage({ id: 'button.confirm' })}
-        cancelText={formatMessage({ id: 'button.cancel' })}
-        okButtonProps={{ disabled: !selectedLlmModel }}
+        okText={llmSourceType === 'local' ? '确定' : '开始部署'}
+        cancelText="取消"
+        confirmLoading={llmSubmitLoading}
+        okButtonProps={{
+          disabled: llmSourceType === 'local' && !selectedLlmModel,
+        }}
         width={720}
         destroyOnClose
       >
-        <div className={styles.llmSelectIntro}>
-          <div>{formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_desc' })}</div>
-          <div className={styles.llmSelectHint}>
-            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_hint' })}
+        <div className={styles.llmDeployModalBody}>
+          <div className={styles.llmDeployMode}>
+            <span>来源类型</span>
+            <Radio.Group
+              value={llmSourceType}
+              onChange={(event) => setLlmSourceType(event.target.value)}
+            >
+              <Radio.Button value="modelscope">魔搭</Radio.Button>
+              <Radio.Button value="upload">上传</Radio.Button>
+              <Radio.Button value="local">本地</Radio.Button>
+            </Radio.Group>
           </div>
-        </div>
-        {llmModelsLoading ? (
-          <div className={styles.llmSelectLoading}>
-            <Spin size="large" />
-          </div>
-        ) : llmModels.length > 0 ? (
-          <Radio.Group
-            value={selectedLlmModel ? selectedLlmModel.model_key : undefined}
-            onChange={(event) => {
-              const nextModel = llmModels.find((item) => item.model_key === event.target.value) || null;
-              setSelectedLlmModel(nextModel);
-            }}
-            className={styles.llmSelectGroup}
-          >
-            {llmModels.map((model) => {
-              const isActive = selectedLlmModel && selectedLlmModel.model_key === model.model_key;
 
-              return (
-                <label
-                  key={model.model_key}
-                  className={`${styles.llmSelectItem} ${isActive ? styles.llmSelectItemActive : ''}`}
-                >
-                  <Radio value={model.model_key} />
-                  <div className={styles.llmSelectContent}>
-                    <div className={styles.llmSelectHeader}>
-                      <span className={styles.llmSelectName}>
-                        {model.display_name || model.model_id || model.model_key}
-                      </span>
-                      <span className={styles.llmSelectEngine}>
-                        {model.engine_type || 'vLLM'}
-                      </span>
-                    </div>
-                    <div className={styles.llmSelectMeta}>
-                      <span>{model.source_type || 'Model'}</span>
-                      <span>{model.model_id || model.model_key}</span>
-                    </div>
-                    <div className={styles.llmSelectPath}>
-                      {model.local_path || model.source_uri || model.model_key}
-                    </div>
-                  </div>
-                </label>
-              );
-            })}
-          </Radio.Group>
-        ) : (
-          <Empty
-            className={styles.llmSelectEmpty}
-            description={llmModelsError || formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_select_empty' })}
-          />
-        )}
+          {llmSourceType === 'local' ? (
+            <div className={styles.llmFormField}>
+              <span>选择已下载模型</span>
+              {llmModelsLoading ? (
+                <div className={styles.llmSelectLoading}>
+                  <Spin size="large" />
+                </div>
+              ) : llmModels.length > 0 ? (
+                <div className={styles.llmLocalModelList}>
+                  {llmModels.map((model) => {
+                    const isActive = selectedLlmModel && selectedLlmModel.model_key === model.model_key;
+
+                    return (
+                      <button
+                        key={model.model_key}
+                        type="button"
+                        className={`${styles.llmSelectItem} ${isActive ? styles.llmSelectItemActive : ''} ${styles.llmLocalModelButton}`}
+                        onClick={() => setSelectedLlmModel(model)}
+                      >
+                        <div className={styles.llmSelectContent}>
+                          <div className={styles.llmSelectHeader}>
+                            <span className={styles.llmSelectName}>
+                              {model.display_name || model.model_id || model.model_key}
+                            </span>
+                            <span className={styles.llmSelectEngine}>
+                              {model.engine_type || 'vLLM'}
+                            </span>
+                          </div>
+                          <div className={styles.llmSelectMeta}>
+                            <span>{model.source_type || 'Model'}</span>
+                            <span>{model.model_id || model.model_key}</span>
+                          </div>
+                          <div className={styles.llmSelectPath}>
+                            {model.local_path || model.source_uri || model.model_key}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <Empty
+                  className={styles.llmSelectEmpty}
+                  description={llmModelsError || '当前团队还没有已下载模型，请先从魔搭或上传完成部署。'}
+                />
+              )}
+            </div>
+          ) : (
+            <>
+              <div className={styles.llmFormField}>
+                <span>模型名称</span>
+                <Input
+                  placeholder="例如：Qwen2.5-7B-Instruct"
+                  value={llmForm.display_name}
+                  onChange={(event) => handleLlmFormChange('display_name', event.target.value)}
+                />
+              </div>
+
+              <div className={styles.llmFormField}>
+                <span>参数量</span>
+                <Input
+                  placeholder="例如：7B"
+                  value={llmForm.parameters}
+                  onChange={(event) => handleLlmFormChange('parameters', event.target.value)}
+                />
+              </div>
+
+              {llmSourceType === 'upload' ? (
+                <div className={styles.llmFormField}>
+                  <span>模型包文件</span>
+                  <input
+                    className={styles.llmFileInput}
+                    type="file"
+                    accept=".zip,.tar,.tar.gz,.tgz,.tar.bz2,.tar.xz,.bin,.safetensors,.pt,.pth,.onnx,.gguf"
+                    onChange={(event) => {
+                      const nextFile = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+                      setLlmUploadFile(nextFile);
+                    }}
+                  />
+                  <span className={styles.llmFieldHint}>
+                    支持压缩包和常见单文件模型格式，复杂多文件模型建议优先上传打包后的 zip / tar.gz。
+                  </span>
+                </div>
+              ) : (
+                <div className={styles.llmFormField}>
+                  <span>魔搭地址</span>
+                  <Input
+                    placeholder="例如：Qwen/Qwen2.5-7B-Instruct"
+                    value={llmForm.source_uri}
+                    onChange={(event) => handleLlmFormChange('source_uri', event.target.value)}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          <p className={styles.llmDeployHint}>
+            {llmSourceType === 'local'
+              ? '会跳转到 AI Engine 插件页，并自动打开该模型的实例部署抽屉。'
+              : '提交成功后会跳转到 AI Engine 插件页，继续查看模型状态和后续操作。'}
+          </p>
+        </div>
       </Modal>
 
       {showAddImageRegistry && (

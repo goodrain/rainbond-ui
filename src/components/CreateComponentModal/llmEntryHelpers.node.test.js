@@ -2,18 +2,17 @@ const assert = require('assert');
 
 const {
   buildLlmPluginNavigation,
+  getLlmPluginFromList,
   getReadyLlmModels,
   resolveCurrentTeamNamespace,
 } = require('./llmEntryHelpers');
 
-const readyModels = getReadyLlmModels([
-  { model_key: 'ready-1', display_name: 'Qwen 7B', status: 'ready' },
-  { model_key: 'downloading-1', display_name: 'Qwen 14B', status: 'downloading' },
-  { model_key: 'ready-2', display_name: 'DeepSeek', status: 'READY' },
-]);
-
 assert.deepStrictEqual(
-  readyModels.map((item) => item.model_key),
+  getReadyLlmModels([
+    { model_key: 'ready-1', status: 'ready' },
+    { model_key: 'downloading-1', status: 'downloading' },
+    { model_key: 'ready-2', status: 'READY' },
+  ]).map((item) => item.model_key),
   ['ready-1', 'ready-2'],
   'getReadyLlmModels should keep only ready models'
 );
@@ -46,7 +45,28 @@ assert.deepStrictEqual(
       modelKey: 'modelscope:qwen/Qwen2.5-7B-Instruct',
     },
   },
-  'buildLlmPluginNavigation should point to the team AI plugin page with drawer query params'
+  'buildLlmPluginNavigation should point to the AI Engine page and preserve auto-open drawer support for local models'
+);
+
+assert.deepStrictEqual(
+  buildLlmPluginNavigation({
+    pluginName: 'rainbond-ai-engine',
+    teamName: 'demo-team',
+    regionName: 'demo-region',
+  }),
+  {
+    pathname: '/team/demo-team/region/demo-region/plugins/rainbond-ai-engine',
+  },
+  'buildLlmPluginNavigation should also support queryless jumps after upload or modelscope submit'
+);
+
+assert.deepStrictEqual(
+  getLlmPluginFromList([
+    { name: 'foo-plugin', alias: 'Foo' },
+    { name: 'rainbond-ai-engine', alias: 'AI Engine' },
+  ]),
+  { name: 'rainbond-ai-engine', alias: 'AI Engine' },
+  'getLlmPluginFromList should prefer the exact rainbond-ai-engine plugin'
 );
 
 console.log('CreateComponentModal llmEntryHelpers test passed');

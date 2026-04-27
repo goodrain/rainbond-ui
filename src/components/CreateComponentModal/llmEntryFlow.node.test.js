@@ -7,19 +7,37 @@ const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 assert.match(
   source,
   /item\.key === 'llm-display'/,
-  'CreateComponentModal should handle clicks on the LLM entry explicitly'
+  'CreateComponentModal should still handle clicks on the LLM entry explicitly'
 );
 
 assert.match(
   source,
-  /getTeamLlmModels/,
-  'CreateComponentModal should fetch existing team LLM models before navigating'
+  /handleOpenLlmSelector\(\)/,
+  'CreateComponentModal should open the host-side LLM deploy modal for the LLM entry'
 );
 
 assert.match(
   source,
-  /buildLlmPluginNavigation/,
-  'CreateComponentModal should build the AI Engine plugin navigation from the selected model'
+  /createTeamLlmDownload/,
+  'CreateComponentModal should call the plugin download endpoint for the modelscope flow'
+);
+
+assert.match(
+  source,
+  /uploadTeamLlmArtifact/,
+  'CreateComponentModal should call the plugin upload endpoint for the upload flow'
+);
+
+assert.match(
+  source,
+  /jumpToLlmPlugin\(selectedLlmModel\.model_key\)/,
+  'CreateComponentModal should still auto-open the instance drawer when local models are selected'
+);
+
+assert.doesNotMatch(
+  source,
+  /handlePluginClick\(llmPlugin/,
+  'CreateComponentModal should no longer open an embedded plugin page for the LLM entry'
 );
 
 console.log('CreateComponentModal llm entry flow test passed');

@@ -18,13 +18,18 @@ function buildLlmPluginNavigation({
   regionName = '',
   modelKey = '',
 }) {
-  return {
+  const navigation = {
     pathname: `/team/${teamName}/region/${regionName}/plugins/${pluginName}`,
-    query: {
+  };
+
+  if (modelKey) {
+    navigation.query = {
       autoOpenModelDrawer: 'true',
       modelKey,
-    },
-  };
+    };
+  }
+
+  return navigation;
 }
 
 function getLlmPluginFromList(list = []) {

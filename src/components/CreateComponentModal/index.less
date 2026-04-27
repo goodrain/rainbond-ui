@@ -538,6 +538,42 @@
   line-height: 22px;
 }
 
+.llmDeployModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.llmDeployMode {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  > span {
+    color: @heading-color;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.llmFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > span {
+    color: @heading-color;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.llmFieldHint {
+  color: @rbd-label-color;
+  font-size: 12px;
+  line-height: 20px;
+}
+
 .llmSelectHint {
   margin-top: 4px;
   color: @rbd-label-color;
@@ -553,6 +589,12 @@
 
 .llmSelectGroup {
   width: 100%;
+}
+
+.llmLocalModelList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .llmSelectItem {
@@ -582,6 +624,13 @@
       top: 0;
     }
   }
+}
+
+.llmLocalModelButton {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  outline: none;
 }
 
 .llmSelectItemActive {
@@ -637,4 +686,18 @@
 
 .llmSelectEmpty {
   padding: 32px 0 16px;
+}
+
+.llmFileInput {
+  padding: 10px 12px;
+  border: 1px solid #d9dfe8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.llmDeployHint {
+  margin: 0;
+  color: @rbd-label-color;
+  font-size: 12px;
+  line-height: 20px;
 }

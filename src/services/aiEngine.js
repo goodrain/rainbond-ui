@@ -4,7 +4,7 @@ import request from '../utils/request';
 const AI_ENGINE_PLUGIN_BACKEND_PREFIX =
   '/console/regions/rainbond/backend/plugins/rainbond-ai-engine';
 
-export async function getTeamLlmModels(body = {}) {
+function buildTeamHeaders(body = {}) {
   const headers = {
     'X-AI-Team-Name': body.team_name,
     'X-AI-Region-Name': body.region_name,
@@ -14,11 +14,37 @@ export async function getTeamLlmModels(body = {}) {
     headers['X-AI-Team-Namespace'] = body.namespace;
   }
 
+  return headers;
+}
+
+export async function getTeamLlmModels(body = {}) {
   return request(
     `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/team/models`,
     {
-    method: 'get',
-    headers,
+      method: 'get',
+      headers: buildTeamHeaders(body),
+    }
+  );
+}
+
+export async function createTeamLlmDownload(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/team/models/downloads`,
+    {
+      method: 'post',
+      data: body.data || {},
+      headers: buildTeamHeaders(body),
+    }
+  );
+}
+
+export async function uploadTeamLlmArtifact(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/team/uploads`,
+    {
+      method: 'post',
+      data: body.formData,
+      headers: buildTeamHeaders(body),
     }
   );
 }
