@@ -5,11 +5,18 @@ import {
   hydrateAgentSession,
   sendAgentMessage,
 } from '../services/agent';
+const { adaptAgentEvent } = require('../services/agentEventAdapter');
+const { logAgentUi, summarizeEvent } = require('../services/agentDebug');
 import {
   formatAgentContextMessage,
   getAgentContextSignature,
 } from '../utils/agentContext';
 import agentWorkflowState from './agentWorkflowState';
+const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
+const {
+  applyTraceEvent,
+  buildTraceContent,
+} = require('./agentTraceHelpers');
 
 const { extractWorkflowState } = agentWorkflowState;
 
@@ -118,35 +125,6 @@ function findApprovalMessageIndex(messages, approvalId) {
   );
 }
 
-function buildTraceContent(data = {}) {
-  const toolName = data.tool_name || '工具调用';
-  const normalizedInput =
-    data && data.input && typeof data.input === 'object'
-      ? JSON.stringify(data.input)
-      : '';
-  const normalizedOutput =
-    data &&
-    data.output &&
-    data.output.structuredContent &&
-    typeof data.output.structuredContent === 'object'
-      ? data.output.structuredContent
-      : data.output;
-  const detail = [];
-  if (data.input) {
-    detail.push(`输入：${JSON.stringify(data.input, null, 2)}`);
-  }
-  if (normalizedOutput) {
-    detail.push(`输出：${JSON.stringify(normalizedOutput, null, 2)}`);
-  }
-  return {
-    title: toolName,
-    detail: detail.join('\n\n'),
-    toolName,
-    inputSignature: normalizedInput,
-    hasOutput: !!data.output,
-  };
-}
-
 function applyAgentEvents({
   messages,
   events,
@@ -158,77 +136,85 @@ function applyAgentEvents({
   let lastEventSequence = 0;
 
   events.forEach(event => {
-    if (!event || !event.type) {
+    const adaptedEvent = adaptAgentEvent(event);
+    if (!adaptedEvent || !adaptedEvent.type) {
       return;
     }
 
-    const eventSequence = event.sequence || 0;
+    const eventSequence = adaptedEvent.sequence || 0;
     if (eventSequence > lastEventSequence) {
       lastEventSequence = eventSequence;
     }
 
-    switch (event.type) {
-      case 'chat.message': {
-        const data = event.data || {};
+    switch (adaptedEvent.type) {
+      case 'trace': {
+        applyTraceEvent(
+          nextMessages,
+          event,
+          contextSnapshot,
+          eventSequence,
+          createMessage
+        );
+        break;
+      }
+      case 'message_started':
+      case 'message_delta':
+      case 'message_completed': {
+        const streamedMessages = applyStreamingAssistantEvent(
+          nextMessages,
+          event,
+          createMessage,
+          contextSnapshot
+        );
+        nextMessages.length = 0;
+        streamedMessages.forEach(item => nextMessages.push(item));
+        break;
+      }
+      case 'message': {
+        if (adaptedEvent.messageId) {
+          const streamedMessages = applyStreamingAssistantEvent(
+            nextMessages,
+            {
+              type: 'chat.message',
+              data: {
+                message_id: adaptedEvent.messageId,
+                role: adaptedEvent.role,
+                content: adaptedEvent.content,
+              },
+            },
+            createMessage,
+            contextSnapshot
+          );
+          const matchedIndex = streamedMessages.findIndex(
+            item => item && item.streamMessageId === adaptedEvent.messageId
+          );
+          if (matchedIndex > -1) {
+            nextMessages.length = 0;
+            streamedMessages.forEach(item => nextMessages.push(item));
+            break;
+          }
+        }
         nextMessages.push(
           createMessage(
-            data.role === 'user' ? 'user' : 'assistant',
+            adaptedEvent.role === 'user' ? 'user' : 'assistant',
             'normal',
-            data.content || '',
+            adaptedEvent.content || '',
             contextSnapshot,
             { eventSequence }
           )
         );
         break;
       }
-      case 'chat.trace': {
-        const trace = buildTraceContent(event.data || {});
-        const pendingTraceIndex =
-          trace.hasOutput
-            ? nextMessages.findIndex(item => (
-                item &&
-                item.kind === 'trace' &&
-                item.trace &&
-                item.trace.title === trace.title &&
-                item.trace.inputSignature === trace.inputSignature &&
-                !item.trace.hasOutput
-              ))
-            : -1;
-
-        if (pendingTraceIndex > -1) {
-          nextMessages[pendingTraceIndex] = {
-            ...nextMessages[pendingTraceIndex],
-            trace,
-            eventSequence,
-          };
-          break;
-        }
-
-        nextMessages.push(
-          createMessage(
-            'system',
-            'trace',
-            '',
-            contextSnapshot,
-            {
-              trace,
-              eventSequence,
-            }
-          )
-        );
-        break;
-      }
-      case 'approval.requested': {
-        const data = event.data || {};
+      case 'approval_requested': {
         pendingApproval = {
-          approvalId: data.approval_id || '',
-          description: data.description || '',
-          risk: data.risk || 'medium',
-          scope: data.scope || '',
-          scopeLabel: data.scope_label || '',
-          levelLabel: data.level_label || '',
-          runId: event.runId || '',
-          sessionId: event.sessionId || '',
+          approvalId: adaptedEvent.approvalId || '',
+          description: adaptedEvent.description || '',
+          risk: adaptedEvent.risk || 'medium',
+          scope: adaptedEvent.scope || '',
+          scopeLabel: adaptedEvent.scopeLabel || '',
+          levelLabel: adaptedEvent.levelLabel || '',
+          runId: adaptedEvent.runId || '',
+          sessionId: adaptedEvent.sessionId || '',
           status: 'pending',
           lastSequence: eventSequence,
         };
@@ -237,7 +223,7 @@ function applyAgentEvents({
           createMessage(
             'system',
             'approval',
-            data.description || '待审批操作',
+            adaptedEvent.description || '待审批操作',
             contextSnapshot,
             {
               approval: pendingApproval,
@@ -247,9 +233,8 @@ function applyAgentEvents({
         );
         break;
       }
-      case 'approval.resolved': {
-        const data = event.data || {};
-        const approvalId = data.approval_id;
+      case 'approval_resolved': {
+        const approvalId = adaptedEvent.approvalId;
         const index = findApprovalMessageIndex(nextMessages, approvalId);
         if (index > -1) {
           nextMessages[index] = {
@@ -257,7 +242,7 @@ function applyAgentEvents({
             approval: {
               ...(nextMessages[index].approval || {}),
               approvalId,
-              status: data.status || 'approved',
+              status: adaptedEvent.status || 'approved',
               lastSequence: eventSequence,
             },
           };
@@ -267,9 +252,8 @@ function applyAgentEvents({
         }
         break;
       }
-      case 'run.status': {
-        const data = event.data || {};
-        if (data.status === 'cancelled') {
+      case 'run_status': {
+        if (adaptedEvent.status === 'cancelled') {
           nextMessages.push(
             createMessage(
               'system',
@@ -279,7 +263,7 @@ function applyAgentEvents({
               { eventSequence }
             )
           );
-        } else if (data.status === 'error') {
+        } else if (adaptedEvent.status === 'error') {
           nextMessages.push(
             createMessage(
               'system',
@@ -290,7 +274,7 @@ function applyAgentEvents({
             )
           );
         }
-        if (pendingApproval && data.status === 'waiting_approval') {
+        if (pendingApproval && adaptedEvent.status === 'waiting_approval') {
           pendingApproval = {
             ...pendingApproval,
             lastSequence: eventSequence,
@@ -298,13 +282,12 @@ function applyAgentEvents({
         }
         break;
       }
-      case 'run.error': {
-        const data = event.data || {};
+      case 'run_error': {
         nextMessages.push(
           createMessage(
             'system',
             'error',
-            data.message || data.error || '执行过程中发生错误，请稍后重试。',
+            adaptedEvent.message || '执行过程中发生错误，请稍后重试。',
             contextSnapshot,
             { eventSequence }
           )
@@ -425,6 +408,12 @@ export default {
         return;
       }
 
+      logAgentUi('model:sendMessage:start', {
+        conversationId: state.conversationId,
+        messageLength: text.length,
+        existingMessages: state.messages.length,
+      });
+
       const contextSnapshot = (payload && payload.context) || state.context || {};
       const userMessage = createMessage('user', 'normal', text, contextSnapshot);
       const pendingMessages = state.messages.concat(userMessage);
@@ -449,6 +438,7 @@ export default {
           context: contextSnapshot,
           currentUser,
           onEvent: event => {
+            logAgentUi('model:sendMessage:onEvent', summarizeEvent(event));
             if (storeDispatch) {
               storeDispatch({
                 type: 'agent/applyStreamEvent',
@@ -471,6 +461,9 @@ export default {
           },
         });
       } catch (error) {
+        logAgentUi('model:sendMessage:error', {
+          message: error && error.message ? error.message : String(error),
+        });
         yield put({
           type: 'saveState',
           payload: {
@@ -499,6 +492,13 @@ export default {
         return;
       }
 
+      logAgentUi('model:resolveApproval:start', {
+        approvalId: pendingApproval.approvalId,
+        sessionId: pendingApproval.sessionId || state.conversationId,
+        runId: pendingApproval.runId || state.activeRunId,
+        decision: payload && payload.decision,
+      });
+
       yield put({
         type: 'saveState',
         payload: {
@@ -520,6 +520,7 @@ export default {
           context: state.context,
           currentUser,
           onEvent: event => {
+            logAgentUi('model:resolveApproval:onEvent', summarizeEvent(event));
             if (storeDispatch) {
               storeDispatch({
                 type: 'agent/applyStreamEvent',
@@ -541,6 +542,9 @@ export default {
           },
         });
       } catch (error) {
+        logAgentUi('model:resolveApproval:error', {
+          message: error && error.message ? error.message : String(error),
+        });
         yield put({
           type: 'saveState',
           payload: {
@@ -601,7 +605,22 @@ export default {
     },
 
     applyStreamEvent(state, { payload }) {
+      logAgentUi('model:applyStreamEvent', {
+        beforeMessages: state.messages.length,
+        event: summarizeEvent(payload && payload.event),
+      });
       const merged = applyAgentStreamEvent(state, payload);
+      const lastMessage = merged.messages[merged.messages.length - 1];
+      logAgentUi('model:applyStreamEvent', {
+        afterMessages: merged.messages.length,
+        lastMessageKind: lastMessage && lastMessage.kind ? lastMessage.kind : '',
+        lastMessageRole: lastMessage && lastMessage.role ? lastMessage.role : '',
+        lastMessageId:
+          lastMessage && lastMessage.streamMessageId ? lastMessage.streamMessageId : '',
+        lastMessageLength:
+          lastMessage && typeof lastMessage.content === 'string' ? lastMessage.content.length : 0,
+        lastMessageStreaming: !!(lastMessage && lastMessage.streaming),
+      });
 
       return {
         ...state,

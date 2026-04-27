@@ -27,9 +27,20 @@ export default class AgentHost extends PureComponent {
     const nextMessages = (this.props.agent && this.props.agent.messages) || [];
     const wasVisible = prevProps.agent && prevProps.agent.visible;
     const isVisible = this.props.agent && this.props.agent.visible;
+    const prevLastMessage = prevMessages[prevMessages.length - 1];
+    const nextLastMessage = nextMessages[nextMessages.length - 1];
+    const lastMessageChanged =
+      prevLastMessage &&
+      nextLastMessage &&
+      prevLastMessage.id === nextLastMessage.id &&
+      (
+        prevLastMessage.content !== nextLastMessage.content ||
+        prevLastMessage.streaming !== nextLastMessage.streaming
+      );
 
     if (
       prevMessages.length !== nextMessages.length ||
+      lastMessageChanged ||
       (!wasVisible && isVisible)
     ) {
       this.scrollToBottom();

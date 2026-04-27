@@ -2,6 +2,7 @@ import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import agentPayload from './agentPayload';
 const { readSseEvents } = require('./agentStream');
+const { logAgentUi, summarizeContext } = require('./agentDebug');
 
 const { buildAgentSessionPayload } = agentPayload;
 
@@ -30,7 +31,9 @@ function normalizeMessages(messages) {
       createdAt: item.createdAt || Date.now(),
       contextSnapshot: item.contextSnapshot || {},
       trace: item.trace || null,
-      approval: item.approval || null
+      approval: item.approval || null,
+      streamMessageId: item.streamMessageId || '',
+      streaming: !!item.streaming
     }));
 }
 
@@ -111,12 +114,25 @@ function buildRequestHeaders() {
 }
 
 async function requestJson(path, options = {}) {
+  const method = options.method || 'GET';
+  logAgentUi('request:start', {
+    path,
+    method,
+  });
+
   const response = await fetch(path, {
     credentials: 'include',
     ...options
   });
 
   const data = await response.json().catch(() => ({}));
+
+  logAgentUi('request:response', {
+    path,
+    method,
+    status: response.status,
+    ok: response.ok,
+  });
 
   if (!response.ok) {
     const message =
@@ -167,9 +183,17 @@ export function clearAgentSession(userId) {
 
 async function ensureSession({ conversationId, currentUser, context }) {
   if (conversationId && conversationId !== 'global-default') {
+    logAgentUi('session:reuse', {
+      conversationId,
+      context: summarizeContext(context),
+    });
     return conversationId;
   }
 
+  logAgentUi('session:create', {
+    context: summarizeContext(context),
+    hasCurrentUser: !!currentUser,
+  });
   const payload = await requestJson(`${COPILOT_API_BASE}/sessions`, {
     method: 'POST',
     headers: {
@@ -179,6 +203,9 @@ async function ensureSession({ conversationId, currentUser, context }) {
     body: JSON.stringify(buildAgentSessionPayload(context))
   });
 
+  logAgentUi('session:created', {
+    sessionId: payload && payload.data && payload.data.session_id,
+  });
   return payload && payload.data && payload.data.session_id;
 }
 
@@ -189,6 +216,11 @@ async function streamRun({
   onEvent
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
+  logAgentUi('sse:open', {
+    sessionId,
+    runId,
+    afterSequence,
+  });
   const response = await fetch(
     `${COPILOT_API_BASE}/sessions/${sessionId}/runs/${runId}/events${query}`,
     {
@@ -201,6 +233,13 @@ async function streamRun({
     }
   );
 
+  logAgentUi('sse:response', {
+    sessionId,
+    runId,
+    afterSequence,
+    status: response.status,
+    ok: response.ok,
+  });
   return readSseEvents(response, { onEvent });
 }
 
@@ -209,7 +248,14 @@ export async function sendAgentMessage(payload = {}) {
   const context = normalizeContext(payload.context);
   const currentUser = payload.currentUser || {};
 
+  logAgentUi('message:send:start', {
+    conversationId: payload.conversation_id || 'global-default',
+    messageLength: message.length,
+    context: summarizeContext(context),
+  });
+
   if (!message) {
+    logAgentUi('message:send:skip-empty');
     return {
       sessionId: payload.conversation_id || 'global-default',
       runId: '',
@@ -240,6 +286,10 @@ export async function sendAgentMessage(payload = {}) {
   );
 
   const runId = runPayload && runPayload.data && runPayload.data.run_id;
+  logAgentUi('message:send:run-created', {
+    sessionId,
+    runId,
+  });
   const events = await streamRun({
     sessionId,
     runId,
@@ -261,6 +311,16 @@ export async function decideAgentApproval(payload = {}) {
   const currentUser = payload.currentUser || {};
   const context = normalizeContext(payload.context);
   const afterSequence = Number(payload.afterSequence || 0);
+
+  logAgentUi('approval:decision:start', {
+    approvalId,
+    sessionId,
+    runId,
+    decision: payload.decision,
+    afterSequence,
+    context: summarizeContext(context),
+    hasCurrentUser: !!currentUser,
+  });
 
   await requestJson(`${COPILOT_API_BASE}/approvals/${approvalId}/decisions`, {
     method: 'POST',

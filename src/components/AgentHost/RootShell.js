@@ -9,6 +9,7 @@ import {
 } from '../../utils/agentContext';
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
+const { createSessionPersistenceScheduler } = require('./sessionPersistenceScheduler');
 
 export default class AgentRootShell extends PureComponent {
   constructor(props) {
@@ -27,6 +28,10 @@ export default class AgentRootShell extends PureComponent {
     this.prevPathSignature = '';
     this.prevAgentUpdatedAt = 0;
     this.isSyncingContext = false;
+    this.persistenceScheduler = createSessionPersistenceScheduler({
+      delayMs: 400,
+      persistFn: persistAgentSession,
+    });
   }
 
   componentDidMount() {
@@ -34,6 +39,8 @@ export default class AgentRootShell extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.persistenceScheduler.flush();
+    this.persistenceScheduler.cancel();
     if (this.unsubscribe) {
       this.unsubscribe();
     }
@@ -89,6 +96,7 @@ export default class AgentRootShell extends PureComponent {
     const loginKey =
       currentUser && currentUser.user_id ? String(currentUser.user_id) : '';
     const previousLoginKey = this.prevLoginKey;
+    const previousAgent = this.state.agent || null;
     const pathSignature = getAgentRouteSignature(location);
 
     if (loginKey !== previousLoginKey) {
@@ -96,6 +104,8 @@ export default class AgentRootShell extends PureComponent {
       this.prevAgentUpdatedAt = 0;
 
       if (previousLoginKey && !loginKey) {
+        this.persistenceScheduler.flush();
+        this.persistenceScheduler.cancel();
         this.store.dispatch({
           type: 'agent/clearSession',
           payload: {
@@ -145,7 +155,10 @@ export default class AgentRootShell extends PureComponent {
       agent.updatedAt &&
       agent.updatedAt !== this.prevAgentUpdatedAt
     ) {
-      persistAgentSession(agent, loginKey);
+      const panelClosed = !!(previousAgent && previousAgent.visible && !agent.visible);
+      this.persistenceScheduler.schedule(agent, loginKey, {
+        immediate: !agent.sending || panelClosed,
+      });
       this.prevAgentUpdatedAt = agent.updatedAt;
     }
 
