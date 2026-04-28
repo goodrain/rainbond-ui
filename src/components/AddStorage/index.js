@@ -14,6 +14,8 @@ export default class AddVolumes extends PureComponent {
     const { form, onSubmit } = this.props;
     const { validateFields } = form;
 
+    this.fillVolumeNameFromPath();
+
     validateFields((err, values) => {
       if (!err && onSubmit) {
         onSubmit(values);
@@ -33,6 +35,44 @@ export default class AddVolumes extends PureComponent {
       return;
     }
     callback();
+  };
+
+  volumePathCheck = (_, value, callback) => {
+    if (!value || /\s/.test(value)) {
+      callback();
+      return;
+    }
+    if (!value.startsWith('/') || value.endsWith('/')) {
+      callback(formatMessage({ id: 'componentOverview.body.tab.AddStorage.full_file_path' }));
+      return;
+    }
+    callback();
+  };
+
+  getVolumeNameFromPath = value => {
+    if (!value || !value.startsWith('/') || value.endsWith('/')) {
+      return '';
+    }
+    const fileName = value.split('/').filter(Boolean).pop();
+    if (!fileName) {
+      return '';
+    }
+    return fileName
+      .replace(/[^A-Za-z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 30);
+  };
+
+  fillVolumeNameFromPath = () => {
+    const { editor, form } = this.props;
+    const { getFieldValue, setFieldsValue } = form;
+    if (editor || getFieldValue('volume_name')) {
+      return;
+    }
+    const volumeName = this.getVolumeNameFromPath(getFieldValue('volume_path'));
+    if (volumeName) {
+      setFieldsValue({ volume_name: volumeName });
+    }
   };
 
   render() {
@@ -94,18 +134,26 @@ export default class AddVolumes extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })
+                  message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.full_file_path' })
                 },
                 {
                   pattern: /^[^\s]*$/,
                   message: formatMessage({ id: 'placeholder.no_spaces' })
                 },
                 {
+                  validator: this.volumePathCheck
+                },
+                {
                   max: 255,
                   message: formatMessage({ id: 'componentOverview.body.tab.AddStorage.Maximum_length' })
                 }
               ]
-            })(<Input placeholder={formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })} />)}
+            })(
+              <Input
+                placeholder={formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })}
+                onBlur={this.fillVolumeNameFromPath}
+              />
+            )}
           </FormItem>
           <div style={{ display: 'none' }}>
             <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.type" />}>
