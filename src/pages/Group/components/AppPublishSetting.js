@@ -552,7 +552,7 @@ class AppPublishSetting extends PureComponent {
                     .toLowerCase()
                     .indexOf(input.toLowerCase()) >= 0
                 }
-                onChange={this.changeCurrentModel}
+                onChange={value => this.changeCurrentModel(value)}
                 placeholder={formatMessage({
                   id: 'placeholder.appShare.selectAppTemplate'
                 })}

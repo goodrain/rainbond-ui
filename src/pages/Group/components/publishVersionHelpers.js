@@ -2,7 +2,8 @@ function buildPublishFormValues(versionInfo, options) {
   const opts = options || {};
   const isCreate = !!opts.isCreate;
   const publishMode = opts.publishMode || 'runtime';
-  const requestedVersion = opts.requestedVersion || '';
+  const requestedVersion =
+    typeof opts.requestedVersion === 'string' ? opts.requestedVersion : '';
 
   let version = '';
   if (isCreate) {
