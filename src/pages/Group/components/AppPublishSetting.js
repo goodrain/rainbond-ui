@@ -26,6 +26,7 @@ import { appShareStateSelector, validateShareVersion } from './appShareHelpers';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from '../publish.less';
+const { buildPublishFormValues } = require('./publishVersionHelpers');
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -283,26 +284,27 @@ class AppPublishSetting extends PureComponent {
                   }
                 });
               }
-              this.handleSetFieldsValue(versionInfo, isCreate);
+              this.handleSetFieldsValue(versionInfo, isCreate, setVersion);
               return;
             }
-            this.handleSetFieldsValue(item, isCreate);
+            this.handleSetFieldsValue(item, isCreate, setVersion);
           });
         }
       });
     }
   };
 
-  handleSetFieldsValue = (versionInfo, isCreate) => {
+  handleSetFieldsValue = (versionInfo, isCreate, requestedVersion) => {
     const { setFieldsValue } = this.props.form;
+    const { publish_mode } = this.state;
     this.setState({ versionInfo });
-    setFieldsValue({
-      version: isCreate ? '0.1' : '',
-      version_alias: versionInfo ? versionInfo.version_alias : '',
-      describe: versionInfo
-        ? versionInfo.describe || versionInfo.app_describe
-        : ''
-    });
+    setFieldsValue(
+      buildPublishFormValues(versionInfo, {
+        isCreate,
+        publishMode: publish_mode,
+        requestedVersion
+      })
+    );
   };
 
   showCreateAppModel = () => {
