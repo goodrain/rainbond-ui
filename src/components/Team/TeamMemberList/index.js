@@ -317,8 +317,11 @@ export default class MemberList extends PureComponent {
       total,
       onChange: this.handlePageChange
     };    
-    // 检查是否有邀请成员的权限（需要是团队管理员或团队拥有者）
-    const canInviteMember = teamUtil.canChangeOwner(currentTeam) || currUser?.is_enterprise_admin;
+    // 检查是否有邀请成员的权限（成员创建权限、团队拥有者或企业管理员）
+    const canInviteMember =
+      memberPermissions?.isCreate ||
+      teamUtil.canChangeOwner(currentTeam) ||
+      currUser?.is_enterprise_admin;
 
     return (
       <div>
