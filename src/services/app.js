@@ -1133,14 +1133,18 @@ export async function addOuterEnvs(body = {}) {
  name ： 说明
 */
 export async function editEvns(body = {}) {
+  const data = {
+    name: body.name,
+    attr_value: body.attr_value || ''
+  };
+  if (body.attr_name !== undefined) {
+    data.attr_name = body.attr_name;
+  }
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
     {
       method: 'put',
-      data: {
-        name: body.name,
-        attr_value: body.attr_value || ''
-      }
+      data
     }
   );
 }

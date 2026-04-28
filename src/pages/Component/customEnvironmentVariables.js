@@ -356,6 +356,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: showEditVar.ID,
+        attr_name: vals.attr_name,
         attr_value: vals.attr_value,
         name: vals.name
       },
