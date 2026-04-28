@@ -1628,6 +1628,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_extension': '扩展与中间件',
     'componentOverview.body.CreateComponentModal.vm': '虚拟机 (VM)',
     'componentOverview.body.CreateComponentModal.llm': '大模型 (LLM)',
+    'componentOverview.body.CreateComponentModal.llm_model_market': '模型市场',
     'componentOverview.body.CreateComponentModal.llm_select_title': '选择已引入的大模型',
     'componentOverview.body.CreateComponentModal.llm_select_desc': '选择一个已经引入完成的团队模型，确认后会跳转到大模型页面并自动打开右侧部署抽屉。',
     'componentOverview.body.CreateComponentModal.llm_select_hint': '这里只展示当前团队中已就绪的模型。',

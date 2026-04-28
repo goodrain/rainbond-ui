@@ -34,6 +34,18 @@ assert.match(
   'CreateComponentModal should still auto-open the instance drawer when local models are selected'
 );
 
+assert.match(
+  source,
+  /handleJumpToLlmMarket/,
+  'CreateComponentModal should expose a dedicated jump handler for the model market entry'
+);
+
+assert.match(
+  source,
+  /CreateComponentModal\.llm_model_market/,
+  'CreateComponentModal should render a model market text link in the deploy modal'
+);
+
 assert.doesNotMatch(
   source,
   /handlePluginClick\(llmPlugin/,

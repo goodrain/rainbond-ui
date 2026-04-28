@@ -548,11 +548,33 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.llmDeployModeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 
   > span {
     color: @heading-color;
     font-size: 14px;
     font-weight: 500;
+  }
+}
+
+.llmMarketLink {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: @primary-color;
+  font-size: 14px;
+  line-height: 22px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: lighten(@primary-color, 8%);
   }
 }
 

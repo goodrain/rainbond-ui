@@ -1298,6 +1298,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     fetchTeamLlmModelsList();
   };
 
+  const handleJumpToLlmMarket = () => {
+    jumpToLlmPlugin();
+  };
+
   const handleLlmFormChange = (field, value) => {
     setLlmForm((prev) => ({
       ...prev,
@@ -2822,7 +2826,16 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       >
         <div className={styles.llmDeployModalBody}>
           <div className={styles.llmDeployMode}>
-            <span>来源类型</span>
+            <div className={styles.llmDeployModeHeader}>
+              <span>来源类型</span>
+              <button
+                type="button"
+                className={styles.llmMarketLink}
+                onClick={handleJumpToLlmMarket}
+              >
+                {formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_model_market' })}
+              </button>
+            </div>
             <Radio.Group
               value={llmSourceType}
               onChange={(event) => setLlmSourceType(event.target.value)}
