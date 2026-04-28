@@ -1,5 +1,8 @@
 const assert = require('assert');
-const { buildPublishFormValues } = require('./publishVersionHelpers');
+const {
+  buildPublishFormValues,
+  buildSnapshotPublishFormPatch
+} = require('./publishVersionHelpers');
 
 assert.deepStrictEqual(
   buildPublishFormValues(
@@ -77,6 +80,38 @@ assert.deepStrictEqual(
     describe: 'enterprise template version'
   },
   'should ignore non-string requested versions from the template selector change event'
+);
+
+assert.deepStrictEqual(
+  buildSnapshotPublishFormPatch(
+    {
+      version: '0.1',
+      version_alias: 'stable',
+      describe: 'enterprise template version'
+    },
+    'snapshot',
+    ''
+  ),
+  {
+    version: '0.1',
+    version_alias: 'stable',
+    describe: 'enterprise template version'
+  },
+  'should restore the snapshot template version when the field is still blank'
+);
+
+assert.strictEqual(
+  buildSnapshotPublishFormPatch(
+    {
+      version: '0.1',
+      version_alias: 'stable',
+      describe: 'enterprise template version'
+    },
+    'snapshot',
+    '0.2'
+  ),
+  null,
+  'should not overwrite a version that the user or previous selection already filled in'
 );
 
 console.log('publish version helper tests passed');

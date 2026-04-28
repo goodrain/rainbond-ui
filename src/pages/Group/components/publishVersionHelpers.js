@@ -21,6 +21,16 @@ function buildPublishFormValues(versionInfo, options) {
   };
 }
 
+function buildSnapshotPublishFormPatch(versionInfo, publishMode, currentVersion) {
+  if (publishMode !== 'snapshot' || !versionInfo || currentVersion) {
+    return null;
+  }
+  return buildPublishFormValues(versionInfo, {
+    publishMode
+  });
+}
+
 module.exports = {
-  buildPublishFormValues
+  buildPublishFormValues,
+  buildSnapshotPublishFormPatch
 };

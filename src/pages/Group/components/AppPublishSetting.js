@@ -26,7 +26,10 @@ import { appShareStateSelector, validateShareVersion } from './appShareHelpers';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from '../publish.less';
-const { buildPublishFormValues } = require('./publishVersionHelpers');
+const {
+  buildPublishFormValues,
+  buildSnapshotPublishFormPatch
+} = require('./publishVersionHelpers');
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -121,7 +124,7 @@ class AppPublishSetting extends PureComponent {
   };
 
   fetchShareInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'application/getShareInfo',
       payload: {
@@ -132,12 +135,25 @@ class AppPublishSetting extends PureComponent {
         if (!data || !data.bean) {
           return;
         }
-        this.setState({
-          info: data.bean,
-          share_service_list: data.bean.share_service_list || [],
-          plugin_list: data.bean.share_plugin_list || [],
-          publish_mode: data.bean.publish_mode || 'runtime'
-        });
+        const publishMode = data.bean.publish_mode || 'runtime';
+        this.setState(
+          {
+            info: data.bean,
+            share_service_list: data.bean.share_service_list || [],
+            plugin_list: data.bean.share_plugin_list || [],
+            publish_mode: publishMode
+          },
+          () => {
+            const patch = buildSnapshotPublishFormPatch(
+              this.state.versionInfo,
+              publishMode,
+              form.getFieldValue('version')
+            );
+            if (patch) {
+              form.setFieldsValue(patch);
+            }
+          }
+        );
       }
     });
   };
