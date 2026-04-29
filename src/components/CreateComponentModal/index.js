@@ -2878,7 +2878,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         cancelText="取消"
         confirmLoading={llmSubmitLoading}
         footer={llmSourceType === 'repository' ? null : undefined}
-        width={llmSourceType === 'repository' ? 860 : 720}
+        width={720}
         destroyOnClose
       >
         <div className={styles.llmDeployModalBody}>

@@ -64,6 +64,18 @@ assert.match(
   'CreateComponentModal repository deploy/download buttons should share a fixed action column'
 );
 
+assert.match(
+  source,
+  /width=\{720\}/,
+  'CreateComponentModal should keep repository, modelscope, and upload modal widths aligned'
+);
+
+assert.doesNotMatch(
+  source,
+  /llmSourceType === 'repository' \? 860 : 720/,
+  'CreateComponentModal should not make the repository tab wider than the other deploy sources'
+);
+
 assert.doesNotMatch(
   source,
   /handlePluginClick\(llmPlugin/,
