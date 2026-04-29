@@ -6,6 +6,7 @@ import { pinyin } from 'pinyin-pro';
 import { formatMessage } from '@/utils/intl';
 import {
   createTeamLlmDownload,
+  getTeamLlmCatalog,
   getTeamLlmModels,
   uploadTeamLlmArtifact,
 } from '../../services/aiEngine';
@@ -57,9 +58,13 @@ import {
   GiteaIcon
 } from './icons';
 const {
+  buildLlmAssetDownloadPayload,
+  buildLlmCatalogDownloadPayload,
   buildLlmPluginNavigation,
+  buildLlmRepositoryEntries,
   getLlmPluginFromList,
-  getReadyLlmModels,
+  getLlmModelParameterScale,
+  normalizeLlmModelStatus,
   resolveCurrentTeamNamespace,
 } = require('./llmEntryHelpers');
 
@@ -134,8 +139,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [llmModelsLoading, setLlmModelsLoading] = useState(false);
   const [llmModels, setLlmModels] = useState([]);
   const [llmModelsError, setLlmModelsError] = useState('');
-  const [selectedLlmModel, setSelectedLlmModel] = useState(null);
-  const [llmSourceType, setLlmSourceType] = useState('modelscope');
+  const [llmSourceType, setLlmSourceType] = useState('repository');
   const [llmSubmitLoading, setLlmSubmitLoading] = useState(false);
   const [llmUploadFile, setLlmUploadFile] = useState(null);
   const [llmForm, setLlmForm] = useState({
@@ -1197,8 +1201,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     setLlmModelsLoading(false);
     setLlmModels([]);
     setLlmModelsError('');
-    setSelectedLlmModel(null);
-    setLlmSourceType('modelscope');
+    setLlmSourceType('repository');
     setLlmSubmitLoading(false);
     setLlmUploadFile(null);
     setLlmForm({
@@ -1225,28 +1228,38 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
     setLlmModelsLoading(true);
     setLlmModelsError('');
-    getTeamLlmModels({
+    const teamModelsRequest = getTeamLlmModels({
       team_name: teamName,
       region_name: regionName,
       namespace,
-    }).then((res) => {
-      if (isAiEngineSuccess(res)) {
-        const payload = res.data || res;
-        const readyModels = getReadyLlmModels(payload.models || []);
-        setLlmModels(readyModels);
-        setSelectedLlmModel(readyModels[0] || null);
+    }).catch((err) => ({ __error: err }));
+    const catalogRequest = getTeamLlmCatalog().catch((err) => ({ __error: err }));
+
+    Promise.all([teamModelsRequest, catalogRequest]).then(([teamRes, catalogRes]) => {
+      const hasTeamError = !!(teamRes && teamRes.__error);
+      const hasCatalogError = !!(catalogRes && catalogRes.__error);
+      const teamPayload = isAiEngineSuccess(teamRes) ? (teamRes.data || teamRes) : {};
+      const catalogPayload = isAiEngineSuccess(catalogRes) ? (catalogRes.data || []) : [];
+      const catalogModels = Array.isArray(catalogPayload) ? catalogPayload : (catalogPayload.models || []);
+      const teamModels = teamPayload.models || [];
+
+      setLlmModels(buildLlmRepositoryEntries(catalogModels, teamModels));
+
+      if (hasTeamError && hasCatalogError) {
+        setLlmModelsError(
+          formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
+        );
+        handleAPIError(teamRes.__error);
         return;
       }
 
-      setLlmModels([]);
-      setSelectedLlmModel(null);
-      setLlmModelsError(
-        (res && (res.msg || res.msg_show)) ||
-        formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
-      );
+      if (!isAiEngineSuccess(teamRes) && !hasTeamError) {
+        setLlmModelsError((teamRes && (teamRes.msg || teamRes.msg_show)) || '');
+      } else if (!isAiEngineSuccess(catalogRes) && !hasCatalogError) {
+        setLlmModelsError((catalogRes && (catalogRes.msg || catalogRes.msg_show)) || '');
+      }
     }).catch((err) => {
       setLlmModels([]);
-      setSelectedLlmModel(null);
       setLlmModelsError(
         formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
       );
@@ -1287,7 +1300,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const handleOpenLlmSelector = () => {
     setShowLlmSelectModal(true);
-    setLlmSourceType('modelscope');
+    setLlmSourceType('repository');
     setLlmSubmitLoading(false);
     setLlmUploadFile(null);
     setLlmForm({
@@ -1300,6 +1313,57 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const handleJumpToLlmMarket = () => {
     jumpToLlmPlugin();
+  };
+
+  const submitLlmDownloadPayload = (payload) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName) {
+      return;
+    }
+
+    if (!payload.source_uri) {
+      message.warning('当前模型缺少可用来源，请改用魔搭或上传');
+      return;
+    }
+
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    setLlmSubmitLoading(true);
+    createTeamLlmDownload({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+      data: payload,
+    }).then((res) => {
+      setLlmSubmitLoading(false);
+      if (isAiEngineSuccess(res)) {
+        message.success(`${payload.display_name || payload.model_id} 已开始下载`);
+        fetchTeamLlmModelsList();
+        return;
+      }
+
+      message.error((res && (res.msg || res.msg_show)) || '下载模型失败');
+    }).catch((err) => {
+      setLlmSubmitLoading(false);
+      handleAPIError(err);
+    });
+  };
+
+  const handleLlmRepositoryAction = (entry) => {
+    const asset = entry && entry.asset;
+    const model = entry && entry.model;
+    const status = normalizeLlmModelStatus(asset && asset.status);
+
+    if (asset && status === 'ready') {
+      jumpToLlmPlugin(asset.model_key);
+      return;
+    }
+
+    submitLlmDownloadPayload(
+      model ? buildLlmCatalogDownloadPayload(model) : buildLlmAssetDownloadPayload(asset)
+    );
   };
 
   const handleLlmFormChange = (field, value) => {
@@ -1319,13 +1383,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
     const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
 
-    if (llmSourceType === 'local') {
-      if (!selectedLlmModel) {
-        message.warning('请选择要启动的本地模型');
-        return;
-      }
-
-      jumpToLlmPlugin(selectedLlmModel.model_key);
+    if (llmSourceType === 'repository') {
       return;
     }
 
@@ -2815,13 +2873,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         visible={showLlmSelectModal}
         onCancel={handleCloseLlmSelectModal}
         onOk={handleConfirmLlmSelection}
-        okText={llmSourceType === 'local' ? '确定' : '开始部署'}
+        okText="开始部署"
         cancelText="取消"
         confirmLoading={llmSubmitLoading}
-        okButtonProps={{
-          disabled: llmSourceType === 'local' && !selectedLlmModel,
-        }}
-        width={720}
+        footer={llmSourceType === 'repository' ? null : undefined}
+        width={llmSourceType === 'repository' ? 860 : 720}
         destroyOnClose
       >
         <div className={styles.llmDeployModalBody}>
@@ -2840,56 +2896,63 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               value={llmSourceType}
               onChange={(event) => setLlmSourceType(event.target.value)}
             >
+              <Radio.Button value="repository">模型仓库</Radio.Button>
               <Radio.Button value="modelscope">魔搭</Radio.Button>
               <Radio.Button value="upload">上传</Radio.Button>
-              <Radio.Button value="local">本地</Radio.Button>
             </Radio.Group>
           </div>
 
-          {llmSourceType === 'local' ? (
-            <div className={styles.llmFormField}>
-              <span>选择已下载模型</span>
+          {llmSourceType === 'repository' ? (
+            <div className={styles.llmRepositoryList}>
               {llmModelsLoading ? (
                 <div className={styles.llmSelectLoading}>
                   <Spin size="large" />
                 </div>
               ) : llmModels.length > 0 ? (
-                <div className={styles.llmLocalModelList}>
-                  {llmModels.map((model) => {
-                    const isActive = selectedLlmModel && selectedLlmModel.model_key === model.model_key;
+                llmModels.map((entry) => {
+                  const asset = entry.asset;
+                  const model = entry.model || entry.asset || {};
+                  const status = normalizeLlmModelStatus(asset && asset.status);
+                  const isReady = !!(asset && status === 'ready');
+                  const isBusy = ['downloading', 'deleting'].includes(status);
+                  const name = model.display_name || model.model_id || model.model_key || '未命名模型';
+                  const parameterScale = getLlmModelParameterScale(model) || model.parameters;
 
-                    return (
-                      <button
-                        key={model.model_key}
-                        type="button"
-                        className={`${styles.llmSelectItem} ${isActive ? styles.llmSelectItemActive : ''} ${styles.llmLocalModelButton}`}
-                        onClick={() => setSelectedLlmModel(model)}
-                      >
-                        <div className={styles.llmSelectContent}>
+                  return (
+                    <div key={entry.key} className={styles.llmRepositoryItem}>
+                      <div className={styles.llmSelectContent}>
                           <div className={styles.llmSelectHeader}>
                             <span className={styles.llmSelectName}>
-                              {model.display_name || model.model_id || model.model_key}
+                              {name}
                             </span>
                             <span className={styles.llmSelectEngine}>
-                              {model.engine_type || 'vLLM'}
+                              {model.engine_type || model.default_engine || 'vLLM'}
                             </span>
                           </div>
                           <div className={styles.llmSelectMeta}>
-                            <span>{model.source_type || 'Model'}</span>
+                            <span>{isReady ? '已下载' : '未下载'}</span>
+                            {!!parameterScale && <span>{parameterScale}</span>}
                             <span>{model.model_id || model.model_key}</span>
                           </div>
                           <div className={styles.llmSelectPath}>
-                            {model.local_path || model.source_uri || model.model_key}
+                            {model.local_path || model.model_source || model.source_uri || model.model_key}
                           </div>
                         </div>
-                      </button>
+                        <Button
+                          type="primary"
+                          disabled={isBusy || llmSubmitLoading}
+                          loading={llmSubmitLoading && !isBusy}
+                          onClick={() => handleLlmRepositoryAction(entry)}
+                        >
+                          {isReady ? '部署' : (status === 'deleting' ? '删除中' : (status === 'downloading' ? '下载中' : '下载'))}
+                        </Button>
+                      </div>
                     );
-                  })}
-                </div>
+                })
               ) : (
                 <Empty
                   className={styles.llmSelectEmpty}
-                  description={llmModelsError || '当前团队还没有已下载模型，请先从魔搭或上传完成部署。'}
+                  description={llmModelsError || '当前模型仓库还没有可用模型。'}
                 />
               )}
             </div>
@@ -2943,8 +3006,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           )}
 
           <p className={styles.llmDeployHint}>
-            {llmSourceType === 'local'
-              ? '会跳转到 AI Engine 插件页，并自动打开该模型的实例部署抽屉。'
+            {llmSourceType === 'repository'
+              ? '模型仓库会展示全部模型，已下载模型可直接部署，未下载模型会先进入团队 PVC。'
               : '提交成功后会跳转到 AI Engine 插件页，继续查看模型状态和后续操作。'}
           </p>
         </div>

@@ -1,7 +1,9 @@
 const assert = require('assert');
 
 const {
+  buildLlmCatalogDownloadPayload,
   buildLlmPluginNavigation,
+  buildLlmRepositoryEntries,
   getLlmPluginFromList,
   getReadyLlmModels,
   resolveCurrentTeamNamespace,
@@ -67,6 +69,58 @@ assert.deepStrictEqual(
   ]),
   { name: 'rainbond-ai-engine', alias: 'AI Engine' },
   'getLlmPluginFromList should prefer the exact rainbond-ai-engine plugin'
+);
+
+assert.deepStrictEqual(
+  buildLlmCatalogDownloadPayload({
+    model_id: 'qwen-2.5-7b-instruct',
+    display_name: 'Qwen2.5 7B Instruct',
+    model_source: 'Qwen/Qwen2.5-7B-Instruct',
+    default_engine: 'vLLM',
+  }),
+  {
+    model_id: 'qwen-2.5-7b-instruct',
+    display_name: 'Qwen2.5 7B Instruct',
+    source_type: 'modelscope',
+    source_uri: 'Qwen/Qwen2.5-7B-Instruct',
+    engine_type: 'vLLM',
+    parameters: '7B',
+  },
+  'buildLlmCatalogDownloadPayload should turn catalog models into download payloads'
+);
+
+assert.deepStrictEqual(
+  buildLlmRepositoryEntries(
+    [
+      {
+        model_id: 'qwen-2.5-7b-instruct',
+        display_name: 'Qwen2.5 7B Instruct',
+        model_source: 'Qwen/Qwen2.5-7B-Instruct',
+      },
+    ],
+    [
+      {
+        model_key: 'modelscope:qwen',
+        model_id: 'qwen-2.5-7b-instruct',
+        source_uri: 'Qwen/Qwen2.5-7B-Instruct',
+        status: 'ready',
+      },
+      {
+        model_key: 'custom:upload',
+        display_name: 'Uploaded Model',
+        status: 'ready',
+      },
+    ]
+  ).map((entry) => ({
+    type: entry.type,
+    key: entry.key,
+    assetKey: entry.asset && entry.asset.model_key,
+  })),
+  [
+    { type: 'catalog', key: 'catalog-qwen-2.5-7b-instruct', assetKey: 'modelscope:qwen' },
+    { type: 'asset', key: 'custom:upload', assetKey: 'custom:upload' },
+  ],
+  'buildLlmRepositoryEntries should merge catalog models with matching and extra team assets'
 );
 
 console.log('CreateComponentModal llmEntryHelpers test passed');

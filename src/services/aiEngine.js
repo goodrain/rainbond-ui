@@ -27,6 +27,15 @@ export async function getTeamLlmModels(body = {}) {
   );
 }
 
+export async function getTeamLlmCatalog() {
+  return request(
+    `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/models`,
+    {
+      method: 'get',
+    }
+  );
+}
+
 export async function createTeamLlmDownload(body = {}) {
   return request(
     `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/team/models/downloads`,

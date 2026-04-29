@@ -30,8 +30,8 @@ assert.match(
 
 assert.match(
   source,
-  /jumpToLlmPlugin\(selectedLlmModel\.model_key\)/,
-  'CreateComponentModal should still auto-open the instance drawer when local models are selected'
+  /jumpToLlmPlugin\(asset\.model_key\)/,
+  'CreateComponentModal should auto-open the instance drawer when downloaded repository models are selected'
 );
 
 assert.match(
@@ -43,7 +43,19 @@ assert.match(
 assert.match(
   source,
   /CreateComponentModal\.llm_model_market/,
-  'CreateComponentModal should render a model market text link in the deploy modal'
+  'CreateComponentModal should render a model repository text link in the deploy modal'
+);
+
+assert.match(
+  source,
+  /<Radio\.Button value="repository">模型仓库<\/Radio\.Button>/,
+  'CreateComponentModal should include the model repository tab in the deploy modal'
+);
+
+assert.doesNotMatch(
+  source,
+  /<Radio\.Button value="local">本地<\/Radio\.Button>/,
+  'CreateComponentModal should remove the old local tab from the deploy modal'
 );
 
 assert.doesNotMatch(

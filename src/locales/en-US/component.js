@@ -1616,7 +1616,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_extension': 'Extensions & Middleware',
     'componentOverview.body.CreateComponentModal.vm': 'Virtual Machine (VM)',
     'componentOverview.body.CreateComponentModal.llm': 'Large Language Model (LLM)',
-    'componentOverview.body.CreateComponentModal.llm_model_market': 'Model Market',
+    'componentOverview.body.CreateComponentModal.llm_model_market': 'Model Repository',
     'componentOverview.body.CreateComponentModal.llm_select_title': 'Select an Imported LLM',
     'componentOverview.body.CreateComponentModal.llm_select_desc': 'Choose a team model that is already imported. After confirmation, the AI Engine page will open and the deployment drawer will be expanded automatically.',
     'componentOverview.body.CreateComponentModal.llm_select_hint': 'Only ready team models are shown here.',
