@@ -34,16 +34,10 @@ assert.match(
   'CreateComponentModal should auto-open the instance drawer when downloaded repository models are selected'
 );
 
-assert.match(
+assert.doesNotMatch(
   source,
-  /handleJumpToLlmMarket/,
-  'CreateComponentModal should expose a dedicated jump handler for the model market entry'
-);
-
-assert.match(
-  source,
-  /CreateComponentModal\.llm_model_market/,
-  'CreateComponentModal should render a model repository text link in the deploy modal'
+  /handleJumpToLlmMarket|CreateComponentModal\.llm_model_market/,
+  'CreateComponentModal should not render a redundant model repository jump link in the deploy modal'
 );
 
 assert.match(

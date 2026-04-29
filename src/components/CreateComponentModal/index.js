@@ -62,6 +62,7 @@ const {
   buildLlmCatalogDownloadPayload,
   buildLlmPluginNavigation,
   buildLlmRepositoryEntries,
+  extractLlmCatalogModels,
   getLlmPluginFromList,
   getLlmModelParameterScale,
   normalizeLlmModelStatus,
@@ -1233,14 +1234,18 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       region_name: regionName,
       namespace,
     }).catch((err) => ({ __error: err }));
-    const catalogRequest = getTeamLlmCatalog().catch((err) => ({ __error: err }));
+    const catalogRequest = getTeamLlmCatalog({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+    }).catch((err) => ({ __error: err }));
 
     Promise.all([teamModelsRequest, catalogRequest]).then(([teamRes, catalogRes]) => {
       const hasTeamError = !!(teamRes && teamRes.__error);
       const hasCatalogError = !!(catalogRes && catalogRes.__error);
       const teamPayload = isAiEngineSuccess(teamRes) ? (teamRes.data || teamRes) : {};
-      const catalogPayload = isAiEngineSuccess(catalogRes) ? (catalogRes.data || []) : [];
-      const catalogModels = Array.isArray(catalogPayload) ? catalogPayload : (catalogPayload.models || []);
+      const catalogPayload = isAiEngineSuccess(catalogRes) ? (catalogRes.data || catalogRes) : [];
+      const catalogModels = extractLlmCatalogModels(catalogPayload);
       const teamModels = teamPayload.models || [];
 
       setLlmModels(buildLlmRepositoryEntries(catalogModels, teamModels));
@@ -1309,10 +1314,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       parameters: '',
     });
     fetchTeamLlmModelsList();
-  };
-
-  const handleJumpToLlmMarket = () => {
-    jumpToLlmPlugin();
   };
 
   const submitLlmDownloadPayload = (payload) => {
@@ -2884,13 +2885,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           <div className={styles.llmDeployMode}>
             <div className={styles.llmDeployModeHeader}>
               <span>来源类型</span>
-              <button
-                type="button"
-                className={styles.llmMarketLink}
-                onClick={handleJumpToLlmMarket}
-              >
-                {formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_model_market' })}
-              </button>
             </div>
             <Radio.Group
               value={llmSourceType}
@@ -2917,20 +2911,24 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                   const isBusy = ['downloading', 'deleting'].includes(status);
                   const name = model.display_name || model.model_id || model.model_key || '未命名模型';
                   const parameterScale = getLlmModelParameterScale(model) || model.parameters;
+                  const engineLabel = model.engine_type || model.default_engine || 'vLLM';
 
                   return (
-                    <div key={entry.key} className={styles.llmRepositoryItem}>
+                    <div
+                      key={entry.key}
+                      className={`${styles.llmRepositoryItem} ${isReady ? styles.llmRepositoryItemReady : styles.llmRepositoryItemPending}`}
+                    >
                       <div className={styles.llmSelectContent}>
                           <div className={styles.llmSelectHeader}>
                             <span className={styles.llmSelectName}>
                               {name}
                             </span>
-                            <span className={styles.llmSelectEngine}>
-                              {model.engine_type || model.default_engine || 'vLLM'}
-                            </span>
                           </div>
                           <div className={styles.llmSelectMeta}>
-                            <span>{isReady ? '已下载' : '未下载'}</span>
+                            <span className={isReady ? styles.llmRepositoryStatusReady : styles.llmRepositoryStatusPending}>
+                              {isReady ? '已下载' : '未下载'}
+                            </span>
+                            <span>{engineLabel}</span>
                             {!!parameterScale && <span>{parameterScale}</span>}
                             <span>{model.model_id || model.model_key}</span>
                           </div>

@@ -81,6 +81,27 @@ function buildLlmRepositoryEntries(catalogModels = [], teamModels = []) {
   return catalogEntries.concat(assetEntries);
 }
 
+function extractLlmCatalogModels(payload) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (!payload) {
+    return [];
+  }
+
+  if (Array.isArray(payload.models)) {
+    return payload.models;
+  }
+  if (Array.isArray(payload.list)) {
+    return payload.list;
+  }
+  if (payload.data) {
+    return extractLlmCatalogModels(payload.data);
+  }
+
+  return [];
+}
+
 function resolveCurrentTeamNamespace(currentUser = {}, teamName = '') {
   const teams = currentUser && Array.isArray(currentUser.teams) ? currentUser.teams : [];
   const matchedTeam = teams.find((item) => item && item.team_name === teamName);
@@ -124,6 +145,7 @@ module.exports = {
   buildLlmCatalogDownloadPayload,
   buildLlmPluginNavigation,
   buildLlmRepositoryEntries,
+  extractLlmCatalogModels,
   findExistingLlmAssetForCatalog,
   getLlmPluginFromList,
   getLlmModelParameterScale,

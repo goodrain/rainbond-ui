@@ -563,21 +563,6 @@
   }
 }
 
-.llmMarketLink {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: @primary-color;
-  font-size: 14px;
-  line-height: 22px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: lighten(@primary-color, 8%);
-  }
-}
-
 .llmFormField {
   display: flex;
   flex-direction: column;
@@ -633,14 +618,43 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px;
-  border: 1px solid #e8ecf3;
+  padding: 18px 20px;
+  border: 1px solid #d7e2ef;
+  border-left: 4px solid @primary-color;
   border-radius: 8px;
-  background: #fff;
+  background: #fbfdff;
+  box-shadow: 0 8px 22px rgba(21, 90, 239, 0.06);
 
   .llmSelectContent {
     margin-left: 0;
   }
+}
+
+.llmRepositoryItemReady {
+  border-left-color: @success-color;
+}
+
+.llmRepositoryItemPending {
+  border-left-color: @warning-color;
+}
+
+.llmRepositoryStatusReady,
+.llmRepositoryStatusPending {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.llmRepositoryStatusReady {
+  background: fade(@success-color, 12%);
+  color: @success-color;
+}
+
+.llmRepositoryStatusPending {
+  background: fade(@warning-color, 14%);
+  color: @warning-color;
 }
 
 .llmSelectItem {
@@ -705,22 +719,17 @@
   font-weight: 600;
 }
 
-.llmSelectEngine {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: fade(@primary-color, 12%);
-  color: @primary-color;
-  font-size: 12px;
-  line-height: 20px;
-}
-
 .llmSelectMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 6px;
   color: @text-color-secondary;
   font-size: 12px;
+
+  > span {
+    line-height: 20px;
+  }
 }
 
 .llmSelectPath {

@@ -4,6 +4,7 @@ const {
   buildLlmCatalogDownloadPayload,
   buildLlmPluginNavigation,
   buildLlmRepositoryEntries,
+  extractLlmCatalogModels,
   getLlmPluginFromList,
   getReadyLlmModels,
   resolveCurrentTeamNamespace,
@@ -121,6 +122,19 @@ assert.deepStrictEqual(
     { type: 'asset', key: 'custom:upload', assetKey: 'custom:upload' },
   ],
   'buildLlmRepositoryEntries should merge catalog models with matching and extra team assets'
+);
+
+assert.deepStrictEqual(
+  extractLlmCatalogModels({
+    data: {
+      models: [
+        { model_id: 'qwen-2.5-1.5b-instruct' },
+        { model_id: 'qwen-2.5-7b-instruct' },
+      ],
+    },
+  }).map((item) => item.model_id),
+  ['qwen-2.5-1.5b-instruct', 'qwen-2.5-7b-instruct'],
+  'extractLlmCatalogModels should keep all catalog models from nested response payloads'
 );
 
 console.log('CreateComponentModal llmEntryHelpers test passed');

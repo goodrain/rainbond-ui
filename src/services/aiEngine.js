@@ -27,11 +27,12 @@ export async function getTeamLlmModels(body = {}) {
   );
 }
 
-export async function getTeamLlmCatalog() {
+export async function getTeamLlmCatalog(body = {}) {
   return request(
     `${apiconfig.baseUrl}${AI_ENGINE_PLUGIN_BACKEND_PREFIX}/api/v1/ai-engine/models`,
     {
       method: 'get',
+      headers: buildTeamHeaders(body),
     }
   );
 }
