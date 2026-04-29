@@ -15,5 +15,3 @@ assert.match(
   /runtimeInfo:\s*mergeCreateRuntimeInfo\(runtimeInfo,\s*readSourceBuildConfig\(\)\)/,
   'AppCreateConfigFile should prefer the latest source-build detection when initializing runtimeInfo'
 );
-
-console.log('app create config file runtime merge test passed');

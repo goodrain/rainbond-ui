@@ -147,5 +147,3 @@ assert.deepStrictEqual(
   },
   'should drop stale node start commands when the framework switches to a static target'
 );
-
-console.log('build env helper tests passed');

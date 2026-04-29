@@ -24,5 +24,3 @@ assert.strictEqual(
   false,
   'team menu enterprise settings should prefer the latest global enterprise info when both sources are present'
 );
-
-console.log('team menu enterprise helper tests passed');

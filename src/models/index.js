@@ -15,6 +15,7 @@ export default {
   state: {
     // 总览信息
     overviewInfo: {},
+    archInfo: [],
     // 所有分组
     groups: [],
     apps: [],
@@ -65,7 +66,7 @@ export default {
       if (response) {
         yield put({
           type: 'saveArchInfo',
-          payload: response.bean,
+          payload: response.list || [],
         });
         if (callback) {
           callback(response);
@@ -139,10 +140,7 @@ export default {
     saveArchInfo(state, { payload }) {
       return {
         ...state,
-        overviewInfo: {
-          ...state.overviewInfo,
-          ...payload,
-        },
+        archInfo: payload,
       };
     },
     saveAppOverviewInfo(state, { payload }) {

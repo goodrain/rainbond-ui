@@ -211,19 +211,29 @@ class CreateHelmAppModels extends PureComponent {
   };
 
   handleCreateHelm = vals => {
-    const { dispatch, onCancel } = this.props;
-    window.sessionStorage.setItem("appinfo",JSON.stringify(vals))
-          dispatch(
-            routerRedux.push(`/team/${vals.team_name}/region/${vals.region_name}/apps/${vals.group_id}/helminstall?installPath=market`)
-          );
-        this.handleInstallLoading();
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: `/team/${vals.team_name}/region/${vals.region_name}/k8s-center`,
+        query: {
+          tab: 'helm',
+          openHelmInstall: 'true',
+          helmRepoName: vals.app_store_name || '',
+          helmRepoUrl: vals.app_store_url || '',
+          helmChartName: vals.app_template_name || '',
+          helmVersion: vals.version || '',
+          helmReleaseName: vals.app_template_name || '',
+        }
+      })
+    );
+    this.handleInstallLoading();
   };
   handleInstallLoading = () => {
     this.setState({ helmInstallLoading: false });
   };
   handleTeamChange = teamName => {
-    const { form, appTypes, appInfo } = this.props;
-    const { setFieldsValue, getFieldValue } = form;
+    const { form, appTypes } = this.props;
+    const { setFieldsValue } = form;
     const { userTeamList } = this.state;
     let regionList = [];
     userTeamList.map(item => {
@@ -235,14 +245,13 @@ class CreateHelmAppModels extends PureComponent {
       const regionName = regionList[0].region_name;
       this.setState({ regionList }, () => {
         setFieldsValue({
-          region_name: regionName
+          region_name: regionName,
+          ...(appTypes === 'helmContent' ? { group_id: undefined } : {})
         });
-        const appName = getFieldValue('app_name') || (appInfo && appInfo.name);
-        if (appTypes === 'helmContent') {
-          this.handleCheckAppName(teamName, regionName, appName);
+        if (appTypes !== 'helmContent') {
           this.fetchGroup(teamName, regionName);
         } else {
-          this.fetchGroup(teamName, regionName);
+          this.setState({ groups: [] });
         }
       });
     } else {
@@ -315,6 +324,10 @@ class CreateHelmAppModels extends PureComponent {
     });
   };
   selectChange=(val)=>{
+    const { appTypes } = this.props;
+    if (appTypes === 'helmContent') {
+      return;
+    }
     const { form } = this.props
     const { getFieldsValue } = form;
     const formInfo = getFieldsValue()
@@ -370,7 +383,7 @@ class CreateHelmAppModels extends PureComponent {
             onCancel={this.cancelCreateTeam}
           />
         )}
-        {addGroup && (
+        {appTypes !== 'helmContent' && addGroup && (
           <AddGroup
             group_name={appInfo.app_name || ""}
             teamName={teaName}
@@ -492,6 +505,7 @@ class CreateHelmAppModels extends PureComponent {
               </FormItem>
             )} */}
 
+            {appTypes !== 'helmContent' && (
               <Form.Item {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.select_app'/>}>
                 {getFieldDecorator('group_id', {
                   rules: [
@@ -521,6 +535,7 @@ class CreateHelmAppModels extends PureComponent {
                 </Button>
                 <div className={styles.conformDesc}><FormattedMessage id='applicationMarket.CreateHelmAppModels.input_install'/></div>
               </Form.Item>
+            )}
              
             <FormItem {...formItemLayout}  label={<FormattedMessage id='applicationMarket.CreateHelmAppModels.version'/>}>
               {getFieldDecorator('version', {
