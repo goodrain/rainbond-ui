@@ -18,7 +18,6 @@ class LoginDemo extends React.Component {
     autoLogin: true,
   }
   onSubmit = (err, values) => {
-    console.log('value collected ->', { ...values, autoLogin: this.state.autoLogin });
     if (this.state.type === 'tab1') {
       this.setState({
         notice: '',
@@ -60,7 +59,7 @@ class LoginDemo extends React.Component {
         </Tab>
         <Tab key="tab2" tab="手机号登录">
           <Mobile name="mobile" />
-          <Captcha onGetCaptcha={() => console.log('Get captcha!')} name="captcha" />
+          <Captcha onGetCaptcha={() => Promise.resolve()} name="captcha" />
         </Tab>
         <div>
           <Checkbox checked={this.state.autoLogin} onChange={this.changeAutoLogin}>自动登录</Checkbox>

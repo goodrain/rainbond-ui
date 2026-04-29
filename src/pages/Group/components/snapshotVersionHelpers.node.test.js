@@ -39,5 +39,3 @@ assert.strictEqual(
   '3.0.1',
   'should keep incrementing three-part snapshot versions by patch'
 );
-
-console.log('snapshot version helper tests passed');

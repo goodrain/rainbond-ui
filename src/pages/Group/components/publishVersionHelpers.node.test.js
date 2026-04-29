@@ -105,5 +105,3 @@ assert.deepStrictEqual(
   },
   'should fall back to the first template when there is no stored selection'
 );
-
-console.log('publish version helper tests passed');
