@@ -28,7 +28,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from '../publish.less';
 const {
   buildPublishFormValues,
-  buildSnapshotPublishFormPatch
+  resolveInitialTemplateSelection
 } = require('./publishVersionHelpers');
 
 const { TextArea } = Input;
@@ -65,7 +65,8 @@ class AppPublishSetting extends PureComponent {
     appModelInfo: false,
     share_service_list: [],
     plugin_list: [],
-    publish_mode: 'runtime'
+    publish_mode: 'runtime',
+    versionDropdownOpen: false
   };
 
   componentDidMount() {
@@ -124,7 +125,7 @@ class AppPublishSetting extends PureComponent {
   };
 
   fetchShareInfo = () => {
-    const { dispatch, form } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'application/getShareInfo',
       payload: {
@@ -135,25 +136,12 @@ class AppPublishSetting extends PureComponent {
         if (!data || !data.bean) {
           return;
         }
-        const publishMode = data.bean.publish_mode || 'runtime';
-        this.setState(
-          {
-            info: data.bean,
-            share_service_list: data.bean.share_service_list || [],
-            plugin_list: data.bean.share_plugin_list || [],
-            publish_mode: publishMode
-          },
-          () => {
-            const patch = buildSnapshotPublishFormPatch(
-              this.state.versionInfo,
-              publishMode,
-              form.getFieldValue('version')
-            );
-            if (patch) {
-              form.setFieldsValue(patch);
-            }
-          }
-        );
+        this.setState({
+          info: data.bean,
+          share_service_list: data.bean.share_service_list || [],
+          plugin_list: data.bean.share_plugin_list || [],
+          publish_mode: data.bean.publish_mode || 'runtime'
+        });
       }
     });
   };
@@ -225,25 +213,19 @@ class AppPublishSetting extends PureComponent {
                 }
                 return;
               }
-              if (isCreate) {
+              const { selectedAppId, selectedVersion } =
+                resolveInitialTemplateSelection({
+                  record: this.state.record,
+                  query,
+                  bean: isCreate ? {} : res.bean,
+                  list: res.list
+                });
+              if (selectedAppId) {
                 setFieldsValue({
-                  app_id: res.list[0].app_id
+                  app_id: selectedAppId
                 });
               }
-              if (JSON.stringify(res.bean || {}) === '{}') {
-                this.changeCurrentModel(
-                  query.preferred_app_id || res.list[0].app_id,
-                  query.preferred_version
-                );
-                return;
-              }
-              this.changeCurrentModel(
-                query.preferred_app_id ||
-                  (isCreate ? res.list[0].app_id : res.bean && res.bean.app_id),
-                query.preferred_version ||
-                  (isCreate ? '' : res.bean && res.bean.version),
-                isCreate
-              );
+              this.changeCurrentModel(selectedAppId, isCreate ? '' : selectedVersion, isCreate);
             }
           );
         }
@@ -278,7 +260,7 @@ class AppPublishSetting extends PureComponent {
     if (model && model.versions && model.versions.length > 0) {
       model.versions.forEach(item => {
         if (version === item.version) {
-          this.handleSetFieldsValue(item);
+          this.handleSetFieldsValue(item, false, version);
         }
       });
     }
@@ -312,15 +294,32 @@ class AppPublishSetting extends PureComponent {
 
   handleSetFieldsValue = (versionInfo, isCreate, requestedVersion) => {
     const { setFieldsValue } = this.props.form;
-    const { publish_mode } = this.state;
     this.setState({ versionInfo });
     setFieldsValue(
       buildPublishFormValues(versionInfo, {
         isCreate,
-        publishMode: publish_mode,
         requestedVersion
       })
     );
+  };
+
+  handleVersionFocus = () => {
+    this.setState({
+      versionDropdownOpen: true
+    });
+  };
+
+  handleVersionBlur = () => {
+    this.setState({
+      versionDropdownOpen: false
+    });
+  };
+
+  handleVersionSelect = value => {
+    this.changeCurrentVersion(value);
+    this.setState({
+      versionDropdownOpen: false
+    });
   };
 
   showCreateAppModel = () => {
@@ -539,7 +538,15 @@ class AppPublishSetting extends PureComponent {
     const {
       form: { getFieldDecorator }
     } = this.props;
-    const { model, models, recoders, versionInfo, versions, share_service_list } = this.state;
+    const {
+      model,
+      models,
+      recoders,
+      versionInfo,
+      versions,
+      share_service_list,
+      versionDropdownOpen
+    } = this.state;
     const Application = model && model.app_id;
     return (
       <div className={styles.basicStage}>
@@ -617,7 +624,11 @@ class AppPublishSetting extends PureComponent {
               })(
                 <AutoComplete
                   style={{ width: '100%' }}
+                  open={versionDropdownOpen && versions && versions.length > 0}
                   onChange={this.changeCurrentVersion}
+                  onFocus={this.handleVersionFocus}
+                  onBlur={this.handleVersionBlur}
+                  onSelect={this.handleVersionSelect}
                   placeholder={formatMessage({
                     id: 'placeholder.appShare.version'
                   })}
