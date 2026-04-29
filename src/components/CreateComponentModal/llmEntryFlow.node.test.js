@@ -54,6 +54,18 @@ assert.doesNotMatch(
 
 assert.doesNotMatch(
   source,
+  /DeleteOutlined|renderDeleteAction/,
+  'CreateComponentModal deploy model modal should not expose model deletion'
+);
+
+assert.match(
+  source,
+  /className=\{styles\.llmRepositoryActionButton\}/,
+  'CreateComponentModal repository deploy/download buttons should share a fixed action column'
+);
+
+assert.doesNotMatch(
+  source,
   /handlePluginClick\(llmPlugin/,
   'CreateComponentModal should no longer open an embedded plugin page for the LLM entry'
 );

@@ -2936,14 +2936,17 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                             {model.local_path || model.model_source || model.source_uri || model.model_key}
                           </div>
                         </div>
-                        <Button
-                          type="primary"
-                          disabled={isBusy || llmSubmitLoading}
-                          loading={llmSubmitLoading && !isBusy}
-                          onClick={() => handleLlmRepositoryAction(entry)}
-                        >
-                          {isReady ? '部署' : (status === 'deleting' ? '删除中' : (status === 'downloading' ? '下载中' : '下载'))}
-                        </Button>
+                        <div className={styles.llmRepositoryAction}>
+                          <Button
+                            className={styles.llmRepositoryActionButton}
+                            type="primary"
+                            disabled={isBusy || llmSubmitLoading}
+                            loading={llmSubmitLoading && !isBusy}
+                            onClick={() => handleLlmRepositoryAction(entry)}
+                          >
+                            {isReady ? '部署' : (status === 'deleting' ? '删除中' : (status === 'downloading' ? '下载中' : '下载'))}
+                          </Button>
+                        </div>
                       </div>
                     );
                 })
