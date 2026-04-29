@@ -215,7 +215,7 @@ class Control extends Component {
   };
   /** 删除证书 */
   handleDelete = record => {
-    // this.deleteApiGatewayCert(record)
+    this.deleteApiGatewayCert(record)
     this.props.dispatch({
       type: 'gateWay/deleteLicense',
       payload: {
