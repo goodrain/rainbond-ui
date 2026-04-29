@@ -60,19 +60,37 @@ assert.doesNotMatch(
 
 assert.match(
   source,
-  /className=\{styles\.llmRepositoryActionButton\}/,
-  'CreateComponentModal repository deploy/download buttons should share a fixed action column'
+  /className=\{styles\.llmRepositoryFooter\}/,
+  'CreateComponentModal repository deploy/download action should live in one shared modal footer'
 );
 
 assert.match(
   source,
-  /width=\{720\}/,
-  'CreateComponentModal should keep repository, modelscope, and upload modal widths aligned'
+  /selectedLlmRepositoryKey/,
+  'CreateComponentModal repository models should be selected before the shared action runs'
+);
+
+assert.match(
+  source,
+  /llmRepositorySearch/,
+  'CreateComponentModal repository modal should support search filtering'
+);
+
+assert.match(
+  source,
+  /jumpToLlmPlugin\(\);/,
+  'CreateComponentModal should jump to the LLM page after repository downloads are submitted'
+);
+
+assert.match(
+  source,
+  /width=\{520\}/,
+  'CreateComponentModal should keep repository, modelscope, and upload modal widths aligned with the AI Engine modal'
 );
 
 assert.doesNotMatch(
   source,
-  /llmSourceType === 'repository' \? 860 : 720/,
+  /llmSourceType === 'repository' \? 860 : 720|width=\{720\}/,
   'CreateComponentModal should not make the repository tab wider than the other deploy sources'
 );
 

@@ -140,6 +140,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [llmModelsLoading, setLlmModelsLoading] = useState(false);
   const [llmModels, setLlmModels] = useState([]);
   const [llmModelsError, setLlmModelsError] = useState('');
+  const [llmRepositorySearch, setLlmRepositorySearch] = useState('');
+  const [selectedLlmRepositoryKey, setSelectedLlmRepositoryKey] = useState('');
   const [llmSourceType, setLlmSourceType] = useState('repository');
   const [llmSubmitLoading, setLlmSubmitLoading] = useState(false);
   const [llmUploadFile, setLlmUploadFile] = useState(null);
@@ -1197,11 +1199,18 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const isAiEngineSuccess = (res) => !!(res && (res.code === 200 || res.status_code === 200));
 
+  const getLlmRepositoryIcon = (model = {}) => {
+    const seed = model.display_name || model.model_id || model.model_key || 'M';
+    return String(seed).trim().charAt(0).toUpperCase() || 'M';
+  };
+
   const resetLlmSelectorState = () => {
     setShowLlmSelectModal(false);
     setLlmModelsLoading(false);
     setLlmModels([]);
     setLlmModelsError('');
+    setLlmRepositorySearch('');
+    setSelectedLlmRepositoryKey('');
     setLlmSourceType('repository');
     setLlmSubmitLoading(false);
     setLlmUploadFile(null);
@@ -1308,6 +1317,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     setLlmSourceType('repository');
     setLlmSubmitLoading(false);
     setLlmUploadFile(null);
+    setLlmRepositorySearch('');
+    setSelectedLlmRepositoryKey('');
     setLlmForm({
       display_name: '',
       source_uri: '',
@@ -1341,7 +1352,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setLlmSubmitLoading(false);
       if (isAiEngineSuccess(res)) {
         message.success(`${payload.display_name || payload.model_id} 已开始下载`);
-        fetchTeamLlmModelsList();
+        jumpToLlmPlugin();
         return;
       }
 
@@ -1365,6 +1376,74 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     submitLlmDownloadPayload(
       model ? buildLlmCatalogDownloadPayload(model) : buildLlmAssetDownloadPayload(asset)
     );
+  };
+
+  const getLlmRepositoryEntryKey = (entry = {}) => {
+    if (entry.key) {
+      return entry.key;
+    }
+    const model = entry.model || {};
+    const asset = entry.asset || {};
+    return asset.model_key || model.model_id || model.model_key || model.display_name || '';
+  };
+
+  const getFilteredLlmRepositoryEntries = () => {
+    const keyword = String(llmRepositorySearch || '').trim().toLowerCase();
+    if (!keyword) {
+      return llmModels;
+    }
+
+    return llmModels.filter((entry) => {
+      const model = entry.model || entry.asset || {};
+      const asset = entry.asset || {};
+      return [
+        model.display_name,
+        model.model_id,
+        model.model_key,
+        model.model_source,
+        model.source_uri,
+        model.source_type,
+        model.parameters,
+        asset.model_key,
+        asset.local_path,
+        asset.source_uri,
+        asset.parameters,
+      ].filter(Boolean).join(' ').toLowerCase().includes(keyword);
+    });
+  };
+
+  const selectedLlmRepositoryEntry = llmModels.find(
+    (entry) => getLlmRepositoryEntryKey(entry) === selectedLlmRepositoryKey
+  );
+
+  const getLlmRepositoryActionMeta = () => {
+    if (!selectedLlmRepositoryEntry) {
+      return { label: '请选择模型', disabled: true };
+    }
+
+    const asset = selectedLlmRepositoryEntry.asset;
+    const status = normalizeLlmModelStatus(asset && asset.status);
+
+    if (asset && status === 'ready') {
+      return { label: '部署', disabled: false };
+    }
+    if (['downloading', 'deleting'].includes(status)) {
+      return {
+        label: status === 'deleting' ? '删除中' : '下载中',
+        disabled: true,
+      };
+    }
+
+    return { label: '下载', disabled: false };
+  };
+
+  const handleLlmRepositoryPrimaryAction = () => {
+    if (!selectedLlmRepositoryEntry) {
+      message.warning('请选择一个模型');
+      return;
+    }
+
+    handleLlmRepositoryAction(selectedLlmRepositoryEntry);
   };
 
   const handleLlmFormChange = (field, value) => {
@@ -2562,6 +2641,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
 
+  const filteredLlmRepositoryEntries = getFilteredLlmRepositoryEntries();
+  const llmRepositoryActionMeta = getLlmRepositoryActionMeta();
+
   return (
     <>
       <Modal
@@ -2877,8 +2959,20 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         okText="开始部署"
         cancelText="取消"
         confirmLoading={llmSubmitLoading}
-        footer={llmSourceType === 'repository' ? null : undefined}
-        width={720}
+        footer={llmSourceType === 'repository' ? (
+          <div className={styles.llmRepositoryFooter}>
+            <Button onClick={handleCloseLlmSelectModal}>取消</Button>
+            <Button
+              type="primary"
+              disabled={llmRepositoryActionMeta.disabled || llmSubmitLoading}
+              loading={llmSubmitLoading}
+              onClick={handleLlmRepositoryPrimaryAction}
+            >
+              {llmRepositoryActionMeta.label}
+            </Button>
+          </div>
+        ) : undefined}
+        width={520}
         destroyOnClose
       >
         <div className={styles.llmDeployModalBody}>
@@ -2888,7 +2982,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             </div>
             <Radio.Group
               value={llmSourceType}
-              onChange={(event) => setLlmSourceType(event.target.value)}
+              onChange={(event) => {
+                setLlmSourceType(event.target.value);
+                setSelectedLlmRepositoryKey('');
+              }}
             >
               <Radio.Button value="repository">模型仓库</Radio.Button>
               <Radio.Button value="modelscope">魔搭</Radio.Button>
@@ -2897,27 +2994,47 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           </div>
 
           {llmSourceType === 'repository' ? (
-            <div className={styles.llmRepositoryList}>
+            <div className={styles.llmRepositoryPanel}>
+              <Input.Search
+                allowClear
+                size="small"
+                placeholder="搜索模型名称、来源或模型 Key"
+                value={llmRepositorySearch}
+                onChange={(event) => {
+                  setLlmRepositorySearch(event.target.value);
+                  setSelectedLlmRepositoryKey('');
+                }}
+              />
               {llmModelsLoading ? (
                 <div className={styles.llmSelectLoading}>
                   <Spin size="large" />
                 </div>
-              ) : llmModels.length > 0 ? (
-                llmModels.map((entry) => {
+              ) : filteredLlmRepositoryEntries.length > 0 ? (
+                <div className={styles.llmRepositoryList}>
+                  {filteredLlmRepositoryEntries.map((entry) => {
                   const asset = entry.asset;
                   const model = entry.model || entry.asset || {};
                   const status = normalizeLlmModelStatus(asset && asset.status);
                   const isReady = !!(asset && status === 'ready');
-                  const isBusy = ['downloading', 'deleting'].includes(status);
                   const name = model.display_name || model.model_id || model.model_key || '未命名模型';
                   const parameterScale = getLlmModelParameterScale(model) || model.parameters;
                   const engineLabel = model.engine_type || model.default_engine || 'vLLM';
+                  const entryKey = getLlmRepositoryEntryKey(entry);
+                  const selected = selectedLlmRepositoryKey === entryKey;
+                  const statusLabel = isReady
+                    ? '已下载'
+                    : (status === 'deleting' ? '删除中' : (status === 'downloading' ? '下载中' : '未下载'));
 
                   return (
-                    <div
-                      key={entry.key}
-                      className={`${styles.llmRepositoryItem} ${isReady ? styles.llmRepositoryItemReady : styles.llmRepositoryItemPending}`}
+                    <button
+                      key={entryKey}
+                      type="button"
+                      className={`${styles.llmRepositoryItem} ${isReady ? styles.llmRepositoryItemReady : styles.llmRepositoryItemPending} ${selected ? styles.llmRepositoryItemSelected : ''}`}
+                      onClick={() => setSelectedLlmRepositoryKey(entryKey)}
                     >
+                      <span className={styles.llmRepositoryIcon}>
+                        {getLlmRepositoryIcon(model)}
+                      </span>
                       <div className={styles.llmSelectContent}>
                           <div className={styles.llmSelectHeader}>
                             <span className={styles.llmSelectName}>
@@ -2926,34 +3043,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                           </div>
                           <div className={styles.llmSelectMeta}>
                             <span className={isReady ? styles.llmRepositoryStatusReady : styles.llmRepositoryStatusPending}>
-                              {isReady ? '已下载' : '未下载'}
+                              {statusLabel}
                             </span>
                             <span>{engineLabel}</span>
                             {!!parameterScale && <span>{parameterScale}</span>}
                             <span>{model.model_id || model.model_key}</span>
                           </div>
-                          <div className={styles.llmSelectPath}>
-                            {model.local_path || model.model_source || model.source_uri || model.model_key}
-                          </div>
                         </div>
-                        <div className={styles.llmRepositoryAction}>
-                          <Button
-                            className={styles.llmRepositoryActionButton}
-                            type="primary"
-                            disabled={isBusy || llmSubmitLoading}
-                            loading={llmSubmitLoading && !isBusy}
-                            onClick={() => handleLlmRepositoryAction(entry)}
-                          >
-                            {isReady ? '部署' : (status === 'deleting' ? '删除中' : (status === 'downloading' ? '下载中' : '下载'))}
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                })
+                    </button>
+                  );
+                })}
+                </div>
               ) : (
                 <Empty
                   className={styles.llmSelectEmpty}
-                  description={llmModelsError || '当前模型仓库还没有可用模型。'}
+                  description={llmModelsError || '当前模型仓库没有匹配模型。'}
                 />
               )}
             </div>
