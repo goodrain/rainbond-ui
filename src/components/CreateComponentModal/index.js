@@ -1199,11 +1199,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const isAiEngineSuccess = (res) => !!(res && (res.code === 200 || res.status_code === 200));
 
-  const getLlmRepositoryIcon = (model = {}) => {
-    const seed = model.display_name || model.model_id || model.model_key || 'M';
-    return String(seed).trim().charAt(0).toUpperCase() || 'M';
-  };
-
   const resetLlmSelectorState = () => {
     setShowLlmSelectModal(false);
     setLlmModelsLoading(false);
@@ -3032,24 +3027,18 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                       className={`${styles.llmRepositoryItem} ${isReady ? styles.llmRepositoryItemReady : styles.llmRepositoryItemPending} ${selected ? styles.llmRepositoryItemSelected : ''}`}
                       onClick={() => setSelectedLlmRepositoryKey(entryKey)}
                     >
-                      <span className={styles.llmRepositoryIcon}>
-                        {getLlmRepositoryIcon(model)}
-                      </span>
                       <div className={styles.llmSelectContent}>
-                          <div className={styles.llmSelectHeader}>
-                            <span className={styles.llmSelectName}>
-                              {name}
-                            </span>
-                          </div>
-                          <div className={styles.llmSelectMeta}>
-                            <span className={isReady ? styles.llmRepositoryStatusReady : styles.llmRepositoryStatusPending}>
-                              {statusLabel}
-                            </span>
-                            <span>{engineLabel}</span>
-                            {!!parameterScale && <span>{parameterScale}</span>}
-                            <span>{model.model_id || model.model_key}</span>
-                          </div>
+                        <span className={styles.llmSelectName} title={name}>
+                          {name}
+                        </span>
+                        <div className={styles.llmSelectMeta}>
+                          <span className={isReady ? styles.llmRepositoryStatusReady : styles.llmRepositoryStatusPending}>
+                            {statusLabel}
+                          </span>
+                          {!!parameterScale && <span>{parameterScale}</span>}
+                          <span>{engineLabel}</span>
                         </div>
+                      </div>
                     </button>
                   );
                 })}

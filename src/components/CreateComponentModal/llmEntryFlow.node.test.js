@@ -70,10 +70,22 @@ assert.match(
   'CreateComponentModal repository models should be selected before the shared action runs'
 );
 
+assert.doesNotMatch(
+  source,
+  /const getLlmRepositoryIcon =|className=\{styles\.llmRepositoryIcon\}/,
+  'CreateComponentModal repository rows should drop the generated model icon to keep each row compact'
+);
+
 assert.match(
   source,
   /llmRepositorySearch/,
   'CreateComponentModal repository modal should support search filtering'
+);
+
+assert.doesNotMatch(
+  source,
+  /<span>\{model\.model_id \|\| model\.model_key\}<\/span>/,
+  'CreateComponentModal repository rows should remove the extra model id field from the single-line layout'
 );
 
 assert.match(
