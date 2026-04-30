@@ -158,7 +158,10 @@ function applyAgentEvents({
       }
       case 'message_started':
       case 'message_delta':
-      case 'message_completed': {
+      case 'message_completed':
+      case 'message_reasoning_started':
+      case 'message_reasoning_delta':
+      case 'message_reasoning_completed': {
         const streamedMessages = applyStreamingAssistantEvent(
           nextMessages,
           event,

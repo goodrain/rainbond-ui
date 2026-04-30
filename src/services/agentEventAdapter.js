@@ -28,6 +28,26 @@ function adaptAgentEvent(event = {}) {
         messageId: data.message_id || '',
         content: data.content || '',
       };
+    case 'chat.message.reasoning.started':
+      return {
+        type: 'message_reasoning_started',
+        sequence,
+        messageId: data.message_id || '',
+      };
+    case 'chat.message.reasoning.delta':
+      return {
+        type: 'message_reasoning_delta',
+        sequence,
+        messageId: data.message_id || '',
+        delta: data.delta || '',
+      };
+    case 'chat.message.reasoning.completed':
+      return {
+        type: 'message_reasoning_completed',
+        sequence,
+        messageId: data.message_id || '',
+        reasoning: data.reasoning || '',
+      };
     case 'chat.message':
       return {
         type: 'message',

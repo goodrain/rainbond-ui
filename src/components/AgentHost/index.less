@@ -540,6 +540,54 @@
   display: inline-block;
 }
 
+.reasoningBlock {
+  margin-bottom: 8px;
+}
+
+.reasoningToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.reasoningChevron,
+.reasoningIcon,
+.reasoningSpinner {
+  font-size: 12px;
+}
+
+.reasoningLabel {
+  margin-left: 2px;
+}
+
+.reasoningBody {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: @body-background;
+  border: 1px solid @border-color-split;
+  border-radius: 4px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .approvalCard {
   padding: 14px;
 }

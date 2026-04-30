@@ -1,7 +1,43 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useEffect, useRef, useState } from 'react';
 import { Button, Collapse, Icon, Input, Modal, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
+
+function ReasoningBlock({ reasoning, streaming }) {
+  // Default open while reasoning is still streaming so the user can watch the
+  // model think; auto-collapse the moment streaming closes so the final
+  // answer is the visual focus. Manual toggle stays available either way.
+  const [collapsed, setCollapsed] = useState(false);
+  const wasStreamingRef = useRef(streaming);
+  useEffect(() => {
+    if (wasStreamingRef.current && !streaming) {
+      setCollapsed(true);
+    }
+    wasStreamingRef.current = streaming;
+  }, [streaming]);
+
+  return (
+    <div className={styles.reasoningBlock}>
+      <button
+        type="button"
+        className={styles.reasoningToggle}
+        onClick={() => setCollapsed(value => !value)}
+      >
+        <Icon type={collapsed ? 'right' : 'down'} className={styles.reasoningChevron} />
+        <Icon type="bulb" className={styles.reasoningIcon} />
+        <span className={styles.reasoningLabel}>
+          {streaming ? '思考中…' : '思考过程'}
+        </span>
+        {streaming ? (
+          <Icon type="loading" className={styles.reasoningSpinner} />
+        ) : null}
+      </button>
+      {!collapsed && reasoning ? (
+        <pre className={styles.reasoningBody}>{reasoning}</pre>
+      ) : null}
+    </div>
+  );
+}
 const approvalMeta = require('./approvalMeta');
 const displayFilters = require('./displayFilters');
 const { renderMarkdownSource } = require('./markdownHelpers');
@@ -392,6 +428,12 @@ export default class AgentHost extends PureComponent {
             }`}
           >
             {traceGroup}
+            {!isUser && (item.reasoning || item.reasoningStreaming) ? (
+              <ReasoningBlock
+                reasoning={item.reasoning || ''}
+                streaming={!!item.reasoningStreaming}
+              />
+            ) : null}
             {isUser ? (
               item.content
             ) : (

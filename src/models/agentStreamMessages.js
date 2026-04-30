@@ -96,6 +96,69 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
     };
   }
 
+  if (event.type === 'chat.message.reasoning.started') {
+    if (index === -1) {
+      nextMessages.push(
+        createMessage(
+          'assistant',
+          'normal',
+          '',
+          contextSnapshot,
+          {
+            streamMessageId: messageId,
+            streaming: true,
+            reasoning: '',
+            reasoningStreaming: true,
+          }
+        )
+      );
+    } else {
+      nextMessages[index] = {
+        ...nextMessages[index],
+        reasoning: nextMessages[index].reasoning || '',
+        reasoningStreaming: true,
+      };
+    }
+    return nextMessages;
+  }
+
+  if (event.type === 'chat.message.reasoning.delta') {
+    if (index === -1) {
+      nextMessages.push(
+        createMessage(
+          'assistant',
+          'normal',
+          '',
+          contextSnapshot,
+          {
+            streamMessageId: messageId,
+            streaming: true,
+            reasoning: data.delta || '',
+            reasoningStreaming: true,
+          }
+        )
+      );
+      return nextMessages;
+    }
+
+    nextMessages[index] = {
+      ...nextMessages[index],
+      reasoning: `${nextMessages[index].reasoning || ''}${data.delta || ''}`,
+      reasoningStreaming: true,
+    };
+    return nextMessages;
+  }
+
+  if (event.type === 'chat.message.reasoning.completed' && index > -1) {
+    nextMessages[index] = {
+      ...nextMessages[index],
+      reasoning:
+        data.reasoning || nextMessages[index].reasoning || '',
+      reasoningStreaming: false,
+    };
+    return nextMessages;
+  }
+
   return nextMessages;
 }
 
