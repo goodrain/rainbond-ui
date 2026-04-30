@@ -97,6 +97,34 @@ const BASE_LABELS = {
   rainbond_update_region: '更新集群',
   rainbond_vertical_scale_component: '垂直伸缩组件',
 
+  // App share / publish lifecycle
+  rainbond_complete_app_share: '完成应用发布',
+  rainbond_delete_app_share_record: '删除发布记录',
+  rainbond_get_app_share_event: '查看发布事件',
+  rainbond_get_app_share_info: '查看发布信息',
+  rainbond_get_app_share_record: '查看发布记录',
+  rainbond_giveup_app_share: '放弃应用发布',
+  rainbond_start_app_share_event: '启动发布事件',
+  rainbond_submit_app_share_info: '提交发布信息',
+
+  // App upgrade lifecycle
+  rainbond_deploy_app_upgrade_record: '部署升级记录',
+  rainbond_execute_app_upgrade_record: '执行升级记录',
+  rainbond_get_app_last_upgrade_record: '查看最近升级记录',
+  rainbond_get_app_rollback_records: '查看升级回滚记录',
+  rainbond_get_app_upgrade_changes: '查看升级变更',
+  rainbond_get_app_upgrade_detail: '查看升级详情',
+  rainbond_get_app_upgrade_record: '查看升级记录',
+
+  // App version snapshot lifecycle
+  rainbond_delete_app_version_rollback_record: '删除回滚记录',
+  rainbond_delete_app_version_snapshot: '删除应用快照',
+
+  // Package upload
+  rainbond_delete_package_upload: '删除上传包',
+  rainbond_init_package_upload: '初始化包上传',
+  rainbond_upload_package_file: '上传包文件',
+
   // Multi-operation managers (refined by input.operation below)
   rainbond_bind_component_volume: '绑定组件存储',
   rainbond_handle_component_ports: '操作组件端口',
