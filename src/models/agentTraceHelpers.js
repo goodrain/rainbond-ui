@@ -33,8 +33,11 @@ function findTraceMessageIndex(messages, trace) {
     : -1;
 }
 
+const { formatToolLabel } = require('../utils/agentToolLabels');
+
 function buildTraceContent(data = {}) {
-  const toolName = data.tool_name || '工具调用';
+  const toolName = data.tool_name || '';
+  const friendlyTitle = formatToolLabel(toolName, data.input);
   const normalizedInput =
     data && data.input && typeof data.input === 'object'
       ? JSON.stringify(data.input)
@@ -54,9 +57,9 @@ function buildTraceContent(data = {}) {
     detail.push(`输出：${JSON.stringify(normalizedOutput, null, 2)}`);
   }
   return {
-    title: toolName,
+    title: friendlyTitle,
     detail: detail.join('\n\n'),
-    toolName,
+    toolName: toolName || friendlyTitle,
     traceId: data.trace_id || '',
     toolCallId: data.tool_call_id || '',
     inputSignature: normalizedInput,
