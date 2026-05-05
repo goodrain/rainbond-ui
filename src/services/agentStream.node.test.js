@@ -61,7 +61,107 @@ async function main() {
   assert.strictEqual(events.length, 3, 'agent stream helper should aggregate parsed events');
   assert.strictEqual(events[2].data.status, 'done', 'agent stream helper should stop on terminal run status');
 
+  await testDefaultClosesOnFirstWaitingApproval(encoder);
+  await testSkipFirstWaitingApprovalDeliversSubsequent(encoder);
+  await testSkipFirstStillClosesOnDone(encoder);
+  await testSkipFirstStillClosesOnError(encoder);
+  await testSkipFirstStillClosesOnCancelled(encoder);
+  await testDefaultClosesOnCancelled(encoder);
+
   console.log('agent stream helper tests passed');
+}
+
+function buildResponse(encoder, payloads) {
+  return {
+    ok: true,
+    body: {
+      getReader() {
+        return createReader(
+          payloads.map(p => encoder.encode(`data: ${JSON.stringify(p)}\n\n`))
+        );
+      }
+    }
+  };
+}
+
+async function testDefaultClosesOnFirstWaitingApproval(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    { type: 'run.status', data: { status: 'waiting_approval' } },
+    { type: 'approval.resolved', data: {} },
+    { type: 'chat.trace', data: {} },
+  ]);
+  const events = await readSseEvents(response, {
+    onEvent: e => seen.push(e),
+  });
+  assert.strictEqual(events.length, 1, 'default mode stops on first waiting_approval');
+  assert.strictEqual(seen.length, 1, 'default mode does not deliver post-terminal events');
+  assert.strictEqual(events[0].data.status, 'waiting_approval');
+}
+
+async function testSkipFirstWaitingApprovalDeliversSubsequent(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    { type: 'run.status', data: { status: 'waiting_approval' } },
+    { type: 'approval.resolved', data: {} },
+    { type: 'chat.trace', data: {} },
+    { type: 'run.status', data: { status: 'waiting_approval' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response, {
+    onEvent: e => seen.push(e),
+    skipFirstWaitingApproval: true,
+  });
+  assert.strictEqual(events.length, 4, 'skipFirstWaitingApproval delivers through second waiting_approval');
+  assert.strictEqual(events[1].type, 'approval.resolved');
+  assert.strictEqual(events[2].type, 'chat.trace');
+  assert.strictEqual(events[3].data.status, 'waiting_approval');
+}
+
+async function testSkipFirstStillClosesOnDone(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    { type: 'chat.trace', data: {} },
+    { type: 'run.status', data: { status: 'done' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response, {
+    onEvent: e => seen.push(e),
+    skipFirstWaitingApproval: true,
+  });
+  assert.strictEqual(events.length, 2, 'skipFirstWaitingApproval still closes on done');
+  assert.strictEqual(events[1].data.status, 'done');
+}
+
+async function testSkipFirstStillClosesOnError(encoder) {
+  const response = buildResponse(encoder, [
+    { type: 'run.status', data: { status: 'error' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response, {
+    skipFirstWaitingApproval: true,
+  });
+  assert.strictEqual(events.length, 1, 'skipFirstWaitingApproval still closes on error');
+}
+
+async function testSkipFirstStillClosesOnCancelled(encoder) {
+  const response = buildResponse(encoder, [
+    { type: 'run.status', data: { status: 'cancelled' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response, {
+    skipFirstWaitingApproval: true,
+  });
+  assert.strictEqual(events.length, 1, 'skipFirstWaitingApproval still closes on cancelled');
+}
+
+async function testDefaultClosesOnCancelled(encoder) {
+  const response = buildResponse(encoder, [
+    { type: 'run.status', data: { status: 'cancelled' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response);
+  assert.strictEqual(events.length, 1, 'default mode closes on cancelled');
 }
 
 main().catch((error) => {

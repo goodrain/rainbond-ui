@@ -188,7 +188,8 @@ async function streamRun({
   sessionId,
   runId,
   afterSequence,
-  onEvent
+  onEvent,
+  skipFirstWaitingApproval
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
   const response = await fetch(
@@ -203,7 +204,7 @@ async function streamRun({
     }
   );
 
-  return readSseEvents(response, { onEvent });
+  return readSseEvents(response, { onEvent, skipFirstWaitingApproval });
 }
 
 export async function sendAgentMessage(payload = {}) {
@@ -280,7 +281,8 @@ export async function decideAgentApproval(payload = {}) {
     sessionId,
     runId,
     afterSequence,
-    onEvent: payload.onEvent
+    onEvent: payload.onEvent,
+    skipFirstWaitingApproval: true
   });
 
   return {

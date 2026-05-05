@@ -1,7 +1,8 @@
 const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled'];
 
 async function readSseEvents(response, options = {}) {
-  const { onEvent } = options;
+  const { onEvent, skipFirstWaitingApproval } = options;
+  let waitingApprovalSeen = false;
 
   if (!response.ok) {
     let errorMessage = response.statusText || '流式请求失败';
@@ -60,8 +61,17 @@ async function readSseEvents(response, options = {}) {
             parsed.data &&
             TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
           ) {
-            shouldStop = true;
-            break;
+            if (
+              parsed.data.status === 'waiting_approval' &&
+              skipFirstWaitingApproval &&
+              !waitingApprovalSeen
+            ) {
+              waitingApprovalSeen = true;
+              // leftover replay from prior approval — keep reading
+            } else {
+              shouldStop = true;
+              break;
+            }
           }
 
           if (parsed && parsed.type === 'run.error') {
