@@ -113,4 +113,56 @@ assert.strictEqual(approvalWithTarget.pendingApproval.scope, 'component', 'pendi
 assert.strictEqual(approvalWithTarget.pendingApproval.scopeLabel, '组件', 'pendingApproval should carry scope_label');
 assert.strictEqual(approvalWithTarget.pendingApproval.levelLabel, '高风险', 'pendingApproval should carry level_label');
 
+// Regression: concurrent SSE streams may deliver the same approval.requested
+// event twice. The reducer must dedupe by approvalId so only one approval
+// card is rendered.
+const dedupeBase = {
+  messages: [],
+  pendingApproval: null,
+  lastEventSequence: 0,
+  debugPromptData: null,
+};
+const dedupeFirst = applyAgentEvent(dedupeBase, {
+  event: {
+    type: 'approval.requested',
+    sequence: 10,
+    sessionId: 'cs_dup',
+    runId: 'run_dup',
+    data: {
+      approval_id: 'ap_dup',
+      description: '重复审批',
+      risk: 'high'
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+const dedupeSecond = applyAgentEvent(dedupeFirst, {
+  event: {
+    type: 'approval.requested',
+    sequence: 11,
+    sessionId: 'cs_dup',
+    runId: 'run_dup',
+    data: {
+      approval_id: 'ap_dup',
+      description: '重复审批',
+      risk: 'high'
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+
+const dedupeApprovalMessages = dedupeSecond.messages.filter(
+  m => m.kind === 'approval' && m.approval && m.approval.approvalId === 'ap_dup'
+);
+assert.strictEqual(
+  dedupeApprovalMessages.length,
+  1,
+  'duplicate approval.requested events should produce only one approval message'
+);
+assert.strictEqual(
+  dedupeSecond.pendingApproval && dedupeSecond.pendingApproval.approvalId,
+  'ap_dup',
+  'pendingApproval should still reflect the approval after dedupe'
+);
+
 console.log('agent event reducer tests passed');

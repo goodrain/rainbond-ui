@@ -104,18 +104,28 @@ function applyAgentEvent(state, payload = {}) {
         levelLabel: data.level_label || '',
       };
 
-      nextMessages.push(
-        createAgentMessage(
-          'system',
-          'approval',
-          data.description || '待审批操作',
-          contextSnapshot,
-          {
-            approval: pendingApproval,
-            eventSequence,
-          }
-        )
+      // Dedupe: skip if a message with this approvalId already exists.
+      // Multiple SSE streams (e.g. sendMessage stream + decideAgentApproval
+      // stream) can deliver the same approval.requested event to the reducer;
+      // only the first push should create a UI card.
+      const existingApprovalIndex = findApprovalMessageIndex(
+        nextMessages,
+        pendingApproval.approvalId
       );
+      if (existingApprovalIndex === -1) {
+        nextMessages.push(
+          createAgentMessage(
+            'system',
+            'approval',
+            data.description || '待审批操作',
+            contextSnapshot,
+            {
+              approval: pendingApproval,
+              eventSequence,
+            }
+          )
+        );
+      }
       break;
     }
     case 'approval.resolved': {
