@@ -133,6 +133,23 @@ async function requestJson(path, options = {}) {
   return data;
 }
 
+export async function listAgentSessions({ limit = 20, offset = 0 } = {}) {
+  return requestJson(`${COPILOT_API_BASE}/sessions?limit=${limit}&offset=${offset}`, {
+    method: 'GET',
+    headers: buildRequestHeaders(),
+  });
+}
+
+export async function deleteAgentSession(sessionId) {
+  if (!sessionId) {
+    throw new Error('sessionId is required');
+  }
+  return requestJson(`${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+    headers: buildRequestHeaders(),
+  });
+}
+
 export function persistAgentSession(snapshot, userId) {
   if (!canUseSessionStorage() || !userId) {
     return;

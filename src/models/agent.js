@@ -2,7 +2,9 @@ import { getDvaApp } from 'umi';
 import {
   clearAgentSession,
   decideAgentApproval,
+  deleteAgentSession,
   hydrateAgentSession,
+  listAgentSessions,
   sendAgentMessage,
 } from '../services/agent';
 const { adaptAgentEvent } = require('../services/agentEventAdapter');
@@ -45,6 +47,8 @@ const defaultState = {
   lastContextSignature: '',
   workflowState: null,
   structuredResult: null,
+  sessionList: [],
+  sessionListLoading: false,
   updatedAt: 0,
 };
 
@@ -103,6 +107,8 @@ function buildHydratedState(snapshot) {
       getAgentContextSignature(snapshot.context || defaultState.context),
     workflowState: snapshot.workflowState || null,
     structuredResult: snapshot.structuredResult || null,
+    sessionList: [],
+    sessionListLoading: false,
     sending: false,
     lastError: '',
   };
@@ -379,6 +385,68 @@ export default {
       yield put({
         type: 'hydrateState',
         payload: snapshot,
+      });
+    },
+
+    *loadSessionList(_, { call, put }) {
+      yield put({ type: 'saveState', payload: { sessionListLoading: true } });
+      try {
+        const res = yield call(listAgentSessions, { limit: 20 });
+        const list = (res && res.data) || [];
+        yield put({
+          type: 'saveState',
+          payload: { sessionList: list, sessionListLoading: false },
+        });
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: { sessionListLoading: false, lastError: getErrorMessage(e) || '加载历史失败' },
+        });
+      }
+    },
+
+    *removeSession({ payload }, { call, put, select }) {
+      const sessionId = payload && payload.sessionId;
+      if (!sessionId) return;
+      try {
+        yield call(deleteAgentSession, sessionId);
+      } catch (e) {
+        yield put({ type: 'saveState', payload: { lastError: getErrorMessage(e) || '删除失败' } });
+        return;
+      }
+      const state = yield select(s => s.agent);
+      const nextList = (state.sessionList || []).filter(it => it.session_id !== sessionId);
+      const patch = { sessionList: nextList };
+      if (state.conversationId === sessionId) {
+        patch.conversationId = 'global-default';
+        patch.messages = [];
+        patch.pendingApproval = null;
+        patch.activeRunId = '';
+        patch.lastEventSequence = 0;
+        patch.workflowState = null;
+        patch.structuredResult = null;
+        patch.draft = '';
+        patch.lastError = '';
+      }
+      yield put({ type: 'saveState', payload: patch });
+    },
+
+    *switchSession({ payload }, { put }) {
+      const sessionId = payload && payload.sessionId;
+      if (!sessionId) return;
+      yield put({
+        type: 'saveState',
+        payload: {
+          conversationId: sessionId,
+          messages: [],
+          draft: '',
+          pendingApproval: null,
+          activeRunId: '',
+          lastEventSequence: 0,
+          lastError: '',
+          workflowState: null,
+          structuredResult: null,
+        },
       });
     },
 
