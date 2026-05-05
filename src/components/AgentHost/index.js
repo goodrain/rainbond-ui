@@ -1,7 +1,8 @@
 import React, { PureComponent, useEffect, useRef, useState } from 'react';
-import { Button, Collapse, Icon, Input, Modal, Tag } from 'antd';
+import { Button, Collapse, Dropdown, Icon, Input, Menu, Modal, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
+import * as autoApprovalPolicy from './autoApprovalPolicy';
 
 function ReasoningBlock({ reasoning, streaming }) {
   // Default open while reasoning is still streaming so the user can watch the
@@ -211,11 +212,119 @@ export default class AgentHost extends PureComponent {
     );
   };
 
-  renderApprovalMessage = item => {
+  renderApprovalActions = item => {
     const { agent } = this.props;
     const approval = item.approval || {};
-    const isPending = approval.status === 'pending';
     const isSending = !!(agent && agent.sending);
+    const isHigh = approval.risk === 'high';
+    const targetRef = approval.targetRef || null;
+    const targetKey = targetRef ? `${targetRef.kind}:${targetRef.id}` : null;
+    const targetLabel = targetRef
+      ? targetRef.kind === 'service' ? '该组件'
+        : targetRef.kind === 'app' ? '该应用'
+        : targetRef.kind === 'team' ? '该团队'
+        : '该资源'
+      : '';
+
+    if (isHigh) {
+      return (
+        <React.Fragment>
+          <div className={styles.approvalActions}>
+            <Button
+              type="primary"
+              size="small"
+              loading={isSending}
+              onClick={() => this.handleApprovalDecision('approved')}
+            >
+              批准
+            </Button>
+            <Button
+              size="small"
+              disabled={isSending}
+              onClick={() => this.handleApprovalDecision('rejected')}
+            >
+              拒绝
+            </Button>
+          </div>
+          <div className={styles.approvalCriticalNote}>
+            高风险操作仅可逐次批准
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    const onAddPolicy = scope => () => {
+      autoApprovalPolicy.addPolicy(scope);
+      this.handleApprovalDecision('approved');
+    };
+
+    const menu = (
+      <Menu>
+        {targetKey ? (
+          <Menu.Item
+            key="target"
+            onClick={onAddPolicy({ kind: 'session-target', targetKey })}
+          >
+            {targetLabel}所有操作自动批准
+          </Menu.Item>
+        ) : null}
+        {targetKey && approval.skillId ? (
+          <Menu.Item
+            key="target-op"
+            onClick={onAddPolicy({
+              kind: 'session-target-op',
+              targetKey,
+              skillId: approval.skillId,
+            })}
+          >
+            {targetLabel}同类操作自动批准
+          </Menu.Item>
+        ) : null}
+        {approval.skillId ? (
+          <Menu.Item
+            key="op"
+            onClick={onAddPolicy({
+              kind: 'session-op',
+              skillId: approval.skillId,
+            })}
+          >
+            全局同类操作自动批准
+          </Menu.Item>
+        ) : null}
+        <Menu.Item
+          key="all"
+          onClick={onAddPolicy({ kind: 'session-all' })}
+        >
+          本会话全部自动批准
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <div className={styles.approvalActions}>
+        <Dropdown.Button
+          type="primary"
+          size="small"
+          loading={isSending}
+          overlay={menu}
+          onClick={() => this.handleApprovalDecision('approved')}
+        >
+          批准
+        </Dropdown.Button>
+        <Button
+          size="small"
+          disabled={isSending}
+          onClick={() => this.handleApprovalDecision('rejected')}
+        >
+          拒绝
+        </Button>
+      </div>
+    );
+  };
+
+  renderApprovalMessage = item => {
+    const approval = item.approval || {};
+    const isPending = approval.status === 'pending';
     const wasAutoApproved = !!approval.autoApproved;
     const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
     const scopeMeta = getApprovalScopeMeta(approval.scope, approval.scopeLabel);
@@ -245,25 +354,7 @@ export default class AgentHost extends PureComponent {
               已根据会话策略自动批准
             </div>
           ) : null}
-          {isPending ? (
-            <div className={styles.approvalActions}>
-              <Button
-                type="primary"
-                size="small"
-                loading={isSending}
-                onClick={() => this.handleApprovalDecision('approved')}
-              >
-                批准
-              </Button>
-              <Button
-                size="small"
-                disabled={isSending}
-                onClick={() => this.handleApprovalDecision('rejected')}
-              >
-                拒绝
-              </Button>
-            </div>
-          ) : null}
+          {isPending ? this.renderApprovalActions(item) : null}
         </div>
       </div>
     );
