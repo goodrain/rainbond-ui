@@ -83,4 +83,34 @@ assert.strictEqual(assistantState.messages[2].content, '处理完成', 'assistan
 const custom = createAgentMessage('system', 'status', '测试');
 assert.strictEqual(custom.kind, 'status', 'helper should create the requested message kind');
 
+const approvalWithTarget = applyAgentEvent(baseState, {
+  event: {
+    type: 'approval.requested',
+    sequence: 7,
+    sessionId: 'cs_2',
+    runId: 'run_2',
+    data: {
+      approval_id: 'ap_2',
+      description: '需要审批',
+      risk: 'high',
+      skill_id: 'rainbond_delete_component',
+      target_ref: { team_name: 't1', region_name: 'r1', app_id: 'a1', service_alias: 'svc1' },
+      scope: 'component',
+      scope_label: '组件',
+      level_label: '高风险'
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+
+assert.strictEqual(approvalWithTarget.pendingApproval.skillId, 'rainbond_delete_component', 'pendingApproval should carry skill_id');
+assert.deepStrictEqual(
+  approvalWithTarget.pendingApproval.targetRef,
+  { team_name: 't1', region_name: 'r1', app_id: 'a1', service_alias: 'svc1' },
+  'pendingApproval should carry target_ref'
+);
+assert.strictEqual(approvalWithTarget.pendingApproval.scope, 'component', 'pendingApproval should carry scope');
+assert.strictEqual(approvalWithTarget.pendingApproval.scopeLabel, '组件', 'pendingApproval should carry scope_label');
+assert.strictEqual(approvalWithTarget.pendingApproval.levelLabel, '高风险', 'pendingApproval should carry level_label');
+
 console.log('agent event reducer tests passed');

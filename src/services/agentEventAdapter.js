@@ -76,6 +76,8 @@ function adaptAgentEvent(event = {}) {
         scope: data.scope || '',
         scopeLabel: data.scope_label || '',
         levelLabel: data.level_label || '',
+        skillId: data.skill_id || '',
+        targetRef: data.target_ref || null,
       };
     case 'approval.resolved':
       return {

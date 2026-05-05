@@ -215,6 +215,8 @@ function applyAgentEvents({
           scope: adaptedEvent.scope || '',
           scopeLabel: adaptedEvent.scopeLabel || '',
           levelLabel: adaptedEvent.levelLabel || '',
+          skillId: adaptedEvent.skillId || '',
+          targetRef: adaptedEvent.targetRef || null,
           runId: adaptedEvent.runId || '',
           sessionId: adaptedEvent.sessionId || '',
           status: 'pending',

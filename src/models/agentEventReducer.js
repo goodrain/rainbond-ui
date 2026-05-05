@@ -97,6 +97,11 @@ function applyAgentEvent(state, payload = {}) {
         sessionId: event.sessionId || '',
         status: 'pending',
         lastSequence: eventSequence,
+        skillId: data.skill_id || '',
+        targetRef: data.target_ref || null,
+        scope: data.scope || '',
+        scopeLabel: data.scope_label || '',
+        levelLabel: data.level_label || '',
       };
 
       nextMessages.push(
