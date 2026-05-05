@@ -22,6 +22,7 @@ const {
   applyTraceEvent,
   buildTraceContent,
 } = require('./agentTraceHelpers');
+const { formatToolLabel } = require('../utils/agentToolLabels');
 
 const { extractWorkflowState } = agentWorkflowState;
 
@@ -92,10 +93,16 @@ function truncateReplayDetail(text) {
   return `${text.slice(0, REPLAY_TOOL_DETAIL_LIMIT)}\n…(truncated)`;
 }
 
+function parseToolArgs(rawArgs) {
+  if (!rawArgs) return {};
+  if (typeof rawArgs === 'object') return rawArgs;
+  try { return JSON.parse(String(rawArgs)) || {}; } catch (e) { return {}; }
+}
+
 function chatMessagesToBubbles(chatMessages) {
   if (!Array.isArray(chatMessages)) return [];
   const bubbles = [];
-  const toolNameById = {};
+  const toolLabelById = {};
 
   chatMessages.forEach(msg => {
     if (!msg || !msg.role) return;
@@ -112,12 +119,14 @@ function chatMessagesToBubbles(chatMessages) {
       if (Array.isArray(msg.tool_calls)) {
         msg.tool_calls.forEach(tc => {
           const fn = (tc && tc.function) || {};
-          const name = fn.name || 'tool';
-          if (tc && tc.id) toolNameById[tc.id] = name;
+          const rawName = fn.name || 'tool';
+          const parsedArgs = parseToolArgs(fn.arguments);
+          const label = formatToolLabel(rawName, parsedArgs) || rawName;
+          if (tc && tc.id) toolLabelById[tc.id] = label;
           bubbles.push(
             createMessage('assistant', 'trace', '', {}, {
               trace: {
-                title: `调用 ${name}`,
+                title: label,
                 detail: truncateReplayDetail(formatReplayArguments(fn.arguments)),
               },
             })
@@ -128,11 +137,12 @@ function chatMessagesToBubbles(chatMessages) {
     }
 
     if (msg.role === 'tool') {
-      const name = (msg.tool_call_id && toolNameById[msg.tool_call_id]) || 'tool';
+      const label =
+        (msg.tool_call_id && toolLabelById[msg.tool_call_id]) || 'tool';
       const detail = truncateReplayDetail(formatReplayToolContent(msg.content));
       bubbles.push(
         createMessage('tool', 'trace', '', {}, {
-          trace: { title: `${name} 结果`, detail },
+          trace: { title: `${label} 结果`, detail },
         })
       );
     }
