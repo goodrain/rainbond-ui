@@ -216,6 +216,7 @@ export default class AgentHost extends PureComponent {
     const approval = item.approval || {};
     const isPending = approval.status === 'pending';
     const isSending = !!(agent && agent.sending);
+    const wasAutoApproved = !!approval.autoApproved;
     const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
     const scopeMeta = getApprovalScopeMeta(approval.scope, approval.scopeLabel);
     const cardClassName = [
@@ -227,31 +228,23 @@ export default class AgentHost extends PureComponent {
       <div key={item.id} className={styles.approvalRow}>
         <div className={cardClassName}>
           <div className={styles.approvalHeader}>
-            <span className={styles.approvalTitle}>需要审批</span>
+            <span className={styles.approvalTitle}>
+              <Icon type="safety-certificate" />
+              需要审批
+            </span>
             <div className={styles.approvalTags}>
               {scopeMeta.label ? (
-                <Tag color={scopeMeta.color}>
-                  {scopeMeta.label}
-                </Tag>
+                <Tag color={scopeMeta.color}>{scopeMeta.label}</Tag>
               ) : null}
-              <Tag color={riskMeta.color}>
-                {riskMeta.label}
-              </Tag>
+              <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
             </div>
           </div>
           <div className={styles.approvalContent}>{item.content}</div>
-          <div className={styles.approvalMeta}>
-            {scopeMeta.label ? `层级：${scopeMeta.label} · ` : ''}
-            等级：{riskMeta.label}
-          </div>
-          <div className={styles.approvalMeta}>
-            状态：
-            {approval.status === 'approved'
-              ? '已批准'
-              : approval.status === 'rejected'
-                ? '已拒绝'
-                : '待处理'}
-          </div>
+          {wasAutoApproved ? (
+            <div className={styles.approvalAutoNote}>
+              已根据会话策略自动批准
+            </div>
+          ) : null}
           {isPending ? (
             <div className={styles.approvalActions}>
               <Button
