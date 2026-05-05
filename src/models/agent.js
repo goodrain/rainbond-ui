@@ -5,6 +5,7 @@ import {
   deleteAgentSession,
   hydrateAgentSession,
   listAgentSessions,
+  loadAgentSessionMessages,
   sendAgentMessage,
 } from '../services/agent';
 const { adaptAgentEvent } = require('../services/agentEventAdapter');
@@ -64,6 +65,77 @@ function createMessage(role, kind, content, contextSnapshot = {}, extra = {}) {
     contextSnapshot,
     ...extra,
   };
+}
+
+const REPLAY_TOOL_DETAIL_LIMIT = 4000;
+
+function formatReplayArguments(rawArgs) {
+  if (!rawArgs) return '';
+  if (typeof rawArgs === 'object') {
+    try { return JSON.stringify(rawArgs, null, 2); } catch (e) { return String(rawArgs); }
+  }
+  const text = String(rawArgs);
+  try { return JSON.stringify(JSON.parse(text), null, 2); } catch (e) { return text; }
+}
+
+function formatReplayToolContent(content) {
+  if (content == null) return '';
+  if (typeof content === 'string') return content;
+  try { return JSON.stringify(content, null, 2); } catch (e) { return String(content); }
+}
+
+function truncateReplayDetail(text) {
+  if (!text || text.length <= REPLAY_TOOL_DETAIL_LIMIT) return text;
+  return `${text.slice(0, REPLAY_TOOL_DETAIL_LIMIT)}\n…(truncated)`;
+}
+
+function chatMessagesToBubbles(chatMessages) {
+  if (!Array.isArray(chatMessages)) return [];
+  const bubbles = [];
+  const toolNameById = {};
+
+  chatMessages.forEach(msg => {
+    if (!msg || !msg.role) return;
+
+    if (msg.role === 'user') {
+      const text = typeof msg.content === 'string' ? msg.content : '';
+      if (text.trim()) bubbles.push(createMessage('user', 'normal', text));
+      return;
+    }
+
+    if (msg.role === 'assistant') {
+      const text = typeof msg.content === 'string' ? msg.content.trim() : '';
+      if (text) bubbles.push(createMessage('assistant', 'normal', text));
+      if (Array.isArray(msg.tool_calls)) {
+        msg.tool_calls.forEach(tc => {
+          const fn = (tc && tc.function) || {};
+          const name = fn.name || 'tool';
+          if (tc && tc.id) toolNameById[tc.id] = name;
+          bubbles.push(
+            createMessage('assistant', 'trace', '', {}, {
+              trace: {
+                title: `调用 ${name}`,
+                detail: truncateReplayDetail(formatReplayArguments(fn.arguments)),
+              },
+            })
+          );
+        });
+      }
+      return;
+    }
+
+    if (msg.role === 'tool') {
+      const name = (msg.tool_call_id && toolNameById[msg.tool_call_id]) || 'tool';
+      const detail = truncateReplayDetail(formatReplayToolContent(msg.content));
+      bubbles.push(
+        createMessage('tool', 'trace', '', {}, {
+          trace: { title: `${name} 结果`, detail },
+        })
+      );
+    }
+  });
+
+  return bubbles;
 }
 
 function normalizePendingApproval(pendingApproval) {
@@ -431,7 +503,7 @@ export default {
       yield put({ type: 'saveState', payload: patch });
     },
 
-    *switchSession({ payload }, { put }) {
+    *switchSession({ payload }, { call, put }) {
       const sessionId = payload && payload.sessionId;
       if (!sessionId) return;
       yield put({
@@ -448,6 +520,18 @@ export default {
           structuredResult: null,
         },
       });
+
+      try {
+        const res = yield call(loadAgentSessionMessages, sessionId);
+        const chatMessages = (res && res.data && res.data.messages) || [];
+        const replayed = chatMessagesToBubbles(chatMessages);
+        yield put({ type: 'saveState', payload: { messages: replayed } });
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: { lastError: getErrorMessage(e) || '加载历史消息失败' },
+        });
+      }
     },
 
     *syncContext({ payload }, { put, select }) {

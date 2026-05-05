@@ -150,6 +150,19 @@ export async function deleteAgentSession(sessionId) {
   });
 }
 
+export async function loadAgentSessionMessages(sessionId) {
+  if (!sessionId) {
+    throw new Error('sessionId is required');
+  }
+  return requestJson(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/messages`,
+    {
+      method: 'GET',
+      headers: buildRequestHeaders(),
+    }
+  );
+}
+
 export function persistAgentSession(snapshot, userId) {
   if (!canUseSessionStorage() || !userId) {
     return;
