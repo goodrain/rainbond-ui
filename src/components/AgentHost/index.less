@@ -101,7 +101,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
+  height: 56px;
+  padding: 0 16px;
   background: #fff;
   border-bottom: 1px solid fade(@border-color-base, 80%);
 }
@@ -116,13 +117,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 50%;
   background: transparent;
   color: @text-color-secondary;
   cursor: pointer;
+  font-size: 14px;
 
   &:hover {
     background: fade(@border-color-base, 45%);
@@ -133,24 +135,96 @@
 .panelHeaderActions {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .headerIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: 0;
-  padding: 4px 6px;
+  border-radius: 50%;
   cursor: pointer;
-  color: #595959;
-  font-size: 16px;
+  color: @text-color-secondary;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 .headerIconButton:hover {
-  color: #1890ff;
+  background: fade(@border-color-base, 45%);
+  color: @heading-color;
 }
 
 .autoApprovalPopover :global(.ant-popover-inner-content) {
   min-width: 240px;
   max-width: 320px;
+}
+
+.historyPopover :global(.ant-popover-inner-content) {
+  min-width: 280px;
+  max-width: 360px;
+  padding: 8px 0;
+}
+
+.historyEmpty {
+  padding: 16px 20px;
+  font-size: 13px;
+  color: #8c8c8c;
+  text-align: center;
+}
+
+.historyList {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f5f7fa;
+  }
+}
+
+.historyItemBody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.historyItemTitle {
+  color: #262626;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyItemMeta {
+  margin-top: 2px;
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.historyItemDelete {
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  color: #8c8c8c;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    color: #ff4d4f;
+  }
 }
 
 .autoApprovalEmpty,
