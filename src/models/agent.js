@@ -13,6 +13,7 @@ import {
 import agentWorkflowState from './agentWorkflowState';
 const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
 const autoApprovalPolicy = require('../components/AgentHost/autoApprovalPolicy');
+const inFlightAutoApprovals = require('../components/AgentHost/inFlightAutoApprovals');
 const {
   applyTraceEvent,
   buildTraceContent,
@@ -537,6 +538,10 @@ export default {
             updatedAt: Date.now(),
           },
         });
+      } finally {
+        if (payload && payload.autoApprovalId) {
+          inFlightAutoApprovals.release(payload.autoApprovalId);
+        }
       }
     },
 
@@ -561,7 +566,8 @@ export default {
           risk: pa.risk,
           skillId: pa.skillId,
           targetRef: pa.targetRef,
-        })
+        }) &&
+        inFlightAutoApprovals.claim(pa.approvalId)
       ) {
         yield put({
           type: 'markApprovalAutoApproved',
@@ -569,7 +575,11 @@ export default {
         });
         yield put({
           type: 'resolveApproval',
-          payload: { decision: 'approved', auto: true },
+          payload: {
+            decision: 'approved',
+            auto: true,
+            autoApprovalId: pa.approvalId,
+          },
         });
       }
     },
