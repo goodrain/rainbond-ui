@@ -589,65 +589,79 @@
 }
 
 .approvalCard {
-  padding: 14px;
+  position: relative;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-left: 3px solid #1890ff;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .approvalCardInfo {
-  border-color: fade(@primary-color, 28%);
-  background: fade(@primary-color, 4%);
+  border-left-color: #1890ff;
 }
 
 .approvalCardWarning {
-  border-color: fade(@warning-color, 30%);
-  background: fade(@warning-color, 4%);
+  border-left-color: #faad14;
 }
 
 .approvalCardDanger {
-  border-color: fade(@error-color, 30%);
-  background: fade(@error-color, 6%);
+  border-left-color: #f5222d;
 }
 
 .approvalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+.approvalTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #262626;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .approvalTags {
   display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.approvalTitle {
-  color: @heading-color;
-  font-size: @rbd-content-size;
-  font-weight: 600;
+  gap: 4px;
 }
 
 .approvalContent {
-  color: @text-color;
-  font-size: @rbd-content-size;
-  line-height: 22px;
-  white-space: pre-wrap;
+  font-size: 13px;
+  color: #595959;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.approvalAutoNote {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-bottom: 4px;
 }
 
 .approvalMeta {
-  margin-top: 10px;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 4px;
 }
 
 .approvalActions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+.approvalCriticalNote {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 6px;
+  text-align: right;
 }
 
 .errorCard {
