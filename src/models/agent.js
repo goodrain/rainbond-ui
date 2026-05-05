@@ -12,6 +12,7 @@ import {
 } from '../utils/agentContext';
 import agentWorkflowState from './agentWorkflowState';
 const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
+const autoApprovalPolicy = require('../components/AgentHost/autoApprovalPolicy');
 const {
   applyTraceEvent,
   buildTraceContent,
@@ -539,6 +540,40 @@ export default {
       }
     },
 
+    *applyStreamEvent({ payload }, { put, select }) {
+      const prevState = yield select(store => store.agent);
+      const prevApprovalId =
+        (prevState.pendingApproval && prevState.pendingApproval.approvalId) || '';
+
+      yield put({
+        type: 'applyStreamEventReducer',
+        payload,
+      });
+
+      const nextState = yield select(store => store.agent);
+      const pa = nextState.pendingApproval;
+      if (
+        pa &&
+        pa.approvalId &&
+        pa.status === 'pending' &&
+        pa.approvalId !== prevApprovalId &&
+        autoApprovalPolicy.matches({
+          risk: pa.risk,
+          skillId: pa.skillId,
+          targetRef: pa.targetRef,
+        })
+      ) {
+        yield put({
+          type: 'markApprovalAutoApproved',
+          payload: { approvalId: pa.approvalId },
+        });
+        yield put({
+          type: 'resolveApproval',
+          payload: { decision: 'approved', auto: true },
+        });
+      }
+    },
+
     *clearSession({ payload }, { call, put }) {
       const userId = payload && payload.userId;
       const preserveVisible = payload && payload.preserveVisible;
@@ -587,7 +622,7 @@ export default {
       };
     },
 
-    applyStreamEvent(state, { payload }) {
+    applyStreamEventReducer(state, { payload }) {
       const merged = applyAgentStreamEvent(state, payload);
       return {
         ...state,
@@ -597,6 +632,19 @@ export default {
         workflowState: merged.workflowState,
         structuredResult: merged.structuredResult,
         updatedAt: Date.now(),
+      };
+    },
+
+    markApprovalAutoApproved(state, { payload }) {
+      const approvalId = payload && payload.approvalId;
+      if (!approvalId) return state;
+      return {
+        ...state,
+        messages: (state.messages || []).map(m =>
+          m && m.kind === 'approval' && m.approval && m.approval.approvalId === approvalId
+            ? { ...m, approval: { ...m.approval, autoApproved: true } }
+            : m
+        ),
       };
     },
 
