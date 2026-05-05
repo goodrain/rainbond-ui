@@ -130,6 +130,59 @@
   }
 }
 
+.panelHeaderActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headerIconButton {
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: #595959;
+  font-size: 16px;
+}
+.headerIconButton:hover {
+  color: #1890ff;
+}
+
+.autoApprovalPopover :global(.ant-popover-inner-content) {
+  min-width: 240px;
+  max-width: 320px;
+}
+
+.autoApprovalEmpty,
+.autoApprovalList {
+  font-size: 13px;
+  color: #595959;
+}
+
+.autoApprovalItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.autoApprovalItem:last-of-type {
+  border-bottom: 0;
+}
+
+.autoApprovalActions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.autoApprovalHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
 .drawerBody {
   display: flex;
   flex-direction: column;

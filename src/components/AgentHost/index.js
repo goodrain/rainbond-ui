@@ -1,5 +1,5 @@
 import React, { PureComponent, useEffect, useRef, useState } from 'react';
-import { Button, Collapse, Dropdown, Icon, Input, Menu, Modal, Tag } from 'antd';
+import { Button, Collapse, Dropdown, Icon, Input, Menu, Modal, Popover, Tag } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
@@ -376,6 +376,66 @@ export default class AgentHost extends PureComponent {
     );
   };
 
+  formatPolicyLabel = policy => {
+    switch (policy.kind) {
+      case 'session-all':
+        return '本会话全部自动批准';
+      case 'session-target':
+        return `资源 ${policy.targetKey} 所有操作`;
+      case 'session-op':
+        return `操作 ${policy.skillId}（全局）`;
+      case 'session-target-op':
+        return `${policy.targetKey} · ${policy.skillId}`;
+      default:
+        return JSON.stringify(policy);
+    }
+  };
+
+  renderAutoApprovalSettings = () => {
+    const policies = autoApprovalPolicy.getPolicies();
+    if (policies.length === 0) {
+      return (
+        <div className={styles.autoApprovalEmpty}>
+          <div>暂无自动批准策略</div>
+          <div className={styles.autoApprovalHint}>
+            策略仅在本次会话内生效，关闭浏览器后失效
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.autoApprovalList}>
+        {policies.map((p, idx) => (
+          <div key={idx} className={styles.autoApprovalItem}>
+            <span>{this.formatPolicyLabel(p)}</span>
+            <a
+              onClick={() => {
+                autoApprovalPolicy.removePolicy(p);
+                this.forceUpdate();
+              }}
+            >
+              移除
+            </a>
+          </div>
+        ))}
+        <div className={styles.autoApprovalActions}>
+          <Button
+            size="small"
+            onClick={() => {
+              autoApprovalPolicy.clearPolicies();
+              this.forceUpdate();
+            }}
+          >
+            全部清除
+          </Button>
+        </div>
+        <div className={styles.autoApprovalHint}>
+          策略仅在本次会话内生效，关闭浏览器后失效
+        </div>
+      </div>
+    );
+  };
+
   renderWorkflowSummary = () => {
     if (!shouldRenderWorkflowSummary()) {
       return null;
@@ -574,9 +634,21 @@ export default class AgentHost extends PureComponent {
           <div className={styles.panelBody}>
             <div className={styles.panelHeader}>
               <div className={styles.panelTitle}>AI 助手</div>
-              <button className={styles.closeButton} onClick={this.closeDrawer}>
-                <Icon type="close" />
-              </button>
+              <div className={styles.panelHeaderActions}>
+                <Popover
+                  trigger="click"
+                  placement="bottomRight"
+                  content={this.renderAutoApprovalSettings()}
+                  overlayClassName={styles.autoApprovalPopover}
+                >
+                  <button className={styles.headerIconButton} aria-label="自动批准设置">
+                    <Icon type="setting" />
+                  </button>
+                </Popover>
+                <button className={styles.closeButton} onClick={this.closeDrawer}>
+                  <Icon type="close" />
+                </button>
+              </div>
             </div>
 
             <div className={styles.drawerBody}>
