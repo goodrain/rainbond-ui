@@ -378,6 +378,12 @@
   background: @primary-color;
   color: #fff;
   border-top-right-radius: 6px;
+
+  &::selection,
+  & ::selection {
+    background: #fff;
+    color: @primary-color;
+  }
 }
 
 .assistantBubble {
