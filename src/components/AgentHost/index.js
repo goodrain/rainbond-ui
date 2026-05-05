@@ -430,6 +430,10 @@ export default class AgentHost extends PureComponent {
     });
   };
 
+  handleCancelSessionPending = () => {
+    this.props.dispatch({ type: 'agent/cancelSessionPending' });
+  };
+
   renderHistoryPopover = () => {
     const { agent } = this.props;
     const list = (agent && agent.sessionList) || [];
@@ -687,6 +691,10 @@ export default class AgentHost extends PureComponent {
     const sending = !!(agent && agent.sending);
     const draft = (agent && agent.draft) || '';
     const lastError = (agent && agent.lastError) || '';
+    const sessionPendingApprovals =
+      (agent && agent.sessionPendingApprovals) || [];
+    const cancellingPending = !!(agent && agent.cancellingPending);
+    const hasSessionPending = sessionPendingApprovals.length > 0;
     const width = (panelConfig && panelConfig.width) || 420;
     const mode = (panelConfig && panelConfig.mode) || 'push';
     const isOverlay = mode === 'overlay';
@@ -758,6 +766,23 @@ export default class AgentHost extends PureComponent {
               ) : null}
             </div>
 
+            {hasSessionPending ? (
+              <div className={styles.pendingBanner}>
+                <div className={styles.pendingBannerText}>
+                  该会话有 {sessionPendingApprovals.length} 项未处理审批，
+                  请先取消后再继续。
+                </div>
+                <Button
+                  size="small"
+                  type="danger"
+                  loading={cancellingPending}
+                  onClick={this.handleCancelSessionPending}
+                >
+                  取消并继续
+                </Button>
+              </div>
+            ) : null}
+
             {lastError ? <div className={styles.errorText}>{lastError}</div> : null}
 
             <div className={styles.footer}>
@@ -765,9 +790,9 @@ export default class AgentHost extends PureComponent {
                 value={draft}
                 onChange={this.handleDraftChange}
                 onPressEnter={this.handlePressEnter}
-                placeholder="输入你的问题，Shift + Enter 换行"
+                placeholder={hasSessionPending ? '请先取消未处理审批' : '输入你的问题，Shift + Enter 换行'}
                 autosize={{ minRows: 3, maxRows: 8 }}
-                disabled={sending}
+                disabled={sending || hasSessionPending}
               />
               <div className={styles.footerActions}>
                 <Button onClick={this.handleClear} disabled={sending}>
@@ -777,7 +802,7 @@ export default class AgentHost extends PureComponent {
                   type="primary"
                   onClick={this.handleSend}
                   loading={sending}
-                disabled={!draft.trim()}
+                disabled={!draft.trim() || hasSessionPending}
               >
                 发送
               </Button>

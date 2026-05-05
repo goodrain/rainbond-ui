@@ -1,5 +1,6 @@
 import { getDvaApp } from 'umi';
 import {
+  cancelAgentSessionPending,
   clearAgentSession,
   decideAgentApproval,
   deleteAgentSession,
@@ -50,6 +51,8 @@ const defaultState = {
   structuredResult: null,
   sessionList: [],
   sessionListLoading: false,
+  sessionPendingApprovals: [],
+  cancellingPending: false,
   updatedAt: 0,
 };
 
@@ -181,6 +184,8 @@ function buildHydratedState(snapshot) {
     structuredResult: snapshot.structuredResult || null,
     sessionList: [],
     sessionListLoading: false,
+    sessionPendingApprovals: [],
+    cancellingPending: false,
     sending: false,
     lastError: '',
   };
@@ -518,18 +523,49 @@ export default {
           lastError: '',
           workflowState: null,
           structuredResult: null,
+          sessionPendingApprovals: [],
         },
       });
 
       try {
         const res = yield call(loadAgentSessionMessages, sessionId);
-        const chatMessages = (res && res.data && res.data.messages) || [];
-        const replayed = chatMessagesToBubbles(chatMessages);
-        yield put({ type: 'saveState', payload: { messages: replayed } });
+        const data = (res && res.data) || {};
+        const replayed = chatMessagesToBubbles(data.messages || []);
+        yield put({
+          type: 'saveState',
+          payload: {
+            messages: replayed,
+            sessionPendingApprovals: Array.isArray(data.pending_approvals)
+              ? data.pending_approvals
+              : [],
+          },
+        });
       } catch (e) {
         yield put({
           type: 'saveState',
           payload: { lastError: getErrorMessage(e) || '加载历史消息失败' },
+        });
+      }
+    },
+
+    *cancelSessionPending(_, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const sessionId = state.conversationId;
+      if (!sessionId || sessionId === 'global-default') return;
+      yield put({ type: 'saveState', payload: { cancellingPending: true } });
+      try {
+        yield call(cancelAgentSessionPending, sessionId);
+        yield put({
+          type: 'saveState',
+          payload: { sessionPendingApprovals: [], cancellingPending: false },
+        });
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            cancellingPending: false,
+            lastError: getErrorMessage(e) || '取消未处理审批失败',
+          },
         });
       }
     },

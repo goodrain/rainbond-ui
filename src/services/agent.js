@@ -163,6 +163,19 @@ export async function loadAgentSessionMessages(sessionId) {
   );
 }
 
+export async function cancelAgentSessionPending(sessionId) {
+  if (!sessionId) {
+    throw new Error('sessionId is required');
+  }
+  return requestJson(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/cancel-pending`,
+    {
+      method: 'POST',
+      headers: buildRequestHeaders(),
+    }
+  );
+}
+
 export function persistAgentSession(snapshot, userId) {
   if (!canUseSessionStorage() || !userId) {
     return;
