@@ -541,25 +541,18 @@
 .llmDeployModalBody {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .llmDeployMode {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.llmDeployModeHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 
   > span {
-    color: @heading-color;
-    font-size: 14px;
-    font-weight: 500;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
   }
 }
 
@@ -569,16 +562,16 @@
   gap: 8px;
 
   > span {
-    color: @heading-color;
-    font-size: 14px;
-    font-weight: 500;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
   }
 }
 
 .llmFieldHint {
-  color: @rbd-label-color;
+  color: #64748b;
   font-size: 12px;
-  line-height: 20px;
+  line-height: 1.6;
 }
 
 .llmSelectHint {
@@ -614,9 +607,16 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 420px;
+  max-height: 320px;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+.llmRepositoryState {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
 }
 
 .llmRepositoryItem {
@@ -624,10 +624,9 @@
   align-items: center;
   width: 100%;
   padding: 6px 10px;
-  border: 1px solid #d7e2ef;
-  border-left: 3px solid @primary-color;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background: #fbfdff;
+  background: #fff;
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -641,16 +640,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-left: 0;
     overflow: hidden;
   }
 
   .llmSelectName {
+    color: #0f172a;
     overflow: hidden;
     min-width: 0;
     flex: 1 1 auto;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 18px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -658,17 +657,18 @@
 
   .llmSelectMeta {
     display: flex;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 18px;
     min-width: 0;
     flex: 0 1 auto;
     align-items: center;
     flex-wrap: nowrap;
     gap: 8px;
-    margin-bottom: 0;
     overflow: hidden;
 
     > span {
       flex-shrink: 0;
-      line-height: 18px;
     }
 
     > span:last-child {
@@ -680,49 +680,62 @@
     }
   }
 
-  .llmRepositoryStatusReady,
-  .llmRepositoryStatusPending {
+  .llmStatusBadge {
     padding: 1px 7px;
     font-size: 11px;
   }
 
   &:hover {
-    border-color: @primary-color;
+    border-color: #93c5fd;
     background: #f8fbff;
   }
 }
 
 .llmRepositoryItemSelected {
-  border-color: @primary-color;
+  border-color: #2563eb;
   background: #f8fbff;
-  box-shadow: 0 0 0 2px fade(@primary-color, 8%);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
-.llmRepositoryItemReady {
-  border-left-color: @success-color;
-}
-
-.llmRepositoryItemPending {
-  border-left-color: @warning-color;
-}
-
-.llmRepositoryStatusReady,
-.llmRepositoryStatusPending {
+.llmStatusBadge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-weight: 600;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  border: 1px solid transparent;
 }
 
-.llmRepositoryStatusReady {
-  background: fade(@success-color, 12%);
-  color: @success-color;
+.llmStatusBadgeDownloaded {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.22);
+  color: #15803d;
 }
 
-.llmRepositoryStatusPending {
-  background: fade(@warning-color, 14%);
-  color: @warning-color;
+.llmStatusBadgeNotDownloaded {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.22);
+  color: #b45309;
+}
+
+.llmStatusBadgeDownloading {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.22);
+  color: #b45309;
+}
+
+.llmStatusBadgeFailed {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+}
+
+.llmStatusBadgeDeleting {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #475569;
 }
 
 .llmRepositoryFooter {
@@ -818,15 +831,17 @@
 }
 
 .llmFileInput {
+  width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d9dfe8;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
 }
 
 .llmDeployHint {
   margin: 0;
-  color: @rbd-label-color;
+  color: #64748b;
   font-size: 12px;
-  line-height: 20px;
+  line-height: 1.7;
 }
