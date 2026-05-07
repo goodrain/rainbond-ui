@@ -127,10 +127,43 @@ async function requestJson(path, options = {}) {
         (data.error.message || data.error.msg_show || data.error.code)) ||
       response.statusText ||
       '请求失败';
-    throw new Error(message);
+    const error = new Error(typeof message === 'string' ? message : '请求失败');
+    error.status = response.status;
+    error.responseBody = data;
+    throw error;
   }
 
   return data;
+}
+
+async function requestJsonAcceptStatuses(path, options = {}, acceptedStatuses = []) {
+  const response = await fetch(path, {
+    credentials: 'include',
+    ...options
+  });
+
+  // Some terminal statuses (204) have no body; tolerate empty body.
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (_) {
+    data = {};
+  }
+
+  if (response.ok || acceptedStatuses.indexOf(response.status) > -1) {
+    return { status: response.status, data };
+  }
+
+  const message =
+    (data &&
+      data.error &&
+      (data.error.message || data.error.msg_show || data.error.code)) ||
+    response.statusText ||
+    '请求失败';
+  const error = new Error(typeof message === 'string' ? message : '请求失败');
+  error.status = response.status;
+  error.responseBody = data;
+  throw error;
 }
 
 export async function listAgentSessions({ limit = 20, offset = 0 } = {}) {
@@ -161,6 +194,36 @@ export async function loadAgentSessionMessages(sessionId) {
       headers: buildRequestHeaders(),
     }
   );
+}
+
+export async function abortAgentRun({ sessionId, runId } = {}) {
+  if (!sessionId || !runId) {
+    throw new Error('sessionId and runId are required');
+  }
+  const result = await requestJsonAcceptStatuses(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/abort`,
+    {
+      method: 'POST',
+      headers: buildRequestHeaders(),
+    },
+    [202, 404]
+  );
+  return result;
+}
+
+export async function clearAgentSessionRemote(sessionId) {
+  if (!sessionId) {
+    throw new Error('sessionId is required');
+  }
+  const result = await requestJsonAcceptStatuses(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}`,
+    {
+      method: 'DELETE',
+      headers: buildRequestHeaders(),
+    },
+    [202, 204]
+  );
+  return result;
 }
 
 export async function cancelAgentSessionPending(sessionId) {

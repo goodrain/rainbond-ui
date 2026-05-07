@@ -1,7 +1,9 @@
 import { getDvaApp } from 'umi';
 import {
+  abortAgentRun,
   cancelAgentSessionPending,
   clearAgentSession,
+  clearAgentSessionRemote,
   decideAgentApproval,
   deleteAgentSession,
   hydrateAgentSession,
@@ -54,6 +56,10 @@ const defaultState = {
   sessionListLoading: false,
   sessionPendingApprovals: [],
   cancellingPending: false,
+  cancellingRun: false,
+  runConflict: null,
+  pendingDraft: '',
+  pendingDraftMode: '',
   updatedAt: 0,
 };
 
@@ -196,6 +202,10 @@ function buildHydratedState(snapshot) {
     sessionListLoading: false,
     sessionPendingApprovals: [],
     cancellingPending: false,
+    cancellingRun: false,
+    runConflict: null,
+    pendingDraft: '',
+    pendingDraftMode: '',
     sending: false,
     lastError: '',
   };
@@ -712,6 +722,38 @@ export default {
           },
         });
       } catch (error) {
+        // Rich 409 conflict: another run is in progress in another tab.
+        if (error && error.status === 409 && error.responseBody) {
+          const body = error.responseBody;
+          const currentRun = (body && body.current_run) || {};
+          // Roll back the optimistic user echo so the conflict UI controls re-send.
+          yield put({
+            type: 'saveState',
+            payload: {
+              messages: state.messages,
+              sending: false,
+              lastError: '',
+              runConflict: {
+                currentRun: {
+                  runId: currentRun.run_id || '',
+                  startedAt: currentRun.started_at || '',
+                  status: currentRun.status || '',
+                  userMessageExcerpt: currentRun.user_message_excerpt || '',
+                  iteration: currentRun.iteration || 0,
+                  currentPhase: currentRun.current_phase || '',
+                },
+                retryAfterSeconds: body.retry_after_seconds || 0,
+                receivedAt: Date.now(),
+              },
+              pendingDraft: text,
+              pendingDraftMode: '',
+              draft: '',
+              updatedAt: Date.now(),
+            },
+          });
+          return;
+        }
+
         yield put({
           type: 'saveState',
           payload: {
@@ -721,6 +763,126 @@ export default {
           },
         });
       }
+    },
+
+    *abortRun({ payload }, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const sessionId =
+        (payload && payload.sessionId) ||
+        state.conversationId;
+      const runId =
+        (payload && payload.runId) ||
+        state.activeRunId;
+
+      if (!sessionId || sessionId === 'global-default' || !runId) {
+        return;
+      }
+
+      yield put({ type: 'saveState', payload: { cancellingRun: true } });
+
+      try {
+        const result = yield call(abortAgentRun, { sessionId, runId });
+        if (result && result.status === 404) {
+          // Run already terminal — clear cancelling tag, leave UI to terminal events.
+          yield put({ type: 'saveState', payload: { cancellingRun: false } });
+        }
+        // 202 case: keep cancellingRun=true; SSE 'cancelled' event will flip status.
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            cancellingRun: false,
+            lastError: getErrorMessage(e) || '停止运行失败',
+          },
+        });
+      }
+    },
+
+    *clearConversation({ payload }, { call, put, select }) {
+      const userId = payload && payload.userId;
+      const state = yield select(s => s.agent);
+      const sessionId = state.conversationId;
+
+      if (sessionId && sessionId !== 'global-default') {
+        try {
+          yield call(clearAgentSessionRemote, sessionId);
+        } catch (e) {
+          yield put({
+            type: 'saveState',
+            payload: { lastError: getErrorMessage(e) || '清空会话失败' },
+          });
+          return;
+        }
+      }
+
+      // Clear local sessionStorage cache + reset DVA state.
+      yield call(clearAgentSession, userId);
+      yield put({
+        type: 'clearState',
+        payload: { preserveVisible: true },
+      });
+    },
+
+    *stopAndSendMine(_, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const conflict = state.runConflict;
+      if (!conflict || !conflict.currentRun || !conflict.currentRun.runId) {
+        return;
+      }
+
+      const sessionId = state.conversationId;
+      const runId = conflict.currentRun.runId;
+      const stashedText = state.pendingDraft || '';
+
+      yield put({
+        type: 'saveState',
+        payload: { pendingDraftMode: 'stop_and_send', cancellingRun: true },
+      });
+
+      try {
+        yield call(abortAgentRun, { sessionId, runId });
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            cancellingRun: false,
+            pendingDraftMode: '',
+            lastError: getErrorMessage(e) || '停止其他窗口运行失败',
+          },
+        });
+        return;
+      }
+      // Auto-send is fired from `applyStreamEvent` when run reaches terminal.
+      // But if no SSE stream is local (the running tab is another browser),
+      // we still want to send eventually. Fire after a short delay fallback.
+      yield put({
+        type: 'saveState',
+        payload: { pendingDraft: stashedText },
+      });
+    },
+
+    *keepWaiting(_, { put }) {
+      yield put({
+        type: 'saveState',
+        payload: {
+          runConflict: null,
+          pendingDraftMode: 'wait',
+        },
+      });
+    },
+
+    *cancelMyInput(_, { put, select }) {
+      const state = yield select(s => s.agent);
+      const stashed = state.pendingDraft || '';
+      yield put({
+        type: 'saveState',
+        payload: {
+          runConflict: null,
+          pendingDraft: '',
+          pendingDraftMode: '',
+          draft: stashed || state.draft || '',
+        },
+      });
     },
 
     *sendMockMessage({ payload }, { put }) {
@@ -806,6 +968,44 @@ export default {
         type: 'applyStreamEventReducer',
         payload,
       });
+
+      // Detect run-terminal status from this event so we can flush a pending
+      // user draft that was stashed via the 409 conflict UI.
+      const incomingEvent = payload && payload.event;
+      const incomingType = incomingEvent && incomingEvent.type;
+      const incomingData = (incomingEvent && incomingEvent.data) || {};
+      const isRunTerminal =
+        incomingType === 'run.status' &&
+        ['cancelled', 'done', 'error', 'completed', 'failed'].indexOf(incomingData.status) > -1;
+
+      if (isRunTerminal) {
+        const flushedState = yield select(store => store.agent);
+        const stashedText = flushedState.pendingDraft || '';
+        const mode = flushedState.pendingDraftMode || '';
+        if (stashedText && (mode === 'wait' || mode === 'stop_and_send')) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingDraft: '',
+              pendingDraftMode: '',
+              cancellingRun: false,
+              runConflict: null,
+            },
+          });
+          yield put({
+            type: 'sendMessage',
+            payload: {
+              message: stashedText,
+              context: flushedState.context,
+            },
+          });
+        } else if (flushedState.cancellingRun) {
+          yield put({
+            type: 'saveState',
+            payload: { cancellingRun: false },
+          });
+        }
+      }
 
       const nextState = yield select(store => store.agent);
       const pa = nextState.pendingApproval;
