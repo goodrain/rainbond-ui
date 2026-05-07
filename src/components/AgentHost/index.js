@@ -1,5 +1,5 @@
 import React, { PureComponent, useEffect, useRef, useState } from 'react';
-import { Button, Collapse, Dropdown, Icon, Input, Menu, Modal, Popover, Tag } from 'antd';
+import { Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
@@ -10,12 +10,21 @@ function ReasoningBlock({ reasoning, streaming }) {
   // answer is the visual focus. Manual toggle stays available either way.
   const [collapsed, setCollapsed] = useState(false);
   const wasStreamingRef = useRef(streaming);
+  const reasoningBodyRef = useRef(null);
   useEffect(() => {
     if (wasStreamingRef.current && !streaming) {
       setCollapsed(true);
     }
     wasStreamingRef.current = streaming;
   }, [streaming]);
+
+  useEffect(() => {
+    if (collapsed || !reasoningBodyRef.current) {
+      return;
+    }
+
+    reasoningBodyRef.current.scrollTop = reasoningBodyRef.current.scrollHeight;
+  }, [collapsed, reasoning, streaming]);
 
   return (
     <div className={styles.reasoningBlock}>
@@ -26,29 +35,96 @@ function ReasoningBlock({ reasoning, streaming }) {
       >
         <Icon type={collapsed ? 'right' : 'down'} className={styles.reasoningChevron} />
         <Icon type="bulb" className={styles.reasoningIcon} />
-        <span className={styles.reasoningLabel}>
+        <span
+          className={`${styles.reasoningLabel} ${
+            streaming ? styles.reasoningLabelStreaming : ''
+          }`}
+          data-text={streaming ? '思考中…' : undefined}
+        >
           {streaming ? '思考中…' : '思考过程'}
         </span>
-        {streaming ? (
-          <Icon type="loading" className={styles.reasoningSpinner} />
-        ) : null}
       </button>
       {!collapsed && reasoning ? (
-        <pre className={styles.reasoningBody}>{reasoning}</pre>
+        <div className={styles.reasoningBody} ref={reasoningBodyRef}>
+          <div className={`${styles.markdownBody} ${styles.reasoningMarkdown}`}>
+            <ReactMarkdown
+              source={renderMarkdownSource(reasoning)}
+              escapeHtml={false}
+            />
+          </div>
+        </div>
       ) : null}
     </div>
   );
 }
+
+function AgentBrandIcon() {
+  return (
+    <span className={styles.panelBrandIcon} aria-hidden="true">
+      <svg
+        viewBox="0 0 1024 1024"
+        className={styles.panelBrandIconSvg}
+        focusable="false"
+      >
+        <path
+          d="M309.015273 571.252364c0 15.546182 5.399273 29.556364 15.825454 39.656727 10.472727 10.100364 24.948364 15.36 41.053091 15.36s30.533818-5.259636 40.96-15.36a53.992727 53.992727 0 0 0 15.872-39.656727 53.992727 53.992727 0 0 0-15.825454-39.656728c-10.472727-10.100364-24.901818-15.36-41.006546-15.36s-30.580364 5.259636-41.006545 15.36a53.992727 53.992727 0 0 0-15.872 39.656728zM615.191273 571.252364c0 15.546182 5.445818 29.556364 15.872 39.656727 10.472727 10.100364 24.901818 15.36 41.006545 15.36s30.533818-5.259636 40.96-15.36a53.992727 53.992727 0 0 0 15.918546-39.656727 53.992727 53.992727 0 0 0-15.872-39.656728c-10.472727-10.100364-24.901818-15.36-40.96-15.36-16.151273 0-30.580364 5.259636-41.006546 15.36a53.992727 53.992727 0 0 0-15.872 39.656728z"
+          fill="currentColor"
+        />
+        <path
+          d="M903.912727 837.818182V304.64h-349.928727V237.102545c26.391273-11.869091 43.752727-36.026182 43.752727-67.863272 0-40.866909-36.538182-76.148364-78.754909-76.148364-42.263273 0-78.754909 35.281455-78.754909 76.148364 0 27.601455 16.989091 55.109818 43.752727 67.770182v67.630545H134.050909V837.818182h769.861818z m-363.054545-609.28zM204.008727 770.141091V372.363636h629.946182v397.777455H203.962182zM116.549818 753.198545v-321.62909H46.545455v321.62909h70.004363zM991.418182 753.198545v-321.62909h-70.004364v321.62909H991.418182z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function SendButtonIcon() {
+  return (
+    <span className={styles.footerSendIcon} aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        className={styles.footerSendIconSvg}
+        focusable="false"
+      >
+        <path
+          d="M4 12.2 19 5.7c.65-.28 1.28.35 1.01 1L13.5 21.6c-.28.65-1.22.58-1.41-.11L9.9 15.2l-6.2-1.63c-.72-.19-.76-1.2-.05-1.37Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M19.35 5.95 9.9 15.2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
 const approvalMeta = require('./approvalMeta');
 const displayFilters = require('./displayFilters');
 const { renderMarkdownSource } = require('./markdownHelpers');
-const { getApprovalRiskMeta, getApprovalScopeMeta } = approvalMeta;
-const { shouldRenderMessageItem, shouldRenderWorkflowSummary } = displayFilters;
+const {
+  getNextAutoScrollEnabled,
+  isNearBottom,
+  shouldAttemptAutoScrollUpdate,
+} = require('./scrollBehavior');
+const { getApprovalRiskMeta } = approvalMeta;
+const {
+  shouldRenderAssistantBubble,
+  shouldRenderMessageItem,
+  shouldRenderWorkflowSummary,
+  shouldShowBottomThinking,
+} = displayFilters;
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-const { Panel } = Collapse;
-
 function formatRelativeTime(iso) {
   if (!iso) return '';
   const ts = Date.parse(iso);
@@ -66,10 +142,11 @@ export default class AgentHost extends PureComponent {
     super(props);
     this.state = { historyPopoverVisible: false };
     this.messagesRef = null;
+    this.isAutoScrollEnabled = true;
   }
 
   componentDidMount() {
-    this.scrollToBottom();
+    this.scrollToBottom({ force: true });
   }
 
   componentDidUpdate(prevProps) {
@@ -77,22 +154,13 @@ export default class AgentHost extends PureComponent {
     const nextMessages = (this.props.agent && this.props.agent.messages) || [];
     const wasVisible = prevProps.agent && prevProps.agent.visible;
     const isVisible = this.props.agent && this.props.agent.visible;
-    const prevLastMessage = prevMessages[prevMessages.length - 1];
-    const nextLastMessage = nextMessages[nextMessages.length - 1];
-    const lastMessageChanged =
-      prevLastMessage &&
-      nextLastMessage &&
-      prevLastMessage.id === nextLastMessage.id &&
-      (
-        prevLastMessage.content !== nextLastMessage.content ||
-        prevLastMessage.streaming !== nextLastMessage.streaming
-      );
 
-    if (
-      prevMessages.length !== nextMessages.length ||
-      lastMessageChanged ||
-      (!wasVisible && isVisible)
-    ) {
+    if (shouldAttemptAutoScrollUpdate({
+      prevMessages,
+      nextMessages,
+      wasVisible,
+      isVisible,
+    })) {
       this.scrollToBottom();
     }
   }
@@ -104,16 +172,39 @@ export default class AgentHost extends PureComponent {
     this.messagesRef = node;
   };
 
-  scrollToBottom = () => {
-    if (this.messagesRef) {
+  scrollToBottom = options => {
+    const force = !!(options && options.force);
+
+    if (this.messagesRef && (force || this.isAutoScrollEnabled)) {
       window.requestAnimationFrame(() => {
+        if (!this.messagesRef) {
+          return;
+        }
+
         this.messagesRef.scrollTop = this.messagesRef.scrollHeight;
       });
     }
   };
 
+  resumeAutoScroll = () => {
+    this.isAutoScrollEnabled = true;
+  };
+
+  handleMessagesScroll = event => {
+    const target = (event && event.currentTarget) || this.messagesRef;
+    if (!target) {
+      return;
+    }
+
+    this.isAutoScrollEnabled = getNextAutoScrollEnabled(
+      this.isAutoScrollEnabled,
+      target
+    );
+  };
+
   openDrawer = () => {
     const { dispatch } = this.props;
+    this.resumeAutoScroll();
     dispatch({
       type: 'agent/show',
     });
@@ -136,6 +227,21 @@ export default class AgentHost extends PureComponent {
 
   handleSend = () => {
     const { dispatch, agent } = this.props;
+    const draft = ((agent && agent.draft) || '').trim();
+    const hasSessionPending =
+      !!(agent && agent.sessionPendingApprovals && agent.sessionPendingApprovals.length > 0);
+
+    if (hasSessionPending) {
+      message.warning('请先取消未处理审批');
+      return;
+    }
+
+    if (!draft) {
+      message.warning('无内容');
+      return;
+    }
+
+    this.resumeAutoScroll();
     dispatch({
       type: 'agent/sendMessage',
       payload: {
@@ -147,6 +253,7 @@ export default class AgentHost extends PureComponent {
 
   handleContinueWorkflowAction = () => {
     const { dispatch, agent } = this.props;
+    this.resumeAutoScroll();
     dispatch({
       type: 'agent/sendMessage',
       payload: {
@@ -161,6 +268,7 @@ export default class AgentHost extends PureComponent {
       return;
     }
 
+    this.resumeAutoScroll();
     const optionKey = action.optionKey || '';
     const label = action.label || '';
 
@@ -240,6 +348,7 @@ export default class AgentHost extends PureComponent {
 
   handleApprovalDecision = decision => {
     const { dispatch } = this.props;
+    this.resumeAutoScroll();
     dispatch({
       type: 'agent/resolveApproval',
       payload: {
@@ -250,32 +359,13 @@ export default class AgentHost extends PureComponent {
 
   renderTraceMessage = item => {
     const trace = item.trace || {};
+    const traceText = trace.displayTitle || trace.title || trace.toolName || '工具调用';
     return (
       <div key={item.id} className={styles.traceRow}>
-        <Collapse
-          bordered={false}
-          className={styles.traceCollapse}
-          defaultActiveKey={[]}
-          expandIconPosition="right"
-        >
-          <Panel
-            key={item.id}
-            header={(
-              <div className={styles.traceHeader}>
-                <span className={styles.traceHeaderLeft}>
-                  <Icon type="api" />
-                  <span className={styles.traceHeaderTitle}>
-                    {trace.title || '工具调用'}
-                  </span>
-                </span>
-              </div>
-            )}
-          >
-            {trace.detail ? (
-              <pre className={styles.traceBody}>{trace.detail}</pre>
-            ) : null}
-          </Panel>
-        </Collapse>
+        <span className={styles.traceInlineText}>
+          <Icon type="api" className={styles.traceInlineIcon} />
+          <span>{traceText}</span>
+        </span>
       </div>
     );
   };
@@ -298,21 +388,25 @@ export default class AgentHost extends PureComponent {
       return (
         <React.Fragment>
           <div className={styles.approvalActions}>
-            <Button
-              type="primary"
-              size="small"
-              loading={isSending}
-              onClick={() => this.handleApprovalDecision('approved')}
-            >
-              批准
-            </Button>
-            <Button
-              size="small"
-              disabled={isSending}
-              onClick={() => this.handleApprovalDecision('rejected')}
-            >
-              拒绝
-            </Button>
+            <div className={styles.approvalActionHalf}>
+              <Button
+                type="primary"
+                className={styles.approvalApproveButton}
+                loading={isSending}
+                onClick={() => this.handleApprovalDecision('approved')}
+              >
+                授权并执行
+              </Button>
+            </div>
+            <div className={styles.approvalActionHalf}>
+              <Button
+                className={styles.approvalRejectButton}
+                disabled={isSending}
+                onClick={() => this.handleApprovalDecision('rejected')}
+              >
+                取消
+              </Button>
+            </div>
           </div>
           <div className={styles.approvalCriticalNote}>
             高风险操作仅可逐次批准
@@ -370,22 +464,37 @@ export default class AgentHost extends PureComponent {
 
     return (
       <div className={styles.approvalActions}>
-        <Dropdown.Button
-          type="primary"
-          size="small"
-          loading={isSending}
-          overlay={menu}
-          onClick={() => this.handleApprovalDecision('approved')}
-        >
-          批准
-        </Dropdown.Button>
-        <Button
-          size="small"
-          disabled={isSending}
-          onClick={() => this.handleApprovalDecision('rejected')}
-        >
-          拒绝
-        </Button>
+        <div className={styles.approvalActionHalf}>
+          <Button.Group className={styles.approvalPrimaryActions}>
+            <Button
+              type="primary"
+              className={styles.approvalApproveButton}
+              loading={isSending}
+              onClick={() => this.handleApprovalDecision('approved')}
+            >
+              授权并执行
+            </Button>
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button
+              type="primary"
+              className={styles.approvalPolicyButton}
+              disabled={isSending}
+              aria-label="选择自动批准策略"
+            >
+                <Icon type="more" />
+              </Button>
+            </Dropdown>
+          </Button.Group>
+        </div>
+        <div className={styles.approvalActionHalf}>
+          <Button
+            className={styles.approvalRejectButton}
+            disabled={isSending}
+            onClick={() => this.handleApprovalDecision('rejected')}
+          >
+            取消
+          </Button>
+        </div>
       </div>
     );
   };
@@ -395,28 +504,24 @@ export default class AgentHost extends PureComponent {
     const isPending = approval.status === 'pending';
     const wasAutoApproved = !!approval.autoApproved;
     const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
-    const scopeMeta = getApprovalScopeMeta(approval.scope, approval.scopeLabel);
     const cardClassName = [
       styles.approvalCard,
       styles[riskMeta.cardClass]
     ].filter(Boolean).join(' ');
-
     return (
       <div key={item.id} className={styles.approvalRow}>
         <div className={cardClassName}>
           <div className={styles.approvalHeader}>
             <span className={styles.approvalTitle}>
-              <Icon type="safety-certificate" />
-              需要审批
+              <Icon type="exclamation-circle-o" />
+              需要您的授权执行
             </span>
-            <div className={styles.approvalTags}>
-              {scopeMeta.label ? (
-                <Tag color={scopeMeta.color}>{scopeMeta.label}</Tag>
-              ) : null}
-              <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
-            </div>
+            <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
           </div>
-          <div className={styles.approvalContent}>{item.content}</div>
+          <div className={styles.approvalContent}>
+            <span className={styles.approvalContentLabel}>操作内容：</span>
+            <span className={styles.approvalContentText}>{item.content}</span>
+          </div>
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>
               已根据会话策略自动批准
@@ -614,10 +719,6 @@ export default class AgentHost extends PureComponent {
 
     return (
       <div className={styles.traceGroupStandalone} key={`trace-group-${traces[0].id}`}>
-        <div className={styles.traceGroupTitle}>
-          <Icon type="api" />
-          <span>工具调用</span>
-        </div>
         {traces.map(item => this.renderTraceMessage(item))}
       </div>
     );
@@ -630,10 +731,6 @@ export default class AgentHost extends PureComponent {
 
     return (
       <div className={styles.messageTraceGroup}>
-        <div className={styles.traceGroupTitle}>
-          <Icon type="api" />
-          <span>工具调用</span>
-        </div>
         {traces.map(item => this.renderTraceMessage(item))}
       </div>
     );
@@ -708,6 +805,19 @@ export default class AgentHost extends PureComponent {
       const traceGroup = !isUser && pendingTraceItems.length > 0
         ? this.renderAssistantTraceGroup(pendingTraceItems)
         : null;
+      const reasoningBlock = !isUser && (item.reasoning || item.reasoningStreaming) ? (
+        <ReasoningBlock
+          reasoning={item.reasoning || ''}
+          streaming={!!item.reasoningStreaming}
+        />
+      ) : null;
+      const assistantSupport = !isUser && (reasoningBlock || traceGroup) ? (
+        <div className={styles.assistantSupportStack}>
+          {reasoningBlock}
+          {traceGroup}
+        </div>
+      ) : null;
+      const showAssistantBubble = !isUser && shouldRenderAssistantBubble(item);
       if (isUser && pendingTraceItems.length > 0) {
         rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
       }
@@ -729,32 +839,32 @@ export default class AgentHost extends PureComponent {
               })}
             </span>
           </div>
-          <div
-            className={`${styles.messageBubble} ${
-              isUser ? styles.userBubble : styles.assistantBubble
-            }`}
-          >
-            {traceGroup}
-            {!isUser && (item.reasoning || item.reasoningStreaming) ? (
-              <ReasoningBlock
-                reasoning={item.reasoning || ''}
-                streaming={!!item.reasoningStreaming}
-              />
-            ) : null}
-            {isUser ? (
-              item.content
-            ) : (
-              <div className={styles.markdownBody}>
-                <ReactMarkdown
-                  source={renderMarkdownSource(item.content || '')}
-                  escapeHtml={false}
-                />
-                {Array.isArray(item.suggestedActions) && item.suggestedActions.length > 0
-                  ? this.renderParsedSuggestedActions(item.suggestedActions)
-                  : null}
-              </div>
-            )}
-          </div>
+          {isUser ? (
+            <div
+              className={`${styles.messageBubble} ${
+                isUser ? styles.userBubble : styles.assistantBubble
+              }`}
+            >
+              {item.content}
+            </div>
+          ) : (
+            <div className={styles.assistantMessageStack}>
+              {assistantSupport}
+              {showAssistantBubble ? (
+                <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
+                  <div className={styles.markdownBody}>
+                    <ReactMarkdown
+                      source={renderMarkdownSource(item.content || '')}
+                      escapeHtml={false}
+                    />
+                    {Array.isArray(item.suggestedActions) && item.suggestedActions.length > 0
+                      ? this.renderParsedSuggestedActions(item.suggestedActions)
+                      : null}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
       );
       });
@@ -770,12 +880,17 @@ export default class AgentHost extends PureComponent {
     const { agent, panelConfig } = this.props;
     const visible = !!(agent && agent.visible);
     const sending = !!(agent && agent.sending);
+    const messages = (agent && agent.messages) || [];
     const draft = (agent && agent.draft) || '';
     const lastError = (agent && agent.lastError) || '';
     const sessionPendingApprovals =
       (agent && agent.sessionPendingApprovals) || [];
     const cancellingPending = !!(agent && agent.cancellingPending);
     const hasSessionPending = sessionPendingApprovals.length > 0;
+    const showBottomThinking = shouldShowBottomThinking({
+      sending,
+      messages,
+    });
     const width = (panelConfig && panelConfig.width) || 420;
     const mode = (panelConfig && panelConfig.mode) || 'push';
     const isOverlay = mode === 'overlay';
@@ -803,7 +918,10 @@ export default class AgentHost extends PureComponent {
 
           <div className={styles.panelBody}>
             <div className={styles.panelHeader}>
-              <div className={styles.panelTitle}>AI 助手</div>
+              <div className={styles.panelBrand}>
+                <AgentBrandIcon />
+                <div className={styles.panelBrandTitle}>RainAgent</div>
+              </div>
               <div className={styles.panelHeaderActions}>
                 <Popover
                   trigger="click"
@@ -834,15 +952,18 @@ export default class AgentHost extends PureComponent {
             </div>
 
             <div className={styles.drawerBody}>
-            <div className={styles.messagesPanel} ref={this.setMessagesRef}>
+            <div
+              className={styles.messagesPanel}
+              ref={this.setMessagesRef}
+              onScroll={this.handleMessagesScroll}
+            >
               {this.renderWorkflowSummary()}
               {this.renderMessages()}
-              {sending ? (
+              {showBottomThinking ? (
                 <div className={styles.thinkingRow}>
-                  <span className={styles.thinkingIcon}>
-                    <Icon type="loading" />
+                  <span className={styles.thinkingText} data-text="正在思考...">
+                    正在思考...
                   </span>
-                  <span className={styles.thinkingText}>AI 正在思考...</span>
                 </div>
               ) : null}
             </div>
@@ -867,27 +988,36 @@ export default class AgentHost extends PureComponent {
             {lastError ? <div className={styles.errorText}>{lastError}</div> : null}
 
             <div className={styles.footer}>
-              <TextArea
-                value={draft}
-                onChange={this.handleDraftChange}
-                onPressEnter={this.handlePressEnter}
-                placeholder={hasSessionPending ? '请先取消未处理审批' : '输入你的问题，Shift + Enter 换行'}
-                autosize={{ minRows: 3, maxRows: 8 }}
-                disabled={sending || hasSessionPending}
-              />
-              <div className={styles.footerActions}>
-                <Button onClick={this.handleClear} disabled={sending}>
-                  清空会话
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={this.handleSend}
-                  loading={sending}
-                disabled={!draft.trim() || hasSessionPending}
-              >
-                发送
-              </Button>
-            </div>
+              <div className={styles.footerComposer}>
+                <TextArea
+                  className={styles.footerTextarea}
+                  value={draft}
+                  onChange={this.handleDraftChange}
+                  onPressEnter={this.handlePressEnter}
+                  placeholder={hasSessionPending ? '请先取消未处理审批' : '输入你的问题，Shift + Enter 换行'}
+                  autosize={{ minRows: 2, maxRows: 8 }}
+                  disabled={sending || hasSessionPending}
+                />
+                <div className={styles.footerActions}>
+                  <Button
+                    className={styles.footerClearButton}
+                    onClick={this.handleClear}
+                    disabled={sending}
+                    icon="delete"
+                  >
+                    清空会话
+                  </Button>
+                  <Button
+                    type="primary"
+                    className={styles.footerSendButton}
+                    onClick={this.handleSend}
+                    loading={sending}
+                  >
+                    <span>发送</span>
+                    {!sending ? <SendButtonIcon /> : null}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
           </div>

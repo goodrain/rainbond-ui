@@ -66,6 +66,7 @@ async function main() {
   await testSkipFirstStillClosesOnDone(encoder);
   await testSkipFirstStillClosesOnError(encoder);
   await testSkipFirstStillClosesOnCancelled(encoder);
+  await testSkipFirstDoesNotIgnoreNewWaitingApprovalAfterResolution(encoder);
   await testDefaultClosesOnCancelled(encoder);
 
   console.log('agent stream helper tests passed');
@@ -153,6 +154,26 @@ async function testSkipFirstStillClosesOnCancelled(encoder) {
     skipFirstWaitingApproval: true,
   });
   assert.strictEqual(events.length, 1, 'skipFirstWaitingApproval still closes on cancelled');
+}
+
+async function testSkipFirstDoesNotIgnoreNewWaitingApprovalAfterResolution(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    { type: 'approval.resolved', data: { approval_id: 'ap_1', status: 'approved' } },
+    { type: 'run.status', data: { status: 'waiting_approval' } },
+    { type: 'chat.trace', data: { ignored: true } },
+  ]);
+  const events = await readSseEvents(response, {
+    onEvent: e => seen.push(e.type),
+    skipFirstWaitingApproval: true,
+  });
+  assert.deepStrictEqual(
+    seen,
+    ['approval.resolved', 'run.status'],
+    'a new waiting_approval after approval.resolved should still terminate the stream'
+  );
+  assert.strictEqual(events.length, 2, 'new waiting_approval after approval.resolved should not be skipped');
+  assert.strictEqual(events[1].data.status, 'waiting_approval');
 }
 
 async function testDefaultClosesOnCancelled(encoder) {

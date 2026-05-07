@@ -1,6 +1,8 @@
 const assert = require('assert');
 const {
   isWorkflowStatusMessage,
+  shouldRenderAssistantBubble,
+  shouldShowBottomThinking,
   shouldRenderMessageItem,
   shouldRenderWorkflowSummary
 } = require('./displayFilters');
@@ -41,6 +43,56 @@ assert.strictEqual(
   shouldRenderMessageItem({
     kind: 'approval',
     content: '回滚当前应用到快照版本 1.0.1'
+  }),
+  true
+);
+
+assert.strictEqual(
+  shouldRenderAssistantBubble({
+    role: 'assistant',
+    kind: 'normal',
+    content: '',
+    suggestedActions: []
+  }),
+  false
+);
+
+assert.strictEqual(
+  shouldRenderAssistantBubble({
+    role: 'assistant',
+    kind: 'normal',
+    content: '下面是结果',
+    suggestedActions: []
+  }),
+  true
+);
+
+assert.strictEqual(
+  shouldRenderAssistantBubble({
+    role: 'assistant',
+    kind: 'normal',
+    content: '   ',
+    suggestedActions: [{ optionKey: 'A' }]
+  }),
+  true
+);
+
+assert.strictEqual(
+  shouldShowBottomThinking({
+    sending: true,
+    messages: [
+      { role: 'assistant', kind: 'normal', reasoningStreaming: true }
+    ]
+  }),
+  false
+);
+
+assert.strictEqual(
+  shouldShowBottomThinking({
+    sending: true,
+    messages: [
+      { role: 'assistant', kind: 'normal', reasoningStreaming: false }
+    ]
   }),
   true
 );

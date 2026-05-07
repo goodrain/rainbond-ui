@@ -35,30 +35,25 @@ function findTraceMessageIndex(messages, trace) {
 
 const { formatToolLabel } = require('../utils/agentToolLabels');
 
+function buildTraceDisplayTitle(friendlyTitle, toolName) {
+  if (friendlyTitle && toolName && friendlyTitle !== toolName) {
+    return `${friendlyTitle}（${toolName}）`;
+  }
+  return friendlyTitle || toolName || '工具调用';
+}
+
 function buildTraceContent(data = {}) {
   const toolName = data.tool_name || '';
   const friendlyTitle = formatToolLabel(toolName, data.input);
+  const displayTitle = buildTraceDisplayTitle(friendlyTitle, toolName);
   const normalizedInput =
     data && data.input && typeof data.input === 'object'
       ? JSON.stringify(data.input)
       : '';
-  const normalizedOutput =
-    data &&
-    data.output &&
-    data.output.structuredContent &&
-    typeof data.output.structuredContent === 'object'
-      ? data.output.structuredContent
-      : data.output;
-  const detail = [];
-  if (data.input) {
-    detail.push(`输入：${JSON.stringify(data.input, null, 2)}`);
-  }
-  if (normalizedOutput) {
-    detail.push(`输出：${JSON.stringify(normalizedOutput, null, 2)}`);
-  }
   return {
     title: friendlyTitle,
-    detail: detail.join('\n\n'),
+    displayTitle,
+    detail: '',
     toolName: toolName || friendlyTitle,
     traceId: data.trace_id || '',
     toolCallId: data.tool_call_id || '',

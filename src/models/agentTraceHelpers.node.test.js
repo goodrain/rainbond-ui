@@ -25,6 +25,11 @@ const trace = buildTraceContent({
 
 assert.strictEqual(trace.traceId, 'trace_1', 'trace helper should preserve trace_id');
 assert.strictEqual(trace.toolCallId, 'call_1', 'trace helper should preserve tool_call_id');
+assert.strictEqual(
+  trace.displayTitle,
+  '查看当前用户（rainbond_get_current_user）',
+  'trace helper should format friendly tool labels with the raw tool name'
+);
 
 let messages = [];
 messages = applyTraceEvent(
@@ -67,6 +72,11 @@ messages = applyTraceEvent(
 assert.strictEqual(messages.length, 1, 'trace helper should merge input/output pairs with the same trace_id');
 assert.strictEqual(findTraceMessageIndex(messages, trace), 0, 'trace helper should find existing message by trace_id');
 assert.strictEqual(messages[0].trace.hasOutput, true, 'trace helper should update merged trace with output');
-assert.ok(messages[0].trace.detail.indexOf('"user_id": 1') > -1, 'trace helper should keep structured output detail');
+assert.strictEqual(
+  messages[0].trace.displayTitle,
+  '查看当前用户（rainbond_get_current_user）',
+  'merged trace should keep the compact display label'
+);
+assert.strictEqual(messages[0].trace.detail, '', 'trace helper should no longer expose structured input/output detail');
 
 console.log('agent trace helper tests passed');
