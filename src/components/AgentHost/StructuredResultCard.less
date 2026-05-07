@@ -80,6 +80,52 @@
   line-height: 20px;
 }
 
+.suggestionSection {
+  margin-bottom: 10px;
+}
+
+.suggestionList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.suggestionCard {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid fade(@primary-color, 12%);
+  background: fade(@primary-color, 4%);
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.suggestionTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.suggestionDescription {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.suggestionActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .metaGrid {
   display: grid;
   grid-template-columns: 1fr;

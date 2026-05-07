@@ -80,6 +80,34 @@ const assistantState = applyAgentEvent(resolvedState, {
 assert.strictEqual(assistantState.messages.length, 3, 'assistant chat event should append a normal message');
 assert.strictEqual(assistantState.messages[2].content, '处理完成', 'assistant message should preserve content');
 
+const suggestedState = applyAgentEvent(assistantState, {
+  event: {
+    type: 'chat.suggested_actions',
+    sequence: 7,
+    data: {
+      summary: '当前建议优先走方案A。',
+      actions: [
+        {
+          optionKey: 'A',
+          label: '调回合理资源',
+          description: '将组件调整到 250m CPU / 512MB 内存'
+        }
+      ]
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+
+assert.strictEqual(suggestedState.messages.length, 3, 'suggested action event should attach to the latest assistant message');
+assert.strictEqual(suggestedState.messages[2].kind, 'normal', 'assistant message kind should stay normal');
+assert.deepStrictEqual(suggestedState.messages[2].suggestedActions, [
+  {
+    optionKey: 'A',
+    label: '调回合理资源',
+    description: '将组件调整到 250m CPU / 512MB 内存'
+  }
+], 'latest assistant message should carry parsed suggested actions');
+
 const custom = createAgentMessage('system', 'status', '测试');
 assert.strictEqual(custom.kind, 'status', 'helper should create the requested message kind');
 

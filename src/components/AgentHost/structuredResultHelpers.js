@@ -46,9 +46,22 @@ function isStandaloneExecutedActionResult(structuredResult = {}) {
   return structuredResult.nextAction === 'none' && toolCalls.length === 1;
 }
 
+function getSuggestedWorkflowActions(structuredResult = {}) {
+  if (
+    !structuredResult ||
+    typeof structuredResult !== 'object' ||
+    !Array.isArray(structuredResult.suggestedActions)
+  ) {
+    return [];
+  }
+
+  return structuredResult.suggestedActions;
+}
+
 module.exports = {
   getExecutedAction,
   getProposedToolAction,
   getProposedActionLabel,
+  getSuggestedWorkflowActions,
   isStandaloneExecutedActionResult
 };

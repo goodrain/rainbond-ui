@@ -3,6 +3,7 @@ const {
   getExecutedAction,
   getProposedToolAction,
   getProposedActionLabel,
+  getSuggestedWorkflowActions,
   isStandaloneExecutedActionResult
 } = require('./structuredResultHelpers');
 
@@ -50,6 +51,21 @@ const workflowExecutedResult = {
   }
 };
 
+const suggestedActionsResult = {
+  suggestedActions: [
+    {
+      optionKey: 'A',
+      label: '调回合理资源',
+      description: '将组件调整到 250m CPU / 512MB 内存',
+      recommended: true,
+      pendingAction: {
+        toolName: 'rainbond_vertical_scale_component',
+        requiresApproval: true
+      }
+    }
+  ]
+};
+
 assert.deepStrictEqual(getProposedToolAction(lowRiskResult), {
   toolName: 'rainbond_create_app_version_snapshot',
   requiresApproval: false
@@ -68,6 +84,19 @@ assert.deepStrictEqual(getExecutedAction(executedResult), {
   toolName: 'rainbond_install_app_model',
   requiresApproval: true
 });
+assert.deepStrictEqual(getSuggestedWorkflowActions(suggestedActionsResult), [
+  {
+    optionKey: 'A',
+    label: '调回合理资源',
+    description: '将组件调整到 250m CPU / 512MB 内存',
+    recommended: true,
+    pendingAction: {
+      toolName: 'rainbond_vertical_scale_component',
+      requiresApproval: true
+    }
+  }
+]);
+assert.deepStrictEqual(getSuggestedWorkflowActions({}), []);
 assert.strictEqual(getExecutedAction({}), null);
 assert.strictEqual(isStandaloneExecutedActionResult(standaloneExecutedResult), true);
 assert.strictEqual(isStandaloneExecutedActionResult(workflowExecutedResult), false);

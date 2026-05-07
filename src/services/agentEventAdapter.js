@@ -56,6 +56,13 @@ function adaptAgentEvent(event = {}) {
         content: data.content || '',
         messageId: data.message_id || '',
       };
+    case 'chat.suggested_actions':
+      return {
+        type: 'suggested_actions',
+        sequence,
+        summary: data.summary || '',
+        actions: Array.isArray(data.actions) ? data.actions : [],
+      };
     case 'chat.trace':
       return {
         type: 'trace',

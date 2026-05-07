@@ -252,10 +252,11 @@ async function streamRun({
 
 export async function sendAgentMessage(payload = {}) {
   const message = (payload.message || '').trim();
+  const selectedActionKey = (payload.selectedActionKey || '').trim();
   const context = normalizeContext(payload.context);
   const currentUser = payload.currentUser || {};
 
-  if (!message) {
+  if (!message && !selectedActionKey) {
     return {
       sessionId: payload.conversation_id || 'global-default',
       runId: '',
@@ -279,6 +280,7 @@ export async function sendAgentMessage(payload = {}) {
       },
       body: JSON.stringify({
         message,
+        selected_action_key: selectedActionKey || undefined,
         stream: true,
         context: buildAgentSessionPayload(context).context
       })

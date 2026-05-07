@@ -63,4 +63,28 @@ const completed = adaptAgentEvent({
 assert.strictEqual(completed.type, 'workflow_completed', 'adapter should normalize workflow completion');
 assert.deepStrictEqual(completed.structuredResult, { summary: 'done' }, 'adapter should keep structured result payload');
 
+const suggestedActions = adaptAgentEvent({
+  type: 'chat.suggested_actions',
+  sequence: 12,
+  data: {
+    summary: '当前建议优先走方案A。',
+    actions: [
+      {
+        optionKey: 'A',
+        label: '调回合理资源',
+        description: '将组件调整到 250m CPU / 512MB 内存'
+      }
+    ]
+  }
+});
+assert.strictEqual(suggestedActions.type, 'suggested_actions', 'adapter should normalize suggested action events');
+assert.strictEqual(suggestedActions.summary, '当前建议优先走方案A。', 'adapter should expose suggested action summary');
+assert.deepStrictEqual(suggestedActions.actions, [
+  {
+    optionKey: 'A',
+    label: '调回合理资源',
+    description: '将组件调整到 250m CPU / 512MB 内存'
+  }
+], 'adapter should expose suggested action items');
+
 console.log('agent event adapter tests passed');

@@ -581,6 +581,56 @@
   }
 }
 
+.inlineSuggestionList {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.inlineSuggestionTitle {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.inlineSuggestionCard {
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid fade(@primary-color, 14%);
+  border-radius: 12px;
+  background: fade(@primary-color, 4%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: fade(@primary-color, 28%);
+    box-shadow: @rbd-min-card-shadow;
+  }
+}
+
+.inlineSuggestionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inlineSuggestionCardTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.inlineSuggestionDescription {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  white-space: normal;
+}
+
 .messageTraceGroup {
   margin-bottom: 10px;
 }

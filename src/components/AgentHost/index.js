@@ -156,6 +156,61 @@ export default class AgentHost extends PureComponent {
     });
   };
 
+  handleSelectStructuredSuggestedAction = action => {
+    if (!action) {
+      return;
+    }
+
+    const optionKey = action.optionKey || '';
+    const label = action.label || '';
+
+    this.props.dispatch({
+      type: 'agent/sendMessage',
+      payload: {
+        message: optionKey ? `选择方案 ${optionKey}${label ? `：${label}` : ''}` : label || '执行推荐方案',
+        selectedActionKey: optionKey,
+        suppressUserEcho: true,
+        context: this.props.agent && this.props.agent.context,
+      },
+    });
+  };
+
+  renderParsedSuggestedActions = (actions, options = {}) => {
+    if (!actions || actions.length === 0) {
+      return null;
+    }
+    const showTitle = options.showTitle !== false;
+
+    return (
+      <div className={styles.inlineSuggestionList}>
+        {showTitle ? (
+          <div className={styles.inlineSuggestionTitle}>后续建议</div>
+        ) : null}
+        {actions.map((action, index) => (
+          <button
+            key={`${action.optionKey || 'option'}-${index}`}
+            type="button"
+            className={styles.inlineSuggestionCard}
+            onClick={() => this.handleSelectStructuredSuggestedAction(action)}
+          >
+            <div className={styles.inlineSuggestionHeader}>
+              <div className={styles.inlineSuggestionCardTitle}>
+                方案 {action.optionKey}
+                {action.label ? ` · ${action.label}` : ''}
+              </div>
+              {action.recommended ? <Tag color="green">推荐</Tag> : null}
+            </div>
+            {action.description ? (
+              <div className={styles.inlineSuggestionDescription}>
+                {action.description}
+              </div>
+            ) : null}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   handlePressEnter = event => {
     if (event.shiftKey) {
       return;
@@ -373,6 +428,30 @@ export default class AgentHost extends PureComponent {
     );
   };
 
+  renderSuggestedActionsMessage = item => {
+    const actions = Array.isArray(item.suggestedActions) ? item.suggestedActions : [];
+    if (actions.length === 0) {
+      return null;
+    }
+
+    return (
+      <div key={item.id} className={styles.approvalRow}>
+        <div className={styles.approvalCard}>
+          <div className={styles.approvalHeader}>
+            <span className={styles.approvalTitle}>
+              <Icon type="appstore" />
+              后续建议
+            </span>
+          </div>
+          {item.content && item.content !== '后续建议' ? (
+            <div className={styles.approvalContent}>{item.content}</div>
+          ) : null}
+          {this.renderParsedSuggestedActions(actions, { showTitle: false })}
+        </div>
+      </div>
+    );
+  };
+
   renderStatusMessage = item => {
     return (
       <div key={item.id} className={styles.contextRow}>
@@ -525,7 +604,6 @@ export default class AgentHost extends PureComponent {
     if (!shouldRenderWorkflowSummary()) {
       return null;
     }
-
     return null;
   };
 
@@ -671,6 +749,9 @@ export default class AgentHost extends PureComponent {
                   source={renderMarkdownSource(item.content || '')}
                   escapeHtml={false}
                 />
+                {Array.isArray(item.suggestedActions) && item.suggestedActions.length > 0
+                  ? this.renderParsedSuggestedActions(item.suggestedActions)
+                  : null}
               </div>
             )}
           </div>

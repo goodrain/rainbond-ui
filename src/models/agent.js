@@ -219,6 +219,16 @@ function findApprovalMessageIndex(messages, approvalId) {
   );
 }
 
+function findLatestAssistantNormalMessageIndex(messages) {
+  for (let index = (messages || []).length - 1; index >= 0; index -= 1) {
+    const item = messages[index];
+    if (item && item.role === 'assistant' && item.kind === 'normal') {
+      return index;
+    }
+  }
+  return -1;
+}
+
 function applyAgentEvents({
   messages,
   events,
@@ -300,6 +310,35 @@ function applyAgentEvents({
             { eventSequence }
           )
         );
+        break;
+      }
+      case 'suggested_actions': {
+        const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        if (assistantMessageIndex > -1) {
+          nextMessages[assistantMessageIndex] = {
+            ...nextMessages[assistantMessageIndex],
+            suggestedActions: Array.isArray(adaptedEvent.actions)
+              ? adaptedEvent.actions
+              : [],
+            suggestedActionSummary: adaptedEvent.summary || '后续建议',
+            eventSequence,
+          };
+        } else {
+          nextMessages.push(
+            createMessage(
+              'system',
+              'suggested_actions',
+              adaptedEvent.summary || '后续建议',
+              contextSnapshot,
+              {
+                suggestedActions: Array.isArray(adaptedEvent.actions)
+                  ? adaptedEvent.actions
+                  : [],
+                eventSequence,
+              }
+            )
+          );
+        }
         break;
       }
       case 'approval_requested': {
@@ -623,8 +662,12 @@ export default {
       }
 
       const contextSnapshot = (payload && payload.context) || state.context || {};
-      const userMessage = createMessage('user', 'normal', text, contextSnapshot);
-      const pendingMessages = state.messages.concat(userMessage);
+      const suppressUserEcho = !!(payload && payload.suppressUserEcho);
+      const pendingMessages = suppressUserEcho
+        ? state.messages
+        : state.messages.concat(
+            createMessage('user', 'normal', text, contextSnapshot)
+          );
 
       yield put({
         type: 'saveState',
@@ -643,6 +686,7 @@ export default {
         const response = yield call(sendAgentMessage, {
           conversation_id: state.conversationId,
           message: text,
+          selectedActionKey: payload && payload.selectedActionKey,
           context: contextSnapshot,
           currentUser,
           onEvent: event => {

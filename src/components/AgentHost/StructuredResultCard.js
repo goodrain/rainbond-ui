@@ -7,20 +7,13 @@ const {
   getExecutedAction,
   getProposedActionLabel,
   getProposedToolAction,
+  getSuggestedWorkflowActions,
   isStandaloneExecutedActionResult
 } = structuredResultHelpers;
 
 function buildBadges(structuredResult = {}) {
   const badges = [];
   const subflowData = structuredResult.subflowData || {};
-
-  if (structuredResult.selectedWorkflow) {
-    badges.push({
-      key: 'workflow',
-      color: 'blue',
-      label: structuredResult.selectedWorkflow,
-    });
-  }
 
   if (subflowData.runtimeState) {
     badges.push({
@@ -71,9 +64,12 @@ export default function StructuredResultCard(props) {
   const toolCalls = (structuredResult && structuredResult.tool_calls) || [];
   const proposedAction = getProposedToolAction(structuredResult || {});
   const executedAction = getExecutedAction(structuredResult || {});
+  const suggestedActions = getSuggestedWorkflowActions(structuredResult || {});
   const proposedActionLabel = getProposedActionLabel(structuredResult || {});
   const onContinue = props.onContinue;
+  const onSelectSuggestedAction = props.onSelectSuggestedAction;
   const sending = !!props.sending;
+  const title = suggestedActions.length > 0 ? '后续建议' : '分析结果';
 
   return (
     <div className={styles.card}>
@@ -81,16 +77,7 @@ export default function StructuredResultCard(props) {
         <div className={styles.titleWrap}>
           <Icon type="deployment-unit" className={styles.titleIcon} />
           <div>
-            <div className={styles.title}>
-              {(workflowState && workflowState.workflow_id) ||
-                (structuredResult && structuredResult.workflowId) ||
-                'workflow'}
-            </div>
-            {workflowState ? (
-              <div className={styles.subtitle}>
-                当前阶段：{workflowState.workflow_stage || 'unknown'}
-              </div>
-            ) : null}
+            <div className={styles.title}>{title}</div>
           </div>
         </div>
         {badges.length > 0 ? (
@@ -108,12 +95,6 @@ export default function StructuredResultCard(props) {
         <div className={styles.summary}>{structuredResult.summary}</div>
       ) : null}
 
-      {structuredResult && structuredResult.nextAction ? (
-        <div className={styles.nextAction}>
-          下一步：{structuredResult.nextAction}
-        </div>
-      ) : null}
-
       {proposedAction ? (
         <div className={styles.actionRow}>
           <div className={styles.actionMeta}>
@@ -127,6 +108,54 @@ export default function StructuredResultCard(props) {
           >
             {proposedActionLabel}
           </Button>
+        </div>
+      ) : null}
+
+      {suggestedActions.length > 0 ? (
+        <div className={styles.suggestionSection}>
+          <div className={styles.toolTitle}>推荐方案</div>
+          <div className={styles.suggestionList}>
+            {suggestedActions.map((item, index) => {
+              const pendingAction = item.pendingAction || {};
+              const optionKey = item.optionKey || String(index + 1);
+              const label = item.label || `方案${optionKey}`;
+              const description = item.description || '';
+              const requiresApproval = pendingAction.requiresApproval === true;
+
+              return (
+                <div key={`${optionKey}-${index}`} className={styles.suggestionCard}>
+                  <div className={styles.suggestionHeader}>
+                    <div>
+                      <div className={styles.suggestionTitle}>
+                        方案 {optionKey} · {label}
+                      </div>
+                      {description ? (
+                        <div className={styles.suggestionDescription}>{description}</div>
+                      ) : null}
+                    </div>
+                    <div className={styles.suggestionActions}>
+                      {item.recommended ? (
+                        <Tag color="green" className={styles.badge}>
+                          推荐
+                        </Tag>
+                      ) : null}
+                      <Tag color={requiresApproval ? 'orange' : 'blue'} className={styles.badge}>
+                        {requiresApproval ? '需审批' : '可直接执行'}
+                      </Tag>
+                      <Button
+                        size="small"
+                        type="primary"
+                        onClick={() => onSelectSuggestedAction && onSelectSuggestedAction(item)}
+                        loading={sending}
+                      >
+                        {requiresApproval ? '申请执行' : '执行方案'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : null}
 

@@ -38,6 +38,16 @@ function findApprovalMessageIndex(messages, approvalId) {
   );
 }
 
+function findLatestAssistantNormalMessageIndex(messages) {
+  for (let index = (messages || []).length - 1; index >= 0; index -= 1) {
+    const item = messages[index];
+    if (item && item.role === 'assistant' && item.kind === 'normal') {
+      return index;
+    }
+  }
+  return -1;
+}
+
 function applyAgentEvent(state, payload = {}) {
   const event = payload.event;
   const contextSnapshot = payload.contextSnapshot || {};
@@ -85,6 +95,32 @@ function applyAgentEvent(state, payload = {}) {
           }
         )
       );
+      break;
+    }
+    case 'chat.suggested_actions': {
+      const data = event.data || {};
+      const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+      if (assistantMessageIndex > -1) {
+        nextMessages[assistantMessageIndex] = {
+          ...nextMessages[assistantMessageIndex],
+          suggestedActions: Array.isArray(data.actions) ? data.actions : [],
+          suggestedActionSummary: data.summary || '后续建议',
+          eventSequence,
+        };
+      } else {
+        nextMessages.push(
+          createAgentMessage(
+            'system',
+            'suggested_actions',
+            data.summary || '后续建议',
+            contextSnapshot,
+            {
+              suggestedActions: Array.isArray(data.actions) ? data.actions : [],
+              eventSequence,
+            }
+          )
+        );
+      }
       break;
     }
     case 'approval.requested': {
