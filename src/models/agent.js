@@ -25,6 +25,13 @@ const {
   applyTraceEvent,
   buildTraceContent,
 } = require('./agentTraceHelpers');
+const {
+  buildCrossTabOnEventDispatcher,
+} = require('./agentCrossTab');
+const {
+  applyCompactionEvent,
+  defaultCompactionState,
+} = require('./agentCompactionReducer');
 const { formatToolLabel } = require('../utils/agentToolLabels');
 
 const { extractWorkflowState } = agentWorkflowState;
@@ -47,17 +54,16 @@ function startCrossTabRunSubscription({ sessionId, runId, contextSnapshot }) {
   const dvaApp = getDvaApp();
   const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
 
+  // F12 — only forward run.status from the foreign run. Backend replay of
+  // a stale-zombie run would otherwise flood the local tab with the
+  // foreign run's chat.message.* / approval.* / compaction.* history. The
+  // applyStreamEvent saga still detects terminal run.status and flushes
+  // pendingDraft via auto-resend.
   subscribeToActiveRun({
     sessionId,
     runId,
     abortSignal: controller && controller.signal,
-    onEvent: event => {
-      if (!dispatch) return;
-      dispatch({
-        type: 'agent/applyStreamEvent',
-        payload: { event, contextSnapshot: entry.contextSnapshot },
-      });
-    },
+    onEvent: buildCrossTabOnEventDispatcher(dispatch, entry.contextSnapshot),
   })
     .catch(() => {
       // Foreign-run SSE may legitimately error (run already terminal,
@@ -110,6 +116,9 @@ const defaultState = {
   runConflict: null,
   pendingDraft: '',
   pendingDraftMode: '',
+  // F14 — compaction lifecycle slice. Driven by SSE events
+  // compaction.started / forced_sync_due_to_pressure / completed / failed.
+  compaction: { ...defaultCompactionState },
   updatedAt: 0,
 };
 
@@ -258,6 +267,9 @@ function buildHydratedState(snapshot) {
     pendingDraftMode: '',
     sending: false,
     lastError: '',
+    // F14 — never resurrect a stale "compressing" banner from a persisted
+    // snapshot; the lifecycle is per-run and must reset on hydrate.
+    compaction: { ...defaultCompactionState },
   };
 }
 
@@ -550,12 +562,20 @@ function applyAgentStreamEvent(state, payload) {
     currentPendingApproval: state.pendingApproval,
   });
 
+  // F14 — fold the same event through the compaction reducer so the UI
+  // can render a "compressing" banner for the duration of the pass.
+  const nextCompaction = applyCompactionEvent(
+    state.compaction || defaultCompactionState,
+    payload && payload.event
+  );
+
   return {
     messages: merged.messages,
     pendingApproval: merged.pendingApproval,
     lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
     workflowState: merged.workflowState || state.workflowState,
     structuredResult: merged.structuredResult || state.structuredResult,
+    compaction: nextCompaction,
   };
 }
 
@@ -1178,6 +1198,7 @@ export default {
         lastEventSequence: merged.lastEventSequence,
         workflowState: merged.workflowState,
         structuredResult: merged.structuredResult,
+        compaction: merged.compaction,
         updatedAt: Date.now(),
       };
     },
@@ -1208,6 +1229,7 @@ export default {
         lastEventSequence: 0,
         workflowState: null,
         structuredResult: null,
+        compaction: { ...defaultCompactionState },
         updatedAt: Date.now(),
       };
     },

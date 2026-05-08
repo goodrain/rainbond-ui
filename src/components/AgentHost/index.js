@@ -981,6 +981,21 @@ export default class AgentHost extends PureComponent {
     const pendingDraftMode = (agent && agent.pendingDraftMode) || '';
     const isWaitingForOtherTab = pendingDraftMode === 'wait';
     const hasSessionPending = sessionPendingApprovals.length > 0;
+    // F14 — compaction lifecycle banner. `compaction.active` is set while
+    // the backend is compressing the conversation history; a brief
+    // 1.5-second window after a failed pass surfaces a warning.
+    const compaction = (agent && agent.compaction) || null;
+    const compactionActive = !!(compaction && compaction.active);
+    const compactionFailedRecently =
+      !!(compaction && compaction.lastFailedAt && Date.now() - compaction.lastFailedAt < 1500);
+    const compactionBannerMessage = compactionActive
+      ? (compaction && compaction.mode === 'sync_forced'
+          ? '正在同步压缩对话历史以节省 token...'
+          : '正在压缩对话历史以节省 token...')
+      : '';
+    const compactionFailureMessage = compactionFailedRecently
+      ? '压缩历史失败，已用原始历史继续'
+      : '';
     const showBottomThinking = shouldShowBottomThinking({
       sending,
       messages,
@@ -1063,6 +1078,22 @@ export default class AgentHost extends PureComponent {
             </div>
 
             {this.renderRunConflictNotice()}
+
+            {compactionActive ? (
+              <Alert
+                type="info"
+                showIcon
+                message={compactionBannerMessage}
+                style={{ margin: '8px 12px' }}
+              />
+            ) : compactionFailureMessage ? (
+              <Alert
+                type="warning"
+                showIcon
+                message={compactionFailureMessage}
+                style={{ margin: '8px 12px' }}
+              />
+            ) : null}
 
             {isWaitingForOtherTab ? (
               <Alert
