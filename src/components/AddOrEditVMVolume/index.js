@@ -154,6 +154,10 @@ export default class AddVolumes extends PureComponent {
     if (volumeCapacityValidation.default) {
       defaultVolumeCapacity = volumeCapacityValidation.default;
     }
+    const initialVolumeCapacity =
+      !!this.props.editor && data.volume_capacity === 0
+        ? undefined
+        : defaultVolumeCapacity;
 
     const formItemLayout = {
       labelCol: {
@@ -238,7 +242,7 @@ export default class AddVolumes extends PureComponent {
           </FormItem>
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
             {getFieldDecorator('volume_capacity', {
-              initialValue: defaultVolumeCapacity,
+              initialValue: initialVolumeCapacity,
               rules: [
                 {
                   min: 0,
@@ -257,7 +261,6 @@ export default class AddVolumes extends PureComponent {
                     : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
                 }
                 min={1}
-                disabled={!!this.props.editor}
               />
             )}
           </FormItem>

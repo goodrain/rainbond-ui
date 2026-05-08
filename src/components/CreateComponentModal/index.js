@@ -1726,7 +1726,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   useEffect(() => {
     if (visible && currentView === 'form') {
-      fetchLocalImageList();
+      if (currentFormType === 'docker') {
+        fetchLocalImageList();
+      } else {
+        setLocalImageList([]);
+      }
       fetchArchInfo();
       if (currentFormType === 'vm') {
         fetchVirtualMachineImages();
@@ -1788,7 +1792,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               fetchDatabaseTypes();
               break;
             case 'form':
-              fetchLocalImageList();
               fetchArchInfo();
               break;
             default:

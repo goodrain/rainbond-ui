@@ -167,6 +167,7 @@ export default class Index extends PureComponent {
           app_alias: appAlias,
           new_volume_path: vals.volume_path,
           new_file_content: vals.file_content,
+          volume_capacity: vals.volume_capacity,
           ID: editor.ID
         },
         callback: handleSuccess,

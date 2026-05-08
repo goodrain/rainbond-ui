@@ -18,5 +18,3 @@ assert.strictEqual(
   'demo/charts/common/values.yaml',
   'should fall back to the shortest nested values path when no root values exists'
 );
-
-console.log('helm values selection tests passed');

@@ -188,19 +188,35 @@ export default class index extends Component {
         })
 
     }
-    handlename = ( val )=>{
+    findRouteComponent = (record = {}) => {
         const { comList } = this.state
-        const id = val.split('-')[0];
-        let arr = []
-        if(comList && comList.length >0 ){
-            arr = (comList||[]).filter(item => item.service_name == id)
+        const routeName = record.name || '';
+        const legacyName = routeName.split('-')[0];
+        if (!comList || comList.length === 0) {
+            return null;
         }
-        return  (arr && arr.length>0 && arr[0].component_name) || ''
+        return comList.find(item => {
+            return (
+                (record.service_id && item.service_id === record.service_id) ||
+                (record.service_alias && item.service_alias === record.service_alias) ||
+                (record.service_name && item.service_name === record.service_name) ||
+                item.service_name === legacyName ||
+                item.service_alias === legacyName
+            );
+        });
     }
-    jump = (val) =>{
-    const { dispatch } = this.props;
-    const componentsID = val.split('-')[0];
-    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${componentsID}&tab=overview`));
+    handlename = (record) => {
+        const service = this.findRouteComponent(record);
+        return (service && service.component_name) || '';
+    }
+    jump = (record) => {
+        const { dispatch } = this.props;
+        const service = this.findRouteComponent(record);
+        const componentsID = (service && service.service_alias) || record.service_alias || (record.name || '').split('-')[0];
+        if (!componentsID) {
+            return;
+        }
+        dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${componentsID}&tab=overview`));
     }
     onPageChange = (page_num, page_size) => {
         this.setState({
@@ -235,9 +251,9 @@ export default class index extends Component {
                 render: (text, record) => (
                     <span>
                         {(record.name && record.port) &&
-                            <Row style={{ marginBottom: 4 }} onClick={()=>this.jump(record.name)}>
-                                <Tag key={index} color="green" style={{cursor:'pointer'}}>
-                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record.name)})</span>
+                            <Row style={{ marginBottom: 4 }} onClick={() => this.jump(record)}>
+                                <Tag key={record.name} color="green" style={{cursor:'pointer'}}>
+                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record)})</span>
                                 </Tag>
                             </Row>
                         }
@@ -260,7 +276,7 @@ export default class index extends Component {
                 key: 'nodePort',
                 render: (text, record) => (
                     <div>
-                        <Tag key={index} color="blue">
+                        <Tag key={`${record.name}-nodeport`} color="blue">
                             {record.nodePort}
                         </Tag>
                     </div>

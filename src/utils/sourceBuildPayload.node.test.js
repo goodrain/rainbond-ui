@@ -78,5 +78,3 @@ assert.deepStrictEqual(
   },
   'should keep node/static CNB payload fields for node requests'
 );
-
-console.log('source build payload tests passed');

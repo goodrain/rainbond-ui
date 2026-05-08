@@ -861,7 +861,7 @@ export async function cancelChunkUpload(body = {}, handleError) {
   const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
 
   return request(
-    `${eventUploadUrl}/${body.session_id}`,
+    `${eventUploadUrl}/upload/${body.session_id}`,
     {
       method: 'delete',
       headers: {
