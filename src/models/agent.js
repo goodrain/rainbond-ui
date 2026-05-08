@@ -15,6 +15,7 @@ import {
   getAgentContextSignature,
 } from '../utils/agentContext';
 import agentWorkflowState from './agentWorkflowState';
+const { getNextInteractionLocked } = require('./agentInteractionLock');
 const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
 const autoApprovalPolicy = require('../components/AgentHost/autoApprovalPolicy');
 const inFlightAutoApprovals = require('../components/AgentHost/inFlightAutoApprovals');
@@ -33,6 +34,7 @@ const defaultState = {
   messages: [],
   draft: '',
   sending: false,
+  interactionLocked: false,
   lastError: '',
   pendingApproval: null,
   activeRunId: '',
@@ -197,6 +199,7 @@ function buildHydratedState(snapshot) {
     sessionPendingApprovals: [],
     cancellingPending: false,
     sending: false,
+    interactionLocked: false,
     lastError: '',
   };
 }
@@ -491,6 +494,10 @@ function applyAgentStreamEvent(state, payload) {
   });
 
   return {
+    interactionLocked: getNextInteractionLocked(
+      state.interactionLocked,
+      payload && payload.event
+    ),
     messages: merged.messages,
     pendingApproval: merged.pendingApproval,
     lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
@@ -675,6 +682,7 @@ export default {
           messages: pendingMessages,
           draft: '',
           sending: true,
+          interactionLocked: true,
           lastError: '',
           updatedAt: Date.now(),
         },
@@ -716,6 +724,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            interactionLocked: false,
             lastError: '消息发送失败，请稍后重试。',
             updatedAt: Date.now(),
           },
@@ -744,6 +753,7 @@ export default {
         type: 'saveState',
         payload: {
           sending: true,
+          interactionLocked: true,
           lastError: '',
         },
       });
@@ -786,6 +796,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            interactionLocked: false,
             lastError: getErrorMessage(error),
             updatedAt: Date.now(),
           },
@@ -888,6 +899,7 @@ export default {
       const merged = applyAgentStreamEvent(state, payload);
       return {
         ...state,
+        interactionLocked: merged.interactionLocked,
         messages: merged.messages,
         pendingApproval: merged.pendingApproval,
         lastEventSequence: merged.lastEventSequence,
@@ -918,6 +930,7 @@ export default {
         visible: preserveVisible ? state.visible : false,
         context: state.context,
         lastContextSignature: state.lastContextSignature,
+        interactionLocked: false,
         pendingApproval: null,
         activeRunId: '',
         lastEventSequence: 0,
