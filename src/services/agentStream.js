@@ -100,7 +100,39 @@ async function readSseEvents(response, options = {}) {
   return events;
 }
 
+async function subscribeToRunEvents(options = {}) {
+  const {
+    url,
+    fetchImpl,
+    headers = {},
+    signal,
+    onEvent,
+    afterSequence = 0,
+  } = options;
+
+  if (!url) {
+    throw new Error('url is required');
+  }
+
+  const fetchFn =
+    fetchImpl || (typeof fetch === 'function' ? fetch : null);
+  if (!fetchFn) {
+    throw new Error('fetch is not available');
+  }
+
+  const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
+  const response = await fetchFn(url + query, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { ...headers, Accept: 'text/event-stream' },
+    signal,
+  });
+
+  return readSseEvents(response, { onEvent });
+}
+
 module.exports = {
   TERMINAL_STATUSES,
   readSseEvents,
+  subscribeToRunEvents,
 };

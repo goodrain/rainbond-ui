@@ -1,7 +1,11 @@
 const assert = require('assert');
 const { TextEncoder } = require('util');
 
-const { readSseEvents, TERMINAL_STATUSES } = require('./agentStream');
+const {
+  readSseEvents,
+  subscribeToRunEvents,
+  TERMINAL_STATUSES,
+} = require('./agentStream');
 
 function createReader(chunks) {
   let index = 0;
@@ -68,6 +72,12 @@ async function main() {
   await testSkipFirstStillClosesOnCancelled(encoder);
   await testSkipFirstDoesNotIgnoreNewWaitingApprovalAfterResolution(encoder);
   await testDefaultClosesOnCancelled(encoder);
+
+  await testSubscribeToRunEventsUsesInjectedFetch(encoder);
+  await testSubscribeToRunEventsAppendsAfterSequenceQuery(encoder);
+  await testSubscribeToRunEventsForwardsHeadersAndSignal(encoder);
+  await testSubscribeToRunEventsResolvesOnTerminal(encoder);
+  await testSubscribeToRunEventsRequiresUrl();
 
   console.log('agent stream helper tests passed');
 }
@@ -183,6 +193,146 @@ async function testDefaultClosesOnCancelled(encoder) {
   ]);
   const events = await readSseEvents(response);
   assert.strictEqual(events.length, 1, 'default mode closes on cancelled');
+}
+
+async function testSubscribeToRunEventsUsesInjectedFetch(encoder) {
+  const seen = [];
+  const captured = {};
+  const fetchImpl = async (url, opts) => {
+    captured.url = url;
+    captured.opts = opts;
+    return {
+      ok: true,
+      body: {
+        getReader() {
+          return createReader([
+            encoder.encode(
+              'data: {"type":"chat.message","data":{"role":"assistant","content":"a"}}\n\n'
+            ),
+            encoder.encode(
+              'data: {"type":"run.status","data":{"status":"done"}}\n\n'
+            ),
+          ]);
+        },
+      },
+    };
+  };
+
+  const events = await subscribeToRunEvents({
+    url: '/api/v1/copilot/sessions/cs_1/runs/run_1/events',
+    fetchImpl,
+    onEvent: e => seen.push(e.type),
+  });
+
+  assert.strictEqual(
+    captured.url,
+    '/api/v1/copilot/sessions/cs_1/runs/run_1/events',
+    'subscribe should call fetch with the run events URL when no after_sequence given'
+  );
+  assert.strictEqual(captured.opts.method, 'GET');
+  assert.strictEqual(captured.opts.credentials, 'include');
+  assert.deepStrictEqual(seen, ['chat.message', 'run.status']);
+  assert.strictEqual(events.length, 2);
+}
+
+async function testSubscribeToRunEventsAppendsAfterSequenceQuery(encoder) {
+  let calledUrl = '';
+  const fetchImpl = async url => {
+    calledUrl = url;
+    return {
+      ok: true,
+      body: {
+        getReader() {
+          return createReader([
+            encoder.encode('data: {"type":"run.status","data":{"status":"done"}}\n\n'),
+          ]);
+        },
+      },
+    };
+  };
+
+  await subscribeToRunEvents({
+    url: '/api/v1/copilot/sessions/cs_1/runs/run_1/events',
+    fetchImpl,
+    afterSequence: 7,
+  });
+
+  assert.strictEqual(
+    calledUrl,
+    '/api/v1/copilot/sessions/cs_1/runs/run_1/events?after_sequence=7',
+    'subscribe should append after_sequence query param when > 0'
+  );
+}
+
+async function testSubscribeToRunEventsForwardsHeadersAndSignal(encoder) {
+  const captured = {};
+  const fetchImpl = async (url, opts) => {
+    captured.opts = opts;
+    return {
+      ok: true,
+      body: {
+        getReader() {
+          return createReader([
+            encoder.encode('data: {"type":"run.status","data":{"status":"done"}}\n\n'),
+          ]);
+        },
+      },
+    };
+  };
+
+  const signal = { aborted: false };
+  await subscribeToRunEvents({
+    url: '/api/v1/copilot/sessions/cs_1/runs/run_1/events',
+    fetchImpl,
+    headers: { Authorization: 'GRJWT abc', X_TEAM_NAME: 'team-a' },
+    signal,
+  });
+
+  assert.strictEqual(captured.opts.signal, signal, 'subscribe should forward abort signal to fetch');
+  assert.strictEqual(captured.opts.headers.Authorization, 'GRJWT abc');
+  assert.strictEqual(captured.opts.headers.X_TEAM_NAME, 'team-a');
+  assert.strictEqual(
+    captured.opts.headers.Accept,
+    'text/event-stream',
+    'subscribe should request SSE Accept regardless of caller headers'
+  );
+}
+
+async function testSubscribeToRunEventsResolvesOnTerminal(encoder) {
+  const seen = [];
+  const fetchImpl = async () => ({
+    ok: true,
+    body: {
+      getReader() {
+        return createReader([
+          encoder.encode('data: {"type":"chat.trace","data":{"k":1}}\n\n'),
+          encoder.encode('data: {"type":"run.status","data":{"status":"cancelled"}}\n\n'),
+          encoder.encode('data: {"type":"chat.trace","data":{"ignored":true}}\n\n'),
+        ]);
+      },
+    },
+  });
+
+  const events = await subscribeToRunEvents({
+    url: '/api/v1/copilot/sessions/cs_1/runs/run_1/events',
+    fetchImpl,
+    onEvent: e => seen.push(e.type),
+  });
+
+  assert.deepStrictEqual(
+    seen,
+    ['chat.trace', 'run.status'],
+    'subscribe should stop after terminal status and not emit subsequent events'
+  );
+  assert.strictEqual(events.length, 2);
+}
+
+async function testSubscribeToRunEventsRequiresUrl() {
+  await assert.rejects(
+    () => subscribeToRunEvents({ fetchImpl: async () => ({ ok: true, body: null }) }),
+    /url is required/,
+    'subscribe should reject when url missing'
+  );
 }
 
 main().catch((error) => {

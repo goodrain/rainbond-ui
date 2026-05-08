@@ -10,6 +10,7 @@ import {
   listAgentSessions,
   loadAgentSessionMessages,
   sendAgentMessage,
+  subscribeToActiveRun,
 } from '../services/agent';
 const { adaptAgentEvent } = require('../services/agentEventAdapter');
 import {
@@ -27,6 +28,55 @@ const {
 const { formatToolLabel } = require('../utils/agentToolLabels');
 
 const { extractWorkflowState } = agentWorkflowState;
+
+// F5 — cross-tab SSE observer registry.
+// When tab B gets 409, the local run never produces events here; we have to
+// subscribe to the foreign run so the model can react to its terminal
+// status. Keyed by runId so we never open two streams for the same run.
+const crossTabSubscriptions = new Map();
+
+function startCrossTabRunSubscription({ sessionId, runId, contextSnapshot }) {
+  if (!sessionId || !runId) return;
+  if (crossTabSubscriptions.has(runId)) return;
+
+  const controller =
+    typeof AbortController === 'function' ? new AbortController() : null;
+  const entry = { controller, contextSnapshot: contextSnapshot || {} };
+  crossTabSubscriptions.set(runId, entry);
+
+  const dvaApp = getDvaApp();
+  const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+
+  subscribeToActiveRun({
+    sessionId,
+    runId,
+    abortSignal: controller && controller.signal,
+    onEvent: event => {
+      if (!dispatch) return;
+      dispatch({
+        type: 'agent/applyStreamEvent',
+        payload: { event, contextSnapshot: entry.contextSnapshot },
+      });
+    },
+  })
+    .catch(() => {
+      // Foreign-run SSE may legitimately error (run already terminal,
+      // network blip). The model's regular state will recover when the
+      // user retries — silent here is correct.
+    })
+    .then(() => {
+      crossTabSubscriptions.delete(runId);
+    });
+}
+
+function stopAllCrossTabSubscriptions() {
+  crossTabSubscriptions.forEach(entry => {
+    if (entry.controller) {
+      try { entry.controller.abort(); } catch (e) { /* ignore */ }
+    }
+  });
+  crossTabSubscriptions.clear();
+}
 
 const defaultState = {
   hydrated: false,
@@ -770,6 +820,18 @@ export default {
               updatedAt: Date.now(),
             },
           });
+          // F5 — open an SSE stream to the foreign run so we observe its
+          // terminal status. applyStreamEvent's existing auto-flush logic
+          // will pick up pendingDraft and send once we see done/cancelled/error.
+          const conflictSessionId =
+            error.sessionId || body.session_id || state.conversationId;
+          if (conflictSessionId && currentRun.run_id) {
+            startCrossTabRunSubscription({
+              sessionId: conflictSessionId,
+              runId: currentRun.run_id,
+              contextSnapshot: state.context,
+            });
+          }
           return;
         }
 
@@ -834,6 +896,8 @@ export default {
         }
       }
 
+      // F5 — clearing the conversation tears down any cross-tab observer.
+      stopAllCrossTabSubscriptions();
       // Clear local sessionStorage cache + reset DVA state.
       yield call(clearAgentSession, userId);
       yield put({
@@ -893,6 +957,8 @@ export default {
     *cancelMyInput(_, { put, select }) {
       const state = yield select(s => s.agent);
       const stashed = state.pendingDraft || '';
+      // F5 — user backed out, no need to keep watching the foreign run.
+      stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
         payload: {

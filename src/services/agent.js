@@ -1,7 +1,7 @@
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import agentPayload from './agentPayload';
-const { readSseEvents } = require('./agentStream');
+const { readSseEvents, subscribeToRunEvents } = require('./agentStream');
 
 const { buildAgentSessionPayload } = agentPayload;
 
@@ -333,22 +333,32 @@ export async function sendAgentMessage(payload = {}) {
     context
   });
 
-  const runPayload = await requestJson(
-    `${COPILOT_API_BASE}/sessions/${sessionId}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...buildRequestHeaders()
-      },
-      body: JSON.stringify({
-        message,
-        selected_action_key: selectedActionKey || undefined,
-        stream: true,
-        context: buildAgentSessionPayload(context).context
-      })
+  let runPayload;
+  try {
+    runPayload = await requestJson(
+      `${COPILOT_API_BASE}/sessions/${sessionId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          ...buildRequestHeaders()
+        },
+        body: JSON.stringify({
+          message,
+          selected_action_key: selectedActionKey || undefined,
+          stream: true,
+          context: buildAgentSessionPayload(context).context
+        })
+      }
+    );
+  } catch (error) {
+    // Attach the sessionId so the 409 cross-tab observer can subscribe to
+    // the foreign run without depending on backend response shape.
+    if (error) {
+      error.sessionId = sessionId;
     }
-  );
+    throw error;
+  }
 
   const runId = runPayload && runPayload.data && runPayload.data.run_id;
   // P0-3 step 5: emit onRunStarted *before* the SSE stream resolves so the
@@ -371,6 +381,25 @@ export async function sendAgentMessage(payload = {}) {
     runId,
     events
   };
+}
+
+// F5 — cross-tab observer. When a tab gets a 409 conflict (another tab is
+// running a turn), it stashes the user draft and needs to know when the
+// foreign run terminates so it can flush that draft. The local SSE stream
+// in this tab never opens, so we subscribe to the active run's stream
+// here and let callers dispatch events into the same model pipeline.
+export async function subscribeToActiveRun(options = {}) {
+  const { sessionId, runId, afterSequence = 0, onEvent, abortSignal } = options;
+  if (!sessionId || !runId) {
+    throw new Error('sessionId and runId are required');
+  }
+  return subscribeToRunEvents({
+    url: `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/events`,
+    headers: buildRequestHeaders(),
+    onEvent,
+    afterSequence,
+    signal: abortSignal,
+  });
 }
 
 export async function decideAgentApproval(payload = {}) {
