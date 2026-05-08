@@ -699,6 +699,25 @@ export default {
           selectedActionKey: payload && payload.selectedActionKey,
           context: contextSnapshot,
           currentUser,
+          // P0-3 step 5: surface both conversationId and activeRunId the
+          // moment the POST returns. Without conversationId, abortRun's
+          // early-return (sessionId === 'global-default') swallows the
+          // click silently. Both fields drive UI state during the stream.
+          onRunStarted: started => {
+            const startedSessionId = started && started.sessionId;
+            const startedRunId = started && started.runId;
+            if (storeDispatch && startedRunId) {
+              storeDispatch({
+                type: 'agent/saveState',
+                payload: {
+                  ...(startedSessionId
+                    ? { conversationId: startedSessionId }
+                    : {}),
+                  activeRunId: startedRunId,
+                },
+              });
+            }
+          },
           onEvent: event => {
             if (storeDispatch) {
               storeDispatch({

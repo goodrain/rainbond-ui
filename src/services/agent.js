@@ -351,6 +351,14 @@ export async function sendAgentMessage(payload = {}) {
   );
 
   const runId = runPayload && runPayload.data && runPayload.data.run_id;
+  // P0-3 step 5: emit onRunStarted *before* the SSE stream resolves so the
+  // model layer can surface both sessionId and activeRunId immediately.
+  // Without this, the stop button (canStopRun = sending && activeRunId) only
+  // flips on after the run has already finished, and abortRun bails out
+  // because conversationId is still its initial 'global-default' literal.
+  if (payload.onRunStarted && runId) {
+    payload.onRunStarted({ sessionId, runId });
+  }
   const events = await streamRun({
     sessionId,
     runId,
