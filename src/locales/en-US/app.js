@@ -166,6 +166,7 @@ const appPublish = {
   'appPublish.btn.record.list.label.frontend_component':'Frontend Component',
   'appPublish.btn.record.list.label.entry_path':'Entry Path',
   'appPublish.btn.record.list.label.inject_position':'Inject Position',
+  'appPublish.btn.record.list.option.no_inject':'No Inject',
   'appPublish.btn.record.list.label.menu_title':'Menu Title',
   'appPublish.btn.record.list.label.route_path':'Route Path',
   'appPublish.btn.record.list.label.describe':'Notes',
