@@ -1,5 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { Icon } from 'antd';
+import { routerRedux } from 'dva/router';
 import { getDvaApp } from 'umi';
 import AgentHost from './index';
 import styles from './RootShell.less';
@@ -40,6 +41,7 @@ export default class AgentRootShell extends PureComponent {
     this.prevLoginKey = '';
     this.prevPathSignature = '';
     this.prevAgentUpdatedAt = 0;
+    this.prevMutationNavigationKey = '';
     this.isSyncingContext = false;
     this.viewportLockBorderGradientId = `appViewportLockBorderGradient_${Math.random()
       .toString(36)
@@ -194,10 +196,13 @@ export default class AgentRootShell extends PureComponent {
     const previousLoginKey = this.prevLoginKey;
     const previousAgent = this.state.agent || null;
     const pathSignature = getAgentRouteSignature(location);
+    const mutationNavigationKey = agent && agent.pendingMutationNavigationKey;
+    const mutationRoute = agent && agent.pendingMutationRoute;
 
     if (loginKey !== previousLoginKey) {
       this.prevLoginKey = loginKey;
       this.prevAgentUpdatedAt = 0;
+      this.prevMutationNavigationKey = '';
 
       if (previousLoginKey && !loginKey) {
         this.persistenceScheduler.flush();
@@ -256,6 +261,15 @@ export default class AgentRootShell extends PureComponent {
         immediate: !agent.sending || panelClosed,
       });
       this.prevAgentUpdatedAt = agent.updatedAt;
+    }
+
+    if (
+      mutationNavigationKey &&
+      mutationRoute &&
+      mutationNavigationKey !== this.prevMutationNavigationKey
+    ) {
+      this.prevMutationNavigationKey = mutationNavigationKey;
+      this.store.dispatch(routerRedux.push(mutationRoute));
     }
 
     if (

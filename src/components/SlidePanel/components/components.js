@@ -506,11 +506,28 @@ class Main extends PureComponent {
   handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
+    const refresh = globalUtil.getRefresh();
+    const currentSubTab = globalUtil.getSlidePanelSubTab();
+    const nextSubTab =
+      key === 'advancedSettings'
+        ? (currentSubTab || (this.state.isShowKubeBlocksComponent ? 'port' : 'mnt'))
+        : '';
     this.setState({
       activeTab: key
     }, () => {
+      const query = [
+        'type=components',
+        `componentID=${encodeURIComponent(app_alias)}`,
+        `tab=${encodeURIComponent(key)}`
+      ];
+      if (nextSubTab) {
+        query.push(`subTab=${encodeURIComponent(nextSubTab)}`);
+      }
+      if (refresh) {
+        query.push(`refresh=${encodeURIComponent(refresh)}`);
+      }
       dispatch(
-        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${key}`)
+        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?${query.join('&')}`)
       );
     })
   };
@@ -1716,6 +1733,12 @@ class Main extends PureComponent {
       })
     }
     const Com = map[activeTab];
+    const refreshKey = globalUtil.getRefresh() || 'steady';
+    const activeSubTab = globalUtil.getSlidePanelSubTab() || '';
+    const componentRenderKey =
+      activeTab === 'advancedSettings'
+        ? `${activeTab}-${activeSubTab || 'default'}-${refreshKey}`
+        : `${activeTab}-${refreshKey}`;
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1881,7 +1904,7 @@ class Main extends PureComponent {
           }}
         >
           <CSSTransition
-            key={activeTab}
+            key={componentRenderKey}
             timeout={700}
             classNames="page-zoom"
             unmountOnExit
