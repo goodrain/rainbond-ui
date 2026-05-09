@@ -15,5 +15,3 @@ assert.match(
   /getFieldDecorator\('BUILD_NO_CACHE',\s*\{\s*valuePropName:\s*'checked',\s*initialValue:\s*isBuildEnvTruthy\(envs\.BUILD_NO_CACHE\)/s,
   'NodeJSCNBConfig should normalize BUILD_NO_CACHE with isBuildEnvTruthy'
 );
-
-console.log('nodejs cnb build cache switch test passed');

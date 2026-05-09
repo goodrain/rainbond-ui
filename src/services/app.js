@@ -1133,14 +1133,18 @@ export async function addOuterEnvs(body = {}) {
  name ： 说明
 */
 export async function editEvns(body = {}) {
+  const data = {
+    name: body.name,
+    attr_value: body.attr_value || ''
+  };
+  if (body.attr_name !== undefined) {
+    data.attr_name = body.attr_name;
+  }
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
     {
       method: 'put',
-      data: {
-        name: body.name,
-        attr_value: body.attr_value || ''
-      }
+      data
     }
   );
 }
@@ -1620,6 +1624,7 @@ export async function editorVolume(
     app_alias,
     ID,
     new_volume_path,
+    volume_capacity,
     file_content
   }
 ) {
@@ -1630,7 +1635,13 @@ export async function editorVolume(
       data: {
         mode: body.mode,
         new_volume_path: body.new_volume_path,
-        new_file_content: body.new_file_content
+        new_file_content: body.new_file_content,
+        volume_capacity:
+          body.volume_capacity === ''
+            ? 0
+            : body.volume_capacity !== undefined
+              ? Number(body.volume_capacity)
+              : undefined
       }
     }
   );

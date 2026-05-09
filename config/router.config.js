@@ -53,6 +53,13 @@ export default [
         name: 'Invite',
         authority: ['admin', 'user'],
       },
+      // CLI 授权（rainbond-skills install.sh 浏览器回调登录）
+      {
+        path: '/cli-auth',
+        component: './CliAuth',
+        name: 'CliAuth',
+        authority: ['admin', 'user'],
+      },
       // 应用市场安装
       {
         path: '/marketplace/install/:appId',

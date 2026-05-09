@@ -424,8 +424,8 @@ export default class AddAdmin extends PureComponent {
                         message:formatMessage({id:'componentOverview.body.AddAdmin.max'})
                       },
                       {
-                        pattern: /^[a-z]+$/g,
-                        message:formatMessage({id:'componentOverview.body.AddAdmin.only'})
+                        pattern: /^[a-z]([-a-z0-9]*[a-z0-9])?$/,
+                        message: formatMessage({ id: 'placeholder.nameSpaceReg' })
                       }
                     ]
                   })(
