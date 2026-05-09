@@ -1597,7 +1597,11 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_advanced': '高阶与编排',
     'componentOverview.body.CreateComponentModal.group_extension': '扩展与中间件',
     'componentOverview.body.CreateComponentModal.vm': '虚拟机 (VM)',
-    'componentOverview.body.CreateComponentModal.llm': '大模型 (LLM)',
+    'componentOverview.body.CreateComponentModal.llm': 'AI大模型 (LLM)',
+    'componentOverview.body.CreateComponentModal.llm_install_required': '请先安装 AI大模型 插件',
+    'componentOverview.body.CreateComponentModal.llm_install_confirm_desc': '当前平台未安装 AI大模型 插件，是否前往功能扩展页面安装？',
+    'componentOverview.body.CreateComponentModal.llm_contact_admin_title': '未安装大模型插件',
+    'componentOverview.body.CreateComponentModal.llm_contact_admin_desc': '当前平台未安装 AI大模型 插件，请联系企业管理员前往功能扩展页面安装。',
     // ComposeCheckInfo
     'composeCheckInfo.pending_upload': '待上传',
     'composeCheckInfo.detected_services': '检测到 {count} 个服务',

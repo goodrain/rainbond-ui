@@ -1585,7 +1585,11 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.group_advanced': 'Advanced & Orchestration',
     'componentOverview.body.CreateComponentModal.group_extension': 'Extensions & Middleware',
     'componentOverview.body.CreateComponentModal.vm': 'Virtual Machine (VM)',
-    'componentOverview.body.CreateComponentModal.llm': 'Large Language Model (LLM)',
+    'componentOverview.body.CreateComponentModal.llm': 'AI Large Language Model (LLM)',
+    'componentOverview.body.CreateComponentModal.llm_install_required': 'Please install the AI Large Language Model plugin first.',
+    'componentOverview.body.CreateComponentModal.llm_install_confirm_desc': 'The AI Large Language Model plugin is not installed. Do you want to go to the Extension page to install it?',
+    'componentOverview.body.CreateComponentModal.llm_contact_admin_title': 'LLM plugin is not installed',
+    'componentOverview.body.CreateComponentModal.llm_contact_admin_desc': 'The AI Large Language Model plugin is not installed on this platform. Please contact the enterprise administrator to install it from the Extension page.',
     // ComposeCheckInfo
     'composeCheckInfo.pending_upload': 'Pending Upload',
     'composeCheckInfo.detected_services': 'Detected {count} services',
