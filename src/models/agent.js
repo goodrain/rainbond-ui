@@ -18,6 +18,7 @@ import {
   isSupportedAgentMutationTool,
   resolvePostActionRoute,
   resolvePreActionRoute,
+  shouldUseSlidePanelContentRefresh,
 } from '../utils/agentMutationRouteMap';
 import agentWorkflowState from './agentWorkflowState';
 const { getNextInteractionLocked } = require('./agentInteractionLock');
@@ -65,6 +66,7 @@ const defaultState = {
   pendingMutationTool: '',
   pendingMutationRoute: '',
   pendingMutationNavigationKey: '',
+  pendingMutationRefreshKey: '',
   lastMutationResult: null,
   lastMutationRunId: '',
   updatedAt: 0,
@@ -210,6 +212,7 @@ function buildHydratedState(snapshot) {
     pendingMutationTool: snapshot.pendingMutationTool || '',
     pendingMutationRoute: snapshot.pendingMutationRoute || '',
     pendingMutationNavigationKey: snapshot.pendingMutationNavigationKey || '',
+    pendingMutationRefreshKey: snapshot.pendingMutationRefreshKey || '',
     lastMutationResult: snapshot.lastMutationResult || null,
     lastMutationRunId: snapshot.lastMutationRunId || '',
     sessionList: [],
@@ -243,6 +246,16 @@ function buildMutationNavigationPayload(toolName, route) {
     pendingMutationTool: toolName,
     pendingMutationRoute: route,
     pendingMutationNavigationKey: `${toolName}_${Date.now()}`,
+  };
+}
+
+function buildMutationRefreshPayload(toolName) {
+  if (!toolName) {
+    return null;
+  }
+
+  return {
+    pendingMutationRefreshKey: `${toolName}_${Date.now()}`,
   };
 }
 
@@ -882,6 +895,17 @@ export default {
       const prevApprovalId =
         (prevState.pendingApproval && prevState.pendingApproval.approvalId) || '';
       const adaptedEvent = adaptAgentEvent(payload && payload.event);
+      const isDuplicateMutationTrace =
+        !!(
+          adaptedEvent &&
+          adaptedEvent.type === 'trace' &&
+          prevState.lastMutationResult &&
+          prevState.lastMutationResult.sequence === adaptedEvent.sequence &&
+          payload &&
+          payload.event &&
+          payload.event.data &&
+          prevState.lastMutationResult.toolName === payload.event.data.tool_name
+        );
 
       yield put({
         type: 'applyStreamEventReducer',
@@ -917,9 +941,70 @@ export default {
 
       if (
         adaptedEvent &&
+        adaptedEvent.type === 'trace' &&
+        payload &&
+        payload.event &&
+        payload.event.data &&
+        payload.event.data.tool_name &&
+        isSupportedAgentMutationTool(payload.event.data.tool_name) &&
+        payload.event.data.output &&
+        !isDuplicateMutationTrace
+      ) {
+        const mutationToolName =
+          payload.event.data.tool_name || prevState.pendingMutationTool;
+        const resultPayload =
+          payload.event.data.output &&
+          payload.event.data.output.structuredContent
+            ? payload.event.data.output.structuredContent
+            : payload.event.data.output || null;
+        const shouldRefreshContent = shouldUseSlidePanelContentRefresh(
+          mutationToolName
+        );
+
+        if (shouldRefreshContent) {
+          const refreshPayload = buildMutationRefreshPayload(mutationToolName);
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        } else {
+          const route = resolvePostActionRoute({
+            toolName: mutationToolName,
+            context: nextState.context,
+            appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+            result: resultPayload,
+          });
+          const navigationPayload = buildMutationNavigationPayload(
+            mutationToolName,
+            route
+          );
+          const refreshPayload = navigationPayload
+            ? null
+            : buildMutationRefreshPayload(mutationToolName);
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(navigationPayload || {}),
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        }
+      } else if (
+        adaptedEvent &&
         adaptedEvent.type === 'run_status' &&
         adaptedEvent.status === 'done' &&
-        prevState.pendingMutationTool
+        prevState.pendingMutationTool &&
+        !shouldUseSlidePanelContentRefresh(prevState.pendingMutationTool)
       ) {
         const route = resolvePostActionRoute({
           toolName: prevState.pendingMutationTool,
@@ -943,6 +1028,10 @@ export default {
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             ...(navigationPayload || {}),
+            ...(!navigationPayload
+              ? buildMutationRefreshPayload(prevState.pendingMutationTool)
+              : {}),
+            updatedAt: Date.now(),
           },
         });
       } else if (
@@ -1081,6 +1170,7 @@ export default {
         pendingMutationTool: '',
         pendingMutationRoute: '',
         pendingMutationNavigationKey: '',
+        pendingMutationRefreshKey: '',
         lastMutationResult: null,
         lastMutationRunId: '',
         updatedAt: Date.now(),

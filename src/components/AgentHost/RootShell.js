@@ -269,7 +269,10 @@ export default class AgentRootShell extends PureComponent {
       mutationNavigationKey !== this.prevMutationNavigationKey
     ) {
       this.prevMutationNavigationKey = mutationNavigationKey;
-      this.store.dispatch(routerRedux.push(mutationRoute));
+      const currentRoute = this.buildLocationRoute(location);
+      if (currentRoute !== mutationRoute) {
+        this.store.dispatch(routerRedux.push(mutationRoute));
+      }
     }
 
     if (
@@ -285,6 +288,14 @@ export default class AgentRootShell extends PureComponent {
         agent,
       });
     }
+  };
+
+  buildLocationRoute = location => {
+    if (!location) {
+      return '';
+    }
+
+    return `${location.pathname || ''}${location.search || ''}`;
   };
 
   shouldShowAgent = () => {

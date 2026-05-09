@@ -236,7 +236,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     pods: appControl.pods,
@@ -256,7 +256,8 @@ class EditName extends PureComponent {
       loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
-    clusterDetail: kubeblocks.clusterDetail
+    clusterDetail: kubeblocks.clusterDetail,
+    pendingMutationRefreshKey: agent.pendingMutationRefreshKey,
   }),
   null,
   null,
@@ -1734,11 +1735,13 @@ class Main extends PureComponent {
     }
     const Com = map[activeTab];
     const refreshKey = globalUtil.getRefresh() || 'steady';
+    const pendingMutationRefreshKey =
+      this.props.pendingMutationRefreshKey || 'stable';
     const activeSubTab = globalUtil.getSlidePanelSubTab() || '';
     const componentRenderKey =
       activeTab === 'advancedSettings'
-        ? `${activeTab}-${activeSubTab || 'default'}-${refreshKey}`
-        : `${activeTab}-${refreshKey}`;
+        ? `${activeTab}-${activeSubTab || 'default'}-${refreshKey}-${pendingMutationRefreshKey}`
+        : `${activeTab}-${refreshKey}-${pendingMutationRefreshKey}`;
     const formItemLayout = {
       labelCol: {
         span: 1

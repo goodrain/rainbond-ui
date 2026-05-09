@@ -174,6 +174,22 @@ export function isSupportedAgentMutationTool(toolName) {
   return !!getAgentMutationRoutePolicy(toolName);
 }
 
+function isSlidePanelRefreshRouteKind(routeKind) {
+  return (
+    routeKind === 'component-refresh' ||
+    routeKind === 'component-port-refresh'
+  );
+}
+
+export function shouldUseSlidePanelContentRefresh(toolName) {
+  const policy = getAgentMutationRoutePolicy(toolName);
+  return !!(
+    policy &&
+    policy.post &&
+    isSlidePanelRefreshRouteKind(policy.post.routeKind)
+  );
+}
+
 function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {}) {
   const refresh = routeMeta.refresh || '';
 

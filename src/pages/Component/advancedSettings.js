@@ -157,7 +157,9 @@ export default class advancedSettings extends Component {
     };
     const Com = map[activeTab[0]];
     const refreshKey = globalUtil.getRefresh() || 'steady';
-    const advancedRenderKey = `${activeTab[0]}-${refreshKey}`;
+    const pendingMutationRefreshKey =
+      this.props.pendingMutationRefreshKey || 'stable';
+    const advancedRenderKey = `${activeTab[0]}-${refreshKey}-${pendingMutationRefreshKey}`;
     return (
       <div>
         <Row>
