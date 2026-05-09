@@ -67,10 +67,13 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import { getVisibleComponentPlugins } from './componentPluginHelpers';
+import { shouldShowGenericVisitAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -315,6 +318,10 @@ class Main extends PureComponent {
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
+    if (this.vmExportTimer) {
+      clearTimeout(this.vmExportTimer);
+      this.vmExportTimer = null;
+    }
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
@@ -953,6 +960,87 @@ class Main extends PureComponent {
       }
     });
   }
+  pollVMExportStatus = (assetId, count = 0) => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    if (!assetId || count > 40) {
+      return;
+    }
+    dispatch({
+      type: 'appControl/getVMExportStatus',
+      payload: {
+        team_name,
+        app_alias: serviceAlias,
+        asset_id: assetId
+      },
+      callback: res => {
+        const asset = res && res.bean;
+        if (!asset || !asset.status) {
+          return;
+        }
+        this.loadDetail();
+        if (asset.status === 'exporting') {
+          this.vmExportTimer = setTimeout(() => this.pollVMExportStatus(assetId, count + 1), 3000);
+          return;
+        }
+        if (asset.status === 'ready') {
+          notification.success({ message: formatMessage({ id: 'Vm.export.success' }) });
+          return;
+        }
+        if (asset.status === 'failed') {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.failed' }) });
+        }
+      }
+    });
+  };
+  canExportVM = status => {
+    return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
+  };
+  startVMExportRequest = forceReplace => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'appControl/startVMExport',
+        payload: {
+          team_name,
+          app_alias: serviceAlias,
+          force_replace: !!forceReplace
+        },
+        callback: res => {
+          const asset = res && res.bean;
+          if (asset && asset.requires_confirmation && !forceReplace) {
+            Modal.confirm({
+              title: formatMessage({ id: 'Vm.export.modalTitle' }),
+              content: res.msg_show || formatMessage({ id: 'Vm.export.started' }),
+              onOk: () => this.startVMExportRequest(true).then(resolve).catch(reject)
+            });
+            resolve();
+            return;
+          }
+          if (asset && asset.id) {
+            notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+            this.loadDetail();
+            this.pollVMExportStatus(asset.id);
+            resolve(asset);
+            return;
+          }
+          reject(new Error('vm export start failed'));
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+  handleVMExport = () => {
+    const { status } = this.state;
+    if (!this.canExportVM(status)) {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
+      return;
+    }
+    this.startVMExportRequest(false).catch(() => {});
+  };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;
@@ -1197,7 +1285,6 @@ class Main extends PureComponent {
       buildInformationLoading,
       pluginList
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")
     const {
       BuildList,
       componentTimer,
@@ -1230,6 +1317,10 @@ class Main extends PureComponent {
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const CompluginList = getVisibleComponentPlugins(
+      PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
+      appDetail
+    );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
       start: formatMessage({ id: 'componentOverview.header.right.start' }),
@@ -1259,6 +1350,12 @@ class Main extends PureComponent {
         app_alias={appAlias}
       />
     );
+    const showGenericVisitAction = shouldShowGenericVisitAction({
+      method,
+      canVisit: appStatusUtil.canVisit(status),
+      isShowThirdParty,
+      isAccess
+    });
     const action = (
       status && status.status &&
       <div>
@@ -1274,7 +1371,16 @@ class Main extends PureComponent {
           </Button>
         )}
         {
-          method == 'vm' && <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          method == 'vm' && ['running', 'paused'].includes(status.status) && (
+            <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
+          )
+        }
+        {
+          method == 'vm' && this.canExportVM(status) && (
+            <Button style={{ marginLeft: 8 }} onClick={this.handleVMExport}>
+              {formatMessage({ id: 'Vm.export.action' })}
+            </Button>
+          )
         }
         {method != 'vm' ? (
           isVisitWebTerminal && !isShowThirdParty && (
@@ -1354,17 +1460,7 @@ class Main extends PureComponent {
         ) : (
           ""
         )}
-        {appDetail && appDetail.service && appDetail.service.service_source === 'market' &&
-          appStatusUtil.canVisit(status) &&
-          !isShowThirdParty &&
-          isAccess &&
-          visitBtns}
-        {appDetail && appDetail.service && appDetail.service.service_source !== 'market' &&
-          appStatusUtil.canVisit(status) &&
-          !isShowThirdParty &&
-          isAccess &&
-          visitBtns}
-        {isShowThirdParty && isAccess && visitBtns}
+        {showGenericVisitAction && visitBtns}
       </div>
     );
     const tabs = [
@@ -1388,7 +1484,7 @@ class Main extends PureComponent {
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' })
       });
     }
-    if (isServiceMonitor) {
+    if (isServiceMonitor && method != 'vm') {
       tabs.push({
         key: 'monitor',
         // tab: '监控',
@@ -1528,9 +1624,18 @@ class Main extends PureComponent {
       })
     }
     let { type } = this.props.match.params;
+    const visibleTabList = tabsShow ? tabList : overviewTabs;
+    const defaultTabKey = visibleTabList[0] && visibleTabList[0].key
+      ? visibleTabList[0].key
+      : isShowThirdParty
+        ? 'thirdPartyServices'
+        : 'overview';
 
     if (!type) {
-      type = isShowThirdParty ? 'thirdPartyServices' : 'overview';
+      type = defaultTabKey;
+    }
+    if (!visibleTabList.some(item => item.key === type)) {
+      type = defaultTabKey;
     }
     const Com = map[type];
     const formItemLayout = {
@@ -1571,7 +1676,7 @@ class Main extends PureComponent {
           title={this.renderTitle(componentName)}
           onTabChange={this.handleTabChange}
           tabActiveKey={type}
-          tabList={tabsShow ? tabList : overviewTabs}
+          tabList={visibleTabList}
         >
           {this.state.showMarketAppDetail && (
             <MarketAppDetailShow

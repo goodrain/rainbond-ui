@@ -29,6 +29,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AppShareAppInfo from './AppShareAppInfo';
 import {
   collectShareServiceData,
+  isPlatformPluginPositionConfigured,
   validateShareVersion
 } from './appShareHelpers';
 import mytabcss from '../mytab.less';
@@ -479,7 +480,7 @@ export default class AppShareBase extends PureComponent {
         !!getFieldValue('plugin_name') &&
         !!getFieldValue('plugin_type') &&
         !!getFieldValue('entry_path') &&
-        ((getFieldValue('inject_position') || []).length > 0));
+        isPlatformPluginPositionConfigured(getFieldValue('inject_position')));
     const selectedModel = models.find(item => item.app_id === Application) || model;
     const selectedModelName = (selectedModel && selectedModel.app_name) || '-';
     const pluginChecklist = {

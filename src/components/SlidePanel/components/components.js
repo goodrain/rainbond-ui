@@ -66,10 +66,13 @@ import { formatMessage } from '@/utils/intl';
 import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
+import { getVisibleComponentPlugins } from '../../../pages/Component/componentPluginHelpers';
+import { shouldShowGenericVisitAction } from '../../../pages/Component/visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const VM_EXPORT_ALLOWED_STATUSES = ['closed'];
 
 @Form.create()
 @connect(null, null, null, { withRef: true })
@@ -340,7 +343,23 @@ class Main extends PureComponent {
 
       // 检测 tab 参数变化，更新 activeTab
       if (currentTab && currentTab !== this.state.activeTab) {
-        this.setState({ activeTab: currentTab });
+        const normalizedTab = this.normalizeActiveTab(
+          currentTab,
+          this.props.appDetail,
+          this.state.isShowThirdParty
+        );
+
+        if (normalizedTab !== currentTab) {
+          const { dispatch } = this.props;
+          dispatch(
+            routerRedux.replace(
+              `${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${currentComponentID}&tab=${normalizedTab}`
+            )
+          );
+          return;
+        }
+
+        this.setState({ activeTab: normalizedTab });
       }
     }
   }
@@ -350,6 +369,10 @@ class Main extends PureComponent {
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
     this.props.dispatch({ type: 'kubeblocks/clearClusterDetail' });
+    if (this.vmExportTimer) {
+      clearTimeout(this.vmExportTimer);
+      this.vmExportTimer = null;
+    }
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
@@ -503,6 +526,29 @@ class Main extends PureComponent {
     }, times);
   };
 
+  normalizeActiveTab = (tab, appDetail, isShowThirdParty = false) => {
+    const method = appDetail?.service?.extend_method;
+    const defaultTab = isShowThirdParty
+      ? 'thirdPartyServices'
+      : method === 'kubeblocks_component'
+        ? 'databaseOverview'
+        : 'overview';
+
+    if (!tab) {
+      return defaultTab;
+    }
+
+    if (method === 'vm' && tab === 'monitor') {
+      return 'overview';
+    }
+
+    if (method === 'kubeblocks_component' && tab === 'overview') {
+      return 'databaseOverview';
+    }
+
+    return tab;
+  };
+
   handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
@@ -579,6 +625,12 @@ class Main extends PureComponent {
       callback: appDetail => {
         this.fetchAppDetail();
         const haveTabKey = globalUtil.getSlidePanelTab();
+        const isShowThirdParty = appDetail.is_third ? appDetail.is_third : false;
+        const initialTab = this.normalizeActiveTab(
+          haveTabKey,
+          appDetail,
+          isShowThirdParty
+        );
         if (val) {
           this.loadBuildState(appDetail, val);
         } else {
@@ -587,18 +639,22 @@ class Main extends PureComponent {
         if (appDetail.service.service_source) {
           const isKBComponent = appDetail?.service?.extend_method === 'kubeblocks_component';
           this.setState({
-            isShowThirdParty: appDetail.is_third ? appDetail.is_third : false,
+            isShowThirdParty,
             tabsShow: true,
             isShowKubeBlocksComponent: isKBComponent
           }, () => {
             this.setState({
               routerSwitch: false,
-              activeTab: (() => {
-                const targetTab = haveTabKey ? haveTabKey :
-                  this.state.isShowThirdParty ? 'thirdPartyServices' : 'overview';
-                return (isKBComponent && targetTab === 'overview') ? 'databaseOverview' : targetTab;
-              })()
+              activeTab: initialTab
             });
+
+            if (haveTabKey && haveTabKey !== initialTab) {
+              dispatch(
+                routerRedux.replace(
+                  `${prefixUrl}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${initialTab}`
+                )
+              );
+            }
 
             if (isKBComponent) {
               dispatch({
@@ -1037,6 +1093,87 @@ class Main extends PureComponent {
       }
     });
   }
+  pollVMExportStatus = (assetId, count = 0) => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    if (!assetId || count > 40) {
+      return;
+    }
+    dispatch({
+      type: 'appControl/getVMExportStatus',
+      payload: {
+        team_name,
+        app_alias: serviceAlias,
+        asset_id: assetId
+      },
+      callback: res => {
+        const asset = res && res.bean;
+        if (!asset || !asset.status) {
+          return;
+        }
+        this.loadDetail();
+        if (asset.status === 'exporting') {
+          this.vmExportTimer = setTimeout(() => this.pollVMExportStatus(assetId, count + 1), 3000);
+          return;
+        }
+        if (asset.status === 'ready') {
+          notification.success({ message: formatMessage({ id: 'Vm.export.success' }) });
+          return;
+        }
+        if (asset.status === 'failed') {
+          notification.warning({ message: formatMessage({ id: 'Vm.export.failed' }) });
+        }
+      }
+    });
+  };
+  canExportVM = status => {
+    return !!(status && VM_EXPORT_ALLOWED_STATUSES.includes(status.status));
+  };
+  startVMExportRequest = forceReplace => {
+    const { dispatch } = this.props;
+    const { team_name, serviceAlias } = this.fetchParameter();
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'appControl/startVMExport',
+        payload: {
+          team_name,
+          app_alias: serviceAlias,
+          force_replace: !!forceReplace
+        },
+        callback: res => {
+          const asset = res && res.bean;
+          if (asset && asset.requires_confirmation && !forceReplace) {
+            Modal.confirm({
+              title: formatMessage({ id: 'Vm.export.modalTitle' }),
+              content: res.msg_show || formatMessage({ id: 'Vm.export.started' }),
+              onOk: () => this.startVMExportRequest(true).then(resolve).catch(reject)
+            });
+            resolve();
+            return;
+          }
+          if (asset && asset.id) {
+            notification.success({ message: formatMessage({ id: 'Vm.export.started' }) });
+            this.loadDetail();
+            this.pollVMExportStatus(asset.id);
+            resolve(asset);
+            return;
+          }
+          reject(new Error('vm export start failed'));
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+  handleVMExport = () => {
+    const { status } = this.state;
+    if (!this.canExportVM(status)) {
+      notification.warning({ message: formatMessage({ id: 'Vm.export.unavailable' }) });
+      return;
+    }
+    this.startVMExportRequest(false).catch(() => {});
+  };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;
@@ -1190,6 +1327,12 @@ class Main extends PureComponent {
         app_alias={globalUtil.getSlidePanelComponentID()}
       />
     );
+    const showGenericVisitAction = shouldShowGenericVisitAction({
+      method,
+      canVisit: appStatusUtil.canVisit(status),
+      isShowThirdParty,
+      isAccess
+    });
     const isShowUpdate = method !== 'vm' && isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
     this.setState({
       isShowUpdate
@@ -1198,12 +1341,7 @@ class Main extends PureComponent {
     const allOperations = [
       {
         key: 'visit',
-        show: (
-          ((appDetail?.service?.service_source === 'market' ||
-            appDetail?.service?.service_source !== 'market') &&
-            appStatusUtil.canVisit(status) && !isShowThirdParty && isAccess) ||
-          (isShowThirdParty && isAccess)
-        ),
+        show: showGenericVisitAction,
         type: 'component',
         component: visitBtns
       },
@@ -1248,10 +1386,17 @@ class Main extends PureComponent {
       },
       {
         key: 'vm',
-        show: method === 'vm' && status?.status,
+        show: method === 'vm' && ['running', 'paused'].includes(status?.status),
         type: 'button',
         text: status?.status === 'paused' ? "恢复" : '挂起',
         onClick: () => this.handleVm()
+      },
+      {
+        key: 'vmExport',
+        show: method === 'vm' && this.canExportVM(status),
+        type: 'button',
+        text: formatMessage({ id: 'Vm.export.action' }),
+        onClick: () => this.handleVMExport()
       },
       {
         key: 'update',
@@ -1461,7 +1606,6 @@ class Main extends PureComponent {
         isOtherSetting
       }
     } = this.props;
-    const CompluginList = PluginUtile.segregatePluginsByHierarchy(pluginList, "Component")    
     const {
       BuildList,
       componentTimer,
@@ -1479,6 +1623,10 @@ class Main extends PureComponent {
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const CompluginList = getVisibleComponentPlugins(
+      PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
+      appDetail
+    );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
       start: formatMessage({ id: 'componentOverview.header.right.start' }),
@@ -1572,6 +1720,8 @@ class Main extends PureComponent {
         key: 'monitor',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
         auth: ['isServiceMonitor'],
+        condition: (appDetail) =>
+          appDetail?.service?.extend_method !== 'vm'
       },
       {
         key: 'environmentConfiguration',
@@ -1646,20 +1796,10 @@ class Main extends PureComponent {
       // 添加插件tabs
       if (CompluginList?.length > 0) {
         CompluginList.forEach(item => {
-          // rainbond-sourcescan 插件只在 service_source 为 source_code 时显示
-          if (item.name === 'rainbond-sourcescan') {
-            if (appDetail?.service?.service_source === 'source_code') {
-              tabs.push({
-                key: item.name,
-                tab: item.display_name
-              });
-            }
-          } else {
-            tabs.push({
-              key: item.name,
-              tab: item.display_name
-            });
-          }
+          tabs.push({
+            key: item.name,
+            tab: item.display_name
+          });
         });
       }
     }
@@ -1705,17 +1845,17 @@ class Main extends PureComponent {
     };
     if (CompluginList && CompluginList.length > 0) {
       CompluginList.forEach(item => {
-        // rainbond-sourcescan 插件只在 service_source 为 source_code 时注册
-        if (item.name === 'rainbond-sourcescan') {
-          if (appDetail?.service?.service_source === 'source_code') {
-            map[item.name] = ComponentPlugin;
-          }
-        } else {
-          map[item.name] = ComponentPlugin;
-        }
+        map[item.name] = ComponentPlugin;
       })
     }
-    const Com = map[activeTab];
+    const visibleTabList = tabsShow ? tabList : overviewTabs;
+    const defaultTabKey = visibleTabList[0] && visibleTabList[0].key
+      ? visibleTabList[0].key
+      : 'overview';
+    const currentActiveTab = visibleTabList.some(item => item.key === activeTab)
+      ? activeTab
+      : defaultTabKey;
+    const Com = map[currentActiveTab];
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1728,7 +1868,7 @@ class Main extends PureComponent {
       appAlias: globalUtil.getSlidePanelComponentID(),
       regionName: globalUtil.getCurrRegionName(),
       teamName: globalUtil.getCurrTeamName(),
-      type: activeTab
+      type: currentActiveTab
     }
     
     return (
@@ -1738,8 +1878,8 @@ class Main extends PureComponent {
           {...this.props.pageHeader}
           title={this.renderTitle(componentName)}
           onTabChange={this.handleTabChange}
-          tabActiveKey={activeTab}
-          tabList={tabsShow ? tabList : overviewTabs}
+          tabActiveKey={currentActiveTab}
+          tabList={visibleTabList}
           content={formatMessage({ id: 'versionUpdata_6_2.componentSettings.desc' })}
         />
         {this.state.showMarketAppDetail && (
@@ -1881,7 +2021,7 @@ class Main extends PureComponent {
           }}
         >
           <CSSTransition
-            key={activeTab}
+            key={currentActiveTab}
             timeout={700}
             classNames="page-zoom"
             unmountOnExit

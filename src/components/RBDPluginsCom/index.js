@@ -8,12 +8,13 @@ import { routerRedux } from 'dva/router';
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";
 import styles from './index.less';
-@connect(({ user, region, global, index, appControl }) => ({
+@connect(({ user, region, global, index, appControl, teamControl }) => ({
   currentUser: user.currentUser,
   cluster_info: region.cluster_info,
   pluginsList: global.pluginsList,
   overviewInfo: index.overviewInfo,
-  appDetail: appControl.appDetail
+  appDetail: appControl.appDetail,
+  currentTeam: teamControl.currentTeam,
 }))
 
 export default class index extends Component {
@@ -36,11 +37,58 @@ export default class index extends Component {
     );
   };
 
+  getPluginNamespace = () => {
+    const currentTeamNamespace = this.props?.currentTeam?.namespace;
+    if (currentTeamNamespace) {
+      return currentTeamNamespace;
+    }
+
+    const currentTeamName = Global.getCurrTeamName();
+    const teams = this.props?.currentUser?.teams || [];
+    const currentTeam = teams.find((item) => item.team_name === currentTeamName);
+    return currentTeam?.namespace || '';
+  };
+
   // 渲染插件
   rbdPluginsRender = () => {
     const { app, plugins, pluginLoading, error, errInfo, dispatch, reduxInfo } = this.props;
     const key = this.isMultiViewPlugin()
-    const AppPagePlugin = app[key] ? app[key] : false    
+    const AppPagePlugin = app[key] ? app[key] : false
+    const currentTeamName = Global.getCurrTeamName();
+    const currentTeamNamespace = this.props?.currentTeam?.namespace || '';
+    const teams = this.props?.currentUser?.teams || [];
+    const matchedTeam = teams.find((item) => item.team_name === currentTeamName);
+    const fallbackNamespace = matchedTeam?.namespace || '';
+    const resolvedNamespace = this.getPluginNamespace();
+    const pluginBaseInfo = {
+      colorPrimary: Global.getPublicColor('primary-color'),
+      currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
+      cluster_info: this.props.cluster_info,
+      currentUser: this.props.currentUser,
+      token: cookie.get('token'),
+      pluginsList: this.props.pluginsList,
+      overviewInfo: this.props.overviewInfo,
+      appDetail: this.props.appDetail,
+      namespace: resolvedNamespace,
+    };
+
+    console.info('[RBDPluginsCom] namespace resolution', {
+      pluginName: plugins?.name || '',
+      currentTeamName,
+      currentTeamNamespace,
+      matchedTeamName: matchedTeam?.team_name || '',
+      fallbackNamespace,
+      resolvedNamespace,
+    });
+    if (!resolvedNamespace) {
+      console.warn('[RBDPluginsCom] namespace missing for plugin baseInfo', {
+        pluginName: plugins?.name || '',
+        currentTeamName,
+        currentTeamNamespace,
+        fallbackNamespace,
+      });
+    }
+
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" />
@@ -66,16 +114,7 @@ export default class index extends Component {
           <AppPagePlugin
             dispatch={dispatch}
             formatMessage={formatMessage}
-            baseInfo={{
-              colorPrimary: Global.getPublicColor('primary-color'),
-              currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
-              cluster_info: this.props.cluster_info,
-              currentUser: this.props.currentUser,
-              token: cookie.get('token'),
-              pluginsList: this.props.pluginsList,
-              overviewInfo: this.props.overviewInfo,
-              appDetail: this.props.appDetail,
-            }}
+            baseInfo={pluginBaseInfo}
             globalUtile={Global}
             jumpRouter={this.jumpRouter}
           />
