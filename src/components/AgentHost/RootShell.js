@@ -1,4 +1,5 @@
 import React, { Fragment, PureComponent } from 'react';
+import { Icon } from 'antd';
 import { getDvaApp } from 'umi';
 import AgentHost from './index';
 import styles from './RootShell.less';
@@ -10,6 +11,12 @@ import {
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
 const { createSessionPersistenceScheduler } = require('./sessionPersistenceScheduler');
+const { shouldViewportLock } = require('./viewportLockState');
+
+const VIEWPORT_LOCK_NOTICE_EXIT_MS = 180;
+const VIEWPORT_LOCK_GLOW_EXIT_MS = 220;
+const VIEWPORT_LOCK_TOTAL_EXIT_MS =
+  VIEWPORT_LOCK_NOTICE_EXIT_MS + VIEWPORT_LOCK_GLOW_EXIT_MS;
 
 export default class AgentRootShell extends PureComponent {
   constructor(props) {
@@ -20,14 +27,23 @@ export default class AgentRootShell extends PureComponent {
       agent: null,
       location: {},
       panelConfig: getAgentPanelConfig(),
+      viewportLockMounted: false,
+      viewportLockPhase: 'idle',
+      viewportLockNoticeSize: null,
     };
     this.store = null;
     this.unsubscribe = null;
     this.retryTimer = null;
+    this.viewportLockTimer = null;
+    this.viewportLockNoticeNode = null;
+    this.viewportLockResizeObserver = null;
     this.prevLoginKey = '';
     this.prevPathSignature = '';
     this.prevAgentUpdatedAt = 0;
     this.isSyncingContext = false;
+    this.viewportLockBorderGradientId = `appViewportLockBorderGradient_${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
     this.persistenceScheduler = createSessionPersistenceScheduler({
       delayMs: 400,
       persistFn: persistAgentSession,
@@ -36,6 +52,21 @@ export default class AgentRootShell extends PureComponent {
 
   componentDidMount() {
     this.attachStoreWithRetry();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const prevLocked = shouldViewportLock(prevState);
+    const nextLocked = shouldViewportLock(this.state);
+
+    if (prevLocked === nextLocked) {
+      return;
+    }
+
+    if (nextLocked) {
+      this.enterViewportLock();
+    } else {
+      this.exitViewportLock();
+    }
   }
 
   componentWillUnmount() {
@@ -47,6 +78,10 @@ export default class AgentRootShell extends PureComponent {
     if (this.retryTimer) {
       clearTimeout(this.retryTimer);
     }
+    if (this.viewportLockTimer) {
+      clearTimeout(this.viewportLockTimer);
+    }
+    this.disconnectViewportLockResizeObserver();
     window.removeEventListener('resize', this.handleResize);
   }
 
@@ -80,6 +115,67 @@ export default class AgentRootShell extends PureComponent {
         panelConfig: nextPanelConfig,
       });
     }
+    this.measureViewportLockNotice();
+  };
+
+  setViewportLockNoticeRef = node => {
+    if (this.viewportLockNoticeNode === node) {
+      return;
+    }
+
+    this.disconnectViewportLockResizeObserver();
+    this.viewportLockNoticeNode = node;
+
+    if (!node) {
+      return;
+    }
+
+    this.measureViewportLockNotice();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.viewportLockResizeObserver = new ResizeObserver(() => {
+        this.measureViewportLockNotice();
+      });
+      this.viewportLockResizeObserver.observe(node);
+    }
+  };
+
+  disconnectViewportLockResizeObserver = () => {
+    if (this.viewportLockResizeObserver) {
+      this.viewportLockResizeObserver.disconnect();
+      this.viewportLockResizeObserver = null;
+    }
+  };
+
+  measureViewportLockNotice = () => {
+    const node = this.viewportLockNoticeNode;
+    if (!node) {
+      return;
+    }
+
+    const rect = node.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    const prevSize = this.state.viewportLockNoticeSize;
+    if (
+      prevSize &&
+      prevSize.width === width &&
+      prevSize.height === height
+    ) {
+      return;
+    }
+
+    this.setState({
+      viewportLockNoticeSize: {
+        width,
+        height,
+      },
+    });
   };
 
   handleStoreChange = () => {
@@ -178,13 +274,165 @@ export default class AgentRootShell extends PureComponent {
   };
 
   shouldShowAgent = () => {
-    const { currentUser, needLogin, location } = this.state;
+    return this.shouldShowAgentFor(this.state);
+  };
+
+  shouldShowAgentFor = snapshot => {
+    if (!snapshot) {
+      return false;
+    }
+    const { currentUser, needLogin, location } = snapshot;
     return !!currentUser && !needLogin && !isAgentRouteHidden(location);
   };
 
+  enterViewportLock = () => {
+    if (this.viewportLockTimer) {
+      clearTimeout(this.viewportLockTimer);
+      this.viewportLockTimer = null;
+    }
+
+    if (!this.state.viewportLockMounted || this.state.viewportLockPhase !== 'enter') {
+      this.setState({
+        viewportLockMounted: true,
+        viewportLockPhase: 'enter',
+      });
+    }
+  };
+
+  exitViewportLock = () => {
+    if (!this.state.viewportLockMounted) {
+      return;
+    }
+
+    if (this.viewportLockTimer) {
+      clearTimeout(this.viewportLockTimer);
+    }
+
+    this.setState({
+      viewportLockPhase: 'exit',
+    });
+
+    this.viewportLockTimer = setTimeout(() => {
+      this.viewportLockTimer = null;
+      this.setState({
+        viewportLockMounted: false,
+        viewportLockPhase: 'idle',
+      });
+    }, VIEWPORT_LOCK_TOTAL_EXIT_MS);
+  };
+
+  renderViewportLock = () => {
+    const {
+      viewportLockMounted,
+      viewportLockPhase,
+      viewportLockNoticeSize,
+    } = this.state;
+
+    if (!viewportLockMounted) {
+      return null;
+    }
+
+    const borderWidth = viewportLockNoticeSize && viewportLockNoticeSize.width
+      ? viewportLockNoticeSize.width
+      : 0;
+    const borderHeight = viewportLockNoticeSize && viewportLockNoticeSize.height
+      ? viewportLockNoticeSize.height
+      : 0;
+    const borderInset = 2;
+    const borderStrokeRectWidth = Math.max(borderWidth - borderInset * 2, 0);
+    const borderStrokeRectHeight = Math.max(borderHeight - borderInset * 2, 0);
+    const borderRadius = Math.max(borderStrokeRectHeight / 2, 0);
+    const phaseClassName =
+      viewportLockPhase === 'exit'
+        ? styles.appViewportLockExit
+        : styles.appViewportLockEnter;
+
+    return (
+      <div
+        className={`${styles.appViewportLock} ${phaseClassName}`}
+        aria-hidden="true"
+      >
+        <div className={styles.appViewportLockGlow} />
+        <div className={styles.appViewportLockNotice} ref={this.setViewportLockNoticeRef}>
+          <div className={styles.appViewportLockNoticeAura} />
+          {borderWidth > 0 && borderHeight > 0 ? (
+            <svg
+              className={styles.appViewportLockBorderSvg}
+              viewBox={`0 0 ${borderWidth} ${borderHeight}`}
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient
+                  id={this.viewportLockBorderGradientId}
+                  x1="0"
+                  y1="0"
+                  x2={borderWidth}
+                  y2={borderHeight}
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stopColor="#2EF2FF" />
+                  <stop offset="24%" stopColor="#57C8FF" />
+                  <stop offset="50%" stopColor="#6E90FF" />
+                  <stop offset="74%" stopColor="#8C70FF" />
+                  <stop offset="100%" stopColor="#43E7FF" />
+                  <animateTransform
+                    attributeName="gradientTransform"
+                    attributeType="XML"
+                    type="rotate"
+                    from={`0 ${borderWidth / 2} ${borderHeight / 2}`}
+                    to={`360 ${borderWidth / 2} ${borderHeight / 2}`}
+                    dur="3.4s"
+                    repeatCount="indefinite"
+                  />
+                </linearGradient>
+              </defs>
+              <rect
+                className={styles.appViewportLockBorderTrack}
+                x={borderInset}
+                y={borderInset}
+                width={borderStrokeRectWidth}
+                height={borderStrokeRectHeight}
+                rx={borderRadius}
+                ry={borderRadius}
+                pathLength="100"
+                vectorEffect="non-scaling-stroke"
+                style={{ stroke: `url(#${this.viewportLockBorderGradientId})` }}
+              />
+              <rect
+                className={styles.appViewportLockBorderRunner}
+                x={borderInset}
+                y={borderInset}
+                width={borderStrokeRectWidth}
+                height={borderStrokeRectHeight}
+                rx={borderRadius}
+                ry={borderRadius}
+                pathLength="100"
+                vectorEffect="non-scaling-stroke"
+                style={{ stroke: `url(#${this.viewportLockBorderGradientId})` }}
+              />
+            </svg>
+          ) : null}
+          <div className={styles.appViewportLockNoticeInner}>
+            <span className={styles.appViewportLockIcon}>
+              <Icon type="message" />
+            </span>
+            <span className={styles.appViewportLockText}>AI 正在工作中，请勿操作</span>
+            <span className={styles.appViewportLockDots} aria-hidden="true">
+              <span className={styles.appViewportLockDot} />
+              <span className={styles.appViewportLockDot} />
+              <span className={styles.appViewportLockDot} />
+            </span>
+            <span className={styles.appViewportLockHint}>接管</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   render() {
+    const { currentUser, needLogin, location } = this.state;
     const { children } = this.props;
-    const { agent, currentUser, panelConfig } = this.state;
+    const { agent, panelConfig } = this.state;
     const canShowAgent = this.shouldShowAgent();
     const isPanelVisible = !!(canShowAgent && agent && agent.visible);
     const isPushMode = panelConfig && panelConfig.mode === 'push';
@@ -204,6 +452,7 @@ export default class AgentRootShell extends PureComponent {
           style={{ width: appViewportWidth }}
         >
           {children}
+          {this.renderViewportLock()}
         </div>
         {canShowAgent && this.store ? (
           <AgentHost

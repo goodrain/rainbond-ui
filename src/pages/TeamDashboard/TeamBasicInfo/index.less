@@ -182,6 +182,7 @@
             align-items: center;
             font-size: 13px;
             color: @rbd-auxiliary-color-secondary;
+            white-space: nowrap;
 
             .resourceIcon {
               font-size: 14px;
@@ -196,6 +197,11 @@
 
             .resourceLabel {
               color: @rbd-auxiliary-color-secondary;
+            }
+
+            .resourceUnit {
+              color: @rbd-auxiliary-color-secondary;
+              margin-left: 3px;
             }
           }
         }
@@ -238,11 +244,210 @@
   }
 }
 
+.teamHotAppListCompact {
+  >div {
+    height: 184px;
+
+    .teamHotAppItem,
+    .teamHotAppItemEmpty {
+      height: 184px;
+    }
+
+    .teamHotAppItem {
+      .appStatusBar {
+        width: 4px;
+        min-width: 4px;
+      }
+
+      .appCardContent {
+        padding: 12px 14px;
+        justify-content: center;
+
+        .appCardHeader {
+          align-items: flex-start;
+
+          .appCardHeaderLeft {
+            .appIcon {
+              width: 38px;
+              height: 38px;
+              margin-right: 10px;
+              padding: 6px;
+              border-radius: 10px;
+            }
+
+            .appNameWrapper {
+              .appName {
+                max-width: none;
+                font-size: 14px;
+                line-height: 20px;
+              }
+
+              .appCardStatus {
+                margin-top: 2px;
+
+                .statusText {
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+
+          .appCardHeaderRight {
+            margin-left: 6px;
+            padding-top: 0;
+          }
+        }
+
+        .appCardResources {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 8px;
+          margin-top: 12px;
+          padding-bottom: 12px;
+
+          .resourceItem {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            line-height: 18px;
+
+            .resourceIcon {
+              margin-right: 0;
+            }
+
+            .resourceLabel {
+              color: @rbd-auxiliary-color-secondary;
+              font-size: 12px;
+              line-height: 16px;
+            }
+
+            .resourceValue {
+              font-weight: 600;
+              margin-right: 0;
+              color: @text-color;
+              font-size: 12px;
+              line-height: 16px;
+              white-space: nowrap;
+            }
+          }
+        }
+
+        .appCardTimeRow {
+          margin-top: 12px;
+          gap: 8px;
+          align-items: flex-start;
+          flex-wrap: wrap;
+
+          .timeItem {
+            flex: 1 1 calc(50% - 4px);
+            min-width: 0;
+
+            .timeValue {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .addNewAppCard {
+    .addNewAppContent {
+      padding: 12px 14px;
+
+      .addNewAppHeader {
+        align-items: flex-start;
+
+        .addNewAppIcon {
+          width: 38px;
+          height: 38px;
+          margin-right: 10px;
+          border-radius: 10px;
+
+          i {
+            font-size: 18px;
+          }
+        }
+
+        .addNewAppTitleWrapper {
+          min-width: 0;
+
+          .addNewAppTitle {
+            font-size: 14px;
+            line-height: 20px;
+          }
+
+          .addNewAppSubtitle {
+            font-size: 12px;
+            line-height: 18px;
+          }
+        }
+      }
+
+      .addNewAppIcons {
+        margin-top: 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        .iconItem {
+          width: 30px;
+          height: 30px;
+          border-radius: 7px;
+
+          svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .addNewAppFooterWrapper {
+        margin-top: 10px;
+        align-items: flex-end;
+
+        .addNewAppFooter {
+          font-size: 11px;
+          line-height: 16px;
+        }
+      }
+    }
+  }
+}
+
 .paginationContainer {
   display: flex;
   justify-content: flex-end;
   margin-top: auto;
   padding: 45px 16px 0 0;
+}
+
+.compactVisitTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: fade(@primary-color, 10%);
+  color: @primary-color !important;
+
+  &:hover {
+    background: fade(@primary-color, 16%);
+  }
+}
+
+.compactVisitTriggerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    margin-right: 0 !important;
+  }
 }
 
 // 应用列表加载状态
@@ -436,4 +641,9 @@
     }
 
   }
+}
+
+.startCreateTextCompact {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
 }

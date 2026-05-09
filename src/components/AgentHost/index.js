@@ -108,6 +108,7 @@ function SendButtonIcon() {
 }
 
 const approvalMeta = require('./approvalMeta');
+const composerState = require('./composerState');
 const displayFilters = require('./displayFilters');
 const { renderMarkdownSource } = require('./markdownHelpers');
 const {
@@ -116,6 +117,11 @@ const {
   shouldAttemptAutoScrollUpdate,
 } = require('./scrollBehavior');
 const { getApprovalRiskMeta } = approvalMeta;
+const {
+  getComposerPlaceholder,
+  hasRenderableMessages,
+  resolveComposerMessage,
+} = composerState;
 const {
   shouldRenderAssistantBubble,
   shouldRenderMessageItem,
@@ -202,14 +208,6 @@ export default class AgentHost extends PureComponent {
     );
   };
 
-  openDrawer = () => {
-    const { dispatch } = this.props;
-    this.resumeAutoScroll();
-    dispatch({
-      type: 'agent/show',
-    });
-  };
-
   closeDrawer = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -227,16 +225,21 @@ export default class AgentHost extends PureComponent {
 
   handleSend = () => {
     const { dispatch, agent } = this.props;
-    const draft = ((agent && agent.draft) || '').trim();
+    const messages = (agent && agent.messages) || [];
+    const draft = (agent && agent.draft) || '';
     const hasSessionPending =
       !!(agent && agent.sessionPendingApprovals && agent.sessionPendingApprovals.length > 0);
+    const nextMessage = resolveComposerMessage({
+      draft,
+      messages,
+    });
 
     if (hasSessionPending) {
       message.warning('请先取消未处理审批');
       return;
     }
 
-    if (!draft) {
+    if (!nextMessage) {
       message.warning('无内容');
       return;
     }
@@ -245,7 +248,7 @@ export default class AgentHost extends PureComponent {
     dispatch({
       type: 'agent/sendMessage',
       payload: {
-        message: agent && agent.draft,
+        message: nextMessage,
         context: agent && agent.context,
       },
     });
@@ -828,8 +831,9 @@ export default class AgentHost extends PureComponent {
   renderMessages = () => {
     const { agent } = this.props;
     const messages = (agent && agent.messages) || [];
+    const hasVisibleMessages = hasRenderableMessages(messages);
 
-    if (!messages.length) {
+    if (!hasVisibleMessages) {
       return (
         <div className={styles.emptyState}>
           <div className={styles.emptyTitle}>全局 AI 助手</div>
@@ -1000,21 +1004,16 @@ export default class AgentHost extends PureComponent {
       sending,
       messages,
     });
+    const composerPlaceholder = getComposerPlaceholder({
+      messages,
+      hasSessionPending,
+    });
     const width = (panelConfig && panelConfig.width) || 420;
     const mode = (panelConfig && panelConfig.mode) || 'push';
     const isOverlay = mode === 'overlay';
 
     return (
       <div className={styles.agentHost}>
-        {!visible && (
-          <button className={styles.launcher} onClick={this.openDrawer}>
-            <span className={styles.launcherIcon}>
-              <Icon type="message" />
-            </span>
-            <span className={styles.launcherText}>AI 助手</span>
-          </button>
-        )}
-
         <div
           className={`${styles.agentPanel} ${
             visible ? styles.agentPanelVisible : styles.agentPanelHidden
@@ -1130,7 +1129,7 @@ export default class AgentHost extends PureComponent {
                   value={draft}
                   onChange={this.handleDraftChange}
                   onPressEnter={this.handlePressEnter}
-                  placeholder={hasSessionPending ? '请先取消未处理审批' : '输入你的问题，Shift + Enter 换行'}
+                  placeholder={composerPlaceholder}
                   autosize={{ minRows: 2, maxRows: 8 }}
                   disabled={sending || hasSessionPending}
                 />
@@ -1159,6 +1158,7 @@ export default class AgentHost extends PureComponent {
                       className={styles.footerSendButton}
                       onClick={this.handleSend}
                       loading={sending}
+                      aria-label="发送"
                     >
                       <span>发送</span>
                       {!sending ? <SendButtonIcon /> : null}

@@ -40,47 +40,6 @@
   box-shadow: none;
 }
 
-.launcher {
-  position: fixed;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  border-radius: 999px;
-  background: @primary-color;
-  color: #fff;
-  box-shadow: @rbd-card-shadow-hover;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-
-  &:hover {
-    transform: translateY(-50%) translateX(-2px);
-    box-shadow: 0 12px 28px fade(@primary-color, 26%);
-    background: darken(@primary-color, 4%);
-  }
-}
-
-.launcherIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: fade(#fff, 18%);
-  font-size: 16px;
-}
-
-.launcherText {
-  font-size: @rbd-content-size;
-  line-height: @rbd-content-size;
-  font-weight: 600;
-}
-
 .overlayMask {
   position: fixed;
   inset: 0;
@@ -104,8 +63,10 @@
   height: 56px;
   min-height: 56px;
   padding: 6px 12px;
-  background: #fff;
-  border-bottom: 1px solid fade(@border-color-base, 80%);
+  color: #fff;
+  background: linear-gradient(90deg, #1B5DFB 0%, #503BF6 100%);
+  border-bottom: none;
+  box-shadow: 0 8px 24px rgba(54, 74, 247, 0.16);
 }
 
 .panelBrand {
@@ -122,7 +83,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: @primary-color;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   color: #fff;
 }
 
@@ -133,7 +95,7 @@
 }
 
 .panelBrandTitle {
-  color: #111827;
+  color: #fff;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
@@ -149,13 +111,14 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: @text-color-secondary;
+  color: #fff;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: fade(@border-color-base, 45%);
-    color: @heading-color;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
   }
 }
 
@@ -175,13 +138,13 @@
   border: 0;
   border-radius: 50%;
   cursor: pointer;
-  color: @text-color-secondary;
+  color: #fff;
   font-size: 14px;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .headerIconButton:hover {
-  background: fade(@border-color-base, 45%);
-  color: @heading-color;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
 }
 
 .autoApprovalPopover :global(.ant-popover-inner-content) {
@@ -1169,7 +1132,9 @@
 .footerSendButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  min-width: 40px;
+  padding: 0 12px;
 }
 
 .footerSendIcon {
@@ -1187,17 +1152,6 @@
 @media (max-width: 767px) {
   .agentPanelPush {
     box-shadow: none;
-  }
-
-  .launcher {
-    right: 16px;
-    bottom: 20px;
-    top: auto;
-    transform: none;
-
-    &:hover {
-      transform: translateY(-2px);
-    }
   }
 
   .messagesPanel {

@@ -20,6 +20,7 @@ import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import { isAgentRouteHidden } from '../../utils/agentContext';
 
 const { Header } = Layout;
 
@@ -495,6 +496,13 @@ class GlobalHeader extends PureComponent {
     this.setState({ showProductDrawer: false });
   };
 
+  openAgentDrawer = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'agent/show'
+    });
+  };
+
   /**
    * 切换到工作空间
    */
@@ -707,7 +715,8 @@ class GlobalHeader extends PureComponent {
       rainbondInfo,
       collapsed,
       logo,
-      enterprise
+      enterprise,
+      agentVisible
     } = this.props;
     const {
       language,
@@ -729,6 +738,7 @@ class GlobalHeader extends PureComponent {
     const portalSite = rainbondInfo?.portal_site;
     const showFullLogo = !isTeamView || !collapsed;
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
+    const showAgentLauncher = !agentVisible && !isAgentRouteHidden();
 
     return (
       <ScrollerX sm={900}>
@@ -789,6 +799,19 @@ class GlobalHeader extends PureComponent {
                 </div>
               )}
 
+              {showAgentLauncher && (
+                <button
+                  type="button"
+                  className={styles.agentEntry}
+                  onClick={this.openAgentDrawer}
+                >
+                  <span className={styles.agentEntryIcon}>
+                    <Icon type="message" />
+                  </span>
+                  <span className={styles.agentEntryText}>AI助手</span>
+                </button>
+              )}
+
               {currentUser ? (
                 <Dropdown overlay={this.renderUserMenu()} placement="bottomRight">
                   <span className={`${styles.action} ${styles.account}`}>
@@ -822,9 +845,10 @@ class GlobalHeader extends PureComponent {
   }
 }
 
-export default connect(({ user, global }) => ({
+export default connect(({ user, global, agent }) => ({
   rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
-  collapsed: global.collapsed
+  collapsed: global.collapsed,
+  agentVisible: !!(agent && agent.visible)
 }))(GlobalHeader);
