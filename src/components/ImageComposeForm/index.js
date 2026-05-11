@@ -15,6 +15,7 @@ import {
 } from './validations';
 
 const { Dragger } = Upload;
+const DOCKER_COMPOSE_DOC_URL = 'https://www.rainbond.com/docs/how-to-guides/app-deploy/docker-compose';
 
 @connect(
   ({ global, loading, teamControl }) => ({
@@ -236,7 +237,14 @@ export default class Index extends PureComponent {
             <Form.Item
               {...is_language}
               label="Docker Compose 项目文件"
-              extra="支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件"
+              extra={
+                <span>
+                  支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件，
+                  <a href={DOCKER_COMPOSE_DOC_URL} target="_blank" rel="noopener noreferrer">
+                    查看部署文档
+                  </a>
+                </span>
+              }
             >
               <Dragger {...uploadProps}>
                 <p className="ant-upload-drag-icon">
