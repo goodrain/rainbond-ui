@@ -57,14 +57,22 @@ function resolveComponentContext() {
   const routeComponentId = globalUtil.getComponentID();
 
   if (slideType === 'components' && queryComponentId) {
-    return { componentId: queryComponentId, componentSource: 'query' };
+    return {
+      componentId: queryComponentId,
+      componentAlias: queryComponentId,
+      componentSource: 'query'
+    };
   }
 
   if (routeComponentId) {
-    return { componentId: routeComponentId, componentSource: 'route' };
+    return {
+      componentId: routeComponentId,
+      componentAlias: routeComponentId,
+      componentSource: 'route'
+    };
   }
 
-  return { componentId: '', componentSource: '' };
+  return { componentId: '', componentAlias: '', componentSource: '' };
 }
 
 function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
@@ -124,6 +132,7 @@ export function buildAgentContext(location = {}, state = {}) {
     regionName: globalUtil.getCurrRegionName(),
     appId: globalUtil.getAppID(),
     componentId,
+    componentAlias: resolvedComponent.componentAlias,
     componentSource: resolvedComponent.componentSource,
     pathname
   };
@@ -137,6 +146,7 @@ export function getAgentContextSignature(context = {}) {
     context.regionName || '',
     context.appId || '',
     context.componentId || '',
+    context.componentAlias || '',
     context.componentSource || ''
   ].join('|');
 }

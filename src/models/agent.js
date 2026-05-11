@@ -17,6 +17,13 @@ import {
   formatAgentContextMessage,
   getAgentContextSignature,
 } from '../utils/agentContext';
+import {
+  isSupportedAgentMutationTool,
+  resolvePostActionRoute,
+  resolvePreActionRoute,
+  shouldUseRouteQueryRefresh,
+  shouldUseSlidePanelContentRefresh,
+} from '../utils/agentMutationRouteMap';
 import agentWorkflowState from './agentWorkflowState';
 const { getNextInteractionLocked } = require('./agentInteractionLock');
 const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
@@ -107,6 +114,7 @@ const defaultState = {
     regionName: '',
     appId: '',
     componentId: '',
+    componentAlias: '',
     componentSource: '',
     pathname: '',
   },
@@ -124,6 +132,13 @@ const defaultState = {
   // F14 — compaction lifecycle slice. Driven by SSE events
   // compaction.started / forced_sync_due_to_pressure / completed / failed.
   compaction: { ...defaultCompactionState },
+  pendingMutationTool: '',
+  pendingMutationRoute: '',
+  pendingMutationNavigationKey: '',
+  pendingMutationRefreshKey: '',
+  pendingMutationRefreshMode: '',
+  lastMutationResult: null,
+  lastMutationRunId: '',
   updatedAt: 0,
 };
 
@@ -233,6 +248,8 @@ function normalizePendingApproval(pendingApproval) {
     scope: pendingApproval.scope || '',
     scopeLabel: pendingApproval.scopeLabel || '',
     levelLabel: pendingApproval.levelLabel || '',
+    skillId: pendingApproval.skillId || '',
+    targetRef: pendingApproval.targetRef || null,
     runId: pendingApproval.runId || '',
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
@@ -262,6 +279,13 @@ function buildHydratedState(snapshot) {
       getAgentContextSignature(snapshot.context || defaultState.context),
     workflowState: snapshot.workflowState || null,
     structuredResult: snapshot.structuredResult || null,
+    pendingMutationTool: snapshot.pendingMutationTool || '',
+    pendingMutationRoute: snapshot.pendingMutationRoute || '',
+    pendingMutationNavigationKey: snapshot.pendingMutationNavigationKey || '',
+    pendingMutationRefreshKey: snapshot.pendingMutationRefreshKey || '',
+    pendingMutationRefreshMode: snapshot.pendingMutationRefreshMode || '',
+    lastMutationResult: snapshot.lastMutationResult || null,
+    lastMutationRunId: snapshot.lastMutationRunId || '',
     sessionList: [],
     sessionListLoading: false,
     sessionPendingApprovals: [],
@@ -291,6 +315,29 @@ function getErrorMessage(error) {
   return error.message || '消息发送失败，请稍后重试。';
 }
 
+function buildMutationNavigationPayload(toolName, route) {
+  if (!toolName || !route) {
+    return null;
+  }
+
+  return {
+    pendingMutationTool: toolName,
+    pendingMutationRoute: route,
+    pendingMutationNavigationKey: `${toolName}_${Date.now()}`,
+  };
+}
+
+function buildMutationRefreshPayload(toolName, mode = 'content') {
+  if (!toolName) {
+    return null;
+  }
+
+  return {
+    pendingMutationRefreshKey: `${toolName}_${Date.now()}`,
+    pendingMutationRefreshMode: mode,
+  };
+}
+
 function findApprovalMessageIndex(messages, approvalId) {
   return messages.findIndex(
     item => item && item.kind === 'approval' && item.approval && item.approval.approvalId === approvalId
@@ -312,10 +359,14 @@ function applyAgentEvents({
   events,
   contextSnapshot,
   currentPendingApproval,
+  currentLastMutationResult,
+  currentLastMutationRunId,
 }) {
   const nextMessages = Array.isArray(messages) ? messages.slice() : [];
   let pendingApproval = normalizePendingApproval(currentPendingApproval);
   let lastEventSequence = 0;
+  let lastMutationResult = currentLastMutationResult || null;
+  let lastMutationRunId = currentLastMutationRunId || '';
 
   events.forEach(event => {
     const adaptedEvent = adaptAgentEvent(event);
@@ -330,6 +381,19 @@ function applyAgentEvents({
 
     switch (adaptedEvent.type) {
       case 'trace': {
+        const traceData = (event && event.data) || {};
+        if (
+          traceData.tool_name &&
+          isSupportedAgentMutationTool(traceData.tool_name) &&
+          traceData.output
+        ) {
+          lastMutationResult = {
+            toolName: traceData.tool_name,
+            output: traceData.output,
+            sequence: eventSequence,
+          };
+          lastMutationRunId = event.runId || '';
+        }
         applyTraceEvent(
           nextMessages,
           event,
@@ -556,6 +620,8 @@ function applyAgentEvents({
     messages: nextMessages,
     pendingApproval,
     lastEventSequence,
+    lastMutationResult,
+    lastMutationRunId,
     ...extractWorkflowState(events),
   };
 }
@@ -566,6 +632,8 @@ function applyAgentStreamEvent(state, payload) {
     events: [payload.event],
     contextSnapshot: payload.contextSnapshot || state.context || {},
     currentPendingApproval: state.pendingApproval,
+    currentLastMutationResult: state.lastMutationResult,
+    currentLastMutationRunId: state.lastMutationRunId,
   });
 
   // F14 — fold the same event through the compaction reducer so the UI
@@ -583,6 +651,8 @@ function applyAgentStreamEvent(state, payload) {
     messages: merged.messages,
     pendingApproval: merged.pendingApproval,
     lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
+    lastMutationResult: merged.lastMutationResult || state.lastMutationResult,
+    lastMutationRunId: merged.lastMutationRunId || state.lastMutationRunId,
     workflowState: merged.workflowState || state.workflowState,
     structuredResult: merged.structuredResult || state.structuredResult,
     compaction: nextCompaction,
@@ -643,6 +713,13 @@ export default {
         patch.structuredResult = null;
         patch.draft = '';
         patch.lastError = '';
+        patch.pendingMutationTool = '';
+        patch.pendingMutationRoute = '';
+        patch.pendingMutationNavigationKey = '';
+        patch.pendingMutationRefreshKey = '';
+        patch.pendingMutationRefreshMode = '';
+        patch.lastMutationResult = null;
+        patch.lastMutationRunId = '';
       }
       yield put({ type: 'saveState', payload: patch });
     },
@@ -663,6 +740,13 @@ export default {
           workflowState: null,
           structuredResult: null,
           sessionPendingApprovals: [],
+          pendingMutationTool: '',
+          pendingMutationRoute: '',
+          pendingMutationNavigationKey: '',
+          pendingMutationRefreshKey: '',
+          pendingMutationRefreshMode: '',
+          lastMutationResult: null,
+          lastMutationRunId: '',
         },
       });
 
@@ -767,6 +851,13 @@ export default {
           sending: true,
           interactionLocked: true,
           lastError: '',
+          pendingMutationTool: '',
+          pendingMutationRoute: '',
+          pendingMutationNavigationKey: '',
+          pendingMutationRefreshKey: '',
+          pendingMutationRefreshMode: '',
+          lastMutationResult: null,
+          lastMutationRunId: '',
           updatedAt: Date.now(),
         },
       });
@@ -1091,9 +1182,22 @@ export default {
     },
 
     *applyStreamEvent({ payload }, { put, select }) {
-      const prevState = yield select(store => store.agent);
+      const rootState = yield select(store => store);
+      const prevState = rootState.agent;
       const prevApprovalId =
         (prevState.pendingApproval && prevState.pendingApproval.approvalId) || '';
+      const adaptedEvent = adaptAgentEvent(payload && payload.event);
+      const isDuplicateMutationTrace =
+        !!(
+          adaptedEvent &&
+          adaptedEvent.type === 'trace' &&
+          prevState.lastMutationResult &&
+          prevState.lastMutationResult.sequence === adaptedEvent.sequence &&
+          payload &&
+          payload.event &&
+          payload.event.data &&
+          prevState.lastMutationResult.toolName === payload.event.data.tool_name
+        );
 
       yield put({
         type: 'applyStreamEventReducer',
@@ -1138,8 +1242,183 @@ export default {
         }
       }
 
-      const nextState = yield select(store => store.agent);
+      const nextRootState = yield select(store => store);
+      const nextState = nextRootState.agent;
       const pa = nextState.pendingApproval;
+
+      if (
+        adaptedEvent &&
+        adaptedEvent.type === 'approval_requested' &&
+        pa &&
+        pa.approvalId &&
+        pa.status === 'pending' &&
+        pa.approvalId !== prevApprovalId
+      ) {
+        const route = resolvePreActionRoute({
+          toolName: pa.skillId,
+          context: nextState.context,
+          appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+        });
+        const navigationPayload = buildMutationNavigationPayload(pa.skillId, route);
+        yield put({
+          type: 'saveState',
+          payload: {
+            pendingMutationTool: pa.skillId || '',
+            ...(navigationPayload || {}),
+          },
+        });
+      }
+
+      if (
+        adaptedEvent &&
+        adaptedEvent.type === 'trace' &&
+        payload &&
+        payload.event &&
+        payload.event.data &&
+        payload.event.data.tool_name &&
+        isSupportedAgentMutationTool(payload.event.data.tool_name) &&
+        payload.event.data.output &&
+        !isDuplicateMutationTrace
+      ) {
+        const mutationToolName =
+          payload.event.data.tool_name || prevState.pendingMutationTool;
+        const resultPayload =
+          payload.event.data.output &&
+          payload.event.data.output.structuredContent
+            ? payload.event.data.output.structuredContent
+            : payload.event.data.output || null;
+        const shouldRefreshContent = shouldUseSlidePanelContentRefresh(
+          mutationToolName
+        );
+        const shouldRefreshRoute = shouldUseRouteQueryRefresh(
+          mutationToolName
+        );
+
+        if (shouldRefreshContent) {
+          const refreshPayload = buildMutationRefreshPayload(
+            mutationToolName,
+            'content'
+          );
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        } else if (shouldRefreshRoute) {
+          const refreshPayload = buildMutationRefreshPayload(
+            mutationToolName,
+            'route'
+          );
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        } else {
+          const route = resolvePostActionRoute({
+            toolName: mutationToolName,
+            context: nextState.context,
+            appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+            result: resultPayload,
+          });
+          const navigationPayload = buildMutationNavigationPayload(
+            mutationToolName,
+            route
+          );
+          const refreshPayload = navigationPayload
+            ? null
+            : buildMutationRefreshPayload(mutationToolName, 'content');
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(navigationPayload || {}),
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        }
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        adaptedEvent.status === 'done' &&
+        prevState.pendingMutationTool &&
+        !shouldUseSlidePanelContentRefresh(prevState.pendingMutationTool) &&
+        !shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
+      ) {
+        const route = resolvePostActionRoute({
+          toolName: prevState.pendingMutationTool,
+          context: nextState.context,
+          appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+          result:
+            nextState.lastMutationResult &&
+            nextState.lastMutationResult.output &&
+            nextState.lastMutationResult.output.structuredContent
+              ? nextState.lastMutationResult.output.structuredContent
+              : null,
+        });
+        const navigationPayload = buildMutationNavigationPayload(
+          prevState.pendingMutationTool,
+          route
+        );
+        yield put({
+          type: 'saveState',
+          payload: {
+            pendingMutationTool: '',
+            pendingMutationRoute: '',
+            pendingMutationNavigationKey: '',
+            ...(navigationPayload || {}),
+            ...(!navigationPayload
+              ? buildMutationRefreshPayload(prevState.pendingMutationTool, 'content')
+              : {}),
+            updatedAt: Date.now(),
+          },
+        });
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        adaptedEvent.status === 'done' &&
+        prevState.pendingMutationTool &&
+        shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
+      ) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            pendingMutationTool: '',
+            pendingMutationRoute: '',
+            pendingMutationNavigationKey: '',
+            ...buildMutationRefreshPayload(prevState.pendingMutationTool, 'route'),
+            updatedAt: Date.now(),
+          },
+        });
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        (adaptedEvent.status === 'error' || adaptedEvent.status === 'cancelled')
+      ) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            pendingMutationTool: '',
+            pendingMutationRoute: '',
+            pendingMutationNavigationKey: '',
+            pendingMutationRefreshMode: '',
+          },
+        });
+      }
+
       if (
         pa &&
         pa.approvalId &&
@@ -1223,6 +1502,8 @@ export default {
         messages: merged.messages,
         pendingApproval: merged.pendingApproval,
         lastEventSequence: merged.lastEventSequence,
+        lastMutationResult: merged.lastMutationResult,
+        lastMutationRunId: merged.lastMutationRunId,
         workflowState: merged.workflowState,
         structuredResult: merged.structuredResult,
         compaction: merged.compaction,
@@ -1258,6 +1539,13 @@ export default {
         workflowState: null,
         structuredResult: null,
         compaction: { ...defaultCompactionState },
+        pendingMutationTool: '',
+        pendingMutationRoute: '',
+        pendingMutationNavigationKey: '',
+        pendingMutationRefreshKey: '',
+        pendingMutationRefreshMode: '',
+        lastMutationResult: null,
+        lastMutationRunId: '',
         updatedAt: Date.now(),
       };
     },

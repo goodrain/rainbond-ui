@@ -41,6 +41,9 @@ import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
 import teamMenuEnterprise from './teamMenuEnterprise';
+const {
+  shouldShowCustomerServiceFloat,
+} = require('./customerServiceFloatVisibility');
 const { Content } = Layout;
 const { buildTeamMenuEnterpriseSettings } = teamMenuEnterprise;
 Modal.defaultProps.width = 480;
@@ -914,6 +917,13 @@ class TeamLayout extends PureComponent {
     const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
     const pluginsLoaded = Array.isArray(showPipeline);
+    const agentVisible = !!(this.props.agent && this.props.agent.visible);
+    const showCustomerServiceFloat = shouldShowCustomerServiceFloat({
+      pluginsLoaded,
+      showEnterprisebase,
+      isSaas,
+      agentVisible
+    });
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion = team && team.region && team.region.length && currentRegion;
@@ -1098,10 +1108,8 @@ class TeamLayout extends PureComponent {
               orders={orders}
             />
         )}
-        {pluginsLoaded ? (
-          showEnterprisebase && !isSaas ? null : (
-            <CustomerServiceFloat customerServiceQrcode={customerServiceQrcode} isSaas={isSaas} />
-          )
+        {showCustomerServiceFloat ? (
+          <CustomerServiceFloat customerServiceQrcode={customerServiceQrcode} isSaas={isSaas} />
         ) : null}
       </Fragment>
     );
@@ -1109,8 +1117,9 @@ class TeamLayout extends PureComponent {
 }
 
 export default connect(
-  ({ user, global, index, loading, teamControl, application }) => ({
+  ({ user, global, index, loading, teamControl, application, agent }) => ({
     currentUser: user.currentUser,
+    agent,
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,
     groups: global.groups,

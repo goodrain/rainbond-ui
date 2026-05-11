@@ -127,6 +127,11 @@ export default class AppVersion extends PureComponent {
   componentDidUpdate(prevProps) {
     if (prevProps.location !== this.props.location) {
       this.syncRoutePanel();
+      const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
+      const nextRefreshKey = this.getRouteRefreshKey(this.props.location);
+      if (prevRefreshKey !== nextRefreshKey && nextRefreshKey) {
+        this.handleRouteRefresh();
+      }
     }
     if (prevProps.apps !== this.props.apps) {
       this.loadSourceGroups();
@@ -135,6 +140,29 @@ export default class AppVersion extends PureComponent {
 
   getAppId = () => {
     return this.props.match.params.appID;
+  };
+
+  getRouteRefreshKey = location => {
+    const query = (location && location.query) || {};
+    if (query.refresh) {
+      return query.refresh;
+    }
+    const search = (location && location.search) || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    if (!queryString) {
+      return '';
+    }
+    const params = new URLSearchParams(queryString);
+    return params.get('refresh') || '';
+  };
+
+  handleRouteRefresh = () => {
+    this.fetchAppDetail();
+    this.fetchAppVersionOverview();
+    this.fetchSnapshotVersions();
+    this.fetchUpgradeRecords();
+    this.fetchPublishRecords();
+    this.fetchRollbackRecords();
   };
 
   getAppName = () => {

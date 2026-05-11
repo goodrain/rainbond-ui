@@ -1,5 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { Icon } from 'antd';
+import { routerRedux } from 'dva/router';
 import { getDvaApp } from 'umi';
 import AgentHost from './index';
 import styles from './RootShell.less';
@@ -40,6 +41,8 @@ export default class AgentRootShell extends PureComponent {
     this.prevLoginKey = '';
     this.prevPathSignature = '';
     this.prevAgentUpdatedAt = 0;
+    this.prevMutationNavigationKey = '';
+    this.prevMutationRefreshKey = '';
     this.isSyncingContext = false;
     this.viewportLockBorderGradientId = `appViewportLockBorderGradient_${Math.random()
       .toString(36)
@@ -201,10 +204,16 @@ export default class AgentRootShell extends PureComponent {
     const previousLoginKey = this.prevLoginKey;
     const previousAgent = this.state.agent || null;
     const pathSignature = getAgentRouteSignature(location);
+    const mutationNavigationKey = agent && agent.pendingMutationNavigationKey;
+    const mutationRoute = agent && agent.pendingMutationRoute;
+    const mutationRefreshKey = agent && agent.pendingMutationRefreshKey;
+    const mutationRefreshMode = agent && agent.pendingMutationRefreshMode;
 
     if (loginKey !== previousLoginKey) {
       this.prevLoginKey = loginKey;
       this.prevAgentUpdatedAt = 0;
+      this.prevMutationNavigationKey = '';
+      this.prevMutationRefreshKey = '';
 
       if (previousLoginKey && !loginKey) {
         this.persistenceScheduler.flush();
@@ -266,6 +275,30 @@ export default class AgentRootShell extends PureComponent {
     }
 
     if (
+      mutationNavigationKey &&
+      mutationRoute &&
+      mutationNavigationKey !== this.prevMutationNavigationKey
+    ) {
+      this.prevMutationNavigationKey = mutationNavigationKey;
+      const currentRoute = this.buildLocationRoute(location);
+      if (currentRoute !== mutationRoute) {
+        this.store.dispatch(routerRedux.push(mutationRoute));
+      }
+    }
+
+    if (
+      mutationRefreshMode === 'route' &&
+      mutationRefreshKey &&
+      mutationRefreshKey !== this.prevMutationRefreshKey
+    ) {
+      this.prevMutationRefreshKey = mutationRefreshKey;
+      const refreshedRoute = this.buildRefreshedRoute(location);
+      if (refreshedRoute) {
+        this.store.dispatch(routerRedux.push(refreshedRoute));
+      }
+    }
+
+    if (
       this.state.currentUser !== currentUser ||
       this.state.needLogin !== needLogin ||
       this.state.location !== location ||
@@ -278,6 +311,28 @@ export default class AgentRootShell extends PureComponent {
         agent,
       });
     }
+  };
+
+  buildLocationRoute = location => {
+    if (!location) {
+      return '';
+    }
+
+    return `${location.pathname || ''}${location.search || ''}`;
+  };
+
+  buildRefreshedRoute = location => {
+    if (!location || !location.pathname) {
+      return '';
+    }
+
+    const search = location.search || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    const params = new URLSearchParams(queryString);
+    params.set('refresh', `${Date.now()}`);
+    const nextSearch = params.toString();
+
+    return `${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`;
   };
 
   shouldShowAgent = () => {

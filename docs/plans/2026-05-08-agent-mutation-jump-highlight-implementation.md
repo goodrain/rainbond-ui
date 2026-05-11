@@ -1,234 +1,337 @@
-# Agent Mutation Jump Highlight Implementation Plan
+# Agent Mutation Route Refresh Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** When the Agent is about to execute a component-level destructive or mutating action, automatically navigate `rainbond-ui` to the relevant component page and visually highlight the exact UI region or action entry point.
+**Goal:** When the Agent is about to execute a delete/create/update action, `rainbond-ui` should jump to the relevant page before execution, and after execution it should navigate to the correct destination and refresh the corresponding table or page data so the user can immediately see the result.
 
-**Architecture:** Implement the MVP entirely in `rainbond-ui` by mapping Rainbond MCP tool names to component routes, tabs, optional sub-tabs, and stable DOM target keys. Reuse the existing Agent approval flow and component slide-panel route shape, then add a small DOM highlighter layer that can scroll to and decorate the target area. After the MVP works, add protocol-backed `ui_hint` support in `rainbond-copilot`, and optionally move long-term UI targeting metadata into `rainbond-console` MCP tool annotations.
+**Architecture:** Keep the entire solution inside `rainbond-ui`. Build a local mapping from Rainbond MCP tool names to UI routes, tab/sub-tab state, and refresh behavior. Reuse the existing Agent approval/event flow to detect both “about to operate” and “operation completed” moments, then drive routing and remount-based data refresh from the frontend only. Do not modify `rainbond-copilot` or `rainbond-console` in this phase.
 
-**Tech Stack:** React 16.8 class components, DVA 2.4, Umi 3.5, Ant Design 3.19, Less, Rainbond console REST APIs, Rainbond Copilot SSE approval events.
+**Tech Stack:** React 16.8 class components, DVA 2.4, Umi 3.5, Ant Design 3.19, Less, Rainbond console REST APIs, Rainbond Copilot SSE approval and trace events.
 
 ---
 
 ## Scope
 
-This plan covers:
+This plan is intentionally **frontend-only**.
 
-1. `rainbond-ui` MVP
-2. `rainbond-copilot` follow-up enhancement
-3. Optional `rainbond-console` metadata convergence
+Out of scope for this version:
 
-The MVP should support at least these component mutation families:
+- `rainbond-copilot` protocol changes
+- `rainbond-console` MCP definition changes
+- global highlighter overlays
+- DOM anchor systems such as `data-agent-target`
 
-- `rainbond_delete_component`
-- `rainbond_manage_component_envs`
-- `rainbond_manage_component_connection_envs`
-- `rainbond_manage_component_dependency`
-- `rainbond_manage_component_ports`
-- `rainbond_manage_component_storage`
-- `rainbond_manage_component_probe`
-- `rainbond_manage_component_autoscaler`
-- `rainbond_horizontal_scale_component`
-- `rainbond_vertical_scale_component`
-- `rainbond_change_component_image`
+This version only guarantees:
 
-## Route and UI Target Matrix
+1. pre-action route jump
+2. post-action route correction
+3. target page or table refresh
 
-Use this as the source of truth for the MVP mapping table:
+## Core UX Rules
 
-| MCP tool | Primary UI route | Secondary UI location | Recommended target key |
+### Before execution
+
+When the Agent receives a component/app mutation approval request:
+
+- jump to the relevant route immediately
+- switch the correct component tab
+- if needed, switch the correct `advancedSettings` sub-tab
+
+### After execution
+
+When the action completes successfully:
+
+- refresh the affected page or table data
+- if the resource no longer exists or a new resource was created, navigate to the correct destination
+
+### Required navigation rules
+
+- deleting a component: return to the current app home page
+- deleting an app: return to the team home page
+- creating an app: enter the new app home page
+- creating a component: enter the new component home page
+- batch create: default to the first created result
+
+If the result payload contains multiple created services or apps, the first one should be used as the default landing target unless a clearer primary resource can be inferred.
+
+## Route Policy Matrix
+
+Use this as the local frontend source of truth.
+
+| Tool | Pre-action route | Post-success route | Refresh target |
 |---|---|---|---|
-| `rainbond_delete_component` | `tab=overview` | component header actions | `component.header.delete` |
-| `rainbond_manage_component_envs` | `tab=environmentConfiguration` | custom env card | `component.env.inner` |
-| `rainbond_manage_component_connection_envs` | `tab=connectionInformation` | connection env card | `component.env.outer` |
-| `rainbond_manage_component_dependency` | `tab=relation` | relation main card | `component.dependency` |
-| `rainbond_manage_component_ports` | `tab=advancedSettings&subTab=port` | port card | `component.port.card` |
-| `rainbond_manage_component_storage` | `tab=advancedSettings&subTab=mnt` | volume card / mount card | `component.storage.volume.card` / `component.storage.mount.card` |
-| `rainbond_manage_component_probe` | `tab=advancedSettings&subTab=setting` | health check card | `component.probe.card` |
-| `rainbond_manage_component_autoscaler` | `tab=expansion` | autoscaler card | `component.autoscaler.card` |
-| `rainbond_horizontal_scale_component` | `tab=expansion` | manual scale card | `component.scale.manual.card` |
-| `rainbond_vertical_scale_component` | `tab=expansion` | manual scale card | `component.scale.manual.card` |
-| `rainbond_change_component_image` | `tab=advancedSettings&subTab=resource` | build source card | `component.resource.buildsource.card` |
+| `rainbond_delete_component` | current component `tab=overview` | current app overview | app overview page |
+| `rainbond_delete_app` | current app overview | current team home | team home page |
+| `rainbond_manage_component_envs` | component `tab=environmentConfiguration` | stay on same route | env table |
+| `rainbond_manage_component_connection_envs` | component `tab=connectionInformation` | stay on same route | connection env table |
+| `rainbond_manage_component_dependency` | component `tab=relation` | stay on same route | relation table |
+| `rainbond_manage_component_ports` | component `tab=advancedSettings&subTab=port` for normal components, `tab=port` for third-party components | stay on same route | port table/list |
+| `rainbond_manage_component_storage` | component `tab=advancedSettings&subTab=mnt` | stay on same route | volume/mount tables |
+| `rainbond_manage_component_probe` | component `tab=advancedSettings&subTab=setting` | stay on same route | health check cards |
+| `rainbond_manage_component_autoscaler` | component `tab=expansion` | stay on same route | autoscaler rules/records |
+| `rainbond_horizontal_scale_component` | component `tab=expansion` | stay on same route | scaling page |
+| `rainbond_vertical_scale_component` | component `tab=expansion` | stay on same route | scaling page |
+| `rainbond_change_component_image` | component `tab=advancedSettings&subTab=resource` | stay on same route | build source card/page |
+| `rainbond_create_app` | current team/app context page | new app overview | new app page |
+| `rainbond_create_app_from_yaml` | current team/app context page | new app overview | new app page |
+| `rainbond_create_app_from_snapshot_version` | current team/app context page | new app overview | new app page |
+| `rainbond_create_component` | current app overview | new component overview | new component page |
+| `rainbond_create_component_from_image` | current app overview | new component overview | new component page |
+| `rainbond_create_component_from_source` | current app overview | new component overview | new component page |
+| `rainbond_create_component_from_package` | current app overview | new component overview | new component page |
+| `rainbond_create_component_from_local_package` | current app overview | new component overview | new component page |
 
 Important constraint:
 
-- `advancedSettings` currently stores its inner menu state locally and does not persist it in the URL. The MVP must add `subTab` routing support before Agent-driven navigation can reliably land on `mnt`, `port`, `resource`, or `setting`.
+- `advancedSettings` inner menu state is currently local state only. This plan must add `subTab` URL support before pre-action route jumps can reliably land on `port`, `mnt`, `resource`, or `setting`.
 
 ---
 
-### Task 1: Add a URL-driven mutation target mapping layer in `rainbond-ui`
+### Task 1: Create a pure-frontend mutation route policy layer
 
 **Files:**
-- Create: `/Users/guox/Desktop/newagent/rainbond-ui/src/utils/agentMutationUiMap.js`
+- Create: `/Users/guox/Desktop/newagent/rainbond-ui/src/utils/agentMutationRouteMap.js`
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/utils/global.js:240-272`
 
 **Step 1: Create the mapping module**
 
-Add a small utility that exports:
+Add a utility that exports:
 
-- `getAgentMutationUiTarget(toolName, payload?)`
-- mapping entries for all component mutation tools in the matrix above
-- route metadata: `tab`, optional `subTab`, `targetKey`
+- `getAgentMutationRoutePolicy(toolName, payload?)`
+- `resolvePreActionRoute(policy, context, payload?)`
+- `resolvePostActionRoute(policy, context, resultPayload?)`
 
-The utility should support future extension to:
+The mapping should include:
 
-- inspect operation types such as `summary` vs `delete`
-- distinguish storage `create_volume` vs `delete_mnt`
+- target route tab
+- optional `subTab`
+- refresh mode
+- post-success destination strategy
 
-**Step 2: Add URL helper for second-level panel routing**
+**Step 2: Add URL helpers for extra query state**
 
-Extend `globalUtil` with a new `getSlidePanelSubTab()` parser that reads `subTab` from the current hash/query string, mirroring `getSlidePanelTab()`.
+Extend `globalUtil` with:
 
-**Step 3: Keep the mapping UI-only for the MVP**
+- `getSlidePanelSubTab()`
+- `getSlidePanelRefreshKey()`
 
-Do not block on `rainbond-copilot` or `rainbond-console` changes. The first version should work entirely from the local tool-name mapping table.
+These should mirror the existing query parsing style used by `componentID`, `type`, and `tab`.
 
-### Task 2: Make `advancedSettings` URL-addressable with `subTab`
+**Step 3: Keep the policy local**
+
+Do not fetch route hints from any backend source in this version.
+
+### Task 2: Make `advancedSettings` deep-linkable with `subTab`
 
 **Files:**
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/advancedSettings.js:40-139`
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/SlidePanel/components/components.js:506-599`
 
-**Step 1: Initialize inner menu from URL**
+**Step 1: Read `subTab` on initial render**
 
-Change `advancedSettings` so its initial `activeTab` comes from `globalUtil.getSlidePanelSubTab()` before falling back to the current default.
+Initialize `advancedSettings` from `globalUtil.getSlidePanelSubTab()` before using the current default tab.
 
-**Step 2: Push `subTab` back into the URL on menu change**
+**Step 2: Push `subTab` into the URL**
 
-When the user switches `advancedSettings` inner menu items, update the current component route to include `subTab=<inner-key>`.
+When the inner menu changes, write:
 
-Expected route shape:
+- `tab=advancedSettings`
+- `subTab=<inner-key>`
 
-`/team/:teamName/region/:regionName/apps/:appID/overview?type=components&componentID=:componentAlias&tab=advancedSettings&subTab=port`
+back into the route.
 
-**Step 3: Sync inner menu when URL changes**
+**Step 3: React to URL changes**
 
-Ensure `advancedSettings` reacts to URL updates triggered externally by the Agent, not just user clicks.
+If the Agent changes the route externally, `advancedSettings` must update its inner menu state instead of staying stale.
 
-**Step 4: Keep non-advanced tabs unchanged**
+**Step 4: Preserve current non-advanced behavior**
 
-Do not change existing behavior for `overview`, `relation`, `connectionInformation`, `environmentConfiguration`, `expansion`, `log`, or third-party component tabs.
+Do not change the routing behavior of:
 
-### Task 3: Extend Agent approval state so it can drive navigation
+- `overview`
+- `log`
+- `relation`
+- `environmentConfiguration`
+- `connectionInformation`
+- `expansion`
+- third-party component tabs
+
+### Task 3: Extend Agent state to track route jumps and mutation completion
 
 **Files:**
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/services/agent.js:55-84`
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agent.js:156-189`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agent.js:347-386`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agent.js:242-430`
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agent.js:811-930`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agentTraceHelpers.js:45-94`
 
-**Step 1: Persist the fields needed for UI routing**
+**Step 1: Preserve approval metadata**
 
-Extend pending approval normalization in both service/model layers to retain:
+Keep these fields in persisted approval state:
 
 - `skillId`
 - `targetRef`
 
-This is required so UI refreshes or panel reopen behavior do not lose the mapping context.
+This ensures refreshes and panel reopen flows still know which route policy to use.
 
-**Step 2: Add Agent focus state**
+**Step 2: Add mutation navigation state**
 
-Add a small slice of Agent UI state, for example:
+Add Agent UI state for:
 
-- `focusTargetKey`
-- `focusRoute`
-- `focusNonce`
+- `pendingMutationRoute`
+- `pendingMutationRefreshKey`
+- `pendingMutationTool`
+- `lastMutationResult`
+- `lastMutationRunId`
 
-This should represent the current “jump and highlight” intent emitted from the approval flow.
+**Step 3: Trigger pre-action route jump on `approval_requested`**
 
-**Step 3: Trigger focus intent on `approval_requested`**
+When a new mutation approval arrives:
 
-Inside the Agent event pipeline, when a new `approval_requested` event arrives:
+- resolve the route policy from the tool name
+- build the target component/app route
+- store the pre-action navigation intent
 
-- resolve the MCP tool name through the local mapping table
-- build the component target route using current team/region/app/component context
-- store the focus intent in Agent state
+**Step 4: Capture mutation results from trace output**
 
-**Step 4: Avoid firing for non-component or non-mutating approvals**
+Use `chat.trace` events to retain the structured result of mutable tools. The frontend already receives the raw trace payload; extend the reducer path so it can extract tool output and associate it with the current run.
 
-Ignore approvals that:
+This is needed for:
 
-- do not map to component mutation tools
-- do not have enough route context to build a stable component URL
+- app create success
+- component create success
+- delete success navigation
 
-### Task 4: Add route jump orchestration from the Agent host shell
+**Step 5: Detect run completion**
+
+When the current mutation run reaches a terminal successful state, resolve the post-success route and refresh behavior using:
+
+- current context
+- mutation tool name
+- last mutable tool output payload
+
+### Task 4: Add frontend-only jump and refresh orchestration in `RootShell`
 
 **Files:**
 - Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/AgentHost/RootShell.js:181-271`
-- Create: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/AgentHost/AgentDomHighlighter.js`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/AgentHost/RootShell.less`
 
-**Step 1: Watch Agent focus intent in `RootShell`**
+**Step 1: Watch Agent mutation navigation state**
 
-Use the existing global Agent host shell as the place that:
+Use `RootShell` as the place that:
 
-- observes new focus intents
-- dispatches `routerRedux.push()` if the target route differs
-- triggers DOM highlight after route change settles
+- observes pending mutation route state
+- dispatches `routerRedux.push()` when the target route differs
+- avoids duplicate pushes for the same route key
 
-**Step 2: Implement a small DOM highlighter**
+**Step 2: Introduce a refresh query strategy**
 
-Create a helper/component that:
+When the target route is already the current route, append or replace a `refresh=<timestamp>` query parameter so the relevant page can detect a fresh Agent-triggered update cycle.
 
-- finds `document.querySelector('[data-agent-target=\"...\"]')`
-- scrolls the element into view
-- applies a temporary highlight class
-- removes the class after a timeout
+**Step 3: Distinguish pre-action and post-success navigation**
 
-**Step 3: Add a visible but lightweight highlight style**
+Pre-action:
 
-Use a temporary visual treatment such as:
+- jump to the target route without leaving the current resource
 
-- red or orange border
-- glow or shadow
-- subtle pulse animation
+Post-success:
 
-Keep it obviously machine-driven, but avoid breaking layout.
+- if the resource still exists, stay on route and bump `refresh`
+- if the resource was deleted, route to parent destination
+- if a new resource was created, route to that new resource page
 
-**Step 4: Make it idempotent**
-
-Repeated approvals for the same target should refresh the animation instead of stacking duplicate classes or timers.
-
-### Task 5: Add stable `data-agent-target` anchors to component pages
+### Task 5: Standardize remount-based refresh for component tabs
 
 **Files:**
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/SlidePanel/components/components.js:1270-1300`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/EnvironmentVariable/index.js:1078-1139`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/relation.js:176-264`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/port.js:640-677`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/mnt.js:601-664`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/setting.js:792-935`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/resource.js:893-1137`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/expansion.js:1294-1675`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/SlidePanel/components/components.js:1718-1884`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/advancedSettings.js:53-139`
 
-**Step 1: Anchor the delete action**
+**Step 1: Thread refresh state into tab rendering**
 
-Mark the component header delete action area with:
+Use the route `refresh` query as part of the rendered tab key so a route-level refresh forces the relevant component tab to remount.
 
-- `data-agent-target="component.header.delete"`
+Examples:
 
-If the delete action is rendered inside the dropdown branch, anchor the dropdown trigger region as well.
+- component tab key: `${activeTab}-${refreshKey}`
+- advancedSettings child key: `${activeSubTab}-${refreshKey}`
 
-**Step 2: Anchor environment cards**
+**Step 2: Let remount trigger existing `componentDidMount` fetches**
 
-Use different keys for:
+Many component pages already fetch data in `componentDidMount`. Prefer remount-driven refresh over building a large custom event bus.
 
-- inner env card
-- outer env card
+**Step 3: Keep tab-local state safe**
 
-Do not rely on translated title text as the selector.
+Only use this remount pattern for Agent-triggered mutation refreshes. Normal browsing should not lose local state on ordinary tab switches.
 
-**Step 3: Anchor relation, port, storage, probe, resource, and scale cards**
+### Task 6: Add route-aware refresh handling for the main mutation pages
 
-Add explicit `data-agent-target` attributes to the relevant `Card` roots, not to nested text spans.
+**Files:**
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/environmentConfiguration.js`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/EnvironmentVariable/index.js:705-1139`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/relation.js:51-277`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/port.js:286-742`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/mnt.js:142-704`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/setting.js:160-1068`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/resource.js:327-1398`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/pages/Component/expansion.js:262-1793`
 
-This gives the highlighter a stable box model target and avoids brittle selectors inside Ant Design tables.
+**Step 1: Validate refresh-by-remount coverage**
 
-**Step 4: Keep anchors semantic**
+Confirm each target page reloads the needed data when remounted:
 
-Do not generate dynamic random IDs. The target keys should be deterministic and versionable.
+- env pages: `fetchInnerEnvs` / outer env list path
+- relation: `loadRelationedApp`
+- port: `fetchPorts`
+- storage: `fetchVolumes`, `loadMntList`, `fetchVolumeOpts`
+- probe/settings: `fetchStartProbe`, `fetchRunningProbe`, `fetchPorts`, `fetchBaseInfo`
+- resource/build source: `loadBuildSourceInfo`, `getRuntimeInfo`
+- expansion: `getScalingRules`, `getScalingRecord`, `fetchInstanceInfo`, `fetchExtendInfo`
 
-### Task 6: Build the MVP verification path
+**Step 2: Add explicit fallback refresh hooks only where remount is insufficient**
+
+If any target page is not reliably refreshed by remount alone, add a `componentDidUpdate` check on the route refresh key and call the same local fetch methods again.
+
+**Step 3: Keep refresh localized**
+
+Do not introduce a global application-wide refresh event. Each page should refresh only the data it already owns.
+
+### Task 7: Implement post-success navigation rules for create/delete flows
+
+**Files:**
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/utils/agentMutationRouteMap.js`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/models/agent.js`
+- Modify: `/Users/guox/Desktop/newagent/rainbond-ui/src/components/AgentHost/RootShell.js`
+
+**Step 1: Delete success rules**
+
+Implement:
+
+- `rainbond_delete_component` -> `/team/:teamName/region/:regionName/apps/:appID/overview`
+- `rainbond_delete_app` -> team home route
+
+The exact team home route should reuse the app’s existing navigation conventions in `rainbond-ui`, not introduce a new route shape.
+
+**Step 2: Create success rules**
+
+Implement:
+
+- `rainbond_create_app*` -> new app overview route using returned `app_id`
+- `rainbond_create_component*` -> new component route using returned `service_alias` if available, otherwise another frontend-usable alias field from the tool output
+
+**Step 3: Batch create defaulting**
+
+If a create result returns multiple resources:
+
+- choose the first created resource as the landing target
+
+**Step 4: Guard against incomplete outputs**
+
+If the result payload is missing route-critical fields:
+
+- stay on the current route
+- trigger a `refresh`
+- avoid navigating to a broken URL
+
+### Task 8: Minimal verification path
 
 **Files:**
 - Modify: none
@@ -237,9 +340,9 @@ Do not generate dynamic random IDs. The target keys should be deterministic and 
 
 Run: `yarn build`
 
-Expected: production build succeeds without route or Agent-state regressions.
+Expected: no new compile errors in Agent, component routing, or component page remount logic.
 
-**Step 2: Manual verification scenario A**
+**Step 2: Manual verification A: delete component**
 
 Simulate an Agent approval for:
 
@@ -247,107 +350,67 @@ Simulate an Agent approval for:
 
 Expected:
 
-- component page opens on `tab=overview`
-- delete action area is scrolled into view
-- delete action area receives the temporary highlight
+- before execution: jump to current component `tab=overview`
+- after success: return to current app overview
 
-**Step 3: Manual verification scenario B**
+**Step 3: Manual verification B: mutate ports**
 
-Simulate an Agent approval for:
+Simulate:
 
 - `rainbond_manage_component_ports`
 
 Expected:
 
-- component page opens on `tab=advancedSettings&subTab=port`
-- port card is visible and highlighted
+- before execution: jump to `tab=advancedSettings&subTab=port` or `tab=port` for third-party components
+- after success: remain on the same page and refresh the ports list
 
-**Step 4: Manual verification scenario C**
+**Step 4: Manual verification C: change component image**
 
-Simulate an Agent approval for:
+Simulate:
 
 - `rainbond_change_component_image`
 
 Expected:
 
-- component page opens on `tab=advancedSettings&subTab=resource`
-- build source card is visible and highlighted
+- before execution: jump to `tab=advancedSettings&subTab=resource`
+- after success: remain on the same page and refresh build source/runtime info
 
-### Task 7: Add `rainbond-copilot` protocol support after the MVP works
+**Step 5: Manual verification D: create component**
 
-**Files:**
-- Modify: `/Users/guox/Desktop/newagent/rainbond-copilot/src/server/services/copilot-approval-service.ts:71-145`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-copilot/src/server/runtime/server-llm-executor.ts:547-612`
-- Modify: `/Users/guox/Desktop/newagent/rainbond-copilot/src/shared/contracts.ts`
+Simulate:
 
-**Step 1: Introduce optional `ui_hint` in approval/trace events**
+- `rainbond_create_component_from_image`
 
-Attach a normalized structure such as:
+Expected:
 
-- `route_kind`
-- `tab`
-- `sub_tab`
-- `target_key`
+- after success: route to the new component overview page
 
-**Step 2: Prefer server-provided hints over local mapping**
+**Step 6: Manual verification E: delete app**
 
-Update `rainbond-ui` Agent mapping resolution so:
+Simulate:
 
-- use `event.data.ui_hint` first if present
-- otherwise fall back to the local mapping table
+- `rainbond_delete_app`
 
-**Step 3: Preserve backward compatibility**
+Expected:
 
-Do not make the UI depend on `ui_hint` being present. MVP behavior must still work without server support.
-
-### Task 8: Optional long-term convergence in `rainbond-console`
-
-**Files:**
-- Modify: `/Users/guox/Desktop/newagent/rainbond-console/console/services/mcp_query_service.py:4547-6299`
-
-**Step 1: Add `annotations.ui_target` to component mutation MCP tool definitions**
-
-For example:
-
-- `route_tab`
-- `route_sub_tab`
-- `ui_target_key`
-
-**Step 2: Keep console metadata descriptive**
-
-`rainbond-console` should define what the canonical UI surface is, but not hardcode browser URLs tied to hash-mode details.
-
-**Step 3: Let `rainbond-copilot` translate annotations into event `ui_hint`**
-
-This keeps `rainbond-console` as the source of truth for tool-to-UI meaning while leaving route assembly to the app-side runtime.
+- after success: route back to team home
 
 ---
 
 ## MVP Acceptance Criteria
 
-- The Agent can navigate to the correct component page for at least `delete`, `ports`, and `change image`.
-- `advancedSettings` supports stable deep-linking via `subTab`.
-- UI highlighting uses stable `data-agent-target` anchors instead of translated text selectors.
-- Refreshing the page does not erase pending approval `skillId` and `targetRef`.
-- The feature works without any `rainbond-console` or `rainbond-copilot` changes.
+- The feature is implemented entirely in `rainbond-ui`.
+- `advancedSettings` supports stable `subTab` deep links.
+- Agent approvals can trigger pre-action route jumps without server-side route hints.
+- Mutation completion can trigger either route refresh or destination correction.
+- Delete and create flows follow the required route fallback rules.
+- At least ports, component deletion, component creation, and build-source update are manually verified.
 
-## Recommended Execution Order
+## Recommended Implementation Order
 
-1. `rainbond-ui`: local mapping + `subTab` + DOM highlighter + target anchors
-2. `rainbond-copilot`: emit `ui_hint`
-3. `rainbond-console`: optional MCP annotations for long-term consistency
-
-## Minimal Verification Recommendation
-
-If you only validate one end-to-end path first, use:
-
-1. `rainbond_manage_component_ports`
-2. `rainbond_delete_component`
-
-This pair covers:
-
-- nested routing
-- header action targeting
-- card targeting
-- Agent approval state persistence
-
+1. local route policy map
+2. `subTab` URL support
+3. Agent mutation state + trace result capture
+4. `RootShell` jump and refresh orchestration
+5. component tab remount refresh
+6. post-success create/delete route rules

@@ -47,6 +47,7 @@ function normalizeContext(context) {
     regionName: context.regionName || '',
     appId: context.appId || '',
     componentId: context.componentId || '',
+    componentAlias: context.componentAlias || '',
     componentSource: context.componentSource || '',
     pathname: context.pathname || ''
   };
@@ -64,6 +65,8 @@ function normalizePendingApproval(pendingApproval) {
     scope: pendingApproval.scope || '',
     scopeLabel: pendingApproval.scopeLabel || '',
     levelLabel: pendingApproval.levelLabel || '',
+    skillId: pendingApproval.skillId || '',
+    targetRef: pendingApproval.targetRef || null,
     runId: pendingApproval.runId || '',
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
