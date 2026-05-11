@@ -45,13 +45,18 @@ import {
   HelmwaRehouseAddStore,
   HelmwaRehouseAddCom
 } from '../services/market';
+import { normalizeMarketArch } from './marketArch';
 
 export default {
   namespace: 'market',
   state: {},
   effects: {
-    *fetchAppModels({ payload, callback }, { call }) {
-      const response = yield call(fetchAppModels, payload);
+    *fetchAppModels({ payload, callback }, { call, select }) {
+      const archInfo = yield select(state => state.index.archInfo);
+      const response = yield call(fetchAppModels, {
+        ...payload,
+        arch: normalizeMarketArch(payload && payload.arch, archInfo)
+      });
       if (response && callback) {
         callback(response);
       }
@@ -195,8 +200,12 @@ export default {
         }
       }
     },
-    *fetchMarkets({ payload, callback }, { call }) {
-      const response = yield call(fetchMarkets, payload);
+    *fetchMarkets({ payload, callback }, { call, select }) {
+      const archInfo = yield select(state => state.index.archInfo);
+      const response = yield call(fetchMarkets, {
+        ...payload,
+        arch: normalizeMarketArch(payload && payload.arch, archInfo)
+      });
       if (response && callback) {
         callback(response);
       }

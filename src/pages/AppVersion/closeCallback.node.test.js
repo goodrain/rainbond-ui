@@ -13,5 +13,3 @@ assert.doesNotThrow(() => {
     target: null
   });
 }, 'should ignore drawer close events instead of treating them as callbacks');
-
-console.log('app version close callback tests passed');

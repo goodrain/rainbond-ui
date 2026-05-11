@@ -50,14 +50,44 @@
   min-width: 0;
 }
 
+.appCardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 4px;
+}
+
 .appCardName {
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: 500;
   color: @heading-color;
-  margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.scopeTag {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 20px;
+  border: 1px solid transparent;
+}
+
+.enterpriseScope {
+  color: #1890ff;
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.teamScope {
+  color: #d46b08;
+  background: #fff7e6;
+  border-color: #ffd591;
 }
 
 .appCardVersion {

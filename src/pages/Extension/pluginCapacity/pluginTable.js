@@ -1,4 +1,4 @@
-import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert, Empty } from 'antd';
+import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -633,8 +633,8 @@ class Index extends PureComponent {
                     </div>
                 )}
                 {pluginList.length === 0 && !loading && (
-                    <div style={{ marginTop: '24px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Empty description="暂无可用插件" />
+                    <div style={{ marginTop: '24px', minHeight: '300px' }}>
+                        {defaultPluginList.map((item, index) => this.renderDefaultPluginCard(item, index))}
                     </div>
                 )}
                 {loading && (

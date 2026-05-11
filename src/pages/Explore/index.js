@@ -70,7 +70,7 @@ class Explore extends PureComponent {
       // 筛选
       tagList: [],
       tags: [],
-      scope: 'enterprise',
+      scope: '',
       name: '',
       // 市场信息
       marketInfo: false,
@@ -147,6 +147,8 @@ class Explore extends PureComponent {
       }
     } = this.props;
     const { page, pageSize, name, scope, tags } = this.state;
+    const query = new URLSearchParams(this.props.location?.search || '');
+    const tenantName = query.get('teamName') || globalUtil.getCurrTeamName();
 
     this.setState({ localLoading: true }, () => {
       dispatch({
@@ -158,7 +160,8 @@ class Explore extends PureComponent {
           scope,
           page,
           page_size: pageSize,
-          tags
+          tags,
+          tenant_name: tenantName
         },
         callback: res => {
           if (res && res.status_code === 200) {

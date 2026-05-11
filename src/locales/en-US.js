@@ -17,6 +17,7 @@ import login from './en-US/login'
 import versionUpdata from './en-US/versionUpdata'
 import explore from './en-US/explore'
 import resource from './en-US/resource'
+import cliAuth from './en-US/cliAuth'
 
 export default {
   'navBar.lang': 'lang',
@@ -42,5 +43,6 @@ export default {
   ...login,
   ...versionUpdata,
   ...explore,
-  ...resource
+  ...resource,
+  ...cliAuth
 };

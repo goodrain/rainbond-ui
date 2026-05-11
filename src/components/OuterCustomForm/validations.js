@@ -8,6 +8,9 @@ import { formatMessage } from '@/utils/intl';
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
 const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
 const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+const COMPONENT_NAME_MAX_LENGTH = 32;
+const K8S_COMPONENT_NAME_MAX_LENGTH = 32;
+const K8S_APP_NAME_MAX_LENGTH = 16;
 
 /**
  * 服务名称校验函数
@@ -36,17 +39,13 @@ export const validateServiceName = (_, value, callback) => {
   callback();
 };
 
-/**
- * K8s 组件名称校验函数
- * 必须符合 K8s 命名规范：以小写字母开头，只能包含小写字母、数字和连字符
- */
-export const validateK8sComponentName = (_, value, callback) => {
+const validateK8sName = (value, callback, maxLength, maxMessageId) => {
   if (!value) {
     return callback(new Error(formatMessage({ id: 'placeholder.k8s_component_name' })));
   }
 
-  if (value.length > 16) {
-    return callback(new Error(formatMessage({ id: 'placeholder.max16' })));
+  if (value.length > maxLength) {
+    return callback(new Error(formatMessage({ id: maxMessageId })));
   }
 
   // K8s 命名规范：必须以小写字母开头，只能包含小写字母、数字和连字符，必须以字母或数字结尾
@@ -57,6 +56,22 @@ export const validateK8sComponentName = (_, value, callback) => {
 
   callback();
 };
+
+/**
+ * K8s 组件名称校验函数
+ * 必须符合 K8s 命名规范：以小写字母开头，只能包含小写字母、数字和连字符
+ */
+export const validateK8sComponentName = (_, value, callback) => (
+  validateK8sName(value, callback, K8S_COMPONENT_NAME_MAX_LENGTH, 'placeholder.max32')
+);
+
+/**
+ * K8s 应用名称校验函数
+ * 保持原有 16 位限制，避免第三方组件高级设置放宽应用英文名
+ */
+export const validateK8sAppName = (_, value, callback) => (
+  validateK8sName(value, callback, K8S_APP_NAME_MAX_LENGTH, 'placeholder.max16')
+);
 
 /**
  * 创建地址校验函数
@@ -116,8 +131,8 @@ export const getServiceNameRules = () => [
     validator: validateServiceName
   },
   {
-    max: 24,
-    message: formatMessage({ id: 'placeholder.max24' })
+    max: COMPONENT_NAME_MAX_LENGTH,
+    message: formatMessage({ id: 'placeholder.max32' })
   }
 ];
 
@@ -128,6 +143,16 @@ export const getK8sComponentNameRules = () => [
   {
     required: true,
     validator: validateK8sComponentName
+  }
+];
+
+/**
+ * K8s 应用名称校验规则
+ */
+export const getK8sAppNameRules = () => [
+  {
+    required: true,
+    validator: validateK8sAppName
   }
 ];
 
