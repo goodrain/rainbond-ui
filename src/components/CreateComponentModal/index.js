@@ -121,13 +121,6 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const isLLMPluginInstalled = (list = []) => {
-  return (list || []).some(plugin => {
-    const pluginLabels = [plugin?.name, plugin?.alias, plugin?.display_name];
-    return pluginLabels.some(label => typeof label === 'string' && /(llm|大模型)/i.test(label));
-  });
-};
-
 const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
@@ -670,8 +663,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const showDatabaseEntry = showDatabaseForm;
   const showVmEntry = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-vm');
-  const showLlmEntry = isLLMPluginInstalled(pluginsList);
-  const showExtensionSection = showDatabaseEntry || showVmEntry || showLlmEntry;
+  const showExtensionSection = true;
 
   // 动态生成市场子项:应用商店分隔符 + 商店列表 + 本地资源分隔符 + 本地组件库 + 离线导入
   const marketSubItems = [
@@ -951,12 +943,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'vm',
       iconColor: '#fa8c16',
     }] : []),
-    ...(showLlmEntry ? [{
+    {
       iconSrc: InstalledLlmIconOrange,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm' }),
-      key: 'llm-display',
+      key: 'llm',
       iconColor: '#722ed1',
-    }] : []),
+    },
     ...availablePlugins.map(plugin => ({
       icon: 'api',
       title: plugin.display_name || plugin.alias || plugin.name || formatMessage({ id: 'componentOverview.body.CreateComponentModal.plugin' }),
@@ -1826,12 +1818,53 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   }, [visible, initialView, hasInitialized]);
 
+  const handleLlmEntryClick = () => {
+    const hasLlmPlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-ai-engine');
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!hasLlmPlugin) {
+      dispatch(
+        routerRedux.push(
+          `/team/${teamName}/region/${regionName}/plugins/rainbond-ai-engine`
+        )
+      );
+      onCancel();
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_contact_admin_desc' })
+    });
+  };
+
   const handleItemClick = (item) => {
     if (item.key === 'llm-display') {
       handleOpenLlmSelector();
       return;
     }
     if (item.displayOnly) {
+      return;
+    }
+    if (item.key === 'llm') {
+      handleLlmEntryClick();
       return;
     }
     if (item.hasSubMenu) {

@@ -770,11 +770,20 @@ function normalizeChunkUploadEventUrl(uploadUrl, eventId) {
 /*
   初始化分片上传会话
 */
+function getChunkUploadEventUrl(body = {}) {
+  const baseUrl = (body.upload_url || apiconfig.baseUrl || '').replace(/\/+$/, '');
+  const eventPath = `/package_build/component/events/${body.event_id}`;
+  if (baseUrl.endsWith(eventPath)) {
+    return baseUrl;
+  }
+  return `${baseUrl}${eventPath}`;
+}
+
 export async function initChunkUpload(body = {}, handleError) {
-  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
+  const uploadUrl = getChunkUploadEventUrl(body);
 
   return request(
-    `${eventUploadUrl}/upload/init`,
+    `${uploadUrl}/upload/init`,
     {
       method: 'post',
       data: {
@@ -800,10 +809,10 @@ export async function uploadChunk(body = {}, handleError) {
   formData.append('chunk_index', body.chunk_index);
   formData.append('file', body.file);
 
-  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
+  const uploadUrl = getChunkUploadEventUrl(body);
 
   return request(
-    `${eventUploadUrl}/upload/chunk`,
+    `${uploadUrl}/upload/chunk`,
     {
       method: 'post',
       data: formData,
@@ -819,10 +828,10 @@ export async function uploadChunk(body = {}, handleError) {
   完成分片上传
 */
 export async function completeChunkUpload(body = {}, handleError) {
-  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
+  const uploadUrl = getChunkUploadEventUrl(body);
 
   return request(
-    `${eventUploadUrl}/upload/complete`,
+    `${uploadUrl}/upload/complete`,
     {
       method: 'post',
       data: {
@@ -840,10 +849,10 @@ export async function completeChunkUpload(body = {}, handleError) {
   查询分片上传状态
 */
 export async function getChunkUploadStatus(body = {}, handleError) {
-  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
+  const uploadUrl = getChunkUploadEventUrl(body);
 
   return request(
-    `${eventUploadUrl}/upload/status/${body.session_id}`,
+    `${uploadUrl}/upload/status/${body.session_id}`,
     {
       method: 'get',
       headers: {
@@ -858,10 +867,10 @@ export async function getChunkUploadStatus(body = {}, handleError) {
   取消分片上传
 */
 export async function cancelChunkUpload(body = {}, handleError) {
-  const eventUploadUrl = normalizeChunkUploadEventUrl(body.upload_url, body.event_id);
+  const uploadUrl = getChunkUploadEventUrl(body);
 
   return request(
-    `${eventUploadUrl}/upload/${body.session_id}`,
+    `${uploadUrl}/upload/${body.session_id}`,
     {
       method: 'delete',
       headers: {
