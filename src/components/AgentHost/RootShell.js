@@ -83,6 +83,8 @@ export default class AgentRootShell extends PureComponent {
     }
     this.disconnectViewportLockResizeObserver();
     window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('hashchange', this.handleStoreChange);
+    window.removeEventListener('popstate', this.handleStoreChange);
   }
 
   attachStoreWithRetry = () => {
@@ -102,6 +104,11 @@ export default class AgentRootShell extends PureComponent {
     this.unsubscribe = store.subscribe(this.handleStoreChange);
     this.handleStoreChange();
     window.addEventListener('resize', this.handleResize);
+    // dva-router does not always emit @@router/LOCATION_CHANGE for hash
+    // navigation in this build, so subscribe directly to hashchange/popstate
+    // as a fallback trigger for agent context sync.
+    window.addEventListener('hashchange', this.handleStoreChange);
+    window.addEventListener('popstate', this.handleStoreChange);
   };
 
   handleResize = () => {
