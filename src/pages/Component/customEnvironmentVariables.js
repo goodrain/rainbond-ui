@@ -684,101 +684,101 @@ export default class Index extends React.Component {
           }
           style={LAST_CARD_STYLE}
         >
-          <ScrollerX sm={850}>
-            <Table
-              pagination={{
-                current: this.state.mntPage,
-                pageSize: this.state.mntpageSize,
-                total: Number(mntList.length),
-                onChange: this.onMntPageChange,
-                onShowSizeChange: this.onMntPageChange,
-                showQuickJumper: true,
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-                pageSizeOptions: PAGE_SIZE_OPTIONS,
-                hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
-              }}
-              rowKey={(record,index) => index}
-              columns={[
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),
-                  dataIndex: 'local_vol_path',
-                  key: '1',
-                  width: '20%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span style={WORD_WRAP_STYLE}>{data}</span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.name' }),
-                  dataIndex: 'dep_vol_name',
-                  key: '2',
-                  width: '15%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span style={WORD_WRAP_STYLE}>{data}</span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.path' }),
-                  dataIndex: 'dep_vol_path',
-                  key: '3',
-                  width: '20%',
-                  render: data => (
-                    <Tooltip title={data}>
-                      <span style={WORD_WRAP_STYLE}>{data}</span>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.Component' }),
-                  dataIndex: 'dep_app_name',
-                  key: '4',
-                  width: '15%',
-                  render: (v, data) => (
-                    <Link
-                      to={
-                        // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                        // }/environmentConfiguration`
-                      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${data.dep_app_alias}&tab=environmentConfiguration`
-                      }
-                    >
-                      {v}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.Components' }),
-                  dataIndex: 'dep_app_group',
-                  key: '5',
-                  width: '15%',
-                  render: (v, data) => (
-                    <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                        }/overview`}
-                    >
-                      {v}
-                    </Link>
-                  )
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
-                  dataIndex: 'action',
-                  key: '6',
-                  width: '15%',
-                  render: (v, data) => (
-                    <a onClick={() => this.onDeleteMnt(data)}>
-                      <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
-                    </a>
-                  )
-                }
-              ]}
-              dataSource={mntList}
-            />
-          </ScrollerX>
+          <Table
+            pagination={{
+              current: this.state.mntPage,
+              pageSize: this.state.mntpageSize,
+              total: Number(mntList.length),
+              onChange: this.onMntPageChange,
+              onShowSizeChange: this.onMntPageChange,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              pageSizeOptions: PAGE_SIZE_OPTIONS,
+              hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
+            }}
+            rowKey={(record,index) => index}
+            columns={[
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),
+                dataIndex: 'local_vol_path',
+                key: '1',
+                width: 240,
+                fixed: 'left',
+                render: data => (
+                  <Tooltip title={data}>
+                    <span style={WORD_WRAP_STYLE}>{data}</span>
+                  </Tooltip>
+                )
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.name' }),
+                dataIndex: 'dep_vol_name',
+                key: '2',
+                width: 180,
+                render: data => (
+                  <Tooltip title={data}>
+                    <span style={WORD_WRAP_STYLE}>{data}</span>
+                  </Tooltip>
+                )
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.path' }),
+                dataIndex: 'dep_vol_path',
+                key: '3',
+                width: 220,
+                render: data => (
+                  <Tooltip title={data}>
+                    <span style={WORD_WRAP_STYLE}>{data}</span>
+                  </Tooltip>
+                )
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.Component' }),
+                dataIndex: 'dep_app_name',
+                key: '4',
+                width: 180,
+                render: (v, data) => (
+                  <Link
+                    to={
+                      // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
+                      // }/environmentConfiguration`
+                    `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${data.dep_app_alias}&tab=environmentConfiguration`
+                    }
+                  >
+                    {v}
+                  </Link>
+                )
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.Components' }),
+                dataIndex: 'dep_app_group',
+                key: '5',
+                render: (v, data) => (
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                      }/overview`}
+                  >
+                    {v}
+                  </Link>
+                )
+              },
+              {
+                title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
+                dataIndex: 'action',
+                key: '6',
+                width: 140,
+                fixed: 'right',
+                render: (v, data) => (
+                  <a onClick={() => this.onDeleteMnt(data)}>
+                    <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
+                  </a>
+                )
+              }
+            ]}
+            dataSource={mntList}
+            scroll={{ x: 1240, y: 360 }}
+          />
         </Card>
         {this.state.showAddVars && (
           <AddStorage

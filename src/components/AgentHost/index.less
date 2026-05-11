@@ -55,6 +55,14 @@
   background: #f7f9fc;
 }
 
+.panelBodyPushFixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--agent-panel-width, 420px);
+  height: 100vh;
+}
+
 .panelHeader {
   flex-shrink: 0;
   display: flex;
@@ -95,11 +103,35 @@
 }
 
 .panelBrandTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
+}
+
+.panelBrandTitleText {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.panelBrandBeta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .closeButton {
@@ -363,7 +395,7 @@
 }
 
 .emptyTitle {
-  color: @heading-color;
+  color: @rbd-auxiliary-color;
   font-size: @rbd-sub-title-size;
   font-weight: 600;
   margin-bottom: 8px;
@@ -374,6 +406,29 @@
   font-size: @rbd-content-size;
   line-height: 22px;
   max-width: 320px;
+}
+
+.emptyFeatureList {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.emptyFeatureItem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 16px;
+  color: @rbd-auxiliary-color-secondary;
+}
+
+
+.emptyList li + li {
+  margin-top: 6px;
 }
 
 .contextRow {

@@ -1,8 +1,8 @@
 const { shouldRenderMessageItem } = require('./displayFilters');
 
-const EMPTY_COMPOSER_PLACEHOLDER = '输入命令，例如，你可以帮我做些什么？';
+const EMPTY_COMPOSER_PLACEHOLDER = '输入命令，例如，帮我排查这个组件的问题。';
 const DEFAULT_COMPOSER_PLACEHOLDER = '请输入命令';
-const DEFAULT_EMPTY_MESSAGE = '你可以帮我做些什么？';
+const DEFAULT_EMPTY_MESSAGE = '帮我排查这个组件的问题。';
 const PENDING_APPROVAL_PLACEHOLDER = '请先取消未处理审批';
 
 function hasRenderableMessages(messages = []) {

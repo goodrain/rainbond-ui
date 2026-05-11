@@ -9,6 +9,7 @@ import {
   getAgentRouteSignature,
   isAgentRouteHidden,
 } from '../../utils/agentContext';
+const { getAgentViewportCssVars } = require('../../utils/agentViewport');
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
 const { createSessionPersistenceScheduler } = require('./sessionPersistenceScheduler');
@@ -495,9 +496,13 @@ export default class AgentRootShell extends PureComponent {
       isPanelVisible && isPushMode
         ? `calc(100% - ${panelConfig.width}px)`
         : '100%';
+    const viewportCssVars = getAgentViewportCssVars({
+      isPanelVisible,
+      panelConfig,
+    });
 
     return (
-      <div className={styles.rootShell}>
+      <div className={styles.rootShell} style={viewportCssVars}>
         <div
           className={`${styles.appViewport} ${
             isPanelVisible && isPushMode

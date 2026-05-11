@@ -20,7 +20,7 @@
   position: fixed;
   top: 56px;
   left: 0;
-  right: 0;
+  right: var(--agent-panel-width, 0px);
   background: #f2f4f7;
   z-index: 100;
 }
@@ -525,7 +525,7 @@
   position: fixed;
   top: 117px;
   left: 0;
-  right: 0;
+  right: var(--agent-panel-width, 0px);
   z-index: 99;
   background: #f2f4f7;
   padding: 2px 4% 12px;
@@ -617,7 +617,7 @@
 
 .categoryAppsList {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -1166,6 +1166,6 @@
 // 本地组件库卡片列表
 .localAppCardList {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }

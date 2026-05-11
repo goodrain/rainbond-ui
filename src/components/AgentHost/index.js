@@ -36,9 +36,8 @@ function ReasoningBlock({ reasoning, streaming }) {
         <Icon type={collapsed ? 'right' : 'down'} className={styles.reasoningChevron} />
         <Icon type="bulb" className={styles.reasoningIcon} />
         <span
-          className={`${styles.reasoningLabel} ${
-            streaming ? styles.reasoningLabelStreaming : ''
-          }`}
+          className={`${styles.reasoningLabel} ${streaming ? styles.reasoningLabelStreaming : ''
+            }`}
           data-text={streaming ? '思考中…' : undefined}
         >
           {streaming ? '思考中…' : '思考过程'}
@@ -379,8 +378,8 @@ export default class AgentHost extends PureComponent {
     const targetLabel = targetRef
       ? targetRef.kind === 'service' ? '该组件'
         : targetRef.kind === 'app' ? '该应用'
-        : targetRef.kind === 'team' ? '该团队'
-        : '该资源'
+          : targetRef.kind === 'team' ? '该团队'
+            : '该资源'
       : '';
 
     if (isHigh) {
@@ -473,13 +472,13 @@ export default class AgentHost extends PureComponent {
             >
               授权并执行
             </Button>
-          <Dropdown overlay={menu} trigger={['click']}>
-            <Button
-              type="primary"
-              className={styles.approvalPolicyButton}
-              disabled={isSending}
-              aria-label="选择自动批准策略"
-            >
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Button
+                type="primary"
+                className={styles.approvalPolicyButton}
+                disabled={isSending}
+                aria-label="选择自动批准策略"
+              >
                 <Icon type="more" />
               </Button>
             </Dropdown>
@@ -743,18 +742,28 @@ export default class AgentHost extends PureComponent {
     if (!hasVisibleMessages) {
       return (
         <div className={styles.emptyState}>
-          <div className={styles.emptyTitle}>RainAgent</div>
+          <div className={styles.emptyTitle}>Rainbond AI 助手</div>
           <div className={styles.emptyText}>
-            可帮助你查看状态与日志、排查问题、执行操作并推进应用流程。
+            <div className={styles.emptyFeatureList}>
+              <div className={styles.emptyFeatureItem}>
+                <span>帮你解答 Rainbond 的使用问题。</span>
+              </div>
+              <div className={styles.emptyFeatureItem}>
+                <span>帮你通过镜像、源码等方式安装和部署应用。</span>
+              </div>
+              <div className={styles.emptyFeatureItem}>
+                <span>帮你查看服务状态，定位问题并给出处理建议。</span>
+              </div>
+            </div>
           </div>
         </div>
       );
     }
 
-      const rendered = [];
-      let pendingTraceItems = [];
+    const rendered = [];
+    let pendingTraceItems = [];
 
-      messages.forEach(item => {
+    messages.forEach(item => {
       if (!shouldRenderMessageItem(item)) {
         return;
       }
@@ -841,9 +850,8 @@ export default class AgentHost extends PureComponent {
           </div>
           {isUser ? (
             <div
-              className={`${styles.messageBubble} ${
-                isUser ? styles.userBubble : styles.assistantBubble
-              }`}
+              className={`${styles.messageBubble} ${isUser ? styles.userBubble : styles.assistantBubble
+                }`}
             >
               {item.content}
             </div>
@@ -867,13 +875,13 @@ export default class AgentHost extends PureComponent {
           )}
         </div>
       );
-      });
+    });
 
-      if (pendingTraceItems.length > 0) {
-        rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-      }
+    if (pendingTraceItems.length > 0) {
+      rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+    }
 
-      return rendered;
+    return rendered;
   };
 
   render() {
@@ -902,20 +910,25 @@ export default class AgentHost extends PureComponent {
     return (
       <div className={styles.agentHost}>
         <div
-          className={`${styles.agentPanel} ${
-            visible ? styles.agentPanelVisible : styles.agentPanelHidden
-          } ${isOverlay ? styles.agentPanelOverlay : styles.agentPanelPush}`}
+          className={`${styles.agentPanel} ${visible ? styles.agentPanelVisible : styles.agentPanelHidden
+            } ${isOverlay ? styles.agentPanelOverlay : styles.agentPanelPush}`}
           style={{ width }}
         >
           {isOverlay && visible ? (
             <div className={styles.overlayMask} onClick={this.closeDrawer} />
           ) : null}
 
-          <div className={styles.panelBody}>
+          <div
+            className={`${styles.panelBody} ${!isOverlay ? styles.panelBodyPushFixed : ''
+              }`}
+          >
             <div className={styles.panelHeader}>
               <div className={styles.panelBrand}>
                 <AgentBrandIcon />
-                <div className={styles.panelBrandTitle}>RainAgent</div>
+                <div className={styles.panelBrandTitle}>
+                  <span className={styles.panelBrandTitleText}>RainAgent</span>
+                  <span className={styles.panelBrandBeta}>Beta</span>
+                </div>
               </div>
               <div className={styles.panelHeaderActions}>
                 <Popover
@@ -947,74 +960,74 @@ export default class AgentHost extends PureComponent {
             </div>
 
             <div className={styles.drawerBody}>
-            <div
-              className={styles.messagesPanel}
-              ref={this.setMessagesRef}
-              onScroll={this.handleMessagesScroll}
-            >
-              {this.renderWorkflowSummary()}
-              {this.renderMessages()}
-              {showBottomThinking ? (
-                <div className={styles.thinkingRow}>
-                  <span className={styles.thinkingText} data-text="正在思考...">
-                    正在思考...
-                  </span>
+              <div
+                className={styles.messagesPanel}
+                ref={this.setMessagesRef}
+                onScroll={this.handleMessagesScroll}
+              >
+                {this.renderWorkflowSummary()}
+                {this.renderMessages()}
+                {showBottomThinking ? (
+                  <div className={styles.thinkingRow}>
+                    <span className={styles.thinkingText} data-text="正在思考...">
+                      正在思考...
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              {hasSessionPending ? (
+                <div className={styles.pendingBanner}>
+                  <div className={styles.pendingBannerText}>
+                    该会话有 {sessionPendingApprovals.length} 项未处理审批，
+                    请先取消后再继续。
+                  </div>
+                  <Button
+                    size="small"
+                    type="danger"
+                    loading={cancellingPending}
+                    onClick={this.handleCancelSessionPending}
+                  >
+                    取消并继续
+                  </Button>
                 </div>
               ) : null}
-            </div>
 
-            {hasSessionPending ? (
-              <div className={styles.pendingBanner}>
-                <div className={styles.pendingBannerText}>
-                  该会话有 {sessionPendingApprovals.length} 项未处理审批，
-                  请先取消后再继续。
-                </div>
-                <Button
-                  size="small"
-                  type="danger"
-                  loading={cancellingPending}
-                  onClick={this.handleCancelSessionPending}
-                >
-                  取消并继续
-                </Button>
-              </div>
-            ) : null}
+              {lastError ? <div className={styles.errorText}>{lastError}</div> : null}
 
-            {lastError ? <div className={styles.errorText}>{lastError}</div> : null}
-
-            <div className={styles.footer}>
-              <div className={styles.footerComposer}>
-                <TextArea
-                  className={styles.footerTextarea}
-                  value={draft}
-                  onChange={this.handleDraftChange}
-                  onPressEnter={this.handlePressEnter}
-                  placeholder={composerPlaceholder}
-                  autosize={{ minRows: 2, maxRows: 8 }}
-                  disabled={sending || hasSessionPending}
-                />
-                <div className={styles.footerActions}>
-                  <Button
-                    className={styles.footerClearButton}
-                    onClick={this.handleClear}
-                    disabled={sending}
-                    icon="delete"
-                  >
-                    清空会话
-                  </Button>
-                  <Button
-                    type="primary"
-                    className={styles.footerSendButton}
-                    onClick={this.handleSend}
-                    loading={sending}
-                    aria-label="发送"
-                  >
-                    {!sending ? <SendButtonIcon /> : null}
-                  </Button>
+              <div className={styles.footer}>
+                <div className={styles.footerComposer}>
+                  <TextArea
+                    className={styles.footerTextarea}
+                    value={draft}
+                    onChange={this.handleDraftChange}
+                    onPressEnter={this.handlePressEnter}
+                    placeholder={composerPlaceholder}
+                    autosize={{ minRows: 2, maxRows: 8 }}
+                    disabled={sending || hasSessionPending}
+                  />
+                  <div className={styles.footerActions}>
+                    <Button
+                      className={styles.footerClearButton}
+                      onClick={this.handleClear}
+                      disabled={sending}
+                      icon="delete"
+                    >
+                      清空会话
+                    </Button>
+                    <Button
+                      type="primary"
+                      className={styles.footerSendButton}
+                      onClick={this.handleSend}
+                      loading={sending}
+                      aria-label="发送"
+                    >
+                      {!sending ? <SendButtonIcon /> : null}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

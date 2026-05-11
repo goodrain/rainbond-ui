@@ -741,7 +741,7 @@ export default class Index extends React.Component {
           span: 24
         },
         sm: {
-          span: 4
+          span: 6
         }
       },
       wrapperCol: {
@@ -749,7 +749,7 @@ export default class Index extends React.Component {
           span: 24
         },
         sm: {
-          span: 18
+          span: 16
         }
       }
     };
@@ -759,7 +759,7 @@ export default class Index extends React.Component {
           span: 24
         },
         sm: {
-          span: 6
+          span: 8
         }
       },
       wrapperCol: {
@@ -767,7 +767,7 @@ export default class Index extends React.Component {
           span: 24
         },
         sm: {
-          span: 18
+          span: 16
         }
       }
     };
