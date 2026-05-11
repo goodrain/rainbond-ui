@@ -560,6 +560,11 @@ const componentOverview = {
     'componentOverview.body.mnt.status.deploying': 'Component is deploying, unable to manage files',
     'componentOverview.body.mnt.status.upgrade': 'Component is upgrading, unable to manage files',
     'componentOverview.body.mnt.status.default': 'Component status does not allow file management, please wait for the component to run',
+    'componentOverview.body.mnt.vmDiskSource': 'Source',
+    'componentOverview.body.mnt.vmDiskSource.volume': 'Volume',
+    'componentOverview.body.mnt.vmDiskSource.installer': 'Installer media',
+    'componentOverview.body.mnt.vmDiskOrder': 'Boot order',
+    'componentOverview.body.mnt.vmDiskBoot': 'Boot first',
     // tabs栏>mnt>RelyComponentModal
     'componentOverview.body.RelyComponentModal.title': 'Store dependent components',
     'componentOverview.body.RelyComponentModal.volume_name': 'Storage Name',

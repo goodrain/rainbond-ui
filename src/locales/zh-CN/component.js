@@ -571,6 +571,11 @@ const componentOverview = {
     'componentOverview.body.mnt.status.deploying': '组件部署中，无法操作文件管理',
     'componentOverview.body.mnt.status.upgrade': '组件升级中，无法操作文件管理',
     'componentOverview.body.mnt.status.default': '组件状态不允许操作文件管理，请等待组件运行后再试',
+    'componentOverview.body.mnt.vmDiskSource': '来源',
+    'componentOverview.body.mnt.vmDiskSource.volume': '存储卷',
+    'componentOverview.body.mnt.vmDiskSource.installer': '安装光盘',
+    'componentOverview.body.mnt.vmDiskOrder': '启动顺序',
+    'componentOverview.body.mnt.vmDiskBoot': '当前优先启动',
     // tabs栏>mnt>RelyComponentModal
     'componentOverview.body.RelyComponentModal.title': '存储被依赖的组件',
     'componentOverview.body.RelyComponentModal.volume_name': '存储名称',

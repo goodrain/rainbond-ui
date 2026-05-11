@@ -1570,6 +1570,44 @@ export async function getVolumes(
 }
 
 /*
+  获取 VM 磁盘列表
+*/
+export async function getVMDisks(
+  body = {
+    team_name,
+    app_alias
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+/*
+  保存 VM 磁盘布局
+*/
+export async function saveVMDiskLayout(
+  body = {
+    team_name,
+    app_alias,
+    disks
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
+    {
+      method: 'put',
+      data: {
+        disks: body.disks || []
+      }
+    }
+  );
+}
+
+/*
   获取组件支持的存储类型
 */
 export async function getVolumeOpts(

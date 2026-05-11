@@ -103,6 +103,7 @@ import {
   getVisitInfo,
   getVolumeOpts,
   getVolumes,
+  getVMDisks,
   installPlugin,
   managePods,
   modifyInstanceList,
@@ -141,6 +142,7 @@ import {
   vmPause,
   startVMExport,
   getVMExportStatus,
+  saveVMDiskLayout,
   getComponentNames,
   getReverseDependency,
   addReverseDependency,
@@ -192,6 +194,7 @@ export default {
     branchs: [],
     // 应用的持久化路径
     volumes: [],
+    vmDisks: [],
     // 应用当前时间在线人数
     onlineNumber: {},
     // 应用一段时间内在线人数
@@ -882,6 +885,24 @@ export default {
         }
       }
     },
+    *fetchVMDiskLayout({ payload, callback }, { call, put }) {
+      const response = yield call(getVMDisks, payload);
+      if (response) {
+        yield put({
+          type: 'saveVMDiskLayout',
+          payload: response.list || []
+        });
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+    *updateVMDiskLayout({ payload, callback }, { call }) {
+      const response = yield call(saveVMDiskLayout, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchVolumeOpts({ payload, callback }, { call }) {
       const response = yield call(getVolumeOpts, payload);
       if (response && callback) {
@@ -1442,10 +1463,22 @@ export default {
         volumes: []
       };
     },
+    clearVMDiskLayout(state) {
+      return {
+        ...state,
+        vmDisks: []
+      };
+    },
     saveVolumes(state, action) {
       return {
         ...state,
         volumes: action.payload
+      };
+    },
+    saveVMDiskLayout(state, action) {
+      return {
+        ...state,
+        vmDisks: action.payload
       };
     },
     saveCertificates(state, action) {

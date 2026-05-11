@@ -20,6 +20,7 @@ import { getVolumeTypeShowName } from '../../utils/utils';
 @connect(
   ({ appControl }) => ({
     volumes: appControl.volumes,
+    vmDisks: appControl.vmDisks,
     appBaseInfo: appControl.baseInfo,
     appDetail: appControl.appDetail
   }),
@@ -45,6 +46,9 @@ export default class Index extends PureComponent {
       mntPage: 1,
       mntPageSize: 5,
       mntTotal: 0,
+      vmDiskDraft: [],
+      vmDiskChanged: false,
+      vmDiskSaving: false,
       DirectoryPersistenceShow: false,
       language: cookie.get('language') === 'zh-CN'
     };
@@ -52,9 +56,13 @@ export default class Index extends PureComponent {
 
   componentDidMount() {
     this.fetchVolumeOpts();
-    this.loadMntList();
-    this.fetchVolumes();
     this.fetchBaseInfo();
+    if (this.props.method === 'vm') {
+      this.fetchVMDiskLayout();
+    } else {
+      this.loadMntList();
+      this.fetchVolumes();
+    }
   }
 
   getVolumeTypeShowName = volume_type => {
@@ -86,6 +94,24 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
         is_config: false
+      },
+      handleError: err => handleAPIError(err)
+    });
+  };
+
+  fetchVMDiskLayout = () => {
+    const { dispatch, appAlias } = this.props;
+    dispatch({
+      type: 'appControl/fetchVMDiskLayout',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias
+      },
+      callback: response => {
+        this.setState({
+          vmDiskDraft: (response && response.list) || [],
+          vmDiskChanged: false
+        });
       },
       handleError: err => handleAPIError(err)
     });
@@ -153,7 +179,11 @@ export default class Index extends PureComponent {
     const { dispatch, appAlias, onshowRestartTips } = this.props;
 
     const handleSuccess = () => {
-      this.fetchVolumes();
+      if (this.props.method === 'vm') {
+        this.fetchVMDiskLayout();
+      } else {
+        this.fetchVolumes();
+      }
       this.handleCancelAddVar();
       onshowRestartTips(true);
       this.remindInfo();
@@ -241,7 +271,11 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.onCancelDeleteVolume();
-        this.fetchVolumes();
+        if (this.props.method === 'vm') {
+          this.fetchVMDiskLayout();
+        } else {
+          this.fetchVolumes();
+        }
         notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) });
         onshowRestartTips(true);
       },
@@ -311,6 +345,92 @@ export default class Index extends PureComponent {
     return formatMap[key] || '-';
   };
 
+  handleVmDiskSource = sourceKind => {
+    const sourceMap = {
+      volume: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.volume' }),
+      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' })
+    };
+    return sourceMap[sourceKind] || '-';
+  };
+
+  getVmDiskDraft = () => {
+    const { vmDiskDraft = [] } = this.state;
+    return vmDiskDraft.map((item, index) => ({
+      ...item,
+      order_index: index,
+      boot: index === 0
+    }));
+  };
+
+  updateVmDiskDraft = updater => {
+    const current = this.getVmDiskDraft();
+    const next = updater(current).map((item, index) => ({
+      ...item,
+      order_index: index,
+      boot: index === 0
+    }));
+    this.setState({
+      vmDiskDraft: next,
+      vmDiskChanged: true
+    });
+  };
+
+  moveVmDisk = (index, offset) => {
+    this.updateVmDiskDraft(current => {
+      const targetIndex = index + offset;
+      if (targetIndex < 0 || targetIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const currentItem = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = currentItem;
+      return next;
+    });
+  };
+
+  removeInstallerDisk = diskKey => {
+    this.updateVmDiskDraft(current =>
+      current.filter(item => !(item.disk_key === diskKey && item.source_kind === 'installer_media'))
+    );
+  };
+
+  handleSaveVmDiskLayout = () => {
+    const { dispatch, appAlias } = this.props;
+    const disks = this.getVmDiskDraft().map(item => ({
+      disk_key: item.disk_key,
+      disk_name: item.disk_name,
+      disk_role: item.disk_role,
+      device_type: item.device_type,
+      source_kind: item.source_kind,
+      order_index: item.order_index,
+      boot: item.boot
+    }));
+    this.setState({ vmDiskSaving: true });
+    dispatch({
+      type: 'appControl/updateVMDiskLayout',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+        disks
+      },
+      callback: () => {
+        notification.success({
+          message: formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveSuccess' })
+        });
+        this.setState({
+          vmDiskSaving: false,
+          vmDiskChanged: false
+        });
+        this.fetchVMDiskLayout();
+      },
+      handleError: err => {
+        this.setState({ vmDiskSaving: false });
+        handleAPIError(err);
+      }
+    });
+  };
+
   onPageChange = (page, pageSize) => {
     this.setState({ page, pageSize });
   };
@@ -344,18 +464,38 @@ export default class Index extends PureComponent {
   getVmColumns = () => [
     {
       title: formatMessage({ id: 'Vm.createVm.Storagename' }),
-      dataIndex: 'volume_name'
+      dataIndex: 'disk_name',
+      render: (text, record) => (
+        <span>
+          {text}
+          {record.boot ? (
+            <span style={{ color: '#1890ff', marginLeft: 8 }}>
+              ({formatMessage({ id: 'componentOverview.body.mnt.vmDiskBoot' })})
+            </span>
+          ) : null}
+        </span>
+      )
     },
     {
       title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
       dataIndex: 'volume_path',
-      render: text => <span>{this.handleMountFormat(text)}</span>
+      render: (_, data) => <span>{this.handleMountFormat(data.volume_path || `/${data.device_type}`)}</span>
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),
+      dataIndex: 'source_kind',
+      render: text => <span>{this.handleVmDiskSource(text)}</span>
+    },
+    {
+      title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
+      dataIndex: 'order_index',
+      render: (_, __, index) => <span>{index + 1}</span>
     },
     {
       title: formatMessage({ id: 'Vm.createVm.capacity' }),
       dataIndex: 'volume_capacity',
       render: text => (
-        text === 0
+        text === 0 || text === undefined || text === null
           ? <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>
           : <span>{text}GB</span>
       )
@@ -372,18 +512,47 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.handle' }),
       dataIndex: 'action',
-      render: (_, data) => (
+      render: (_, data, index) => (
         <div>
-          <a onClick={() => this.onDeleteVolume(data)} href="javascript:;">
-            {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
+          <a
+            onClick={() => this.moveVmDisk(index, -1)}
+            href="javascript:;"
+            style={{ marginRight: 8, color: index === 0 ? '#999' : '' }}
+          >
+            ↑
           </a>
           <a
-            onClick={() => this.onEditVolume(data)}
+            onClick={() => this.moveVmDisk(index, 1)}
             href="javascript:;"
-            style={{ marginLeft: 8 }}
+            style={{
+              marginRight: 8,
+              color: index === this.getVmDiskDraft().length - 1 ? '#999' : ''
+            }}
           >
-            {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+            ↓
           </a>
+          {data.source_kind === 'installer_media' ? (
+            <a onClick={() => this.removeInstallerDisk(data.disk_key)} href="javascript:;">
+              {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
+            </a>
+          ) : (
+            <Fragment>
+              {data.deletable ? (
+                <a onClick={() => this.onDeleteVolume({ ...data, ID: data.volume_id || data.ID })} href="javascript:;">
+                  {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
+                </a>
+              ) : null}
+              {data.volume_id || data.ID ? (
+                <a
+                  onClick={() => this.onEditVolume({ ...data, ID: data.volume_id || data.ID })}
+                  href="javascript:;"
+                  style={{ marginLeft: 8 }}
+                >
+                  {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+                </a>
+              ) : null}
+            </Fragment>
+          )}
         </div>
       )
     }
@@ -475,9 +644,10 @@ export default class Index extends PureComponent {
   render() {
     const {
       mntList, relyComponent, relyComponentList, DirectoryPersistenceShow,
-      volume_path, hostPath, isType, volumeName, page, pageSize, mntPage, mntPageSize, mntTotal
+      volume_path, hostPath, isType, volumeName, page, pageSize, mntPage, mntPageSize, mntTotal,
+      vmDiskChanged, vmDiskSaving
     } = this.state;
-    const { volumes, method, appDetail, appAlias } = this.props;
+    const { volumes, vmDisks, method, appDetail, appAlias } = this.props;
 
     if (!this.canView()) return <NoPermTip />;
     const volumeColumns = [
@@ -623,17 +793,34 @@ export default class Index extends PureComponent {
             style={{ marginBottom: 24 }}
             title={<span>{formatMessage({ id: 'componentOverview.body.mnt.save_setting' })}</span>}
             extra={
-              <Button onClick={this.handleAddVar}>
-                <Icon type="plus" />
-                {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
-              </Button>
+              <div>
+                <Button
+                  type="primary"
+                  onClick={this.handleSaveVmDiskLayout}
+                  loading={vmDiskSaving}
+                  disabled={!vmDiskChanged}
+                  style={{ marginRight: 8 }}
+                >
+                  {formatMessage({ id: 'button.save' })}
+                </Button>
+                <Button onClick={this.handleAddVar}>
+                  <Icon type="plus" />
+                  {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
+                </Button>
+              </div>
             }
           >
+            <Alert
+              showIcon
+              message={formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveTip' })}
+              type="info"
+              style={{ marginBottom: 16 }}
+            />
             <ScrollerX sm={650}>
               <Table
                 rowKey={(_, index) => index}
                 pagination={false}
-                dataSource={volumes}
+                dataSource={this.getVmDiskDraft().length > 0 ? this.getVmDiskDraft() : vmDisks}
                 columns={this.getVmColumns()}
               />
             </ScrollerX>
