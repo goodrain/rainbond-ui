@@ -2386,6 +2386,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             listRef={localMarketListRef}
             onInstall={handleLocalAppInstall}
             showResourceInfo={false}
+            showScopeTag
             total={localMarketTotal}
           />
         ) : currentView === 'localMarketInstall' ? (
