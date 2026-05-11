@@ -247,9 +247,9 @@ export default class Index extends PureComponent {
               label="Docker Compose 项目文件"
               extra={
                 <span>
-                  支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件，
+                  支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件；不确定项目包格式？
                   <a href={dockerComposeDocUrl} target="_blank" rel="noopener noreferrer">
-                    查看部署文档
+                    点击参考部署说明
                   </a>
                 </span>
               }
