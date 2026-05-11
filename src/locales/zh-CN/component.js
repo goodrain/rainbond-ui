@@ -1128,6 +1128,8 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.Cannot': '不可添加',
     'componentOverview.body.Kubernetes.msg': '请输入{selectVal}',
     'componentOverview.body.Kubernetes.key': '请输入对应的key,value',
+    'componentOverview.body.Kubernetes.key_label': 'Key',
+    'componentOverview.body.Kubernetes.value_label': 'Value',
     'componentOverview.body.Kubernetes.content': '请编辑内容',
     'componentOverview.body.Kubernetes.input': '请输入serviceAccountName属性',
     'componentOverview.body.Kubernetes.input_cmd': '请输入cmd属性',

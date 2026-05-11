@@ -13,14 +13,14 @@ import {
   appShareStateSelector
 } from './appShareHelpers';
 import styles from '../publish.less';
+import snapshotVersionHelpers from './snapshotVersionHelpers';
 
+const { TextArea } = Input;
 const {
   DEFAULT_SNAPSHOT_VERSION,
   buildNextSnapshotVersion,
   getLatestSnapshotVersionSeed
-} = require('./snapshotVersionHelpers');
-
-const { TextArea } = Input;
+} = snapshotVersionHelpers;
 
 const verticalFormItemLayout = {
   labelCol: {

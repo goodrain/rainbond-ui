@@ -1112,6 +1112,8 @@ const componentOverview = {
     'componentOverview.body.Kubernetes.Cannot': 'Cannot be added',
     'componentOverview.body.Kubernetes.msg': 'Please enter{selectVal}',
     'componentOverview.body.Kubernetes.key': 'Enter the corresponding key and value',
+    'componentOverview.body.Kubernetes.key_label': 'Key',
+    'componentOverview.body.Kubernetes.value_label': 'Value',
     'componentOverview.body.Kubernetes.content': 'Please edit the content',
     'componentOverview.body.Kubernetes.input': 'Enter the serviceAccountName attribute',
     'componentOverview.body.Kubernetes.input_cmd': 'Enter the cmd attribute',

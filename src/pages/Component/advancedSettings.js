@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'dva'
+import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
 import { Menu, Row } from 'antd';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -9,6 +10,7 @@ import plugin from './plugin'
 import resource from './resource'
 import setting from './setting'
 import parameter from './parameter'
+import globalUtil from '../../utils/global';
 
 @connect(
   ({ user, appControl, global, teamControl, enterprise, loading }) => ({
@@ -41,14 +43,46 @@ export default class advancedSettings extends Component {
   constructor(props) {
     super(props)
     const method = props?.method || (props?.appDetail && props.appDetail.service && props.appDetail.service.extend_method)
+    const routeSubTab = globalUtil.getSlidePanelSubTab();
     this.state = {
-      activeTab: method === 'kubeblocks_component' ? ['port'] : ['mnt']
+      activeTab: [routeSubTab || (method === 'kubeblocks_component' ? 'port' : 'mnt')]
     }
   }
+  buildSubTabRoute = (subTab) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const appId = globalUtil.getAppID();
+    const componentID = globalUtil.getSlidePanelComponentID();
+    const refresh = globalUtil.getRefresh();
+    if (!teamName || !regionName || !appId || !componentID || !subTab) {
+      return '';
+    }
+    const query = [
+      'type=components',
+      `componentID=${encodeURIComponent(componentID)}`,
+      'tab=advancedSettings',
+      `subTab=${encodeURIComponent(subTab)}`
+    ];
+    if (refresh) {
+      query.push(`refresh=${encodeURIComponent(refresh)}`);
+    }
+    return `/team/${teamName}/region/${regionName}/apps/${appId}/overview?${query.join('&')}`;
+  }
   changeMenu = (key) => {    
+    const nextSubTab = key && key.selectedKeys && key.selectedKeys[0];
     this.setState({
       activeTab: key?.selectedKeys
-    })
+    });
+    const route = this.buildSubTabRoute(nextSubTab);
+    if (route && this.props.dispatch) {
+      this.props.dispatch(routerRedux.push(route));
+    }
+  }
+  componentDidUpdate() {
+    const routeSubTab = globalUtil.getSlidePanelSubTab();
+    if (routeSubTab && this.state.activeTab[0] !== routeSubTab) {
+      this.setState({ activeTab: [routeSubTab] });
+    }
   }
   render() {
     const {
@@ -122,6 +156,10 @@ export default class advancedSettings extends Component {
       parameter: parameter
     };
     const Com = map[activeTab[0]];
+    const refreshKey = globalUtil.getRefresh() || 'steady';
+    const pendingMutationRefreshKey =
+      this.props.pendingMutationRefreshKey || 'stable';
+    const advancedRenderKey = `${activeTab[0]}-${refreshKey}-${pendingMutationRefreshKey}`;
     return (
       <div>
         <Row>
@@ -146,7 +184,7 @@ export default class advancedSettings extends Component {
         >
           {Com && (
             <CSSTransition
-              key={activeTab[0]}
+              key={advancedRenderKey}
               timeout={700}
               classNames="page-zoom"
               unmountOnExit

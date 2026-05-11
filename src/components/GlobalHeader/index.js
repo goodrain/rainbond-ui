@@ -20,6 +20,7 @@ import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import { isAgentRouteHidden } from '../../utils/agentContext';
 
 const { Header } = Layout;
 
@@ -101,6 +102,17 @@ const SVG_ICONS = {
     </svg>
   )
 };
+
+function AgentEntryIcon() {
+  return (
+    <svg viewBox="0 0 1024 1024" focusable="false" aria-hidden="true">
+      <path
+        d="M773.592949 798.845831c92.576542-51.429966 153.877695-140.240271 153.877695-241.381967 0-63.965288-24.779932-122.862644-66.199864-170.673898a387.562305 387.562305 0 0 0 4.647051-56.840678c0-8.829831-0.976271-17.442712-1.562034-26.142373 76.643797 62.863186 124.667661 151.430508 124.667661 249.869017 0 110.409763-60.342237 208.453424-153.882034 271.620339v172.053695l-172.509288-104.695322a463.589966 463.589966 0 0 1-73.697628 6.104949c-118.510644 0-193.874441-44.691525-267.138169-115.317152 12.058034 0.685559 24.055322 1.549017 36.321627 1.549017 17.182373 0 34.130441-0.837424 50.904949-2.169492 57.842983 39.233085 100.200136 62.841492 179.911593 62.841492a394.543729 394.543729 0 0 0 79.620339-8.352543l105.033763 69.020204v-107.485288z m-338.536135-74.517695a913.464407 913.464407 0 0 1-103.515119-7.992407L158.073492 815.338305v-172.045017c-80.414373-67.479864-123.105627-161.219254-123.105628-271.620339 0-190.576814 178.818169-345.070644 400.093289-345.070644 183.942508 0 369.308203 154.493831 369.308203 345.070644s-148.349831 352.655186-369.312542 352.655187z m-110.401085-69.024543c25.6 5.258847 82.926644 8.348203 110.405424 8.348204 186.96678 0 307.75539-129.019661 307.755389-288.190916s-154.719458-288.190915-307.755389-288.190915c-192.256 0-338.536136 129.032678-338.536136 288.190915 0 101.128678 48.023864 181.308746 123.101288 241.36895v107.498305z m279.669152-234.335457a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z m-184.654101 0a45.507254 45.507254 0 1 1 46.16244-45.507255A45.841356 45.841356 0 0 1 419.67078 420.968136z m-184.658441 0a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
 
 class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -495,6 +507,13 @@ class GlobalHeader extends PureComponent {
     this.setState({ showProductDrawer: false });
   };
 
+  openAgentDrawer = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'agent/show'
+    });
+  };
+
   /**
    * 切换到工作空间
    */
@@ -707,7 +726,8 @@ class GlobalHeader extends PureComponent {
       rainbondInfo,
       collapsed,
       logo,
-      enterprise
+      enterprise,
+      agentVisible
     } = this.props;
     const {
       language,
@@ -729,6 +749,7 @@ class GlobalHeader extends PureComponent {
     const portalSite = rainbondInfo?.portal_site;
     const showFullLogo = !isTeamView || !collapsed;
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
+    const showAgentLauncher = !agentVisible && !isAgentRouteHidden();
 
     return (
       <ScrollerX sm={900}>
@@ -789,6 +810,19 @@ class GlobalHeader extends PureComponent {
                 </div>
               )}
 
+              {showAgentLauncher && (
+                <button
+                  type="button"
+                  className={styles.agentEntry}
+                  onClick={this.openAgentDrawer}
+                >
+                  <span className={styles.agentEntryIcon}>
+                    <AgentEntryIcon />
+                  </span>
+                  <span className={styles.agentEntryText}>AI助手</span>
+                </button>
+              )}
+
               {currentUser ? (
                 <Dropdown overlay={this.renderUserMenu()} placement="bottomRight">
                   <span className={`${styles.action} ${styles.account}`}>
@@ -822,9 +856,10 @@ class GlobalHeader extends PureComponent {
   }
 }
 
-export default connect(({ user, global }) => ({
+export default connect(({ user, global, agent }) => ({
   rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
-  collapsed: global.collapsed
+  collapsed: global.collapsed,
+  agentVisible: !!(agent && agent.visible)
 }))(GlobalHeader);

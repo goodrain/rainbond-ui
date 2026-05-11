@@ -7,7 +7,9 @@ import { resolveCnbPolicyVersion } from '../cnbVersionPolicy';
 import { Button, Form, Icon, Input, Radio, Select, Switch, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
-const { isBuildEnvTruthy } = require('../buildEnvHelpers');
+import buildEnvHelpers from '../buildEnvHelpers';
+
+const { isBuildEnvTruthy } = buildEnvHelpers;
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;

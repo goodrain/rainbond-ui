@@ -31,7 +31,9 @@ import {
   isNodeJSLanguage,
   normalizeBuildLanguage
 } from './buildStrategy';
-const { mergeRuntimeBuildEnvs } = require('./buildEnvHelpers');
+import buildEnvHelpers from './buildEnvHelpers';
+
+const { mergeRuntimeBuildEnvs } = buildEnvHelpers;
 
 const { confirm } = Modal;
 

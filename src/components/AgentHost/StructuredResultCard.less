@@ -1,0 +1,179 @@
+@import '~antd/lib/style/themes/default.less';
+
+.card {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid fade(@primary-color, 16%);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.titleWrap {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.titleIcon {
+  color: @primary-color;
+  margin-top: 2px;
+}
+
+.title {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  margin-top: 2px;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.badge {
+  margin: 0;
+}
+
+.summary {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+  margin-bottom: 10px;
+}
+
+.nextAction {
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.actionMeta {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.suggestionSection {
+  margin-bottom: 10px;
+}
+
+.suggestionList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.suggestionCard {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid fade(@primary-color, 12%);
+  background: fade(@primary-color, 4%);
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.suggestionTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.suggestionDescription {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.suggestionActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.metaLabel {
+  color: @text-color-secondary;
+}
+
+.metaValue {
+  color: @heading-color;
+  text-align: right;
+}
+
+.toolSection {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid fade(@border-color-base, 55%);
+}
+
+.toolTitle {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  margin-bottom: 8px;
+}
+
+.toolList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toolItem {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  border: 1px solid fade(@primary-color, 12%);
+}
