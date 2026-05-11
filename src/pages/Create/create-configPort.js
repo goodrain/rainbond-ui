@@ -14,6 +14,9 @@ import roleUtil from '../../utils/role';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import handleAPIError from '../../utils/error';
+const {
+  getDefaultMirrorEnvByPackageManager
+} = require('../../components/CodeBuildConfig/nodejs-cnb/mirrorConfig');
 const SOURCE_BUILD_CONFIG_KEY = 'source_build_config';
 const readSourceBuildConfig = () => {
   const config = window.sessionStorage.getItem(SOURCE_BUILD_CONFIG_KEY);
@@ -165,9 +168,12 @@ export default class Index extends PureComponent {
         const configFiles = cnbParams?.configFiles || { hasNpmrc: false, hasYarnrc: false };
         const hasMirrorConfig = configFiles.hasNpmrc || configFiles.hasYarnrc;
         const cnbMirrorSource = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_SOURCE || (hasMirrorConfig ? 'project' : 'global'));
+        const defaultMirrorEnvs = !isPureStatic && cnbMirrorSource === 'global'
+          ? getDefaultMirrorEnvByPackageManager(packageNpmOrYarn, runtimeInfo || {})
+          : {};
 
-        const cnbMirrorNpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_NPMRC || '');
-        const cnbMirrorYarnrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_YARNRC || '');
+        const cnbMirrorNpmrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_NPMRC || defaultMirrorEnvs.CNB_MIRROR_NPMRC || '');
+        const cnbMirrorYarnrc = isPureStatic ? '' : (runtimeInfo?.CNB_MIRROR_YARNRC || defaultMirrorEnvs.CNB_MIRROR_YARNRC || '');
         const buildEnvDict = { ...(sourceBuildConfig?.build_env_dict || {}) };
         buildEnvDict.CNB_FRAMEWORK = cnbFramework;
         buildEnvDict.CNB_BUILD_SCRIPT = cnbBuildScript;

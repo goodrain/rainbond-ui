@@ -4,6 +4,10 @@
 
 import { formatMessage } from '@/utils/intl';
 
+const COMPONENT_NAME_MAX_LENGTH = 32;
+const K8S_COMPONENT_NAME_MAX_LENGTH = 32;
+const K8S_APP_NAME_MAX_LENGTH = 16;
+
 /**
  * 服务名称校验函数
  * 不允许以数字开头，不允许包含空格，不允许包含标点符号（允许连字符）
@@ -31,17 +35,13 @@ export const validateServiceName = (_, value, callback) => {
   callback();
 };
 
-/**
- * K8s 组件名称校验函数
- * 必须符合 K8s 命名规范：以小写字母开头，只能包含小写字母、数字和连字符
- */
-export const validateK8sComponentName = (_, value, callback) => {
+const validateK8sName = (value, callback, maxLength, maxMessageId) => {
   if (!value) {
     return callback(new Error(formatMessage({ id: 'componentOverview.EditName.input_en_name' })));
   }
 
-  if (value.length > 16) {
-    return callback(new Error(formatMessage({ id: 'componentOverview.EditName.Cannot' })));
+  if (value.length > maxLength) {
+    return callback(new Error(formatMessage({ id: maxMessageId })));
   }
 
   // K8s 命名规范：必须以小写字母开头，只能包含小写字母、数字和连字符，必须以字母或数字结尾
@@ -54,12 +54,32 @@ export const validateK8sComponentName = (_, value, callback) => {
 };
 
 /**
+ * K8s 组件名称校验函数
+ * 必须符合 K8s 命名规范：以小写字母开头，只能包含小写字母、数字和连字符
+ */
+export const validateK8sComponentName = (_, value, callback) => (
+  validateK8sName(value, callback, K8S_COMPONENT_NAME_MAX_LENGTH, 'placeholder.max32')
+);
+
+/**
+ * K8s 应用名称校验函数
+ * 保持应用英文名原有 16 位限制
+ */
+export const validateK8sAppName = (_, value, callback) => (
+  validateK8sName(value, callback, K8S_APP_NAME_MAX_LENGTH, 'placeholder.max16')
+);
+
+/**
  * 服务名称校验规则
  */
 export const getServiceNameRules = () => [
   {
     required: true,
     validator: validateServiceName
+  },
+  {
+    max: COMPONENT_NAME_MAX_LENGTH,
+    message: formatMessage({ id: 'placeholder.max32' })
   }
 ];
 
@@ -123,6 +143,6 @@ export const getGroupNameRules = () => [
 export const getK8sAppRules = () => [
   {
     required: true,
-    validator: validateK8sComponentName
+    validator: validateK8sAppName
   }
 ];
