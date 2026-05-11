@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': 'Modify component name',
     'componentOverview.EditName.input_en_name': 'Please enter the English name of the component',
-    'componentOverview.EditName.Cannot': 'Cannot be greater than 16 characters',
+    'componentOverview.EditName.Cannot': 'Cannot be greater than 32 characters',
     'componentOverview.EditName.only': 'Only lowercase letters, digits, and hyphens (-) are supported and must start with a letter and end with a digit or letter',
     'componentOverview.EditName.edit': 'Modify component name',
     'componentOverview.EditName.name': 'Component Name',
@@ -834,8 +834,9 @@ const componentOverview = {
     'componentOverview.body.ChangeBuildSource.image_name_null': 'Image name cannot be empty',
     'componentOverview.body.ChangeBuildSource.max': 'Maximum length: 190 bits',
     'componentOverview.body.ChangeBuildSource.input_image_name': 'Please enter the image name',
-    'componentOverview.body.ChangeBuildSource.Start': 'Start command',
-    'componentOverview.body.ChangeBuildSource.input_Start': 'Please enter the startup command',
+    'componentOverview.body.ChangeBuildSource.Start': 'Start args',
+    'componentOverview.body.ChangeBuildSource.input_Start': 'Enter K8s Args',
+    'componentOverview.body.ChangeBuildSource.StartExtra': 'This field is applied as K8s container.args and overrides the image CMD. Leave empty to use the image ENTRYPOINT/CMD.',
     // tabs栏>Resource>MarketAppDetailShow
     'componentOverview.body.MarketAppDetailShow.determine': 'Confirm',
     'componentOverview.body.MarketAppDetailShow.details': 'Application details not edited',

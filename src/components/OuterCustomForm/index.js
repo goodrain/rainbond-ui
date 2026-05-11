@@ -31,6 +31,7 @@ import rainbondUtil from '../../utils/rainbond';
 import {
   getServiceNameRules,
   getK8sComponentNameRules,
+  getK8sAppNameRules,
   getEndpointsTypeRules,
   getNamespaceRules,
   getServiceNameK8sRules,
@@ -559,7 +560,7 @@ export default class Index extends PureComponent {
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamAdd.create.form.k8s_app_name' })}>
                   {getFieldDecorator('k8s_app', {
                     initialValue: this.generateEnglishName(this.props.form.getFieldValue('group_name') || ''),
-                    rules: getK8sComponentNameRules()
+                    rules: getK8sAppNameRules()
                   })(<Input 
                         placeholder={formatMessage({ id: 'placeholder.appEngName' })} 
                          style={{

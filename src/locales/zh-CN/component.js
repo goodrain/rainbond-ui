@@ -43,7 +43,7 @@ const componentOverview = {
     // EditName
     'componentOverview.EditName.title': '修改组件名称',
     'componentOverview.EditName.input_en_name': '请输入组件英文名称',
-    'componentOverview.EditName.Cannot': '不能大于16个字符',
+    'componentOverview.EditName.Cannot': '不能大于32个字符',
     'componentOverview.EditName.only': '只支持小写字母、数字或“-”，并且必须以字母开始、以数字或字母结尾',
     'componentOverview.EditName.edit': '修改组件名称',
     'componentOverview.EditName.name': '组件名称',
@@ -847,8 +847,9 @@ const componentOverview = {
     'componentOverview.body.ChangeBuildSource.image_name_null': '镜像名称不能为空',
     'componentOverview.body.ChangeBuildSource.max': '最大长度190位',
     'componentOverview.body.ChangeBuildSource.input_image_name': '请输入镜像名称',
-    'componentOverview.body.ChangeBuildSource.Start': '启动命令',
-    'componentOverview.body.ChangeBuildSource.input_Start': '请输入启动命令',
+    'componentOverview.body.ChangeBuildSource.Start': '启动参数',
+    'componentOverview.body.ChangeBuildSource.input_Start': '请输入 K8s Args',
+    'componentOverview.body.ChangeBuildSource.StartExtra': '该字段会作为 K8s container.args 下发，用于覆盖镜像默认 CMD；留空时使用镜像默认 ENTRYPOINT/CMD。',
     // tabs栏>Resource>MarketAppDetailShow
     'componentOverview.body.MarketAppDetailShow.determine': '确定',
     'componentOverview.body.MarketAppDetailShow.details': '未编辑应用详情',
