@@ -986,11 +986,18 @@ export default {
 
       try {
         const result = yield call(abortAgentRun, { sessionId, runId });
-        if (result && result.status === 404) {
-          // Run already terminal — clear cancelling tag, leave UI to terminal events.
-          yield put({ type: 'saveState', payload: { cancellingRun: false } });
+        if (result && (result.status === 202 || result.status === 404)) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              cancellingRun: false,
+              sending: false,
+              interactionLocked: false,
+              activeRunId: '',
+              updatedAt: Date.now(),
+            },
+          });
         }
-        // 202 case: keep cancellingRun=true; SSE 'cancelled' event will flip status.
       } catch (e) {
         yield put({
           type: 'saveState',
@@ -1101,6 +1108,10 @@ export default {
           pendingDraft: '',
           pendingDraftMode: '',
           draft: stashed || state.draft || '',
+          interactionLocked: false,
+          sending: false,
+          activeRunId: '',
+          cancellingRun: false,
         },
       });
     },

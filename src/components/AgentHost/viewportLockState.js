@@ -19,6 +19,7 @@ function shouldViewportLock(snapshot = {}) {
     !needLogin &&
     !isRouteHidden &&
     agent &&
+    agent.visible &&
     agent.interactionLocked
   );
 }

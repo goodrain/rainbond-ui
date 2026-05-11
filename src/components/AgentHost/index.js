@@ -204,9 +204,32 @@ export default class AgentHost extends PureComponent {
   };
 
   closeDrawer = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'agent/hide',
+    const { dispatch, agent } = this.props;
+    const hasActiveSession = !!(
+      agent &&
+      (agent.sending ||
+        agent.cancellingRun ||
+        agent.interactionLocked ||
+        agent.activeRunId)
+    );
+
+    if (!hasActiveSession) {
+      dispatch({
+        type: 'agent/hide',
+      });
+      return;
+    }
+
+    confirm({
+      title: '确认退出聊天窗口',
+      content: '当前有会话正在执行，退出后可稍后重新打开查看结果。',
+      okText: '退出',
+      cancelText: '取消',
+      onOk: () => {
+        dispatch({
+          type: 'agent/hide',
+        });
+      },
     });
   };
 
