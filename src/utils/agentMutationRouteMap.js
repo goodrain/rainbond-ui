@@ -29,6 +29,42 @@ function buildAppOverviewRoute(context = {}, extraQuery = {}) {
   return `/team/${teamName}/region/${regionName}/apps/${appId}/overview${buildQuery(extraQuery)}`;
 }
 
+function buildAppGatewayRoute(context = {}, extraQuery = {}) {
+  const teamName = context.teamName || '';
+  const regionName = context.regionName || '';
+  const appId = context.appId || '';
+
+  if (!teamName || !regionName || !appId) {
+    return '';
+  }
+
+  return `/team/${teamName}/region/${regionName}/apps/${appId}/gateway${buildQuery(extraQuery)}`;
+}
+
+function buildAppUpgradeRoute(context = {}, extraQuery = {}) {
+  const teamName = context.teamName || '';
+  const regionName = context.regionName || '';
+  const appId = context.appId || '';
+
+  if (!teamName || !regionName || !appId) {
+    return '';
+  }
+
+  return `/team/${teamName}/region/${regionName}/apps/${appId}/upgrade${buildQuery(extraQuery)}`;
+}
+
+function buildAppVersionRoute(context = {}, extraQuery = {}) {
+  const teamName = context.teamName || '';
+  const regionName = context.regionName || '';
+  const appId = context.appId || '';
+
+  if (!teamName || !regionName || !appId) {
+    return '';
+  }
+
+  return `/team/${teamName}/region/${regionName}/apps/${appId}/version${buildQuery(extraQuery)}`;
+}
+
 function buildComponentOverviewRoute(context = {}, options = {}) {
   const teamName = context.teamName || '';
   const regionName = context.regionName || '';
@@ -164,6 +200,66 @@ const MUTATION_ROUTE_POLICIES = {
     pre: { routeKind: 'app-overview' },
     post: { routeKind: 'created-component-overview' },
   },
+  rainbond_create_app_version_snapshot: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_delete_app_version_snapshot: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_rollback_app_version_snapshot: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_delete_app_version_rollback_record: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_create_app_share_record: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_delete_app_share_record: {
+    pre: { routeKind: 'app-version' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_submit_app_share_info: {
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_start_app_share_event: {
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_complete_app_share: {
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_giveup_app_share: {
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_create_gateway_rules: {
+    pre: { routeKind: 'app-gateway' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_create_app_upgrade_record: {
+    pre: { routeKind: 'app-upgrade' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_execute_app_upgrade_record: {
+    pre: { routeKind: 'app-upgrade' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_deploy_app_upgrade_record: {
+    pre: { routeKind: 'app-upgrade' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_rollback_app_upgrade_record: {
+    pre: { routeKind: 'app-upgrade' },
+    post: { routeKind: 'route-query-refresh' },
+  },
+  rainbond_upgrade_app: {
+    pre: { routeKind: 'app-upgrade' },
+    post: { routeKind: 'route-query-refresh' },
+  },
 };
 
 export function getAgentMutationRoutePolicy(toolName) {
@@ -190,6 +286,15 @@ export function shouldUseSlidePanelContentRefresh(toolName) {
   );
 }
 
+export function shouldUseRouteQueryRefresh(toolName) {
+  const policy = getAgentMutationRoutePolicy(toolName);
+  return !!(
+    policy &&
+    policy.post &&
+    policy.post.routeKind === 'route-query-refresh'
+  );
+}
+
 function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {}) {
   const refresh = routeMeta.refresh || '';
 
@@ -198,6 +303,12 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
       return buildTeamIndexRoute(context);
     case 'app-overview':
       return buildAppOverviewRoute(context, refresh ? { refresh } : {});
+    case 'app-version':
+      return buildAppVersionRoute(context, refresh ? { refresh } : {});
+    case 'app-gateway':
+      return buildAppGatewayRoute(context, refresh ? { refresh } : {});
+    case 'app-upgrade':
+      return buildAppUpgradeRoute(context, refresh ? { refresh } : {});
     case 'component': {
       return buildComponentOverviewRoute(context, {
         tab: routeMeta.tab,

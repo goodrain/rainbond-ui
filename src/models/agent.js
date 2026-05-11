@@ -18,6 +18,7 @@ import {
   isSupportedAgentMutationTool,
   resolvePostActionRoute,
   resolvePreActionRoute,
+  shouldUseRouteQueryRefresh,
   shouldUseSlidePanelContentRefresh,
 } from '../utils/agentMutationRouteMap';
 import agentWorkflowState from './agentWorkflowState';
@@ -67,6 +68,7 @@ const defaultState = {
   pendingMutationRoute: '',
   pendingMutationNavigationKey: '',
   pendingMutationRefreshKey: '',
+  pendingMutationRefreshMode: '',
   lastMutationResult: null,
   lastMutationRunId: '',
   updatedAt: 0,
@@ -213,6 +215,7 @@ function buildHydratedState(snapshot) {
     pendingMutationRoute: snapshot.pendingMutationRoute || '',
     pendingMutationNavigationKey: snapshot.pendingMutationNavigationKey || '',
     pendingMutationRefreshKey: snapshot.pendingMutationRefreshKey || '',
+    pendingMutationRefreshMode: snapshot.pendingMutationRefreshMode || '',
     lastMutationResult: snapshot.lastMutationResult || null,
     lastMutationRunId: snapshot.lastMutationRunId || '',
     sessionList: [],
@@ -249,13 +252,14 @@ function buildMutationNavigationPayload(toolName, route) {
   };
 }
 
-function buildMutationRefreshPayload(toolName) {
+function buildMutationRefreshPayload(toolName, mode = 'content') {
   if (!toolName) {
     return null;
   }
 
   return {
     pendingMutationRefreshKey: `${toolName}_${Date.now()}`,
+    pendingMutationRefreshMode: mode,
   };
 }
 
@@ -629,6 +633,8 @@ export default {
         patch.pendingMutationTool = '';
         patch.pendingMutationRoute = '';
         patch.pendingMutationNavigationKey = '';
+        patch.pendingMutationRefreshKey = '';
+        patch.pendingMutationRefreshMode = '';
         patch.lastMutationResult = null;
         patch.lastMutationRunId = '';
       }
@@ -654,6 +660,8 @@ export default {
           pendingMutationTool: '',
           pendingMutationRoute: '',
           pendingMutationNavigationKey: '',
+          pendingMutationRefreshKey: '',
+          pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
         },
@@ -763,6 +771,8 @@ export default {
           pendingMutationTool: '',
           pendingMutationRoute: '',
           pendingMutationNavigationKey: '',
+          pendingMutationRefreshKey: '',
+          pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
           updatedAt: Date.now(),
@@ -960,9 +970,30 @@ export default {
         const shouldRefreshContent = shouldUseSlidePanelContentRefresh(
           mutationToolName
         );
+        const shouldRefreshRoute = shouldUseRouteQueryRefresh(
+          mutationToolName
+        );
 
         if (shouldRefreshContent) {
-          const refreshPayload = buildMutationRefreshPayload(mutationToolName);
+          const refreshPayload = buildMutationRefreshPayload(
+            mutationToolName,
+            'content'
+          );
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRoute: '',
+              pendingMutationNavigationKey: '',
+              ...(refreshPayload || {}),
+              updatedAt: Date.now(),
+            },
+          });
+        } else if (shouldRefreshRoute) {
+          const refreshPayload = buildMutationRefreshPayload(
+            mutationToolName,
+            'route'
+          );
           yield put({
             type: 'saveState',
             payload: {
@@ -986,7 +1017,7 @@ export default {
           );
           const refreshPayload = navigationPayload
             ? null
-            : buildMutationRefreshPayload(mutationToolName);
+            : buildMutationRefreshPayload(mutationToolName, 'content');
           yield put({
             type: 'saveState',
             payload: {
@@ -1004,7 +1035,8 @@ export default {
         adaptedEvent.type === 'run_status' &&
         adaptedEvent.status === 'done' &&
         prevState.pendingMutationTool &&
-        !shouldUseSlidePanelContentRefresh(prevState.pendingMutationTool)
+        !shouldUseSlidePanelContentRefresh(prevState.pendingMutationTool) &&
+        !shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
       ) {
         const route = resolvePostActionRoute({
           toolName: prevState.pendingMutationTool,
@@ -1029,8 +1061,25 @@ export default {
             pendingMutationNavigationKey: '',
             ...(navigationPayload || {}),
             ...(!navigationPayload
-              ? buildMutationRefreshPayload(prevState.pendingMutationTool)
+              ? buildMutationRefreshPayload(prevState.pendingMutationTool, 'content')
               : {}),
+            updatedAt: Date.now(),
+          },
+        });
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        adaptedEvent.status === 'done' &&
+        prevState.pendingMutationTool &&
+        shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
+      ) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            pendingMutationTool: '',
+            pendingMutationRoute: '',
+            pendingMutationNavigationKey: '',
+            ...buildMutationRefreshPayload(prevState.pendingMutationTool, 'route'),
             updatedAt: Date.now(),
           },
         });
@@ -1045,6 +1094,7 @@ export default {
             pendingMutationTool: '',
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
+            pendingMutationRefreshMode: '',
           },
         });
       }
@@ -1171,6 +1221,7 @@ export default {
         pendingMutationRoute: '',
         pendingMutationNavigationKey: '',
         pendingMutationRefreshKey: '',
+        pendingMutationRefreshMode: '',
         lastMutationResult: null,
         lastMutationRunId: '',
         updatedAt: Date.now(),

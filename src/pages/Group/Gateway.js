@@ -65,6 +65,35 @@ export default class AppGatewayList extends PureComponent {
   componentDidMount() {
     this.fetchAppDetail();
   }
+
+  componentDidUpdate(prevProps) {
+    const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
+    const nextRefreshKey = this.getRouteRefreshKey(this.props.location);
+
+    if (prevRefreshKey !== nextRefreshKey && nextRefreshKey) {
+      this.handleRouteRefresh();
+    }
+  }
+
+  getRouteRefreshKey = location => {
+    const query = (location && location.query) || {};
+    if (query.refresh) {
+      return query.refresh;
+    }
+    const search = (location && location.search) || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    if (!queryString) {
+      return '';
+    }
+    const params = new URLSearchParams(queryString);
+    return params.get('refresh') || '';
+  };
+
+  handleRouteRefresh = () => {
+    this.fetchPipePipeline();
+    this.handleBatchGateWay();
+    this.fetchAppDetail();
+  };
   fetchPipePipeline = (eid) => {
     const { dispatch, currUser } = this.props;
     dispatch({
