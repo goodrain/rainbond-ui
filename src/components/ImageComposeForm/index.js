@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 import { pinyin } from 'pinyin-pro';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
@@ -15,11 +16,12 @@ import {
 } from './validations';
 
 const { Dragger } = Upload;
-const DOCKER_COMPOSE_DOC_URL = 'https://www.rainbond.com/docs/how-to-guides/app-deploy/docker-compose';
+const DOCKER_COMPOSE_DOC_PATH = 'docs/how-to-guides/app-deploy/docker-compose';
 
 @connect(
   ({ global, loading, teamControl }) => ({
     groups: global.groups,
+    rainbondInfo: global.rainbondInfo,
     createAppByCompose: loading.effects['createApp/createAppByCompose'],
     appNames: teamControl.allAppNames
   }),
@@ -176,12 +178,18 @@ export default class Index extends PureComponent {
       createAppByCompose,
       showSubmitBtn = true,
       archInfo,
-      groups
+      groups,
+      rainbondInfo
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
     const { language, fileList, upload_url } = this.state;
     const is_language = language ? formItemLayout : en_formItemLayout;
     const group_id = globalUtil.getAppID();
+    const platformUrl =
+      rainbondUtil.documentPlatform_url(rainbondInfo) ||
+      cookie.get('platform_url') ||
+      'https://www.rainbond.com/';
+    const dockerComposeDocUrl = `${platformUrl}${platformUrl.endsWith('/') ? '' : '/'}${DOCKER_COMPOSE_DOC_PATH}`;
 
     // 直接使用后端返回的完整 upload_url，不需要再拼接
     const uploadProps = {
@@ -240,7 +248,7 @@ export default class Index extends PureComponent {
               extra={
                 <span>
                   支持上传 .tar, .tgz, .zip 格式的压缩包，包含 docker-compose.yml 及相关文件，
-                  <a href={DOCKER_COMPOSE_DOC_URL} target="_blank" rel="noopener noreferrer">
+                  <a href={dockerComposeDocUrl} target="_blank" rel="noopener noreferrer">
                     查看部署文档
                   </a>
                 </span>
