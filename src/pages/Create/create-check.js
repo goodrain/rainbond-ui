@@ -35,6 +35,9 @@ import { closeTeamRegion } from '@/services/team';
 import {
   FRAMEWORK_ICONS
 } from '@/components/CodeBuildConfig/nodejs-cnb';
+const {
+  getDefaultMirrorEnvByPackageManager
+} = require('../../components/CodeBuildConfig/nodejs-cnb/mirrorConfig');
 
 const { Option } = Select;
 const { OptGroup } = Select;
@@ -74,6 +77,7 @@ const readSourceBuildConfig = () => {
     appDetail: appControl.appDetail,
     rainbondInfo: global.rainbondInfo,
     soundCodeLanguage: teamControl.codeLanguage,
+    packageNpmOrYarn: teamControl.packageNpmOrYarn,
   }),
   null,
   null,
@@ -635,7 +639,7 @@ export default class CreateCheck extends React.Component {
   handleBuild = () => {
     this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
-    const { refreshCurrent, dispatch, soundCodeLanguage, location } = this.props;
+    const { refreshCurrent, dispatch, soundCodeLanguage, location, packageNpmOrYarn } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, selectedFramework, buildScript, Directory, nodeVersion, configFiles } = this.state;
     const group_id = location?.query?.group_id
 
@@ -663,6 +667,9 @@ export default class CreateCheck extends React.Component {
           buildEnvDict.CNB_OUTPUT_DIR = isPureStatic ? '.' : (isStaticFramework ? Directory : '');
           buildEnvDict.CNB_NODE_VERSION = isPureStatic ? '' : (nodeVersion || '');
           buildEnvDict.CNB_MIRROR_SOURCE = isPureStatic ? '' : mirrorSource;
+          if (!isPureStatic && mirrorSource === 'global') {
+            Object.assign(buildEnvDict, getDefaultMirrorEnvByPackageManager(packageNpmOrYarn, buildEnvDict));
+          }
           buildEnvDict.BUILD_HAS_NPMRC = configFiles.hasNpmrc ? 'true' : '';
           buildEnvDict.BUILD_HAS_YARNRC = configFiles.hasYarnrc ? 'true' : '';
         }
@@ -682,6 +689,8 @@ export default class CreateCheck extends React.Component {
             cnb_node_version: buildEnvDict.CNB_NODE_VERSION,
             // Mirror 配置来源（纯静态项目不需要包管理器镜像）
             cnb_mirror_source: buildEnvDict.CNB_MIRROR_SOURCE,
+            cnb_mirror_npmrc: buildEnvDict.CNB_MIRROR_NPMRC,
+            cnb_mirror_yarnrc: buildEnvDict.CNB_MIRROR_YARNRC,
             // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
             has_npmrc: buildEnvDict.BUILD_HAS_NPMRC,
             has_yarnrc: buildEnvDict.BUILD_HAS_YARNRC,
