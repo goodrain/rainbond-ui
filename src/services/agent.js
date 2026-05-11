@@ -1,7 +1,7 @@
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import agentPayload from './agentPayload';
-const { readSseEvents } = require('./agentStream');
+const { readSseEvents, subscribeToRunEvents } = require('./agentStream');
 
 const { buildAgentSessionPayload } = agentPayload;
 
@@ -130,10 +130,43 @@ async function requestJson(path, options = {}) {
         (data.error.message || data.error.msg_show || data.error.code)) ||
       response.statusText ||
       '请求失败';
-    throw new Error(message);
+    const error = new Error(typeof message === 'string' ? message : '请求失败');
+    error.status = response.status;
+    error.responseBody = data;
+    throw error;
   }
 
   return data;
+}
+
+async function requestJsonAcceptStatuses(path, options = {}, acceptedStatuses = []) {
+  const response = await fetch(path, {
+    credentials: 'include',
+    ...options
+  });
+
+  // Some terminal statuses (204) have no body; tolerate empty body.
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (_) {
+    data = {};
+  }
+
+  if (response.ok || acceptedStatuses.indexOf(response.status) > -1) {
+    return { status: response.status, data };
+  }
+
+  const message =
+    (data &&
+      data.error &&
+      (data.error.message || data.error.msg_show || data.error.code)) ||
+    response.statusText ||
+    '请求失败';
+  const error = new Error(typeof message === 'string' ? message : '请求失败');
+  error.status = response.status;
+  error.responseBody = data;
+  throw error;
 }
 
 export async function listAgentSessions({ limit = 20, offset = 0 } = {}) {
@@ -164,6 +197,36 @@ export async function loadAgentSessionMessages(sessionId) {
       headers: buildRequestHeaders(),
     }
   );
+}
+
+export async function abortAgentRun({ sessionId, runId } = {}) {
+  if (!sessionId || !runId) {
+    throw new Error('sessionId and runId are required');
+  }
+  const result = await requestJsonAcceptStatuses(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/abort`,
+    {
+      method: 'POST',
+      headers: buildRequestHeaders(),
+    },
+    [202, 404]
+  );
+  return result;
+}
+
+export async function clearAgentSessionRemote(sessionId) {
+  if (!sessionId) {
+    throw new Error('sessionId is required');
+  }
+  const result = await requestJsonAcceptStatuses(
+    `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}`,
+    {
+      method: 'DELETE',
+      headers: buildRequestHeaders(),
+    },
+    [202, 204]
+  );
+  return result;
 }
 
 export async function cancelAgentSessionPending(sessionId) {
@@ -273,24 +336,42 @@ export async function sendAgentMessage(payload = {}) {
     context
   });
 
-  const runPayload = await requestJson(
-    `${COPILOT_API_BASE}/sessions/${sessionId}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...buildRequestHeaders()
-      },
-      body: JSON.stringify({
-        message,
-        selected_action_key: selectedActionKey || undefined,
-        stream: true,
-        context: buildAgentSessionPayload(context).context
-      })
+  let runPayload;
+  try {
+    runPayload = await requestJson(
+      `${COPILOT_API_BASE}/sessions/${sessionId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          ...buildRequestHeaders()
+        },
+        body: JSON.stringify({
+          message,
+          selected_action_key: selectedActionKey || undefined,
+          stream: true,
+          context: buildAgentSessionPayload(context).context
+        })
+      }
+    );
+  } catch (error) {
+    // Attach the sessionId so the 409 cross-tab observer can subscribe to
+    // the foreign run without depending on backend response shape.
+    if (error) {
+      error.sessionId = sessionId;
     }
-  );
+    throw error;
+  }
 
   const runId = runPayload && runPayload.data && runPayload.data.run_id;
+  // P0-3 step 5: emit onRunStarted *before* the SSE stream resolves so the
+  // model layer can surface both sessionId and activeRunId immediately.
+  // Without this, the stop button (canStopRun = sending && activeRunId) only
+  // flips on after the run has already finished, and abortRun bails out
+  // because conversationId is still its initial 'global-default' literal.
+  if (payload.onRunStarted && runId) {
+    payload.onRunStarted({ sessionId, runId });
+  }
   const events = await streamRun({
     sessionId,
     runId,
@@ -303,6 +384,25 @@ export async function sendAgentMessage(payload = {}) {
     runId,
     events
   };
+}
+
+// F5 — cross-tab observer. When a tab gets a 409 conflict (another tab is
+// running a turn), it stashes the user draft and needs to know when the
+// foreign run terminates so it can flush that draft. The local SSE stream
+// in this tab never opens, so we subscribe to the active run's stream
+// here and let callers dispatch events into the same model pipeline.
+export async function subscribeToActiveRun(options = {}) {
+  const { sessionId, runId, afterSequence = 0, onEvent, abortSignal } = options;
+  if (!sessionId || !runId) {
+    throw new Error('sessionId and runId are required');
+  }
+  return subscribeToRunEvents({
+    url: `${COPILOT_API_BASE}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/events`,
+    headers: buildRequestHeaders(),
+    onEvent,
+    afterSequence,
+    signal: abortSignal,
+  });
 }
 
 export async function decideAgentApproval(payload = {}) {

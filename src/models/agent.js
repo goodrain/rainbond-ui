@@ -1,13 +1,16 @@
 import { getDvaApp } from 'umi';
 import {
+  abortAgentRun,
   cancelAgentSessionPending,
   clearAgentSession,
+  clearAgentSessionRemote,
   decideAgentApproval,
   deleteAgentSession,
   hydrateAgentSession,
   listAgentSessions,
   loadAgentSessionMessages,
   sendAgentMessage,
+  subscribeToActiveRun,
 } from '../services/agent';
 const { adaptAgentEvent } = require('../services/agentEventAdapter');
 import {
@@ -30,9 +33,67 @@ const {
   applyTraceEvent,
   buildTraceContent,
 } = require('./agentTraceHelpers');
+const {
+  buildCrossTabOnEventDispatcher,
+} = require('./agentCrossTab');
+const {
+  resolveClearTargetSessionId,
+} = require('./agentClearConversation');
+const {
+  applyCompactionEvent,
+  defaultCompactionState,
+} = require('./agentCompactionReducer');
 const { formatToolLabel } = require('../utils/agentToolLabels');
 
 const { extractWorkflowState } = agentWorkflowState;
+
+// F5 — cross-tab SSE observer registry.
+// When tab B gets 409, the local run never produces events here; we have to
+// subscribe to the foreign run so the model can react to its terminal
+// status. Keyed by runId so we never open two streams for the same run.
+const crossTabSubscriptions = new Map();
+
+function startCrossTabRunSubscription({ sessionId, runId, contextSnapshot }) {
+  if (!sessionId || !runId) return;
+  if (crossTabSubscriptions.has(runId)) return;
+
+  const controller =
+    typeof AbortController === 'function' ? new AbortController() : null;
+  const entry = { controller, contextSnapshot: contextSnapshot || {} };
+  crossTabSubscriptions.set(runId, entry);
+
+  const dvaApp = getDvaApp();
+  const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+
+  // F12 — only forward run.status from the foreign run. Backend replay of
+  // a stale-zombie run would otherwise flood the local tab with the
+  // foreign run's chat.message.* / approval.* / compaction.* history. The
+  // applyStreamEvent saga still detects terminal run.status and flushes
+  // pendingDraft via auto-resend.
+  subscribeToActiveRun({
+    sessionId,
+    runId,
+    abortSignal: controller && controller.signal,
+    onEvent: buildCrossTabOnEventDispatcher(dispatch, entry.contextSnapshot),
+  })
+    .catch(() => {
+      // Foreign-run SSE may legitimately error (run already terminal,
+      // network blip). The model's regular state will recover when the
+      // user retries — silent here is correct.
+    })
+    .then(() => {
+      crossTabSubscriptions.delete(runId);
+    });
+}
+
+function stopAllCrossTabSubscriptions() {
+  crossTabSubscriptions.forEach(entry => {
+    if (entry.controller) {
+      try { entry.controller.abort(); } catch (e) { /* ignore */ }
+    }
+  });
+  crossTabSubscriptions.clear();
+}
 
 const defaultState = {
   hydrated: false,
@@ -64,6 +125,13 @@ const defaultState = {
   sessionListLoading: false,
   sessionPendingApprovals: [],
   cancellingPending: false,
+  cancellingRun: false,
+  runConflict: null,
+  pendingDraft: '',
+  pendingDraftMode: '',
+  // F14 — compaction lifecycle slice. Driven by SSE events
+  // compaction.started / forced_sync_due_to_pressure / completed / failed.
+  compaction: { ...defaultCompactionState },
   pendingMutationTool: '',
   pendingMutationRoute: '',
   pendingMutationNavigationKey: '',
@@ -222,9 +290,16 @@ function buildHydratedState(snapshot) {
     sessionListLoading: false,
     sessionPendingApprovals: [],
     cancellingPending: false,
+    cancellingRun: false,
+    runConflict: null,
+    pendingDraft: '',
+    pendingDraftMode: '',
     sending: false,
     interactionLocked: false,
     lastError: '',
+    // F14 — never resurrect a stale "compressing" banner from a persisted
+    // snapshot; the lifecycle is per-run and must reset on hydrate.
+    compaction: { ...defaultCompactionState },
   };
 }
 
@@ -561,6 +636,13 @@ function applyAgentStreamEvent(state, payload) {
     currentLastMutationRunId: state.lastMutationRunId,
   });
 
+  // F14 — fold the same event through the compaction reducer so the UI
+  // can render a "compressing" banner for the duration of the pass.
+  const nextCompaction = applyCompactionEvent(
+    state.compaction || defaultCompactionState,
+    payload && payload.event
+  );
+
   return {
     interactionLocked: getNextInteractionLocked(
       state.interactionLocked,
@@ -573,6 +655,7 @@ function applyAgentStreamEvent(state, payload) {
     lastMutationRunId: merged.lastMutationRunId || state.lastMutationRunId,
     workflowState: merged.workflowState || state.workflowState,
     structuredResult: merged.structuredResult || state.structuredResult,
+    compaction: nextCompaction,
   };
 }
 
@@ -788,6 +871,25 @@ export default {
           selectedActionKey: payload && payload.selectedActionKey,
           context: contextSnapshot,
           currentUser,
+          // P0-3 step 5: surface both conversationId and activeRunId the
+          // moment the POST returns. Without conversationId, abortRun's
+          // early-return (sessionId === 'global-default') swallows the
+          // click silently. Both fields drive UI state during the stream.
+          onRunStarted: started => {
+            const startedSessionId = started && started.sessionId;
+            const startedRunId = started && started.runId;
+            if (storeDispatch && startedRunId) {
+              storeDispatch({
+                type: 'agent/saveState',
+                payload: {
+                  ...(startedSessionId
+                    ? { conversationId: startedSessionId }
+                    : {}),
+                  activeRunId: startedRunId,
+                },
+              });
+            }
+          },
           onEvent: event => {
             if (storeDispatch) {
               storeDispatch({
@@ -811,6 +913,50 @@ export default {
           },
         });
       } catch (error) {
+        // Rich 409 conflict: another run is in progress in another tab.
+        if (error && error.status === 409 && error.responseBody) {
+          const body = error.responseBody;
+          const currentRun = (body && body.current_run) || {};
+          // Roll back the optimistic user echo so the conflict UI controls re-send.
+          yield put({
+            type: 'saveState',
+            payload: {
+              messages: state.messages,
+              sending: false,
+              lastError: '',
+              runConflict: {
+                currentRun: {
+                  runId: currentRun.run_id || '',
+                  startedAt: currentRun.started_at || '',
+                  status: currentRun.status || '',
+                  userMessageExcerpt: currentRun.user_message_excerpt || '',
+                  iteration: currentRun.iteration || 0,
+                  currentPhase: currentRun.current_phase || '',
+                },
+                retryAfterSeconds: body.retry_after_seconds || 0,
+                receivedAt: Date.now(),
+              },
+              pendingDraft: text,
+              pendingDraftMode: '',
+              draft: '',
+              updatedAt: Date.now(),
+            },
+          });
+          // F5 — open an SSE stream to the foreign run so we observe its
+          // terminal status. applyStreamEvent's existing auto-flush logic
+          // will pick up pendingDraft and send once we see done/cancelled/error.
+          const conflictSessionId =
+            error.sessionId || body.session_id || state.conversationId;
+          if (conflictSessionId && currentRun.run_id) {
+            startCrossTabRunSubscription({
+              sessionId: conflictSessionId,
+              runId: currentRun.run_id,
+              contextSnapshot: state.context,
+            });
+          }
+          return;
+        }
+
         yield put({
           type: 'saveState',
           payload: {
@@ -821,6 +967,142 @@ export default {
           },
         });
       }
+    },
+
+    *abortRun({ payload }, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const sessionId =
+        (payload && payload.sessionId) ||
+        state.conversationId;
+      const runId =
+        (payload && payload.runId) ||
+        state.activeRunId;
+
+      if (!sessionId || sessionId === 'global-default' || !runId) {
+        return;
+      }
+
+      yield put({ type: 'saveState', payload: { cancellingRun: true } });
+
+      try {
+        const result = yield call(abortAgentRun, { sessionId, runId });
+        if (result && result.status === 404) {
+          // Run already terminal — clear cancelling tag, leave UI to terminal events.
+          yield put({ type: 'saveState', payload: { cancellingRun: false } });
+        }
+        // 202 case: keep cancellingRun=true; SSE 'cancelled' event will flip status.
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            cancellingRun: false,
+            lastError: getErrorMessage(e) || '停止运行失败',
+          },
+        });
+      }
+    },
+
+    *clearConversation({ payload }, { call, put, select }) {
+      const userId = payload && payload.userId;
+      const state = yield select(s => s.agent);
+
+      // Z2 — DVA state may still hold the 'global-default' sentinel even
+      // when sessionStorage has a real sessionId persisted from a prior
+      // turn (hot reload, fresh tab hydrating an existing session, etc).
+      // Always try sessionStorage as a fallback so the backend DELETE
+      // actually fires; otherwise zombie sessions accumulate.
+      const hydrateSnapshot = userId
+        ? yield call(hydrateAgentSession, userId)
+        : null;
+      const targetSessionId = resolveClearTargetSessionId({
+        conversationId: state.conversationId,
+        hydrateSnapshot,
+      });
+
+      if (targetSessionId) {
+        try {
+          yield call(clearAgentSessionRemote, targetSessionId);
+        } catch (e) {
+          yield put({
+            type: 'saveState',
+            payload: { lastError: getErrorMessage(e) || '清空会话失败' },
+          });
+          return;
+        }
+      }
+
+      // F5 — clearing the conversation tears down any cross-tab observer.
+      stopAllCrossTabSubscriptions();
+      // Clear local sessionStorage cache + reset DVA state.
+      yield call(clearAgentSession, userId);
+      yield put({
+        type: 'clearState',
+        payload: { preserveVisible: true },
+      });
+    },
+
+    *stopAndSendMine(_, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const conflict = state.runConflict;
+      if (!conflict || !conflict.currentRun || !conflict.currentRun.runId) {
+        return;
+      }
+
+      const sessionId = state.conversationId;
+      const runId = conflict.currentRun.runId;
+      const stashedText = state.pendingDraft || '';
+
+      yield put({
+        type: 'saveState',
+        payload: { pendingDraftMode: 'stop_and_send', cancellingRun: true },
+      });
+
+      try {
+        yield call(abortAgentRun, { sessionId, runId });
+      } catch (e) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            cancellingRun: false,
+            pendingDraftMode: '',
+            lastError: getErrorMessage(e) || '停止其他窗口运行失败',
+          },
+        });
+        return;
+      }
+      // Auto-send is fired from `applyStreamEvent` when run reaches terminal.
+      // But if no SSE stream is local (the running tab is another browser),
+      // we still want to send eventually. Fire after a short delay fallback.
+      yield put({
+        type: 'saveState',
+        payload: { pendingDraft: stashedText },
+      });
+    },
+
+    *keepWaiting(_, { put }) {
+      yield put({
+        type: 'saveState',
+        payload: {
+          runConflict: null,
+          pendingDraftMode: 'wait',
+        },
+      });
+    },
+
+    *cancelMyInput(_, { put, select }) {
+      const state = yield select(s => s.agent);
+      const stashed = state.pendingDraft || '';
+      // F5 — user backed out, no need to keep watching the foreign run.
+      stopAllCrossTabSubscriptions();
+      yield put({
+        type: 'saveState',
+        payload: {
+          runConflict: null,
+          pendingDraft: '',
+          pendingDraftMode: '',
+          draft: stashed || state.draft || '',
+        },
+      });
     },
 
     *sendMockMessage({ payload }, { put }) {
@@ -921,6 +1203,44 @@ export default {
         type: 'applyStreamEventReducer',
         payload,
       });
+
+      // Detect run-terminal status from this event so we can flush a pending
+      // user draft that was stashed via the 409 conflict UI.
+      const incomingEvent = payload && payload.event;
+      const incomingType = incomingEvent && incomingEvent.type;
+      const incomingData = (incomingEvent && incomingEvent.data) || {};
+      const isRunTerminal =
+        incomingType === 'run.status' &&
+        ['cancelled', 'done', 'error', 'completed', 'failed'].indexOf(incomingData.status) > -1;
+
+      if (isRunTerminal) {
+        const flushedState = yield select(store => store.agent);
+        const stashedText = flushedState.pendingDraft || '';
+        const mode = flushedState.pendingDraftMode || '';
+        if (stashedText && (mode === 'wait' || mode === 'stop_and_send')) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingDraft: '',
+              pendingDraftMode: '',
+              cancellingRun: false,
+              runConflict: null,
+            },
+          });
+          yield put({
+            type: 'sendMessage',
+            payload: {
+              message: stashedText,
+              context: flushedState.context,
+            },
+          });
+        } else if (flushedState.cancellingRun) {
+          yield put({
+            type: 'saveState',
+            payload: { cancellingRun: false },
+          });
+        }
+      }
 
       const nextRootState = yield select(store => store);
       const nextState = nextRootState.agent;
@@ -1186,6 +1506,7 @@ export default {
         lastMutationRunId: merged.lastMutationRunId,
         workflowState: merged.workflowState,
         structuredResult: merged.structuredResult,
+        compaction: merged.compaction,
         updatedAt: Date.now(),
       };
     },
@@ -1217,6 +1538,7 @@ export default {
         lastEventSequence: 0,
         workflowState: null,
         structuredResult: null,
+        compaction: { ...defaultCompactionState },
         pendingMutationTool: '',
         pendingMutationRoute: '',
         pendingMutationNavigationKey: '',

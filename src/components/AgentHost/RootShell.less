@@ -170,12 +170,29 @@
 }
 
 .appViewportLockHint {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding-left: 10px;
   border-left: 1px solid fade(@primary-color, 16%);
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: transparent;
   color: @text-color-secondary;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: @primary-color;
+  }
+
+  &:focus {
+    outline: none;
+    color: @primary-color;
+  }
 }
 
 .appViewportLockEnter .appViewportLockGlow {

@@ -193,4 +193,72 @@ assert.strictEqual(
   'pendingApproval should still reflect the approval after dedupe'
 );
 
+// F14 — backend emits compaction.started / compaction.completed /
+// compaction.failed / compaction.forced_sync_due_to_pressure SSE events
+// in the 2_000_000_001+ sequence band. The local reducer must surface a
+// `compaction` slice so the UI can show a "compressing" banner while the
+// async pass is in flight (and a brief warning if the pass failed).
+const {
+  applyCompactionEvent,
+  defaultCompactionState,
+} = require('./agentCompactionReducer');
+
+// Case 1: compaction.started → active=true, mode captured.
+const startedState = applyCompactionEvent(defaultCompactionState, {
+  type: 'compaction.started',
+  data: { mode: 'async', input_chars: 14000, turn: 3 },
+});
+assert.strictEqual(startedState.active, true, 'compaction.started should set active=true');
+assert.strictEqual(startedState.mode, 'async', 'compaction.started should record the mode');
+assert.strictEqual(startedState.lastFailedAt, 0, 'compaction.started should not touch lastFailedAt');
+assert.strictEqual(startedState.lastFailedReason, '', 'compaction.started should not touch lastFailedReason');
+
+// Case 2: compaction.completed clears active.
+const completedState = applyCompactionEvent(startedState, {
+  type: 'compaction.completed',
+  data: { output_chars: 4200 },
+});
+assert.strictEqual(completedState.active, false, 'compaction.completed should clear active');
+// Mode is allowed to be retained or cleared; spec says active=false is the requirement.
+
+// Case 3: compaction.failed clears active and records failure context.
+const failedState = applyCompactionEvent(startedState, {
+  type: 'compaction.failed',
+  data: { reason: 'llm_timeout' },
+});
+assert.strictEqual(failedState.active, false, 'compaction.failed should clear active');
+assert.strictEqual(failedState.lastFailedReason, 'llm_timeout', 'compaction.failed should record the reason');
+assert.ok(
+  failedState.lastFailedAt > 0,
+  'compaction.failed should record lastFailedAt as a positive timestamp'
+);
+
+// Case 4: compaction.forced_sync_due_to_pressure upgrades mode to sync_forced
+// (active stays true because the upgrade is mid-flight; backend follows up
+// with completed / failed afterwards).
+const upgradedState = applyCompactionEvent(startedState, {
+  type: 'compaction.forced_sync_due_to_pressure',
+  data: {},
+});
+assert.strictEqual(upgradedState.active, true, 'forced_sync upgrade should keep active=true');
+assert.strictEqual(
+  upgradedState.mode,
+  'sync_forced',
+  'forced_sync upgrade should set mode=sync_forced'
+);
+
+// Case 5 (extra robustness): non-compaction events leave the slice untouched
+// by reference equality — the UI relies on this for shallow re-render skip.
+const passthroughState = applyCompactionEvent(startedState, {
+  type: 'chat.message',
+  data: {},
+});
+assert.strictEqual(passthroughState, startedState, 'unrelated events should return the same reference');
+
+// Case 6: malformed events are tolerated.
+const safeState = applyCompactionEvent(defaultCompactionState, null);
+assert.strictEqual(safeState, defaultCompactionState, 'null event should not mutate compaction state');
+const safeState2 = applyCompactionEvent(defaultCompactionState, { type: '' });
+assert.strictEqual(safeState2, defaultCompactionState, 'empty type event should not mutate compaction state');
+
 console.log('agent event reducer tests passed');

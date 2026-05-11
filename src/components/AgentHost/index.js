@@ -1,5 +1,5 @@
 import React, { PureComponent, useEffect, useRef, useState } from 'react';
-import { Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
+import { Alert, Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
@@ -328,20 +328,109 @@ export default class AgentHost extends PureComponent {
   handleClear = () => {
     const { dispatch, currentUser } = this.props;
     confirm({
-      title: '清空当前会话',
-      content: '会清空当前全局 Agent 会话，但不会影响页面上下文。',
+      title: '确认清空对话',
+      content: '将删除当前会话的所有消息和操作记录，不可恢复。',
+      okType: 'danger',
       okText: '清空',
       cancelText: '取消',
       onOk: () => {
         dispatch({
-          type: 'agent/clearSession',
+          type: 'agent/clearConversation',
           payload: {
             userId: currentUser && String(currentUser.user_id),
-            preserveVisible: true,
           },
         });
       },
     });
+  };
+
+  handleStopRun = () => {
+    const { dispatch } = this.props;
+    dispatch({ type: 'agent/abortRun' });
+  };
+
+  handleConflictStopAndSend = () => {
+    this.props.dispatch({ type: 'agent/stopAndSendMine' });
+  };
+
+  handleConflictKeepWaiting = () => {
+    this.props.dispatch({ type: 'agent/keepWaiting' });
+  };
+
+  handleConflictCancelMine = () => {
+    this.props.dispatch({ type: 'agent/cancelMyInput' });
+  };
+
+  formatConflictElapsed = startedAt => {
+    if (!startedAt) return '';
+    const ts = Date.parse(startedAt);
+    if (Number.isNaN(ts)) return '';
+    const diffSec = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+    if (diffSec < 60) return `${diffSec} 秒`;
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分 ${diffSec % 60} 秒`;
+    return `${Math.floor(diffSec / 3600)} 小时${Math.floor((diffSec % 3600) / 60)} 分`;
+  };
+
+  renderRunConflictNotice = () => {
+    const { agent } = this.props;
+    const conflict = agent && agent.runConflict;
+    if (!conflict || !conflict.currentRun) {
+      return null;
+    }
+    const cr = conflict.currentRun;
+    const elapsed = this.formatConflictElapsed(cr.startedAt);
+    const iterText = cr.iteration ? `第 ${cr.iteration} 次 LLM 调用` : '';
+    const phaseText = cr.currentPhase || '';
+    const subPieces = [
+      elapsed ? `已运行 ${elapsed}` : '',
+      iterText,
+      phaseText,
+    ].filter(Boolean);
+    const excerpt = cr.userMessageExcerpt || '';
+    const cancelling = !!(agent && agent.cancellingRun);
+
+    const description = (
+      <div>
+        <div style={{ marginBottom: 8 }}>
+          另一个窗口正在处理 <strong>「{excerpt}」</strong>
+          {subPieces.length > 0 ? `（${subPieces.join('，')}）` : ''}
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <Button
+            size="small"
+            type="primary"
+            loading={cancelling}
+            onClick={this.handleConflictStopAndSend}
+            style={{ marginRight: 8 }}
+          >
+            停止它并发送本条
+          </Button>
+          <Button
+            size="small"
+            onClick={this.handleConflictKeepWaiting}
+            style={{ marginRight: 8 }}
+          >
+            继续等待
+          </Button>
+          <Button
+            size="small"
+            onClick={this.handleConflictCancelMine}
+          >
+            取消我的输入
+          </Button>
+        </div>
+      </div>
+    );
+
+    return (
+      <Alert
+        type="warning"
+        showIcon
+        message="另一个窗口已有运行"
+        description={description}
+        style={{ margin: '8px 12px' }}
+      />
+    );
   };
 
   handleApprovalDecision = decision => {
@@ -894,7 +983,27 @@ export default class AgentHost extends PureComponent {
     const sessionPendingApprovals =
       (agent && agent.sessionPendingApprovals) || [];
     const cancellingPending = !!(agent && agent.cancellingPending);
+    const cancellingRun = !!(agent && agent.cancellingRun);
+    const activeRunId = (agent && agent.activeRunId) || '';
+    const canStopRun = sending && !!activeRunId;
+    const pendingDraftMode = (agent && agent.pendingDraftMode) || '';
+    const isWaitingForOtherTab = pendingDraftMode === 'wait';
     const hasSessionPending = sessionPendingApprovals.length > 0;
+    // F14 — compaction lifecycle banner. `compaction.active` is set while
+    // the backend is compressing the conversation history; a brief
+    // 1.5-second window after a failed pass surfaces a warning.
+    const compaction = (agent && agent.compaction) || null;
+    const compactionActive = !!(compaction && compaction.active);
+    const compactionFailedRecently =
+      !!(compaction && compaction.lastFailedAt && Date.now() - compaction.lastFailedAt < 1500);
+    const compactionBannerMessage = compactionActive
+      ? (compaction && compaction.mode === 'sync_forced'
+          ? '正在同步压缩对话历史以节省 token...'
+          : '正在压缩对话历史以节省 token...')
+      : '';
+    const compactionFailureMessage = compactionFailedRecently
+      ? '压缩历史失败，已用原始历史继续'
+      : '';
     const showBottomThinking = shouldShowBottomThinking({
       sending,
       messages,
@@ -976,6 +1085,33 @@ export default class AgentHost extends PureComponent {
                 ) : null}
               </div>
 
+              {this.renderRunConflictNotice()}
+
+              {compactionActive ? (
+                <Alert
+                  type="info"
+                  showIcon
+                  message={compactionBannerMessage}
+                  style={{ margin: '8px 12px' }}
+                />
+              ) : compactionFailureMessage ? (
+                <Alert
+                  type="warning"
+                  showIcon
+                  message={compactionFailureMessage}
+                  style={{ margin: '8px 12px' }}
+                />
+              ) : null}
+
+              {isWaitingForOtherTab ? (
+                <Alert
+                  type="info"
+                  showIcon
+                  message="等待另一个窗口的当前运行结束后将自动发送你的输入"
+                  style={{ margin: '8px 12px' }}
+                />
+              ) : null}
+
               {hasSessionPending ? (
                 <div className={styles.pendingBanner}>
                   <div className={styles.pendingBannerText}>
@@ -1013,17 +1149,30 @@ export default class AgentHost extends PureComponent {
                       disabled={sending}
                       icon="delete"
                     >
-                      清空会话
+                      清空对话
                     </Button>
-                    <Button
-                      type="primary"
-                      className={styles.footerSendButton}
-                      onClick={this.handleSend}
-                      loading={sending}
-                      aria-label="发送"
-                    >
-                      {!sending ? <SendButtonIcon /> : null}
-                    </Button>
+                    {canStopRun ? (
+                      <Button
+                        type="danger"
+                        className={styles.footerSendButton}
+                        onClick={this.handleStopRun}
+                        loading={cancellingRun}
+                        icon="poweroff"
+                      >
+                        {cancellingRun ? '正在停止' : '停止'}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="primary"
+                        className={styles.footerSendButton}
+                        onClick={this.handleSend}
+                        loading={sending}
+                        aria-label="发送"
+                      >
+                        <span>发送</span>
+                        {!sending ? <SendButtonIcon /> : null}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
