@@ -30,6 +30,9 @@ const {
   buildCrossTabOnEventDispatcher,
 } = require('./agentCrossTab');
 const {
+  resolveClearTargetSessionId,
+} = require('./agentClearConversation');
+const {
   applyCompactionEvent,
   defaultCompactionState,
 } = require('./agentCompactionReducer');
@@ -911,11 +914,23 @@ export default {
     *clearConversation({ payload }, { call, put, select }) {
       const userId = payload && payload.userId;
       const state = yield select(s => s.agent);
-      const sessionId = state.conversationId;
 
-      if (sessionId && sessionId !== 'global-default') {
+      // Z2 — DVA state may still hold the 'global-default' sentinel even
+      // when sessionStorage has a real sessionId persisted from a prior
+      // turn (hot reload, fresh tab hydrating an existing session, etc).
+      // Always try sessionStorage as a fallback so the backend DELETE
+      // actually fires; otherwise zombie sessions accumulate.
+      const hydrateSnapshot = userId
+        ? yield call(hydrateAgentSession, userId)
+        : null;
+      const targetSessionId = resolveClearTargetSessionId({
+        conversationId: state.conversationId,
+        hydrateSnapshot,
+      });
+
+      if (targetSessionId) {
         try {
-          yield call(clearAgentSessionRemote, sessionId);
+          yield call(clearAgentSessionRemote, targetSessionId);
         } catch (e) {
           yield put({
             type: 'saveState',
