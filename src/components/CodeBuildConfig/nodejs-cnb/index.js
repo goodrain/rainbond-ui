@@ -4,7 +4,7 @@ import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '@/utils/global';
-const { isBuildEnvTruthy } = require('../buildEnvHelpers');
+const { hasNodePackageManagerPrefix, isBuildEnvTruthy } = require('../buildEnvHelpers');
 
 // 框架图标（内联 SVG）
 export const FRAMEWORK_ICONS = {
@@ -270,6 +270,14 @@ class NodeJSCNBConfig extends PureComponent {
   // Mirror 配置类型切换
   onMirrorTypeChange = (value) => {
     this.setState({ mirrorConfigType: value });
+  };
+
+  validateNodeScriptName = (rule, value, callback) => {
+    if (hasNodePackageManagerPrefix(value)) {
+      callback(formatMessage({id: 'componentOverview.body.NodeJSCNB.script_name_error'}));
+      return;
+    }
+    callback();
   };
 
   // 打开编辑弹窗
@@ -605,7 +613,8 @@ class NodeJSCNBConfig extends PureComponent {
             }
           >
             {getFieldDecorator('CNB_BUILD_SCRIPT', {
-              initialValue: buildScript
+              initialValue: buildScript,
+              rules: [{ validator: this.validateNodeScriptName }]
             })(<Input placeholder="build" style={{ width: 300 }} />)}
           </Form.Item>
         )}
@@ -624,7 +633,8 @@ class NodeJSCNBConfig extends PureComponent {
             }
           >
             {getFieldDecorator('CNB_START_SCRIPT', {
-              initialValue: startCommand
+              initialValue: startCommand,
+              rules: [{ validator: this.validateNodeScriptName }]
             })(<Input placeholder={formatMessage({id: 'componentOverview.body.NodeJSCNB.start_cmd_placeholder'})} style={{ width: 300 }} />)}
           </Form.Item>
         )}
