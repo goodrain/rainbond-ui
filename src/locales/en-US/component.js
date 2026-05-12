@@ -188,6 +188,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.instance.Time': 'Time',
     'componentOverview.body.tab.overview.instance.Updating': 'Updating',
     'componentOverview.body.tab.overview.instance.noRun': 'No running instance',
+    'componentOverview.body.tab.overview.instance.vmPreparing': 'Virtual machine is being prepared while the system disk initializes',
     'componentOverview.body.tab.overview.instance.Unlimited': 'Unlimited',
     // tabs栏>overview>操作记录
     'componentOverview.body.tab.overview.handle.operationRecord': 'Operation Records',

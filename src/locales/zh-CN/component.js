@@ -187,6 +187,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.instance.Time': '时间',
     'componentOverview.body.tab.overview.instance.Updating': '正在更新中',
     'componentOverview.body.tab.overview.instance.noRun': '暂无运行实例',
+    'componentOverview.body.tab.overview.instance.vmPreparing': '虚拟机准备中，系统盘正在初始化',
     'componentOverview.body.tab.overview.instance.Unlimited': '不限制',
 
 

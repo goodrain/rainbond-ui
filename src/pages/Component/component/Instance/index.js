@@ -440,7 +440,13 @@ class Index extends PureComponent {
               textAlign: 'center'
             }}
           >
-            <FormattedMessage id='componentOverview.body.tab.overview.instance.noRun'/>
+            <FormattedMessage
+              id={
+                podType === 'vm' && status && ['starting', 'waiting'].includes(status.status)
+                  ? 'componentOverview.body.tab.overview.instance.vmPreparing'
+                  : 'componentOverview.body.tab.overview.instance.noRun'
+              }
+            />
           </div>
         )}
       </div>
