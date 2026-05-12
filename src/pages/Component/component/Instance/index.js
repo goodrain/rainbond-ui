@@ -128,7 +128,7 @@ class Index extends PureComponent {
     );
   };
   render() {
-    const { new_pods: newPods, old_pods: oldPods } = this.props;
+    const { new_pods: newPods, old_pods: oldPods, podType, status } = this.props;
     const { instanceInfo, visible, language } = this.state;
     const isOldPods = oldPods && oldPods.length > 0;
     return (

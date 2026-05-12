@@ -1149,7 +1149,7 @@ export default class Index extends PureComponent {
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { extendInfo, appAlias, form, appDetail, method } = this.props;
+    const { extendInfo, appAlias, form, appDetail, method, status } = this.props;
     let notAllowScaling = false;
     if (appDetail) {
       if (globalUtil.isSingletonComponent(method)) {
