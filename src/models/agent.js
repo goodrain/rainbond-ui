@@ -34,6 +34,7 @@ import * as agentCrossTab from './agentCrossTab';
 import * as agentClearConversation from './agentClearConversation';
 import * as agentCompactionReducer from './agentCompactionReducer';
 import * as agentToolLabels from '../utils/agentToolLabels';
+import * as agentComponentMutationFinalizer from './agentComponentMutationFinalizer';
 
 const { extractWorkflowState } = agentWorkflowState;
 const { adaptAgentEvent } = agentEventAdapter;
@@ -54,6 +55,11 @@ const {
   defaultCompactionState,
 } = agentCompactionReducer;
 const { formatToolLabel } = agentToolLabels;
+const {
+  buildComponentMutationTrackingPatch,
+  buildFinalComponentOverviewNavigationPayload,
+  createClearedComponentMutationTrackingState,
+} = agentComponentMutationFinalizer;
 
 // F5 — cross-tab SSE observer registry.
 // When tab B gets 409, the local run never produces events here; we have to
@@ -147,6 +153,7 @@ const defaultState = {
   pendingMutationRefreshMode: '',
   lastMutationResult: null,
   lastMutationRunId: '',
+  ...createClearedComponentMutationTrackingState(),
   updatedAt: 0,
 };
 
@@ -294,6 +301,11 @@ function buildHydratedState(snapshot) {
     pendingMutationRefreshMode: snapshot.pendingMutationRefreshMode || '',
     lastMutationResult: snapshot.lastMutationResult || null,
     lastMutationRunId: snapshot.lastMutationRunId || '',
+    lastComponentMutationAlias: snapshot.lastComponentMutationAlias || '',
+    lastComponentMutationAppId: snapshot.lastComponentMutationAppId || '',
+    lastComponentMutationTeamName: snapshot.lastComponentMutationTeamName || '',
+    lastComponentMutationRegionName: snapshot.lastComponentMutationRegionName || '',
+    lastComponentMutationTool: snapshot.lastComponentMutationTool || '',
     sessionList: [],
     sessionListLoading: false,
     sessionPendingApprovals: [],
@@ -728,6 +740,7 @@ export default {
         patch.pendingMutationRefreshMode = '';
         patch.lastMutationResult = null;
         patch.lastMutationRunId = '';
+        Object.assign(patch, createClearedComponentMutationTrackingState());
       }
       yield put({ type: 'saveState', payload: patch });
     },
@@ -755,6 +768,7 @@ export default {
           pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
+          ...createClearedComponentMutationTrackingState(),
         },
       });
 
@@ -866,6 +880,7 @@ export default {
           pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
+          ...createClearedComponentMutationTrackingState(),
           updatedAt: Date.now(),
         },
       });
@@ -1279,11 +1294,17 @@ export default {
           appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
         });
         const navigationPayload = buildMutationNavigationPayload(pa.skillId, route);
+        const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
+          toolName: pa.skillId,
+          context: nextState.context,
+          targetRef: pa.targetRef,
+        });
         yield put({
           type: 'saveState',
           payload: {
             pendingMutationTool: pa.skillId || '',
             ...(navigationPayload || {}),
+            ...componentMutationTrackingPatch,
           },
         });
       }
@@ -1412,6 +1433,8 @@ export default {
         prevState.pendingMutationTool &&
         shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
       ) {
+        const finalOverviewNavigationPayload =
+          buildFinalComponentOverviewNavigationPayload(prevState);
         yield put({
           type: 'saveState',
           payload: {
@@ -1419,9 +1442,38 @@ export default {
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             ...buildMutationRefreshPayload(prevState.pendingMutationTool, 'route'),
+            ...(finalOverviewNavigationPayload || {}),
+            ...createClearedComponentMutationTrackingState(),
             updatedAt: Date.now(),
           },
         });
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        adaptedEvent.status === 'done'
+      ) {
+        const finalOverviewNavigationPayload =
+          buildFinalComponentOverviewNavigationPayload(prevState);
+        if (finalOverviewNavigationPayload) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRefreshMode: '',
+              ...finalOverviewNavigationPayload,
+              ...createClearedComponentMutationTrackingState(),
+              updatedAt: Date.now(),
+            },
+          });
+        } else if (prevState.lastComponentMutationTool) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              ...createClearedComponentMutationTrackingState(),
+              updatedAt: Date.now(),
+            },
+          });
+        }
       } else if (
         adaptedEvent &&
         adaptedEvent.type === 'run_status' &&
@@ -1434,6 +1486,8 @@ export default {
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             pendingMutationRefreshMode: '',
+            ...createClearedComponentMutationTrackingState(),
+            updatedAt: Date.now(),
           },
         });
       }
@@ -1565,6 +1619,7 @@ export default {
         pendingMutationRefreshMode: '',
         lastMutationResult: null,
         lastMutationRunId: '',
+        ...createClearedComponentMutationTrackingState(),
         updatedAt: Date.now(),
       };
     },
