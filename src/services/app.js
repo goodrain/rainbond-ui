@@ -1633,6 +1633,7 @@ export async function addVolume(
     app_alias,
     volume_name,
     volume_type,
+    access_mode,
     volume_path,
     volume_capacity,
     file_content
@@ -1645,6 +1646,7 @@ export async function addVolume(
       data: {
         volume_name: body.volume_name,
         volume_type: body.volume_type,
+        access_mode: body.access_mode,
         volume_path: body.volume_path,
         mode: body.mode,
         volume_capacity: new Number(body.volume_capacity),

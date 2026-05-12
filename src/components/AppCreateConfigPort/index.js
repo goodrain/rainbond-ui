@@ -36,6 +36,7 @@ import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import { filterVMLiveMigrationVolumeOptions } from '../../utils/vmVolumeOptions';
 import handleAPIError from '../../utils/error';
 import styles from './setting.less';
 const { Panel } = Collapse;
@@ -866,8 +867,9 @@ class VmMnt extends PureComponent {
       },
       callback: data => {
         if (data) {
+          const volumeOpts = filterVMLiveMigrationVolumeOptions(data.list || []);
           this.setState({
-            volumeOpts: data.list || []
+            volumeOpts
           });
         }
       },
@@ -1123,6 +1125,11 @@ class VmMnt extends PureComponent {
         }
       },
       {
+        title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_type' }),
+        dataIndex: 'volume_type',
+        render: text => <span>{this.getVolumeTypeShowName(text)}</span>
+      },
+      {
         title: formatMessage({ id: 'Vm.createVm.handle' }),
         dataIndex: 'action',
         render: (val, data, index) => {
@@ -1172,11 +1179,20 @@ class VmMnt extends PureComponent {
           >
             {formatMessage({ id: 'button.save' })}
           </Button>
-          <Button onClick={this.handleAddVar}>
+          <Button onClick={this.handleAddVar} disabled={this.state.volumeOpts.length === 0}>
             <Icon type="plus" />
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
+        {this.state.volumeOpts.length === 0 ? (
+          <Alert
+            showIcon
+            message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
+            description={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' })}
+            type="warning"
+            style={{ marginBottom: 16 }}
+          />
+        ) : null}
         <Alert
           showIcon
           message={formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveTip' })}

@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   Col,
@@ -24,6 +25,11 @@ import cookie from '@/utils/cookie';
 import CodeBuildConfig from '../CodeBuildConfig';
 import PriceCard from '../../components/PriceCard';
 import handleAPIError from '../../utils/error';
+import {
+  filterVMLiveMigrationVolumeOptions,
+  findVolumeOptionByType,
+  resolveVMLiveMigrationAccessMode
+} from '../../utils/vmVolumeOptions';
 const { mergeCreateRuntimeInfo } = require('../CodeBuildConfig/buildEnvHelpers');
 import styles from './setting.less';
 
@@ -876,21 +882,87 @@ class VirtualMachineBaseInfo extends PureComponent {
       setUnit: (props.appDetail.service.min_memory % 1024 === 0) ? 'G' : 'M',
       setUnitDisk: (props.appDetail.service.disk_cap % 1024 === 0) ? 'G' : 'M',
       memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory && this.handleMinMemory(props.appDetail.service.min_memory),
+      volumeOpts: [],
+      rootDiskVolumeType: '',
     }
   }
 
   componentDidMount() {
-    const { onRefCpu, appDetail } = this.props
+    const { onRefCpu } = this.props
     if (onRefCpu) {
       this.props.onRefCpu(this)
     }
+    this.fetchVolumeOpts();
+    this.fetchRootDiskVolume();
   }
 
+  fetchVolumeOpts = () => {
+    const { appDetail, dispatch, form } = this.props;
+    dispatch({
+      type: 'appControl/fetchVolumeOpts',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appDetail.service.service_alias
+      },
+      callback: data => {
+        const volumeOpts = filterVMLiveMigrationVolumeOptions((data && data.list) || []);
+        const defaultVolumeType = this.state.rootDiskVolumeType || (volumeOpts[0] && volumeOpts[0].volume_type) || '';
+        this.setState({
+          volumeOpts,
+          rootDiskVolumeType: defaultVolumeType
+        });
+        if (!form.getFieldValue('disk_volume_type') && defaultVolumeType) {
+          form.setFieldsValue({
+            disk_volume_type: defaultVolumeType
+          });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+
+  fetchRootDiskVolume = () => {
+    const { appDetail, dispatch, form } = this.props;
+    dispatch({
+      type: 'appControl/fetchVolumes',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appDetail.service.service_alias,
+        is_config: false
+      },
+      callback: data => {
+        const rootVolume = ((data && data.list) || []).find(
+          item => item.volume_name === 'disk' || item.disk_role === 'root'
+        );
+        if (!rootVolume || !rootVolume.volume_type) {
+          return;
+        }
+        this.setState({
+          rootDiskVolumeType: rootVolume.volume_type
+        });
+        form.setFieldsValue({
+          disk_volume_type: rootVolume.volume_type
+        });
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+
   handleSubmitCpu = () => {
-    const { setUnit } = this.state
+    const { setUnit, volumeOpts } = this.state
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
+        if (volumeOpts.length === 0) {
+          notification.warning({
+            message: formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })
+          });
+          return false;
+        }
         if (fieldsValue.min_memory == 'custom' && fieldsValue.memory_value) {
           if (setUnit) {
             const memoryNum = setUnit == "G" ? fieldsValue.memory_value * 1024 : fieldsValue.memory_value
@@ -923,6 +995,8 @@ class VirtualMachineBaseInfo extends PureComponent {
           }
         }
         fieldsValue.disk_cap = fieldsValue.disk_cap * 1
+        const selectedVolumeOption = findVolumeOptionByType(volumeOpts, fieldsValue.disk_volume_type);
+        fieldsValue.disk_access_mode = resolveVMLiveMigrationAccessMode(selectedVolumeOption);
         onSubmit(fieldsValue);
       }
     });
@@ -966,7 +1040,7 @@ class VirtualMachineBaseInfo extends PureComponent {
       min_cpu,
       disk_cap
     } = appDetail.service;
-    const { setUnit, memoryValue, setUnitDisk } = this.state
+    const { setUnit, memoryValue, volumeOpts } = this.state
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -1080,6 +1154,41 @@ class VirtualMachineBaseInfo extends PureComponent {
             />
           )}
         </Form.Item>
+        <Form.Item
+          {...formItemLayout}
+          label={formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_type' })}
+          extra={volumeOpts.length === 0 ? formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' }) : null}
+        >
+          {getFieldDecorator('disk_volume_type', {
+            initialValue: this.state.rootDiskVolumeType || (volumeOpts[0] && volumeOpts[0].volume_type) || '',
+            rules: [
+              {
+                required: true,
+                message: formatMessage({ id: 'Vm.createVm.selectLiveMigrationStorage' })
+              }
+            ]
+          })(
+            <Select
+              style={{ width: '200px' }}
+              disabled={volumeOpts.length === 0}
+              placeholder={formatMessage({ id: 'Vm.createVm.selectLiveMigrationStorage' })}
+            >
+              {volumeOpts.map(item => (
+                <Option key={item.volume_type} value={item.volume_type}>
+                  {item.name_show || item.volume_type}
+                </Option>
+              ))}
+            </Select>
+          )}
+        </Form.Item>
+        {volumeOpts.length === 0 ? (
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginBottom: 16 }}
+            message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
+          />
+        ) : null}
       </Card>
     )
   }
