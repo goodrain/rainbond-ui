@@ -295,12 +295,6 @@ export async function createAppByVirtualMachine(body = {}) {
         gpu_count: body.gpu_count,
         usb_enabled: body.usb_enabled,
         usb_resources: body.usb_resources,
-        os_family: body.os_family,
-        network_mode: body.network_mode,
-        network_name: body.network_name,
-        fixed_ip: body.fixed_ip,
-        gateway: body.gateway,
-        dns_servers: body.dns_servers,
       }
     }
   );

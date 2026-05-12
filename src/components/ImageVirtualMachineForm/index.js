@@ -25,7 +25,7 @@ import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
-const { mergeRuntimeFormValues, normalizeAssetRuntimeSnapshot } = require('./runtimeFieldMerge');
+const { normalizeAssetRuntimeSnapshot } = require('./runtimeFieldMerge');
 const { getSelectableVMAssets, isVMAssetSelectable } = require('./assetReadiness');
 
 const { Option } = Select;
@@ -85,10 +85,8 @@ export default class Index extends PureComponent {
         chunk_upload_supported: false,
         gpu_supported: false,
         usb_supported: false,
-        network_modes: ['random'],
         gpu_resources: [],
-        usb_resources: [],
-        networks: []
+        usb_resources: []
       },
       publicVmOptions: PUBLIC_VM_OPTIONS,
       selectedPublicVm: defaultPublicVm,
@@ -347,17 +345,6 @@ export default class Index extends PureComponent {
         if (!fieldsValue.usb_enabled) {
           fieldsValue.usb_resources = [];
         }
-        if (fieldsValue.network_mode !== 'fixed') {
-          fieldsValue.network_name = '';
-          fieldsValue.fixed_ip = '';
-          fieldsValue.gateway = '';
-          fieldsValue.dns_servers = '';
-        } else if ((this.state.vmCapabilities.networks || []).length === 0) {
-          fieldsValue.network_name = '';
-          fieldsValue.gateway = '';
-          fieldsValue.dns_servers = '';
-        }
-        fieldsValue.os_family = fieldsValue.os_family || 'linux';
 
         if (!fieldsValue.group_id) {
           fieldsValue.group_name =
@@ -450,36 +437,15 @@ export default class Index extends PureComponent {
       asset,
       runtimeSnapshot
     });
-    const guestOSFamily = this.inferGuestOSFamily(sanitizedRuntimeSnapshot, asset);
     this.setState(
       {
         radioKey: 'existing'
       },
       () => {
-        const mergedRuntimeValues = mergeRuntimeFormValues({
-          form,
-          currentValues: form.getFieldsValue([
-            'os_family',
-            'network_mode',
-            'network_name',
-            'fixed_ip',
-            'gateway',
-            'dns_servers'
-          ]),
-          incomingValues: {
-            os_family: guestOSFamily,
-            network_mode: sanitizedRuntimeSnapshot.network_mode || 'random',
-            network_name: sanitizedRuntimeSnapshot.network_name || undefined,
-            fixed_ip: sanitizedRuntimeSnapshot.fixed_ip || undefined,
-            gateway: sanitizedRuntimeSnapshot.gateway || undefined,
-            dns_servers: sanitizedRuntimeSnapshot.dns_servers || undefined
-          }
-        });
         form.setFieldsValue({
           imagefrom: 'existing',
           image_name: asset.name,
           asset_id: asset.id,
-          ...mergedRuntimeValues,
           boot_mode: sanitizedRuntimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!sanitizedRuntimeSnapshot.gpu_enabled,
           gpu_resources: sanitizedRuntimeSnapshot.gpu_resources || [],
@@ -490,23 +456,6 @@ export default class Index extends PureComponent {
         this.closeAssetCatalog();
       }
     );
-  };
-
-  inferGuestOSFamily = (runtimeSnapshot = {}, source = {}) => {
-    const explicit = String(runtimeSnapshot.os_family || source.os_family || '').toLowerCase();
-    if (explicit === 'windows' || explicit === 'linux') {
-      return explicit;
-    }
-    const osHint = String(
-      runtimeSnapshot.os_name ||
-      source.os_name ||
-      source.name ||
-      ''
-    ).toLowerCase();
-    if (osHint.indexOf('windows') > -1) {
-      return 'windows';
-    }
-    return 'linux';
   };
 
   handleDeleteAsset = asset => {
@@ -829,7 +778,6 @@ export default class Index extends PureComponent {
   renderRuntimeFields = (archLength, arch, form) => {
     const { getFieldDecorator } = form;
     const { vmCapabilities } = this.state;
-    const hasBusinessNetworks = (vmCapabilities.networks || []).length > 0;
     return (
       <Fragment>
         {archLength === 2 ? (
@@ -845,27 +793,6 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
         ) : null}
-
-        <Form.Item label={formatMessage({ id: 'Vm.createVm.guestOS' })}>
-          {getFieldDecorator('os_family', {
-            initialValue: 'linux',
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'Vm.createVm.guestOSRequired' })
-              }
-            ]
-          })(
-            <Radio.Group>
-              <Radio value="linux">
-                {formatMessage({ id: 'Vm.createVm.guestOSLinux' })}
-              </Radio>
-              <Radio value="windows">
-                {formatMessage({ id: 'Vm.createVm.guestOSWindows' })}
-              </Radio>
-            </Radio.Group>
-          )}
-        </Form.Item>
 
         {vmCapabilities.gpu_supported ? (
           <Form.Item>
@@ -965,87 +892,6 @@ export default class Index extends PureComponent {
               </Select>
             )}
           </Form.Item>
-        ) : null}
-
-        <Form.Item label={formatMessage({ id: 'Vm.createVm.networkMode' })}>
-          {getFieldDecorator('network_mode', {
-            initialValue: 'random'
-          })(
-            <Radio.Group>
-              <Radio value="random">
-                {formatMessage({ id: 'Vm.createVm.networkRandom' })}
-              </Radio>
-              <Radio
-                value="fixed"
-                disabled={(vmCapabilities.network_modes || []).indexOf('fixed') === -1}
-              >
-                {formatMessage({ id: 'Vm.createVm.networkFixed' })}
-              </Radio>
-            </Radio.Group>
-          )}
-        </Form.Item>
-
-        {form.getFieldValue('network_mode') === 'fixed' ? (
-          <Fragment>
-            {hasBusinessNetworks ? (
-              <Form.Item label={formatMessage({ id: 'Vm.createVm.networkName' })}>
-                {getFieldDecorator('network_name', {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })
-                    }
-                  ]
-                })(
-                  <Select
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                    placeholder={formatMessage({ id: 'Vm.createVm.networkNamePlaceholder' })}
-                  >
-                    {(vmCapabilities.networks || []).map(item => {
-                      const value = `${item.namespace}/${item.name}`;
-                      return (
-                        <Option key={value} value={value}>
-                          {value}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                )}
-              </Form.Item>
-            ) : null}
-            <Form.Item label={formatMessage({ id: 'Vm.createVm.fixedIP' })}>
-              {getFieldDecorator('fixed_ip', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })
-                  }
-                ]
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })}
-                />
-              )}
-            </Form.Item>
-            {hasBusinessNetworks ? (
-              <Form.Item label={formatMessage({ id: 'Vm.createVm.gateway' })}>
-                {getFieldDecorator('gateway')(
-                  <Input
-                    placeholder={formatMessage({ id: 'Vm.createVm.gatewayPlaceholder' })}
-                  />
-                )}
-              </Form.Item>
-            ) : null}
-            {hasBusinessNetworks ? (
-              <Form.Item label={formatMessage({ id: 'Vm.createVm.dnsServers' })}>
-                {getFieldDecorator('dns_servers')(
-                  <Input
-                    placeholder={formatMessage({ id: 'Vm.createVm.dnsServersPlaceholder' })}
-                  />
-                )}
-              </Form.Item>
-            ) : null}
-          </Fragment>
         ) : null}
       </Fragment>
     );

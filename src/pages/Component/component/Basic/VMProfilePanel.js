@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Form, Input, InputNumber, Row, Select, Switch, Tag, notification } from 'antd';
+import { Alert, Button, Card, Col, Form, InputNumber, Row, Select, Switch, Tag, notification } from 'antd';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -17,26 +17,6 @@ const EMPTY_CAPABILITIES = {
 };
 
 const MANAGED_VM_ATTRIBUTE_CONFIG = {
-  vm_network_mode: {
-    name: 'vm_network_mode',
-    save_type: 'string'
-  },
-  vm_network_name: {
-    name: 'vm_network_name',
-    save_type: 'string'
-  },
-  vm_fixed_ip: {
-    name: 'vm_fixed_ip',
-    save_type: 'string'
-  },
-  vm_gateway: {
-    name: 'vm_gateway',
-    save_type: 'string'
-  },
-  vm_dns_servers: {
-    name: 'vm_dns_servers',
-    save_type: 'string'
-  },
   vm_gpu_enabled: {
     name: 'vm_gpu_enabled',
     save_type: 'string'
@@ -75,27 +55,13 @@ const ACCELERATION_DELETE_ORDER = [
   'vm_usb_resources'
 ];
 
-const NETWORK_UPSERT_ORDER = [
-  'vm_network_mode',
-  'vm_network_name',
-  'vm_fixed_ip',
-  'vm_gateway',
-  'vm_dns_servers'
-];
-
-const NETWORK_FORM_FIELDS = ['fixed_ip'];
-
 class VMProfilePanel extends PureComponent {
   state = {
     editing: false,
-    editingNetwork: false,
     saving: false,
-    savingNetwork: false,
     loadingEditor: false,
-    loadingNetworkEditor: false,
     vmCapabilities: EMPTY_CAPABILITIES,
     currentAttributes: {},
-    currentNetworkAttributes: {},
     runtimeDraft: null
   };
 
@@ -103,8 +69,7 @@ class VMProfilePanel extends PureComponent {
     if (
       prevProps.vmProfile !== this.props.vmProfile &&
       this.state.runtimeDraft &&
-      !this.state.editing &&
-      !this.state.editingNetwork
+      !this.state.editing
     ) {
       this.setState({
         runtimeDraft: null
@@ -164,15 +129,6 @@ class VMProfilePanel extends PureComponent {
   setFormValues = (runtime = this.getRuntime()) => {
     const { form } = this.props;
     form.setFieldsValue(this.getInitialFormValues(runtime));
-  };
-
-  getInitialNetworkFormValues = (runtime = this.getRuntime()) => ({
-    fixed_ip: runtime.fixed_ip || this.getCurrentPodIP() || undefined
-  });
-
-  setNetworkFormValues = (runtime = this.getRuntime()) => {
-    const { form } = this.props;
-    form.setFieldsValue(this.getInitialNetworkFormValues(runtime));
   };
 
   getManagedAttributeMap = (attributes = []) => {
@@ -237,7 +193,6 @@ class VMProfilePanel extends PureComponent {
       this.setState(
         {
           editing: true,
-          editingNetwork: false,
           loadingEditor: false,
           vmCapabilities,
           currentAttributes
@@ -262,51 +217,6 @@ class VMProfilePanel extends PureComponent {
       },
       () => {
         this.setFormValues();
-      }
-    );
-  };
-
-  handleEditNetwork = async () => {
-    const { serviceAlias } = this.props;
-    if (!serviceAlias || this.state.loadingNetworkEditor || this.state.savingNetwork) {
-      return;
-    }
-    this.setState({
-      loadingNetworkEditor: true
-    });
-    try {
-      const attributeRes = await getKubernetes({
-        team_name: globalUtil.getCurrTeamName(),
-        service_alias: serviceAlias
-      });
-      const currentNetworkAttributes = this.getManagedAttributeMap((attributeRes && attributeRes.list) || []);
-      this.setState(
-        {
-          editing: false,
-          editingNetwork: true,
-          loadingNetworkEditor: false,
-          currentNetworkAttributes
-        },
-        () => {
-          this.setNetworkFormValues();
-        }
-      );
-    } catch (err) {
-      this.setState({
-        loadingNetworkEditor: false
-      });
-      handleAPIError(err);
-    }
-  };
-
-  handleCancelNetwork = () => {
-    this.setState(
-      {
-        editingNetwork: false,
-        loadingNetworkEditor: false
-      },
-      () => {
-        this.setNetworkFormValues();
       }
     );
   };
@@ -372,32 +282,6 @@ class VMProfilePanel extends PureComponent {
       };
     }
     return attrs;
-  };
-
-  buildDesiredNetworkAttributes = (fieldsValue) => {
-    const fixedIP = String(fieldsValue.fixed_ip || '').trim();
-    return {
-      vm_network_mode: {
-        ...MANAGED_VM_ATTRIBUTE_CONFIG.vm_network_mode,
-        attribute_value: 'fixed'
-      },
-      vm_network_name: {
-        ...MANAGED_VM_ATTRIBUTE_CONFIG.vm_network_name,
-        attribute_value: ''
-      },
-      vm_fixed_ip: {
-        ...MANAGED_VM_ATTRIBUTE_CONFIG.vm_fixed_ip,
-        attribute_value: fixedIP
-      },
-      vm_gateway: {
-        ...MANAGED_VM_ATTRIBUTE_CONFIG.vm_gateway,
-        attribute_value: ''
-      },
-      vm_dns_servers: {
-        ...MANAGED_VM_ATTRIBUTE_CONFIG.vm_dns_servers,
-        attribute_value: ''
-      }
-    };
   };
 
   buildOperations = (currentAttributes, desiredAttributes, upsertOrder, deleteOrder = []) => {
@@ -537,73 +421,6 @@ class VMProfilePanel extends PureComponent {
     });
   };
 
-  handleSaveNetwork = () => {
-    const { form } = this.props;
-    const { currentNetworkAttributes } = this.state;
-    form.validateFields(NETWORK_FORM_FIELDS, async (err, fieldsValue) => {
-      if (err) {
-        return;
-      }
-      this.setState({
-        savingNetwork: true
-      });
-      try {
-        const desiredAttributes = this.buildDesiredNetworkAttributes(fieldsValue);
-        const operations = this.buildOperations(
-          currentNetworkAttributes,
-          desiredAttributes,
-          NETWORK_UPSERT_ORDER
-        );
-        for (let i = 0; i < operations.length; i += 1) {
-          // eslint-disable-next-line no-await-in-loop
-          await this.executeOperation(operations[i]);
-        }
-        const runtimeDraft = {
-          ...this.getRuntime(),
-          network_mode: 'fixed',
-          network_name: '',
-          fixed_ip: String(fieldsValue.fixed_ip || '').trim(),
-          gateway: '',
-          dns_servers: ''
-        };
-        this.setState(
-          {
-            editingNetwork: false,
-            savingNetwork: false,
-            currentNetworkAttributes: desiredAttributes,
-            runtimeDraft
-          },
-          () => {
-            notification.success({
-              message: formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveSuccess' })
-            });
-          }
-        );
-        try {
-          await this.refreshProfile();
-        } catch (refreshError) {
-          handleAPIError(refreshError);
-        }
-      } catch (saveError) {
-        try {
-          await this.refreshProfile();
-        } catch (refreshError) {
-          handleAPIError(refreshError);
-        }
-        this.setState({
-          editingNetwork: false,
-          savingNetwork: false,
-          currentNetworkAttributes: {},
-          runtimeDraft: null
-        });
-        notification.error({
-          message: formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveFailed' })
-        });
-        handleAPIError(saveError);
-      }
-    });
-  };
-
   renderEditor = (runtime) => {
     const { form } = this.props;
     const { getFieldDecorator } = form;
@@ -719,59 +536,17 @@ class VMProfilePanel extends PureComponent {
     );
   };
 
-  renderNetworkEditor = () => {
-    const { form } = this.props;
-    const { getFieldDecorator } = form;
-    const currentPodIP = this.getCurrentPodIP();
-
-    return (
-      <Form layout="vertical">
-        <Form.Item label={formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' })}>
-          <div>{currentPodIP || '-'}</div>
-        </Form.Item>
-        <Form.Item label={formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' })}>
-          {getFieldDecorator('fixed_ip', {
-            initialValue: this.getInitialNetworkFormValues().fixed_ip,
-            rules: [
-              {
-                required: true,
-                message: formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })
-              }
-            ]
-          })(
-            <Input
-              placeholder={formatMessage({ id: 'Vm.createVm.fixedIPPlaceholder' })}
-            />
-          )}
-        </Form.Item>
-        <Alert
-          type="info"
-          showIcon
-          style={{ marginTop: 12 }}
-          message={formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIPTip' })}
-        />
-      </Form>
-    );
-  };
-
   render() {
     const { vmProfile = {} } = this.props;
     const {
       editing,
-      editingNetwork,
       saving,
-      savingNetwork,
-      loadingEditor,
-      loadingNetworkEditor
+      loadingEditor
     } = this.state;
     const asset = vmProfile.asset || {};
     const runtime = this.getRuntime();
     const connections = vmProfile.connections || {};
     const currentPodIP = this.getCurrentPodIP();
-    const canEditNetwork = !!(currentPodIP || runtime.fixed_ip);
-    const networkActionText = runtime.fixed_ip
-      ? 'componentOverview.body.tab.overview.vmUpdateFixedIP'
-      : 'componentOverview.body.tab.overview.vmFixCurrentIP';
     const overviewColStyle = { display: 'flex' };
     const overviewCardStyle = {
       width: '100%',
@@ -831,70 +606,17 @@ class VMProfilePanel extends PureComponent {
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmNetworkInfo" />}
               bordered={false}
-              loading={loadingNetworkEditor}
               style={overviewCardStyle}
               bodyStyle={overviewCardBodyStyle}
-              extra={
-                editingNetwork ? (
-                  <div>
-                    <Button
-                      size="small"
-                      style={{ marginRight: 8 }}
-                      onClick={this.handleCancelNetwork}
-                      disabled={savingNetwork}
-                    >
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmCancelEdit' })}
-                    </Button>
-                    <Button
-                      size="small"
-                      type="primary"
-                      loading={savingNetwork}
-                      onClick={this.handleSaveNetwork}
-                    >
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmSaveConfig' })}
-                    </Button>
-                  </div>
-                ) : canEditNetwork ? (
-                  <Button size="small" onClick={this.handleEditNetwork} loading={loadingNetworkEditor}>
-                    {formatMessage({ id: networkActionText })}
-                  </Button>
-                ) : null
-              }
             >
               <div style={overviewCardContentStyle}>
-                {editingNetwork ? (
-                  this.renderNetworkEditor(runtime)
-                ) : (
-                  <React.Fragment>
-                    {this.renderLine(
-                      formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkMode' }),
-                      runtime.network_mode || '-'
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkName' }),
-                      runtime.network_name
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
-                      currentPodIP
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
-                      runtime.fixed_ip
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'Vm.createVm.gateway' }),
-                      runtime.gateway
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'Vm.createVm.dnsServers' }),
-                      runtime.dns_servers
-                    )}
-                    {this.renderLine(
-                      formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
-                      runtime.boot_mode
-                    )}
-                  </React.Fragment>
+                {this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
+                  currentPodIP
+                )}
+                {this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
+                  runtime.boot_mode
                 )}
               </div>
             </Card>

@@ -18,21 +18,13 @@ assert.deepStrictEqual(
       dns_servers: '114.114.114.114,8.8.8.8'
     },
     incomingValues: {
-      network_mode: 'random',
-      network_name: undefined,
-      fixed_ip: undefined,
-      gateway: undefined,
-      dns_servers: undefined
+      boot_mode: 'uefi'
     }
   }),
   {
-    network_mode: 'fixed',
-    network_name: 'rbd-plugins/bridge-test',
-    fixed_ip: '172.16.20.230/24',
-    gateway: '172.16.20.1',
-    dns_servers: '114.114.114.114,8.8.8.8'
+    boot_mode: 'uefi'
   },
-  'should preserve user-edited fixed IP settings when selecting a VM asset'
+  'should ignore removed VM network fields when selecting a VM asset'
 );
 
 const untouchedForm = {
@@ -48,40 +40,22 @@ assert.deepStrictEqual(
       network_mode: 'fixed'
     },
     incomingValues: {
-      os_family: 'windows',
-      network_mode: 'random',
-      network_name: undefined,
-      fixed_ip: undefined
+      boot_mode: 'uefi'
     }
   }),
   {
-    os_family: 'windows',
-    network_mode: 'random',
-    network_name: undefined,
-    fixed_ip: undefined
+    boot_mode: 'uefi'
   },
-  'should use asset defaults when the user has not touched runtime network fields'
+  'should pass through remaining asset runtime fields'
 );
 
 assert.deepStrictEqual(
   normalizeAssetRuntimeSnapshot({
     runtimeSnapshot: {
-      os_family: 'windows',
-      network_mode: 'fixed',
-      network_name: 'rbd-plugins/bridge-test',
-      fixed_ip: '172.16.20.230/24',
-      gateway: '172.16.20.1',
-      dns_servers: '114.114.114.114,8.8.8.8',
       boot_mode: 'uefi'
     }
   }),
   {
-    os_family: 'windows',
-    network_mode: 'fixed',
-    network_name: 'rbd-plugins/bridge-test',
-    fixed_ip: '172.16.20.230/24',
-    gateway: '172.16.20.1',
-    dns_servers: '114.114.114.114,8.8.8.8',
     boot_mode: 'uefi'
   },
   'should preserve runtime snapshot values as-is'

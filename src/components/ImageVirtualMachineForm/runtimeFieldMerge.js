@@ -1,11 +1,4 @@
-const PROTECTED_RUNTIME_FIELDS = [
-  'os_family',
-  'network_mode',
-  'network_name',
-  'fixed_ip',
-  'gateway',
-  'dns_servers',
-];
+const PROTECTED_RUNTIME_FIELDS = [];
 
 const normalizeAssetRuntimeSnapshot = ({ asset = {}, runtimeSnapshot = {} }) => {
   return { ...(runtimeSnapshot || {}) };
