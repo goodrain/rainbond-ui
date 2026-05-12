@@ -21,7 +21,6 @@ import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
-import VMAssetCatalogModal from '../VMAssetCatalogModal';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
@@ -387,43 +386,16 @@ export default class Index extends PureComponent {
     });
   };
 
-  openAssetCatalog = () => {
-    const { onOpenAssetCatalog } = this.props;
-    if (onOpenAssetCatalog) {
-      onOpenAssetCatalog();
-    }
-  };
-
-  closeAssetCatalog = () => {
-    const { onCloseAssetCatalog } = this.props;
-    if (onCloseAssetCatalog) {
-      onCloseAssetCatalog();
-    }
-  };
-
   findAssetByName = name => {
     const { virtualMachineImage = [] } = this.props;
     return (virtualMachineImage || []).find(item => item.name === name);
-  };
-
-  getAssetSourceLabel = sourceType => {
-    const sourceMap = {
-      public: 'Vm.createVm.public',
-      url: 'Vm.createVm.add',
-      upload: 'Vm.createVm.upload',
-      existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone'
-    };
-    return formatMessage({
-      id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown'
-    });
   };
 
   renderAssetOptionLabel = asset => {
     return `${asset.display_name || asset.name}`;
   };
 
-  handleUseAsset = asset => {
+  applyLocalImageSelection = asset => {
     const { form } = this.props;
     if (!isVMAssetSelectable(asset)) {
       message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
@@ -443,7 +415,6 @@ export default class Index extends PureComponent {
       },
       () => {
         form.setFieldsValue({
-          imagefrom: 'existing',
           image_name: asset.name,
           asset_id: asset.id,
           boot_mode: sanitizedRuntimeSnapshot.boot_mode || undefined,
@@ -453,35 +424,16 @@ export default class Index extends PureComponent {
           usb_enabled: !!sanitizedRuntimeSnapshot.usb_enabled,
           usb_resources: sanitizedRuntimeSnapshot.usb_resources || []
         });
-        this.closeAssetCatalog();
       }
     );
   };
 
-  handleDeleteAsset = asset => {
-    const { dispatch, onRefreshAssets } = this.props;
-    return new Promise((resolve, reject) => {
-      dispatch({
-        type: 'createApp/deleteVMAsset',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          asset_id: asset.id
-        },
-        callback: data => {
-          notification.success({
-            message: formatMessage({ id: 'notification.success.delete' })
-          });
-          if (onRefreshAssets) {
-            onRefreshAssets();
-          }
-          resolve(data);
-        },
-        handleError: err => {
-          handleAPIError(err);
-          reject(err);
-        }
-      });
-    });
+  handleLocalImageChange = value => {
+    const selectedAsset = this.findAssetByName(value);
+    if (!selectedAsset) {
+      return;
+    }
+    this.applyLocalImageSelection(selectedAsset);
   };
 
   validateRuntimeResources = (enabledField, messageId) => (_, value, callback) => {
@@ -762,6 +714,7 @@ export default class Index extends PureComponent {
             <Select
               getPopupContainer={triggerNode => triggerNode.parentNode}
               placeholder={formatMessage({ id: 'Vm.createVm.selectImg' })}
+              onChange={this.handleLocalImageChange}
             >
               {selectableVirtualMachineImages.map(image => (
                 <Option key={image.id || image.name} value={image.name}>
@@ -966,8 +919,7 @@ export default class Index extends PureComponent {
       form,
       showSubmitBtn = true,
       archInfo = [],
-      virtualMachineImage = [],
-      showAssetCatalog = false
+      virtualMachineImage = []
     } = this.props;
     const { getFieldDecorator } = form;
     const {
@@ -984,8 +936,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <div className={styles.vmForm}>
-          <div style={{ display: showAssetCatalog ? 'none' : 'block' }}>
-            <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
+          <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
             {getFieldDecorator('group_id', {
               initialValue: fixedGroupId
             })(<Input type="hidden" />)}
@@ -993,25 +944,7 @@ export default class Index extends PureComponent {
               initialValue: ''
             })(<Input type="hidden" />)}
 
-            <Form.Item
-              label={
-                <div className={styles.fieldLabelRow}>
-                  <span className={styles.fieldLabelText}>
-                    {formatMessage({ id: 'teamAdd.create.form.service_cname' })}
-                  </span>
-                  {virtualMachineImage && virtualMachineImage.length > 0 ? (
-                    <Button
-                      type="link"
-                      size="small"
-                      className={styles.assetCatalogTrigger}
-                      onClick={this.openAssetCatalog}
-                    >
-                      {formatMessage({ id: 'Vm.assetCatalog.manage' })}
-                    </Button>
-                  ) : null}
-                </div>
-              }
-            >
+            <Form.Item label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
                 initialValue: '',
                 rules: [
@@ -1122,17 +1055,7 @@ export default class Index extends PureComponent {
                 {this.renderSubmitButton(fixedGroupId)}
               </Form.Item>
             ) : null}
-            </Form>
-          </div>
-
-          {showAssetCatalog ? (
-            <VMAssetCatalogModal
-              assets={virtualMachineImage || []}
-              onCancel={this.closeAssetCatalog}
-              onUseAsset={this.handleUseAsset}
-              onDelete={this.handleDeleteAsset}
-            />
-          ) : null}
+          </Form>
         </div>
       </Fragment>
     );

@@ -149,7 +149,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [currentDatabaseType, setCurrentDatabaseType] = useState(null);
   const [showDatabaseForm, setShowDatabaseForm] = useState(false);
   const [virtualMachineImages, setVirtualMachineImages] = useState([]);
-  const [vmAssetCatalogVisible, setVmAssetCatalogVisible] = useState(false);
 
   // 插件相关状态
   const [availablePlugins, setAvailablePlugins] = useState([]);
@@ -1812,7 +1811,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setLocalMarketPage(1);
       setLocalMarketActiveTab('all');
       setCurrentFormType('');
-      setVmAssetCatalogVisible(false);
       setHasInitialized(false); // 重置初始化标志
       resetLlmSelectorState();
     }
@@ -1985,10 +1983,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const handleBack = () => {
     if (currentView === 'form') {
-      if (currentFormType === 'vm' && vmAssetCatalogVisible) {
-        setVmAssetCatalogVisible(false);
-        return;
-      }
       setCurrentFormType('');
       popViewHistory();
     } else if (currentView === 'plugin') {
@@ -2488,7 +2482,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       case 'thirdList':
         return selectedOauthService ? formatMessage({ id: 'componentOverview.body.CreateComponentModal.repo' }, { name: selectedOauthService.name }) : formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_repo' });
       case 'form':
-        if (currentFormType === 'vm' && vmAssetCatalogVisible) return formatMessage({ id: 'Vm.assetCatalog.title' });
         if (currentFormType === 'docker') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' });
         if (currentFormType === 'docker-compose') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' });
         if (currentFormType === 'code-custom') return formatMessage({ id: 'componentOverview.body.CreateComponentModal.source_code' });
@@ -2544,9 +2537,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const showSaaSPrice = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-bill');
     // 表单视图需要显示提交按钮
     if (currentView === 'form') {
-      if (currentFormType === 'vm' && vmAssetCatalogVisible) {
-        return null;
-      }
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="primary" onClick={handleFooterSubmit} loading={false}>
@@ -2983,10 +2973,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 virtualMachineImage={virtualMachineImages}
-                onRefreshAssets={fetchVirtualMachineImages}
-                showAssetCatalog={vmAssetCatalogVisible}
-                onOpenAssetCatalog={() => setVmAssetCatalogVisible(true)}
-                onCloseAssetCatalog={() => setVmAssetCatalogVisible(false)}
                 showSubmitBtn={false}
               />
             )}

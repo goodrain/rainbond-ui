@@ -301,25 +301,13 @@ export async function createAppByVirtualMachine(body = {}) {
 }
 
 /*
-   虚拟机获取已有镜像
+   虚拟机获取本地镜像
 */
 export async function getAppByVirtualMachineImage(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets`,
     {
       method: 'get',
-    }
-  );
-}
-
-/*
-   删除虚拟机镜像资产
-*/
-export async function deleteVMAsset(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets/${body.asset_id}`,
-    {
-      method: 'delete',
     }
   );
 }
