@@ -24,5 +24,3 @@ assert.strictEqual(
   '/console/teams/team-a/regions/region-a/resource-center/pods/pod-a/logs',
   'resource center pod logs should encode team and region in the console route'
 );
-
-console.log('resource center log stream url tests passed');

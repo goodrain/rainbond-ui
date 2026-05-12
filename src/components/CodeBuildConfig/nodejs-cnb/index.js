@@ -5,8 +5,13 @@ import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '@/utils/global';
 import buildEnvHelpers from '../buildEnvHelpers';
+import mirrorConfigHelpers from './mirrorConfig';
 
-const { isBuildEnvTruthy } = buildEnvHelpers;
+const { hasNodePackageManagerPrefix, isBuildEnvTruthy } = buildEnvHelpers;
+const {
+  DEFAULT_MIRROR_CONFIGS,
+  getConfigForPackageManager
+} = mirrorConfigHelpers;
 
 // 框架图标（内联 SVG）
 export const FRAMEWORK_ICONS = {
@@ -49,57 +54,6 @@ const getFrameworkLabel = (framework) => {
     return formatMessage({id: 'componentOverview.body.NodeJSCNB.other_server'});
   }
   return label;
-};
-
-// Mirror 配置文件类型 - 根据包管理器映射
-// 注意：pnpm 使用 .npmrc（不是 .pnpmrc），与 npm 相同
-const MIRROR_CONFIG_MAP = {
-  npm: { value: '.npmrc', label: '.npmrc', fieldName: 'CNB_MIRROR_NPMRC' },
-  yarn: { value: '.yarnrc', label: '.yarnrc', fieldName: 'CNB_MIRROR_YARNRC' },
-  pnpm: { value: '.npmrc', label: '.npmrc', fieldName: 'CNB_MIRROR_NPMRC' },
-};
-
-// 获取包管理器对应的配置文件
-const getConfigForPackageManager = (pmName) => {
-  // 默认使用 npm
-  const pm = pmName?.toLowerCase() || 'npm';
-  return MIRROR_CONFIG_MAP[pm] || MIRROR_CONFIG_MAP.npm;
-};
-
-// 默认镜像配置模板
-const DEFAULT_MIRROR_CONFIGS = {
-  '.npmrc': `registry=https://registry.npmmirror.com
-disturl=https://npmmirror.com/dist
-sharp_binary_host=https://npmmirror.com/mirrors/sharp
-sharp_libvips_binary_host=https://npmmirror.com/mirrors/sharp-libvips
-profiler_binary_host_mirror=https://npmmirror.com/mirrors/node-inspector/
-fse_binary_host_mirror=https://npmmirror.com/mirrors/fsevents
-node_sqlite3_binary_host_mirror=https://npmmirror.com/mirrors
-sqlite3_binary_host_mirror=https://npmmirror.com/mirrors
-sqlite3_binary_site=https://npmmirror.com/mirrors/sqlite3
-sass_binary_site=https://npmmirror.com/mirrors/node-sass
-electron_mirror=https://npmmirror.com/mirrors/electron/
-puppeteer_download_host=https://npmmirror.com/mirrors
-chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
-operadriver_cdnurl=https://npmmirror.com/mirrors/operadriver
-phantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs
-python_mirror=https://npmmirror.com/mirrors/python`,
-  '.yarnrc': `registry "https://registry.npmmirror.com"
-disturl "https://npmmirror.com/dist"
-sharp_binary_host "https://npmmirror.com/mirrors/sharp"
-sharp_libvips_binary_host "https://npmmirror.com/mirrors/sharp-libvips"
-profiler_binary_host_mirror "https://npmmirror.com/mirrors/node-inspector/"
-fse_binary_host_mirror "https://npmmirror.com/mirrors/fsevents"
-node_sqlite3_binary_host_mirror "https://npmmirror.com/mirrors"
-sqlite3_binary_host_mirror "https://npmmirror.com/mirrors"
-sqlite3_binary_site "https://npmmirror.com/mirrors/sqlite3"
-sass_binary_site "https://npmmirror.com/mirrors/node-sass"
-electron_mirror "https://npmmirror.com/mirrors/electron/"
-puppeteer_download_host "https://npmmirror.com/mirrors"
-chromedriver_cdnurl "https://npmmirror.com/mirrors/chromedriver"
-operadriver_cdnurl "https://npmmirror.com/mirrors/operadriver"
-phantomjs_cdnurl "https://npmmirror.com/mirrors/phantomjs"
-python_mirror "https://npmmirror.com/mirrors/python"`,
 };
 
 // 渲染框架选项（带图标）
@@ -172,6 +126,8 @@ class NodeJSCNBConfig extends PureComponent {
       || envs?.BUILD_PACKAGE_TOOL
       || 'npm';
     const mirrorConfig = getConfigForPackageManager(detectedPackageManager);
+    const npmMirrorContent = envs?.CNB_MIRROR_NPMRC || DEFAULT_MIRROR_CONFIGS['.npmrc'];
+    const yarnMirrorContent = envs?.CNB_MIRROR_YARNRC || DEFAULT_MIRROR_CONFIGS['.yarnrc'];
 
     this.state = {
       selectedFramework: detectedFramework,
@@ -190,8 +146,8 @@ class NodeJSCNBConfig extends PureComponent {
       detectedPackageManager,
       mirrorConfig,
       // 从 envs 中恢复已保存的 Mirror 配置内容
-      'mirrorContent_.npmrc': envs?.CNB_MIRROR_NPMRC || '',
-      'mirrorContent_.yarnrc': envs?.CNB_MIRROR_YARNRC || '',
+      'mirrorContent_.npmrc': npmMirrorContent,
+      'mirrorContent_.yarnrc': yarnMirrorContent,
       // API 数据（componentDidMount 加载）
       nodeVersions: [],
       frameworkList: [],
@@ -272,6 +228,14 @@ class NodeJSCNBConfig extends PureComponent {
   // Mirror 配置类型切换
   onMirrorTypeChange = (value) => {
     this.setState({ mirrorConfigType: value });
+  };
+
+  validateNodeScriptName = (rule, value, callback) => {
+    if (hasNodePackageManagerPrefix(value)) {
+      callback(formatMessage({id: 'componentOverview.body.NodeJSCNB.script_name_error'}));
+      return;
+    }
+    callback();
   };
 
   // 打开编辑弹窗
@@ -607,7 +571,8 @@ class NodeJSCNBConfig extends PureComponent {
             }
           >
             {getFieldDecorator('CNB_BUILD_SCRIPT', {
-              initialValue: buildScript
+              initialValue: buildScript,
+              rules: [{ validator: this.validateNodeScriptName }]
             })(<Input placeholder="build" style={{ width: 300 }} />)}
           </Form.Item>
         )}
@@ -626,7 +591,8 @@ class NodeJSCNBConfig extends PureComponent {
             }
           >
             {getFieldDecorator('CNB_START_SCRIPT', {
-              initialValue: startCommand
+              initialValue: startCommand,
+              rules: [{ validator: this.validateNodeScriptName }]
             })(<Input placeholder={formatMessage({id: 'componentOverview.body.NodeJSCNB.start_cmd_placeholder'})} style={{ width: 300 }} />)}
           </Form.Item>
         )}

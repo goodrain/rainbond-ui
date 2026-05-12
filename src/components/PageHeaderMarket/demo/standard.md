@@ -74,8 +74,8 @@ const tabList = [{
   tab: '规则',
 }];
 
-function onTabChange(key) {
-  console.log(key);
+function onTabChange() {
+  return null;
 }
 
 ReactDOM.render(

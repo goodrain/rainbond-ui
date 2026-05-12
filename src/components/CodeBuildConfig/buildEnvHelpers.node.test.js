@@ -1,9 +1,40 @@
 const assert = require('assert');
 const {
+  hasNodePackageManagerPrefix,
   isBuildEnvTruthy,
   mergeCreateRuntimeInfo,
   mergeRuntimeBuildEnvs
 } = require('./buildEnvHelpers');
+
+assert.strictEqual(
+  hasNodePackageManagerPrefix('npm run build'),
+  true,
+  'should reject npm run build for Node.js CNB script fields'
+);
+
+assert.strictEqual(
+  hasNodePackageManagerPrefix('yarn build'),
+  true,
+  'should reject yarn build for Node.js CNB script fields'
+);
+
+assert.strictEqual(
+  hasNodePackageManagerPrefix('pnpm run build:prod'),
+  true,
+  'should reject pnpm run build:prod for Node.js CNB script fields'
+);
+
+assert.strictEqual(
+  hasNodePackageManagerPrefix('build:prod'),
+  false,
+  'should allow package.json script names'
+);
+
+assert.strictEqual(
+  hasNodePackageManagerPrefix('yarn-build'),
+  false,
+  'should only reject npm, pnpm, or yarn as the first command token'
+);
 
 assert.strictEqual(
   isBuildEnvTruthy('True'),
@@ -147,5 +178,3 @@ assert.deepStrictEqual(
   },
   'should drop stale node start commands when the framework switches to a static target'
 );
-
-console.log('build env helper tests passed');

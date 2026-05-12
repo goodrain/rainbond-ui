@@ -25,6 +25,10 @@ const isStaticNodeFramework = framework =>
   typeof framework === 'string' &&
   (framework === 'other-static' || framework.endsWith('-static'));
 
+const hasNodePackageManagerPrefix = value =>
+  typeof value === 'string' &&
+  /^(npm|pnpm|yarn)(\s|$)/i.test(value.trim());
+
 const mergeCreateRuntimeInfo = (runtimeInfo = {}, sourceBuildConfig = null) => {
   const mergedRuntimeInfo = { ...(runtimeInfo || {}) };
   const buildEnvDict = sourceBuildConfig?.build_env_dict;
@@ -85,6 +89,7 @@ const mergeRuntimeBuildEnvs = (existingEnvs = {}, fieldsValue = {}) => {
 };
 
 module.exports = {
+  hasNodePackageManagerPrefix,
   isBuildEnvTruthy,
   mergeCreateRuntimeInfo,
   mergeRuntimeBuildEnvs

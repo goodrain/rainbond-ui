@@ -256,7 +256,24 @@ class ResourceCenter extends PureComponent {
       workloadKind: query.workloadKind || (searchParams && searchParams.get('workloadKind')) || '',
       openHelmInstall: query.openHelmInstall || (searchParams && searchParams.get('openHelmInstall')) || '',
       openCreateResource: query.openCreateResource || (searchParams && searchParams.get('openCreateResource')) || '',
+      helmRepoName: query.helmRepoName || (searchParams && searchParams.get('helmRepoName')) || '',
+      helmRepoUrl: query.helmRepoUrl || (searchParams && searchParams.get('helmRepoUrl')) || '',
+      helmChartName: query.helmChartName || (searchParams && searchParams.get('helmChartName')) || '',
+      helmVersion: query.helmVersion || (searchParams && searchParams.get('helmVersion')) || '',
+      helmReleaseName: query.helmReleaseName || (searchParams && searchParams.get('helmReleaseName')) || '',
     };
+  }
+
+  getHelmInstallPresetFromQuery(locationArg = this.props.location) {
+    const query = this.getLocationQuery(locationArg);
+    const preset = {
+      repoName: query.helmRepoName || '',
+      repoUrl: query.helmRepoUrl || '',
+      chartName: query.helmChartName || '',
+      version: query.helmVersion || '',
+      releaseName: query.helmReleaseName || '',
+    };
+    return Object.keys(preset).some(key => preset[key]) ? preset : null;
   }
 
   shouldOpenHelmInstall = (value) => value === true || value === 'true' || value === '1';
@@ -294,6 +311,11 @@ class ResourceCenter extends PureComponent {
     }
 
     delete nextQuery.openHelmInstall;
+    delete nextQuery.helmRepoName;
+    delete nextQuery.helmRepoUrl;
+    delete nextQuery.helmChartName;
+    delete nextQuery.helmVersion;
+    delete nextQuery.helmReleaseName;
     nextQuery.tab = tab;
 
     dispatch(routerRedux.replace({
@@ -303,15 +325,16 @@ class ResourceCenter extends PureComponent {
   };
 
   openHelmInstallFromQuery = () => {
+    const preset = this.getHelmInstallPresetFromQuery();
     if (this.state.activeTab !== 'helm') {
       this.setState({ activeTab: 'helm' }, () => {
         this.fetchTabData('helm');
-        this.openHelmInstallModal();
+        this.openHelmInstallModal(preset);
         this.consumeHelmInstallQuery('helm');
       });
       return;
     }
-    this.openHelmInstallModal();
+    this.openHelmInstallModal(preset);
     this.consumeHelmInstallQuery('helm');
   };
 
@@ -1038,10 +1061,19 @@ class ResourceCenter extends PureComponent {
     this.setState({ helmStep: HELM_WIZARD_STEPS[currentIndex - 1] });
   };
 
-  openHelmInstallModal = () => {
+  openHelmInstallModal = (preset = null) => {
     this.invalidateHelmPreviewRequests();
-    this.setState(this.buildHelmModalState('install'));
-    this.fetchHelmRepos();
+    const nextState = this.buildHelmModalState('install');
+    if (preset && preset.releaseName) {
+      nextState.helmForm = {
+        ...nextState.helmForm,
+        release_name: preset.releaseName,
+      };
+    }
+    this.setState(nextState);
+    this.fetchHelmRepos((repos, charts) => {
+      this.applyHelmInstallPreset(preset, charts);
+    }, preset);
     this.initHelmUploadSession();
   };
 
@@ -1143,7 +1175,37 @@ class ResourceCenter extends PureComponent {
     }
   };
 
-  fetchHelmRepos = (afterLoad) => {
+  resolveHelmRepoName = (repos = [], preset = null) => {
+    if (!repos.length) {
+      return '';
+    }
+    const presetRepoName = ((preset && preset.repoName) || '').trim();
+    const presetRepoUrl = ((preset && preset.repoUrl) || '').trim();
+    const matchedRepo = repos.find(repo => {
+      const repoName = ((repo && (repo.name || repo.repo_name)) || repo || '').trim();
+      const repoUrl = ((repo && (repo.url || repo.repo_url)) || '').trim();
+      return (presetRepoName && repoName === presetRepoName)
+        || (presetRepoUrl && repoUrl === presetRepoUrl);
+    });
+    const targetRepo = matchedRepo || repos[0];
+    return (targetRepo && (targetRepo.name || targetRepo.repo_name)) || targetRepo || '';
+  };
+
+  applyHelmInstallPreset = (preset, charts = []) => {
+    if (!preset || !preset.chartName) {
+      return;
+    }
+    const targetChart = charts.find(chart => (chart.name || '') === preset.chartName);
+    if (!targetChart) {
+      return;
+    }
+    this.handleHelmChartSelect(targetChart, {
+      version: preset.version,
+      releaseName: preset.releaseName,
+    });
+  };
+
+  fetchHelmRepos = (afterLoad, preset = null) => {
     const { dispatch } = this.props;
     const { teamName } = this.getParams();
     this.setState({ helmRepoLoading: true });
@@ -1155,17 +1217,23 @@ class ResourceCenter extends PureComponent {
         const repos = Array.isArray(list) ? list : [];
         this.setState({ helmRepos: repos, helmRepoLoading: false }, () => {
           if (repos.length > 0) {
-            this.handleHelmRepoSelect(repos[0].name || repos[0].repo_name || repos[0]);
+            const repoName = this.resolveHelmRepoName(repos, preset);
+            this.handleHelmRepoSelect(repoName, charts => {
+              if (afterLoad) {
+                afterLoad(repos, charts, repoName);
+              }
+            });
+            return;
           }
           if (afterLoad) {
-            afterLoad(repos);
+            afterLoad(repos, [], '');
           }
         });
       },
       handleError: () => {
         this.setState({ helmRepoLoading: false });
         if (afterLoad) {
-          afterLoad([]);
+          afterLoad([], [], '');
         }
       },
     });
@@ -1287,7 +1355,7 @@ class ResourceCenter extends PureComponent {
     });
   };
 
-  handleHelmRepoSelect = (repoName) => {
+  handleHelmRepoSelect = (repoName, afterLoad) => {
     const { dispatch, currentEnterprise } = this.props;
     const eid = currentEnterprise && currentEnterprise.enterprise_id;
     this.setState({
@@ -1316,9 +1384,19 @@ class ResourceCenter extends PureComponent {
         this.setState({
           helmAllCharts: all,
           helmChartLoading: false,
-        }, () => this.applyHelmChartFilter());
+        }, () => {
+          this.applyHelmChartFilter();
+          if (afterLoad) {
+            afterLoad(all);
+          }
+        });
       },
-      handleError: () => this.setState({ helmChartLoading: false }),
+      handleError: () => {
+        this.setState({ helmChartLoading: false });
+        if (afterLoad) {
+          afterLoad([]);
+        }
+      },
     });
   };
 
@@ -1342,9 +1420,12 @@ class ResourceCenter extends PureComponent {
     this.setState({ helmChartPage: page }, () => this.applyHelmChartFilter());
   };
 
-  handleHelmChartSelect = (chart) => {
+  handleHelmChartSelect = (chart, options = {}) => {
+    const preferredVersion = options.version || '';
+    const preferredReleaseName = options.releaseName || '';
     const versions = chart.versions || [];
-    const version = (versions[0] && versions[0].version) || '';
+    const matchedVersion = versions.find(item => item.version === preferredVersion);
+    const version = (matchedVersion && matchedVersion.version) || (versions[0] && versions[0].version) || preferredVersion || '';
     const { helmModalMode, helmTargetRelease } = this.state;
     this.setState({
       helmSelectedChart: chart,
@@ -1352,7 +1433,7 @@ class ResourceCenter extends PureComponent {
       ...this.buildHelmPreviewResetState(),
       helmForm: {
         version,
-        release_name: helmModalMode === 'upgrade' && helmTargetRelease ? helmTargetRelease.name : '',
+        release_name: helmModalMode === 'upgrade' && helmTargetRelease ? helmTargetRelease.name : preferredReleaseName,
         values: '',
       },
     }, () => {

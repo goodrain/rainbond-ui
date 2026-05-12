@@ -18,6 +18,18 @@ const AppCard = ({ app, onClick, onInstall, type = 'market' }) => {
   const appName = app.name || app.app_name || '';
   const appDesc = app.desc || app.describe || formatMessage({ id: 'explore.no_description' });
   const appLogo = app.logo;
+  const renderScopeTag = () => {
+    if (type !== 'local') {
+      return null;
+    }
+    if (app.scope === 'enterprise') {
+      return <span className={`${styles.scopeTag} ${styles.enterpriseScope}`}>企业</span>;
+    }
+    if (app.scope === 'team') {
+      return <span className={`${styles.scopeTag} ${styles.teamScope}`}>团队</span>;
+    }
+    return null;
+  };
 
   // 获取版本号 - 兼容新旧两种结构
   const getVersion = () => {
@@ -47,7 +59,10 @@ const AppCard = ({ app, onClick, onInstall, type = 'market' }) => {
           )}
         </div>
         <div className={styles.appCardInfo}>
-          <div className={styles.appCardName}>{appName}</div>
+          <div className={styles.appCardTitleRow}>
+            <div className={styles.appCardName}>{appName}</div>
+            {renderScopeTag()}
+          </div>
           <div className={styles.appCardVersion}>{formatMessage({ id: 'explore.version' })} {getVersion()}</div>
         </div>
       </div>

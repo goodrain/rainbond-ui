@@ -97,6 +97,7 @@ export default class AppVersion extends PureComponent {
       storeName: '',
       isAuthCompany: false,
       pendingPublishVersion: '',
+      pendingPublishAppModelId: '',
       showExporterApp: false,
       exporterAppData: null,
       sharedAppExporting: false
@@ -196,22 +197,24 @@ export default class AppVersion extends PureComponent {
     );
   };
 
-  canPublishSnapshotVersion = version => {
+  canPublishSnapshotVersion = (version, appModelId) => {
     const { overview } = this.state;
+    const snapshotAppModelId = appModelId || (overview && overview.template_id);
     return !!(
       overview &&
-      overview.template_id &&
+      snapshotAppModelId &&
       version &&
       version !== '未创建快照' &&
       version !== '未发布'
     );
   };
 
-  buildPublishQuery = version => {
+  buildPublishQuery = (version, appModelId) => {
     const { overview } = this.state;
     const query = [];
-    if (overview && overview.template_id) {
-      query.push(`preferred_app_id=${encodeURIComponent(overview.template_id)}`);
+    const snapshotAppModelId = appModelId || (overview && overview.template_id);
+    if (snapshotAppModelId) {
+      query.push(`preferred_app_id=${encodeURIComponent(snapshotAppModelId)}`);
     }
     if (version) {
       query.push(`preferred_version=${encodeURIComponent(version)}`);
@@ -741,16 +744,18 @@ export default class AppVersion extends PureComponent {
       id: 'personal',
       templateType: 'personal',
       templateName: '应用版本',
+      appModelId: overview.template_id || '',
       currentVersion: overview.current_version || '未创建快照',
       latestVersion: '-',
       componentCount: this.props.apps.length
     };
   };
 
-  createPublishRecord = async (scope = '', target = {}, recordVersion = '') => {
+  createPublishRecord = async (scope = '', target = {}, recordVersion = '', appModelId = '') => {
     const { teamName, appID } = this.props.match.params;
     const { overview } = this.state;
-    if (!this.canPublishSnapshotVersion(recordVersion)) {
+    const snapshotAppModelId = appModelId || (overview && overview.template_id);
+    if (!this.canPublishSnapshotVersion(recordVersion, snapshotAppModelId)) {
       this.setState({ storeLoading: false });
       notification.warning({ message: '请先创建快照后再发布' });
       return;
@@ -761,7 +766,7 @@ export default class AppVersion extends PureComponent {
         group_id: appID,
         scope,
         target,
-        snapshot_app_id: overview.template_id,
+        snapshot_app_id: snapshotAppModelId,
         snapshot_version: recordVersion
       });
       const bean = (res && res.bean) || {};
@@ -773,9 +778,10 @@ export default class AppVersion extends PureComponent {
         selectStoreVisible: false,
         storeLoading: false,
         pendingPublishVersion: '',
+        pendingPublishAppModelId: '',
         isAuthCompany: false
       });
-      this.navigateToPublishStep(recordId, bean.step, this.buildPublishQuery(recordVersion));
+      this.navigateToPublishStep(recordId, bean.step, this.buildPublishQuery(recordVersion, snapshotAppModelId));
     } catch (error) {
       this.setState({ storeLoading: false });
       notification.error({
@@ -858,20 +864,20 @@ export default class AppVersion extends PureComponent {
     );
   };
 
-  openPublishPage = (recordVersion = '') => {
-    this.createPublishRecord('', {}, recordVersion);
+  openPublishPage = (recordVersion = '', appModelId = '') => {
+    this.createPublishRecord('', {}, recordVersion, appModelId);
   };
 
-  handlePublishAction = (target, recordVersion = '') => {
+  handlePublishAction = (target, recordVersion = '', appModelId = '') => {
     if (target === 'market') {
-      this.openCloudPublishPage(recordVersion);
+      this.openCloudPublishPage(recordVersion, appModelId);
       return;
     }
-    this.openPublishPage(recordVersion);
+    this.openPublishPage(recordVersion, appModelId);
   };
 
-  openCloudPublishPage = recordVersion => {
-    if (!this.canPublishSnapshotVersion(recordVersion)) {
+  openCloudPublishPage = (recordVersion = '', appModelId = '') => {
+    if (!this.canPublishSnapshotVersion(recordVersion, appModelId)) {
       notification.warning({ message: '请先创建快照后再发布' });
       return;
     }
@@ -882,7 +888,8 @@ export default class AppVersion extends PureComponent {
     }
     this.setState({
       storeLoading: true,
-      pendingPublishVersion: recordVersion
+      pendingPublishVersion: recordVersion,
+      pendingPublishAppModelId: appModelId
     });
     this.props.dispatch({
       type: 'enterprise/fetchEnterpriseStoreList',
@@ -933,6 +940,7 @@ export default class AppVersion extends PureComponent {
 
   renderPublishAction = ({
     recordVersion = '',
+    appModelId = '',
     disabled = false,
     size = 'default',
     type,
@@ -944,7 +952,7 @@ export default class AppVersion extends PureComponent {
           if (domEvent) {
             domEvent.stopPropagation();
           }
-          this.handlePublishAction(key, recordVersion);
+          this.handlePublishAction(key, recordVersion, appModelId);
         }}
       >
         <Menu.Item key="local">{formatMessage({ id: 'appPublish.btn.local' })}</Menu.Item>
@@ -1055,17 +1063,18 @@ export default class AppVersion extends PureComponent {
     this.setState({
       selectStoreVisible: false,
       storeLoading: false,
-      pendingPublishVersion: ''
+      pendingPublishVersion: '',
+      pendingPublishAppModelId: ''
     });
   };
 
   handleSelectStore = values => {
-    const { pendingPublishVersion } = this.state;
+    const { pendingPublishVersion, pendingPublishAppModelId } = this.state;
     if (!values || !values.store_id) {
       return;
     }
     this.setState({ storeLoading: true });
-    this.createPublishRecord('goodrain', { store_id: values.store_id }, pendingPublishVersion);
+    this.createPublishRecord('goodrain', { store_id: values.store_id }, pendingPublishVersion, pendingPublishAppModelId);
   };
 
   handleAddPersonalTemplate = () => {
@@ -2471,6 +2480,7 @@ export default class AppVersion extends PureComponent {
             {record.templateType === 'personal' && (
               this.renderPublishAction({
                 recordVersion: record.currentVersion,
+                appModelId: record.appModelId,
                 disabled: record.currentVersion === '未发布',
                 size: 'small'
               })
@@ -2700,6 +2710,7 @@ export default class AppVersion extends PureComponent {
                       {publishPermission.isShare && item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
                         this.renderPublishAction({
                           recordVersion: item.actionVersion,
+                          appModelId: item.detail.app_model_id,
                           size: 'small',
                           type: 'primary',
                           ghost: true
@@ -3282,7 +3293,8 @@ export default class AppVersion extends PureComponent {
             onCancel={() => {
               this.setState({
                 isAuthCompany: false,
-                pendingPublishVersion: ''
+                pendingPublishVersion: '',
+                pendingPublishAppModelId: ''
               });
             }}
           />

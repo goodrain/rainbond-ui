@@ -6,8 +6,8 @@ const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 
 assert.match(
   source,
-  /const \{ isBuildEnvTruthy \} = require\('\.\.\/buildEnvHelpers'\);/,
-  'NodeJSCNBConfig should import the shared build env truthy helper'
+  /const \{ hasNodePackageManagerPrefix, isBuildEnvTruthy \} = require\('\.\.\/buildEnvHelpers'\);/,
+  'NodeJSCNBConfig should import shared build env helpers'
 );
 
 assert.match(
@@ -16,4 +16,14 @@ assert.match(
   'NodeJSCNBConfig should normalize BUILD_NO_CACHE with isBuildEnvTruthy'
 );
 
-console.log('nodejs cnb build cache switch test passed');
+assert.match(
+  source,
+  /getFieldDecorator\('CNB_BUILD_SCRIPT',\s*\{\s*initialValue: buildScript,\s*rules: \[\{ validator: this\.validateNodeScriptName \}\]/s,
+  'NodeJSCNBConfig should validate CNB_BUILD_SCRIPT as a script name'
+);
+
+assert.match(
+  source,
+  /getFieldDecorator\('CNB_START_SCRIPT',\s*\{\s*initialValue: startCommand,\s*rules: \[\{ validator: this\.validateNodeScriptName \}\]/s,
+  'NodeJSCNBConfig should validate CNB_START_SCRIPT as a script name'
+);

@@ -906,7 +906,6 @@ export default class Enterprise extends PureComponent {
             </div>
           </div>
         </Spin>
-        {console.log(isNeedAuthz,isAuthorizationLoading)}
         {/* 企业授权信息 */}
         {authorizationCode &&!isAuthorizationLoading && (
           <div className={enterpriseStyles.cardContainer}>

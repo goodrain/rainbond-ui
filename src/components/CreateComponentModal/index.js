@@ -1310,7 +1310,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   useEffect(() => {
     if (visible && currentView === 'form') {
-      fetchLocalImageList();
+      if (currentFormType === 'docker') {
+        fetchLocalImageList();
+      } else {
+        setLocalImageList([]);
+      }
       fetchArchInfo();
       if (currentFormType === 'vm') {
         fetchVirtualMachineImages();
@@ -1372,7 +1376,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               fetchDatabaseTypes();
               break;
             case 'form':
-              fetchLocalImageList();
               fetchArchInfo();
               break;
             default:
@@ -2385,6 +2388,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             listRef={localMarketListRef}
             onInstall={handleLocalAppInstall}
             showResourceInfo={false}
+            showScopeTag
             total={localMarketTotal}
           />
         ) : currentView === 'localMarketInstall' ? (

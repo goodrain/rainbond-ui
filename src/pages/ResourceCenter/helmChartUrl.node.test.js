@@ -59,5 +59,3 @@ assert.strictEqual(
   'Chart 地址中不能包含空格，请删除后再继续',
   'should expose the whitespace validation copy for UI reuse'
 );
-
-console.log('helm chart url validation tests passed');
