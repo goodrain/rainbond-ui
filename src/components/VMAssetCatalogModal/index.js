@@ -19,8 +19,7 @@ class VMAssetCatalogModal extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone',
-      vm_export: 'Vm.export.sourceLabel'
+      clone: 'Vm.createVm.clone'
     };
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
@@ -142,8 +141,8 @@ class VMAssetCatalogModal extends PureComponent {
             </Popconfirm>
           </div>
         </List.Item>
-      );
-    };
+        );
+      };
 
     return (
       <Fragment>

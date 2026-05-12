@@ -118,8 +118,7 @@ class VMProfilePanel extends PureComponent {
       url: 'Vm.createVm.add',
       upload: 'Vm.createVm.upload',
       existing: 'Vm.createVm.have',
-      clone: 'Vm.createVm.clone',
-      vm_export: 'Vm.export.sourceLabel'
+      clone: 'Vm.createVm.clone'
     };
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
@@ -767,7 +766,6 @@ class VMProfilePanel extends PureComponent {
     } = this.state;
     const asset = vmProfile.asset || {};
     const runtime = this.getRuntime();
-    const latestExport = vmProfile.latest_export || {};
     const connections = vmProfile.connections || {};
     const currentPodIP = this.getCurrentPodIP();
     const canEditNetwork = !!(currentPodIP || runtime.fixed_ip);
@@ -970,10 +968,6 @@ class VMProfilePanel extends PureComponent {
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
                   asset.reference_count
-                )}
-                {this.renderLine(
-                  formatMessage({ id: 'Vm.export.latest' }),
-                  latestExport.name ? `${latestExport.display_name || latestExport.name} / ${latestExport.status || '-'}` : '-'
                 )}
                 <div style={overviewCardActionStyle}>
                   {connections.vnc_url ? (

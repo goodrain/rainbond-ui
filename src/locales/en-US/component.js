@@ -128,6 +128,16 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmCurrentPodIPTip': 'The current Pod IP has been filled in automatically. You can adjust it before saving.',
     'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': 'VM configuration saved. Changes will take effect after the next restart',
     'componentOverview.body.tab.overview.vmRuntimeSaveFailed': 'Failed to save VM configuration. Please try again',
+    'componentOverview.body.tab.overview.vmHotUpdateUnsupported': 'This virtual machine does not meet the hot update requirements. Stop it before changing the compute settings.',
+    'componentOverview.body.tab.overview.vmHotUpdateStoppedTip': 'This virtual machine is stopped. The new compute settings will take effect the next time it starts.',
+    'componentOverview.body.tab.overview.vmHotUpdateMissingCpu': 'Please enter a custom CPU value',
+    'componentOverview.body.tab.overview.vmHotUpdateExecuting': 'VM hot update submitted and running',
+    'componentOverview.body.tab.overview.vmHotUpdateEdit': 'Edit compute',
+    'componentOverview.body.tab.overview.vmHotUpdateConfirm': 'Save compute',
+    'componentOverview.body.mnt.vmRuntimeMixedTip': 'Disk order and boot changes take effect on the next VM restart; newly added data disks on a running VM are hot-plugged online.',
+    'componentOverview.body.mnt.vmRuntimeStoppedTip': 'This virtual machine is stopped. New data disks and disk-order changes will take effect the next time it starts.',
+    'componentOverview.body.mnt.vmHotplugSuccess': 'The new data disk has been submitted for online attachment. Verify the disk inside the VM in a moment.',
+    'componentOverview.body.mnt.vmHotplugStoppedTip': 'The new data disk has been saved and will take effect the next time the virtual machine starts.',
 
     // tabs栏>overview>构建版本历史
     'componentOverview.body.tab.overview.buildHistory.buildVersionHistory': 'Build version history',

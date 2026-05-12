@@ -23,40 +23,6 @@ assert.strictEqual(
   'should block local assets whose export is still in progress'
 );
 
-assert.strictEqual(
-  isVMAssetSelectable({
-    id: 3,
-    source_type: 'vm_export',
-    status: 'ready',
-    image_url: 'https://download/rootdisk.qcow2',
-    extra: {
-      disks: [
-        { disk_key: 'rootdisk', disk_role: 'root', download_url: 'https://download/rootdisk.qcow2' },
-        { disk_key: 'data-1', disk_role: 'data', download_url: 'https://download/data-1.qcow2' }
-      ]
-    }
-  }),
-  true,
-  'should allow exported VM assets only after all live export urls are ready'
-);
-
-assert.strictEqual(
-  isVMAssetSelectable({
-    id: 4,
-    source_type: 'vm_export',
-    status: 'ready',
-    image_url: 'https://download/rootdisk.qcow2',
-    extra: {
-      disks: [
-        { disk_key: 'rootdisk', disk_role: 'root', download_url: 'https://download/rootdisk.qcow2' },
-        { disk_key: 'data-1', disk_role: 'data' }
-      ]
-    }
-  }),
-  false,
-  'should block exported VM assets when a live export url is missing'
-);
-
 assert.deepStrictEqual(
   getSelectableVMAssets([
     {

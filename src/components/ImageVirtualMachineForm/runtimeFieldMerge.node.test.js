@@ -65,9 +65,6 @@ assert.deepStrictEqual(
 
 assert.deepStrictEqual(
   normalizeAssetRuntimeSnapshot({
-    asset: {
-      source_type: 'vm_export'
-    },
     runtimeSnapshot: {
       os_family: 'windows',
       network_mode: 'fixed',
@@ -80,32 +77,14 @@ assert.deepStrictEqual(
   }),
   {
     os_family: 'windows',
-    network_mode: 'random',
-    network_name: undefined,
-    fixed_ip: undefined,
-    gateway: undefined,
-    dns_servers: undefined
-  },
-  'should clear fixed network defaults and stale boot mode when using an exported VM asset'
-);
-
-assert.deepStrictEqual(
-  normalizeAssetRuntimeSnapshot({
-    asset: {
-      source_type: 'upload'
-    },
-    runtimeSnapshot: {
-      network_mode: 'fixed',
-      network_name: 'rbd-plugins/bridge-test',
-      fixed_ip: '172.16.20.230/24'
-    }
-  }),
-  {
     network_mode: 'fixed',
     network_name: 'rbd-plugins/bridge-test',
-    fixed_ip: '172.16.20.230/24'
+    fixed_ip: '172.16.20.230/24',
+    gateway: '172.16.20.1',
+    dns_servers: '114.114.114.114,8.8.8.8',
+    boot_mode: 'uefi'
   },
-  'should preserve fixed network defaults for non-exported assets'
+  'should preserve runtime snapshot values as-is'
 );
 
 console.log('vm runtime field merge tests passed');

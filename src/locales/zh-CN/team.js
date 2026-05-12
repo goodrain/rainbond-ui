@@ -839,16 +839,6 @@ const Vm = {
   'Vm.assetCatalog.sourceUri': '来源地址',
   'Vm.assetCatalog.bootMode': '启动模式',
   'Vm.assetCatalog.diskCount': '磁盘数',
-  'Vm.export.action': '导出到镜像组',
-  'Vm.export.modalTitle': '导出当前虚拟机到镜像组',
-  'Vm.export.namePlaceholder': '请输入导出资产名称',
-  'Vm.export.closedOnly': '请先关闭虚拟机，再执行导出',
-  'Vm.export.unavailable': '当前虚拟机状态暂不支持导出',
-  'Vm.export.started': '导出任务已启动，正在导出到镜像组',
-  'Vm.export.success': '虚拟机导出完成，已写入镜像组',
-  'Vm.export.failed': '虚拟机导出失败',
-  'Vm.export.latest': '最近导出',
-  'Vm.export.sourceLabel': 'VM 导出',
 }
 
 const gatewayplugin = {

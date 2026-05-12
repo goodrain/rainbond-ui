@@ -17,6 +17,13 @@ import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import { getVolumeTypeShowName } from '../../utils/utils';
 
+const {
+  getVMStorageAlertKey,
+  getVolumeSubmitNoticeKey,
+  isVMStoppedStatus,
+  shouldShowRestartTipsAfterVolumeSubmit
+} = require('./mntNoticeHelpers');
+
 @connect(
   ({ appControl }) => ({
     volumes: appControl.volumes,
@@ -177,6 +184,16 @@ export default class Index extends PureComponent {
     this.fetchBaseInfo();
     const { editor } = this.state;
     const { dispatch, appAlias, onshowRestartTips } = this.props;
+    const shouldShowRestartTips = shouldShowRestartTipsAfterVolumeSubmit({
+      method: this.props.method,
+      status: this.props.status,
+      editing: !!editor
+    });
+    const submitNoticeKey = getVolumeSubmitNoticeKey({
+      method: this.props.method,
+      status: this.props.status,
+      editing: !!editor
+    });
 
     const handleSuccess = () => {
       if (this.props.method === 'vm') {
@@ -185,7 +202,13 @@ export default class Index extends PureComponent {
         this.fetchVolumes();
       }
       this.handleCancelAddVar();
-      onshowRestartTips(true);
+      onshowRestartTips(shouldShowRestartTips);
+      if (submitNoticeKey !== 'notification.success.succeeded') {
+        notification.success({
+          message: formatMessage({ id: submitNoticeKey })
+        });
+        return;
+      }
       this.remindInfo();
     };
 
@@ -219,6 +242,12 @@ export default class Index extends PureComponent {
 
   remindInfo = () => {
     const { appBaseInfo } = this.props;
+    if (this.props.method === 'vm' && this.isVMStopped()) {
+      notification.info({
+        message: formatMessage({ id: 'componentOverview.body.mnt.vmHotplugStoppedTip' })
+      });
+      return;
+    }
     if (appBaseInfo?.extend_method && globalUtil.isStateComponent(appBaseInfo.extend_method)) {
       notification.warning({
         message: (
@@ -315,6 +344,10 @@ export default class Index extends PureComponent {
     if (!status?.status) return false;
     const disabledStatuses = ['undeploy', 'closed', 'abnormal', 'stopping', 'starting', 'deploying', 'upgrade'];
     return !disabledStatuses.includes(status.status);
+  };
+
+  isVMStopped = () => {
+    return isVMStoppedStatus(this.props.status);
   };
 
   getDisabledTooltip = () => {
@@ -756,6 +789,8 @@ export default class Index extends PureComponent {
       hideOnSinglePage: mntTotal <= 5
     };
 
+    const vmDiskAlertKey = getVMStorageAlertKey(this.props.status);
+
     return (
       <Fragment>
         <Row>
@@ -812,7 +847,7 @@ export default class Index extends PureComponent {
           >
             <Alert
               showIcon
-              message={formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveTip' })}
+              message={formatMessage({ id: vmDiskAlertKey })}
               type="info"
               style={{ marginBottom: 16 }}
             />

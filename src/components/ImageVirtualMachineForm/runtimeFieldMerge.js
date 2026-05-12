@@ -8,17 +8,7 @@ const PROTECTED_RUNTIME_FIELDS = [
 ];
 
 const normalizeAssetRuntimeSnapshot = ({ asset = {}, runtimeSnapshot = {} }) => {
-  const normalized = { ...(runtimeSnapshot || {}) };
-  if ((asset || {}).source_type !== 'vm_export') {
-    return normalized;
-  }
-  delete normalized.boot_mode;
-  normalized.network_mode = 'random';
-  normalized.network_name = undefined;
-  normalized.fixed_ip = undefined;
-  normalized.gateway = undefined;
-  normalized.dns_servers = undefined;
-  return normalized;
+  return { ...(runtimeSnapshot || {}) };
 };
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj || {}, key);

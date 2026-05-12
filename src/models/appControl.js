@@ -140,8 +140,6 @@ import {
   updateServiceName,
   upgrade,
   vmPause,
-  startVMExport,
-  getVMExportStatus,
   saveVMDiskLayout,
   getComponentNames,
   getReverseDependency,
@@ -1197,24 +1195,6 @@ export default {
         if (handleError) {
           handleError(e);
         }
-      }
-    },
-    *startVMExport({ payload, callback, handleError }, { call }) {
-      try {
-        const response = yield call(startVMExport, payload);
-        if (response && callback) {
-          callback(response);
-        }
-      } catch (e) {
-        if (handleError) {
-          handleError(e);
-        }
-      }
-    },
-    *getVMExportStatus({ payload, callback }, { call }) {
-      const response = yield call(getVMExportStatus, payload);
-      if (response && callback) {
-        callback(response);
       }
     },
     *getComponentNames({ payload, callback }, { call }) {

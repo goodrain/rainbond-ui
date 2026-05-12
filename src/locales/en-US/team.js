@@ -829,16 +829,6 @@ const Vm = {
   'Vm.assetCatalog.sourceUri': 'Source URI',
   'Vm.assetCatalog.bootMode': 'Boot Mode',
   'Vm.assetCatalog.diskCount': 'Disk Count',
-  'Vm.export.action': 'Export to Asset Group',
-  'Vm.export.modalTitle': 'Export Current VM to Asset Group',
-  'Vm.export.namePlaceholder': 'Enter the exported asset name',
-  'Vm.export.closedOnly': 'Please shut down the virtual machine before exporting',
-  'Vm.export.unavailable': 'The current virtual machine status does not support export',
-  'Vm.export.started': 'Export started and is being written into the asset group',
-  'Vm.export.success': 'Virtual machine export finished and is now in the asset group',
-  'Vm.export.failed': 'Virtual machine export failed',
-  'Vm.export.latest': 'Latest Export',
-  'Vm.export.sourceLabel': 'VM Export',
 }
 
 const gatewayplugin = {

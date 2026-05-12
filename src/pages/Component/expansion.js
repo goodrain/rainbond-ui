@@ -869,10 +869,22 @@ export default class Index extends PureComponent {
   };
 
   handleFromData = () => {
-    const { form, appAlias, extendInfo, dispatch } = this.props;
+    const { form, appAlias, extendInfo, dispatch, method, status } = this.props;
     const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
     form.validateFields((err, values) => {
       if (err) return;
+      const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
+      if (
+        method === 'vm' &&
+        extendInfo &&
+        (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) &&
+        !isVMStopped
+      ) {
+        notification.warning({
+          message: extendInfo.hot_update_reason || formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateUnsupported' })
+        });
+        return;
+      }
       const { new_memory, new_cpu } = values;
 
       let memory, cpu;
@@ -896,7 +908,7 @@ export default class Index extends PureComponent {
         if (customCpuValue && customCpuValue !== '') {
           cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
         } else {
-          notification.warning({ message: '请输入自定义CPU值' });
+          notification.warning({ message: formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateMissingCpu' }) });
           return;
         }
       } else {
@@ -915,7 +927,14 @@ export default class Index extends PureComponent {
           new_node: values.node
         },
         callback: () => {
-          notification.success({ message: formatMessage({ id: 'notification.success.operationImplement' }) });
+          notification.success({
+            message:
+              method === 'vm'
+                ? (isVMStopped
+                  ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateStoppedTip' })
+                  : formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateExecuting' }))
+                : formatMessage({ id: 'notification.success.operationImplement' })
+          });
           this.setState({ editBillInfo: false });
         },
         handleError: (err) => {
@@ -1290,6 +1309,17 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
+        {method === 'vm' && extendInfo && (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) && (
+          <Alert
+            style={{ marginTop: '16px' }}
+            message={
+              status && ['closed', 'undeploy'].includes(status.status)
+                ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateStoppedTip' })
+                : extendInfo.hot_update_reason || formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateUnsupported' })
+            }
+            type={status && ['closed', 'undeploy'].includes(status.status) ? 'info' : 'warning'}
+          />
+        )}
         {/* 手动伸缩   */}
         <Card
           className={styles.clerBorder}
@@ -1308,7 +1338,9 @@ export default class Index extends PureComponent {
               {this.state.editBillInfo ?
                 <div style={{ marginLeft: 10 }}>
                   <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData}>
-                    {formatMessage({ id: 'appPublish.table.btn.confirm' })}
+                    {method === 'vm'
+                      ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateConfirm' })
+                      : formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button icon='close-circle' onClick={() => {
                     const { form } = this.props;
@@ -1329,7 +1361,9 @@ export default class Index extends PureComponent {
                 </div>
                 :
                 <Button icon='edit' onClick={() => this.setState({ editBillInfo: true })}>
-                  {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
+                  {method === 'vm'
+                    ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateEdit' })
+                    : formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
                 </Button>
               }
             </div>
@@ -1414,26 +1448,28 @@ export default class Index extends PureComponent {
                 />
               </Form.Item>
             )}
-            <Form.Item
-              label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
-              {...formItemLayout}
-            >
-              {getFieldDecorator('node', {
-                initialValue: extendInfo.current_node
-              })(
-                <Select
-                  disabled={!this.state.editBillInfo}
-                  style={{ width: 500 }}
-                  getPopupContainer={triggerNode => triggerNode.parentNode}
-                >
-                  {(extendInfo.node_list || []).map(item => (
-                    <Option key={item} value={item}>
-                      {item}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </Form.Item>
+            {method !== 'vm' && (
+              <Form.Item
+                label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
+                {...formItemLayout}
+              >
+                {getFieldDecorator('node', {
+                  initialValue: extendInfo.current_node
+                })(
+                  <Select
+                    disabled={!this.state.editBillInfo}
+                    style={{ width: 500 }}
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                  >
+                    {(extendInfo.node_list || []).map(item => (
+                      <Option key={item} value={item}>
+                        {item}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </Form.Item>
+            )}
           </Form>
         </Card>
         {/* 自动伸缩 */}

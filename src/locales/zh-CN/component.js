@@ -128,6 +128,16 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmCurrentPodIPTip': '表单已自动带入当前 Pod IP，保存前可以按需修改。',
     'componentOverview.body.tab.overview.vmRuntimeSaveSuccess': '虚拟机配置已保存，将在下次重启后生效',
     'componentOverview.body.tab.overview.vmRuntimeSaveFailed': '虚拟机配置保存失败，请重试',
+    'componentOverview.body.tab.overview.vmHotUpdateUnsupported': '当前虚拟机不满足热更新条件，请停机后再修改规格。',
+    'componentOverview.body.tab.overview.vmHotUpdateStoppedTip': '当前虚拟机处于停机状态，规格修改将在下次启动后生效。',
+    'componentOverview.body.tab.overview.vmHotUpdateMissingCpu': '请输入自定义 CPU 值',
+    'componentOverview.body.tab.overview.vmHotUpdateExecuting': '虚拟机热更新已提交，正在执行中',
+    'componentOverview.body.tab.overview.vmHotUpdateEdit': '修改规格',
+    'componentOverview.body.tab.overview.vmHotUpdateConfirm': '保存规格',
+    'componentOverview.body.mnt.vmRuntimeMixedTip': '磁盘顺序和启动项调整将在下次重启虚拟机时生效；运行中的新增数据盘会在线挂载。',
+    'componentOverview.body.mnt.vmRuntimeStoppedTip': '当前虚拟机处于停机状态，新增数据盘和磁盘顺序调整都会在下次启动后生效。',
+    'componentOverview.body.mnt.vmHotplugSuccess': '新的数据盘已提交在线挂载，请稍后在虚拟机内确认新磁盘。',
+    'componentOverview.body.mnt.vmHotplugStoppedTip': '新的数据盘已保存，将在下次启动虚拟机后生效。',
 
     // tabs栏>overview>构建版本历史
     'componentOverview.body.tab.overview.buildHistory.buildVersionHistory': '构建版本历史',
