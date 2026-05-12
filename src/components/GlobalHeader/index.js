@@ -22,7 +22,9 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
-const { resolveAgentLauncherAction } = require('./agentLauncherAction');
+import * as agentLauncherAction from './agentLauncherAction';
+
+const { resolveAgentLauncherAction } = agentLauncherAction;
 
 const { Header } = Layout;
 

@@ -40,10 +40,12 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
-import teamMenuEnterprise from './teamMenuEnterprise';
+import * as customerServiceFloatVisibility from './customerServiceFloatVisibility';
+import * as teamMenuEnterprise from './teamMenuEnterprise';
+
 const {
   shouldShowCustomerServiceFloat,
-} = require('./customerServiceFloatVisibility');
+} = customerServiceFloatVisibility;
 const { Content } = Layout;
 const { buildTeamMenuEnterpriseSettings } = teamMenuEnterprise;
 Modal.defaultProps.width = 480;

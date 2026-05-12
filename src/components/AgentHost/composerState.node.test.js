@@ -7,7 +7,7 @@ const {
   getComposerPlaceholder,
   hasRenderableMessages,
   resolveComposerMessage,
-} = require('./composerState');
+} = require('./composerState.node');
 
 assert.strictEqual(
   hasRenderableMessages([]),

@@ -1,9 +1,10 @@
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import agentPayload from './agentPayload';
-const { readSseEvents, subscribeToRunEvents } = require('./agentStream');
+import * as agentStream from './agentStream';
 
 const { buildAgentSessionPayload } = agentPayload;
+const { readSseEvents, subscribeToRunEvents } = agentStream;
 
 const AGENT_SESSION_KEY_PREFIX = 'rainbond_ui_agent_session_v1';
 const COPILOT_API_BASE = '/api/v1/copilot';

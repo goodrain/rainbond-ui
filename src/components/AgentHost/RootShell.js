@@ -9,11 +9,15 @@ import {
   getAgentRouteSignature,
   isAgentRouteHidden,
 } from '../../utils/agentContext';
-const { getAgentViewportCssVars } = require('../../utils/agentViewport');
+import * as agentViewport from '../../utils/agentViewport';
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
-const { createSessionPersistenceScheduler } = require('./sessionPersistenceScheduler');
-const { shouldViewportLock } = require('./viewportLockState');
+import * as sessionPersistenceScheduler from './sessionPersistenceScheduler';
+import * as viewportLockState from './viewportLockState';
+
+const { getAgentViewportCssVars } = agentViewport;
+const { createSessionPersistenceScheduler } = sessionPersistenceScheduler;
+const { shouldViewportLock } = viewportLockState;
 
 const VIEWPORT_LOCK_NOTICE_EXIT_MS = 180;
 const VIEWPORT_LOCK_GLOW_EXIT_MS = 220;

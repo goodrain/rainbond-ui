@@ -12,7 +12,7 @@ import {
   sendAgentMessage,
   subscribeToActiveRun,
 } from '../services/agent';
-const { adaptAgentEvent } = require('../services/agentEventAdapter');
+import * as agentEventAdapter from '../services/agentEventAdapter';
 import {
   formatAgentContextMessage,
   getAgentContextSignature,
@@ -25,27 +25,35 @@ import {
   shouldUseSlidePanelContentRefresh,
 } from '../utils/agentMutationRouteMap';
 import agentWorkflowState from './agentWorkflowState';
-const { getNextInteractionLocked } = require('./agentInteractionLock');
-const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
-const autoApprovalPolicy = require('../components/AgentHost/autoApprovalPolicy');
-const inFlightAutoApprovals = require('../components/AgentHost/inFlightAutoApprovals');
+import * as agentInteractionLock from './agentInteractionLock';
+import * as agentStreamMessages from './agentStreamMessages';
+import * as autoApprovalPolicy from '../components/AgentHost/autoApprovalPolicy';
+import * as inFlightAutoApprovals from '../components/AgentHost/inFlightAutoApprovals';
+import * as agentTraceHelpers from './agentTraceHelpers';
+import * as agentCrossTab from './agentCrossTab';
+import * as agentClearConversation from './agentClearConversation';
+import * as agentCompactionReducer from './agentCompactionReducer';
+import * as agentToolLabels from '../utils/agentToolLabels';
+
+const { extractWorkflowState } = agentWorkflowState;
+const { adaptAgentEvent } = agentEventAdapter;
+const { getNextInteractionLocked } = agentInteractionLock;
+const { applyStreamingAssistantEvent } = agentStreamMessages;
 const {
   applyTraceEvent,
   buildTraceContent,
-} = require('./agentTraceHelpers');
+} = agentTraceHelpers;
 const {
   buildCrossTabOnEventDispatcher,
-} = require('./agentCrossTab');
+} = agentCrossTab;
 const {
   resolveClearTargetSessionId,
-} = require('./agentClearConversation');
+} = agentClearConversation;
 const {
   applyCompactionEvent,
   defaultCompactionState,
-} = require('./agentCompactionReducer');
-const { formatToolLabel } = require('../utils/agentToolLabels');
-
-const { extractWorkflowState } = agentWorkflowState;
+} = agentCompactionReducer;
+const { formatToolLabel } = agentToolLabels;
 
 // F5 — cross-tab SSE observer registry.
 // When tab B gets 409, the local run never produces events here; we have to

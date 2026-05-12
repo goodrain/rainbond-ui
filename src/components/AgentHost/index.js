@@ -3,6 +3,11 @@ import { Alert, Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, messag
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
+import * as approvalMeta from './approvalMeta';
+import * as composerState from './composerState';
+import * as displayFilters from './displayFilters';
+import * as markdownHelpers from './markdownHelpers';
+import * as scrollBehavior from './scrollBehavior';
 
 function ReasoningBlock({ reasoning, streaming }) {
   // Default open while reasoning is still streaming so the user can watch the
@@ -46,10 +51,11 @@ function ReasoningBlock({ reasoning, streaming }) {
       {!collapsed && reasoning ? (
         <div className={styles.reasoningBody} ref={reasoningBodyRef}>
           <div className={`${styles.markdownBody} ${styles.reasoningMarkdown}`}>
-            <ReactMarkdown
-              source={renderMarkdownSource(reasoning)}
-              escapeHtml={false}
-            />
+            {streaming ? (
+              <PlainTextRenderer content={reasoning} />
+            ) : (
+              <MarkdownRenderer content={reasoning} />
+            )}
           </div>
         </div>
       ) : null}
@@ -102,21 +108,362 @@ function SendButtonIcon() {
   );
 }
 
-const approvalMeta = require('./approvalMeta');
-const composerState = require('./composerState');
-const displayFilters = require('./displayFilters');
-const { renderMarkdownSource } = require('./markdownHelpers');
-const {
-  getNextAutoScrollEnabled,
-  isNearBottom,
-  shouldAttemptAutoScrollUpdate,
-} = require('./scrollBehavior');
+class MarkdownRenderer extends PureComponent {
+  render() {
+    const { content } = this.props;
+
+    return (
+      <ReactMarkdown
+        source={renderMarkdownSource(content || '')}
+        escapeHtml={false}
+      />
+    );
+  }
+}
+
+class PlainTextRenderer extends PureComponent {
+  render() {
+    const { content, className } = this.props;
+
+    return (
+      <div className={className || styles.streamingPlainText}>
+        {content || ''}
+      </div>
+    );
+  }
+}
+
+class AssistantMarkdownBody extends PureComponent {
+  render() {
+    const {
+      content,
+      suggestedActions,
+      renderSuggestedActions,
+      streaming,
+    } = this.props;
+
+    return (
+      <div className={styles.markdownBody}>
+        {streaming ? (
+          <PlainTextRenderer content={content} />
+        ) : (
+          <MarkdownRenderer content={content} />
+        )}
+        {Array.isArray(suggestedActions) && suggestedActions.length > 0
+          ? renderSuggestedActions(suggestedActions)
+          : null}
+      </div>
+    );
+  }
+}
+
+class TraceMessageRow extends PureComponent {
+  render() {
+    const { item } = this.props;
+    const trace = item.trace || {};
+    const traceText = trace.displayTitle || trace.title || trace.toolName || '工具调用';
+
+    return (
+      <div className={styles.traceRow}>
+        <span className={styles.traceInlineText}>
+          <Icon type="api" className={styles.traceInlineIcon} />
+          <span>{traceText}</span>
+        </span>
+      </div>
+    );
+  }
+}
+
+class ApprovalMessageCard extends PureComponent {
+  renderHighRiskActions() {
+    const { isSending, onDecision } = this.props;
+
+    return (
+      <React.Fragment>
+        <div className={styles.approvalActions}>
+          <div className={styles.approvalActionHalf}>
+            <Button
+              type="primary"
+              className={styles.approvalApproveButton}
+              loading={isSending}
+              onClick={() => onDecision('approved')}
+            >
+              授权并执行
+            </Button>
+          </div>
+          <div className={styles.approvalActionHalf}>
+            <Button
+              className={styles.approvalRejectButton}
+              disabled={isSending}
+              onClick={() => onDecision('rejected')}
+            >
+              取消
+            </Button>
+          </div>
+        </div>
+        <div className={styles.approvalCriticalNote}>高风险操作仅可逐次批准</div>
+      </React.Fragment>
+    );
+  }
+
+  renderNormalRiskActions() {
+    const { approval, isSending, onDecision } = this.props;
+    const targetRef = approval.targetRef || null;
+    const targetKey = targetRef ? `${targetRef.kind}:${targetRef.id}` : null;
+    const targetLabel = targetRef
+      ? targetRef.kind === 'service' ? '该组件'
+        : targetRef.kind === 'app' ? '该应用'
+          : targetRef.kind === 'team' ? '该团队'
+            : '该资源'
+      : '';
+
+    const onAddPolicy = scope => () => {
+      autoApprovalPolicy.addPolicy(scope);
+      onDecision('approved');
+    };
+
+    const menu = (
+      <Menu>
+        {targetKey ? (
+          <Menu.Item
+            key="target"
+            onClick={onAddPolicy({ kind: 'session-target', targetKey })}
+          >
+            {targetLabel}所有操作自动批准
+          </Menu.Item>
+        ) : null}
+        {targetKey && approval.skillId ? (
+          <Menu.Item
+            key="target-op"
+            onClick={onAddPolicy({
+              kind: 'session-target-op',
+              targetKey,
+              skillId: approval.skillId,
+            })}
+          >
+            {targetLabel}同类操作自动批准
+          </Menu.Item>
+        ) : null}
+        {approval.skillId ? (
+          <Menu.Item
+            key="op"
+            onClick={onAddPolicy({
+              kind: 'session-op',
+              skillId: approval.skillId,
+            })}
+          >
+            全局同类操作自动批准
+          </Menu.Item>
+        ) : null}
+        <Menu.Item
+          key="all"
+          onClick={onAddPolicy({ kind: 'session-all' })}
+        >
+          本会话全部自动批准
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <div className={styles.approvalActions}>
+        <div className={styles.approvalActionHalf}>
+          <Button.Group className={styles.approvalPrimaryActions}>
+            <Button
+              type="primary"
+              className={styles.approvalApproveButton}
+              loading={isSending}
+              onClick={() => onDecision('approved')}
+            >
+              授权并执行
+            </Button>
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Button
+                type="primary"
+                className={styles.approvalPolicyButton}
+                disabled={isSending}
+                aria-label="选择自动批准策略"
+              >
+                <Icon type="more" />
+              </Button>
+            </Dropdown>
+          </Button.Group>
+        </div>
+        <div className={styles.approvalActionHalf}>
+          <Button
+            className={styles.approvalRejectButton}
+            disabled={isSending}
+            onClick={() => onDecision('rejected')}
+          >
+            取消
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { item, isSending } = this.props;
+    const approval = item.approval || {};
+    const isPending = approval.status === 'pending';
+    const wasAutoApproved = !!approval.autoApproved;
+    const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
+    const cardClassName = [
+      styles.approvalCard,
+      styles[riskMeta.cardClass]
+    ].filter(Boolean).join(' ');
+
+    return (
+      <div className={styles.approvalRow}>
+        <div className={cardClassName}>
+          <div className={styles.approvalHeader}>
+            <span className={styles.approvalTitle}>
+              <Icon type="exclamation-circle-o" />
+              需要您的授权执行
+            </span>
+            <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
+          </div>
+          <div className={styles.approvalContent}>
+            <span className={styles.approvalContentLabel}>操作内容：</span>
+            <span className={styles.approvalContentText}>{item.content}</span>
+          </div>
+          {wasAutoApproved ? (
+            <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
+          ) : null}
+          {isPending
+            ? approval.risk === 'high'
+              ? this.renderHighRiskActions()
+              : this.renderNormalRiskActions()
+            : null}
+        </div>
+      </div>
+    );
+  }
+}
+
+class SuggestedActionsCard extends PureComponent {
+  render() {
+    const { item, renderSuggestedActions } = this.props;
+    const actions = Array.isArray(item.suggestedActions) ? item.suggestedActions : [];
+    if (actions.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className={styles.approvalRow}>
+        <div className={styles.approvalCard}>
+          <div className={styles.approvalHeader}>
+            <span className={styles.approvalTitle}>
+              <Icon type="appstore" />
+              后续建议
+            </span>
+          </div>
+          {item.content && item.content !== '后续建议' ? (
+            <div className={styles.approvalContent}>{item.content}</div>
+          ) : null}
+          {renderSuggestedActions(actions, { showTitle: false })}
+        </div>
+      </div>
+    );
+  }
+}
+
+class StatusMessageRow extends PureComponent {
+  render() {
+    const { item } = this.props;
+
+    return (
+      <div className={styles.contextRow}>
+        <span className={styles.statusBadge}>{item.content}</span>
+      </div>
+    );
+  }
+}
+
+class ErrorMessageRow extends PureComponent {
+  render() {
+    const { item } = this.props;
+
+    return (
+      <div className={styles.errorRow}>
+        <div className={styles.errorCard}>{item.content}</div>
+      </div>
+    );
+  }
+}
+
+class AssistantMessageRow extends PureComponent {
+  render() {
+    const { item, traceGroup, reasoningBlock, showAssistantBubble, renderSuggestedActions } = this.props;
+
+    return (
+      <div className={`${styles.messageRow} ${styles.assistantRow}`}>
+        <div className={styles.messageMeta}>
+          <span className={styles.messageRole}>AI</span>
+          <span className={styles.messageTime}>
+            {new Date(item.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
+        </div>
+        <div className={styles.assistantMessageStack}>
+          {reasoningBlock || traceGroup ? (
+            <div className={styles.assistantSupportStack}>
+              {reasoningBlock}
+              {traceGroup}
+            </div>
+          ) : null}
+          {showAssistantBubble ? (
+            <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
+              <AssistantMarkdownBody
+                content={item.content || ''}
+                suggestedActions={item.suggestedActions}
+                renderSuggestedActions={renderSuggestedActions}
+                streaming={!!item.streaming}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+}
+
+class UserMessageRow extends PureComponent {
+  render() {
+    const { item } = this.props;
+
+    return (
+      <div className={`${styles.messageRow} ${styles.userRow}`}>
+        <div className={styles.messageMeta}>
+          <span className={styles.messageRole}>我</span>
+          <span className={styles.messageTime}>
+            {new Date(item.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
+        </div>
+        <div className={`${styles.messageBubble} ${styles.userBubble}`}>
+          {item.content}
+        </div>
+      </div>
+    );
+  }
+}
+
 const { getApprovalRiskMeta } = approvalMeta;
 const {
   getComposerPlaceholder,
   hasRenderableMessages,
   resolveComposerMessage,
 } = composerState;
+const { renderMarkdownSource } = markdownHelpers;
+const {
+  getNextAutoScrollEnabled,
+  isNearBottom,
+  shouldAttemptAutoScrollUpdate,
+} = scrollBehavior;
 const {
   shouldRenderAssistantBubble,
   shouldRenderMessageItem,
@@ -468,219 +815,49 @@ export default class AgentHost extends PureComponent {
   };
 
   renderTraceMessage = item => {
-    const trace = item.trace || {};
-    const traceText = trace.displayTitle || trace.title || trace.toolName || '工具调用';
-    return (
-      <div key={item.id} className={styles.traceRow}>
-        <span className={styles.traceInlineText}>
-          <Icon type="api" className={styles.traceInlineIcon} />
-          <span>{traceText}</span>
-        </span>
-      </div>
-    );
+    return <TraceMessageRow key={item.id} item={item} />;
   };
 
   renderApprovalActions = item => {
     const { agent } = this.props;
-    const approval = item.approval || {};
-    const isSending = !!(agent && agent.sending);
-    const isHigh = approval.risk === 'high';
-    const targetRef = approval.targetRef || null;
-    const targetKey = targetRef ? `${targetRef.kind}:${targetRef.id}` : null;
-    const targetLabel = targetRef
-      ? targetRef.kind === 'service' ? '该组件'
-        : targetRef.kind === 'app' ? '该应用'
-          : targetRef.kind === 'team' ? '该团队'
-            : '该资源'
-      : '';
-
-    if (isHigh) {
-      return (
-        <React.Fragment>
-          <div className={styles.approvalActions}>
-            <div className={styles.approvalActionHalf}>
-              <Button
-                type="primary"
-                className={styles.approvalApproveButton}
-                loading={isSending}
-                onClick={() => this.handleApprovalDecision('approved')}
-              >
-                授权并执行
-              </Button>
-            </div>
-            <div className={styles.approvalActionHalf}>
-              <Button
-                className={styles.approvalRejectButton}
-                disabled={isSending}
-                onClick={() => this.handleApprovalDecision('rejected')}
-              >
-                取消
-              </Button>
-            </div>
-          </div>
-          <div className={styles.approvalCriticalNote}>
-            高风险操作仅可逐次批准
-          </div>
-        </React.Fragment>
-      );
-    }
-
-    const onAddPolicy = scope => () => {
-      autoApprovalPolicy.addPolicy(scope);
-      this.handleApprovalDecision('approved');
-    };
-
-    const menu = (
-      <Menu>
-        {targetKey ? (
-          <Menu.Item
-            key="target"
-            onClick={onAddPolicy({ kind: 'session-target', targetKey })}
-          >
-            {targetLabel}所有操作自动批准
-          </Menu.Item>
-        ) : null}
-        {targetKey && approval.skillId ? (
-          <Menu.Item
-            key="target-op"
-            onClick={onAddPolicy({
-              kind: 'session-target-op',
-              targetKey,
-              skillId: approval.skillId,
-            })}
-          >
-            {targetLabel}同类操作自动批准
-          </Menu.Item>
-        ) : null}
-        {approval.skillId ? (
-          <Menu.Item
-            key="op"
-            onClick={onAddPolicy({
-              kind: 'session-op',
-              skillId: approval.skillId,
-            })}
-          >
-            全局同类操作自动批准
-          </Menu.Item>
-        ) : null}
-        <Menu.Item
-          key="all"
-          onClick={onAddPolicy({ kind: 'session-all' })}
-        >
-          本会话全部自动批准
-        </Menu.Item>
-      </Menu>
-    );
-
     return (
-      <div className={styles.approvalActions}>
-        <div className={styles.approvalActionHalf}>
-          <Button.Group className={styles.approvalPrimaryActions}>
-            <Button
-              type="primary"
-              className={styles.approvalApproveButton}
-              loading={isSending}
-              onClick={() => this.handleApprovalDecision('approved')}
-            >
-              授权并执行
-            </Button>
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button
-                type="primary"
-                className={styles.approvalPolicyButton}
-                disabled={isSending}
-                aria-label="选择自动批准策略"
-              >
-                <Icon type="more" />
-              </Button>
-            </Dropdown>
-          </Button.Group>
-        </div>
-        <div className={styles.approvalActionHalf}>
-          <Button
-            className={styles.approvalRejectButton}
-            disabled={isSending}
-            onClick={() => this.handleApprovalDecision('rejected')}
-          >
-            取消
-          </Button>
-        </div>
-      </div>
+      <ApprovalMessageCard
+        item={item}
+        approval={item.approval || {}}
+        isSending={!!(agent && agent.sending)}
+        onDecision={this.handleApprovalDecision}
+      />
     );
   };
 
   renderApprovalMessage = item => {
-    const approval = item.approval || {};
-    const isPending = approval.status === 'pending';
-    const wasAutoApproved = !!approval.autoApproved;
-    const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
-    const cardClassName = [
-      styles.approvalCard,
-      styles[riskMeta.cardClass]
-    ].filter(Boolean).join(' ');
     return (
-      <div key={item.id} className={styles.approvalRow}>
-        <div className={cardClassName}>
-          <div className={styles.approvalHeader}>
-            <span className={styles.approvalTitle}>
-              <Icon type="exclamation-circle-o" />
-              需要您的授权执行
-            </span>
-            <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
-          </div>
-          <div className={styles.approvalContent}>
-            <span className={styles.approvalContentLabel}>操作内容：</span>
-            <span className={styles.approvalContentText}>{item.content}</span>
-          </div>
-          {wasAutoApproved ? (
-            <div className={styles.approvalAutoNote}>
-              已根据会话策略自动批准
-            </div>
-          ) : null}
-          {isPending ? this.renderApprovalActions(item) : null}
-        </div>
-      </div>
+      <ApprovalMessageCard
+        key={item.id}
+        item={item}
+        approval={item.approval || {}}
+        isSending={!!(this.props.agent && this.props.agent.sending)}
+        onDecision={this.handleApprovalDecision}
+      />
     );
   };
 
   renderSuggestedActionsMessage = item => {
-    const actions = Array.isArray(item.suggestedActions) ? item.suggestedActions : [];
-    if (actions.length === 0) {
-      return null;
-    }
-
     return (
-      <div key={item.id} className={styles.approvalRow}>
-        <div className={styles.approvalCard}>
-          <div className={styles.approvalHeader}>
-            <span className={styles.approvalTitle}>
-              <Icon type="appstore" />
-              后续建议
-            </span>
-          </div>
-          {item.content && item.content !== '后续建议' ? (
-            <div className={styles.approvalContent}>{item.content}</div>
-          ) : null}
-          {this.renderParsedSuggestedActions(actions, { showTitle: false })}
-        </div>
-      </div>
+      <SuggestedActionsCard
+        key={item.id}
+        item={item}
+        renderSuggestedActions={this.renderParsedSuggestedActions}
+      />
     );
   };
 
   renderStatusMessage = item => {
-    return (
-      <div key={item.id} className={styles.contextRow}>
-        <span className={styles.statusBadge}>{item.content}</span>
-      </div>
-    );
+    return <StatusMessageRow key={item.id} item={item} />;
   };
 
   renderErrorMessage = item => {
-    return (
-      <div key={item.id} className={styles.errorRow}>
-        <div className={styles.errorCard}>{item.content}</div>
-      </div>
-    );
+    return <ErrorMessageRow key={item.id} item={item} />;
   };
 
   formatPolicyLabel = policy => {
@@ -932,61 +1109,26 @@ export default class AgentHost extends PureComponent {
           streaming={!!item.reasoningStreaming}
         />
       ) : null;
-      const assistantSupport = !isUser && (reasoningBlock || traceGroup) ? (
-        <div className={styles.assistantSupportStack}>
-          {reasoningBlock}
-          {traceGroup}
-        </div>
-      ) : null;
       const showAssistantBubble = !isUser && shouldRenderAssistantBubble(item);
       if (isUser && pendingTraceItems.length > 0) {
         rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
       }
       pendingTraceItems = [];
 
-      rendered.push(
-        <div
-          key={item.id}
-          className={`${styles.messageRow} ${isUser ? styles.userRow : styles.assistantRow}`}
-        >
-          <div className={styles.messageMeta}>
-            <span className={styles.messageRole}>
-              {isUser ? '我' : 'AI'}
-            </span>
-            <span className={styles.messageTime}>
-              {new Date(item.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
-          </div>
-          {isUser ? (
-            <div
-              className={`${styles.messageBubble} ${isUser ? styles.userBubble : styles.assistantBubble
-                }`}
-            >
-              {item.content}
-            </div>
-          ) : (
-            <div className={styles.assistantMessageStack}>
-              {assistantSupport}
-              {showAssistantBubble ? (
-                <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
-                  <div className={styles.markdownBody}>
-                    <ReactMarkdown
-                      source={renderMarkdownSource(item.content || '')}
-                      escapeHtml={false}
-                    />
-                    {Array.isArray(item.suggestedActions) && item.suggestedActions.length > 0
-                      ? this.renderParsedSuggestedActions(item.suggestedActions)
-                      : null}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
-      );
+      if (isUser) {
+        rendered.push(<UserMessageRow key={item.id} item={item} />);
+      } else {
+        rendered.push(
+          <AssistantMessageRow
+            key={item.id}
+            item={item}
+            traceGroup={traceGroup}
+            reasoningBlock={reasoningBlock}
+            showAssistantBubble={showAssistantBubble}
+            renderSuggestedActions={this.renderParsedSuggestedActions}
+          />
+        );
+      }
     });
 
     if (pendingTraceItems.length > 0) {

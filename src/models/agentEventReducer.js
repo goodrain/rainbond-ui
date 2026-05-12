@@ -1,6 +1,6 @@
 const {
   buildTraceContent,
-} = require('./agentTraceHelpers');
+} = require('./agentTraceHelpers.node');
 
 function createAgentMessage(role, kind, content, contextSnapshot = {}, extra = {}) {
   return {

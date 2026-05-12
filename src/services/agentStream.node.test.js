@@ -78,6 +78,7 @@ async function main() {
   await testSubscribeToRunEventsForwardsHeadersAndSignal(encoder);
   await testSubscribeToRunEventsResolvesOnTerminal(encoder);
   await testSubscribeToRunEventsRequiresUrl();
+  await testReadSseEventsBatchesStreamingDeltas(encoder);
 
   console.log('agent stream helper tests passed');
 }
@@ -193,6 +194,54 @@ async function testDefaultClosesOnCancelled(encoder) {
   ]);
   const events = await readSseEvents(response);
   assert.strictEqual(events.length, 1, 'default mode closes on cancelled');
+}
+
+async function testReadSseEventsBatchesStreamingDeltas(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    {
+      type: 'chat.message.delta',
+      sessionId: 'cs_1',
+      runId: 'run_1',
+      sequence: 1,
+      data: { message_id: 'msg_1', delta: 'Hel' },
+    },
+    {
+      type: 'chat.message.delta',
+      sessionId: 'cs_1',
+      runId: 'run_1',
+      sequence: 2,
+      data: { message_id: 'msg_1', delta: 'lo' },
+    },
+    {
+      type: 'chat.message.reasoning.delta',
+      sessionId: 'cs_1',
+      runId: 'run_1',
+      sequence: 3,
+      data: { message_id: 'msg_1', delta: 'A' },
+    },
+    {
+      type: 'chat.message.reasoning.delta',
+      sessionId: 'cs_1',
+      runId: 'run_1',
+      sequence: 4,
+      data: { message_id: 'msg_1', delta: 'B' },
+    },
+    { type: 'run.status', data: { status: 'done' } },
+  ]);
+
+  const events = await readSseEvents(response, {
+    onEvent: event => seen.push(event),
+    eventBatchWindowMs: 16,
+  });
+
+  assert.strictEqual(events.length, 5, 'raw parsed events should still be preserved');
+  assert.strictEqual(seen.length, 3, 'streaming deltas should be batched before callback dispatch');
+  assert.strictEqual(seen[0].type, 'chat.message.delta');
+  assert.strictEqual(seen[0].data.delta, 'Hello', 'message delta batches should concatenate text');
+  assert.strictEqual(seen[1].type, 'chat.message.reasoning.delta');
+  assert.strictEqual(seen[1].data.delta, 'AB', 'reasoning delta batches should concatenate text');
+  assert.strictEqual(seen[2].type, 'run.status', 'terminal run status should still be dispatched immediately');
 }
 
 async function testSubscribeToRunEventsUsesInjectedFetch(encoder) {
